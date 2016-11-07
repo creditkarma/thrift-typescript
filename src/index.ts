@@ -13,12 +13,8 @@ function readFile(fileName: string): Promise<string> {
   })
 }
 
-function parseFile(fileName: string): Promise<string> {
+export function parseFile(fileName: string): Promise<string> {
   return readFile(fileName).then(idl => {
     return thriftParser(idl)
   })
 }
-
-const fileName = process.argv[2]
-console.log(`Parsing ${fileName}`)
-parseFile(fileName).then(ast => console.dir(ast))
