@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "declaration": true,
+    "useStrict": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "allowSyntheticDefaultImports": true,
+    "pretty": true,
+    "removeComments": true,
+    "types": [
+      "typed-graphql",
+      "@types/node",
+      "@types/mocha"
+    ]
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "name": "@creditkarma/thrift-typescript",
+  "version": "0.1.0",
+  "description": "Generate TypeScript from Thrift IDL files",
+  "main": "./dist/index.js",
+  "scripts": {
+    "clean": "rimraf coverage/ dist/ node_modules/",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "lint": "tslint src/**/*",
+    "pretest": "npm run build",
+    "test": "npm run test:only --",
+    "test:watch": "npm test -- -w",
+    "test:only": "mocha --reporter spec --full-trace ./dist/test/tests.js",
+    "coverage": "istanbul cover _mocha -- --full-trace ./dist/test/tests.js",
+    "postcoverage": "remap-istanbul --input coverage/coverage.raw.json --type lcovonly --output coverage/lcov.info"
+  },
+  "keywords": [
+    "Thrift",
+    "TypeScript"
+  ],
+  "author": "Credit Karma",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/chai": "^3.4.34",
+    "@types/handlebars": "^4.0.31",
+    "@types/mocha": "^2.2.32",
+    "@types/node": "^6.0.46",
+    "@types/rimraf": "0.0.28",
+    "chai": "^3.5.0",
+    "istanbul": "1.1.0-alpha.1",
+    "mocha": "^2.5.3",
+    "remap-istanbul": "^0.5.1",
+    "rimraf": "^2.5.4",
+    "source-map-support": "^0.4.0",
+    "tslint": "^3.13.0",
+    "typescript": "^2.0.0"
+  },
+  "dependencies": {
+    "handlebars": "^4.0.5",
+    "thrift-parser": "^0.2.5"
+  },
+  "typings": "dist/index.d.ts",
+  "typescript": {
+    "definition": "dist/index.d.ts"
+  }
+}
