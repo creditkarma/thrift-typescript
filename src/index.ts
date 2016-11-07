@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 let thriftParser = require('thrift-parser')
+import { compile } from 'handlebars'
 
 function readFile(fileName: string): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -13,8 +14,27 @@ function readFile(fileName: string): Promise<string> {
   })
 }
 
-export function parseFile(fileName: string): Promise<string> {
+function getStructs(idl: any) {
+  return Object.keys(idl.struct)
+}
+
+async function generateTypes(template: HandlebarsTemplateDelegate, types: any) {
+  return types.map(template)
+}
+
+export async function loadTemplate(fileName: string): Promise<HandlebarsTemplateDelegate> {
+  const src = await readFile(fileName)
+  return compile(src)
+}
+
+export function parseFile(fileName: string): Promise<any> {
   return readFile(fileName).then(idl => {
     return thriftParser(idl)
   })
+}
+
+export async function generateCode(fileName: string): Promise<string[]> {
+  const idl = await parseFile(fileName)
+  const tpl = await loadTemplate('./templates/types.handlebars')
+  return generateTypes(tpl, getStructs(idl))
 }
