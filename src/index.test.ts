@@ -51,5 +51,8 @@ describe('Thrift Loader', () => {
     it('expect class to contain MyStruct', () => {
       expect(types[0]).include('MyStruct')
     })
+    it('expect class to contain id field', () => {
+      expect(types[0]).include('id:')
+    })
   })
 })

@@ -15,11 +15,14 @@ function readFile(fileName: string): Promise<string> {
 }
 
 function getStructs(idl: any) {
-  return Object.keys(idl.struct)
+  return idl.struct
 }
 
 async function generateTypes(template: HandlebarsTemplateDelegate, types: any) {
-  return types.map(template)
+  return Object.keys(types).map(key => template({
+    fields: types[key],
+    name: key,
+  }))
 }
 
 export async function loadTemplate(fileName: string): Promise<HandlebarsTemplateDelegate> {
