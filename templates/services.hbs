@@ -10,21 +10,24 @@ const Q = thrift.Q;
 // HELPER FUNCTIONS AND STRUCTURES
 {{#each params}}
 class {{../name}}{{upcase name}}Args {
-  public x: number;
-  public y: number;
+  {{#each args}}
+  public {{name}}: {{type}};
+  {{/each}}
 
+  {{#if args}}
   constructor(args?) {
-    this.x = null;
-    this.y = null;
+    {{#each args}}
+    this.{{name}} = null;
+    {{/each}}
     if (args) {
-      if (args.x !== undefined && args.x !== null) {
-        this.x = args.x;
+      {{#each args}}
+      if (args.{{name}} !== undefined && args.{{name}} !== null) {
+        this.{{name}} = args.{{name}};
       }
-      if (args.y !== undefined && args.y !== null) {
-        this.y = args.y;
-      }
+      {{/each}}
     }
   }
+  {{/if}}
 
   public read(input) {
     input.readStructBegin();

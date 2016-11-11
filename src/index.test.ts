@@ -80,5 +80,8 @@ describe('Thrift Loader', () => {
     it('expect class to contain Service1Client', () => {
       expect(services[0]).include('class Service1Client')
     })
+    it('expect class to contain property', () => {
+      expect(services[0]).include('public ms: MyStruct')
+    })
   })
 })
