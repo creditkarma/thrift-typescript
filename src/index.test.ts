@@ -2,6 +2,7 @@ import { expect } from 'chai'
 import { parseFile, generateCode, loadTemplate, generateServiceScript } from './index'
 
 const simple = './fixtures/simple.thrift'
+const calculator = './fixtures/calculator.thrift'
 const typesTpl = './templates/types.handlebars'
 
 describe('Thrift Loader', () => {
@@ -82,6 +83,23 @@ describe('Thrift Loader', () => {
     })
     it('expect class to contain property', () => {
       expect(services[0]).include('public ms: MyStruct')
+    })
+  })
+
+  describe(`when generating services from thrift file "${calculator}"`, () => {
+    let services
+    before((done) => {
+      generateServiceScript(simple).then((results) => {
+        services = results
+        done()
+      })
+    })
+
+    it('expect services to exist', () => {
+      expect(services).to.exist
+    })
+    it('expect only one class', () => {
+      expect(services.length).to.equal(1)
     })
   })
 })
