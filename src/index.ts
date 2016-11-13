@@ -16,27 +16,27 @@ function readFile(fileName: string): Promise<string> {
 }
 
 function getStructs(idl: any) {
-  return idl.struct
+  return Object.keys(idl.struct).map(key => ({
+    fields: idl.struct[key],
+    name: key,
+  }))
 }
 
 async function generateTypes(types: any) {
   const template: HandlebarsTemplateDelegate = await loadTemplate('./templates/types.hbs')
-  return Object.keys(types).map(key => template({
-    fields: types[key],
-    name: key,
-  }))
+  return types.map(template)
 }
 
 function getServices(idl: any) {
-  return idl.service
+  return Object.keys(idl.service).map(key => ({
+    name: key,
+    params: idl.service[key],
+  }))
 }
 
 async function generateServices(services: any) {
   const template: HandlebarsTemplateDelegate = await loadTemplate('./templates/services.hbs')
-  return Object.keys(services).map(key => template({
-    name: key,
-    params: services[key],
-  }))
+  return services.map(template)
 }
 
 export async function loadTemplate(fileName: string): Promise<HandlebarsTemplateDelegate> {
