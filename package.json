@@ -15,6 +15,9 @@
     "coverage": "istanbul cover _mocha -- --full-trace ./dist/test/tests.js",
     "postcoverage": "remap-istanbul --input coverage/coverage.raw.json --type lcovonly --output coverage/lcov.info"
   },
+  "bin": {
+    "thrift-typescript": "./dist/bin.js"
+  },
   "keywords": [
     "Thrift",
     "TypeScript"
@@ -23,6 +26,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/chai": "^3.4.34",
+    "@types/commander": "^2.3.30",
     "@types/handlebars": "^4.0.31",
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.46",
@@ -37,6 +41,7 @@
     "typescript": "^2.0.0"
   },
   "dependencies": {
+    "commander": "^2.9.0",
     "handlebars": "^4.0.5",
     "thrift-parser": "^0.2.5"
   },
