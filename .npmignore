@@ -1,0 +1,6 @@
+# Source
+src
+fixtures
+
+# Typescript artifacts
+!dist

@@ -1,4 +1,5 @@
 import * as fs from 'fs'
+import * as path from 'path'
 let thriftParser = require('thrift-parser')
 import { compile } from 'handlebars'
 import { registerHelpers } from './ts-helpers'
@@ -23,24 +24,25 @@ function getStructs(idl: any) {
 }
 
 async function generateTypes(types: any) {
-  const template: HandlebarsTemplateDelegate = await loadTemplate('./templates/types.hbs')
+  const template: HandlebarsTemplateDelegate = await loadTemplate('types.hbs')
   return types.map(template)
 }
 
 function getServices(idl: any) {
   return Object.keys(idl.service).map(key => ({
+    methods: idl.service[key],
     name: key,
-    params: idl.service[key],
   }))
 }
 
 async function generateServices(services: any) {
-  const template: HandlebarsTemplateDelegate = await loadTemplate('./templates/services.hbs')
+  const template: HandlebarsTemplateDelegate = await loadTemplate('services.hbs')
   return services.map(template)
 }
 
 export async function loadTemplate(fileName: string): Promise<HandlebarsTemplateDelegate> {
-  const src = await readFile(fileName)
+  const fullPath = path.join(__dirname, `../templates/${fileName}`)
+  const src = await readFile(fullPath)
   return compile(src)
 }
 

@@ -14,7 +14,7 @@ import {generateServiceScript} from './index'
 program
   .version(packagejson.version)
   .alias('thrift-typescript')
-  .usage(`[options] <file.thrift>`)
+  .usage('[options] <file.thrift>')
   .option('-o, --output <path>', 'Output directory')
   .description('Generate TypeScript client for Thrift IDL')
   .parse(process.argv)
@@ -24,7 +24,9 @@ async function generateService(fileName) {
   try {
     const script = await generateServiceScript(fileName)
     const outputName = path.basename(fileName).replace('thrift', 'ts')
-    fs.writeFileSync(`${program['output']}/${outputName}`, script)
+    const upcaseName = outputName[0].toUpperCase() + outputName.substr(1)
+    const outputFile = `${program['output']}/${upcaseName}`
+    fs.writeFileSync(outputFile, script)
   } catch (err) {
     console.log(err)
     process.exit(1)

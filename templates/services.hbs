@@ -8,12 +8,11 @@ const Thrift = thrift.Thrift;
 const Q = thrift.Q;
 
 // HELPER FUNCTIONS AND STRUCTURES
-{{#each params}}
+{{#each methods}}
 class {{../name}}{{upcase name}}Args {
   {{#each args}}
   public {{name}}: {{type}};
   {{/each}}
-
   {{#if args}}
   constructor(args?) {
     {{#each args}}
@@ -127,8 +126,9 @@ class {{../name}}{{upcase name}}Result {
     return;
   }
 }
+{{/each}}
 
-class {{../name}}Client {
+class {{name}}Client {
   public output;
   public pClass;
   private _seqid;
@@ -148,8 +148,8 @@ class {{../name}}Client {
   public new_seqid() {
     return this._seqid += 1;
   }
-
-  public {{name}}(x: number, y: number, callback) {
+  {{#each methods}}
+  public {{name}}({{#each args}}{{name}}: {{tsType type}}, {{/each}}callback) {
     this._seqid = this.new_seqid();
     if (callback === undefined) {
       let defer = Q.defer();
@@ -160,20 +160,21 @@ class {{../name}}Client {
          defer.resolve(result);
         }
       };
-      this.send_{{name}}(x, y);
+      this.send_{{name}}({{#each args}}{{name}}, {{/each}});
       return defer.promise;
     } else {
       this._reqs[this.seqid()] = callback;
-      this.send_{{name}}(x, y);
+      this.send_{{name}}({{#each args}}{{name}}, {{/each}});
     }
   }
 
-  public send_{{name}}(x: number, y: number) {
+  public send_{{name}}({{#each args}}{{name}}: {{tsType type}}, {{/each}}) {
     const output = new this.pClass(this.output);
     output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.seqid());
-    const args = new {{../name}}{{name}}Args();
-    args.x = x;
-    args.y = y;
+    const args = new {{../name}}{{upcase name}}Args();
+    {{#each args}}
+    args.{{name}} = {{name}};
+    {{/each}}
     args.write(output);
     output.writeMessageEnd();
     return this.output.flush();
@@ -189,7 +190,7 @@ class {{../name}}Client {
       input.readMessageEnd();
       return callback(x);
     }
-    const result = new {{../name}}{{name}}Result();
+    const result = new {{../name}}{{upcase name}}Result();
     result.read(input);
     input.readMessageEnd();
 
@@ -198,10 +199,10 @@ class {{../name}}Client {
     }
     return callback("{{name}} failed: unknown result");
   }
+  {{/each}}
 }
-{{/each}}
 
-class {{serviceName}}Processor {
+class {{name}}Processor {
   private _handler;
 
   constructor(handler) {
@@ -223,14 +224,14 @@ class {{serviceName}}Processor {
       output.flush();
     }
   }
-
+  {{#each methods}}
   public process_{{name}}(seqid, input, output) {
-    const args = new {{serviceName}}{{name}}Args();
+    const args = new {{../name}}{{upcase name}}Args();
     args.read(input);
     input.readMessageEnd();
     if (this._handler.{{name}}.length === 2) {
-      Q.fcall(this._handler.{{name}}, args.x, args.y).then((data) => {
-          const result = new {{serviceName}}{{name}}Result({success: data});
+      Q.fcall(this._handler.{{name}}, {{#each args}}args.{{name}}, {{/each}}).then((data) => {
+          const result = new {{../name}}{{upcase name}}Result({success: data});
           output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid);
           result.write(output);
           output.writeMessageEnd();
@@ -243,10 +244,10 @@ class {{serviceName}}Processor {
           output.flush();
         });
     } else {
-      this._handler.{{name}}(args.x, args.y, (err, data) => {
+      this._handler.{{name}}({{#each args}}args.{{name}}, {{/each}}(err, data) => {
         let result;
         if (err == null) {
-          result = new {{serviceName}}{{name}}Result((err != null ? err : {success: data}));
+          result = new {{../name}}{{upcase name}}Result((err != null ? err : {success: data}));
           output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid);
         } else {
           result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
@@ -258,7 +259,8 @@ class {{serviceName}}Processor {
       });
     }
   }
+  {{/each}}
 }
 
-export { {{serviceName}}Processor as Processor }
-export { {{serviceName}}Client as Client }
+export { {{name}}Processor as Processor }
+export { {{name}}Client as Client }
