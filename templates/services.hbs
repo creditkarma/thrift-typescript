@@ -84,7 +84,7 @@ class {{../name}}{{upcase name}}Result {
     this.success = null;
     if (args) {
       if (args.success !== undefined && args.success !== null) {
-        this.success = args.success;
+        this.success = {{getResultType type}};
       }
     }
   }
@@ -100,16 +100,19 @@ class {{../name}}{{upcase name}}Result {
         break;
       }
       switch (fid) {
+        {{#if type}}
         case 0:
-          if (ftype === Thrift.Type.I32) {
-            this.success = input.readI32();
+          if (ftype === Thrift.Type.{{getStructOrType type}}) {
+            this.success = input.read{{type}}();
           } else {
             input.skip(ftype);
           }
           break;
+        {{else}}
         case 0:
           input.skip(ftype);
           break;
+        {{/if}}
         default:
           input.skip(ftype);
       }

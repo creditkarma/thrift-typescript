@@ -52,14 +52,14 @@ export function parseFile(fileName: string): Promise<any> {
   })
 }
 
-export async function generateCode(fileName: string): Promise<string[]> {
+export async function generateIDLTypes(fileName: string): Promise<string[]> {
   registerHelpers()
   const idl = await parseFile(fileName)
   const structs = getStructs(idl)
   return generateTypes(structs)
 }
 
-export async function generateServiceScript(fileName: string): Promise<string[]> {
+export async function generateIDLServices(fileName: string): Promise<string[]> {
   registerHelpers()
   const idl = await parseFile(fileName)
   const services = getServices(idl)

@@ -9,7 +9,7 @@ const packagejson = require('../package.json')
 import * as program from 'commander'
 import * as fs from 'fs'
 import * as path from 'path'
-import {generateServiceScript} from './index'
+import {generateIDLServices, generateIDLTypes} from './index'
 
 program
   .version(packagejson.version)
@@ -19,15 +19,16 @@ program
   .description('Generate TypeScript client for Thrift IDL')
   .parse(process.argv)
 
-async function generateService(fileName) {
-  console.log(`\nParsing Thrift IDL from ${fileName}`)
+async function generateCode(fileName, outputFileName, generator: Function) {
+  console.log(`Parsing Thrift IDL from ${fileName}`)
   try {
-    const script = await generateServiceScript(fileName)
-    const outputName = path.basename(fileName).replace('thrift', 'ts')
+    const script = await generator(fileName)
+    const outputName = path.basename(outputFileName)
     const upcaseName = outputName[0].toUpperCase() + outputName.substr(1)
     const outputFile = `${program['output']}/${upcaseName}`
+    console.log(`Generating TypeScript to ${outputFile}`)
     ensureDirectoryExistence(outputFile)
-    fs.writeFileSync(outputFile, script)
+    fs.writeFileSync(outputFile, script[0])
   } catch (err) {
     console.log(err)
     process.exit(1)
@@ -43,4 +44,9 @@ function ensureDirectoryExistence(filePath) {
   fs.mkdirSync(dirname)
 }
 
-generateService(program.args[0])
+const idlFile = program.args[0]
+const typeFile = idlFile.replace('.thrift', '_types.ts')
+const codeFile = idlFile.replace('.thrift', '.ts')
+
+generateCode(idlFile, typeFile, generateIDLTypes)
+generateCode(idlFile, codeFile, generateIDLServices)

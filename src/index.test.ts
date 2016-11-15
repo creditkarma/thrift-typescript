@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { parseFile, generateCode, loadTemplate, generateServiceScript } from './index'
+import { parseFile, generateIDLTypes, loadTemplate, generateIDLServices } from './index'
 
 const simple = './fixtures/simple.thrift'
 const calculator = './fixtures/calculator.thrift'
@@ -37,7 +37,7 @@ describe('Thrift Loader', () => {
   describe(`when generating types from thrift file "${simple}"`, () => {
     let types
     before((done) => {
-      generateCode(simple).then((results) => {
+      generateIDLTypes(simple).then((results) => {
         types = results
         done()
       })
@@ -60,7 +60,7 @@ describe('Thrift Loader', () => {
   describe(`when generating services from thrift file "${simple}"`, () => {
     let services
     before((done) => {
-      generateServiceScript(simple).then((results) => {
+      generateIDLServices(simple).then((results) => {
         services = results
         done()
       })
@@ -89,7 +89,7 @@ describe('Thrift Loader', () => {
   describe(`when generating services from thrift file "${calculator}"`, () => {
     let services
     before((done) => {
-      generateServiceScript(simple).then((results) => {
+      generateIDLServices(calculator).then((results) => {
         services = results
         done()
       })
@@ -100,6 +100,12 @@ describe('Thrift Loader', () => {
     })
     it('expect only one class', () => {
       expect(services.length).to.equal(1)
+    })
+    it('expect class to contain CalculatorAddArgs', () => {
+      expect(services[0]).include('class CalculatorAddArgs')
+    })
+    it('expect add method with params', () => {
+      expect(services[0]).include('add(x: number, y: number, callback)')
     })
   })
 })
