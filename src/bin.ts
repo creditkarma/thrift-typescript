@@ -26,11 +26,21 @@ async function generateService(fileName) {
     const outputName = path.basename(fileName).replace('thrift', 'ts')
     const upcaseName = outputName[0].toUpperCase() + outputName.substr(1)
     const outputFile = `${program['output']}/${upcaseName}`
+    ensureDirectoryExistence(outputFile)
     fs.writeFileSync(outputFile, script)
   } catch (err) {
     console.log(err)
     process.exit(1)
   }
+}
+
+function ensureDirectoryExistence(filePath) {
+  const dirname = path.dirname(filePath)
+  if (fs.existsSync(dirname)) {
+    return true
+  }
+  ensureDirectoryExistence(dirname)
+  fs.mkdirSync(dirname)
 }
 
 generateService(program.args[0])

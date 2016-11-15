@@ -11,9 +11,10 @@ const Q = thrift.Q;
 {{#each methods}}
 class {{../name}}{{upcase name}}Args {
   {{#each args}}
-  public {{name}}: {{type}};
+  public {{name}}: {{tsType type}};
   {{/each}}
   {{#if args}}
+
   constructor(args?) {
     {{#each args}}
     this.{{name}} = null;
@@ -165,15 +166,15 @@ class {{name}}Client {
          defer.resolve(result);
         }
       };
-      this.send_{{name}}({{#each args}}{{name}}, {{/each}});
+      this.send_{{name}}({{#each args}}{{name}}{{#unless @last}}, {{/unless}}{{/each}});
       return defer.promise;
     } else {
       this._reqs[this.seqid()] = callback;
-      this.send_{{name}}({{#each args}}{{name}}, {{/each}});
+      this.send_{{name}}({{#each args}}{{name}}{{#unless @last}}, {{/unless}}{{/each}});
     }
   }
 
-  public send_{{name}}({{#each args}}{{name}}: {{tsType type}}, {{/each}}) {
+  public send_{{name}}({{#each args}}{{name}}: {{tsType type}}{{#unless @last}}, {{/unless}}{{/each}}) {
     const output = new this.pClass(this.output);
     output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.seqid());
     const args = new {{../name}}{{upcase name}}Args();
