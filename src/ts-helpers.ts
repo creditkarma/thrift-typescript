@@ -8,7 +8,7 @@ function tsTypeHelper(type: string) {
     'i16': 'number',
     'i32': 'number',
   }
-  return map[type]
+  return map[type] || type
 }
 
 function upcase(str: string) {

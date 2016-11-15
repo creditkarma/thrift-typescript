@@ -3,7 +3,7 @@ import { parseFile, generateCode, loadTemplate, generateServiceScript } from './
 
 const simple = './fixtures/simple.thrift'
 const calculator = './fixtures/calculator.thrift'
-const typesTpl = './templates/types.handlebars'
+const typesTpl = 'types.hbs'
 
 describe('Thrift Loader', () => {
   describe(`when loading a simple thrift file "${simple}"`, () => {
@@ -20,10 +20,10 @@ describe('Thrift Loader', () => {
     })
   })
 
-  describe(`when loading tempalte from "${typesTpl}"`, () => {
+  describe(`when loading template from "${typesTpl}"`, () => {
     let tpl
     before((done) => {
-      loadTemplate(simple).then((results) => {
+      loadTemplate(typesTpl).then((results) => {
         tpl = results
         done()
       })
