@@ -32,9 +32,14 @@ function getStructOrType(type: string) {
   }
 }
 
+function isStruct(type: string) {
+  return tsTypeMap[type] ? false : true
+}
+
 export function registerHelpers() {
   registerHelper('tsType', tsTypeHelper)
   registerHelper('upcase', upcase)
   registerHelper('getResultType', getResultType)
   registerHelper('getStructOrType', getStructOrType)
+  registerHelper('isStruct', isStruct)
 }

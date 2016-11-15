@@ -7,6 +7,7 @@ const thrift = require("thrift");
 const Thrift = thrift.Thrift;
 const Q = thrift.Q;
 
+const * as ttypes from './{{name}}_types';
 // HELPER FUNCTIONS AND STRUCTURES
 {{#each methods}}
 class {{../name}}{{upcase name}}Args {
@@ -103,7 +104,12 @@ class {{../name}}{{upcase name}}Result {
         {{#if type}}
         case 0:
           if (ftype === Thrift.Type.{{getStructOrType type}}) {
+            {{#if (isStruct type)}}
+            this.success = new ttypes.{{type}}();
+            this.success.read(input);
+            {{else}}
             this.success = input.read{{type}}();
+            {{/if}}
           } else {
             input.skip(ftype);
           }
@@ -125,8 +131,13 @@ class {{../name}}{{upcase name}}Result {
   public write(output) {
     output.writeStructBegin("{{../name}}{{upcase name}}Result");
     if (this.success !== null && this.success !== undefined) {
-      output.writeFieldBegin("success", Thrift.Type.I32, 0);
-      output.writeI32(this.success);
+      {{#if (isStruct type)}}
+      output.writeFieldBegin("success", Thrift.Type.STRUCT, 0);
+      this.success.write(output);
+      {{else}}
+      output.writeFieldBegin("success", Thrift.Type.{{type}}, 0);
+      output.write{{type}}(this.success);
+      {{/if}}
       output.writeFieldEnd();
     }
     output.writeFieldStop();
