@@ -7,7 +7,12 @@ const thrift = require("thrift");
 const Thrift = thrift.Thrift;
 const Q = thrift.Q;
 
-const * as ttypes from './{{name}}_types';
+
+{{#if structs}}
+import * as ttypes from './{{fileName}}_types';
+{{/if}}
+
+{{#each services}}
 // HELPER FUNCTIONS AND STRUCTURES
 {{#each methods}}
 class {{../name}}{{upcase name}}Args {
@@ -82,7 +87,7 @@ class {{../name}}{{upcase name}}Result {
   {{#if (isStruct type)}}
   public success: ttypes.{{tsType type}};
   {{else}}
-  public success: {{getResultType type}};
+  public success: boolean;
   {{/if}}
 
   constructor(args?) {
@@ -286,6 +291,7 @@ class {{name}}Processor {
   }
   {{/each}}
 }
-
 export { {{name}}Processor as Processor }
 export { {{name}}Client as Client }
+
+{{/each}}

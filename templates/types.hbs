@@ -7,9 +7,12 @@ const thrift = require("thrift");
 const Thrift = thrift.Thrift;
 const Q = thrift.Q;
 
-// HELPER FUNCTIONS AND STRUCTURES
+{{#each this}}
 export class {{upcase name}} {
   public success: boolean;
+  {{#each fields}}
+  public {{name}}: {{tsType type}};
+  {{/each}}
 
   constructor(args?) {
     {{#each fields}}
@@ -73,3 +76,4 @@ export class {{upcase name}} {
     return;
   }
 }
+{{/each}}

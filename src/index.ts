@@ -17,7 +17,8 @@ function readFile(fileName: string): Promise<string> {
 }
 
 function getStructs(idl: any) {
-  return Object.keys(idl.struct).map(key => ({
+  const keys = idl.struct || []
+  return Object.keys(keys).map(key => ({
     fields: idl.struct[key],
     name: key,
   }))
@@ -25,7 +26,7 @@ function getStructs(idl: any) {
 
 async function generateTypes(types: any) {
   const template: HandlebarsTemplateDelegate = await loadTemplate('types.hbs')
-  return types.map(template)
+  return template(types)
 }
 
 function getServices(idl: any) {
@@ -37,7 +38,7 @@ function getServices(idl: any) {
 
 async function generateServices(services: any) {
   const template: HandlebarsTemplateDelegate = await loadTemplate('services.hbs')
-  return services.map(template)
+  return template(services)
 }
 
 export async function loadTemplate(fileName: string): Promise<HandlebarsTemplateDelegate> {
@@ -52,16 +53,22 @@ export function parseFile(fileName: string): Promise<any> {
   })
 }
 
-export async function generateIDLTypes(fileName: string): Promise<string[]> {
+export async function generateIDLTypes(fileName: string): Promise<string> {
   registerHelpers()
   const idl = await parseFile(fileName)
   const structs = getStructs(idl)
   return generateTypes(structs)
 }
 
-export async function generateIDLServices(fileName: string): Promise<string[]> {
+export async function generateIDLServices(fileName: string): Promise<string> {
   registerHelpers()
   const idl = await parseFile(fileName)
-  const services = getServices(idl)
-  return generateServices(services)
+  let upcaseFile = path.basename(fileName).split('.thrift')[0]
+  upcaseFile = upcaseFile[0].toUpperCase() + upcaseFile.substr(1)
+  const input = {
+    fileName: upcaseFile,
+    services: getServices(idl),
+    structs: getStructs(idl),
+  }
+  return generateServices(input)
 }

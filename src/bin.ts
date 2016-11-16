@@ -28,7 +28,7 @@ async function generateCode(fileName, outputFileName, generator: Function) {
     const outputFile = `${program['output']}/${upcaseName}`
     console.log(`Generating TypeScript to ${outputFile}`)
     ensureDirectoryExistence(outputFile)
-    fs.writeFileSync(outputFile, script[0])
+    fs.writeFileSync(outputFile, script)
   } catch (err) {
     console.log(err)
     process.exit(1)
