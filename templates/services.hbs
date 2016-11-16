@@ -79,10 +79,14 @@ class {{../name}}{{upcase name}}Args {
 }
 
 class {{../name}}{{upcase name}}Result {
-  public success: boolean;
+  {{#if (isStruct type)}}
+  public success: ttypes.{{tsType type}};
+  {{else}}
+  public success: {{getResultType type}};
+  {{/if}}
 
   constructor(args?) {
-    this.success = null;
+    this.success;
     if (args) {
       if (args.success !== undefined && args.success !== null) {
         this.success = {{getResultType type}};
