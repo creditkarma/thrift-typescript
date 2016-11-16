@@ -14,8 +14,8 @@ class {{../name}}{{upcase name}}Args {
   {{#each args}}
   public {{name}}: {{tsType type}};
   {{/each}}
-  {{#if args}}
 
+  {{#if args}}
   constructor(args?) {
     {{#each args}}
     this.{{name}} = null;
