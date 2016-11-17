@@ -112,12 +112,12 @@ class {{../name}}{{upcase name}}Result {
       switch (fid) {
         {{#if type}}
         case 0:
-          if (ftype === Thrift.Type.{{getStructOrType type}}) {
+          if (ftype === Thrift.Type.{{upcase (getStructOrType type)}}) {
             {{#if (isStruct type)}}
-            this.success = new ttypes.{{type}}();
+            this.success = new ttypes.{{upcase type}}();
             this.success.read(input);
             {{else}}
-            this.success = input.read{{type}}();
+            this.success = input.read{{upcase type}}();
             {{/if}}
           } else {
             input.skip(ftype);
@@ -144,8 +144,8 @@ class {{../name}}{{upcase name}}Result {
       output.writeFieldBegin("success", Thrift.Type.STRUCT, 0);
       this.success.write(output);
       {{else}}
-      output.writeFieldBegin("success", Thrift.Type.{{type}}, 0);
-      output.write{{type}}(this.success);
+      output.writeFieldBegin("success", Thrift.Type.{{upcase type}}, 0);
+      output.write{{upcase type}}(this.success);
       {{/if}}
       output.writeFieldEnd();
     }
