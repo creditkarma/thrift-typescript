@@ -8,14 +8,6 @@ const tsTypeMap = {
   'i32': 'number',
 }
 
-function tsTypeHelper(type: string) {
-  return tsTypeMap[type] || type
-}
-
-function upcase(str: string) {
-  return str[0].toUpperCase() + str.substr(1)
-}
-
 function getResultType(type: string) {
   if (tsTypeMap[type]) {
     return 'args.success'
@@ -32,14 +24,11 @@ function getStructOrType(type: string) {
   }
 }
 
-function isStruct(type: string) {
-  return tsTypeMap[type] ? false : true
-}
-
 export function registerHelpers() {
-  registerHelper('tsType', tsTypeHelper)
-  registerHelper('upcase', upcase)
+  registerHelper('tsType', (type: string) => tsTypeMap[type] || `ttypes.${type}`)
+  registerHelper('upcase', (str: string) => str[0].toUpperCase() + str.substr(1))
   registerHelper('getResultType', getResultType)
   registerHelper('getStructOrType', getStructOrType)
-  registerHelper('isStruct', isStruct)
+  registerHelper('isStruct', (type: string) => tsTypeMap[type] ? false : true)
+  registerHelper('inc', (val: number) => val + 1)
 }

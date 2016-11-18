@@ -28,7 +28,11 @@ class {{../name}}{{upcase name}}Args {
     if (args) {
       {{#each args}}
       if (args.{{name}} !== undefined && args.{{name}} !== null) {
+        {{#if (isStruct type)}}
+        this.{{name}} = new {{tsType type}}(args.{{name}});
+        {{else}}
         this.{{name}} = args.{{name}};
+        {{/if}}
       }
       {{/each}}
     }
@@ -49,8 +53,13 @@ class {{../name}}{{upcase name}}Args {
       switch (fid) {
         {{#each args}}
         case {{id}}:
-          if (ftype === Thrift.Type.{{upcase type}}) {
+          if (ftype === Thrift.Type.{{upcase (getStructOrType type)}}) {
+            {{#if (isStruct type)}}
+            this.{{name}} = new {{tsType type}}();
+            this.{{name}}.read(input);
+            {{else}}
             this.{{name}} = input.read{{upcase type}}();
+            {{/if}}
           } else {
             input.skip(ftype);
           }
@@ -72,8 +81,13 @@ class {{../name}}{{upcase name}}Args {
     output.writeStructBegin("{{../name}}{{upcase name}}Args");
     {{#each args}}
     if (this.{{name}} !== null && this.{{name}} !== undefined) {
+      {{#if (isStruct type)}}
+      output.writeFieldBegin("{{name}}", Thrift.Type.STRUCT, {{inc @index}});
+      this.{{name}}.write(output);
+      {{else}}
       output.writeFieldBegin("{{name}}", Thrift.Type.{{upcase type}}, {{id}});
       output.write{{upcase type}}(this.{{name}});
+      {{/if}}
       output.writeFieldEnd();
     }
     {{/each}}
@@ -84,11 +98,7 @@ class {{../name}}{{upcase name}}Args {
 }
 
 class {{../name}}{{upcase name}}Result {
-  {{#if (isStruct type)}}
-  public success: ttypes.{{tsType type}};
-  {{else}}
-  public success: boolean;
-  {{/if}}
+  public success: {{tsType type}};
 
   constructor(args?) {
     this.success;
@@ -114,7 +124,7 @@ class {{../name}}{{upcase name}}Result {
         case 0:
           if (ftype === Thrift.Type.{{upcase (getStructOrType type)}}) {
             {{#if (isStruct type)}}
-            this.success = new ttypes.{{upcase type}}();
+            this.success = new {{tsType type}}();
             this.success.read(input);
             {{else}}
             this.success = input.read{{upcase type}}();
@@ -259,7 +269,7 @@ class {{name}}Processor {
     const args = new {{../name}}{{upcase name}}Args();
     args.read(input);
     input.readMessageEnd();
-    if (this._handler.{{name}}.length === 2) {
+    if (this._handler.{{name}}.length === {{args.length}}) {
       Q.fcall(this._handler.{{name}}{{#each args}}, args.{{name}}{{/each}}).then((data) => {
           const result = new {{../name}}{{upcase name}}Result({success: data});
           output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid);
