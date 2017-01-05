@@ -47,13 +47,13 @@ describe('Thrift Loader', () => {
       expect(types).to.exist
     })
     it('expect only one class', () => {
-      expect(types.length).to.equal(1)
+      expect((types.match(/class/g) || []).length).to.equal(1)
     })
     it('expect class to contain MyStruct', () => {
-      expect(types[0]).include('MyStruct')
+      expect(types).include('class MyStruct')
     })
     it('expect class to contain id field to be a number', () => {
-      expect(types[0]).include('id: number')
+      expect(types).include('id: number')
     })
   })
 
@@ -69,20 +69,20 @@ describe('Thrift Loader', () => {
     it('expect services to exist', () => {
       expect(services).to.exist
     })
-    it('expect only one class', () => {
-      expect(services.length).to.equal(1)
+    it('expect 6 classes', () => {
+      expect((services.match(/class/g) || []).length).to.equal(6)
     })
     it('expect class to contain Service1PingArgs', () => {
-      expect(services[0]).include('class Service1PingArgs')
+      expect(services).include('class Service1PingArgs')
     })
     it('expect class to contain Service1TestArgs', () => {
-      expect(services[0]).include('class Service1TestArgs')
+      expect(services).include('class Service1TestArgs')
     })
     it('expect class to contain Service1Client', () => {
-      expect(services[0]).include('class Service1Client')
+      expect(services).include('class Service1Client')
     })
     it('expect class to contain property', () => {
-      expect(services[0]).include('public ms: MyStruct')
+      expect(services).include('public ms: ttypes.MyStruct')
     })
   })
 
@@ -98,14 +98,14 @@ describe('Thrift Loader', () => {
     it('expect services to exist', () => {
       expect(services).to.exist
     })
-    it('expect only one class', () => {
-      expect(services.length).to.equal(1)
+    it('expect 4 classes', () => {
+      expect((services.match(/class/g) || []).length).to.equal(4)
     })
     it('expect class to contain CalculatorAddArgs', () => {
-      expect(services[0]).include('class CalculatorAddArgs')
+      expect(services).include('class CalculatorAddArgs')
     })
     it('expect add method with params', () => {
-      expect(services[0]).include('add(x: number, y: number, callback)')
+      expect(services).include('add(x: number, y: number, callback)')
     })
   })
 })
