@@ -27,7 +27,7 @@ class {{../name}}{{upcase name}}Args {
     {{/each}}
     if (args) {
       {{#each args}}
-      if (args.{{name}} !== undefined && args.{{name}} !== null) {
+      if (args.{{name}} != null) {
         {{#if (isStruct type)}}
         this.{{name}} = new {{tsType type}}(args.{{name}});
         {{else}}
@@ -80,7 +80,7 @@ class {{../name}}{{upcase name}}Args {
   public write(output) {
     output.writeStructBegin("{{../name}}{{upcase name}}Args");
     {{#each args}}
-    if (this.{{name}} !== null && this.{{name}} !== undefined) {
+    if (this.{{name}} != null) {
       {{#if (isStruct type)}}
       output.writeFieldBegin("{{name}}", Thrift.Type.STRUCT, {{inc @index}});
       this.{{name}}.write(output);
@@ -103,7 +103,7 @@ class {{../name}}{{upcase name}}Result {
   constructor(args?) {
     this.success;
     if (args) {
-      if (args.success !== undefined && args.success !== null) {
+      if (args.success != null) {
         this.success = {{getResultType type}};
       }
     }
@@ -149,7 +149,7 @@ class {{../name}}{{upcase name}}Result {
 
   public write(output) {
     output.writeStructBegin("{{../name}}{{upcase name}}Result");
-    if (this.success !== null && this.success !== undefined) {
+    if (this.success != null) {
       {{#if (isStruct type)}}
       output.writeFieldBegin("success", Thrift.Type.STRUCT, 0);
       this.success.write(output);
