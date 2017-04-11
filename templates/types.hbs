@@ -43,11 +43,13 @@ export class {{upcase name}} {
       switch (fid) {
         {{#each fields}}
         case {{id}}:
+          {{#isString type}}
           if (ftype === Thrift.Type.{{upcase type}}) {
             this.{{name}} = input.read{{upcase type}}();
           } else {
             input.skip(ftype);
           }
+          {{/isString}}
           break;
         {{/each}}
         default:
@@ -66,9 +68,11 @@ export class {{upcase name}} {
     output.writeStructBegin("{{upcase name}}");
     {{#each fields}}
     if (this.{{name}} !== null && this.{{name}} !== undefined) {
+      {{#isString type}}
       output.writeFieldBegin("{{name}}", Thrift.Type.{{upcase type}}, {{id}});
       output.write{{upcase type}}(this.{{name}});
       output.writeFieldEnd();
+      {{/isString}}
     }
     {{/each}}
     output.writeFieldStop();
