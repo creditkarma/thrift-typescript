@@ -3,6 +3,7 @@ struct MyStruct {
     2: required bool field1,
     # 3: required string field,
     4: required i16 field,
+    5: required map<string, bool> things
 }
 exception Exception1 {
     1: required i32 error_code,
