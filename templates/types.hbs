@@ -20,7 +20,7 @@ export class {{upcase name}} {
     {{/each}}
     if (args) {
       {{#each fields}}
-      if (args.{{name}} !== undefined && args.{{name}} !== null) {
+      if (args.{{name}} != null) {
         this.{{name}} = args.{{name}};
       } else {
         throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{name}} is unset!');
@@ -65,7 +65,7 @@ export class {{upcase name}} {
   public write(output) {
     output.writeStructBegin("{{upcase name}}");
     {{#each fields}}
-    if (this.{{name}} !== null && this.{{name}} !== undefined) {
+    if (this.{{name}} != null) {
       output.writeFieldBegin("{{name}}", Thrift.Type.{{upcase type}}, {{id}});
       output.write{{upcase type}}(this.{{name}});
       output.writeFieldEnd();
