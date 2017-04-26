@@ -1,11 +1,12 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import * as ts from 'typescript'
 let thriftParser = require('thrift-parser')
 import { compile } from 'handlebars'
 import { registerHelpers } from './ts-helpers'
 
 function readFile(fileName: string): Promise<string> {
-  return new Promise((resolve, reject) => {
+  return new Promise<string>((resolve, reject) => {
     fs.readFile(fileName, 'utf8', (err, data) => {
       if (err) {
         reject(err)
@@ -71,4 +72,77 @@ export async function generateIDLServices(fileName: string): Promise<string> {
     structs: getStructs(idl),
   }
   return generateServices(input)
+}
+
+function generateServicesAST(services: any[]): string {
+  // TODO: bundle maybe?
+  let src = ts.createSourceFile('output.ts', '', ts.ScriptTarget.ES5, false, ts.ScriptKind.TS);
+  // TODO: imports?
+
+  services.forEach(function(service) {
+    const _exportModifier = ts.createToken(ts.SyntaxKind.ExportKeyword);
+    const _publicModifier = ts.createToken(ts.SyntaxKind.PublicKeyword);
+    const _numberKeyword = ts.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword);
+    const _stringKeyword = ts.createKeywordTypeNode(ts.SyntaxKind.StringKeyword);
+    const _booleanKeyword = ts.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword);
+
+    const _fieldDeclarations = service.fields.map(function(field) {
+
+      let _optional;
+      // TODO: doesn't seem to be working
+      switch(field.option) {
+        case 'optional':
+          _optional = ts.createToken(ts.SyntaxKind.QuestionToken);
+          break;
+      }
+
+      let _type;
+      switch(field.type) {
+        case 'int':
+        case 'i16':
+        case 'i32':
+          _type = _numberKeyword;
+          break;
+        case 'string':
+          _type = _stringKeyword;
+          break;
+        case 'bool':
+          _type = _booleanKeyword;
+          break;
+      }
+
+      let _default;
+      if (field.defaultValue != null) {
+        _default = ts.createLiteral(field.defaultValue);
+      }
+
+      return ts.createProperty(undefined, [_publicModifier], field.name, _optional, _type, _default);
+    });
+
+    const _successDeclaration = ts.createProperty(undefined, [_publicModifier], 'success', undefined, _booleanKeyword, undefined);
+
+    const _propertyDeclarations = [_successDeclaration].concat(_fieldDeclarations);
+
+    const _classExpression = ts.createClassExpression([_exportModifier], service.name, [], [], _propertyDeclarations);
+
+    const _classStatement = ts.createStatement(_classExpression);
+
+    src = ts.updateSourceFileNode(src, [_classStatement]);
+  });
+
+
+  const printer = ts.createPrinter();
+
+  return printer.printFile(src);
+}
+
+export async function generateIDLTypesAST(filename: string): Promise<string> {
+  registerHelpers();
+  const idl = await parseFile(filename);
+  const structs = getStructs(idl);
+  const out = generateServicesAST(structs);
+
+  console.log(out);
+
+  return generateTypes(structs);
 }
