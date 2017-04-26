@@ -85,6 +85,7 @@ function generateServicesAST(services: any[]): string {
     const _numberKeyword = ts.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword);
     const _stringKeyword = ts.createKeywordTypeNode(ts.SyntaxKind.StringKeyword);
     const _booleanKeyword = ts.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword);
+    const _questionToken = ts.createToken(ts.SyntaxKind.QuestionToken);
 
     const _fieldDeclarations = service.fields.map(function(field) {
 
@@ -92,7 +93,7 @@ function generateServicesAST(services: any[]): string {
       // TODO: doesn't seem to be working
       switch(field.option) {
         case 'optional':
-          _optional = ts.createToken(ts.SyntaxKind.QuestionToken);
+          _optional = _questionToken;
           break;
       }
 
@@ -121,9 +122,24 @@ function generateServicesAST(services: any[]): string {
 
     const _successDeclaration = ts.createProperty(undefined, [_publicModifier], 'success', undefined, _booleanKeyword, undefined);
 
-    const _propertyDeclarations = [_successDeclaration].concat(_fieldDeclarations);
+    const _argsDeclaration = ts.createParameter(undefined, undefined, undefined, 'args', _questionToken, undefined, undefined);
 
-    const _classExpression = ts.createClassExpression([_exportModifier], service.name, [], [], _propertyDeclarations);
+    const _constructor = ts.createConstructor(undefined, undefined, [_argsDeclaration], undefined);
+
+    const _inputDeclaration = ts.createParameter(undefined, undefined, undefined, 'input', undefined, undefined, undefined);
+    const _read = ts.createMethodDeclaration(undefined, [_publicModifier], undefined, 'read', undefined, undefined, [_inputDeclaration], undefined, undefined);
+
+    const _outputDeclaration = ts.createParameter(undefined, undefined, undefined, 'output', undefined, undefined, undefined);
+    const _write = ts.createMethodDeclaration(undefined, [_publicModifier], undefined, 'write', undefined, undefined, [_outputDeclaration], undefined, undefined);
+
+    const _propertyDeclarations = [_successDeclaration, ..._fieldDeclarations];
+
+    const _classExpression = ts.createClassExpression([_exportModifier], service.name, [], [], [
+      ..._propertyDeclarations,
+      _constructor,
+      _read,
+      _write
+    ]);
 
     const _classStatement = ts.createStatement(_classExpression);
 
