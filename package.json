@@ -37,13 +37,14 @@
     "remap-istanbul": "^0.5.1",
     "rimraf": "^2.5.4",
     "source-map-support": "^0.4.0",
-    "tslint": "^3.13.0",
+    "tslint": "^5.0.0-dev.0",
     "typescript": "^2.0.0"
   },
   "dependencies": {
     "commander": "^2.9.0",
     "handlebars": "^4.0.5",
-    "thrift-parser": "^0.2.5"
+    "thrift-parser": "^0.3.2",
+    "typescript": "^2.3.0-dev.20170426"
   },
   "typings": "dist/index.d.ts",
   "typescript": {
