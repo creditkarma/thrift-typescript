@@ -124,7 +124,17 @@ function generateServicesAST(services: any[]): string {
 
     const _argsDeclaration = ts.createParameter(undefined, undefined, undefined, 'args', _questionToken, undefined, undefined);
 
-    const _constructor = ts.createConstructor(undefined, undefined, [_argsDeclaration], undefined);
+    const _fieldDefaultExpressions = service.fields.map(function(field) {
+      const _propertyAccessExpression = ts.createPropertyAccess(ts.createThis(), field.name);
+      const _propertyAssignment = ts.createAssignment(_propertyAccessExpression, ts.createNull());
+      const _propertyStatement = ts.createStatement(_propertyAssignment);
+
+      return _propertyStatement;
+    });
+
+    const _constructorBlock = ts.createBlock(_fieldDefaultExpressions, true);
+
+    const _constructor = ts.createConstructor(undefined, undefined, [_argsDeclaration], _constructorBlock);
 
     const _inputDeclaration = ts.createParameter(undefined, undefined, undefined, 'input', undefined, undefined, undefined);
     const _read = ts.createMethodDeclaration(undefined, [_publicModifier], undefined, 'read', undefined, undefined, [_inputDeclaration], undefined, undefined);
