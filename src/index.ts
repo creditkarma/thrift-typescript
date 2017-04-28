@@ -169,8 +169,59 @@ function generateServicesAST(services: any[]): string {
     const _inputDeclaration = ts.createParameter(undefined, undefined, undefined, 'input', undefined, undefined, undefined);
     const _read = ts.createMethodDeclaration(undefined, [_publicModifier], undefined, 'read', undefined, undefined, [_inputDeclaration], undefined, undefined);
 
+    const _writeStructBegin = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeStructBegin');
+    const _writeStructBeginCall = ts.createCall(_writeStructBegin, undefined, [ts.createLiteral(`${service.name}`)]);
+    const _writeStructBeginStatement = ts.createStatement(_writeStructBeginCall);
+
+    const _writeFields = service.fields.map(function(field) {
+      const type = field.type[0].toUpperCase() + field.type.slice(1);
+      const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
+      const _comparison = ts.createBinary(_thisPropAccess, ts.SyntaxKind.ExclamationEqualsToken, ts.createNull());
+
+      const _writeFieldBegin = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeFieldBegin');
+      const _writeFieldBeginCall = ts.createCall(_writeFieldBegin, undefined, [
+        ts.createLiteral('id'),
+        ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${type}`),
+        ts.createLiteral(field.id)
+      ]);
+      const _writeFieldBeginStatement = ts.createStatement(_writeFieldBeginCall);
+
+      const _writeType = ts.createPropertyAccess(ts.createIdentifier('output'), `write${type}`);
+      const _writeTypeCall = ts.createCall(_writeType, undefined, [
+        ts.createPropertyAccess(ts.createThis(), 'id')
+      ]);
+      const _writeTypeStatement = ts.createStatement(_writeTypeCall);
+
+      const _writeFieldEnd = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeFieldEnd');
+      const _writeFieldEndCall = ts.createCall(_writeFieldEnd, undefined, undefined);
+      const _writeFieldEndStatement = ts.createStatement(_writeFieldEndCall);
+
+      const _if = ts.createIf(_comparison, ts.createBlock([
+        _writeFieldBeginStatement,
+        _writeTypeStatement,
+        _writeFieldEndStatement
+      ]));
+
+      return _if;
+    });
+
+    const _writeFieldStop = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeFieldStop');
+    const _writeFieldStopCall = ts.createCall(_writeFieldStop, undefined, undefined);
+    const _writeFieldStopStatement = ts.createStatement(_writeFieldStopCall);
+
+    const _writeStructEnd = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeStructEnd');
+    const _writeStructEndCall = ts.createCall(_writeStructEnd, undefined, undefined);
+    const _writeStructEndStatement = ts.createStatement(_writeStructEndCall);
+
+    const _writeBlock = ts.createBlock([
+      _writeStructBeginStatement,
+      ..._writeFields,
+      _writeFieldStopStatement,
+      _writeStructEndStatement
+    ], true);
+
     const _outputDeclaration = ts.createParameter(undefined, undefined, undefined, 'output', undefined, undefined, undefined);
-    const _write = ts.createMethodDeclaration(undefined, [_publicModifier], undefined, 'write', undefined, undefined, [_outputDeclaration], undefined, undefined);
+    const _write = ts.createMethodDeclaration(undefined, [_publicModifier], undefined, 'write', undefined, undefined, [_outputDeclaration], undefined, _writeBlock);
 
     const _propertyDeclarations = [_successDeclaration, ..._fieldDeclarations];
 
