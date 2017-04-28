@@ -132,7 +132,37 @@ function generateServicesAST(services: any[]): string {
       return _propertyStatement;
     });
 
-    const _constructorBlock = ts.createBlock(_fieldDefaultExpressions, true);
+    const _fieldAssignments = service.fields.map(function(field) {
+      const _argsPropAccess = ts.createPropertyAccess(ts.createIdentifier('args'), field.name);
+      const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
+      const _propertyAssignment = ts.createAssignment(_thisPropAccess, _argsPropAccess);
+      const _assignStatment = ts.createStatement(_propertyAssignment)
+
+      const _comparison = ts.createBinary(_argsPropAccess, ts.SyntaxKind.ExclamationEqualsToken, ts.createNull());
+
+      let _else;
+      if (field.option === 'required') {
+        const _throwAccess = ts.createPropertyAccess(ts.createIdentifier('Thrift'), 'TProtocolException');
+        const _errType = ts.createPropertyAccess(
+          ts.createIdentifier('Thrift'),
+          ts.createIdentifier('TProtocolExceptionType.UNKNOWN')
+        )
+        const _errArgs = [_errType, ts.createLiteral(`Required field ${field.name} is unset!`)];
+        const _newError = ts.createNew(_throwAccess, undefined, _errArgs);
+        const _throw = ts.createThrow(_newError);
+        _else = ts.createBlock([_throw]);
+      }
+      const _if = ts.createIf(_comparison, ts.createBlock([_assignStatment]), _else);
+
+      return _if;
+    })
+
+    const _ifArgs = ts.createIf(ts.createIdentifier('args'), ts.createBlock(_fieldAssignments));
+
+    const _constructorBlock = ts.createBlock([
+      ..._fieldDefaultExpressions,
+      _ifArgs
+    ], true);
 
     const _constructor = ts.createConstructor(undefined, undefined, [_argsDeclaration], _constructorBlock);
 
