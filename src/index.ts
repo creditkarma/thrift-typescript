@@ -122,8 +122,7 @@ function createConstructor(fields) {
   return ts.createConstructor(undefined, undefined, [_argsDeclaration], _constructorBlock);
 }
 
-function createRead() {
-  const _constKeyword = ts.createToken(ts.SyntaxKind.ConstKeyword);
+function createRead(fields) {
   const _publicModifier = ts.createToken(ts.SyntaxKind.PublicKeyword);
 
   const _readStructBegin = ts.createPropertyAccess(ts.createIdentifier('input'), 'readStructBegin');
@@ -133,17 +132,98 @@ function createRead() {
   const _readFieldBegin = ts.createPropertyAccess(ts.createIdentifier('input'), 'readFieldBegin');
   const _readFieldBeginCall = ts.createCall(_readFieldBegin, undefined, undefined);
   const _assignment = ts.createVariableDeclaration('ret', undefined, _readFieldBeginCall);
-  const _assignmentConst = ts.createVariableStatement([_constKeyword], [_assignment]);
+  const _assignmentDeclaration = ts.createVariableDeclarationList([_assignment], ts.NodeFlags.Const);
+  const _assignmentConst = ts.createVariableStatement(undefined, _assignmentDeclaration);
+
+  const _retFname = ts.createPropertyAccess(ts.createIdentifier('ret'), 'fname');
+  const _fname = ts.createVariableDeclaration('fname', undefined, _retFname);
+  const _fnameDeclaration = ts.createVariableDeclarationList([_fname], ts.NodeFlags.Const);
+  const _fnameConst = ts.createVariableStatement(undefined, _fnameDeclaration);
+
+  const _retFtype = ts.createPropertyAccess(ts.createIdentifier('ret'), 'ftype');
+  const _ftype = ts.createVariableDeclaration('ftype', undefined, _retFtype);
+  const _ftypeDeclaration = ts.createVariableDeclarationList([_ftype], ts.NodeFlags.Const);
+  const _ftypeConst = ts.createVariableStatement(undefined, _ftypeDeclaration);
+
+  const _retFid = ts.createPropertyAccess(ts.createIdentifier('ret'), 'fid');
+  const _fid = ts.createVariableDeclaration('fid', undefined, _retFid);
+  const _fidDeclaration = ts.createVariableDeclarationList([_fid], ts.NodeFlags.Const);
+  const _fidConst = ts.createVariableStatement(undefined, _fidDeclaration);
+
+  const _ftypeIdentifier = ts.createIdentifier('ftype');
+  const _typeStopAccess = ts.createPropertyAccess(ts.createIdentifier('Thrift'), 'Type.STOP');
+  const _comparison = ts.createStrictEquality(_ftypeIdentifier, _typeStopAccess);
+
+  const _breakBlock = ts.createBlock([ts.createBreak()], true);
+
+  const _ifStop = ts.createIf(_comparison, _breakBlock);
+
+  const _cases = fields.map(function(field) {
+    const type = field.type[0].toUpperCase() + field.type.slice(1);
+
+    const _ftypeIdentifier = ts.createIdentifier('ftype');
+
+    const _typeAccess = ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${type}`);
+    const _comparison = ts.createStrictEquality(_ftypeIdentifier, _typeAccess);
+
+    const _thisName = ts.createPropertyAccess(ts.createThis(), field.name);
+    const _readType = ts.createPropertyAccess(ts.createIdentifier('input'), `read${type}`);
+    const _readTypeCall = ts.createCall(_readType, undefined, undefined);
+    const _readAssignment = ts.createAssignment(_thisName, _readTypeCall);
+    const _readStatement = ts.createStatement(_readAssignment);
+    const _readTypeBlock = ts.createBlock([_readStatement], true);
+
+    const _skip = ts.createPropertyAccess(ts.createIdentifier('input'), 'skip');
+    const _skipCall = ts.createCall(_skip, undefined, [_ftypeIdentifier]);
+    const _skipStatement = ts.createStatement(_skipCall);
+    const _skipBlock = ts.createBlock([_skipStatement], true);
+
+    const _break = ts.createBreak();
+
+    const _ifType = ts.createIf(_comparison, _readTypeBlock, _skipBlock);
+
+    return ts.createCaseClause(ts.createLiteral(field.id), [
+      ts.createBlock([_ifType, _break], true)
+    ]);
+  });
+
+  // TODO: duplicate code
+  const _skip = ts.createPropertyAccess(ts.createIdentifier('input'), 'skip');
+  const _skipCall = ts.createCall(_skip, undefined, [_ftypeIdentifier]);
+  const _skipStatement = ts.createStatement(_skipCall);
+  const _skipBlock = ts.createBlock([_skipStatement], true);
+
+  const _default = ts.createDefaultClause([_skipBlock])
+  const _caseBlock = ts.createCaseBlock([
+    ..._cases,
+    _default
+  ]);
+  const _switch = ts.createSwitch(ts.createIdentifier('fid'), _caseBlock);
+
+  const _readFieldEnd = ts.createPropertyAccess(ts.createIdentifier('input'), 'readFieldEnd');
+  const _readFieldEndCall = ts.createCall(_readFieldEnd, undefined, undefined);
+  const _readFieldEndStatement = ts.createStatement(_readFieldEndCall);
 
   const _whileBody = ts.createBlock([
-    _assignmentConst
+    _assignmentConst,
+    _fnameConst,
+    _ftypeConst,
+    _fidConst,
+    _ifStop,
+    _switch,
+    _readFieldEndStatement
   ], true);
 
   const _while = ts.createWhile(ts.createTrue(), _whileBody);
 
+  const _readStructEnd = ts.createPropertyAccess(ts.createIdentifier('input'), 'readStructEnd');
+  const _readStructEndCall = ts.createCall(_readStructEnd, undefined, undefined);
+  const _readStructEndStatement = ts.createStatement(_readStructEndCall);
+
   const _readBlock = ts.createBlock([
     _readStructBeginStatement,
-    _while
+    _while,
+    _readStructEndStatement
   ], true);
 
   const _inputDeclaration = ts.createParameter(undefined, undefined, undefined, 'input', undefined, undefined, undefined);
@@ -260,7 +340,7 @@ function generateServicesAST(services: any[]): string {
     const _constructor = createConstructor(service.fields);
 
     // Build the `read` method
-    const _read = createRead();
+    const _read = createRead(service.fields);
 
     // Build the `write` method
     const _write = createWrite(service);
