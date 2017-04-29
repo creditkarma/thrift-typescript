@@ -44,7 +44,7 @@
     "commander": "^2.9.0",
     "handlebars": "^4.0.5",
     "thrift-parser": "^0.3.2",
-    "typescript": "^2.3.0-dev.20170426"
+    "typescript": "^2.3.2"
   },
   "typings": "dist/index.d.ts",
   "typescript": {
