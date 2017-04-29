@@ -244,7 +244,7 @@ function createWrite(service) {
 
     const _writeFieldBegin = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeFieldBegin');
     const _writeFieldBeginCall = ts.createCall(_writeFieldBegin, undefined, [
-      ts.createLiteral('id'),
+      ts.createLiteral(field.name),
       ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${type}`),
       ts.createLiteral(field.id)
     ]);
@@ -252,7 +252,7 @@ function createWrite(service) {
 
     const _writeType = ts.createPropertyAccess(ts.createIdentifier('output'), `write${type}`);
     const _writeTypeCall = ts.createCall(_writeType, undefined, [
-      ts.createPropertyAccess(ts.createThis(), 'id')
+      ts.createPropertyAccess(ts.createThis(), field.name)
     ]);
     const _writeTypeStatement = ts.createStatement(_writeTypeCall);
 
@@ -369,9 +369,5 @@ export async function generateIDLTypesAST(filename: string): Promise<string> {
   registerHelpers();
   const idl = await parseFile(filename);
   const structs = getStructs(idl);
-  const out = generateServicesAST(structs);
-
-  console.log(out);
-
-  return generateTypes(structs);
+  return generateServicesAST(structs);
 }

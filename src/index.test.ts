@@ -1,5 +1,6 @@
 import { expect } from 'chai'
 import { parseFile, generateIDLTypes, loadTemplate, generateIDLServices } from './index'
+import { generateIDLTypesAST } from './index'
 
 const simple = './fixtures/simple.thrift'
 const calculator = './fixtures/calculator.thrift'
@@ -54,6 +55,41 @@ describe('Thrift Loader', () => {
     })
     it('expect class to contain id field to be a number', () => {
       expect(types).include('id: number')
+    })
+  })
+
+  describe(`AST: when generating types from thrift file "${simple}"`, () => {
+    let types
+    before((done) => {
+      generateIDLTypesAST(simple).then((results) => {
+        types = results
+        // console.log(types);
+        done()
+      })
+    })
+    let handlebars
+    before((done) => {
+      generateIDLTypes(simple).then((results) => {
+        handlebars = results
+        // console.log(types);
+        done()
+      })
+    })
+
+    it('expect types to exist', () => {
+      expect(types).to.exist
+    })
+    it('expect only one class', () => {
+      expect((types.match(/class/g) || []).length).to.equal(1)
+    })
+    it('expect class to contain MyStruct', () => {
+      expect(types).include('class MyStruct')
+    })
+    it('expect class to contain id field to be a number', () => {
+      expect(types).include('id: number')
+    })
+    it('matches handlebars', () => {
+      expect(types).equals(handlebars);
     })
   })
 
