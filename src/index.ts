@@ -280,7 +280,6 @@ function createWrite(service) {
 function generateServicesAST(services: any[]): string {
   // TODO: bundle maybe?
   let src = ts.createSourceFile('output.ts', '', ts.ScriptTarget.ES5, false, ts.ScriptKind.TS);
-  // TODO: imports?
 
   services.forEach(function(service) {
     const _exportModifier = ts.createToken(ts.SyntaxKind.ExportKeyword);
@@ -295,9 +294,11 @@ function generateServicesAST(services: any[]): string {
       let _optional;
       // TODO: doesn't seem to be working
       switch(field.option) {
-        case 'optional':
-          _optional = _questionToken;
+        case 'required':
+          // Ignore
           break;
+        default:
+          _optional = _questionToken;
       }
 
       let _type;
