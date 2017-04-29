@@ -3,6 +3,9 @@
 //
 // DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 //
+import thrift = require("thrift");
+import Thrift = thrift.Thrift;
+import Q = thrift.Q;
 {{#each this}}
 export class {{upcase name}} {
     public success: boolean;
