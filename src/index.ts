@@ -79,14 +79,6 @@ function createConstructor(fields) {
 
   const _argsDeclaration = ts.createParameter(undefined, undefined, undefined, 'args', _questionToken, undefined, undefined);
 
-  const _fieldDefaultExpressions = fields.map(function(field) {
-    const _propertyAccessExpression = ts.createPropertyAccess(ts.createThis(), field.name);
-    const _propertyAssignment = ts.createAssignment(_propertyAccessExpression, ts.createNull());
-    const _propertyStatement = ts.createStatement(_propertyAssignment);
-
-    return _propertyStatement;
-  });
-
   const _fieldAssignments = fields.map(function(field) {
     const _argsPropAccess = ts.createPropertyAccess(ts.createIdentifier('args'), field.name);
     const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
@@ -114,10 +106,7 @@ function createConstructor(fields) {
 
   const _ifArgs = ts.createIf(ts.createIdentifier('args'), ts.createBlock(_fieldAssignments));
 
-  const _constructorBlock = ts.createBlock([
-    ..._fieldDefaultExpressions,
-    _ifArgs
-  ], true);
+  const _constructorBlock = ts.createBlock([_ifArgs], true);
 
   return ts.createConstructor(undefined, undefined, [_argsDeclaration], _constructorBlock);
 }
@@ -329,6 +318,8 @@ function generateServicesAST(services: any[]): string {
       let _default;
       if (field.defaultValue != null) {
         _default = ts.createLiteral(field.defaultValue);
+      } else {
+        _default = ts.createNull();
       }
 
       return ts.createProperty(undefined, [_publicModifier], field.name, _optional, _type, _default);

@@ -10,12 +10,9 @@ import Q = thrift.Q;
 export class {{upcase name}} {
     public success: boolean;
     {{#each fields}}
-    public {{name}}: {{tsType type}};
+    public {{name}}: {{tsType type}} = null;
     {{/each}}
     constructor(args?) {
-        {{#each fields}}
-        this.{{name}} = null;
-        {{/each}}
         if (args) {
             {{#each fields}}
             if (args.{{name}} != null) {
