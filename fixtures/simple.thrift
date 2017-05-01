@@ -1,5 +1,5 @@
 struct MyStruct {
-    1: required int id,
+    1: required i32 id,
     2: required bool field1,
     # 3: required string field,
     4: required i16 field,

@@ -4,6 +4,13 @@ import * as ts from 'typescript'
 let thriftParser = require('thrift-parser')
 import { compile } from 'handlebars'
 import { registerHelpers } from './ts-helpers'
+import {
+  toAstType,
+  toOptional,
+  createIf,
+  createThrow,
+  createNotEquals
+} from './ast-helpers'
 
 function readFile(fileName: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
@@ -77,38 +84,35 @@ export async function generateIDLServices(fileName: string): Promise<string> {
 function createConstructor(fields) {
   const _questionToken = ts.createToken(ts.SyntaxKind.QuestionToken);
 
-  const _argsDeclaration = ts.createParameter(undefined, undefined, undefined, 'args', _questionToken, undefined, undefined);
+  const _args = ts.createIdentifier('args');
+  const _Thrift = ts.createIdentifier('Thrift');
+
+  const _argsParameter = ts.createParameter(undefined, undefined, undefined, _args, _questionToken, undefined, undefined);
 
   const _fieldAssignments = fields.map(function(field) {
-    const _argsPropAccess = ts.createPropertyAccess(ts.createIdentifier('args'), field.name);
+    const _argsPropAccess = ts.createPropertyAccess(_args, field.name);
     const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
     const _propertyAssignment = ts.createAssignment(_thisPropAccess, _argsPropAccess);
-    const _assignStatment = ts.createStatement(_propertyAssignment)
+    const _thenAssign = ts.createStatement(_propertyAssignment)
 
-    const _comparison = ts.createBinary(_argsPropAccess, ts.SyntaxKind.ExclamationEqualsToken, ts.createNull());
+    const _comparison = createNotEquals(_argsPropAccess, ts.createNull());
 
-    let _else;
+    let _elseThrow;
     if (field.option === 'required') {
-      const _throwAccess = ts.createPropertyAccess(ts.createIdentifier('Thrift'), 'TProtocolException');
-      const _errType = ts.createPropertyAccess(
-        ts.createIdentifier('Thrift'),
-        ts.createIdentifier('TProtocolExceptionType.UNKNOWN')
-      )
+      const _errCtor = ts.createPropertyAccess(_Thrift, 'TProtocolException');
+      const _errType = ts.createPropertyAccess(_Thrift, 'TProtocolExceptionType.UNKNOWN')
       const _errArgs = [_errType, ts.createLiteral(`Required field ${field.name} is unset!`)];
-      const _newError = ts.createNew(_throwAccess, undefined, _errArgs);
-      const _throw = ts.createThrow(_newError);
-      _else = ts.createBlock([_throw]);
+      _elseThrow = createThrow(_errCtor, _errArgs);
     }
-    const _if = ts.createIf(_comparison, ts.createBlock([_assignStatment]), _else);
 
-    return _if;
+    return createIf(_comparison, _thenAssign, _elseThrow);
   })
 
-  const _ifArgs = ts.createIf(ts.createIdentifier('args'), ts.createBlock(_fieldAssignments));
+  const _ifArgs = createIf(_args, _fieldAssignments);
 
   const _constructorBlock = ts.createBlock([_ifArgs], true);
 
-  return ts.createConstructor(undefined, undefined, [_argsDeclaration], _constructorBlock);
+  return ts.createConstructor(undefined, undefined, [_argsParameter], _constructorBlock);
 }
 
 function createRead(fields) {
@@ -229,7 +233,7 @@ function createWrite(service) {
   const _writeFields = service.fields.map(function(field) {
     const type = field.type[0].toUpperCase() + field.type.slice(1);
     const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
-    const _comparison = ts.createBinary(_thisPropAccess, ts.SyntaxKind.ExclamationEqualsToken, ts.createNull());
+    const _comparison = createNotEquals(_thisPropAccess, ts.createNull());
 
     const _writeFieldBegin = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeFieldBegin');
     const _writeFieldBeginCall = ts.createCall(_writeFieldBegin, undefined, [
@@ -284,37 +288,11 @@ function generateServicesAST(services: any[]): string {
   services.forEach(function(service) {
     const _exportModifier = ts.createToken(ts.SyntaxKind.ExportKeyword);
     const _publicModifier = ts.createToken(ts.SyntaxKind.PublicKeyword);
-    const _numberKeyword = ts.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword);
-    const _stringKeyword = ts.createKeywordTypeNode(ts.SyntaxKind.StringKeyword);
-    const _booleanKeyword = ts.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword);
-    const _questionToken = ts.createToken(ts.SyntaxKind.QuestionToken);
 
     const _fieldDeclarations = service.fields.map(function(field) {
 
-      let _optional;
-      // TODO: doesn't seem to be working
-      switch(field.option) {
-        case 'required':
-          // Ignore
-          break;
-        default:
-          _optional = _questionToken;
-      }
-
-      let _type;
-      switch(field.type) {
-        case 'int':
-        case 'i16':
-        case 'i32':
-          _type = _numberKeyword;
-          break;
-        case 'string':
-          _type = _stringKeyword;
-          break;
-        case 'bool':
-          _type = _booleanKeyword;
-          break;
-      }
+      let _type = toAstType(field.type);
+      let _optional = toOptional(field.option);
 
       let _default;
       if (field.defaultValue != null) {
@@ -326,7 +304,7 @@ function generateServicesAST(services: any[]): string {
       return ts.createProperty(undefined, [_publicModifier], field.name, _optional, _type, _default);
     });
 
-    const _successDeclaration = ts.createProperty(undefined, [_publicModifier], 'success', undefined, _booleanKeyword, undefined);
+    const _successDeclaration = ts.createProperty(undefined, [_publicModifier], 'success', undefined, toAstType('bool'), undefined);
 
     // Build the constructor body
     const _constructor = createConstructor(service.fields);
@@ -337,10 +315,9 @@ function generateServicesAST(services: any[]): string {
     // Build the `write` method
     const _write = createWrite(service);
 
-    const _propertyDeclarations = [_successDeclaration, ..._fieldDeclarations];
-
     const _classExpression = ts.createClassExpression([_exportModifier], service.name, [], [], [
-      ..._propertyDeclarations,
+      _successDeclaration,
+      ..._fieldDeclarations,
       _constructor,
       _read,
       _write
