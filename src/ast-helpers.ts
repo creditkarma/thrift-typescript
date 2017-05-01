@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 
-export function createIf(_comparison: ts.BinaryExpression | ts.Identifier, _then?: ts.ExpressionStatement | ts.ExpressionStatement[], _else?: ts.ExpressionStatement | ts.ExpressionStatement[]) {
+export function createIf(_comparison: ts.BinaryExpression | ts.Identifier, _then?: ts.Statement | ts.Statement[], _else?: ts.Statement | ts.Statement[]) {
   let _thenBlock;
   if (_then) {
     _then = Array.isArray(_then) ? _then : [_then];
@@ -24,6 +24,13 @@ export function createThrow(_ctor, _args) {
 
 export function createNotEquals(_left: ts.Expression, _right: ts.Expression) {
   return ts.createBinary(_left, ts.SyntaxKind.ExclamationEqualsToken, _right);
+}
+
+export function createVariable(_name: string | ts.Identifier, _init: ts.Expression) {
+  const _varDec = ts.createVariableDeclaration(_name, undefined, _init);
+  const _varDecList = ts.createVariableDeclarationList([_varDec], ts.NodeFlags.Const);
+
+  return ts.createVariableStatement(undefined, _varDecList);
 }
 
 export function toOptional(option: string) {

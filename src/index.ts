@@ -9,8 +9,10 @@ import {
   toOptional,
   createIf,
   createThrow,
+  createVariable,
   createNotEquals
 } from './ast-helpers'
+import * as gen from './ast-specifics'
 
 function readFile(fileName: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
@@ -118,108 +120,86 @@ function createConstructor(fields) {
 function createRead(fields) {
   const _publicModifier = ts.createToken(ts.SyntaxKind.PublicKeyword);
 
-  const _readStructBegin = ts.createPropertyAccess(ts.createIdentifier('input'), 'readStructBegin');
-  const _readStructBeginCall = ts.createCall(_readStructBegin, undefined, undefined);
-  const _readStructBeginStatement = ts.createStatement(_readStructBeginCall);
+  const _Thrift = ts.createIdentifier('Thrift');
+  const _input = ts.createIdentifier('input');
+  const _ret = ts.createIdentifier('ret');
+  const _fname = ts.createIdentifier('fname')
+  const _ftype = ts.createIdentifier('ftype');
+  const _fid = ts.createIdentifier('fid');
 
-  const _readFieldBegin = ts.createPropertyAccess(ts.createIdentifier('input'), 'readFieldBegin');
-  const _readFieldBeginCall = ts.createCall(_readFieldBegin, undefined, undefined);
-  const _assignment = ts.createVariableDeclaration('ret', undefined, _readFieldBeginCall);
-  const _assignmentDeclaration = ts.createVariableDeclarationList([_assignment], ts.NodeFlags.Const);
-  const _assignmentConst = ts.createVariableStatement(undefined, _assignmentDeclaration);
+  const _readStructBegin = gen.readStructBegin();
+  const _readFieldBegin = gen.readFieldBegin();
 
-  const _retFname = ts.createPropertyAccess(ts.createIdentifier('ret'), 'fname');
-  const _fname = ts.createVariableDeclaration('fname', undefined, _retFname);
-  const _fnameDeclaration = ts.createVariableDeclarationList([_fname], ts.NodeFlags.Const);
-  const _fnameConst = ts.createVariableStatement(undefined, _fnameDeclaration);
+  const _retFname = ts.createPropertyAccess(_ret, 'fname');
+  const _fnameConst = createVariable(_fname, _retFname);
 
-  const _retFtype = ts.createPropertyAccess(ts.createIdentifier('ret'), 'ftype');
-  const _ftype = ts.createVariableDeclaration('ftype', undefined, _retFtype);
-  const _ftypeDeclaration = ts.createVariableDeclarationList([_ftype], ts.NodeFlags.Const);
-  const _ftypeConst = ts.createVariableStatement(undefined, _ftypeDeclaration);
+  const _retFtype = ts.createPropertyAccess(_ret, 'ftype');
+  const _ftypeConst = createVariable(_ftype, _retFtype)
 
-  const _retFid = ts.createPropertyAccess(ts.createIdentifier('ret'), 'fid');
-  const _fid = ts.createVariableDeclaration('fid', undefined, _retFid);
-  const _fidDeclaration = ts.createVariableDeclarationList([_fid], ts.NodeFlags.Const);
-  const _fidConst = ts.createVariableStatement(undefined, _fidDeclaration);
+  const _retFid = ts.createPropertyAccess(_ret, 'fid');
+  const _fidConst = createVariable(_fid, _retFid);
 
-  const _ftypeIdentifier = ts.createIdentifier('ftype');
-  const _typeStopAccess = ts.createPropertyAccess(ts.createIdentifier('Thrift'), 'Type.STOP');
-  const _comparison = ts.createStrictEquality(_ftypeIdentifier, _typeStopAccess);
+  const _typeStopAccess = ts.createPropertyAccess(_Thrift, 'Type.STOP');
+  const _comparison = ts.createStrictEquality(_ftype, _typeStopAccess);
 
-  const _breakBlock = ts.createBlock([ts.createBreak()], true);
-
-  const _ifStop = ts.createIf(_comparison, _breakBlock);
+  const _ifStop = createIf(_comparison, ts.createBreak());
 
   const _cases = fields.map(function(field) {
     const type = field.type[0].toUpperCase() + field.type.slice(1);
 
-    const _ftypeIdentifier = ts.createIdentifier('ftype');
-
-    const _typeAccess = ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${type}`);
-    const _comparison = ts.createStrictEquality(_ftypeIdentifier, _typeAccess);
+    const _typeAccess = ts.createPropertyAccess(_Thrift, `Type.${type}`);
+    const _comparison = ts.createStrictEquality(_ftype, _typeAccess);
 
     const _thisName = ts.createPropertyAccess(ts.createThis(), field.name);
-    const _readType = ts.createPropertyAccess(ts.createIdentifier('input'), `read${type}`);
+    const _readType = ts.createPropertyAccess(_input, `read${type}`);
     const _readTypeCall = ts.createCall(_readType, undefined, undefined);
     const _readAssignment = ts.createAssignment(_thisName, _readTypeCall);
     const _readStatement = ts.createStatement(_readAssignment);
-    const _readTypeBlock = ts.createBlock([_readStatement], true);
 
-    const _skip = ts.createPropertyAccess(ts.createIdentifier('input'), 'skip');
-    const _skipCall = ts.createCall(_skip, undefined, [_ftypeIdentifier]);
-    const _skipStatement = ts.createStatement(_skipCall);
-    const _skipBlock = ts.createBlock([_skipStatement], true);
+    const _skip = gen.skip();
 
     const _break = ts.createBreak();
 
-    const _ifType = ts.createIf(_comparison, _readTypeBlock, _skipBlock);
+    const _ifType = createIf(_comparison, _readStatement, _skip);
 
     return ts.createCaseClause(ts.createLiteral(field.id), [
       ts.createBlock([_ifType, _break], true)
     ]);
   });
 
-  // TODO: duplicate code
-  const _skip = ts.createPropertyAccess(ts.createIdentifier('input'), 'skip');
-  const _skipCall = ts.createCall(_skip, undefined, [_ftypeIdentifier]);
-  const _skipStatement = ts.createStatement(_skipCall);
-  const _skipBlock = ts.createBlock([_skipStatement], true);
+  const _skip = gen.skip();
+  const _skipBlock = ts.createBlock([_skip], true);
 
   const _default = ts.createDefaultClause([_skipBlock])
   const _caseBlock = ts.createCaseBlock([
     ..._cases,
     _default
   ]);
-  const _switch = ts.createSwitch(ts.createIdentifier('fid'), _caseBlock);
+  const _switch = ts.createSwitch(_fid, _caseBlock);
 
-  const _readFieldEnd = ts.createPropertyAccess(ts.createIdentifier('input'), 'readFieldEnd');
-  const _readFieldEndCall = ts.createCall(_readFieldEnd, undefined, undefined);
-  const _readFieldEndStatement = ts.createStatement(_readFieldEndCall);
+  const _readFieldEnd = gen.readFieldEnd()
 
   const _whileBody = ts.createBlock([
-    _assignmentConst,
+    _readFieldBegin,
     _fnameConst,
     _ftypeConst,
     _fidConst,
     _ifStop,
     _switch,
-    _readFieldEndStatement
+    _readFieldEnd
   ], true);
 
   const _while = ts.createWhile(ts.createTrue(), _whileBody);
 
-  const _readStructEnd = ts.createPropertyAccess(ts.createIdentifier('input'), 'readStructEnd');
-  const _readStructEndCall = ts.createCall(_readStructEnd, undefined, undefined);
-  const _readStructEndStatement = ts.createStatement(_readStructEndCall);
+  const _readStructEnd = gen.readStructEnd();
 
   const _readBlock = ts.createBlock([
-    _readStructBeginStatement,
+    _readStructBegin,
     _while,
-    _readStructEndStatement
+    _readStructEnd
   ], true);
 
-  const _inputDeclaration = ts.createParameter(undefined, undefined, undefined, 'input', undefined, undefined, undefined);
+  const _inputDeclaration = ts.createParameter(undefined, undefined, undefined, _input, undefined, undefined, undefined);
   return ts.createMethodDeclaration(undefined, [_publicModifier], undefined, 'read', undefined, undefined, [_inputDeclaration], undefined, _readBlock);
 }
 
