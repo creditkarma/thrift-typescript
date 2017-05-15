@@ -3,7 +3,7 @@ struct MyStruct {
     2: required bool field1,
     # 3: required string field,
     4: required i16 field,
-    5: set<string> aSet,
+    5: set<set<string>> aSet,
 }
 exception Exception1 {
     1: required i32 error_code,

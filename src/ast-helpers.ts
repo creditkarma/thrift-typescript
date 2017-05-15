@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 
-export function createIf(_comparison: ts.BinaryExpression | ts.Identifier, _then?: ts.Statement | ts.Statement[], _else?: ts.Statement | ts.Statement[]) {
+export function createIf(_comparison: ts.BinaryExpression | ts.CallExpression | ts.Identifier, _then?: ts.Statement | ts.Statement[], _else?: ts.Statement | ts.Statement[]) {
   let _thenBlock;
   if (_then) {
     _then = Array.isArray(_then) ? _then : [_then];
