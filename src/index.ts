@@ -84,6 +84,9 @@ export async function generateIDLServices(fileName: string): Promise<string> {
 }
 
 function createConstructor(fields) {
+  // filter map/list/set for now
+  fields = fields.filter((field) => typeof field.type !== 'object');
+
   const _questionToken = ts.createToken(ts.SyntaxKind.QuestionToken);
 
   const _args = ts.createIdentifier('args');
@@ -118,6 +121,9 @@ function createConstructor(fields) {
 }
 
 function createRead(fields) {
+  // filter map/list/set for now
+  fields = fields.filter((field) => typeof field.type !== 'object');
+
   const _publicModifier = ts.createToken(ts.SyntaxKind.PublicKeyword);
 
   const _Thrift = ts.createIdentifier('Thrift');
@@ -203,6 +209,117 @@ function createRead(fields) {
   return ts.createMethodDeclaration(undefined, [_publicModifier], undefined, 'read', undefined, undefined, [_inputDeclaration], undefined, _readBlock);
 }
 
+function getType(typedef: string | { name: string, keyType?: string, valueType: string}) : string {
+  if (typeof typedef === 'string') {
+    return typedef;
+  }
+  return typedef.name;
+}
+
+function createSetBody(_thisPropAccess, _innerType) {
+  // output.writeSetBegin(Thrift.Type.STRING, this.hmm2.length);
+  console.log(_innerType);
+  const innerType = _innerType[0].toUpperCase() + _innerType.slice(1);
+  const _writeSetBegin = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeSetBegin');
+  const _writeSetBeginCall = ts.createCall(_writeSetBegin, undefined, [
+    ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${innerType.toUpperCase()}`),
+    ts.createPropertyAccess(_thisPropAccess, 'length')
+  ]);
+  const _writeSetBeginStatement = ts.createStatement(_writeSetBeginCall);
+
+  // for (var iter46 in this.hmm2) {
+
+  // TODO: set is stored in an array, maybe this should be a for loop instead
+  const _loopTmp = ts.createLoopVariable();
+  const _key = ts.createVariableDeclarationList([
+    ts.createVariableDeclaration(_loopTmp)
+  ]);
+  //   if (this.hmm2.hasOwnProperty(iter46))
+  const _hasOwnProp = ts.createPropertyAccess(_thisPropAccess, 'hasOwnProperty');
+  const _hasOwnPropCall = ts.createCall(_hasOwnProp, undefined, [
+    _loopTmp
+  ]);
+  // TODO: duplicate code? Uses elementAccess instead
+  // output.writeString(this.hmm2[iter46]);
+  const _writeType = ts.createPropertyAccess(ts.createIdentifier('output'), `write${innerType}`);
+  const _writeTypeCall = ts.createCall(_writeType, undefined, [
+    ts.createElementAccess(_thisPropAccess, _loopTmp)
+  ]);
+  const _writeTypeStatement = ts.createStatement(_writeTypeCall)
+  // End duplicate
+  const _ifHasOwnProp = ts.createIf(_hasOwnPropCall, _writeTypeStatement);
+  const _writeBlock = ts.createBlock([
+    _ifHasOwnProp
+  ]);
+  const _forIn = ts.createForIn(_key, _thisPropAccess, _writeBlock);
+
+
+  // output.writeSetEnd();
+  const _writeSetEnd = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeSetEnd');
+  const _writeSetEndCall = ts.createCall(_writeSetEnd, undefined, undefined);
+  const _writeSetEndStatement = ts.createStatement(_writeSetEndCall);
+
+  return [
+    _writeSetBeginStatement,
+    _forIn,
+    _writeSetEndStatement
+  ];
+}
+
+function createWriteField(field) {
+  let type;
+  if (typeof field.type === 'object') {
+    type = field.type.name[0].toUpperCase() + field.type.name.slice(1);
+  } else {
+    type = field.type[0].toUpperCase() + field.type.slice(1);
+  }
+  const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
+  const _comparison = createNotEquals(_thisPropAccess, ts.createNull());
+
+  const _writeFieldBegin = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeFieldBegin');
+  const _writeFieldBeginCall = ts.createCall(_writeFieldBegin, undefined, [
+    ts.createLiteral(field.name),
+    ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${type.toUpperCase()}`),
+    ts.createLiteral(field.id)
+  ]);
+  const _writeFieldBeginStatement = ts.createStatement(_writeFieldBeginCall);
+
+  // TODO: rename variable
+  let _writeTypeStatement;
+  switch(getType(field.type)) {
+    case 'set': {
+      _writeTypeStatement = createSetBody(_thisPropAccess, field.type.valueType);
+      break;
+    }
+    case 'list':
+      break;
+    case 'map':
+      break;
+    default:
+      const _writeType = ts.createPropertyAccess(ts.createIdentifier('output'), `write${type}`);
+      const _writeTypeCall = ts.createCall(_writeType, undefined, [
+        ts.createPropertyAccess(ts.createThis(), field.name)
+      ]);
+      // TODO: has to be an array to work with containers and spread?
+      _writeTypeStatement = [
+        ts.createStatement(_writeTypeCall)
+      ];
+      break;
+  }
+
+  const _writeFieldEnd = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeFieldEnd');
+  const _writeFieldEndCall = ts.createCall(_writeFieldEnd, undefined, undefined);
+  const _writeFieldEndStatement = ts.createStatement(_writeFieldEndCall);
+
+  const _if = ts.createIf(_comparison, ts.createBlock([
+    _writeFieldBeginStatement,
+    ..._writeTypeStatement,
+    _writeFieldEndStatement
+  ]));
+
+  return _if;
+}
+
 function createWrite(service) {
   const _publicModifier = ts.createToken(ts.SyntaxKind.PublicKeyword);
 
@@ -210,37 +327,7 @@ function createWrite(service) {
   const _writeStructBeginCall = ts.createCall(_writeStructBegin, undefined, [ts.createLiteral(`${service.name}`)]);
   const _writeStructBeginStatement = ts.createStatement(_writeStructBeginCall);
 
-  const _writeFields = service.fields.map(function(field) {
-    const type = field.type[0].toUpperCase() + field.type.slice(1);
-    const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
-    const _comparison = createNotEquals(_thisPropAccess, ts.createNull());
-
-    const _writeFieldBegin = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeFieldBegin');
-    const _writeFieldBeginCall = ts.createCall(_writeFieldBegin, undefined, [
-      ts.createLiteral(field.name),
-      ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${type}`),
-      ts.createLiteral(field.id)
-    ]);
-    const _writeFieldBeginStatement = ts.createStatement(_writeFieldBeginCall);
-
-    const _writeType = ts.createPropertyAccess(ts.createIdentifier('output'), `write${type}`);
-    const _writeTypeCall = ts.createCall(_writeType, undefined, [
-      ts.createPropertyAccess(ts.createThis(), field.name)
-    ]);
-    const _writeTypeStatement = ts.createStatement(_writeTypeCall);
-
-    const _writeFieldEnd = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeFieldEnd');
-    const _writeFieldEndCall = ts.createCall(_writeFieldEnd, undefined, undefined);
-    const _writeFieldEndStatement = ts.createStatement(_writeFieldEndCall);
-
-    const _if = ts.createIf(_comparison, ts.createBlock([
-      _writeFieldBeginStatement,
-      _writeTypeStatement,
-      _writeFieldEndStatement
-    ]));
-
-    return _if;
-  });
+  const _writeFields = service.fields.map(createWriteField);
 
   const _writeFieldStop = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeFieldStop');
   const _writeFieldStopCall = ts.createCall(_writeFieldStop, undefined, undefined);

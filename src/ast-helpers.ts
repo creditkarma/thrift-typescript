@@ -33,7 +33,7 @@ export function createVariable(_name: string | ts.Identifier, _init: ts.Expressi
   return ts.createVariableStatement(undefined, _varDecList);
 }
 
-export function toOptional(option: string) {
+export function toOptional(option: string = '') {
   // This only works in certain cases, even if the methods take a questionToken as an argument
   switch(option.toUpperCase()) {
     case 'REQUIRED':
@@ -45,9 +45,18 @@ export function toOptional(option: string) {
   }
 }
 
-export function toAstType(type: string) : ts.KeywordTypeNode {
+export type Container = { name: string, keyType?: string, valueType: string};
+
+export function toAstType(type: string | Container) : ts.TypeNode {
+  let typedef: string;
+  if (typeof type === 'object') {
+    typedef = type.name;
+  } else {
+    typedef = type;
+  }
+
   // This is all types as defined by the `thrift` node library
-  switch(type.toUpperCase()) {
+  switch(typedef.toUpperCase()) {
     case 'BOOL':
       return ts.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword);
     case 'BYTE': // TODO: is this a number type?
@@ -65,9 +74,14 @@ export function toAstType(type: string) : ts.KeywordTypeNode {
     case 'VOID': // TODO: does this need a type?
     case 'STRUCT':
     case 'MAP':
-    case 'SET':
     case 'LIST':
       throw new Error('Not Implemented');
+    case 'SET':
+      // TODO: actually type this appropriately
+      if (typeof type === 'object') {
+        return ts.createArrayTypeNode(toAstType(type.valueType));
+      }
+      throw new Error('Invalid Set type definition');
     default:
       return;
   }

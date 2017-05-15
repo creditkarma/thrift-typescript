@@ -3,6 +3,7 @@ import { parseFile, generateIDLTypes, loadTemplate, generateIDLServices } from '
 import { generateIDLTypesAST } from './index'
 
 const simple = './fixtures/simple.thrift'
+const simpleSet = './fixtures/simple-set.thrift'
 const calculator = './fixtures/calculator.thrift'
 const typesTpl = 'types.hbs'
 
@@ -61,8 +62,9 @@ describe('Thrift Loader', () => {
   describe(`AST: when generating types from thrift file "${simple}"`, () => {
     let types
     before((done) => {
-      generateIDLTypesAST(simple).then((results) => {
+      generateIDLTypesAST(simpleSet).then((results) => {
         types = results
+        // require('fs').writeFileSync('sample.ts', results, 'utf8');
         // console.log(types);
         done()
       })
