@@ -46,17 +46,11 @@ export function toOptional(option: string = '') {
 }
 
 export type Container = { name: string, keyType?: string, valueType: string};
+export type Typedef = string | Container;
 
-export function toAstType(type: string | Container) : ts.TypeNode {
-  let typedef: string;
-  if (typeof type === 'object') {
-    typedef = type.name;
-  } else {
-    typedef = type;
-  }
-
+export function toAstType(typedef: Typedef) : ts.TypeNode {
   // This is all types as defined by the `thrift` node library
-  switch(typedef.toUpperCase()) {
+  switch(getEnumType(typedef)) {
     case 'BOOL':
       return ts.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword);
     case 'BYTE': // TODO: is this a number type?
@@ -79,22 +73,20 @@ export function toAstType(type: string | Container) : ts.TypeNode {
       return ts.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword);
     case 'LIST':
       // TODO: maybe an interface?
-      if (typeof type === 'object') {
-        return ts.createArrayTypeNode(toAstType(type.valueType));
+      if (typeof typedef === 'object') {
+        return ts.createArrayTypeNode(toAstType(typedef.valueType));
       }
       throw new Error('Invalid Set type definition');
     case 'SET':
       // TODO: maybe an interface?
-      if (typeof type === 'object') {
-        return ts.createArrayTypeNode(toAstType(type.valueType));
+      if (typeof typedef === 'object') {
+        return ts.createArrayTypeNode(toAstType(typedef.valueType));
       }
       throw new Error('Invalid Set type definition');
     default:
       return;
   }
 }
-
-export type Typedef = string | { name: string, keyType?: string, valueType: string };
 
 export function getType(typedef: Typedef) : string {
   if (typeof typedef === 'string') {
