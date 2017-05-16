@@ -176,6 +176,10 @@ function createRead(fields) {
 
     const _ifType = createIf(_comparison, _readStatement, _skip);
 
+    // Map/Set/List don't seem to use the etype,ktype,vtype property that's initialized
+    // instead of initializing this[prop] at the top of the IF, it can be done afterwards to allow for easier recursion (I think)
+    // instead of using .push(value), we might be able to use index access for List/Set to act similar to Map (or maybe custom Map can implement a .push)
+
     return ts.createCaseClause(ts.createLiteral(field.id), [
       ts.createBlock([_ifType, _break], true)
     ]);
