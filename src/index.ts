@@ -304,56 +304,51 @@ function createSetBody(_thisPropAccess, _innerType) {
   // TODO: duplicate code? Uses elementAccess instead
   // output.writeString(this.hmm2[iter46]);
   const _elAccess = ts.createElementAccess(_thisPropAccess, _loopTmp);
+  const _tmpVar = ts.createTempVariable(undefined);
+  const _assign = createVariable(_tmpVar, _elAccess);
   // TODO: not super safe access
   let _writeTypeStatement
   if (typeof _innerType === 'object') {
     // Recursion
-    _writeTypeStatement = createSetBody(_elAccess, _innerType.valueType);
+    _writeTypeStatement = ts.createBlock([
+      _assign,
+      ...createSetBody(_tmpVar, _innerType.valueType)
+    ]);
   } else {
-    _writeTypeStatement = writers[_method](_elAccess);
+    _writeTypeStatement = ts.createBlock([
+      _assign,
+      writers[_method](_tmpVar)
+    ]);
   }
   // End duplicate
-  const _ifHasOwnProp = createIf(_hasOwnPropCall, _writeTypeStatement);
+  const _ifHasOwnProp = ts.createIf(_hasOwnPropCall, _writeTypeStatement);
   const _writeBlock = ts.createBlock([
     _ifHasOwnProp
   ]);
   const _forIn = ts.createForIn(_key, _thisPropAccess, _writeBlock);
 
   // TODO: I wish there were a way to create a mutliline statement without braces
-  return ts.createBlock([
+  return ts.createNodeArray<ts.Statement>([
     writeSetBegin(innerType.toUpperCase(), ts.createPropertyAccess(_thisPropAccess, 'length')),
     _forIn,
     writeSetEnd()
   ]);
 }
 
-// TODO: util?
-function flatten(arr, result = []) {
-  if (arr.length === 0) {
-    return result;
-  }
-
-  let [head, ...tail] = arr;
-
-  if (Array.isArray(head)) {
-    return flatten(tail, result.concat(flatten(head)));
-  } else {
-    return flatten(tail, result.concat(head));
-  }
-}
 
 function createSetWriteField(field) {
   const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
 
   // console.log(createSetBody(_thisPropAccess, field.type.valueType));
 
-  const _if = createIf(
+  const _if = ts.createIf(
     createNotEquals(_thisPropAccess, ts.createNull()),
-    [
+    ts.createBlock([
       writeFieldBegin(field.name, 'SET', field.id),
-      createSetBody(_thisPropAccess, field.type.valueType),
+      ...createSetBody(_thisPropAccess, field.type.valueType),
       writeFieldEnd()
-    ]
+    ])
+    // ts.createBlock(createSetBody(_thisPropAccess, field.type.valueType))
   );
 
   return _if;
