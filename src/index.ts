@@ -10,9 +10,14 @@ import {
   createIf,
   createThrow,
   createVariable,
-  createNotEquals
+  createNotEquals,
+  getEnumType
 } from './ast-helpers'
 import * as gen from './ast-specifics'
+
+import {
+  getBody
+} from './write-types';
 
 function readFile(fileName: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
@@ -209,235 +214,29 @@ function createRead(fields) {
   return ts.createMethodDeclaration(undefined, [_publicModifier], undefined, 'read', undefined, undefined, [_inputDeclaration], undefined, _readBlock);
 }
 
-function getType(typedef: string | { name: string, keyType?: string, valueType: string}) : string {
-  if (typeof typedef === 'string') {
-    return typedef;
-  }
-  return typedef.name;
-}
-
-function createWriteBody(methodName: string | ts.Identifier) {
-
-  return function (args: ts.Expression | ts.Expression[]) {
-    if (!Array.isArray(args)) {
-      args = [args];
-    }
-
-    const _writeType = ts.createPropertyAccess(ts.createIdentifier('output'), methodName);
-    const _writeTypeCall = ts.createCall(_writeType, undefined, args);
-
-    return ts.createStatement(_writeTypeCall);
-  }
-}
-
-const writers = {
-  string: createWriteBody('writeString'),
-  bool: createWriteBody('writeBool'),
-  i16: createWriteBody('writeI16'),
-  i32: createWriteBody('writeI32')
-};
-
-function writeFieldBegin(name: string, type: string, id: number) : ts.ExpressionStatement {
-  const _writeFieldBegin = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeFieldBegin');
-  const _writeFieldBeginCall = ts.createCall(_writeFieldBegin, undefined, [
-    ts.createLiteral(name),
-    ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${type}`),
-    ts.createLiteral(id)
-  ]);
-  const _writeFieldBeginStatement = ts.createStatement(_writeFieldBeginCall);
-  return _writeFieldBeginStatement;
-}
-
-function writeFieldEnd() : ts.ExpressionStatement {
-  const _writeFieldEnd = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeFieldEnd');
-  const _writeFieldEndCall = ts.createCall(_writeFieldEnd, undefined, undefined);
-  const _writeFieldEndStatement = ts.createStatement(_writeFieldEndCall);
-
-  return _writeFieldEndStatement;
-}
-
-function writeSetBegin(type: string, lengthAccess: ts.PropertyAccessExpression) : ts.ExpressionStatement {
-  // output.writeSetBegin(Thrift.Type.STRING, this.hmm2.length);
-  const _writeSetBegin = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeSetBegin');
-  const _writeSetBeginCall = ts.createCall(_writeSetBegin, undefined, [
-    ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${type}`),
-    lengthAccess
-  ]);
-  const _writeSetBeginStatement = ts.createStatement(_writeSetBeginCall);
-
-  return _writeSetBeginStatement;
-}
-
-function writeSetEnd() : ts.ExpressionStatement {
-  // output.writeSetEnd();
-  const _writeSetEnd = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeSetEnd');
-  const _writeSetEndCall = ts.createCall(_writeSetEnd, undefined, undefined);
-  const _writeSetEndStatement = ts.createStatement(_writeSetEndCall);
-
-  return _writeSetEndStatement;
-}
-
-function createSetBody(_thisPropAccess, _innerType) {
-  // console.log(_innerType);
-  let innerType;
-  let _method;
-  if (typeof _innerType === 'object') {
-    innerType = _innerType.name[0].toUpperCase() + _innerType.name.slice(1);
-    _method = _innerType.name;
-  } else {
-    innerType = _innerType[0].toUpperCase() + _innerType.slice(1);
-    _method = _innerType;
-  }
-
-  // for (var iter46 in this.hmm2) {
-
-  // TODO: set is stored in an array, maybe this should be a for loop instead
-  const _loopTmp = ts.createLoopVariable();
-  const _key = ts.createVariableDeclarationList([
-    ts.createVariableDeclaration(_loopTmp)
-  ]);
-  //   if (this.hmm2.hasOwnProperty(iter46))
-  const _hasOwnProp = ts.createPropertyAccess(_thisPropAccess, 'hasOwnProperty');
-  const _hasOwnPropCall = ts.createCall(_hasOwnProp, undefined, [
-    _loopTmp
-  ]);
-  // TODO: duplicate code? Uses elementAccess instead
-  // output.writeString(this.hmm2[iter46]);
-  const _elAccess = ts.createElementAccess(_thisPropAccess, _loopTmp);
-  const _tmpVar = ts.createTempVariable(undefined);
-  const _assign = createVariable(_tmpVar, _elAccess);
-  // TODO: not super safe access
-  let _writeTypeStatement
-  if (typeof _innerType === 'object') {
-    // Recursion
-    _writeTypeStatement = ts.createBlock([
-      _assign,
-      ...createSetBody(_tmpVar, _innerType.valueType)
-    ]);
-  } else {
-    _writeTypeStatement = ts.createBlock([
-      _assign,
-      writers[_method](_tmpVar)
-    ]);
-  }
-  // End duplicate
-  const _ifHasOwnProp = ts.createIf(_hasOwnPropCall, _writeTypeStatement);
-  const _writeBlock = ts.createBlock([
-    _ifHasOwnProp
-  ]);
-  const _forIn = ts.createForIn(_key, _thisPropAccess, _writeBlock);
-
-  // TODO: I wish there were a way to create a mutliline statement without braces
-  return ts.createNodeArray<ts.Statement>([
-    writeSetBegin(innerType.toUpperCase(), ts.createPropertyAccess(_thisPropAccess, 'length')),
-    _forIn,
-    writeSetEnd()
-  ]);
-}
 
 
-function createSetWriteField(field) {
-  const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
-
-  // console.log(createSetBody(_thisPropAccess, field.type.valueType));
-
-  const _if = ts.createIf(
-    createNotEquals(_thisPropAccess, ts.createNull()),
-    ts.createBlock([
-      writeFieldBegin(field.name, 'SET', field.id),
-      ...createSetBody(_thisPropAccess, field.type.valueType),
-      writeFieldEnd()
-    ])
-    // ts.createBlock(createSetBody(_thisPropAccess, field.type.valueType))
-  );
-
-  return _if;
-}
-
-function createBoolWriteField(field) {
-  const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
-
-  const _if = createIf(
-    createNotEquals(_thisPropAccess, ts.createNull()),
-    [
-      writeFieldBegin(field.name, 'BOOL', field.id),
-      writers.bool(_thisPropAccess),
-      writeFieldEnd()
-    ]
-  );
-
-  return _if;
-}
-
-function createI32WriteField(field) {
-  const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
-
-  const _if = createIf(
-    createNotEquals(_thisPropAccess, ts.createNull()),
-    [
-      writeFieldBegin(field.name, 'I32', field.id),
-      writers.i32(_thisPropAccess),
-      writeFieldEnd()
-    ]
-  );
-
-  return _if;
-}
-
-function createI16WriteField(field) {
-  const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
-
-  const _if = createIf(
-    createNotEquals(_thisPropAccess, ts.createNull()),
-    [
-      writeFieldBegin(field.name, 'I16', field.id),
-      writers.i16(_thisPropAccess),
-      writeFieldEnd()
-    ]
-  );
-
-  return _if;
-}
-
-function createStringWriteField(field) {
-  const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
-
-  const _if = createIf(
-    createNotEquals(_thisPropAccess, ts.createNull()),
-    [
-      writeFieldBegin(field.name, 'STRING', field.id),
-      writers.string(_thisPropAccess),
-      writeFieldEnd()
-    ]
-  );
-
-  return _if;
-}
 
 function createWriteField(field) {
-  switch(getType(field.type)) {
-    case 'set': {
-      return createSetWriteField(field);
-    }
-    case 'list':
-      break;
-    case 'map':
-      break;
-    case 'bool': {
-      return createBoolWriteField(field);
-    }
-    case 'i32': {
-      return createI32WriteField(field);
-    }
-    case 'i16': {
-      return createI16WriteField(field);
-    }
-    case 'string': {
-      return createStringWriteField(field);
-    }
-    default:
-      throw new Error('Not Implemented' + field.type)
+  const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
+
+  const _comparison = createNotEquals(_thisPropAccess, ts.createNull());
+
+  const _enumType = getEnumType(field.type)
+
+  let body = getBody(field.type, _thisPropAccess);
+
+  if (!Array.isArray(body)) {
+    body = [body];
   }
+
+  const _if = ts.createIf(_comparison, ts.createBlock([
+    gen.writeFieldBegin(field.name, _enumType, field.id),
+    ...body,
+    gen.writeFieldEnd(),
+  ]))
+
+  return _if;
 }
 
 function createWrite(service) {

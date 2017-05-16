@@ -74,10 +74,15 @@ export function toAstType(type: string | Container) : ts.TypeNode {
     case 'VOID': // TODO: does this need a type?
     case 'STRUCT':
     case 'MAP':
-    case 'LIST':
       throw new Error('Not Implemented');
+    case 'LIST':
+      // TODO: maybe an interface?
+      if (typeof type === 'object') {
+        return ts.createArrayTypeNode(toAstType(type.valueType));
+      }
+      throw new Error('Invalid Set type definition');
     case 'SET':
-      // TODO: actually type this appropriately
+      // TODO: maybe an interface?
       if (typeof type === 'object') {
         return ts.createArrayTypeNode(toAstType(type.valueType));
       }
@@ -85,4 +90,15 @@ export function toAstType(type: string | Container) : ts.TypeNode {
     default:
       return;
   }
+}
+
+export function getType(typedef: string | { name: string, keyType?: string, valueType: string}) : string {
+  if (typeof typedef === 'string') {
+    return typedef;
+  }
+  return typedef.name;
+}
+
+export function getEnumType(typedef) {
+  return getType(typedef).toUpperCase();
 }
