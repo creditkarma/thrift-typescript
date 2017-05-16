@@ -73,8 +73,10 @@ export function toAstType(type: string | Container) : ts.TypeNode {
       return ts.createKeywordTypeNode(ts.SyntaxKind.StringKeyword);
     case 'VOID': // TODO: does this need a type?
     case 'STRUCT':
-    case 'MAP':
       throw new Error('Not Implemented');
+    case 'MAP':
+      // TODO: need a better thing here
+      return ts.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword);
     case 'LIST':
       // TODO: maybe an interface?
       if (typeof type === 'object') {
@@ -92,13 +94,15 @@ export function toAstType(type: string | Container) : ts.TypeNode {
   }
 }
 
-export function getType(typedef: string | { name: string, keyType?: string, valueType: string}) : string {
+export type Typedef = string | { name: string, keyType?: string, valueType: string };
+
+export function getType(typedef: Typedef) : string {
   if (typeof typedef === 'string') {
     return typedef;
   }
   return typedef.name;
 }
 
-export function getEnumType(typedef) {
+export function getEnumType(typedef: Typedef) {
   return getType(typedef).toUpperCase();
 }

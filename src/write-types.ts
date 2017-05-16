@@ -3,7 +3,8 @@ import * as ts from 'typescript';
 import {
   getType,
   createIf,
-  createVariable
+  createVariable,
+  getEnumType
 } from './ast-helpers';
 
 function createWriteBody(methodName: string | ts.Identifier, args: ts.Expression | ts.Expression[] | undefined) {
@@ -17,73 +18,52 @@ function createWriteBody(methodName: string | ts.Identifier, args: ts.Expression
   return ts.createStatement(_writeTypeCall);
 }
 
-function writeSetBegin(type: string, lengthAccess: ts.PropertyAccessExpression) : ts.ExpressionStatement {
-  // output.writeSetBegin(Thrift.Type.STRING, this.hmm2.length);
-  const _writeSetBegin = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeSetBegin');
-  const _writeSetBeginCall = ts.createCall(_writeSetBegin, undefined, [
-    ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${type}`),
-    lengthAccess
-  ]);
-  const _writeSetBeginStatement = ts.createStatement(_writeSetBeginCall);
+function writeContainerBegin(methodName: string | ts.Identifier, args: ts.Expression[]) : ts.ExpressionStatement {
+  const _writeContainerBegin = ts.createPropertyAccess(ts.createIdentifier('output'), methodName);
+  const _writeContainerBeginCall = ts.createCall(_writeContainerBegin, undefined, args);
+  const _writeContainerBeginStatement = ts.createStatement(_writeContainerBeginCall);
 
-  return _writeSetBeginStatement;
+  return _writeContainerBeginStatement;
 }
 
-function writeSetEnd() : ts.ExpressionStatement {
-  // output.writeSetEnd();
-  const _writeSetEnd = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeSetEnd');
-  const _writeSetEndCall = ts.createCall(_writeSetEnd, undefined, undefined);
-  const _writeSetEndStatement = ts.createStatement(_writeSetEndCall);
+function writeContainerEnd(methodName: string | ts.Identifier) : ts.ExpressionStatement {
+  const _writeContainerEnd = ts.createPropertyAccess(ts.createIdentifier('output'), methodName);
+  const _writeContainerEndCall = ts.createCall(_writeContainerEnd, undefined, undefined);
+  const _writeContainerEndStatement = ts.createStatement(_writeContainerEndCall);
 
-  return _writeSetEndStatement;
+  return _writeContainerEndStatement;
 }
 
-function writeListBegin(type: string, lengthAccess: ts.PropertyAccessExpression) : ts.ExpressionStatement {
-  // output.writeListBegin(Thrift.Type.STRING, this.hmm2.length);
-  const _writeListBegin = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeListBegin');
-  const _writeListBeginCall = ts.createCall(_writeListBegin, undefined, [
-    ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${type}`),
-    lengthAccess
-  ]);
-  const _writeListBeginStatement = ts.createStatement(_writeListBeginCall);
-
-  return _writeListBeginStatement;
-}
-
-function writeListEnd() : ts.ExpressionStatement {
-  // output.writeListEnd();
-  const _writeListEnd = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeListEnd');
-  const _writeListEndCall = ts.createCall(_writeListEnd, undefined, undefined);
-  const _writeListEndStatement = ts.createStatement(_writeListEndCall);
-
-  return _writeListEndStatement;
-}
-
-function getListLikeLoop(innerType, accessVar) {
-  // for (var iter46 in this.hmm2) {
-
-  // TODO: set is stored in an array, maybe this should be a for loop instead
+function createLoopBody(accessVar, valueType, keyType?) {
+  // TODO: Set and List are stored in an array, maybe this should be a for loop instead
   const _loopTmp = ts.createLoopVariable();
   const _key = ts.createVariableDeclarationList([
     ts.createVariableDeclaration(_loopTmp)
   ]);
-  //   if (this.hmm2.hasOwnProperty(iter46))
+
   const _hasOwnProp = ts.createPropertyAccess(accessVar, 'hasOwnProperty');
   const _hasOwnPropCall = ts.createCall(_hasOwnProp, undefined, [
     _loopTmp
   ]);
-  // output.writeString(this.hmm2[iter46]);
+
   const _elAccess = ts.createElementAccess(accessVar, _loopTmp);
   const _tmpVar = ts.createTempVariable(undefined);
   const _assign = createVariable(_tmpVar, _elAccess);
+
   // Yay, real recursion
-  let _writeTypeStatement = getBody(innerType, _tmpVar);
-  if (!Array.isArray(_writeTypeStatement)) {
-    _writeTypeStatement = [_writeTypeStatement];
+  let _writeKey = [];
+  if (keyType) {
+    _writeKey = _writeKey.concat(getBody(keyType, _loopTmp));
   }
+  let _writeValue = [];
+  if (valueType) {
+    _writeValue = _writeValue.concat(getBody(valueType, _tmpVar));
+  }
+
   const _ifHasOwnProp = createIf(_hasOwnPropCall, [
     _assign,
-    ..._writeTypeStatement
+    ..._writeKey,
+    ..._writeValue
   ]);
   const _writeBlock = ts.createBlock([
     _ifHasOwnProp
@@ -93,45 +73,55 @@ function getListLikeLoop(innerType, accessVar) {
   return _forIn;
 }
 
-function createSetBody(accessVar, _innerType) {
-  let innerType;
-  // TODO: there has to be a better way to do this
-  if (typeof _innerType === 'object') {
-    innerType = _innerType.name[0].toUpperCase() + _innerType.name.slice(1);
-  } else {
-    innerType = _innerType[0].toUpperCase() + _innerType.slice(1);
-  }
+function createSetBody(accessVar, valueType) {
+  const _forIn = createLoopBody(accessVar, valueType);
 
-  const _forIn = getListLikeLoop(_innerType, accessVar)
+  const _enumType = getEnumType(valueType);
 
   return [
-    writeSetBegin(
-      innerType.toUpperCase(),
+    writeContainerBegin('writeSetBegin', [
+      ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${_enumType}`),
       ts.createPropertyAccess(accessVar, 'length')
-    ),
+    ]),
     _forIn,
-    writeSetEnd()
+    writeContainerEnd('writeSetEnd')
   ];
 }
 
-function createListBody(accessVar, _innerType) {
-  let innerType;
-  // TODO: there has to be a better way to do this
-  if (typeof _innerType === 'object') {
-    innerType = _innerType.name[0].toUpperCase() + _innerType.name.slice(1);
-  } else {
-    innerType = _innerType[0].toUpperCase() + _innerType.slice(1);
-  }
+function createListBody(accessVar, valueType) {
+  const _forIn = createLoopBody(accessVar, valueType);
 
-  const _forIn = getListLikeLoop(_innerType, accessVar)
+  const _enumType = getEnumType(valueType);
 
   return [
-    writeListBegin(
-      innerType.toUpperCase(),
+    writeContainerBegin('writeListBegin', [
+      ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${_enumType}`),
       ts.createPropertyAccess(accessVar, 'length')
-    ),
+    ]),
     _forIn,
-    writeListEnd()
+    writeContainerEnd('writeListEnd')
+  ];
+}
+
+function createMapBody(accessVar, valueType, keyType) {
+  const _forIn = createLoopBody(accessVar, valueType, keyType);
+
+  const _objectLength = ts.createPropertyAccess(ts.createIdentifier('Thrift'), 'objectLength');
+  const _objectLengthCall = ts.createCall(_objectLength, undefined, [
+    accessVar
+  ]);
+
+  keyType = getEnumType(keyType);
+  valueType = getEnumType(valueType);
+
+  return [
+    writeContainerBegin('writeMapBegin', [
+      ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${keyType}`),
+      ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${valueType}`),
+      _objectLengthCall
+    ]),
+    _forIn,
+    writeContainerEnd('writeMapEnd')
   ];
 }
 
@@ -143,8 +133,9 @@ export function getBody(type, accessVar) {
     case 'list': {
       return createListBody(accessVar, type.valueType);
     }
-    case 'map':
-      break;
+    case 'map': {
+      return createMapBody(accessVar, type.valueType, type.keyType)
+    }
     case 'bool': {
       return createWriteBody('writeBool', accessVar);
     }
