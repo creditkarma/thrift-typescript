@@ -105,6 +105,9 @@ function createConstructor(fields) {
     const _propertyAssignment = ts.createAssignment(_thisPropAccess, _argsPropAccess);
     const _thenAssign = ts.createStatement(_propertyAssignment)
 
+    // Map is supposed to use Thrift.copyMap but that doesn't work if we use something better than an object
+    // Set/List is supposed to use Thrift.copyList but the implementation is weird and might not work when combined with the custom Map copying
+
     const _comparison = createNotEquals(_argsPropAccess, ts.createNull());
 
     let _elseThrow;
