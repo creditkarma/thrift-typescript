@@ -1,3 +1,5 @@
+namespace js MyThing
+
 typedef string Json
 typedef i32 MyInteger
 

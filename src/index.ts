@@ -282,9 +282,11 @@ function createWrite(service) {
   return ts.createMethod(undefined, [_publicModifier], undefined, 'write', undefined, undefined, [_outputDeclaration], undefined, _writeBlock);
 }
 
-function generateTypesAST(idl: object): string {
+function generateTypesAST(idl: any): string {
   const typedefs = getTypeDefs(idl);
   const structs = getStructs(idl);
+
+  const _exportModifier = ts.createToken(ts.SyntaxKind.ExportKeyword);
 
   let prefaceFile = ts.createSourceFile('preface.ts', '', ts.ScriptTarget.ES5, false, ts.ScriptKind.TS);
 
@@ -304,21 +306,14 @@ function generateTypesAST(idl: object): string {
     _namespaceQ
   ]);
 
-  const typedefFiles = typedefs.map(function(typedef) {
-    const typedefFile = ts.createSourceFile(`${typedef.name}-typedef.ts`, '', ts.ScriptTarget.ES5, false, ts.ScriptKind.TS);
-
-    const _exportModifier = ts.createToken(ts.SyntaxKind.ExportKeyword);
+  const _types = typedefs.map(function(typedef) {
     const _type = ts.createTypeAliasDeclaration(undefined, [_exportModifier], typedef.name, undefined, toAstType(typedef.type));
 
-    return ts.updateSourceFileNode(typedefFile, [
-      _type
-    ]);
+    return _type;
   });
 
-  const structFiles = structs.map(function(struct) {
-    const structFile = ts.createSourceFile(`${struct.name}-struct.ts`, '', ts.ScriptTarget.ES5, false, ts.ScriptKind.TS);
+  const _structs = structs.map(function(struct) {
 
-    const _exportModifier = ts.createToken(ts.SyntaxKind.ExportKeyword);
     const _publicModifier = ts.createToken(ts.SyntaxKind.PublicKeyword);
 
     const _fieldDeclarations = struct.fields.map(function(field) {
@@ -357,17 +352,35 @@ function generateTypesAST(idl: object): string {
 
     const _classStatement = ts.createStatement(_classExpression);
 
-    return ts.updateSourceFileNode(structFile, [
-      _classStatement
-    ]);
+    return _classStatement;
   });
+
+  let bodyFile = ts.createSourceFile('body.ts', '', ts.ScriptTarget.ES5, false, ts.ScriptKind.TS);
+  if (idl.namespace && idl.namespace.js) {
+
+    const namespace = ts.createIdentifier(idl.namespace.js.serviceName);
+
+    const _namespaceBlock = ts.createModuleBlock([
+      ..._types,
+      ..._structs
+    ]);
+
+    const _namespace = ts.createModuleDeclaration(undefined, [_exportModifier], namespace, _namespaceBlock, ts.NodeFlags.Namespace);
+    bodyFile = ts.updateSourceFileNode(bodyFile, [
+      _namespace
+    ]);
+  } else {
+    bodyFile = ts.updateSourceFileNode(bodyFile, [
+      ..._types,
+      ..._structs
+    ]);
+  }
 
   const printer = ts.createPrinter();
 
   return printer.printBundle(ts.createBundle([
     prefaceFile,
-    ...typedefFiles,
-    ...structFiles
+    bodyFile
   ]));
 }
 

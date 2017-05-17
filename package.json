@@ -37,6 +37,7 @@
     "remap-istanbul": "^0.5.1",
     "rimraf": "^2.5.4",
     "source-map-support": "^0.4.0",
+    "thrift": "^0.10.0",
     "tslint": "^5.2.0",
     "typescript": "^2.0.0"
   },

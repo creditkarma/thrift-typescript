@@ -92,6 +92,22 @@ describe('Thrift Loader', () => {
     })
   })
 
+  describe(`AST: when generating types from thrift file "${simpleSet}"`, () => {
+    let types
+    before((done) => {
+      generateIDLTypesAST(simpleSet).then((results) => {
+        types = results
+        // require('fs').writeFileSync('sample.ts', results, 'utf8');
+        console.log(types);
+        done()
+      })
+    })
+
+    it('expect types to exist', () => {
+      expect(types).to.exist
+    })
+  })
+
   describe(`when generating services from thrift file "${simple}"`, () => {
     let services
     before((done) => {
