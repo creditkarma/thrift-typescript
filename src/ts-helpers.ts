@@ -26,7 +26,8 @@ function getStructOrType(type: string) {
 
 export function registerHelpers() {
   registerHelper('tsType', (type: string) => tsTypeMap[type] || `ttypes.${type}`)
-  registerHelper('upcase', (str: string) => str[0].toUpperCase() + str.substr(1))
+  registerHelper('upcase', (str: string) => str.toUpperCase())
+  registerHelper('capitalize', (str: string) => str[0].toUpperCase() + str.substr(1))
   registerHelper('getResultType', getResultType)
   registerHelper('getStructOrType', getStructOrType)
   registerHelper('isStruct', (type: string) => tsTypeMap[type] ? false : true)

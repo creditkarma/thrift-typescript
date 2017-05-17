@@ -7,7 +7,7 @@ import thrift = require("thrift");
 import Thrift = thrift.Thrift;
 import Q = thrift.Q;
 {{#each this}}
-export class {{upcase name}} {
+export class {{capitalize name}} {
     public success: boolean;
     {{#each fields}}
     public {{name}}: {{tsType type}} = null;
@@ -39,7 +39,7 @@ export class {{upcase name}} {
                 {{#each fields}}
                 case {{id}}: {
                     if (ftype === Thrift.Type.{{upcase type}}) {
-                        this.{{name}} = input.read{{upcase type}}();
+                        this.{{name}} = input.read{{capitalize type}}();
                     }
                     else {
                         input.skip(ftype);
@@ -59,11 +59,11 @@ export class {{upcase name}} {
         input.readStructEnd();
     }
     public write(output) {
-        output.writeStructBegin("{{upcase name}}");
+        output.writeStructBegin("{{capitalize name}}");
         {{#each fields}}
         if (this.{{name}} != null) {
             output.writeFieldBegin("{{name}}", Thrift.Type.{{upcase type}}, {{id}});
-            output.write{{upcase type}}(this.{{name}});
+            output.write{{capitalize type}}(this.{{name}});
             output.writeFieldEnd();
         }
         {{/each}}

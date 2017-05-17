@@ -169,7 +169,7 @@ function createRead(fields) {
   const _cases = fields.map(function(field) {
     const type = field.type[0].toUpperCase() + field.type.slice(1);
 
-    const _typeAccess = ts.createPropertyAccess(_Thrift, `Type.${type}`);
+    const _typeAccess = ts.createPropertyAccess(_Thrift, `Type.${getEnumType(field.type)}`);
     const _comparison = ts.createStrictEquality(_ftype, _typeAccess);
 
     const _thisName = ts.createPropertyAccess(ts.createThis(), field.name);

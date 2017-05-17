@@ -62,10 +62,8 @@ describe('Thrift Loader', () => {
   describe(`AST: when generating types from thrift file "${simple}"`, () => {
     let types
     before((done) => {
-      generateIDLTypesAST(simpleSet).then((results) => {
+      generateIDLTypesAST(simple).then((results) => {
         types = results
-        // require('fs').writeFileSync('sample.ts', results, 'utf8');
-        // console.log(types);
         done()
       })
     })
@@ -73,7 +71,6 @@ describe('Thrift Loader', () => {
     before((done) => {
       generateIDLTypes(simple).then((results) => {
         handlebars = results
-        // console.log(types);
         done()
       })
     })
