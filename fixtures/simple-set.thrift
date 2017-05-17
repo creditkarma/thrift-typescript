@@ -1,3 +1,6 @@
+typedef string Json
+typedef i32 MyInteger
+
 struct MyStruct {
     1: required i32 id,
     2: required bool field1,
