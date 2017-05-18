@@ -11,7 +11,8 @@ import {
   createThrow,
   createVariable,
   createNotEquals,
-  getEnumType
+  getEnumType,
+  getType
 } from './ast-helpers'
 import * as gen from './ast-specifics'
 
@@ -96,10 +97,13 @@ export async function generateIDLServices(fileName: string): Promise<string> {
   return generateServices(input)
 }
 
-function createConstructor(fields) {
-  // filter map/list/set for now
-  fields = fields.filter((field) => typeof field.type !== 'object');
+function createAssignment(left, right) {
+  const _propertyAssignment = ts.createAssignment(left, right);
 
+  return ts.createStatement(_propertyAssignment);
+}
+
+function createConstructor(fields) {
   const _questionToken = ts.createToken(ts.SyntaxKind.QuestionToken);
 
   const _args = ts.createIdentifier('args');
@@ -108,13 +112,57 @@ function createConstructor(fields) {
   const _argsParameter = ts.createParameter(undefined, undefined, undefined, _args, _questionToken, undefined, undefined);
 
   const _fieldAssignments = fields.map(function(field) {
+
     const _argsPropAccess = ts.createPropertyAccess(_args, field.name);
     const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
-    const _propertyAssignment = ts.createAssignment(_thisPropAccess, _argsPropAccess);
-    const _thenAssign = ts.createStatement(_propertyAssignment)
 
     // Map is supposed to use Thrift.copyMap but that doesn't work if we use something better than an object
     // Set/List is supposed to use Thrift.copyList but the implementation is weird and might not work when combined with the custom Map copying
+    // TODO: should we perform a deep clone? Currently shallow but not sure if deep cloning is actually needed
+    let _thenAssign;
+    switch(getType(field.type)) {
+      case 'set': {
+        // TODO: Use Set constructor if/when we use it
+        const _copy = ts.createCall(ts.createPropertyAccess(ts.createIdentifier('Array'), 'from'), undefined, [
+          _argsPropAccess
+        ]);
+        _thenAssign = createAssignment(_thisPropAccess, _copy);
+        break;
+      }
+      case 'list': {
+        const _copy = ts.createCall(ts.createPropertyAccess(ts.createIdentifier('Array'), 'from'), undefined, [
+          _argsPropAccess
+        ]);
+        _thenAssign = createAssignment(_thisPropAccess, _copy);
+        break;
+      }
+      case 'map': {
+        // TODO: without some sort of recursion/deep-clone, a Map inside a Set/List won't be a true Map which would screw up our forEach
+        const _copy = ts.createNew(ts.createIdentifier('Map'), undefined, [
+          _argsPropAccess
+        ]);
+        _thenAssign = createAssignment(_thisPropAccess, _copy);
+        break;
+      }
+      case 'bool': {
+        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
+        break;
+      }
+      case 'i32': {
+        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
+        break;
+      }
+      case 'i16': {
+        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
+        break;
+      }
+      case 'string': {
+        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
+        break;
+      }
+      default:
+        throw new Error('Not Implemented ' + field.type)
+    }
 
     const _comparison = createNotEquals(_argsPropAccess, ts.createNull());
 
