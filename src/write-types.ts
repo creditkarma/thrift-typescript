@@ -35,42 +35,34 @@ function writeContainerEnd(methodName: string | ts.Identifier) : ts.ExpressionSt
 }
 
 function createLoopBody(accessVar, valueType, keyType?) {
-  // TODO: Set and List are stored in an array, maybe this should be a for loop instead
-  const _loopTmp = ts.createLoopVariable();
-  const _key = ts.createVariableDeclarationList([
-    ts.createVariableDeclaration(_loopTmp)
-  ]);
-
-  const _hasOwnProp = ts.createPropertyAccess(accessVar, 'hasOwnProperty');
-  const _hasOwnPropCall = ts.createCall(_hasOwnProp, undefined, [
-    _loopTmp
-  ]);
-
-  const _elAccess = ts.createElementAccess(accessVar, _loopTmp);
-  const _tmpVar = ts.createTempVariable(undefined);
-  const _assign = createVariable(_tmpVar, _elAccess);
+  // forEach to normalize data types
+  const _keyTemp = ts.createUniqueName('key');
+  const _valueTemp = ts.createUniqueName('value');
 
   // Yay, real recursion
   let _writeKey = [];
   if (keyType) {
-    _writeKey = _writeKey.concat(getBody(keyType, _loopTmp));
+    _writeKey = _writeKey.concat(getBody(keyType, _keyTemp));
   }
   let _writeValue = [];
   if (valueType) {
-    _writeValue = _writeValue.concat(getBody(valueType, _tmpVar));
+    _writeValue = _writeValue.concat(getBody(valueType, _valueTemp));
   }
 
-  const _ifHasOwnProp = createIf(_hasOwnPropCall, [
-    _assign,
+  const _keyParam = ts.createParameter(undefined, undefined, undefined, _keyTemp);
+  const _valueParam = ts.createParameter(undefined, undefined, undefined, _valueTemp);
+
+  const _loopBody = ts.createBlock([
     ..._writeKey,
     ..._writeValue
-  ]);
-  const _writeBlock = ts.createBlock([
-    _ifHasOwnProp
-  ]);
-  const _forIn = ts.createForIn(_key, accessVar, _writeBlock);
+  ], true);
 
-  return _forIn;
+  const _callback = ts.createArrowFunction(undefined, undefined, [_valueParam, _keyParam], undefined, undefined, _loopBody);
+
+  const _forEachAccess = ts.createPropertyAccess(accessVar, 'forEach');
+  const _forEach = ts.createCall(_forEachAccess, undefined, [_callback]);
+
+  return ts.createStatement(_forEach);
 }
 
 function createSetBody(accessVar, valueType) {
@@ -81,6 +73,7 @@ function createSetBody(accessVar, valueType) {
   return [
     writeContainerBegin('writeSetBegin', [
       ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${_enumType}`),
+      // TODO: switch to .size if using Set
       ts.createPropertyAccess(accessVar, 'length')
     ]),
     _forIn,
@@ -106,11 +99,6 @@ function createListBody(accessVar, valueType) {
 function createMapBody(accessVar, valueType, keyType) {
   const _forIn = createLoopBody(accessVar, valueType, keyType);
 
-  const _objectLength = ts.createPropertyAccess(ts.createIdentifier('Thrift'), 'objectLength');
-  const _objectLengthCall = ts.createCall(_objectLength, undefined, [
-    accessVar
-  ]);
-
   keyType = getEnumType(keyType);
   valueType = getEnumType(valueType);
 
@@ -118,7 +106,7 @@ function createMapBody(accessVar, valueType, keyType) {
     writeContainerBegin('writeMapBegin', [
       ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${keyType}`),
       ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${valueType}`),
-      _objectLengthCall
+      ts.createPropertyAccess(accessVar, 'size')
     ]),
     _forIn,
     writeContainerEnd('writeMapEnd')
