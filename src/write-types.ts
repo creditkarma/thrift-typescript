@@ -90,7 +90,7 @@ function createLoopBody(type, accessVar) {
 }
 
 function createSetBody(type, accessVar) {
-  const _forIn = createLoopBody(type, accessVar);
+  const _forEach = createLoopBody(type, accessVar);
 
   const _enumType = getEnumType(type.valueType);
 
@@ -100,13 +100,13 @@ function createSetBody(type, accessVar) {
       // TODO: switch to .size if using Set
       ts.createPropertyAccess(accessVar, 'length')
     ]),
-    _forIn,
+    _forEach,
     writeContainerEnd('writeSetEnd')
   ];
 }
 
 function createListBody(type, accessVar) {
-  const _forIn = createLoopBody(type, accessVar);
+  const _forEach = createLoopBody(type, accessVar);
 
   const _enumType = getEnumType(type.valueType);
 
@@ -115,13 +115,13 @@ function createListBody(type, accessVar) {
       ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${_enumType}`),
       ts.createPropertyAccess(accessVar, 'length')
     ]),
-    _forIn,
+    _forEach,
     writeContainerEnd('writeListEnd')
   ];
 }
 
 function createMapBody(type, accessVar) {
-  const _forIn = createLoopBody(type, accessVar);
+  const _forEach = createLoopBody(type, accessVar);
 
   const keyType = getEnumType(type.keyType);
   const valueType = getEnumType(type.valueType);
@@ -132,7 +132,7 @@ function createMapBody(type, accessVar) {
       ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${valueType}`),
       ts.createPropertyAccess(accessVar, 'size')
     ]),
-    _forIn,
+    _forEach,
     writeContainerEnd('writeMapEnd')
   ];
 }
