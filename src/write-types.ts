@@ -7,13 +7,37 @@ import {
   getEnumType
 } from './ast-helpers';
 
-function createWriteBody(methodName: string | ts.Identifier, args: ts.Expression | ts.Expression[] | undefined) {
-  if (!Array.isArray(args)) {
-    args = [args];
+function createWriteBody(type, accessVar: ts.Expression) {
+  let methodName;
+  switch(getType(type)) {
+    case 'bool': {
+      methodName = 'writeBool';
+      break;
+    }
+    case 'i32': {
+      methodName = 'writeI32';
+      break;
+    }
+    case 'i16': {
+      methodName = 'writeI16';
+      break;
+    }
+    case 'string': {
+      methodName = 'writeString';
+      break;
+    }
+    // TODO:
+    //   'writeBinary',
+    //   'writeDouble',
+    //   'writeI64',
+    //   'writeByte',
+    default: {
+      throw new Error('Not Implemented ' + type);
+    }
   }
 
   const _writeType = ts.createPropertyAccess(ts.createIdentifier('output'), methodName);
-  const _writeTypeCall = ts.createCall(_writeType, undefined, args);
+  const _writeTypeCall = ts.createCall(_writeType, undefined, [accessVar]);
 
   return ts.createStatement(_writeTypeCall);
 }
@@ -34,19 +58,19 @@ function writeContainerEnd(methodName: string | ts.Identifier) : ts.ExpressionSt
   return _writeContainerEndStatement;
 }
 
-function createLoopBody(accessVar, valueType, keyType?) {
+function createLoopBody(type, accessVar) {
   // forEach to normalize data types
   const _keyTemp = ts.createUniqueName('key');
   const _valueTemp = ts.createUniqueName('value');
 
   // Yay, real recursion
   let _writeKey = [];
-  if (keyType) {
-    _writeKey = _writeKey.concat(getBody(keyType, _keyTemp));
+  if (type.keyType) {
+    _writeKey = _writeKey.concat(getWriteBody(type.keyType, _keyTemp));
   }
   let _writeValue = [];
-  if (valueType) {
-    _writeValue = _writeValue.concat(getBody(valueType, _valueTemp));
+  if (type.valueType) {
+    _writeValue = _writeValue.concat(getWriteBody(type.valueType, _valueTemp));
   }
 
   const _keyParam = ts.createParameter(undefined, undefined, undefined, _keyTemp);
@@ -65,10 +89,10 @@ function createLoopBody(accessVar, valueType, keyType?) {
   return ts.createStatement(_forEach);
 }
 
-function createSetBody(accessVar, valueType) {
-  const _forIn = createLoopBody(accessVar, valueType);
+function createSetBody(type, accessVar) {
+  const _forIn = createLoopBody(type, accessVar);
 
-  const _enumType = getEnumType(valueType);
+  const _enumType = getEnumType(type.valueType);
 
   return [
     writeContainerBegin('writeSetBegin', [
@@ -81,10 +105,10 @@ function createSetBody(accessVar, valueType) {
   ];
 }
 
-function createListBody(accessVar, valueType) {
-  const _forIn = createLoopBody(accessVar, valueType);
+function createListBody(type, accessVar) {
+  const _forIn = createLoopBody(type, accessVar);
 
-  const _enumType = getEnumType(valueType);
+  const _enumType = getEnumType(type.valueType);
 
   return [
     writeContainerBegin('writeListBegin', [
@@ -96,11 +120,11 @@ function createListBody(accessVar, valueType) {
   ];
 }
 
-function createMapBody(accessVar, valueType, keyType) {
-  const _forIn = createLoopBody(accessVar, valueType, keyType);
+function createMapBody(type, accessVar) {
+  const _forIn = createLoopBody(type, accessVar);
 
-  keyType = getEnumType(keyType);
-  valueType = getEnumType(valueType);
+  const keyType = getEnumType(type.keyType);
+  const valueType = getEnumType(type.valueType);
 
   return [
     writeContainerBegin('writeMapBegin', [
@@ -113,30 +137,22 @@ function createMapBody(accessVar, valueType, keyType) {
   ];
 }
 
-export function getBody(type, accessVar) {
+export function getWriteBody(type, accessVar) {
   switch(getType(type)) {
+    // TODO:
+    //  'writeStruct'?
+    //  'writeValue'?
     case 'set': {
-      return createSetBody(accessVar, type.valueType);
+      return createSetBody(type, accessVar);
     }
     case 'list': {
-      return createListBody(accessVar, type.valueType);
+      return createListBody(type, accessVar);
     }
     case 'map': {
-      return createMapBody(accessVar, type.valueType, type.keyType)
+      return createMapBody(type, accessVar);
     }
-    case 'bool': {
-      return createWriteBody('writeBool', accessVar);
+    default: {
+      return createWriteBody(type, accessVar);
     }
-    case 'i32': {
-      return createWriteBody('writeI32', accessVar);
-    }
-    case 'i16': {
-      return createWriteBody('writeI16', accessVar);
-    }
-    case 'string': {
-      return createWriteBody('writeString', accessVar);
-    }
-    default:
-      throw new Error('Not Implemented ' + type)
   }
 }

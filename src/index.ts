@@ -16,9 +16,8 @@ import {
 } from './ast-helpers'
 import * as gen from './ast-specifics'
 
-import {
-  getBody
-} from './write-types';
+import { getReadBody } from './read-types';
+import { getWriteBody } from './write-types';
 
 function readFile(fileName: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
@@ -184,10 +183,31 @@ function createConstructor(fields) {
   return ts.createConstructor(undefined, undefined, [_argsParameter], _constructorBlock);
 }
 
-function createRead(fields) {
-  // filter map/list/set for now
-  fields = fields.filter((field) => typeof field.type !== 'object');
+function createReadField(field) {
 
+  const _Thrift = ts.createIdentifier('Thrift');
+  const _ftype = ts.createIdentifier('ftype');
+
+  const _enumType = getEnumType(field.type);
+
+  const _typeAccess = ts.createPropertyAccess(_Thrift, `Type.${_enumType}`);
+  const _comparison = ts.createStrictEquality(_ftype, _typeAccess);
+
+  const _thisName = ts.createPropertyAccess(ts.createThis(), field.name);
+  const _readAndAssign = getReadBody(field.type, _thisName);
+
+  const _skip = gen.skip();
+
+  const _break = ts.createBreak();
+
+  const _ifType = createIf(_comparison, _readAndAssign, _skip);
+
+  return ts.createCaseClause(ts.createLiteral(field.id), [
+    ts.createBlock([_ifType, _break], true)
+  ]);
+}
+
+function createRead(fields) {
   const _publicModifier = ts.createToken(ts.SyntaxKind.PublicKeyword);
 
   const _Thrift = ts.createIdentifier('Thrift');
@@ -214,32 +234,7 @@ function createRead(fields) {
 
   const _ifStop = createIf(_comparison, ts.createBreak());
 
-  const _cases = fields.map(function(field) {
-    const type = field.type[0].toUpperCase() + field.type.slice(1);
-
-    const _typeAccess = ts.createPropertyAccess(_Thrift, `Type.${getEnumType(field.type)}`);
-    const _comparison = ts.createStrictEquality(_ftype, _typeAccess);
-
-    const _thisName = ts.createPropertyAccess(ts.createThis(), field.name);
-    const _readType = ts.createPropertyAccess(_input, `read${type}`);
-    const _readTypeCall = ts.createCall(_readType, undefined, undefined);
-    const _readAssignment = ts.createAssignment(_thisName, _readTypeCall);
-    const _readStatement = ts.createStatement(_readAssignment);
-
-    const _skip = gen.skip();
-
-    const _break = ts.createBreak();
-
-    const _ifType = createIf(_comparison, _readStatement, _skip);
-
-    // Map/Set/List don't seem to use the etype,ktype,vtype property that's initialized
-    // instead of initializing this[prop] at the top of the IF, it can be done afterwards to allow for easier recursion (I think)
-    // instead of using .push(value), we might be able to use index access for List/Set to act similar to Map (or maybe custom Map can implement a .push)
-
-    return ts.createCaseClause(ts.createLiteral(field.id), [
-      ts.createBlock([_ifType, _break], true)
-    ]);
-  });
+  const _cases = fields.map(createReadField);
 
   const _skip = gen.skip();
   const _skipBlock = ts.createBlock([_skip], true);
@@ -285,9 +280,9 @@ function createWriteField(field) {
 
   const _comparison = createNotEquals(_thisPropAccess, ts.createNull());
 
-  const _enumType = getEnumType(field.type)
+  const _enumType = getEnumType(field.type);
 
-  let body = getBody(field.type, _thisPropAccess);
+  let body = getWriteBody(field.type, _thisPropAccess);
 
   if (!Array.isArray(body)) {
     body = [body];

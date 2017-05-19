@@ -12,6 +12,8 @@ struct MyStruct {
     6: list<list<list<string>>> aList,
     7: list<set<string>> aSetList,
     8: map<string, string> aMap,
+    9: set<string> set2,
+    10: map<map<string, string>, map<i16, i16>> mapMapMap,
 }
 exception Exception1 {
     1: required i32 error_code,
