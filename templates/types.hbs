@@ -6,6 +6,7 @@
 import thrift = require("thrift");
 import Thrift = thrift.Thrift;
 import Q = thrift.Q;
+import "es6-shim";
 {{#each this}}
 export class {{capitalize name}} {
     public success: boolean;
