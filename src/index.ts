@@ -121,8 +121,9 @@ function createConstructor(fields) {
     let _thenAssign;
     switch(getType(field.type)) {
       case 'set': {
-        // TODO: Use Set constructor if/when we use it
-        const _copy = ts.createCall(ts.createPropertyAccess(ts.createIdentifier('Array'), 'from'), undefined, [
+        // TODO: without some sort of recursion/deep-clone, a Set inside a Map/Set/List won't be a true Set but forEach should operate the same way
+        // However, it wouldn't ensure unique values
+        const _copy = ts.createNew(ts.createIdentifier('Set'), undefined, [
           _argsPropAccess
         ]);
         _thenAssign = createAssignment(_thisPropAccess, _copy);
@@ -136,7 +137,7 @@ function createConstructor(fields) {
         break;
       }
       case 'map': {
-        // TODO: without some sort of recursion/deep-clone, a Map inside a Set/List won't be a true Map which would screw up our forEach
+        // TODO: without some sort of recursion/deep-clone, a Map inside a Map/Set/List won't be a true Map which would screw up our forEach
         const _copy = ts.createNew(ts.createIdentifier('Map'), undefined, [
           _argsPropAccess
         ]);

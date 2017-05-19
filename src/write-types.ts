@@ -97,8 +97,7 @@ function createSetBody(type, accessVar) {
   return [
     writeContainerBegin('writeSetBegin', [
       ts.createPropertyAccess(ts.createIdentifier('Thrift'), `Type.${_enumType}`),
-      // TODO: switch to .size if using Set
-      ts.createPropertyAccess(accessVar, 'length')
+      ts.createPropertyAccess(accessVar, 'size')
     ]),
     _forEach,
     writeContainerEnd('writeSetEnd')

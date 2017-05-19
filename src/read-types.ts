@@ -77,14 +77,12 @@ function createReadMap(type, _storage) {
 function createReadSet(type, _storage) {
   /*
     let storage; // outside of recursion
-    // TODO: replace with new Set()
-    storage = [];
+    storage = new Set();
     const _rtmp312 = input.readSetBegin();
     const _size8 = _rtmp312.size;
     for (var _i13 = 0; _i13 < _size8; ++_i13) {
       const elem14 = // recursion
-      // TODO: replace with storage.add(elem14)
-      storage.push(elem14);
+      storage.add(elem14);
     }
     input.readSetEnd();
   */
@@ -119,11 +117,11 @@ function createReadSet(type, _storage) {
   const _loopBody = ts.createBlock([
     ts.createVariableStatement(undefined, _innerVarList),
     ..._call,
-    ts.createStatement(ts.createCall(ts.createPropertyAccess(_storage, 'push'), undefined, [_value]))
+    ts.createStatement(ts.createCall(ts.createPropertyAccess(_storage, 'add'), undefined, [_value]))
   ]);
 
   return [
-    ts.createStatement(ts.createAssignment(_storage, ts.createArrayLiteral())),
+    ts.createStatement(ts.createAssignment(_storage, ts.createNew(ts.createIdentifier('Set'), undefined, []))),
     ts.createVariableStatement(undefined, _varList),
     ts.createFor(_loopVarList, _loopCompare, _loopIncrement, _loopBody),
     ts.createStatement(ts.createCall(ts.createPropertyAccess(_input, 'readSetEnd'), undefined, undefined))
