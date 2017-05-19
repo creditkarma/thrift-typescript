@@ -202,11 +202,29 @@ function createReadValue(type, _storage) {
       method = 'readString';
       break;
     }
-    // TODO:
-    //   'readBinary',
-    //   'readDouble',
-    //   'readI64',
-    //   'readByte',
+    // This is output as readString by the thrift binary
+    case 'binary': {
+      method = 'readBinary';
+      break;
+    }
+    case 'double': {
+      method = 'readDouble';
+      break;
+    }
+    case 'i64': {
+      method = 'readI64';
+      break;
+    }
+    case 'byte': {
+      method = 'readByte';
+      break;
+    }
+    // The thrift binary warns to use i8 but then spits out readByte
+    case 'i8': {
+      method = 'readByte';
+      break;
+    }
+    // TODO: probably need to handle other type aliases OR the validator/normalize phase can output these
     default: {
       throw new Error('Not Implemented ' + type)
     }

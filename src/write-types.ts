@@ -26,11 +26,29 @@ function createWriteBody(type, accessVar: ts.Expression) {
       methodName = 'writeString';
       break;
     }
-    // TODO:
-    //   'writeBinary',
-    //   'writeDouble',
-    //   'writeI64',
-    //   'writeByte',
+    // This is output as readString by the thrift binary
+    case 'binary': {
+      methodName = 'writeBinary';
+      break;
+    }
+    case 'double': {
+      methodName = 'writeDouble';
+      break;
+    }
+    case 'i64': {
+      methodName = 'writeI64';
+      break;
+    }
+    case 'byte': {
+      methodName = 'writeByte';
+      break;
+    }
+    // The thrift binary warns to use i8 but then spits out writeByte
+    case 'i8': {
+      methodName = 'writeByte';
+      break;
+    }
+    // TODO: probably need to handle other type aliases OR the validator/normalize phase can output these
     default: {
       throw new Error('Not Implemented ' + type);
     }

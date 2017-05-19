@@ -160,6 +160,28 @@ function createConstructor(fields) {
         _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
         break;
       }
+      case 'binary': {
+        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
+        break;
+      }
+      case 'double': {
+        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
+        break;
+      }
+      case 'i64': {
+        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
+        break;
+      }
+      case 'byte': {
+        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
+        break;
+      }
+      // The thrift binary warns to use i8 but then spits out writeByte
+      case 'i8': {
+        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
+        break;
+      }
+      // TODO: probably need to handle other type aliases OR the validator/normalize phase can output these
       default:
         throw new Error('Not Implemented ' + field.type)
     }
