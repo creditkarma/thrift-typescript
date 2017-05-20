@@ -240,17 +240,18 @@ function createRead(fields) {
   const _fname = ts.createIdentifier('fname')
   const _ftype = ts.createIdentifier('ftype');
   const _fid = ts.createIdentifier('fid');
+  const _read = ts.createIdentifier('read');
 
   const _readStructBegin = gen.readStructBegin();
   const _readFieldBegin = gen.readFieldBegin();
 
-  const _retFname = ts.createPropertyAccess(_ret, 'fname');
+  const _retFname = ts.createPropertyAccess(_ret, _fname);
   const _fnameConst = createVariable(_fname, _retFname);
 
-  const _retFtype = ts.createPropertyAccess(_ret, 'ftype');
+  const _retFtype = ts.createPropertyAccess(_ret, _ftype);
   const _ftypeConst = createVariable(_ftype, _retFtype)
 
-  const _retFid = ts.createPropertyAccess(_ret, 'fid');
+  const _retFid = ts.createPropertyAccess(_ret, _fid);
   const _fidConst = createVariable(_fid, _retFid);
 
   const _typeStopAccess = ts.createPropertyAccess(_Thrift, 'Type.STOP');
@@ -293,7 +294,7 @@ function createRead(fields) {
   ], true);
 
   const _inputDeclaration = ts.createParameter(undefined, undefined, undefined, _input, undefined, undefined, undefined);
-  return ts.createMethod(undefined, [_publicModifier], undefined, 'read', undefined, undefined, [_inputDeclaration], undefined, _readBlock);
+  return ts.createMethod(undefined, [_publicModifier], undefined, _read, undefined, undefined, [_inputDeclaration], undefined, _readBlock);
 }
 
 
@@ -323,18 +324,20 @@ function createWriteField(field) {
 
 function createWrite(service) {
   const _publicModifier = ts.createToken(ts.SyntaxKind.PublicKeyword);
+  const _output = ts.createIdentifier('output');
+  const _write = ts.createIdentifier('write');
 
-  const _writeStructBegin = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeStructBegin');
+  const _writeStructBegin = ts.createPropertyAccess(_output, 'writeStructBegin');
   const _writeStructBeginCall = ts.createCall(_writeStructBegin, undefined, [ts.createLiteral(`${service.name}`)]);
   const _writeStructBeginStatement = ts.createStatement(_writeStructBeginCall);
 
   const _writeFields = service.fields.map(createWriteField);
 
-  const _writeFieldStop = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeFieldStop');
+  const _writeFieldStop = ts.createPropertyAccess(_output, 'writeFieldStop');
   const _writeFieldStopCall = ts.createCall(_writeFieldStop, undefined, undefined);
   const _writeFieldStopStatement = ts.createStatement(_writeFieldStopCall);
 
-  const _writeStructEnd = ts.createPropertyAccess(ts.createIdentifier('output'), 'writeStructEnd');
+  const _writeStructEnd = ts.createPropertyAccess(_output, 'writeStructEnd');
   const _writeStructEndCall = ts.createCall(_writeStructEnd, undefined, undefined);
   const _writeStructEndStatement = ts.createStatement(_writeStructEndCall);
 
@@ -345,8 +348,8 @@ function createWrite(service) {
     _writeStructEndStatement
   ], true);
 
-  const _outputDeclaration = ts.createParameter(undefined, undefined, undefined, 'output', undefined, undefined, undefined);
-  return ts.createMethod(undefined, [_publicModifier], undefined, 'write', undefined, undefined, [_outputDeclaration], undefined, _writeBlock);
+  const _outputDeclaration = ts.createParameter(undefined, undefined, undefined, _output, undefined, undefined, undefined);
+  return ts.createMethod(undefined, [_publicModifier], undefined, _write, undefined, undefined, [_outputDeclaration], undefined, _writeBlock);
 }
 
 function generateTypesAST(idl: any): string {
