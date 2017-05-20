@@ -226,6 +226,7 @@ function createReadValue(type, _storage) {
     }
     // TODO: probably need to handle other type aliases OR the validator/normalize phase can output these
     default: {
+      // TODO: custom types
       throw new Error('Not Implemented ' + type)
     }
   }

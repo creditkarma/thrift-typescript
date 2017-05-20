@@ -50,6 +50,7 @@ function createWriteBody(type, accessVar: ts.Expression) {
     }
     // TODO: probably need to handle other type aliases OR the validator/normalize phase can output these
     default: {
+      // TODO: custom types
       throw new Error('Not Implemented ' + type);
     }
   }

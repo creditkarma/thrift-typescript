@@ -69,29 +69,26 @@ export function toAstType(typedef: Typedef) : ts.TypeNode {
     case 'STRUCT':
       throw new Error('Not Implemented');
     case 'MAP':
-      // TODO: a type alias for this would be nice
       if (typeof typedef === 'object') {
         const keyType = toAstType(typedef.keyType);
         const valueType = toAstType(typedef.valueType);
-        const mapType = ts.createTypeReferenceNode('Map', [keyType, valueType]);
-        const tupleArrayType = ts.createArrayTypeNode(ts.createTupleTypeNode([keyType, valueType]));
-        return ts.createUnionTypeNode([mapType, tupleArrayType]);
+        return ts.createTypeReferenceNode('Map', [keyType, valueType]);
       }
       throw new Error('Invalid Map type definition');
-      // return ts.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword);
     case 'LIST':
-      // TODO: maybe an interface?
       if (typeof typedef === 'object') {
-        return ts.createArrayTypeNode(toAstType(typedef.valueType));
+        const valueType = toAstType(typedef.valueType);
+        return ts.createArrayTypeNode(valueType);
       }
       throw new Error('Invalid List type definition');
     case 'SET':
-      // TODO: maybe an interface?
       if (typeof typedef === 'object') {
-        return ts.createArrayTypeNode(toAstType(typedef.valueType));
+        const valueType = toAstType(typedef.valueType);
+        return ts.createTypeReferenceNode('Set', [valueType]);
       }
       throw new Error('Invalid Set type definition');
     default:
+      // TODO: Custom types?
       return;
   }
 }
