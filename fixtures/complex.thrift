@@ -2,6 +2,9 @@ namespace js MyThing
 
 typedef string Json
 typedef i32 MyInteger
+typedef CustomJson NestedJson
+typedef Json CustomJson
+// typedef NotDefined whoops
 
 struct MyStruct {
     1: required i32 id,
@@ -14,6 +17,7 @@ struct MyStruct {
     8: map<string, string> aMap,
     9: set<string> set2,
     10: map<map<string, string>, map<i16, i16>> mapMapMap,
+    11: NestedJson someJson,
 }
 exception Exception1 {
     1: required i32 error_code,

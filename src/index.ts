@@ -19,6 +19,21 @@ import * as gen from './ast-specifics'
 import { getReadBody } from './read-types';
 import { getWriteBody } from './write-types';
 
+import {
+  getStructs,
+  getServices,
+  getTypeDefs
+} from './get';
+
+import {
+  resolveStructs,
+  resolveTypes
+} from './resolve';
+import {
+  validateTypes
+} from './validate';
+
+
 function readFile(fileName: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     fs.readFile(fileName, 'utf8', (err, data) => {
@@ -31,32 +46,9 @@ function readFile(fileName: string): Promise<string> {
   })
 }
 
-function getStructs(idl: any) {
-  const structs = idl.struct || {};
-  return Object.keys(structs).map(key => ({
-    fields: structs[key],
-    name: key,
-  }))
-}
-
-function getTypeDefs(idl: any) {
-  const typedefs = idl.typedef || {};
-  return Object.keys(typedefs).map(key => ({
-    type: typedefs[key].type,
-    name: key,
-  }))
-}
-
 async function generateTypes(types: any) {
   const template: HandlebarsTemplateDelegate = await loadTemplate('types.hbs')
   return template(types)
-}
-
-function getServices(idl: any) {
-  return Object.keys(idl.service).map(key => ({
-    methods: idl.service[key],
-    name: key,
-  }))
 }
 
 async function generateServices(services: any) {
@@ -184,7 +176,8 @@ function createConstructor(fields) {
       // TODO: probably need to handle other type aliases OR the validator/normalize phase can output these
       default:
         // TODO: custom types
-        throw new Error('Not Implemented ' + field.type)
+        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
+        // throw new Error('Not Implemented ' + field.type)
     }
 
     const _comparison = createNotEquals(_argsPropAccess, ts.createNull());
@@ -390,7 +383,8 @@ function generateTypesAST(idl: any): string {
 
     const _fieldDeclarations = struct.fields.map(function(field) {
 
-      let _type = toAstType(field.type);
+      // TODO: have this resolved or something?
+      let _type = toAstType(field.tsType);
       let _optional = toOptional(field.option);
 
       let _default;
@@ -456,10 +450,16 @@ function generateTypesAST(idl: any): string {
   ]));
 }
 
+
 export async function generateIDLTypesAST(filename: string): Promise<string> {
   registerHelpers();
-  const idl = await parseFile(filename);
-  // console.log(idl);
+  let idl = await parseFile(filename);
+
+  // Mutation
+  resolveTypes(idl);
+  validateTypes(idl);
+
+  resolveStructs(idl);
 
   return generateTypesAST(idl);
 }

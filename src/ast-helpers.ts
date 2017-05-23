@@ -88,6 +88,9 @@ export function toAstType(typedef: Typedef) : ts.TypeNode {
       }
       throw new Error('Invalid Set type definition');
     default:
+      if (typeof typedef === 'string') {
+        return ts.createTypeReferenceNode(typedef, undefined);
+      }
       // TODO: Custom types?
       return;
   }
