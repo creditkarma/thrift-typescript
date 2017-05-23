@@ -238,9 +238,20 @@ function createReadValue(type, _storage) {
   return ts.createStatement(_assign);
 }
 
+function createReadStruct(type, _storage) {
+  // this.bed = new ttypes.Embed();
+  // this.bed.read(input);
+
+  const _input = ts.createIdentifier('input');
+
+  return [
+    ts.createStatement(ts.createAssignment(_storage, ts.createNew(ts.createIdentifier(type.constructor), undefined, []))),
+    ts.createStatement(ts.createCall(ts.createPropertyAccess(_storage, 'read'), undefined, [_input]))
+  ];
+}
+
 export function getReadBody(type, _storage) {
   // TODO:
-  //  'readStruct'?
   //  'readValue'?
   switch(getType(type)) {
     case 'set': {
@@ -251,6 +262,9 @@ export function getReadBody(type, _storage) {
     }
     case 'map': {
       return createReadMap(type, _storage);
+    }
+    case 'struct': {
+      return createReadStruct(type, _storage);
     }
     default:
       return createReadValue(type, _storage);

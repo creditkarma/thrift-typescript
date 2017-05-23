@@ -155,10 +155,19 @@ function createMapBody(type, accessVar) {
   ];
 }
 
+function createStructBody(type, accessVar) {
+
+  const _output = ts.createIdentifier('output');
+
+  const _writeStruct = ts.createPropertyAccess(accessVar, 'write');
+  const _writeStructCall = ts.createCall(_writeStruct, undefined, [_output]);
+
+  return ts.createStatement(_writeStructCall)
+}
+
 export function getWriteBody(type, accessVar) {
   switch(getType(type)) {
     // TODO:
-    //  'writeStruct'?
     //  'writeValue'?
     case 'set': {
       return createSetBody(type, accessVar);
@@ -168,6 +177,9 @@ export function getWriteBody(type, accessVar) {
     }
     case 'map': {
       return createMapBody(type, accessVar);
+    }
+    case 'struct': {
+      return createStructBody(type, accessVar);
     }
     default: {
       return createWriteBody(type, accessVar);

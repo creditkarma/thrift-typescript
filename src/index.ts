@@ -136,6 +136,13 @@ function createConstructor(fields) {
         _thenAssign = createAssignment(_thisPropAccess, _copy);
         break;
       }
+      case 'struct': {
+        const _new = ts.createNew(ts.createIdentifier(field.tsType), undefined, [
+          _argsPropAccess
+        ]);
+        _thenAssign = createAssignment(_thisPropAccess, _new);
+        break;
+      }
       case 'bool': {
         _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
         break;

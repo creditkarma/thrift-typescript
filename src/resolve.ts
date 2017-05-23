@@ -33,7 +33,12 @@ function resolveType(idl, type: string) {
     return resolveType(idl, idl.typedef[type].type);
   }
 
-  // TODO: structs as types in typedefs
+  if (idl.struct[type]) {
+    return {
+      name: 'struct',
+      constructor: type
+    };
+  }
 
   return;
 }

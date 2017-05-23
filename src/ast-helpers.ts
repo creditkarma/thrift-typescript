@@ -66,7 +66,7 @@ export function toAstType(typedef: Typedef) : ts.TypeNode {
     case 'UTF16':
       return ts.createKeywordTypeNode(ts.SyntaxKind.StringKeyword);
     case 'VOID': // TODO: does this need a type?
-    case 'STRUCT':
+    case 'STRUCT': // TODO: this is handed down as a custom type, is it needed?
       throw new Error('Not Implemented');
     case 'MAP':
       if (typeof typedef === 'object') {
