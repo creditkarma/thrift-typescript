@@ -26,7 +26,8 @@ import {
 
 import {
   resolveStructs,
-  resolveTypes
+  resolveTypes,
+  resolveNamespace
 } from './resolve';
 import {
   validateTypes
@@ -331,10 +332,34 @@ function createWrite(service) {
   return ts.createMethod(undefined, [_publicModifier], undefined, _id.write, undefined, undefined, [_outputDeclaration], undefined, _writeBlock);
 }
 
-function generateTypesAST(idl: any): string {
-  const typedefs = getTypeDefs(idl);
-  const structs = getStructs(idl);
+interface ResolvedTypedef {
+  name: string,
+  type: string,
+  originalType: string
+}
 
+interface ResolvedStruct {
+  name: string,
+  fields: ResolvedField[]
+}
+
+interface ResolvedField {
+  name: string,
+  type: string | any, // TODO: objects/Typedef
+  tsType: string | any, // TODO: objects/Typedef
+  option?: string,
+  defaultValue?: any
+}
+
+type ResolvedNamespace = string;
+
+interface ResolvedIDL {
+  namespace?: ResolvedNamespace,
+  typedefs: ResolvedTypedef[],
+  structs: ResolvedStruct[],
+}
+
+function generateTypesAST(idl: ResolvedIDL): string {
   const _exportModifier = ts.createToken(ts.SyntaxKind.ExportKeyword);
 
   let prefaceFile = ts.createSourceFile('preface.ts', '', ts.ScriptTarget.ES5, false, ts.ScriptKind.TS);
@@ -354,13 +379,13 @@ function generateTypesAST(idl: any): string {
     _require
   ]);
 
-  const _types = typedefs.map(function(typedef) {
+  const _types = idl.typedefs.map(function(typedef) {
     const _type = ts.createTypeAliasDeclaration(undefined, [_exportModifier], typedef.name, undefined, toAstType(typedef.type));
 
     return _type;
   });
 
-  const _structs = structs.map(function(struct) {
+  const _structs = idl.structs.map(function(struct) {
 
     const _publicModifier = ts.createToken(ts.SyntaxKind.PublicKeyword);
 
@@ -405,9 +430,10 @@ function generateTypesAST(idl: any): string {
   });
 
   let bodyFile = ts.createSourceFile('body.ts', '', ts.ScriptTarget.ES5, false, ts.ScriptKind.TS);
-  if (idl.namespace && idl.namespace.js) {
+  // TODO: filename?
+  if (idl.namespace) {
 
-    const namespace = ts.createIdentifier(idl.namespace.js.serviceName);
+    const namespace = ts.createIdentifier(idl.namespace);
 
     const _namespaceBlock = ts.createModuleBlock([
       ..._types,
@@ -438,11 +464,19 @@ export async function generateIDLTypesAST(filename: string): Promise<string> {
   registerHelpers();
   let idl = await parseFile(filename);
 
-  // Mutation
-  resolveTypes(idl);
-  validateTypes(idl);
+  const namespace = resolveNamespace(idl);
 
-  resolveStructs(idl);
+  // Non-mutation
+  const typedefs = resolveTypes(idl);
+  // validateTypes(types);
 
-  return generateTypesAST(idl);
+  const structs = resolveStructs(idl);
+
+  const resolved = {
+    namespace: namespace,
+    typedefs: typedefs,
+    structs: structs
+  }
+
+  return generateTypesAST(resolved);
 }

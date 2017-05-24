@@ -72,6 +72,7 @@ export function toAstType(typedef: Typedef) : ts.TypeNode {
       if (typeof typedef === 'object') {
         const keyType = toAstType(typedef.keyType);
         const valueType = toAstType(typedef.valueType);
+        // TODO: _id.Map
         return ts.createTypeReferenceNode('Map', [keyType, valueType]);
       }
       throw new Error('Invalid Map type definition');
@@ -84,6 +85,7 @@ export function toAstType(typedef: Typedef) : ts.TypeNode {
     case 'SET':
       if (typeof typedef === 'object') {
         const valueType = toAstType(typedef.valueType);
+        // TODO: _id.Set
         return ts.createTypeReferenceNode('Set', [valueType]);
       }
       throw new Error('Invalid Set type definition');

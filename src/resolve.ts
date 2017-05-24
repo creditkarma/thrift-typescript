@@ -46,24 +46,27 @@ function resolveType(idl, type: string) {
 export function resolveTypes(idl) {
   const typedefs = getTypeDefs(idl);
 
-  typedefs.forEach((typedef) => {
+  return typedefs.map((typedef) => {
     const { name, type } = typedef;
-
-    idl.typedef[name].originalType = type;
 
     let resolvedType = resolveType(idl, type);
 
-    idl.typedef[name].type = resolvedType;
+    return {
+      name: name,
+      type: resolvedType,
+      originalType: type
+    };
   });
 }
 
 export function resolveStructs(idl) {
   const structs = getStructs(idl);
 
-  structs.forEach((struct) => {
+  return structs.map((struct) => {
     const { name } = struct;
 
-    struct.fields.forEach((field, idx) => {
+    // TODO: add "success" property to this list?
+    const fields = struct.fields.map((field, idx) => {
       let updated;
 
       if (typeof field.type === 'object') {
@@ -78,8 +81,21 @@ export function resolveStructs(idl) {
         });
       }
 
-      idl.struct[name].splice(idx, 1, updated);
+      return updated;
     });
+
+    return {
+      name: name,
+      fields: fields
+    };
   });
 }
 
+export function resolveNamespace(idl) {
+  // TODO: the parser doesn't parse dot-separated namespaces
+  const scope = 'js';
+
+  if (idl.namespace && idl.namespace[scope]) {
+    return idl.namespace[scope].serviceName;
+  }
+}
