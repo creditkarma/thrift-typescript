@@ -96,7 +96,7 @@ export function toAstType(typedef: Typedef) : ts.TypeNode {
   }
 }
 
-export function getType(typedef: Typedef) : string {
+function getType(typedef: Typedef) : string {
   if (typeof typedef === 'string') {
     return typedef;
   }

@@ -1,69 +1,17 @@
 import * as ts from 'typescript';
 
-import {
-  getType,
-  createIf,
-  createVariable,
-  getEnumType
-} from './ast-helpers';
+import { getEnumType } from './ast-helpers';
 
-import {
-  identifiers as _id
-} from './ast/identifiers';
-import {
-  types as _types
-} from './ast/thrift-types';
+import { identifiers as _id } from './ast/identifiers';
+import { types as _types } from './ast/thrift-types';
 import { methods as _methods } from './ast/methods';
+import { write as eWrite } from './ast/enum-mapped';
 
 function createWriteBody(type, accessVar: ts.Expression) {
-  let method;
-  switch(getType(type)) {
-    case 'bool': {
-      method = _methods.writeBool;
-      break;
-    }
-    case 'i32': {
-      method = _methods.writeI32;
-      break;
-    }
-    case 'i16': {
-      method = _methods.writeI16;
-      break;
-    }
-    case 'string': {
-      method = _methods.writeString;
-      break;
-    }
-    // This is output as readString by the thrift binary
-    case 'binary': {
-      method = _methods.writeBinary;
-      break;
-    }
-    case 'double': {
-      method = _methods.writeDouble;
-      break;
-    }
-    case 'i64': {
-      method = _methods.writeI64;
-      break;
-    }
-    case 'byte': {
-      method = _methods.writeByte;
-      break;
-    }
-    // The thrift binary warns to use i8 but then spits out writeByte
-    case 'i8': {
-      method = _methods.writeByte;
-      break;
-    }
-    // TODO: probably need to handle other type aliases OR the validator/normalize phase can output these
-    default: {
-      // TODO: custom types
-      throw new Error('Not Implemented ' + type);
-    }
-  }
+  const enumType = getEnumType(type);
 
-  const _writeTypeCall = ts.createCall(method, undefined, [accessVar]);
+  // TODO: better name for eWrite
+  const _writeTypeCall = ts.createCall(eWrite[enumType], undefined, [accessVar]);
 
   return ts.createStatement(_writeTypeCall);
 }
@@ -169,19 +117,19 @@ function createStructBody(type, accessVar) {
 }
 
 export function getWriteBody(type, accessVar) {
-  switch(getType(type)) {
+  switch(getEnumType(type)) {
     // TODO:
     //  'writeValue'?
-    case 'set': {
+    case 'SET': {
       return createSetBody(type, accessVar);
     }
-    case 'list': {
+    case 'LIST': {
       return createListBody(type, accessVar);
     }
-    case 'map': {
+    case 'MAP': {
       return createMapBody(type, accessVar);
     }
-    case 'struct': {
+    case 'STRUCT': {
       return createStructBody(type, accessVar);
     }
     default: {

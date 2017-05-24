@@ -11,8 +11,7 @@ import {
   createThrow,
   createVariable,
   createNotEquals,
-  getEnumType,
-  getType
+  getEnumType
 } from './ast-helpers'
 import * as gen from './ast-specifics'
 
@@ -117,72 +116,64 @@ function createConstructor(fields) {
     // Set/List is supposed to use Thrift.copyList but the implementation is weird and might not work when combined with the custom Map copying
     // TODO: should we perform a deep clone? Currently shallow but not sure if deep cloning is actually needed
     let _thenAssign;
-    switch(getType(field.type)) {
-      case 'set': {
+    switch(getEnumType(field.type)) {
+      case 'SET': {
         // TODO: without some sort of recursion/deep-clone, a Set inside a Map/Set/List won't be a true Set but forEach should operate the same way
         // However, it wouldn't ensure unique values
-        const _copy = ts.createNew(_id.Set, undefined, [
-          _argsPropAccess
-        ]);
+        const _copy = ts.createNew(_id.Set, undefined, [_argsPropAccess]);
         _thenAssign = createAssignment(_thisPropAccess, _copy);
         break;
       }
-      case 'list': {
-        const _copy = ts.createCall(_methods.Arrayfrom, undefined, [
-          _argsPropAccess
-        ]);
+      case 'LIST': {
+        const _copy = ts.createCall(_methods.Arrayfrom, undefined, [_argsPropAccess]);
         _thenAssign = createAssignment(_thisPropAccess, _copy);
         break;
       }
-      case 'map': {
+      case 'MAP': {
         // TODO: without some sort of recursion/deep-clone, a Map inside a Map/Set/List won't be a true Map which would screw up our forEach
-        const _copy = ts.createNew(_id.Map, undefined, [
-          _argsPropAccess
-        ]);
+        const _copy = ts.createNew(_id.Map, undefined, [_argsPropAccess]);
         _thenAssign = createAssignment(_thisPropAccess, _copy);
         break;
       }
-      case 'struct': {
-        const _new = ts.createNew(ts.createIdentifier(field.tsType), undefined, [
-          _argsPropAccess
-        ]);
+      case 'STRUCT': {
+        const _new = ts.createNew(ts.createIdentifier(field.tsType), undefined, [_argsPropAccess]);
         _thenAssign = createAssignment(_thisPropAccess, _new);
         break;
       }
-      case 'bool': {
+      case 'BOOL': {
         _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
         break;
       }
-      case 'i32': {
+      case 'I32': {
         _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
         break;
       }
-      case 'i16': {
+      case 'I16': {
         _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
         break;
       }
-      case 'string': {
+      case 'STRING': {
         _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
         break;
       }
-      case 'binary': {
+      case 'BINARY': {
         _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
         break;
       }
-      case 'double': {
+      case 'DOUBLE': {
         _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
         break;
       }
-      case 'i64': {
+      case 'I64': {
         _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
         break;
       }
-      case 'byte': {
+      case 'BYTE': {
         _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
         break;
       }
       // The thrift binary warns to use i8 but then spits out writeByte
-      case 'i8': {
+      case 'I8': {
         _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
         break;
       }

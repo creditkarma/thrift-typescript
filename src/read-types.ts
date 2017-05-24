@@ -1,11 +1,10 @@
 import * as ts from 'typescript';
 
-import {
-  getType
-} from './ast-helpers';
+import { getEnumType } from './ast-helpers';
 
 import { identifiers as _id } from './ast/identifiers';
 import { methods as _methods } from './ast/methods';
+import { read as eRead } from './ast/enum-mapped';
 
 // Map/Set/List don't seem to use the etype,ktype,vtype property that's initialized
 
@@ -184,54 +183,10 @@ function createReadList(type, _storage) {
 
 
 function createReadValue(type, _storage) {
-  let method;
-  switch(getType(type)) {
-    case 'bool': {
-      method = _methods.readBool;
-      break;
-    }
-    case 'i32': {
-      method = _methods.readI32;
-      break;
-    }
-    case 'i16': {
-      method = _methods.readI16;
-      break;
-    }
-    case 'string': {
-      method = _methods.readString;
-      break;
-    }
-    // This is output as readString by the thrift binary
-    case 'binary': {
-      method = _methods.readBinary;
-      break;
-    }
-    case 'double': {
-      method = _methods.readDouble;
-      break;
-    }
-    case 'i64': {
-      method = _methods.readI64;
-      break;
-    }
-    case 'byte': {
-      method = _methods.readByte;
-      break;
-    }
-    // The thrift binary warns to use i8 but then spits out readByte
-    case 'i8': {
-      method = _methods.readByte;
-      break;
-    }
-    // TODO: probably need to handle other type aliases OR the validator/normalize phase can output these
-    default: {
-      // TODO: custom types
-      throw new Error('Not Implemented ' + type)
-    }
-  }
+  const enumType = getEnumType(type);
 
-  const _call = ts.createCall(method, undefined, undefined);
+  // TODO: better name for eRead
+  const _call = ts.createCall(eRead[enumType], undefined, undefined);
   const _assign = ts.createAssignment(_storage, _call);
 
   return ts.createStatement(_assign);
@@ -250,17 +205,17 @@ function createReadStruct(type, _storage) {
 export function getReadBody(type, _storage) {
   // TODO:
   //  'readValue'?
-  switch(getType(type)) {
-    case 'set': {
+  switch(getEnumType(type)) {
+    case 'SET': {
       return createReadSet(type, _storage);
     }
-    case 'list': {
+    case 'LIST': {
       return createReadList(type, _storage);
     }
-    case 'map': {
+    case 'MAP': {
       return createReadMap(type, _storage);
     }
-    case 'struct': {
+    case 'STRUCT': {
       return createReadStruct(type, _storage);
     }
     default:
