@@ -10,6 +10,9 @@ import {
 import {
   identifiers as _id
 } from './ast/identifiers';
+import {
+  types as _types
+} from './ast/thrift-types';
 
 function createWriteBody(type, accessVar: ts.Expression) {
   let methodName;
@@ -119,7 +122,7 @@ function createSetBody(type, accessVar) {
 
   return [
     writeContainerBegin('writeSetBegin', [
-      ts.createPropertyAccess(_id.Thrift, `Type.${_enumType}`),
+      _types[_enumType],
       ts.createPropertyAccess(accessVar, 'size')
     ]),
     _forEach,
@@ -134,7 +137,7 @@ function createListBody(type, accessVar) {
 
   return [
     writeContainerBegin('writeListBegin', [
-      ts.createPropertyAccess(_id.Thrift, `Type.${_enumType}`),
+      _types[_enumType],
       ts.createPropertyAccess(accessVar, 'length')
     ]),
     _forEach,
@@ -150,8 +153,8 @@ function createMapBody(type, accessVar) {
 
   return [
     writeContainerBegin('writeMapBegin', [
-      ts.createPropertyAccess(_id.Thrift, `Type.${keyType}`),
-      ts.createPropertyAccess(_id.Thrift, `Type.${valueType}`),
+      _types[keyType],
+      _types[valueType],
       ts.createPropertyAccess(accessVar, 'size')
     ]),
     _forEach,

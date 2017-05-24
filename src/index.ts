@@ -35,7 +35,10 @@ import {
 
 import {
   identifiers as _id
-} from './ast/identifiers'
+} from './ast/identifiers';
+import {
+  types as _types
+} from './ast/thrift-types';
 
 function readFile(fileName: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
@@ -211,8 +214,7 @@ function createReadField(field) {
 
   const _enumType = getEnumType(field.type);
 
-  const _typeAccess = ts.createPropertyAccess(_id.Thrift, `Type.${_enumType}`);
-  const _comparison = ts.createStrictEquality(_id.ftype, _typeAccess);
+  const _comparison = ts.createStrictEquality(_id.ftype, _types[_enumType]);
 
   const _thisName = ts.createPropertyAccess(ts.createThis(), field.name);
   const _readAndAssign = getReadBody(field.type, _thisName);
@@ -243,8 +245,7 @@ function createRead(fields) {
   const _retFid = ts.createPropertyAccess(_id.ret, _id.fid);
   const _fidConst = createVariable(_id.fid, _retFid);
 
-  const _typeStopAccess = ts.createPropertyAccess(_id.Thrift, 'Type.STOP');
-  const _comparison = ts.createStrictEquality(_id.ftype, _typeStopAccess);
+  const _comparison = ts.createStrictEquality(_id.ftype, _types.STOP);
 
   const _ifStop = createIf(_comparison, ts.createBreak());
 

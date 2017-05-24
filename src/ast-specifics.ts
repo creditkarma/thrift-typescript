@@ -6,6 +6,9 @@ import {
 import {
   identifiers as _id
 } from './ast/identifiers';
+import {
+  types as _types
+} from './ast/thrift-types';
 
 // readStruct
 export function readStructBegin() {
@@ -44,7 +47,7 @@ export function writeFieldBegin(name: string, type: string, fieldId: number) : t
   const _writeFieldBegin = ts.createPropertyAccess(_id.output, 'writeFieldBegin');
   const _writeFieldBeginCall = ts.createCall(_writeFieldBegin, undefined, [
     ts.createLiteral(name),
-    ts.createPropertyAccess(_id.Thrift, `Type.${type}`),
+    _types[type],
     ts.createLiteral(fieldId)
   ]);
   const _writeFieldBeginStatement = ts.createStatement(_writeFieldBeginCall);
