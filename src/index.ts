@@ -42,6 +42,9 @@ import {
 import {
   methods as _methods
 } from './ast/methods';
+import {
+  tokens as _tokens
+} from './ast/tokens';
 
 function readFile(fileName: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
@@ -104,9 +107,8 @@ function createAssignment(left, right) {
 }
 
 function createConstructor(fields) {
-  const _questionToken = ts.createToken(ts.SyntaxKind.QuestionToken);
 
-  const _argsParameter = ts.createParameter(undefined, undefined, undefined, _id.args, _questionToken, undefined, undefined);
+  const _argsParameter = ts.createParameter(undefined, undefined, undefined, _id.args, _tokens.question, undefined, undefined);
 
   const _fieldAssignments = fields.map(function(field) {
 
@@ -226,7 +228,6 @@ function createReadField(field) {
 }
 
 function createRead(fields) {
-  const _publicModifier = ts.createToken(ts.SyntaxKind.PublicKeyword);
 
   const _readStructBegin = gen.readStructBegin();
   const _readFieldBegin = gen.readFieldBegin();
@@ -279,7 +280,7 @@ function createRead(fields) {
   ], true);
 
   const _inputDeclaration = ts.createParameter(undefined, undefined, undefined, _id.input, undefined, undefined, undefined);
-  return ts.createMethod(undefined, [_publicModifier], undefined, _id.read, undefined, undefined, [_inputDeclaration], undefined, _readBlock);
+  return ts.createMethod(undefined, [_tokens.public], undefined, _id.read, undefined, undefined, [_inputDeclaration], undefined, _readBlock);
 }
 
 
@@ -308,7 +309,6 @@ function createWriteField(field) {
 }
 
 function createWrite(service) {
-  const _publicModifier = ts.createToken(ts.SyntaxKind.PublicKeyword);
 
   const _writeStructBeginCall = ts.createCall(_methods.writeStructBegin, undefined, [ts.createLiteral(`${service.name}`)]);
   const _writeStructBeginStatement = ts.createStatement(_writeStructBeginCall);
@@ -329,7 +329,7 @@ function createWrite(service) {
   ], true);
 
   const _outputDeclaration = ts.createParameter(undefined, undefined, undefined, _id.output, undefined, undefined, undefined);
-  return ts.createMethod(undefined, [_publicModifier], undefined, _id.write, undefined, undefined, [_outputDeclaration], undefined, _writeBlock);
+  return ts.createMethod(undefined, [_tokens.public], undefined, _id.write, undefined, undefined, [_outputDeclaration], undefined, _writeBlock);
 }
 
 interface ResolvedTypedef {
@@ -360,7 +360,6 @@ interface ResolvedIDL {
 }
 
 function generateTypesAST(idl: ResolvedIDL): string {
-  const _exportModifier = ts.createToken(ts.SyntaxKind.ExportKeyword);
 
   let prefaceFile = ts.createSourceFile('preface.ts', '', ts.ScriptTarget.ES5, false, ts.ScriptKind.TS);
 
@@ -380,14 +379,12 @@ function generateTypesAST(idl: ResolvedIDL): string {
   ]);
 
   const _types = idl.typedefs.map(function(typedef) {
-    const _type = ts.createTypeAliasDeclaration(undefined, [_exportModifier], typedef.name, undefined, toAstType(typedef.type));
+    const _type = ts.createTypeAliasDeclaration(undefined, [_tokens.export], typedef.name, undefined, toAstType(typedef.type));
 
     return _type;
   });
 
   const _structs = idl.structs.map(function(struct) {
-
-    const _publicModifier = ts.createToken(ts.SyntaxKind.PublicKeyword);
 
     const _fieldDeclarations = struct.fields.map(function(field) {
 
@@ -402,10 +399,10 @@ function generateTypesAST(idl: ResolvedIDL): string {
         _default = ts.createNull();
       }
 
-      return ts.createProperty(undefined, [_publicModifier], field.name, _optional, _type, _default);
+      return ts.createProperty(undefined, [_tokens.public], field.name, _optional, _type, _default);
     });
 
-    const _successDeclaration = ts.createProperty(undefined, [_publicModifier], _id.success, undefined, toAstType('bool'), undefined);
+    const _successDeclaration = ts.createProperty(undefined, [_tokens.public], _id.success, undefined, toAstType('bool'), undefined);
 
     // Build the constructor body
     const _constructor = createConstructor(struct.fields);
@@ -416,7 +413,7 @@ function generateTypesAST(idl: ResolvedIDL): string {
     // Build the `write` method
     const _write = createWrite(struct);
 
-    const _classExpression = ts.createClassExpression([_exportModifier], struct.name, [], [], [
+    const _classExpression = ts.createClassExpression([_tokens.export], struct.name, [], [], [
       _successDeclaration,
       ..._fieldDeclarations,
       _constructor,
@@ -440,7 +437,7 @@ function generateTypesAST(idl: ResolvedIDL): string {
       ..._structs
     ]);
 
-    const _namespace = ts.createModuleDeclaration(undefined, [_exportModifier], namespace, _namespaceBlock, ts.NodeFlags.Namespace);
+    const _namespace = ts.createModuleDeclaration(undefined, [_tokens.export], namespace, _namespaceBlock, ts.NodeFlags.Namespace);
     bodyFile = ts.updateSourceFileNode(bodyFile, [
       _namespace
     ]);

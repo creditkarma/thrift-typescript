@@ -1,5 +1,7 @@
 import * as ts from 'typescript';
 
+import { tokens as _tokens } from './ast/tokens';
+
 export function createIf(_comparison: ts.BinaryExpression | ts.CallExpression | ts.Identifier, _then?: ts.Statement | ts.Statement[], _else?: ts.Statement | ts.Statement[]) {
   let _thenBlock;
   if (_then) {
@@ -41,7 +43,7 @@ export function toOptional(option: string = '') {
       return;
     case 'OPTIONAL':
     default:
-      return ts.createToken(ts.SyntaxKind.QuestionToken);
+      return _tokens.question;
   }
 }
 
