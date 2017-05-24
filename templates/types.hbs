@@ -3,8 +3,7 @@
 //
 // DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 //
-import thrift = require("thrift");
-import Thrift = thrift.Thrift;
+import { Thrift } from "thrift";
 {{#each this}}
 export class {{capitalize name}} {
     public success: boolean;
