@@ -18,6 +18,7 @@ export interface Identifiers {
   readonly read: Identifier,
   // write vars
   readonly output: Identifier
+  readonly write: Identifier
 }
 
 export const identifiers: Identifiers = {
@@ -37,5 +38,6 @@ export const identifiers: Identifiers = {
   fid: createIdentifier('fid'),
   read: createIdentifier('read'),
   // write vars
-  output: createIdentifier('output')
+  output: createIdentifier('output'),
+  write: createIdentifier('write')
 };

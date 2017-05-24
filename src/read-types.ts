@@ -4,6 +4,10 @@ import {
   getType
 } from './ast-helpers';
 
+import {
+  identifiers as _id
+} from './ast/identifiers';
+
 // Map/Set/List don't seem to use the etype,ktype,vtype property that's initialized
 
 function createReadMap(type, _storage) {
@@ -24,11 +28,10 @@ function createReadMap(type, _storage) {
   const _loopTmp = ts.createLoopVariable();
   const _metadata = ts.createUniqueName('metadata');
   const _size = ts.createUniqueName('size');
-  const _input = ts.createIdentifier('input');
   const _key = ts.createUniqueName('key');
   const _value = ts.createUniqueName('value');
 
-  const _metadataVar = ts.createVariableDeclaration(_metadata, undefined, ts.createCall(ts.createPropertyAccess(_input, 'readMapBegin'), undefined, undefined))
+  const _metadataVar = ts.createVariableDeclaration(_metadata, undefined, ts.createCall(ts.createPropertyAccess(_id.input, 'readMapBegin'), undefined, undefined))
   const _sizeVar = ts.createVariableDeclaration(_size, undefined, ts.createPropertyAccess(_metadata, 'size'));
 
   const _varList = ts.createVariableDeclarationList([
@@ -67,10 +70,10 @@ function createReadMap(type, _storage) {
   ]);
 
   return [
-    ts.createStatement(ts.createAssignment(_storage, ts.createNew(ts.createIdentifier('Map'), undefined, []))),
+    ts.createStatement(ts.createAssignment(_storage, ts.createNew(_id.Map, undefined, []))),
     ts.createVariableStatement(undefined, _varList),
     ts.createFor(_loopVarList, _loopCompare, _loopIncrement, _loopBody),
-    ts.createStatement(ts.createCall(ts.createPropertyAccess(_input, 'readMapEnd'), undefined, undefined)),
+    ts.createStatement(ts.createCall(ts.createPropertyAccess(_id.input, 'readMapEnd'), undefined, undefined)),
   ];
 }
 
@@ -89,10 +92,9 @@ function createReadSet(type, _storage) {
   const _loopTmp = ts.createLoopVariable();
   const _metadata = ts.createUniqueName('metadata');
   const _size = ts.createUniqueName('size');
-  const _input = ts.createIdentifier('input');
   const _value = ts.createUniqueName('value');
 
-  const _metadataVar = ts.createVariableDeclaration(_metadata, undefined, ts.createCall(ts.createPropertyAccess(_input, 'readSetBegin'), undefined, undefined))
+  const _metadataVar = ts.createVariableDeclaration(_metadata, undefined, ts.createCall(ts.createPropertyAccess(_id.input, 'readSetBegin'), undefined, undefined))
   const _sizeVar = ts.createVariableDeclaration(_size, undefined, ts.createPropertyAccess(_metadata, 'size'));
 
   const _varList = ts.createVariableDeclarationList([
@@ -121,10 +123,10 @@ function createReadSet(type, _storage) {
   ]);
 
   return [
-    ts.createStatement(ts.createAssignment(_storage, ts.createNew(ts.createIdentifier('Set'), undefined, []))),
+    ts.createStatement(ts.createAssignment(_storage, ts.createNew(_id.Set, undefined, []))),
     ts.createVariableStatement(undefined, _varList),
     ts.createFor(_loopVarList, _loopCompare, _loopIncrement, _loopBody),
-    ts.createStatement(ts.createCall(ts.createPropertyAccess(_input, 'readSetEnd'), undefined, undefined))
+    ts.createStatement(ts.createCall(ts.createPropertyAccess(_id.input, 'readSetEnd'), undefined, undefined))
   ];
 }
 
@@ -143,10 +145,9 @@ function createReadList(type, _storage) {
   const _loopTmp = ts.createLoopVariable();
   const _metadata = ts.createUniqueName('metadata');
   const _size = ts.createUniqueName('size');
-  const _input = ts.createIdentifier('input');
   const _value = ts.createUniqueName('value');
 
-  const _metadataVar = ts.createVariableDeclaration(_metadata, undefined, ts.createCall(ts.createPropertyAccess(_input, 'readListBegin'), undefined, undefined))
+  const _metadataVar = ts.createVariableDeclaration(_metadata, undefined, ts.createCall(ts.createPropertyAccess(_id.input, 'readListBegin'), undefined, undefined))
   const _sizeVar = ts.createVariableDeclaration(_size, undefined, ts.createPropertyAccess(_metadata, 'size'));
 
   const _varList = ts.createVariableDeclarationList([
@@ -178,7 +179,7 @@ function createReadList(type, _storage) {
     ts.createStatement(ts.createAssignment(_storage, ts.createArrayLiteral())),
     ts.createVariableStatement(undefined, _varList),
     ts.createFor(_loopVarList, _loopCompare, _loopIncrement, _loopBody),
-    ts.createStatement(ts.createCall(ts.createPropertyAccess(_input, 'readListEnd'), undefined, undefined))
+    ts.createStatement(ts.createCall(ts.createPropertyAccess(_id.input, 'readListEnd'), undefined, undefined))
   ];
 }
 
@@ -231,8 +232,7 @@ function createReadValue(type, _storage) {
     }
   }
 
-  const _input = ts.createIdentifier('input');
-  const _call = ts.createCall(ts.createPropertyAccess(_input, method), undefined, undefined);
+  const _call = ts.createCall(ts.createPropertyAccess(_id.input, method), undefined, undefined);
   const _assign = ts.createAssignment(_storage, _call);
 
   return ts.createStatement(_assign);
@@ -242,11 +242,9 @@ function createReadStruct(type, _storage) {
   // this.bed = new ttypes.Embed();
   // this.bed.read(input);
 
-  const _input = ts.createIdentifier('input');
-
   return [
     ts.createStatement(ts.createAssignment(_storage, ts.createNew(ts.createIdentifier(type.constructor), undefined, []))),
-    ts.createStatement(ts.createCall(ts.createPropertyAccess(_storage, 'read'), undefined, [_input]))
+    ts.createStatement(ts.createCall(ts.createPropertyAccess(_storage, 'read'), undefined, [_id.input]))
   ];
 }
 

@@ -33,6 +33,9 @@ import {
   validateTypes
 } from './validate';
 
+import {
+  identifiers as _id
+} from './ast/identifiers'
 
 function readFile(fileName: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
@@ -97,14 +100,11 @@ function createAssignment(left, right) {
 function createConstructor(fields) {
   const _questionToken = ts.createToken(ts.SyntaxKind.QuestionToken);
 
-  const _args = ts.createIdentifier('args');
-  const _Thrift = ts.createIdentifier('Thrift');
-
-  const _argsParameter = ts.createParameter(undefined, undefined, undefined, _args, _questionToken, undefined, undefined);
+  const _argsParameter = ts.createParameter(undefined, undefined, undefined, _id.args, _questionToken, undefined, undefined);
 
   const _fieldAssignments = fields.map(function(field) {
 
-    const _argsPropAccess = ts.createPropertyAccess(_args, field.name);
+    const _argsPropAccess = ts.createPropertyAccess(_id.args, field.name);
     const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
 
     // Map is supposed to use Thrift.copyMap but that doesn't work if we use something better than an object
@@ -115,14 +115,14 @@ function createConstructor(fields) {
       case 'set': {
         // TODO: without some sort of recursion/deep-clone, a Set inside a Map/Set/List won't be a true Set but forEach should operate the same way
         // However, it wouldn't ensure unique values
-        const _copy = ts.createNew(ts.createIdentifier('Set'), undefined, [
+        const _copy = ts.createNew(_id.Set, undefined, [
           _argsPropAccess
         ]);
         _thenAssign = createAssignment(_thisPropAccess, _copy);
         break;
       }
       case 'list': {
-        const _copy = ts.createCall(ts.createPropertyAccess(ts.createIdentifier('Array'), 'from'), undefined, [
+        const _copy = ts.createCall(ts.createPropertyAccess(_id.Array, 'from'), undefined, [
           _argsPropAccess
         ]);
         _thenAssign = createAssignment(_thisPropAccess, _copy);
@@ -130,7 +130,7 @@ function createConstructor(fields) {
       }
       case 'map': {
         // TODO: without some sort of recursion/deep-clone, a Map inside a Map/Set/List won't be a true Map which would screw up our forEach
-        const _copy = ts.createNew(ts.createIdentifier('Map'), undefined, [
+        const _copy = ts.createNew(_id.Map, undefined, [
           _argsPropAccess
         ]);
         _thenAssign = createAssignment(_thisPropAccess, _copy);
@@ -191,8 +191,8 @@ function createConstructor(fields) {
 
     let _elseThrow;
     if (field.option === 'required') {
-      const _errCtor = ts.createPropertyAccess(_Thrift, 'TProtocolException');
-      const _errType = ts.createPropertyAccess(_Thrift, 'TProtocolExceptionType.UNKNOWN')
+      const _errCtor = ts.createPropertyAccess(_id.Thrift, 'TProtocolException');
+      const _errType = ts.createPropertyAccess(_id.Thrift, 'TProtocolExceptionType.UNKNOWN')
       const _errArgs = [_errType, ts.createLiteral(`Required field ${field.name} is unset!`)];
       _elseThrow = createThrow(_errCtor, _errArgs);
     }
@@ -200,7 +200,7 @@ function createConstructor(fields) {
     return createIf(_comparison, _thenAssign, _elseThrow);
   })
 
-  const _ifArgs = createIf(_args, _fieldAssignments);
+  const _ifArgs = createIf(_id.args, _fieldAssignments);
 
   const _constructorBlock = ts.createBlock([_ifArgs], true);
 
@@ -209,13 +209,10 @@ function createConstructor(fields) {
 
 function createReadField(field) {
 
-  const _Thrift = ts.createIdentifier('Thrift');
-  const _ftype = ts.createIdentifier('ftype');
-
   const _enumType = getEnumType(field.type);
 
-  const _typeAccess = ts.createPropertyAccess(_Thrift, `Type.${_enumType}`);
-  const _comparison = ts.createStrictEquality(_ftype, _typeAccess);
+  const _typeAccess = ts.createPropertyAccess(_id.Thrift, `Type.${_enumType}`);
+  const _comparison = ts.createStrictEquality(_id.ftype, _typeAccess);
 
   const _thisName = ts.createPropertyAccess(ts.createThis(), field.name);
   const _readAndAssign = getReadBody(field.type, _thisName);
@@ -234,28 +231,20 @@ function createReadField(field) {
 function createRead(fields) {
   const _publicModifier = ts.createToken(ts.SyntaxKind.PublicKeyword);
 
-  const _Thrift = ts.createIdentifier('Thrift');
-  const _input = ts.createIdentifier('input');
-  const _ret = ts.createIdentifier('ret');
-  const _fname = ts.createIdentifier('fname')
-  const _ftype = ts.createIdentifier('ftype');
-  const _fid = ts.createIdentifier('fid');
-  const _read = ts.createIdentifier('read');
-
   const _readStructBegin = gen.readStructBegin();
   const _readFieldBegin = gen.readFieldBegin();
 
-  const _retFname = ts.createPropertyAccess(_ret, _fname);
-  const _fnameConst = createVariable(_fname, _retFname);
+  const _retFname = ts.createPropertyAccess(_id.ret, _id.fname);
+  const _fnameConst = createVariable(_id.fname, _retFname);
 
-  const _retFtype = ts.createPropertyAccess(_ret, _ftype);
-  const _ftypeConst = createVariable(_ftype, _retFtype)
+  const _retFtype = ts.createPropertyAccess(_id.ret, _id.ftype);
+  const _ftypeConst = createVariable(_id.ftype, _retFtype)
 
-  const _retFid = ts.createPropertyAccess(_ret, _fid);
-  const _fidConst = createVariable(_fid, _retFid);
+  const _retFid = ts.createPropertyAccess(_id.ret, _id.fid);
+  const _fidConst = createVariable(_id.fid, _retFid);
 
-  const _typeStopAccess = ts.createPropertyAccess(_Thrift, 'Type.STOP');
-  const _comparison = ts.createStrictEquality(_ftype, _typeStopAccess);
+  const _typeStopAccess = ts.createPropertyAccess(_id.Thrift, 'Type.STOP');
+  const _comparison = ts.createStrictEquality(_id.ftype, _typeStopAccess);
 
   const _ifStop = createIf(_comparison, ts.createBreak());
 
@@ -269,7 +258,7 @@ function createRead(fields) {
     ..._cases,
     _default
   ]);
-  const _switch = ts.createSwitch(_fid, _caseBlock);
+  const _switch = ts.createSwitch(_id.fid, _caseBlock);
 
   const _readFieldEnd = gen.readFieldEnd()
 
@@ -293,8 +282,8 @@ function createRead(fields) {
     _readStructEnd
   ], true);
 
-  const _inputDeclaration = ts.createParameter(undefined, undefined, undefined, _input, undefined, undefined, undefined);
-  return ts.createMethod(undefined, [_publicModifier], undefined, _read, undefined, undefined, [_inputDeclaration], undefined, _readBlock);
+  const _inputDeclaration = ts.createParameter(undefined, undefined, undefined, _id.input, undefined, undefined, undefined);
+  return ts.createMethod(undefined, [_publicModifier], undefined, _id.read, undefined, undefined, [_inputDeclaration], undefined, _readBlock);
 }
 
 
@@ -324,20 +313,18 @@ function createWriteField(field) {
 
 function createWrite(service) {
   const _publicModifier = ts.createToken(ts.SyntaxKind.PublicKeyword);
-  const _output = ts.createIdentifier('output');
-  const _write = ts.createIdentifier('write');
 
-  const _writeStructBegin = ts.createPropertyAccess(_output, 'writeStructBegin');
+  const _writeStructBegin = ts.createPropertyAccess(_id.output, 'writeStructBegin');
   const _writeStructBeginCall = ts.createCall(_writeStructBegin, undefined, [ts.createLiteral(`${service.name}`)]);
   const _writeStructBeginStatement = ts.createStatement(_writeStructBeginCall);
 
   const _writeFields = service.fields.map(createWriteField);
 
-  const _writeFieldStop = ts.createPropertyAccess(_output, 'writeFieldStop');
+  const _writeFieldStop = ts.createPropertyAccess(_id.output, 'writeFieldStop');
   const _writeFieldStopCall = ts.createCall(_writeFieldStop, undefined, undefined);
   const _writeFieldStopStatement = ts.createStatement(_writeFieldStopCall);
 
-  const _writeStructEnd = ts.createPropertyAccess(_output, 'writeStructEnd');
+  const _writeStructEnd = ts.createPropertyAccess(_id.output, 'writeStructEnd');
   const _writeStructEndCall = ts.createCall(_writeStructEnd, undefined, undefined);
   const _writeStructEndStatement = ts.createStatement(_writeStructEndCall);
 
@@ -348,8 +335,8 @@ function createWrite(service) {
     _writeStructEndStatement
   ], true);
 
-  const _outputDeclaration = ts.createParameter(undefined, undefined, undefined, _output, undefined, undefined, undefined);
-  return ts.createMethod(undefined, [_publicModifier], undefined, _write, undefined, undefined, [_outputDeclaration], undefined, _writeBlock);
+  const _outputDeclaration = ts.createParameter(undefined, undefined, undefined, _id.output, undefined, undefined, undefined);
+  return ts.createMethod(undefined, [_publicModifier], undefined, _id.write, undefined, undefined, [_outputDeclaration], undefined, _writeBlock);
 }
 
 function generateTypesAST(idl: any): string {
@@ -361,7 +348,7 @@ function generateTypesAST(idl: any): string {
   let prefaceFile = ts.createSourceFile('preface.ts', '', ts.ScriptTarget.ES5, false, ts.ScriptKind.TS);
 
   const _thriftImport = ts.createImportClause(undefined, ts.createNamedImports([
-    ts.createImportSpecifier(undefined, ts.createIdentifier('Thrift'))
+    ts.createImportSpecifier(undefined, _id.Thrift)
   ]));
   let _require = ts.createImportDeclaration(undefined, undefined, _thriftImport, ts.createLiteral('thrift'));
 
