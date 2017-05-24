@@ -7,6 +7,8 @@ export interface Identifiers {
   readonly Array: Identifier,
   // pseudo-globals
   readonly Thrift: Identifier,
+  // static props
+  readonly success: Identifier,
   // constructor vars
   readonly args: Identifier,
   // read vars
@@ -28,6 +30,8 @@ export const identifiers: Identifiers = {
   Array: createIdentifier('Array'),
   // pseudo-globals
   Thrift: createIdentifier('Thrift'),
+  // static props
+  success: createIdentifier('success'),
   // constructor vars
   args: createIdentifier('args'),
   // read vars

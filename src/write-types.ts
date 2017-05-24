@@ -13,46 +13,47 @@ import {
 import {
   types as _types
 } from './ast/thrift-types';
+import { methods as _methods } from './ast/methods';
 
 function createWriteBody(type, accessVar: ts.Expression) {
-  let methodName;
+  let method;
   switch(getType(type)) {
     case 'bool': {
-      methodName = 'writeBool';
+      method = _methods.writeBool;
       break;
     }
     case 'i32': {
-      methodName = 'writeI32';
+      method = _methods.writeI32;
       break;
     }
     case 'i16': {
-      methodName = 'writeI16';
+      method = _methods.writeI16;
       break;
     }
     case 'string': {
-      methodName = 'writeString';
+      method = _methods.writeString;
       break;
     }
     // This is output as readString by the thrift binary
     case 'binary': {
-      methodName = 'writeBinary';
+      method = _methods.writeBinary;
       break;
     }
     case 'double': {
-      methodName = 'writeDouble';
+      method = _methods.writeDouble;
       break;
     }
     case 'i64': {
-      methodName = 'writeI64';
+      method = _methods.writeI64;
       break;
     }
     case 'byte': {
-      methodName = 'writeByte';
+      method = _methods.writeByte;
       break;
     }
     // The thrift binary warns to use i8 but then spits out writeByte
     case 'i8': {
-      methodName = 'writeByte';
+      method = _methods.writeByte;
       break;
     }
     // TODO: probably need to handle other type aliases OR the validator/normalize phase can output these
@@ -62,23 +63,20 @@ function createWriteBody(type, accessVar: ts.Expression) {
     }
   }
 
-  const _writeType = ts.createPropertyAccess(_id.output, methodName);
-  const _writeTypeCall = ts.createCall(_writeType, undefined, [accessVar]);
+  const _writeTypeCall = ts.createCall(method, undefined, [accessVar]);
 
   return ts.createStatement(_writeTypeCall);
 }
 
-function writeContainerBegin(methodName: string | ts.Identifier, args: ts.Expression[]) : ts.ExpressionStatement {
-  const _writeContainerBegin = ts.createPropertyAccess(_id.output, methodName);
-  const _writeContainerBeginCall = ts.createCall(_writeContainerBegin, undefined, args);
+function writeContainerBegin(method: ts.PropertyAccessExpression, args: ts.Expression[]) : ts.ExpressionStatement {
+  const _writeContainerBeginCall = ts.createCall(method, undefined, args);
   const _writeContainerBeginStatement = ts.createStatement(_writeContainerBeginCall);
 
   return _writeContainerBeginStatement;
 }
 
-function writeContainerEnd(methodName: string | ts.Identifier) : ts.ExpressionStatement {
-  const _writeContainerEnd = ts.createPropertyAccess(_id.output, methodName);
-  const _writeContainerEndCall = ts.createCall(_writeContainerEnd, undefined, undefined);
+function writeContainerEnd(method: ts.PropertyAccessExpression) : ts.ExpressionStatement {
+  const _writeContainerEndCall = ts.createCall(method, undefined, undefined);
   const _writeContainerEndStatement = ts.createStatement(_writeContainerEndCall);
 
   return _writeContainerEndStatement;
@@ -121,12 +119,12 @@ function createSetBody(type, accessVar) {
   const _enumType = getEnumType(type.valueType);
 
   return [
-    writeContainerBegin('writeSetBegin', [
+    writeContainerBegin(_methods.writeSetBegin, [
       _types[_enumType],
       ts.createPropertyAccess(accessVar, 'size')
     ]),
     _forEach,
-    writeContainerEnd('writeSetEnd')
+    writeContainerEnd(_methods.writeSetEnd)
   ];
 }
 
@@ -136,12 +134,12 @@ function createListBody(type, accessVar) {
   const _enumType = getEnumType(type.valueType);
 
   return [
-    writeContainerBegin('writeListBegin', [
+    writeContainerBegin(_methods.writeListBegin, [
       _types[_enumType],
       ts.createPropertyAccess(accessVar, 'length')
     ]),
     _forEach,
-    writeContainerEnd('writeListEnd')
+    writeContainerEnd(_methods.writeListEnd)
   ];
 }
 
@@ -152,22 +150,20 @@ function createMapBody(type, accessVar) {
   const valueType = getEnumType(type.valueType);
 
   return [
-    writeContainerBegin('writeMapBegin', [
+    writeContainerBegin(_methods.writeMapBegin, [
       _types[keyType],
       _types[valueType],
       ts.createPropertyAccess(accessVar, 'size')
     ]),
     _forEach,
-    writeContainerEnd('writeMapEnd')
+    writeContainerEnd(_methods.writeMapEnd)
   ];
 }
 
 function createStructBody(type, accessVar) {
 
-  const _output = _id.output;
-
   const _writeStruct = ts.createPropertyAccess(accessVar, 'write');
-  const _writeStructCall = ts.createCall(_writeStruct, undefined, [_output]);
+  const _writeStructCall = ts.createCall(_writeStruct, undefined, [_id.output]);
 
   return ts.createStatement(_writeStructCall)
 }

@@ -39,6 +39,9 @@ import {
 import {
   types as _types
 } from './ast/thrift-types';
+import {
+  methods as _methods
+} from './ast/methods';
 
 function readFile(fileName: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
@@ -125,7 +128,7 @@ function createConstructor(fields) {
         break;
       }
       case 'list': {
-        const _copy = ts.createCall(ts.createPropertyAccess(_id.Array, 'from'), undefined, [
+        const _copy = ts.createCall(_methods.Arrayfrom, undefined, [
           _argsPropAccess
         ]);
         _thenAssign = createAssignment(_thisPropAccess, _copy);
@@ -315,18 +318,15 @@ function createWriteField(field) {
 function createWrite(service) {
   const _publicModifier = ts.createToken(ts.SyntaxKind.PublicKeyword);
 
-  const _writeStructBegin = ts.createPropertyAccess(_id.output, 'writeStructBegin');
-  const _writeStructBeginCall = ts.createCall(_writeStructBegin, undefined, [ts.createLiteral(`${service.name}`)]);
+  const _writeStructBeginCall = ts.createCall(_methods.writeStructBegin, undefined, [ts.createLiteral(`${service.name}`)]);
   const _writeStructBeginStatement = ts.createStatement(_writeStructBeginCall);
 
   const _writeFields = service.fields.map(createWriteField);
 
-  const _writeFieldStop = ts.createPropertyAccess(_id.output, 'writeFieldStop');
-  const _writeFieldStopCall = ts.createCall(_writeFieldStop, undefined, undefined);
+  const _writeFieldStopCall = ts.createCall(_methods.writeFieldStop, undefined, undefined);
   const _writeFieldStopStatement = ts.createStatement(_writeFieldStopCall);
 
-  const _writeStructEnd = ts.createPropertyAccess(_id.output, 'writeStructEnd');
-  const _writeStructEndCall = ts.createCall(_writeStructEnd, undefined, undefined);
+  const _writeStructEndCall = ts.createCall(_methods.writeStructEnd, undefined, undefined);
   const _writeStructEndStatement = ts.createStatement(_writeStructEndCall);
 
   const _writeBlock = ts.createBlock([
@@ -389,7 +389,7 @@ function generateTypesAST(idl: any): string {
       return ts.createProperty(undefined, [_publicModifier], field.name, _optional, _type, _default);
     });
 
-    const _successDeclaration = ts.createProperty(undefined, [_publicModifier], 'success', undefined, toAstType('bool'), undefined);
+    const _successDeclaration = ts.createProperty(undefined, [_publicModifier], _id.success, undefined, toAstType('bool'), undefined);
 
     // Build the constructor body
     const _constructor = createConstructor(struct.fields);

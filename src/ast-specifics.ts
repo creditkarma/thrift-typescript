@@ -9,18 +9,19 @@ import {
 import {
   types as _types
 } from './ast/thrift-types';
+import {
+  methods as _methods
+} from './ast/methods';
 
 // readStruct
 export function readStructBegin() {
-  const _readStructBegin = ts.createPropertyAccess(_id.input, 'readStructBegin');
-  const _readStructBeginCall = ts.createCall(_readStructBegin, undefined, undefined);
+  const _readStructBeginCall = ts.createCall(_methods.readStructBegin, undefined, undefined);
   const _readStructBeginStatement = ts.createStatement(_readStructBeginCall);
 
   return _readStructBeginStatement;
 }
 export function readStructEnd() {
-  const _readStructEnd = ts.createPropertyAccess(_id.input, 'readStructEnd');
-  const _readStructEndCall = ts.createCall(_readStructEnd, undefined, undefined);
+  const _readStructEndCall = ts.createCall(_methods.readStructEnd, undefined, undefined);
   const _readStructEndStatement = ts.createStatement(_readStructEndCall);
 
   return _readStructEndStatement;
@@ -28,15 +29,13 @@ export function readStructEnd() {
 
 // readField
 export function readFieldBegin() {
-  const _readFieldBegin = ts.createPropertyAccess(_id.input, 'readFieldBegin');
-  const _readFieldBeginCall = ts.createCall(_readFieldBegin, undefined, undefined);
+  const _readFieldBeginCall = ts.createCall(_methods.readFieldBegin, undefined, undefined);
   const _assignmentConst = createVariable(_id.ret, _readFieldBeginCall);
 
   return _assignmentConst;
 }
 export function readFieldEnd() {
-  const _readFieldEnd = ts.createPropertyAccess(_id.input, 'readFieldEnd');
-  const _readFieldEndCall = ts.createCall(_readFieldEnd, undefined, undefined);
+  const _readFieldEndCall = ts.createCall(_methods.readFieldEnd, undefined, undefined);
   const _readFieldEndStatement = ts.createStatement(_readFieldEndCall);
 
   return _readFieldEndStatement;
@@ -44,8 +43,7 @@ export function readFieldEnd() {
 
 // writeField
 export function writeFieldBegin(name: string, type: string, fieldId: number) : ts.ExpressionStatement {
-  const _writeFieldBegin = ts.createPropertyAccess(_id.output, 'writeFieldBegin');
-  const _writeFieldBeginCall = ts.createCall(_writeFieldBegin, undefined, [
+  const _writeFieldBeginCall = ts.createCall(_methods.writeFieldBegin, undefined, [
     ts.createLiteral(name),
     _types[type],
     ts.createLiteral(fieldId)
@@ -54,8 +52,7 @@ export function writeFieldBegin(name: string, type: string, fieldId: number) : t
   return _writeFieldBeginStatement;
 }
 export function writeFieldEnd() : ts.ExpressionStatement {
-  const _writeFieldEnd = ts.createPropertyAccess(_id.output, 'writeFieldEnd');
-  const _writeFieldEndCall = ts.createCall(_writeFieldEnd, undefined, undefined);
+  const _writeFieldEndCall = ts.createCall(_methods.writeFieldEnd, undefined, undefined);
   const _writeFieldEndStatement = ts.createStatement(_writeFieldEndCall);
 
   return _writeFieldEndStatement;
@@ -63,8 +60,7 @@ export function writeFieldEnd() : ts.ExpressionStatement {
 
 
 export function skip() {
-  const _skip = ts.createPropertyAccess(_id.input, 'skip');
-  const _skipCall = ts.createCall(_skip, undefined, [_id.ftype]);
+  const _skipCall = ts.createCall(_methods.skip, undefined, [_id.ftype]);
   const _skipStatement = ts.createStatement(_skipCall);
 
   return _skipStatement;

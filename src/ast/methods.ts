@@ -1,0 +1,95 @@
+import { createPropertyAccess, PropertyAccessExpression } from 'typescript';
+
+import { identifiers as _id } from './identifiers';
+
+export interface Methods {
+  // globals
+  readonly Arrayfrom: PropertyAccessExpression,
+  // read
+  readonly readStructBegin: PropertyAccessExpression,
+  readonly readStructEnd: PropertyAccessExpression,
+  readonly readFieldBegin: PropertyAccessExpression,
+  readonly readFieldEnd: PropertyAccessExpression,
+  readonly readMapBegin: PropertyAccessExpression,
+  readonly readMapEnd: PropertyAccessExpression,
+  readonly readSetBegin: PropertyAccessExpression,
+  readonly readSetEnd: PropertyAccessExpression,
+  readonly readListBegin: PropertyAccessExpression,
+  readonly readListEnd: PropertyAccessExpression,
+  readonly readBool: PropertyAccessExpression,
+  readonly readI32: PropertyAccessExpression,
+  readonly readI16: PropertyAccessExpression,
+  readonly readString: PropertyAccessExpression,
+  readonly readBinary: PropertyAccessExpression,
+  readonly readDouble: PropertyAccessExpression,
+  readonly readI64: PropertyAccessExpression,
+  readonly readByte: PropertyAccessExpression,
+  readonly skip: PropertyAccessExpression,
+  // write
+  readonly writeStructBegin: PropertyAccessExpression,
+  readonly writeStructEnd: PropertyAccessExpression,
+  readonly writeFieldBegin: PropertyAccessExpression,
+  readonly writeFieldEnd: PropertyAccessExpression,
+  readonly writeMapBegin: PropertyAccessExpression,
+  readonly writeMapEnd: PropertyAccessExpression,
+  readonly writeSetBegin: PropertyAccessExpression,
+  readonly writeSetEnd: PropertyAccessExpression,
+  readonly writeListBegin: PropertyAccessExpression,
+  readonly writeListEnd: PropertyAccessExpression,
+  readonly writeBool: PropertyAccessExpression,
+  readonly writeI32: PropertyAccessExpression,
+  readonly writeI16: PropertyAccessExpression,
+  readonly writeString: PropertyAccessExpression,
+  readonly writeBinary: PropertyAccessExpression,
+  readonly writeDouble: PropertyAccessExpression,
+  readonly writeI64: PropertyAccessExpression,
+  readonly writeByte: PropertyAccessExpression,
+  readonly writeFieldStop: PropertyAccessExpression,
+}
+
+export const methods: Methods = {
+  // globals
+  Arrayfrom: createPropertyAccess(_id.Array, 'from'),
+  // read
+  readStructBegin: createPropertyAccess(_id.input, 'readStructBegin'),
+  readStructEnd: createPropertyAccess(_id.input, 'readStructEnd'),
+  readFieldBegin: createPropertyAccess(_id.input, 'readFieldBegin'),
+  readFieldEnd: createPropertyAccess(_id.input, 'readFieldEnd'),
+  readMapBegin: createPropertyAccess(_id.input, 'readMapBegin'),
+  readMapEnd: createPropertyAccess(_id.input, 'readMapEnd'),
+  readSetBegin: createPropertyAccess(_id.input, 'readSetBegin'),
+  readSetEnd: createPropertyAccess(_id.input, 'readSetEnd'),
+  readListBegin: createPropertyAccess(_id.input, 'readListBegin'),
+  readListEnd: createPropertyAccess(_id.input, 'readListEnd'),
+  readBool: createPropertyAccess(_id.input, 'readBool'),
+  readI32: createPropertyAccess(_id.input, 'readI32'),
+  readI16: createPropertyAccess(_id.input, 'readI16'),
+  readString: createPropertyAccess(_id.input, 'readString'),
+  readBinary: createPropertyAccess(_id.input, 'readBinary'),
+  readDouble: createPropertyAccess(_id.input, 'readDouble'),
+  readI64: createPropertyAccess(_id.input, 'readI64'),
+  readByte: createPropertyAccess(_id.input, 'readByte'),
+  // TODO: alias i08?
+  skip: createPropertyAccess(_id.input, 'skip'),
+  // write
+  writeStructBegin: createPropertyAccess(_id.output, 'writeStructBegin'),
+  writeStructEnd: createPropertyAccess(_id.output, 'writeStructEnd'),
+  writeFieldBegin: createPropertyAccess(_id.output, 'writeFieldBegin'),
+  writeFieldEnd: createPropertyAccess(_id.output, 'writeFieldEnd'),
+  writeMapBegin: createPropertyAccess(_id.output, 'writeMapBegin'),
+  writeMapEnd: createPropertyAccess(_id.output, 'writeMapEnd'),
+  writeSetBegin: createPropertyAccess(_id.output, 'writeSetBegin'),
+  writeSetEnd: createPropertyAccess(_id.output, 'writeSetEnd'),
+  writeListBegin: createPropertyAccess(_id.output, 'writeListBegin'),
+  writeListEnd: createPropertyAccess(_id.output, 'writeListEnd'),
+  writeBool: createPropertyAccess(_id.output, 'writeBool'),
+  writeI32: createPropertyAccess(_id.output, 'writeI32'),
+  writeI16: createPropertyAccess(_id.output, 'writeI16'),
+  writeString: createPropertyAccess(_id.output, 'writeString'),
+  writeBinary: createPropertyAccess(_id.output, 'writeBinary'),
+  writeDouble: createPropertyAccess(_id.output, 'writeDouble'),
+  writeI64: createPropertyAccess(_id.output, 'writeI64'),
+  writeByte: createPropertyAccess(_id.output, 'writeByte'),
+  // TODO: alias i08
+  writeFieldStop: createPropertyAccess(_id.output, 'writeFieldStop')
+};

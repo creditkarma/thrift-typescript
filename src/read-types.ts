@@ -4,9 +4,8 @@ import {
   getType
 } from './ast-helpers';
 
-import {
-  identifiers as _id
-} from './ast/identifiers';
+import { identifiers as _id } from './ast/identifiers';
+import { methods as _methods } from './ast/methods';
 
 // Map/Set/List don't seem to use the etype,ktype,vtype property that's initialized
 
@@ -31,7 +30,7 @@ function createReadMap(type, _storage) {
   const _key = ts.createUniqueName('key');
   const _value = ts.createUniqueName('value');
 
-  const _metadataVar = ts.createVariableDeclaration(_metadata, undefined, ts.createCall(ts.createPropertyAccess(_id.input, 'readMapBegin'), undefined, undefined))
+  const _metadataVar = ts.createVariableDeclaration(_metadata, undefined, ts.createCall(_methods.readMapBegin, undefined, undefined))
   const _sizeVar = ts.createVariableDeclaration(_size, undefined, ts.createPropertyAccess(_metadata, 'size'));
 
   const _varList = ts.createVariableDeclarationList([
@@ -73,7 +72,7 @@ function createReadMap(type, _storage) {
     ts.createStatement(ts.createAssignment(_storage, ts.createNew(_id.Map, undefined, []))),
     ts.createVariableStatement(undefined, _varList),
     ts.createFor(_loopVarList, _loopCompare, _loopIncrement, _loopBody),
-    ts.createStatement(ts.createCall(ts.createPropertyAccess(_id.input, 'readMapEnd'), undefined, undefined)),
+    ts.createStatement(ts.createCall(_methods.readMapEnd, undefined, undefined)),
   ];
 }
 
@@ -94,7 +93,7 @@ function createReadSet(type, _storage) {
   const _size = ts.createUniqueName('size');
   const _value = ts.createUniqueName('value');
 
-  const _metadataVar = ts.createVariableDeclaration(_metadata, undefined, ts.createCall(ts.createPropertyAccess(_id.input, 'readSetBegin'), undefined, undefined))
+  const _metadataVar = ts.createVariableDeclaration(_metadata, undefined, ts.createCall(_methods.readSetBegin, undefined, undefined))
   const _sizeVar = ts.createVariableDeclaration(_size, undefined, ts.createPropertyAccess(_metadata, 'size'));
 
   const _varList = ts.createVariableDeclarationList([
@@ -126,7 +125,7 @@ function createReadSet(type, _storage) {
     ts.createStatement(ts.createAssignment(_storage, ts.createNew(_id.Set, undefined, []))),
     ts.createVariableStatement(undefined, _varList),
     ts.createFor(_loopVarList, _loopCompare, _loopIncrement, _loopBody),
-    ts.createStatement(ts.createCall(ts.createPropertyAccess(_id.input, 'readSetEnd'), undefined, undefined))
+    ts.createStatement(ts.createCall(_methods.readSetEnd, undefined, undefined))
   ];
 }
 
@@ -147,7 +146,7 @@ function createReadList(type, _storage) {
   const _size = ts.createUniqueName('size');
   const _value = ts.createUniqueName('value');
 
-  const _metadataVar = ts.createVariableDeclaration(_metadata, undefined, ts.createCall(ts.createPropertyAccess(_id.input, 'readListBegin'), undefined, undefined))
+  const _metadataVar = ts.createVariableDeclaration(_metadata, undefined, ts.createCall(_methods.readListBegin, undefined, undefined))
   const _sizeVar = ts.createVariableDeclaration(_size, undefined, ts.createPropertyAccess(_metadata, 'size'));
 
   const _varList = ts.createVariableDeclarationList([
@@ -179,7 +178,7 @@ function createReadList(type, _storage) {
     ts.createStatement(ts.createAssignment(_storage, ts.createArrayLiteral())),
     ts.createVariableStatement(undefined, _varList),
     ts.createFor(_loopVarList, _loopCompare, _loopIncrement, _loopBody),
-    ts.createStatement(ts.createCall(ts.createPropertyAccess(_id.input, 'readListEnd'), undefined, undefined))
+    ts.createStatement(ts.createCall(_methods.readListEnd, undefined, undefined))
   ];
 }
 
@@ -188,41 +187,41 @@ function createReadValue(type, _storage) {
   let method;
   switch(getType(type)) {
     case 'bool': {
-      method = 'readBool';
+      method = _methods.readBool;
       break;
     }
     case 'i32': {
-      method = 'readI32';
+      method = _methods.readI32;
       break;
     }
     case 'i16': {
-      method = 'readI16';
+      method = _methods.readI16;
       break;
     }
     case 'string': {
-      method = 'readString';
+      method = _methods.readString;
       break;
     }
     // This is output as readString by the thrift binary
     case 'binary': {
-      method = 'readBinary';
+      method = _methods.readBinary;
       break;
     }
     case 'double': {
-      method = 'readDouble';
+      method = _methods.readDouble;
       break;
     }
     case 'i64': {
-      method = 'readI64';
+      method = _methods.readI64;
       break;
     }
     case 'byte': {
-      method = 'readByte';
+      method = _methods.readByte;
       break;
     }
     // The thrift binary warns to use i8 but then spits out readByte
     case 'i8': {
-      method = 'readByte';
+      method = _methods.readByte;
       break;
     }
     // TODO: probably need to handle other type aliases OR the validator/normalize phase can output these
@@ -232,7 +231,7 @@ function createReadValue(type, _storage) {
     }
   }
 
-  const _call = ts.createCall(ts.createPropertyAccess(_id.input, method), undefined, undefined);
+  const _call = ts.createCall(method, undefined, undefined);
   const _assign = ts.createAssignment(_storage, _call);
 
   return ts.createStatement(_assign);
