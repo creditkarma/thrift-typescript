@@ -29,7 +29,8 @@ import {
   resolveNamespace
 } from './resolve';
 import {
-  validateTypes
+  validateTypes,
+  validateStructs
 } from './validate';
 
 import {
@@ -415,9 +416,10 @@ export async function generateIDLTypes(filename: string): Promise<string> {
 
   // Non-mutation
   const typedefs = resolveTypes(idl);
-  // validateTypes(types);
+  validateTypes(typedefs);
 
   const structs = resolveStructs(idl);
+  validateStructs(structs);
 
   const resolved = {
     namespace: namespace,
