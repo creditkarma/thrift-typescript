@@ -9,7 +9,8 @@ const packagejson = require('../package.json')
 import * as program from 'commander'
 import * as fs from 'fs'
 import * as path from 'path'
-import {generateIDLServices, generateIDLTypes} from './index'
+import {generateIDLTypes} from './index'
+import {generateIDLServices} from './handlebars'
 
 program
   .version(packagejson.version)

@@ -1,6 +1,10 @@
 import { expect } from 'chai'
-import { parseFile, generateIDLTypes, loadTemplate, generateIDLServices } from './index'
-import { generateIDLTypesAST } from './index'
+import { parseFile, generateIDLTypes } from './index'
+import {
+  generateIDLTypes as generateIDLTypesHbs,
+  generateIDLServices as generateIDLServicesHbs,
+  loadTemplate
+} from './handlebars'
 
 const simple = './fixtures/simple.thrift'
 const complex = './fixtures/complex.thrift'
@@ -39,7 +43,7 @@ describe('Thrift Loader', () => {
   describe(`when generating types from thrift file "${simple}"`, () => {
     let types
     before((done) => {
-      generateIDLTypes(simple).then((results) => {
+      generateIDLTypesHbs(simple).then((results) => {
         types = results
         done()
       })
@@ -62,14 +66,14 @@ describe('Thrift Loader', () => {
   describe(`AST: when generating types from thrift file "${simple}"`, () => {
     let types
     before((done) => {
-      generateIDLTypesAST(simple).then((results) => {
+      generateIDLTypes(simple).then((results) => {
         types = results
         done()
       })
     })
     let handlebars
     before((done) => {
-      generateIDLTypes(simple).then((results) => {
+      generateIDLTypesHbs(simple).then((results) => {
         handlebars = results
         done()
       })
@@ -95,10 +99,8 @@ describe('Thrift Loader', () => {
   describe(`AST: when generating types from thrift file "${complex}"`, () => {
     let types
     before((done) => {
-      generateIDLTypesAST(complex).then((results) => {
+      generateIDLTypes(complex).then((results) => {
         types = results
-        // require('fs').writeFileSync('sample.ts', results, 'utf8');
-        console.log(types);
         done()
       })
     })
@@ -111,7 +113,7 @@ describe('Thrift Loader', () => {
   describe(`when generating services from thrift file "${simple}"`, () => {
     let services
     before((done) => {
-      generateIDLServices(simple).then((results) => {
+      generateIDLServicesHbs(simple).then((results) => {
         services = results
         done()
       })
@@ -140,7 +142,7 @@ describe('Thrift Loader', () => {
   describe(`when generating services from thrift file "${calculator}"`, () => {
     let services
     before((done) => {
-      generateIDLServices(calculator).then((results) => {
+      generateIDLServicesHbs(calculator).then((results) => {
         services = results
         done()
       })

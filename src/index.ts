@@ -1,9 +1,8 @@
-import * as fs from 'fs'
-import * as path from 'path'
 import * as ts from 'typescript'
-let thriftParser = require('thrift-parser')
-import { compile } from 'handlebars'
-import { registerHelpers } from './ts-helpers'
+const thriftParser = require('thrift-parser');
+
+import readFile from './filesystem/read-file';
+
 import {
   toAstType,
   toOptional,
@@ -46,58 +45,10 @@ import {
   tokens as _tokens
 } from './ast/tokens';
 
-function readFile(fileName: string): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    fs.readFile(fileName, 'utf8', (err, data) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(data)
-      }
-    })
-  })
-}
-
-async function generateTypes(types: any) {
-  const template: HandlebarsTemplateDelegate = await loadTemplate('types.hbs')
-  return template(types)
-}
-
-async function generateServices(services: any) {
-  const template: HandlebarsTemplateDelegate = await loadTemplate('services.hbs')
-  return template(services)
-}
-
-export async function loadTemplate(fileName: string): Promise<HandlebarsTemplateDelegate> {
-  const fullPath = path.join(__dirname, `../templates/${fileName}`)
-  const src = await readFile(fullPath)
-  return compile(src)
-}
-
 export function parseFile(fileName: string): Promise<any> {
   return readFile(fileName).then(idl => {
     return thriftParser(idl)
   })
-}
-
-export async function generateIDLTypes(fileName: string): Promise<string> {
-  registerHelpers()
-  const idl = await parseFile(fileName)
-  const structs = getStructs(idl)
-  return generateTypes(structs)
-}
-
-export async function generateIDLServices(fileName: string): Promise<string> {
-  registerHelpers()
-  const idl = await parseFile(fileName)
-  let upcaseFile = path.basename(fileName).split('.thrift')[0]
-  upcaseFile = upcaseFile[0].toUpperCase() + upcaseFile.substr(1)
-  const input = {
-    fileName: upcaseFile,
-    services: getServices(idl),
-    structs: getStructs(idl),
-  }
-  return generateServices(input)
 }
 
 function createAssignment(left, right) {
@@ -457,8 +408,7 @@ function generateTypesAST(idl: ResolvedIDL): string {
 }
 
 
-export async function generateIDLTypesAST(filename: string): Promise<string> {
-  registerHelpers();
+export async function generateIDLTypes(filename: string): Promise<string> {
   let idl = await parseFile(filename);
 
   const namespace = resolveNamespace(idl);
