@@ -86,6 +86,8 @@ export function resolveStructs(idl) {
 
     return {
       name: name,
+      // TODO: this should be a lookup somehow
+      implements: `${name}Interface`,
       fields: fields
     };
   });
@@ -98,4 +100,26 @@ export function resolveNamespace(idl) {
   if (idl.namespace && idl.namespace[scope]) {
     return idl.namespace[scope].serviceName;
   }
+}
+
+export function resolveInterfaces(idl) {
+  const structs = getStructs(idl);
+
+  return structs.map((struct) => {
+    const { name } = struct;
+
+    const fields = [{name: 'success', type: 'boolean'}].concat(struct.fields)
+      .map((field: { name: string, type: string | any, option?: string }) => {
+        return {
+          name: field.name,
+          type: field.type,
+          option: field.option
+        };
+      });
+
+    return {
+      name: `${name}Interface`,
+      fields: fields
+    };
+  });
 }

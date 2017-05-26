@@ -26,7 +26,8 @@ import {
 import {
   resolveStructs,
   resolveTypes,
-  resolveNamespace
+  resolveNamespace,
+  resolveInterfaces
 } from './resolve';
 import {
   validateTypes,
@@ -58,11 +59,13 @@ function createAssignment(left, right) {
   return ts.createStatement(_propertyAssignment);
 }
 
-function createConstructor(fields) {
+function createConstructor(struct: ResolvedStruct) {
 
-  const _argsParameter = ts.createParameter(undefined, undefined, undefined, _id.args, _tokens.question, undefined, undefined);
+  const _argsType = ts.createTypeReferenceNode(struct.implements, undefined);
 
-  const _fieldAssignments = fields.map(function(field) {
+  const _argsParameter = ts.createParameter(undefined, undefined, undefined, _id.args, _tokens.question, _argsType, undefined);
+
+  const _fieldAssignments = struct.fields.map(function(field) {
 
     const _argsPropAccess = ts.createPropertyAccess(_id.args, field.name);
     const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
@@ -292,14 +295,23 @@ interface ResolvedTypedef {
 
 interface ResolvedStruct {
   name: string,
+  implements: string,
   fields: ResolvedField[]
 }
 
-interface ResolvedField {
+interface ResolvedInterface {
+  name: string,
+  fields: ResolvedFieldBase[]
+}
+
+interface ResolvedFieldBase {
   name: string,
   type: string | any, // TODO: objects/Typedef
+  option?: string
+}
+
+interface ResolvedField extends ResolvedFieldBase {
   tsType: string | any, // TODO: objects/Typedef
-  option?: string,
   defaultValue?: any
 }
 
@@ -308,7 +320,33 @@ type ResolvedNamespace = string;
 interface ResolvedIDL {
   namespace?: ResolvedNamespace,
   typedefs: ResolvedTypedef[],
+  interfaces: ResolvedInterface[],
   structs: ResolvedStruct[],
+}
+
+function createFieldSignature(field) {
+
+  // TODO: have this resolved or something?
+  let _type = toAstType(field.type);
+  let _optional = toOptional(field.option);
+
+  return ts.createPropertySignature(undefined, field.name, _optional, _type, undefined);
+}
+
+function createFieldDeclaration(field) {
+
+  // TODO: have this resolved or something?
+  let _type = toAstType(field.tsType);
+  let _optional = toOptional(field.option);
+
+  let _default;
+  if (field.defaultValue != null) {
+    _default = ts.createLiteral(field.defaultValue);
+  } else {
+    _default = ts.createNull();
+  }
+
+  return ts.createProperty(undefined, [_tokens.public], field.name, _optional, _type, _default);
 }
 
 function generateTypesAST(idl: ResolvedIDL): string {
@@ -336,28 +374,24 @@ function generateTypesAST(idl: ResolvedIDL): string {
     return _type;
   });
 
+  const _interfaces = idl.interfaces.map(function(iface) {
+    const _interfaceName = ts.createIdentifier(iface.name);
+
+    const _fieldSignatures = iface.fields.map(createFieldSignature);
+
+    const _interface = ts.createInterfaceDeclaration(undefined, [_tokens.export], _interfaceName, [], [], _fieldSignatures);
+
+    return _interface;
+  });
+
   const _structs = idl.structs.map(function(struct) {
 
-    const _fieldDeclarations = struct.fields.map(function(field) {
-
-      // TODO: have this resolved or something?
-      let _type = toAstType(field.tsType);
-      let _optional = toOptional(field.option);
-
-      let _default;
-      if (field.defaultValue != null) {
-        _default = ts.createLiteral(field.defaultValue);
-      } else {
-        _default = ts.createNull();
-      }
-
-      return ts.createProperty(undefined, [_tokens.public], field.name, _optional, _type, _default);
-    });
+    const _fieldDeclarations = struct.fields.map(createFieldDeclaration);
 
     const _successDeclaration = ts.createProperty(undefined, [_tokens.public], _id.success, undefined, toAstType('bool'), undefined);
 
     // Build the constructor body
-    const _constructor = createConstructor(struct.fields);
+    const _constructor = createConstructor(struct);
 
     // Build the `read` method
     const _read = createRead(struct.fields);
@@ -365,7 +399,11 @@ function generateTypesAST(idl: ResolvedIDL): string {
     // Build the `write` method
     const _write = createWrite(struct);
 
-    const _classExpression = ts.createClassExpression([_tokens.export], struct.name, [], [], [
+    const _heritage = ts.createHeritageClause(ts.SyntaxKind.ImplementsKeyword, [
+      ts.createExpressionWithTypeArguments(undefined, ts.createIdentifier(struct.implements))
+    ]);
+
+    const _classExpression = ts.createClassExpression([_tokens.export], struct.name, [], [_heritage], [
       _successDeclaration,
       ..._fieldDeclarations,
       _constructor,
@@ -386,6 +424,7 @@ function generateTypesAST(idl: ResolvedIDL): string {
 
     const _namespaceBlock = ts.createModuleBlock([
       ..._types,
+      ..._interfaces,
       ..._structs
     ]);
 
@@ -396,6 +435,7 @@ function generateTypesAST(idl: ResolvedIDL): string {
   } else {
     bodyFile = ts.updateSourceFileNode(bodyFile, [
       ..._types,
+      ..._interfaces,
       ..._structs
     ]);
   }
@@ -418,12 +458,16 @@ export async function generateIDLTypes(filename: string): Promise<string> {
   const typedefs = resolveTypes(idl);
   validateTypes(typedefs);
 
+  const interfaces = resolveInterfaces(idl);
+  // TODO: validate interfaces
+
   const structs = resolveStructs(idl);
   validateStructs(structs);
 
   const resolved = {
     namespace: namespace,
     typedefs: typedefs,
+    interfaces: interfaces,
     structs: structs
   }
 
