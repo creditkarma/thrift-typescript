@@ -1,6 +1,8 @@
 import * as ts from 'typescript'
 const thriftParser = require('thrift-parser');
 
+import * as path from 'path';
+
 import readFile from './filesystem/read-file';
 
 import {
@@ -12,8 +14,11 @@ import { identifiers as _id } from './ast/identifiers';
 
 export function parseFile(fileName: string): Promise<any> {
   return readFile(fileName).then(idl => {
-    return thriftParser(idl)
-  })
+    let parsed = thriftParser(idl);
+    // TODO: not sure where this belongs
+    parsed.filename = path.relative(process.cwd(), fileName);
+    return parsed;
+  });
 }
 
 function generateModuleFile(idl: IDLNode) {
@@ -50,11 +55,31 @@ function generateTypescript(files: ts.SourceFile[]) {
   return printer.printBundle(ts.createBundle(files));
 }
 
+function getIncludes(idl) {
+  const includes = idl.include || {};
+  const dir = path.dirname(idl.filename);
+  return Object.keys(includes).map((inc) => {
+    let filename = idl.include[inc].path;
+    if (!path.extname(filename)) {
+      filename = filename + '.thrift';
+    }
+    return path.resolve(dir, filename)
+  });
+}
+
 export async function generateIDLTypes(filename: string): Promise<string> {
   let idl = await parseFile(filename);
-  idl.filename = filename;
 
-  const resolved = resolveIDLs([idl]).map(generateModuleFile);
+  let idls = [];
+
+  if (idl.include) {
+    const includes = getIncludes(idl);
+    idls = await Promise.all(includes.map(parseFile));
+  }
+
+  idls.push(idl);
+
+  const resolved = resolveIDLs(idls).map(generateModuleFile);
 
   const files = [generatePreface()].concat(resolved);
 

@@ -25,12 +25,6 @@ export function resolveNamespace(idl) {
     return new NamespaceNode(namespace);
   } else {
     let namespace = basename(idl.filename, extname(idl.filename));
-    if (namespace) {
-      namespace = namespace[0].toUpperCase() + namespace.slice(1);
-    } else {
-      // TODO: invalid node?
-      throw new Error('not a namespace');
-    }
     return new NamespaceNode(namespace);
   }
 }
