@@ -18,7 +18,7 @@ import { tokens as _tokens } from '../ast/tokens';
 
 export type TypeNode = BaseTypeNode | ComplexTypeNode;
 
-export class Typedef {
+export class TypedefNode {
   public name: string;
   public type: TypeNode;
 
@@ -39,8 +39,12 @@ export class BaseTypeNode {
     this.name = name;
   }
 
+  public toEnum(): string {
+    return this.name.toUpperCase();
+  }
+
   public toAST(): KeywordTypeNode | TypeReferenceNode {
-    switch(this.name.toUpperCase()) {
+    switch(this.toEnum()) {
       case 'BOOL':
         return createKeywordTypeNode(SyntaxKind.BooleanKeyword);
       case 'BYTE': // TODO: is this a number type?
@@ -78,8 +82,28 @@ export class ComplexTypeNode {
     }
   }
 
+  public toEnum(): string {
+    const enumName = this.name.toUpperCase();
+    switch(enumName) {
+      case 'MAP': {
+        return enumName;
+      }
+      case 'LIST': {
+        return enumName;
+      }
+      case 'SET': {
+        return enumName;
+      }
+      case 'STRUCT': {
+        return enumName;
+      }
+      default:
+        return this.valueType.toEnum();
+    }
+  }
+
   public toAST(): TypeReferenceNode | ArrayTypeNode | KeywordTypeNode {
-    switch(this.name.toUpperCase()) {
+    switch(this.toEnum()) {
       // case 'STRUCT': {
         // TODO: this is handed down as a custom type, is it needed?
         // return createTypeReferenceNode(this.valueType.toAST(), undefined);
@@ -108,7 +132,11 @@ export class InvalidTypeNode {
     this.name = name;
   }
 
-  toAST() {
+  public toEnum(): void {
+    throw new Error(`Unable to find typedef: ${this.name}`);
+  }
+
+  public toAST(): void {
     throw new Error(`Unable to find typedef: ${this.name}`);
   }
 }
@@ -181,13 +209,13 @@ export function resolveTypeNode(idl, type) {
 }
 
 
-export function resolveTypes(idl) {
+export function resolveTypedefs(idl) {
   const typedefs = getTypeDefs(idl);
 
   return typedefs.map((typedef) => {
     const { name, type } = typedef;
 
-    const entry = new Typedef({
+    const entry = new TypedefNode({
       name: name,
       type: resolveTypeNode(idl, type)
     });

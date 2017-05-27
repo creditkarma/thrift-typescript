@@ -29,7 +29,6 @@ export class InterfacePropertyNode {
   public option?: string;
 
   constructor(args) {
-    console.log(args);
     this.name = args.name;
     this.type = args.type;
     this.option = args.option;
@@ -43,7 +42,7 @@ export class InterfacePropertyNode {
   }
 }
 
-export class Interface {
+export class InterfaceNode {
   public name: string;
   public fields: InterfacePropertyNode[];
 
@@ -65,16 +64,15 @@ export function resolveInterfaces(idl) {
   return structs.map((struct) => {
     const { name } = struct;
 
-    const fields = [{name: 'success', type: 'bool'}].concat(struct.fields)
-      .map((field: { name: string, type: string, option?: string}) => {
-        return new InterfacePropertyNode({
-          name: field.name,
-          option: field.option,
-          type: resolveTypeNode(idl, field.type)
-        });
+    const fields = struct.fields.map((field: { name: string, type: string, option?: string}) => {
+      return new InterfacePropertyNode({
+        name: field.name,
+        option: field.option,
+        type: resolveTypeNode(idl, field.type)
       });
+    });
 
-    return new Interface({
+    return new InterfaceNode({
       name: `${name}Interface`,
       fields: fields
     });
