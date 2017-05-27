@@ -59,7 +59,10 @@ function getIncludes(idl) {
   const includes = idl.include || {};
   const dir = path.dirname(idl.filename);
   return Object.keys(includes).map((inc) => {
-    const filename = idl.include[inc].path;
+    let filename = idl.include[inc].path;
+    if (!path.extname(filename)) {
+      filename = filename + '.thrift';
+    }
     return path.resolve(dir, filename)
   });
 }
