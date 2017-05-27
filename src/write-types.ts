@@ -1,14 +1,12 @@
 import * as ts from 'typescript';
 
-import { getEnumType } from './ast-helpers';
-
 import { identifiers as _id } from './ast/identifiers';
 import { types as _types } from './ast/thrift-types';
 import { methods as _methods } from './ast/methods';
 import { write as eWrite } from './ast/enum-mapped';
 
 function createWriteBody(type, accessVar: ts.Expression) {
-  const enumType = getEnumType(type);
+  const enumType = type.toEnum();
 
   // TODO: better name for eWrite
   const _writeTypeCall = ts.createCall(eWrite[enumType], undefined, [accessVar]);
@@ -64,7 +62,7 @@ function createLoopBody(type, accessVar) {
 function createSetBody(type, accessVar) {
   const _forEach = createLoopBody(type, accessVar);
 
-  const _enumType = getEnumType(type.valueType);
+  const _enumType = type.valueType.toEnum();
 
   return [
     writeContainerBegin(_methods.writeSetBegin, [
@@ -79,7 +77,7 @@ function createSetBody(type, accessVar) {
 function createListBody(type, accessVar) {
   const _forEach = createLoopBody(type, accessVar);
 
-  const _enumType = getEnumType(type.valueType);
+  const _enumType = type.valueType.toEnum();
 
   return [
     writeContainerBegin(_methods.writeListBegin, [
@@ -94,8 +92,8 @@ function createListBody(type, accessVar) {
 function createMapBody(type, accessVar) {
   const _forEach = createLoopBody(type, accessVar);
 
-  const keyType = getEnumType(type.keyType);
-  const valueType = getEnumType(type.valueType);
+  const keyType = type.keyType.toEnum();
+  const valueType = type.valueType.toEnum();
 
   return [
     writeContainerBegin(_methods.writeMapBegin, [
@@ -117,7 +115,7 @@ function createStructBody(type, accessVar) {
 }
 
 export function getWriteBody(type, accessVar) {
-  switch(getEnumType(type)) {
+  switch(type.toEnum()) {
     // TODO:
     //  'writeValue'?
     case 'SET': {

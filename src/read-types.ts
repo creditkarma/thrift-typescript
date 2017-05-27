@@ -1,7 +1,5 @@
 import * as ts from 'typescript';
 
-import { getEnumType } from './ast-helpers';
-
 import { identifiers as _id } from './ast/identifiers';
 import { methods as _methods } from './ast/methods';
 import { read as eRead } from './ast/enum-mapped';
@@ -183,7 +181,7 @@ function createReadList(type, _storage) {
 
 
 function createReadValue(type, _storage) {
-  const enumType = getEnumType(type);
+  const enumType = type.toEnum();
 
   // TODO: better name for eRead
   const _call = ts.createCall(eRead[enumType], undefined, undefined);
@@ -197,7 +195,8 @@ function createReadStruct(type, _storage) {
   // this.bed.read(input);
 
   return [
-    ts.createStatement(ts.createAssignment(_storage, ts.createNew(ts.createIdentifier(type.constructor), undefined, []))),
+    // TODO: type.valueType.name should probably be some sort of access method on the type to get recursively
+    ts.createStatement(ts.createAssignment(_storage, ts.createNew(ts.createIdentifier(type.valueType.name), undefined, []))),
     ts.createStatement(ts.createCall(ts.createPropertyAccess(_storage, 'read'), undefined, [_id.input]))
   ];
 }
@@ -205,7 +204,7 @@ function createReadStruct(type, _storage) {
 export function getReadBody(type, _storage) {
   // TODO:
   //  'readValue'?
-  switch(getEnumType(type)) {
+  switch(type.toEnum()) {
     case 'SET': {
       return createReadSet(type, _storage);
     }
