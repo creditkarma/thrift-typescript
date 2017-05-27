@@ -25,14 +25,17 @@ import {
 
 import {
   resolveStructs,
-  resolveNamespace,
-  resolveInterfaces
+  resolveNamespace
 } from './resolve';
 import {
-  Typedefs,
+  Typedef,
   TypeNode,
   resolveTypes,
 } from './resolve/typedefs';
+import {
+  Interface,
+  resolveInterfaces
+} from './resolve/interfaces';
 import {
   validateTypes,
   validateStructs
@@ -303,11 +306,6 @@ interface ResolvedStruct {
   fields: ResolvedField[]
 }
 
-interface ResolvedInterface {
-  name: string,
-  fields: ResolvedFieldBase[]
-}
-
 interface ResolvedFieldBase {
   name: string,
   type: string | any, // TODO: objects/Typedef
@@ -323,8 +321,8 @@ type ResolvedNamespace = string;
 
 interface ResolvedIDL {
   namespace?: ResolvedNamespace,
-  typedefs: Typedefs,
-  interfaces: ResolvedInterface[],
+  typedefs: Typedef[],
+  interfaces: Interface[],
   structs: ResolvedStruct[],
 }
 
@@ -372,17 +370,9 @@ function generateTypesAST(idl: ResolvedIDL): string {
     _require
   ]);
 
-  const _types = idl.typedefs.toAST();
+  const _types = idl.typedefs.map((typedef) => typedef.toAST());
 
-  const _interfaces = idl.interfaces.map(function(iface) {
-    const _interfaceName = ts.createIdentifier(iface.name);
-
-    const _fieldSignatures = iface.fields.map(createFieldSignature);
-
-    const _interface = ts.createInterfaceDeclaration(undefined, [_tokens.export], _interfaceName, [], [], _fieldSignatures);
-
-    return _interface;
-  });
+  const _interfaces = idl.interfaces.map((iface) => iface.toAST());
 
   const _structs = idl.structs.map(function(struct) {
 

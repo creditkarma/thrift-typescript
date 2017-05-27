@@ -16,17 +16,19 @@ import {
 import { getTypeDefs } from '../get';
 import { tokens as _tokens } from '../ast/tokens';
 
-export class Typedefs {
-  public entries: TypeNode[];
+export type TypeNode = BaseTypeNode | ComplexTypeNode;
 
-  constructor(entries) {
-    this.entries = entries;
+export class Typedef {
+  public name: string;
+  public type: TypeNode;
+
+  constructor(args) {
+    this.name = args.name;
+    this.type = args.type;
   }
 
-  public toAST(): TypeAliasDeclaration[] {
-    return this.entries.map((typedef) => {
-      return createTypeAliasDeclaration(undefined, [_tokens.export], typedef.name, undefined, typedef.toAST());
-    });
+  public toAST(): TypeAliasDeclaration {
+    return createTypeAliasDeclaration(undefined, [_tokens.export], this.name, undefined, this.type.toAST());
   }
 }
 
@@ -63,15 +65,17 @@ export class BaseTypeNode {
   }
 }
 
-export class TypeNode {
+export class ComplexTypeNode {
   public name: string;
-  public keyType?: BaseTypeNode | TypeNode;
-  public valueType: BaseTypeNode | TypeNode;
+  public keyType?: BaseTypeNode | ComplexTypeNode;
+  public valueType: BaseTypeNode | ComplexTypeNode;
 
   constructor(args) {
     this.name = args.name;
-    this.keyType = args.keyType;
     this.valueType = args.valueType;
+    if (args.keyType) {
+      this.keyType = args.keyType;
+    }
   }
 
   public toAST(): TypeReferenceNode | ArrayTypeNode | KeywordTypeNode {
@@ -116,34 +120,57 @@ function isBaseType(type: string) {
   return (baseTypes.indexOf(type) !== -1);
 }
 
-function isContainerType(type: string) {
-  const containerTypes = ['map', 'set', 'list'];
+function isListLikeType(type: string | { name: string }) {
+  if (typeof type !== 'object') {
+    return false;
+  }
 
-  return (containerTypes.indexOf(type) !== -1);
+  const containerTypes = ['set', 'list'];
+
+  return (containerTypes.indexOf(type.name) !== -1);
 }
 
-function resolveTypeNode(idl, type) {
+function isMapLikeType(type: string | { name: string }) {
+  if (typeof type !== 'object') {
+    return false;
+  }
+
+  const containerTypes = ['map'];
+
+  return (containerTypes.indexOf(type.name) !== -1);
+}
+
+export function resolveTypeNode(idl, type) {
   if (isBaseType(type)) {
     return new BaseTypeNode(type);
   }
 
-  if (isContainerType(type.name)) {
-    return new TypeNode({
+  if (isMapLikeType(type)) {
+    // TODO: MapTypeNode?
+    return new ComplexTypeNode({
       name: type.name,
       keyType: resolveTypeNode(idl, type.keyType),
       valueType: resolveTypeNode(idl, type.valueType),
     });
   }
 
+  if (isListLikeType(type)) {
+    // TODO: ListTypeNode?
+    return new ComplexTypeNode({
+      name: type.name,
+      valueType: resolveTypeNode(idl, type.valueType),
+    });
+  }
+
   if (idl.typedef[type]) {
-    return new TypeNode({
+    return new ComplexTypeNode({
       name: type,
       valueType: resolveTypeNode(idl, idl.typedef[type].type)
     });
   }
 
   if (idl.struct[type]) {
-    return new TypeNode({
+    return new ComplexTypeNode({
       name: 'struct',
       valueType: new BaseTypeNode(type)
     });
@@ -157,16 +184,14 @@ function resolveTypeNode(idl, type) {
 export function resolveTypes(idl) {
   const typedefs = getTypeDefs(idl);
 
-  const entries = typedefs.map((typedef) => {
+  return typedefs.map((typedef) => {
     const { name, type } = typedef;
 
-    const entry = new TypeNode({
+    const entry = new Typedef({
       name: name,
-      valueType: resolveTypeNode(idl, type)
+      type: resolveTypeNode(idl, type)
     });
 
     return entry;
   });
-
-  return new Typedefs(entries);
 }
