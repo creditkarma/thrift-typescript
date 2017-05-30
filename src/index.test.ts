@@ -101,8 +101,12 @@ describe('Thrift Loader', () => {
     before((done) => {
       generateIDLTypes(complex).then((results) => {
         types = results
+        var fs = require('fs');
+        var path = require('path');
+        fs.writeFileSync(path.join(process.cwd(), '../playground/sample.ts'), results, 'utf8');
+        console.log(types);
         done()
-      })
+      }, done)
     })
 
     it('expect types to exist', () => {
