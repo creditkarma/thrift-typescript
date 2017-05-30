@@ -3,77 +3,70 @@
 //
 // DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 //
-const thrift = require("thrift");
-const Thrift = thrift.Thrift;
-const Q = thrift.Q;
-
+import { Thrift } from "thrift";
 {{#each this}}
-export class {{upcase name}} {
-  public success: boolean;
-  {{#each fields}}
-  public {{name}}: {{tsType type}};
-  {{/each}}
-
-  constructor(args?) {
+export class {{capitalize name}} {
+    public success: boolean;
     {{#each fields}}
-    this.{{name}} = null;
+    public {{name}}: {{tsType type}} = null;
     {{/each}}
-    if (args) {
-      {{#each fields}}
-      if (args.{{name}} !== undefined && args.{{name}} !== null) {
-        this.{{name}} = args.{{name}};
-      } else {
-        throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{name}} is unset!');
-      }
-      {{/each}}
+    constructor(args?) {
+        if (args) {
+            {{#each fields}}
+            if (args.{{name}} != null) {
+                this.{{name}} = args.{{name}};
+            }
+            else {
+                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field {{name}} is unset!");
+            }
+            {{/each}}
+        }
     }
-  }
-
-  public read(input) {
-    input.readStructBegin();
-    while (true) {
-      const ret = input.readFieldBegin();
-      const fname = ret.fname;
-      const ftype = ret.ftype;
-      const fid = ret.fid;
-      if (ftype === Thrift.Type.STOP) {
-        break;
-      }
-      {{#if fields}}
-      switch (fid) {
-        {{#each fields}}
-        case {{id}}:
-          if (ftype === Thrift.Type.{{upcase type}}) {
-            this.{{name}} = input.read{{upcase type}}();
-          } else {
+    public read(input) {
+        input.readStructBegin();
+        while (true) {
+            const ret = input.readFieldBegin();
+            const fname = ret.fname;
+            const ftype = ret.ftype;
+            const fid = ret.fid;
+            if (ftype === Thrift.Type.STOP) {
+                break;
+            }
+            {{#if fields}}
+            switch (fid) {
+                {{#each fields}}
+                case {{id}}: {
+                    if (ftype === Thrift.Type.{{upcase type}}) {
+                        this.{{name}} = input.read{{capitalize type}}();
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
+                    break;
+                }
+                {{/each}}
+                default: {
+                    input.skip(ftype);
+                }
+            }
+            {{else}}
             input.skip(ftype);
-          }
-          break;
+            {{/if}}
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+    }
+    public write(output) {
+        output.writeStructBegin("{{capitalize name}}");
+        {{#each fields}}
+        if (this.{{name}} != null) {
+            output.writeFieldBegin("{{name}}", Thrift.Type.{{upcase type}}, {{id}});
+            output.write{{capitalize type}}(this.{{name}});
+            output.writeFieldEnd();
+        }
         {{/each}}
-        default:
-          input.skip(ftype);
-      }
-      {{else}}
-      input.skip(ftype);
-      {{/if}}
-      input.readFieldEnd();
+        output.writeFieldStop();
+        output.writeStructEnd();
     }
-    input.readStructEnd();
-    return;
-  }
-
-  public write(output) {
-    output.writeStructBegin("{{upcase name}}");
-    {{#each fields}}
-    if (this.{{name}} !== null && this.{{name}} !== undefined) {
-      output.writeFieldBegin("{{name}}", Thrift.Type.{{upcase type}}, {{id}});
-      output.write{{upcase type}}(this.{{name}});
-      output.writeFieldEnd();
-    }
-    {{/each}}
-    output.writeFieldStop();
-    output.writeStructEnd();
-    return;
-  }
-}
+};
 {{/each}}

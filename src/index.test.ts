@@ -1,7 +1,13 @@
 import { expect } from 'chai'
-import { parseFile, generateIDLTypes, loadTemplate, generateIDLServices } from './index'
+import { parseFile, generateIDLTypes } from './index'
+import {
+  generateIDLTypes as generateIDLTypesHbs,
+  generateIDLServices as generateIDLServicesHbs,
+  loadTemplate
+} from './handlebars'
 
 const simple = './fixtures/simple.thrift'
+const complex = './fixtures/complex.thrift'
 const calculator = './fixtures/calculator.thrift'
 const typesTpl = 'types.hbs'
 
@@ -37,7 +43,7 @@ describe('Thrift Loader', () => {
   describe(`when generating types from thrift file "${simple}"`, () => {
     let types
     before((done) => {
-      generateIDLTypes(simple).then((results) => {
+      generateIDLTypesHbs(simple).then((results) => {
         types = results
         done()
       })
@@ -57,10 +63,57 @@ describe('Thrift Loader', () => {
     })
   })
 
+  describe(`AST: when generating types from thrift file "${simple}"`, () => {
+    let types
+    before((done) => {
+      generateIDLTypes(simple).then((results) => {
+        types = results
+        done()
+      })
+    })
+    let handlebars
+    before((done) => {
+      generateIDLTypesHbs(simple).then((results) => {
+        handlebars = results
+        done()
+      })
+    })
+
+    it('expect types to exist', () => {
+      expect(types).to.exist
+    })
+    it('expect only one class', () => {
+      expect((types.match(/class/g) || []).length).to.equal(1)
+    })
+    it('expect class to contain MyStruct', () => {
+      expect(types).include('class MyStruct')
+    })
+    it('expect class to contain id field to be a number', () => {
+      expect(types).include('id: number')
+    })
+    it('matches handlebars', () => {
+      expect(types).equals(handlebars);
+    })
+  })
+
+  describe(`AST: when generating types from thrift file "${complex}"`, () => {
+    let types
+    before((done) => {
+      generateIDLTypes(complex).then((results) => {
+        types = results
+        done()
+      })
+    })
+
+    it('expect types to exist', () => {
+      expect(types).to.exist
+    })
+  })
+
   describe(`when generating services from thrift file "${simple}"`, () => {
     let services
     before((done) => {
-      generateIDLServices(simple).then((results) => {
+      generateIDLServicesHbs(simple).then((results) => {
         services = results
         done()
       })
@@ -89,7 +142,7 @@ describe('Thrift Loader', () => {
   describe(`when generating services from thrift file "${calculator}"`, () => {
     let services
     before((done) => {
-      generateIDLServices(calculator).then((results) => {
+      generateIDLServicesHbs(calculator).then((results) => {
         services = results
         done()
       })

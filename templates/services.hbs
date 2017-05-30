@@ -15,7 +15,7 @@ import * as ttypes from './{{fileName}}_types';
 {{#each services}}
 // HELPER FUNCTIONS AND STRUCTURES
 {{#each methods}}
-class {{../name}}{{upcase name}}Args {
+class {{../name}}{{capitalize name}}Args {
   {{#each args}}
   public {{name}}: {{tsType type}};
   {{/each}}
@@ -53,12 +53,12 @@ class {{../name}}{{upcase name}}Args {
       switch (fid) {
         {{#each args}}
         case {{id}}:
-          if (ftype === Thrift.Type.{{upcase (getStructOrType type)}}) {
+          if (ftype === Thrift.Type.{{capitalize (getStructOrType type)}}) {
             {{#if (isStruct type)}}
             this.{{name}} = new {{tsType type}}();
             this.{{name}}.read(input);
             {{else}}
-            this.{{name}} = input.read{{upcase type}}();
+            this.{{name}} = input.read{{capitalize type}}();
             {{/if}}
           } else {
             input.skip(ftype);
@@ -78,15 +78,15 @@ class {{../name}}{{upcase name}}Args {
   }
 
   public write(output) {
-    output.writeStructBegin("{{../name}}{{upcase name}}Args");
+    output.writeStructBegin("{{../name}}{{capitalize name}}Args");
     {{#each args}}
     if (this.{{name}} !== null && this.{{name}} !== undefined) {
       {{#if (isStruct type)}}
       output.writeFieldBegin("{{name}}", Thrift.Type.STRUCT, {{inc @index}});
       this.{{name}}.write(output);
       {{else}}
-      output.writeFieldBegin("{{name}}", Thrift.Type.{{upcase type}}, {{id}});
-      output.write{{upcase type}}(this.{{name}});
+      output.writeFieldBegin("{{name}}", Thrift.Type.{{capitalize type}}, {{id}});
+      output.write{{capitalize type}}(this.{{name}});
       {{/if}}
       output.writeFieldEnd();
     }
@@ -97,7 +97,7 @@ class {{../name}}{{upcase name}}Args {
   }
 }
 
-class {{../name}}{{upcase name}}Result {
+class {{../name}}{{capitalize name}}Result {
   public success: {{tsType type}};
 
   constructor(args?) {
@@ -122,12 +122,12 @@ class {{../name}}{{upcase name}}Result {
       switch (fid) {
         {{#if type}}
         case 0:
-          if (ftype === Thrift.Type.{{upcase (getStructOrType type)}}) {
+          if (ftype === Thrift.Type.{{capitalize (getStructOrType type)}}) {
             {{#if (isStruct type)}}
             this.success = new {{tsType type}}();
             this.success.read(input);
             {{else}}
-            this.success = input.read{{upcase type}}();
+            this.success = input.read{{capitalize type}}();
             {{/if}}
           } else {
             input.skip(ftype);
@@ -148,14 +148,14 @@ class {{../name}}{{upcase name}}Result {
   }
 
   public write(output) {
-    output.writeStructBegin("{{../name}}{{upcase name}}Result");
+    output.writeStructBegin("{{../name}}{{capitalize name}}Result");
     if (this.success !== null && this.success !== undefined) {
       {{#if (isStruct type)}}
       output.writeFieldBegin("success", Thrift.Type.STRUCT, 0);
       this.success.write(output);
       {{else}}
-      output.writeFieldBegin("success", Thrift.Type.{{upcase type}}, 0);
-      output.write{{upcase type}}(this.success);
+      output.writeFieldBegin("success", Thrift.Type.{{capitalize type}}, 0);
+      output.write{{capitalize type}}(this.success);
       {{/if}}
       output.writeFieldEnd();
     }
@@ -210,7 +210,7 @@ class {{name}}Client {
   public send_{{name}}({{#each args}}{{name}}: {{tsType type}}{{#unless @last}}, {{/unless}}{{/each}}) {
     const output = new this.pClass(this.output);
     output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.seqid());
-    const args = new {{../name}}{{upcase name}}Args();
+    const args = new {{../name}}{{capitalize name}}Args();
     {{#each args}}
     args.{{name}} = {{name}};
     {{/each}}
@@ -229,7 +229,7 @@ class {{name}}Client {
       input.readMessageEnd();
       return callback(x);
     }
-    const result = new {{../name}}{{upcase name}}Result();
+    const result = new {{../name}}{{capitalize name}}Result();
     result.read(input);
     input.readMessageEnd();
 
@@ -266,12 +266,12 @@ class {{name}}Processor {
 
   {{#each methods}}
   public process_{{name}}(seqid, input, output) {
-    const args = new {{../name}}{{upcase name}}Args();
+    const args = new {{../name}}{{capitalize name}}Args();
     args.read(input);
     input.readMessageEnd();
     if (this._handler.{{name}}.length === {{args.length}}) {
       Q.fcall(this._handler.{{name}}{{#each args}}, args.{{name}}{{/each}}).then((data) => {
-          const result = new {{../name}}{{upcase name}}Result({success: data});
+          const result = new {{../name}}{{capitalize name}}Result({success: data});
           output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid);
           result.write(output);
           output.writeMessageEnd();
@@ -287,7 +287,7 @@ class {{name}}Processor {
       this._handler.{{name}}({{#each args}}args.{{name}}, {{/each}}(err, data) => {
         let result;
         if (err == null) {
-          result = new {{../name}}{{upcase name}}Result((err != null ? err : {success: data}));
+          result = new {{../name}}{{capitalize name}}Result((err != null ? err : {success: data}));
           output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid);
         } else {
           result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
