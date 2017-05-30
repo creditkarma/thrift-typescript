@@ -25,10 +25,14 @@ import {
 
 import {
   resolveStructs,
-  resolveTypes,
   resolveNamespace,
   resolveInterfaces
 } from './resolve';
+import {
+  Typedefs,
+  TypeNode,
+  resolveTypes,
+} from './resolve/typedefs';
 import {
   validateTypes,
   validateStructs
@@ -287,11 +291,11 @@ function createWrite(service) {
   return ts.createMethod(undefined, [_tokens.public], undefined, _id.write, undefined, undefined, [_outputDeclaration], undefined, _writeBlock);
 }
 
-interface ResolvedTypedef {
-  name: string,
-  type: string,
-  originalType: string
-}
+// interface ResolvedTypedef {
+//   name: string,
+//   type: string,
+//   originalType: string
+// }
 
 interface ResolvedStruct {
   name: string,
@@ -319,7 +323,7 @@ type ResolvedNamespace = string;
 
 interface ResolvedIDL {
   namespace?: ResolvedNamespace,
-  typedefs: ResolvedTypedef[],
+  typedefs: Typedefs,
   interfaces: ResolvedInterface[],
   structs: ResolvedStruct[],
 }
@@ -368,11 +372,7 @@ function generateTypesAST(idl: ResolvedIDL): string {
     _require
   ]);
 
-  const _types = idl.typedefs.map(function(typedef) {
-    const _type = ts.createTypeAliasDeclaration(undefined, [_tokens.export], typedef.name, undefined, toAstType(typedef.type));
-
-    return _type;
-  });
+  const _types = idl.typedefs.toAST();
 
   const _interfaces = idl.interfaces.map(function(iface) {
     const _interfaceName = ts.createIdentifier(iface.name);
@@ -456,7 +456,8 @@ export async function generateIDLTypes(filename: string): Promise<string> {
 
   // Non-mutation
   const typedefs = resolveTypes(idl);
-  validateTypes(typedefs);
+  // Currently moved to InvalidTypeNode
+  // validateTypes(typedefs);
 
   const interfaces = resolveInterfaces(idl);
   // TODO: validate interfaces

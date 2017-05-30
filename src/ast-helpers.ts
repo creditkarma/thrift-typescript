@@ -47,7 +47,7 @@ export function toOptional(option: string = '') {
   }
 }
 
-export type Container = { name: string, keyType?: string, valueType: string};
+export type Container = { name: string, keyType?: string | Container, valueType: string | Container };
 export type Typedef = string | Container;
 
 export function toAstType(typedef: Typedef) : ts.TypeNode {

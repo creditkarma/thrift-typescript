@@ -1,7 +1,4 @@
-import {
-  getStructs,
-  getTypeDefs
-} from './get';
+import { getStructs } from './get';
 
 function isBaseType(type: string) {
   const baseTypes = ['bool', 'byte', 'i8', 'i16', 'i32', 'i64', 'double', 'string', 'binary', 'slist'];
@@ -41,22 +38,6 @@ function resolveType(idl, type: string) {
   }
 
   return;
-}
-
-export function resolveTypes(idl) {
-  const typedefs = getTypeDefs(idl);
-
-  return typedefs.map((typedef) => {
-    const { name, type } = typedef;
-
-    let resolvedType = resolveType(idl, type);
-
-    return {
-      name: name,
-      type: resolvedType,
-      originalType: type
-    };
-  });
 }
 
 export function resolveStructs(idl) {
