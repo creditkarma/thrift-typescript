@@ -4,6 +4,17 @@ export function getTypeDefs(idl: any) {
   return Object.keys(typedefs).map(key => Object.assign({ name: key}, typedefs[key]));
 }
 
+export function getConstants(idl: any) {
+  const constants = idl.const || {};
+  return Object.keys(constants).map((key) => {
+    return {
+      name: key,
+      type: constants[key].type,
+      value: constants[key].value
+    };
+  });
+}
+
 export function getStructs(idl: any) {
   const structs = idl.struct || {};
   return Object.keys(structs).map(key => ({
