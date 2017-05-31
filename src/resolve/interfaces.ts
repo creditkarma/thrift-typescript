@@ -61,7 +61,8 @@ export class InterfaceNode {
 export function resolveInterfaces(idl) {
   const structs = getStructs(idl);
 
-  return structs.map((struct) => {
+  // TODO: This is a pretty hacky solution
+  return structs.filter((struct) => struct.fields.length).map((struct) => {
     const { name } = struct;
 
     const fields = struct.fields.map((field: { name: string, type: string, option?: string}) => {

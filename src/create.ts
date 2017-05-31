@@ -30,6 +30,12 @@ export function createConstructor(struct) {
 
   // Skip "success" property for now
   const fields = struct.fields.filter((field) => field.id);
+  const hasFields = (fields.length > 0);
+
+  if (!hasFields) {
+    // TODO: should we remove the constructor completely? Not sure the best way to do that
+    return ts.createConstructor(undefined, undefined, undefined, ts.createBlock([]));
+  }
 
   const _argsType = ts.createTypeReferenceNode(struct.implements, undefined);
 
@@ -157,10 +163,12 @@ function createReadField(field) {
 export function createRead(fields) {
   // Skip "success" property for now
   fields = fields.filter((field) => field.id);
+  const hasFields = (fields.length > 0);
 
   const _readStructBegin = gen.readStructBegin();
   const _readFieldBegin = gen.readFieldBegin();
 
+  // TODO: what is this used for? Doesn't seem used in my testing
   const _retFname = ts.createPropertyAccess(_id.ret, _id.fname);
   const _fnameConst = createVariable(_id.fname, _retFname);
 
@@ -174,29 +182,40 @@ export function createRead(fields) {
 
   const _ifStop = createIf(_comparison, ts.createBreak());
 
-  const _cases = fields.map(createReadField);
-
   const _skip = gen.skip();
   const _skipBlock = ts.createBlock([_skip], true);
 
-  const _default = ts.createDefaultClause([_skipBlock])
-  const _caseBlock = ts.createCaseBlock([
-    ..._cases,
-    _default
-  ]);
-  const _switch = ts.createSwitch(_id.fid, _caseBlock);
+  const _readFieldEnd = gen.readFieldEnd();
 
-  const _readFieldEnd = gen.readFieldEnd()
+  let _whileBody;
+  if (hasFields) {
+    const _cases = fields.map(createReadField);
+    const _default = ts.createDefaultClause([_skipBlock])
+    const _caseBlock = ts.createCaseBlock([
+      ..._cases,
+      _default
+    ]);
+    const _switch = ts.createSwitch(_id.fid, _caseBlock);
 
-  const _whileBody = ts.createBlock([
-    _readFieldBegin,
-    _fnameConst,
-    _ftypeConst,
-    _fidConst,
-    _ifStop,
-    _switch,
-    _readFieldEnd
-  ], true);
+
+    _whileBody = ts.createBlock([
+      _readFieldBegin,
+      _fnameConst,
+      _ftypeConst,
+      _fidConst,
+      _ifStop,
+      _switch,
+      _readFieldEnd
+    ], true);
+  } else {
+     _whileBody = ts.createBlock([
+      _readFieldBegin,
+      _ftypeConst,
+      _ifStop,
+      _skip,
+      _readFieldEnd
+    ], true);
+  }
 
   const _while = ts.createWhile(ts.createTrue(), _whileBody);
 
