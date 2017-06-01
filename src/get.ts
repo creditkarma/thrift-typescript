@@ -1,28 +1,20 @@
+import collect from './collect';
 
-export function getTypeDefs(idl: any) {
-  const typedefs = idl.typedef || {};
-  return Object.keys(typedefs).map(key => Object.assign({ name: key}, typedefs[key]));
-}
-
-export function getConstants(idl: any) {
-  const constants = idl.const || {};
-  return Object.keys(constants).map((key) => {
-    return {
-      name: key,
-      type: constants[key].type,
-      value: constants[key].value
-    };
-  });
-}
-
+// TODO: Reduce complexity so this doesn't need to exist separately
 export function getInterfaces(idl: any) {
-  const unions = getUnions(idl);
-  const structs = getStructs(idl);
-  const exceptions = getExceptions(idl);
+  const unions = collect(idl.union);
+  const structs = collect(idl.struct);
+  const exceptions = collect(idl.exception);
+
+  unions.forEach((union) => {
+    // TODO: this is just a workaround for interfaces
+    union.fields = union.fields.map((field) => Object.assign({}, field, { option: 'optional' }))
+  })
 
   return structs.concat(unions).concat(exceptions);
 }
 
+// Still used by handlebars
 export function getStructs(idl: any) {
   const structs = idl.struct || {};
   return Object.keys(structs).map(key => ({
@@ -31,27 +23,7 @@ export function getStructs(idl: any) {
   }))
 }
 
-export function getUnions(idl: any) {
-  const unions = idl.union || {};
-  return Object.keys(unions).map((key) => {
-    return {
-      name: key,
-      // TODO: this is just a workaround for interfaces
-      fields: unions[key].map((field) => Object.assign({}, field, { option: 'optional' }))
-    };
-  });
-}
-
-export function getExceptions(idl: any) {
-  const exceptions = idl.exception || {};
-  return Object.keys(exceptions).map((key) => {
-    return {
-      name: key,
-      fields: exceptions[key]
-    };
-  });
-}
-
+// Still used by handlebars
 export function getServices(idl: any) {
   return Object.keys(idl.service).map(key => ({
     methods: idl.service[key].functions,

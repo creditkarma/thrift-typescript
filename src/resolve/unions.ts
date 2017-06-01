@@ -2,7 +2,7 @@
 import { resolveTypeNode } from './typedefs';
 import { StructNode, StructPropertyNode } from './structs';
 
-import { getUnions } from '../get';
+import collect from '../collect';
 
 export class UnionPropertyNode extends StructPropertyNode {
 
@@ -21,7 +21,7 @@ export class UnionNode extends StructNode {
 }
 
 export function resolveUnions(idl) {
-  const unions = getUnions(idl);
+  const unions = collect(idl.union);
 
   return unions.map((union) => {
     const { name } = union;
