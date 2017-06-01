@@ -15,6 +15,7 @@ import { TypedefNode, resolveTypedefs } from './typedefs';
 import { InterfaceNode, resolveInterfaces } from './interfaces';
 import { StructNode, resolveStructs } from './structs';
 import { ExceptionNode, resolveExceptions } from './exceptions';
+import { UnionNode, resolveUnions } from './unions';
 
 import { tokens } from '../ast/tokens';
 
@@ -25,6 +26,7 @@ export class IDLNode {
   public consts: ConstNode[];
   public interfaces: InterfaceNode[];
   public structs: StructNode[];
+  public unions: UnionNode[];
   public exceptions: ExceptionNode[];
 
   constructor(idl) {
@@ -35,6 +37,7 @@ export class IDLNode {
     this.consts = resolveConsts(idl);
     this.interfaces = resolveInterfaces(idl);
     this.structs = resolveStructs(idl);
+    this.unions = resolveUnions(idl);
     this.exceptions = resolveExceptions(idl);
   }
 
@@ -44,12 +47,15 @@ export class IDLNode {
     const constants = this.consts.map((constant) => constant.toAST());
     const interfaces = this.interfaces.map((iface) => iface.toAST());
     const structs = this.structs.map((struct) => struct.toAST());
+    const unions = this.unions.map((union) => union.toAST());
     const exceptions = this.exceptions.map((exception) => exception.toAST());
 
+    // TODO: Have to investigate ordering here, it might matter
     let namespaceBlock = createModuleBlock([
       ...types,
       ...interfaces,
       ...structs,
+      ...unions,
       ...exceptions,
       ...constants
     ]);

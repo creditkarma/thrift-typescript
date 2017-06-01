@@ -37,6 +37,11 @@ const CustomMap CONTAINER_ALIAS_CONST = {'hello': 'world'}
 const Basic STRUCT_CONST = {'name': 'blaine'}
 const WithContainers CONTAINER_STRUCT_CONST = {'map': {'hello': 'world'}}
 
+union ComparableUnion {
+  1: string field1;
+  2: required string field2;
+}
+
 struct Embed {}
 
 struct Basic {
