@@ -22,7 +22,7 @@ import { StructNode, StructPropertyNode } from './structs';
 
 import { identifiers as _id } from '../ast/identifiers';
 import { tokens } from '../ast/tokens';
-import { getExceptions } from '../get';
+import collect from '../collect';
 import { createConstructor, createRead, createWrite } from '../create';
 
 // TypeScript has this as an internal method so implement a custom version
@@ -83,7 +83,7 @@ export class ExceptionNode extends StructNode {
 }
 
 export function resolveExceptions(idl) {
-  const exceptions = getExceptions(idl);
+  const exceptions = collect(idl.exception);
 
   return exceptions.map((exception) => {
     const { name } = exception;

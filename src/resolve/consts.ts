@@ -12,7 +12,7 @@ import { TypeNode, resolveTypeNode } from './typedefs';
 import { ValueNode, resolveValueNode } from './values';
 
 import { tokens } from '../ast/tokens';
-import { getConstants } from '../get';
+import collect from '../collect';
 
 export class ConstNode {
   public name: string;
@@ -35,7 +35,7 @@ export class ConstNode {
 }
 
 export function resolveConsts(idl) {
-  const constants = getConstants(idl);
+  const constants = collect(idl.const);
 
   return constants.map((constant) => {
     return new ConstNode({
