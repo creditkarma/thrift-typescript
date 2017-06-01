@@ -32,12 +32,10 @@ export function createConstructor(struct) {
   const fields = struct.fields.filter((field) => field.id);
   const hasFields = (fields.length > 0);
 
-  if (!hasFields) {
-    // TODO: should we remove the constructor completely? Not sure the best way to do that
-    return ts.createConstructor(undefined, undefined, undefined, ts.createBlock([]));
+  let _argsType;
+  if (hasFields) {
+    _argsType = ts.createTypeReferenceNode(struct.implements, undefined);
   }
-
-  const _argsType = ts.createTypeReferenceNode(struct.implements, undefined);
 
   const _argsParameter = ts.createParameter(undefined, undefined, undefined, _id.args, _tokens.question, _argsType, undefined);
 
@@ -133,9 +131,13 @@ export function createConstructor(struct) {
     return createIf(_comparison, _thenAssign, _elseThrow);
   })
 
-  const _ifArgs = createIf(_id.args, _fieldAssignments);
-
-  const _constructorBlock = ts.createBlock([_ifArgs], true);
+  let _constructorBlock;
+  if (_fieldAssignments.length) {
+    const _ifArgs = createIf(_id.args, _fieldAssignments);
+    _constructorBlock = ts.createBlock([_ifArgs], true);
+  } else {
+    _constructorBlock = ts.createBlock(undefined);
+  }
 
   return ts.createConstructor(undefined, undefined, [_argsParameter], _constructorBlock);
 }
