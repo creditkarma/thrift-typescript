@@ -1,7 +1,7 @@
 import collect from './collect';
 
 // TODO: Reduce complexity so this doesn't need to exist separately
-export function getInterfaces(idl: any) {
+export function getInterfaces(idl: JsonAST) {
   const unions = collect(idl.union);
   const structs = collect(idl.struct);
   const exceptions = collect(idl.exception);
@@ -15,7 +15,7 @@ export function getInterfaces(idl: any) {
 }
 
 // Still used by handlebars
-export function getStructs(idl: any) {
+export function getStructs(idl: JsonAST) {
   const structs = idl.struct || {};
   return Object.keys(structs).map(key => ({
     fields: structs[key],
@@ -24,7 +24,7 @@ export function getStructs(idl: any) {
 }
 
 // Still used by handlebars
-export function getServices(idl: any) {
+export function getServices(idl: JsonAST) {
   return Object.keys(idl.service).map(key => ({
     methods: idl.service[key].functions,
     name: key,

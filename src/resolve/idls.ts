@@ -29,10 +29,10 @@ export class IDLNode {
   public unions: UnionNode[];
   public exceptions: ExceptionNode[];
 
-  constructor(idl) {
-    this.filename = idl.filename;
+  constructor(filename: string, idl: JsonAST) {
+    this.filename = filename;
     // TODO: are the `resolve` methods better served in the constructor or resolveIDLs?
-    this.namespace = resolveNamespace(idl);
+    this.namespace = resolveNamespace(idl, filename);
     this.typedefs = resolveTypedefs(idl);
     this.consts = resolveConsts(idl);
     this.interfaces = resolveInterfaces(idl);
@@ -68,6 +68,7 @@ export class IDLNode {
   }
 }
 
-export function resolveIDLs(idls: any[]) {
-  return idls.map((idl) => new IDLNode(idl))
+// TODO: IDLFile[]
+export function resolveIDLs(files: any[]) {
+  return files.map((file) => new IDLNode(file.filename, file.idl))
 }

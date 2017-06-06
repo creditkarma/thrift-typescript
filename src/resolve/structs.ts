@@ -120,7 +120,7 @@ export class StructNode {
   }
 }
 
-export function resolveStructs(idl) {
+export function resolveStructs(idl: JsonAST) {
   const structs = collect(idl.struct);
 
   return structs.map((struct) => {

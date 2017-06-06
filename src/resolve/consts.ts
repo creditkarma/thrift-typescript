@@ -34,7 +34,7 @@ export class ConstNode {
   }
 }
 
-export function resolveConsts(idl) {
+export function resolveConsts(idl: JsonAST) {
   const constants = collect(idl.const);
 
   return constants.map((constant) => {

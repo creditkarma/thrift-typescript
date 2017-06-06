@@ -12,7 +12,8 @@
     "removeComments": true,
     "types": [
       "@types/node",
-      "@types/mocha"
+      "@types/mocha",
+      "thrift-parser"
     ]
   },
   "exclude": [
