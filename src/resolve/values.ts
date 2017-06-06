@@ -102,7 +102,7 @@ export class InvalidValueNode {
   }
 }
 
-export function resolveValueNode(idl, type, value) {
+export function resolveValueNode(idl: JsonAST, type, value) {
   if (isBaseType(type)) {
     return new BaseValueNode(value);
   }

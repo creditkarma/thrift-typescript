@@ -1,4 +1,3 @@
-
 import { resolveTypeNode } from './typedefs';
 import { StructNode, StructPropertyNode } from './structs';
 
@@ -20,7 +19,7 @@ export class UnionNode extends StructNode {
   // TODO: validate single default
 }
 
-export function resolveUnions(idl) {
+export function resolveUnions(idl: JsonAST) {
   const unions = collect(idl.union);
 
   return unions.map((union) => {

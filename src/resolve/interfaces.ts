@@ -47,7 +47,7 @@ export class InterfaceNode {
   }
 }
 
-export function resolveInterfaces(idl) {
+export function resolveInterfaces(idl: JsonAST) {
   const interfaces = getInterfaces(idl);
 
   // TODO: This is a pretty hacky solution

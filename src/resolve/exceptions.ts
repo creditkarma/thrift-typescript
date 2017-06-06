@@ -82,7 +82,7 @@ export class ExceptionNode extends StructNode {
   }
 }
 
-export function resolveExceptions(idl) {
+export function resolveExceptions(idl: JsonAST) {
   const exceptions = collect(idl.exception);
 
   return exceptions.map((exception) => {
