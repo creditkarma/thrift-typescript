@@ -16,6 +16,7 @@ import { InterfaceNode, resolveInterfaces } from './interfaces';
 import { StructNode, resolveStructs } from './structs';
 import { ExceptionNode, resolveExceptions } from './exceptions';
 import { UnionNode, resolveUnions } from './unions';
+import { EnumNode, resolveEnums } from './enums';
 
 import { tokens } from '../ast/tokens';
 
@@ -24,6 +25,7 @@ export class IDLNode {
   public namespace: NamespaceNode;
   public typedefs: TypedefNode[];
   public consts: ConstNode[];
+  public enums: EnumNode[];
   public interfaces: InterfaceNode[];
   public structs: StructNode[];
   public unions: UnionNode[];
@@ -35,6 +37,7 @@ export class IDLNode {
     this.namespace = resolveNamespace(idl, filename);
     this.typedefs = resolveTypedefs(idl);
     this.consts = resolveConsts(idl);
+    this.enums = resolveEnums(idl);
     this.interfaces = resolveInterfaces(idl);
     this.structs = resolveStructs(idl);
     this.unions = resolveUnions(idl);
@@ -45,6 +48,7 @@ export class IDLNode {
     const namespace = this.namespace.toAST();
     const types = this.typedefs.map((typedef) => typedef.toAST());
     const constants = this.consts.map((constant) => constant.toAST());
+    const enums = this.enums.map((enu) => enu.toAST());
     const interfaces = this.interfaces.map((iface) => iface.toAST());
     const structs = this.structs.map((struct) => struct.toAST());
     const unions = this.unions.map((union) => union.toAST());
@@ -53,6 +57,7 @@ export class IDLNode {
     // TODO: Have to investigate ordering here, it might matter
     let namespaceBlock = createModuleBlock([
       ...types,
+      ...enums,
       ...interfaces,
       ...structs,
       ...unions,
