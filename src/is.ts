@@ -34,3 +34,33 @@ export function isMapLikeType(type: string | { name: string }) {
 
   return (containerTypes.indexOf(type.name) !== -1);
 }
+
+export function isTypedef(idl: JsonAST, type: string | { name: string }) {
+  if (typeof type !== 'string') {
+    return false;
+  }
+
+  var typedefs = idl.typedef || {};
+
+  return !!(typedefs[type]);
+}
+
+export function isStruct(idl: JsonAST, type: string | { name: string }) {
+  if (typeof type !== 'string') {
+    return false;
+  }
+
+  var structs = idl.struct || {};
+
+  return !!(structs[type]);
+}
+
+export function isEnum(idl: JsonAST, type: string | { name: string }) {
+  if (typeof type !== 'string') {
+    return false;
+  }
+
+  var enums = idl.enum || {};
+
+  return !!(enums[type]);
+}
