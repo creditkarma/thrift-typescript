@@ -12,7 +12,15 @@ import {
   ArrayTypeNode
 } from 'typescript';
 
-import { isBaseType, isListLikeType, isSetLikeType, isMapLikeType } from '../is';
+import {
+  isBaseType,
+  isListLikeType,
+  isSetLikeType,
+  isMapLikeType,
+  isTypedef,
+  isStruct,
+  isEnum
+} from '../is';
 import collect from '../collect';
 import { tokens as _tokens } from '../ast/tokens';
 import { identifiers as _id } from '../ast/identifiers';
@@ -226,21 +234,21 @@ export function resolveTypeNode(idl, type) {
     });
   }
 
-  if (idl.typedef[type]) {
+  if (isTypedef(idl, type)) {
     return new AliasTypeNode({
       name: type,
       valueType: resolveTypeNode(idl, idl.typedef[type].type)
     });
   }
 
-  if (idl.struct[type]) {
+  if (isStruct(idl, type)) {
     return new StructTypeNode({
       name: 'struct',
       valueType: type
     });
   }
 
-  if (idl.enum[type]) {
+  if (isEnum(idl, type)) {
     return new EnumTypeNode({
       name: 'enum',
       valueType: type
