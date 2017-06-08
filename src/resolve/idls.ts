@@ -17,6 +17,7 @@ import { StructNode, resolveStructs } from './structs';
 import { ExceptionNode, resolveExceptions } from './exceptions';
 import { UnionNode, resolveUnions } from './unions';
 import { EnumNode, resolveEnums } from './enums';
+import { ServiceNode, resolveServices } from './services';
 
 import { tokens } from '../ast/tokens';
 
@@ -30,6 +31,7 @@ export class IDLNode {
   public structs: StructNode[];
   public unions: UnionNode[];
   public exceptions: ExceptionNode[];
+  public services: ServiceNode[];
 
   constructor(filename: string, idl: JsonAST) {
     this.filename = filename;
@@ -42,6 +44,7 @@ export class IDLNode {
     this.structs = resolveStructs(idl);
     this.unions = resolveUnions(idl);
     this.exceptions = resolveExceptions(idl);
+    this.services = resolveServices(idl);
   }
 
   public toAST(): ModuleDeclaration {
