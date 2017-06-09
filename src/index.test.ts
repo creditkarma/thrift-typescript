@@ -14,10 +14,9 @@ const typesTpl = 'types.hbs'
 describe('Thrift Loader', () => {
   describe(`when loading a simple thrift file "${simple}"`, () => {
     let idl
-    before((done) => {
-      parseFile(simple).then((results) => {
+    before(() => {
+      return parseFile(simple).then((results) => {
         idl = results
-        done()
       })
     })
 
@@ -28,10 +27,9 @@ describe('Thrift Loader', () => {
 
   describe(`when loading template from "${typesTpl}"`, () => {
     let tpl
-    before((done) => {
-      loadTemplate(typesTpl).then((results) => {
+    before(() => {
+      return loadTemplate(typesTpl).then((results) => {
         tpl = results
-        done()
       })
     })
 
@@ -42,10 +40,9 @@ describe('Thrift Loader', () => {
 
   describe(`when generating types from thrift file "${simple}"`, () => {
     let types
-    before((done) => {
-      generateIDLTypesHbs(simple).then((results) => {
+    before(() => {
+      return generateIDLTypesHbs(simple).then((results) => {
         types = results
-        done()
       })
     })
 
@@ -65,17 +62,15 @@ describe('Thrift Loader', () => {
 
   describe(`AST: when generating types from thrift file "${simple}"`, () => {
     let types
-    before((done) => {
-      generateIDLTypes(simple).then((results) => {
+    before(() => {
+      return generateIDLTypes(simple).then((results) => {
         types = results
-        done()
       })
     })
     let handlebars
-    before((done) => {
-      generateIDLTypesHbs(simple).then((results) => {
+    before(() => {
+      return generateIDLTypesHbs(simple).then((results) => {
         handlebars = results
-        done()
       })
     })
 
@@ -98,10 +93,9 @@ describe('Thrift Loader', () => {
 
   describe(`AST: when generating types from thrift file "${complex}"`, () => {
     let types
-    before((done) => {
-      generateIDLTypes(complex).then((results) => {
+    before(() => {
+      return generateIDLTypes(complex).then((results) => {
         types = results
-        done()
       })
     })
 
@@ -112,10 +106,9 @@ describe('Thrift Loader', () => {
 
   describe(`when generating services from thrift file "${simple}"`, () => {
     let services
-    before((done) => {
-      generateIDLServicesHbs(simple).then((results) => {
+    before(() => {
+      return generateIDLServicesHbs(simple).then((results) => {
         services = results
-        done()
       })
     })
 
@@ -141,11 +134,10 @@ describe('Thrift Loader', () => {
 
   describe(`when generating services from thrift file "${calculator}"`, () => {
     let services
-    before((done) => {
-      generateIDLServicesHbs(calculator).then((results) => {
+    before(() => {
+      return generateIDLServicesHbs(calculator).then((results) => {
         services = results
-        done()
-      })
+      });
     })
 
     it('expect services to exist', () => {
