@@ -40,7 +40,7 @@ import {
 
 
 export class StructPropertyNode {
-  public id?: number; // TODO: success doesn't have an ID?
+  public id?: number;
   public name: string;
   public type: TypeNode;
   public option?: string;
@@ -65,12 +65,6 @@ export class StructPropertyNode {
       _default = createNull();
     }
 
-    // TODO: weird workaround for success
-    if (this.name === 'success') {
-      _optional = undefined;
-      _default = undefined;
-    }
-
     return createProperty(undefined, [tokens.public], this.name, _optional, this.type.toAST(), _default);
   }
 }
@@ -93,7 +87,7 @@ export class StructNode {
     const ctor = createConstructor(this);
 
     // Build the `read` method
-    const read = createRead(this.fields);
+    const read = createRead(this);
 
     // Build the `write` method
     const write = createWrite(this);
@@ -121,16 +115,15 @@ export function resolveStructs(idl) {
   return structs.map((struct) => {
     const { name } = struct;
 
-    const fields = [{name: 'success', type: 'bool'}].concat(struct.fields)
-      .map((field: { id?: number, name: string, type: string, option?: string, defaultValue?: any }) => {
-        return new StructPropertyNode({
-          id: field.id,
-          name: field.name,
-          type: resolveTypeNode(idl, field.type),
-          option: field.option,
-          defaultValue: field.defaultValue
-        });
+    const fields = struct.fields.map((field: { id?: number, name: string, type: string, option?: string, defaultValue?: any }) => {
+      return new StructPropertyNode({
+        id: field.id,
+        name: field.name,
+        type: resolveTypeNode(idl, field.type),
+        option: field.option,
+        defaultValue: field.defaultValue
       });
+    });
 
     return new StructNode({
       name: name,

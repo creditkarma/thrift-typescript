@@ -28,14 +28,11 @@ function createAssignment(left, right) {
 
 export function createConstructor(struct) {
 
-  // Skip "success" property for now
-  const fields = struct.fields.filter((field) => field.id);
-
   const _argsType = ts.createTypeReferenceNode(struct.implements, undefined);
 
   const _argsParameter = ts.createParameter(undefined, undefined, undefined, _id.args, _tokens.question, _argsType, undefined);
 
-  const _fieldAssignments = fields.map(function(field) {
+  const _fieldAssignments = struct.fields.map(function(field) {
 
     const _argsPropAccess = ts.createPropertyAccess(_id.args, field.name);
     const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
@@ -154,9 +151,7 @@ function createReadField(field) {
   ]);
 }
 
-export function createRead(fields) {
-  // Skip "success" property for now
-  fields = fields.filter((field) => field.id);
+export function createRead(struct) {
 
   const _readStructBegin = gen.readStructBegin();
   const _readFieldBegin = gen.readFieldBegin();
@@ -174,7 +169,7 @@ export function createRead(fields) {
 
   const _ifStop = createIf(_comparison, ts.createBreak());
 
-  const _cases = fields.map(createReadField);
+  const _cases = struct.fields.map(createReadField);
 
   const _skip = gen.skip();
   const _skipBlock = ts.createBlock([_skip], true);
@@ -237,15 +232,12 @@ function createWriteField(field) {
   return _if;
 }
 
-export function createWrite(service) {
+export function createWrite(struct) {
 
-  // Skip "success" property for now
-  const fields = service.fields.filter((field) => field.id);
-
-  const _writeStructBeginCall = ts.createCall(_methods.writeStructBegin, undefined, [ts.createLiteral(`${service.name}`)]);
+  const _writeStructBeginCall = ts.createCall(_methods.writeStructBegin, undefined, [ts.createLiteral(`${struct.name}`)]);
   const _writeStructBeginStatement = ts.createStatement(_writeStructBeginCall);
 
-  const _writeFields = fields.map(createWriteField);
+  const _writeFields = struct.fields.map(createWriteField);
 
   const _writeFieldStopCall = ts.createCall(_methods.writeFieldStop, undefined, undefined);
   const _writeFieldStopStatement = ts.createStatement(_writeFieldStopCall);
