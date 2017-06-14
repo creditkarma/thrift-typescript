@@ -1,140 +1,125 @@
 import {
+  createClassExpression,
+  createExpressionWithTypeArguments,
+  createHeritageClause,
+  createIdentifier,
   createLiteral,
   createNull,
   createProperty,
-
-  createHeritageClause,
-  createExpressionWithTypeArguments,
-  createIdentifier,
-  createClassExpression,
   createStatement,
-
-  SyntaxKind,
-
+  ExpressionStatement,
   PropertyDeclaration,
-  ExpressionStatement
-} from 'typescript';
+  SyntaxKind,
+} from 'typescript'
 
-import {
-  TypeNode,
-  resolveTypeNode
-} from './typedefs';
+import { resolveTypeNode, TypeNode } from './typedefs'
 
-import {
-  toOptional
-} from '../ast-helpers';
+import { toOptional } from '../ast-helpers'
+import { tokens } from '../ast/tokens'
+import collect from '../collect'
 
-import {
-  tokens
-} from '../ast/tokens';
-
-import collect from '../collect';
-
-import {
-  createConstructor,
-  createRead,
-  createWrite
-} from '../create';
-
+import { createConstructor, createRead, createWrite } from '../create'
 
 export class StructPropertyNode {
-  public id?: number;
-  public name: string;
-  public type: TypeNode;
-  public option?: string;
-  public defaultValue?: any; // TODO: better type?
+  public id?: number
+  public name: string
+  public type: TypeNode
+  public option?: string
+  public defaultValue?: any // TODO: better type?
 
   constructor(args) {
-    this.id = args.id;
-    this.name = args.name;
-    this.type = args.type;
-    this.option = args.option;
-    this.defaultValue = args.defaultValue;
+    this.id = args.id
+    this.name = args.name
+    this.type = args.type
+    this.option = args.option
+    this.defaultValue = args.defaultValue
   }
 
   public toAST(): PropertyDeclaration {
 
-    let _optional = toOptional(this.option);
+    const optional = toOptional(this.option)
 
-    let _default;
+    let defaultValue
     if (this.defaultValue != null) {
-      _default = createLiteral(this.defaultValue);
+      defaultValue = createLiteral(this.defaultValue)
     } else {
-      _default = createNull();
+      defaultValue = createNull()
     }
 
-    return createProperty(undefined, [tokens.public], this.name, _optional, this.type.toAST(), _default);
+    return createProperty(undefined, [tokens.public], this.name, optional, this.type.toAST(), defaultValue)
   }
 }
 
+// tslint:disable-next-line:max-classes-per-file
 export class StructNode {
-  public name: string;
-  public implements: string;
-  public fields: StructPropertyNode[];
+  public name: string
+  public implements: string
+  public fields: StructPropertyNode[]
 
   constructor(args) {
-    this.name = args.name;
-    this.implements = args.implements;
-    this.fields = args.fields;
+    this.name = args.name
+    this.implements = args.implements
+    this.fields = args.fields
   }
 
   public toAST(): ExpressionStatement {
-    const fields = this.fields.map((field) => field.toAST());
+    const fields = this.fields.map((field) => field.toAST())
 
-    const hasFields = (this.fields.filter((field) => field.id).length > 0);
+    const hasFields = (this.fields.filter((field) => field.id).length > 0)
 
     // Build the constructor body
-    const ctor = createConstructor(this);
+    const ctor = createConstructor(this)
 
     // Build the `read` method
-    const read = createRead(this);
+    const read = createRead(this)
 
     // Build the `write` method
-    const write = createWrite(this);
+    const write = createWrite(this)
 
-    const _heritage = [];
+    const heritage = []
     // TODO: This is a pretty hacky solution
     if (hasFields) {
-      const _implements = createHeritageClause(SyntaxKind.ImplementsKeyword, [
-        createExpressionWithTypeArguments(undefined, createIdentifier(this.implements))
-      ]);
-      _heritage.push(_implements);
+      const implementsClause = createHeritageClause(SyntaxKind.ImplementsKeyword, [
+        createExpressionWithTypeArguments(undefined, createIdentifier(this.implements)),
+      ])
+      heritage.push(implementsClause)
     }
 
-    const _classExpression = createClassExpression([tokens.export], this.name, [], _heritage, [
+    const classExpression = createClassExpression([tokens.export], this.name, [], heritage, [
       ...fields,
       ctor,
       read,
-      write
-    ]);
+      write,
+    ])
 
-    const _classStatement = createStatement(_classExpression);
+    const classStatement = createStatement(classExpression)
 
-    return _classStatement;
+    return classStatement
   }
 }
 
 export function resolveStructs(idl: JsonAST) {
-  const structs = collect(idl.struct);
+  const structs = collect(idl.struct)
 
   return structs.map((struct) => {
-    const { name } = struct;
+    const { name } = struct
 
-    const fields = struct.fields.map((field: { id?: number, name: string, type: string, option?: string, defaultValue?: any }) => {
-      return new StructPropertyNode({
-        id: field.id,
-        name: field.name,
-        type: resolveTypeNode(idl, field.type),
-        option: field.option,
-        defaultValue: field.defaultValue
-      });
-    });
+    const fields = struct.fields
+      .map((field: { id?: number, name: string, type: string, option?: string, defaultValue?: any }) => {
+        return new StructPropertyNode({
+          defaultValue: field.defaultValue,
+          id: field.id,
+          name: field.name,
+          option: field.option,
+          type: resolveTypeNode(idl, field.type),
+        })
+      })
 
     return new StructNode({
-      name: name,
+      fields,
       // TODO: this should be a lookup somehow
       implements: `${name}Interface`,
-      fields: fields
-    });
-  });
+      name,
+    })
+  })
 }

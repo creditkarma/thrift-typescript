@@ -1,34 +1,31 @@
 import {
-  createIdentifier,
-  createPropertyAccess,
-  createHeritageClause,
-  createExpressionWithTypeArguments,
-  createClassExpression,
-  createStatement,
-
   createCall,
-  createSuper,
+  createClassExpression,
+  createExpressionWithTypeArguments,
+  createHeritageClause,
+  createIdentifier,
+  createKeywordTypeNode,
   createLiteral,
   createProperty,
-  createKeywordTypeNode,
-
+  createPropertyAccess,
+  createStatement,
+  createSuper,
+  ExpressionStatement,
   SyntaxKind,
+} from 'typescript'
 
-  ExpressionStatement
-} from 'typescript';
+import { StructNode, StructPropertyNode } from './structs'
+import { resolveTypeNode } from './typedefs'
 
-import { resolveTypeNode } from './typedefs';
-import { StructNode, StructPropertyNode } from './structs';
-
-import { identifiers as _id } from '../ast/identifiers';
-import { tokens } from '../ast/tokens';
-import collect from '../collect';
-import { createConstructor, createRead, createWrite } from '../create';
+import { identifiers as _id } from '../ast/identifiers'
+import { tokens } from '../ast/tokens'
+import collect from '../collect'
+import { createConstructor, createRead, createWrite } from '../create'
 
 // TypeScript has this as an internal method so implement a custom version
-import { updateBlock, setTextRange, createNodeArray } from 'typescript';
+import { createNodeArray, setTextRange, updateBlock } from 'typescript'
 function insertLeadingStatements(dest, sources: any[]) {
-  return updateBlock(dest, setTextRange(createNodeArray(sources.concat(dest.statements)), dest.statements));
+  return updateBlock(dest, setTextRange(createNodeArray(sources.concat(dest.statements)), dest.statements))
 }
 
 export class ExceptionNode extends StructNode {
@@ -36,73 +33,74 @@ export class ExceptionNode extends StructNode {
 
   public toAST(): ExpressionStatement {
     // TODO: a bit hacky to use the same code as Structs
-    const _name = createLiteral(this.name);
-    const _nameField = createProperty(undefined, [tokens.public], 'name', undefined, createKeywordTypeNode(SyntaxKind.StringKeyword), _name);
-    const _superCall = createCall(createSuper(), undefined, [_name]);
+    const name = createLiteral(this.name)
+    const nameField = createProperty(undefined, [tokens.public], 'name', undefined,
+      createKeywordTypeNode(SyntaxKind.StringKeyword), name)
+    const superCall = createCall(createSuper(), undefined, [name])
 
-    const fields = this.fields.map((field) => field.toAST());
+    const fields = this.fields.map((field) => field.toAST())
 
-    const hasFields = (this.fields.filter((field) => field.id).length > 0);
+    const hasFields = (this.fields.filter((field) => field.id).length > 0)
 
     // Build the constructor body
-    const ctor = createConstructor(this);
-    ctor.body = insertLeadingStatements(ctor.body, [_superCall]);
+    const ctor = createConstructor(this)
+    ctor.body = insertLeadingStatements(ctor.body, [superCall])
 
     // Build the `read` method
-    const read = createRead(this);
+    const read = createRead(this)
 
     // Build the `write` method
-    const write = createWrite(this);
+    const write = createWrite(this)
 
-    const _heritage = [];
+    const heritage = []
     // Extends must precede implements
-    const _extends = createHeritageClause(SyntaxKind.ExtendsKeyword, [
-      createExpressionWithTypeArguments(undefined, createPropertyAccess(_id.Thrift, 'TException'))
-    ]);
-    _heritage.push(_extends);
+    const extendsClause = createHeritageClause(SyntaxKind.ExtendsKeyword, [
+      createExpressionWithTypeArguments(undefined, createPropertyAccess(_id.Thrift, 'TException')),
+    ])
+    heritage.push(extendsClause)
     // TODO: This is a pretty hacky solution
     if (hasFields) {
-      const _implements = createHeritageClause(SyntaxKind.ImplementsKeyword, [
-        createExpressionWithTypeArguments(undefined, createIdentifier(this.implements))
-      ]);
-      _heritage.push(_implements);
+      const implementsClause = createHeritageClause(SyntaxKind.ImplementsKeyword, [
+        createExpressionWithTypeArguments(undefined, createIdentifier(this.implements)),
+      ])
+      heritage.push(implementsClause)
     }
 
-    const _classExpression = createClassExpression([tokens.export], this.name, [], _heritage, [
-      _nameField,
+    const classExpression = createClassExpression([tokens.export], this.name, [], heritage, [
+      nameField,
       ...fields,
       ctor,
       read,
-      write
-    ]);
+      write,
+    ])
 
-    const _classStatement = createStatement(_classExpression);
+    const classStatement = createStatement(classExpression)
 
-    return _classStatement;
+    return classStatement
   }
 }
 
 export function resolveExceptions(idl: JsonAST) {
-  const exceptions = collect(idl.exception);
+  const exceptions = collect(idl.exception)
 
   return exceptions.map((exception) => {
-    const { name } = exception;
+    const { name } = exception
 
-    const fields = exception.fields.map((field: { id?: number, name: string, type: string, option?: string, defaultValue?: any }) => {
-        return new StructPropertyNode({
-          id: field.id,
-          name: field.name,
-          type: resolveTypeNode(idl, field.type),
-          option: field.option,
-          defaultValue: field.defaultValue
-        });
-      });
+    const fields = exception.fields.map((field) => {
+      return new StructPropertyNode({
+        defaultValue: field.defaultValue,
+        id: field.id,
+        name: field.name,
+        option: field.option,
+        type: resolveTypeNode(idl, field.type),
+      })
+    })
 
     return new ExceptionNode({
-      name: name,
+      fields,
       // TODO: this should be a lookup somehow
       implements: `${name}Interface`,
-      fields: fields
-    });
-  });
+      name,
+    })
+  })
 }

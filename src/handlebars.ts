@@ -1,10 +1,11 @@
-import * as path from 'path'
 import { compile } from 'handlebars'
-const thriftParser = require('thrift-parser');
+import * as path from 'path'
+
+const thriftParser = require('thrift-parser')
 
 import readFile from './filesystem/read-file'
+import { getServices, getStructs } from './get'
 import { registerHelpers } from './ts-helpers'
-import { getStructs, getServices } from './get'
 
 async function generateTypes(types: any) {
   const template: HandlebarsTemplateDelegate = await loadTemplate('types.hbs')
@@ -23,7 +24,7 @@ export async function loadTemplate(fileName: string): Promise<HandlebarsTemplate
 }
 
 export function parseFile(fileName: string): Promise<any> {
-  return readFile(fileName).then(idl => {
+  return readFile(fileName).then((idl) => {
     return thriftParser(idl)
   })
 }

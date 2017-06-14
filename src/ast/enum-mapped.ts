@@ -1,6 +1,6 @@
 import { methods } from './methods'
 
-export interface Enums {
+export interface IEnums {
   BOOL,
   I32,
   I16,
@@ -12,26 +12,26 @@ export interface Enums {
   I08
 }
 
-export const write: Enums = {
-  BOOL: methods.writeBool,
-  I32: methods.writeI32,
-  I16: methods.writeI16,
-  STRING: methods.writeString,
+export const write: IEnums = {
   BINARY: methods.writeBinary,
-  DOUBLE: methods.writeDouble,
-  I64: methods.writeI64,
+  BOOL: methods.writeBool,
   BYTE: methods.writeByte,
-  I08: methods.writeByte
-};
+  DOUBLE: methods.writeDouble,
+  I08: methods.writeByte,
+  I16: methods.writeI16,
+  I32: methods.writeI32,
+  I64: methods.writeI64,
+  STRING: methods.writeString,
+}
 
-export const read: Enums = {
-  BOOL: methods.readBool,
-  I32: methods.readI32,
-  I16: methods.readI16,
-  STRING: methods.readString,
+export const read: IEnums = {
   BINARY: methods.readBinary,
-  DOUBLE: methods.readDouble,
-  I64: methods.readI64,
+  BOOL: methods.readBool,
   BYTE: methods.readByte,
-  I08: methods.readByte
+  DOUBLE: methods.readDouble,
+  I08: methods.readByte,
+  I16: methods.readI16,
+  I32: methods.readI32,
+  I64: methods.readI64,
+  STRING: methods.readString,
 }
