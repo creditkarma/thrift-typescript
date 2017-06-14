@@ -1,8 +1,9 @@
 {
-	"extends": "tslint:recommended",
-	"rules": {
-		"use-strict": true,
-		"no-console": false,
+  "extends": "tslint:recommended",
+  "rules": {
+    "no-console": [
+      false
+    ],
     "no-var-requires": false,
     "semicolon": [
       true,
@@ -13,5 +14,5 @@
       "single",
       "avoid-escape"
     ]
-	}
+  }
 }
