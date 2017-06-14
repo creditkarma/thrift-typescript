@@ -1,137 +1,137 @@
-import * as ts from 'typescript';
+import * as ts from 'typescript'
 
-import { identifiers as _id } from './ast/identifiers';
-import { types as _types } from './ast/thrift-types';
-import { methods as _methods } from './ast/methods';
-import { write as eWrite } from './ast/enum-mapped';
+import { write as eWrite } from './ast/enum-mapped'
+import { identifiers as _id } from './ast/identifiers'
+import { methods as _methods } from './ast/methods'
+import { types as _types } from './ast/thrift-types'
 
 function createWriteBody(type, accessVar: ts.Expression) {
-  const enumType = type.toEnum();
+  const enumType = type.toEnum()
 
   // TODO: better name for eWrite
-  const _writeTypeCall = ts.createCall(eWrite[enumType], undefined, [accessVar]);
+  const writeTypeCall = ts.createCall(eWrite[enumType], undefined, [accessVar])
 
-  return ts.createStatement(_writeTypeCall);
+  return ts.createStatement(writeTypeCall)
 }
 
-function writeContainerBegin(method: ts.PropertyAccessExpression, args: ts.Expression[]) : ts.ExpressionStatement {
-  const _writeContainerBeginCall = ts.createCall(method, undefined, args);
-  const _writeContainerBeginStatement = ts.createStatement(_writeContainerBeginCall);
+function writeContainerBegin(method: ts.PropertyAccessExpression, args: ts.Expression[]): ts.ExpressionStatement {
+  const writeContainerBeginCall = ts.createCall(method, undefined, args)
+  const writeContainerBeginStatement = ts.createStatement(writeContainerBeginCall)
 
-  return _writeContainerBeginStatement;
+  return writeContainerBeginStatement
 }
 
-function writeContainerEnd(method: ts.PropertyAccessExpression) : ts.ExpressionStatement {
-  const _writeContainerEndCall = ts.createCall(method, undefined, undefined);
-  const _writeContainerEndStatement = ts.createStatement(_writeContainerEndCall);
+function writeContainerEnd(method: ts.PropertyAccessExpression): ts.ExpressionStatement {
+  const writeContainerEndCall = ts.createCall(method, undefined, undefined)
+  const writeContainerEndStatement = ts.createStatement(writeContainerEndCall)
 
-  return _writeContainerEndStatement;
+  return writeContainerEndStatement
 }
 
 function createLoopBody(type, accessVar) {
   // forEach to normalize data types
-  const _keyTemp = ts.createUniqueName('key');
-  const _valueTemp = ts.createUniqueName('value');
+  const keyTemp = ts.createUniqueName('key')
+  const valueTemp = ts.createUniqueName('value')
 
   // Yay, real recursion
-  let _writeKey = [];
+  let writeKey = []
   if (type.keyType) {
-    _writeKey = _writeKey.concat(getWriteBody(type.keyType, _keyTemp));
+    writeKey = writeKey.concat(getWriteBody(type.keyType, keyTemp))
   }
-  let _writeValue = [];
+  let writeValue = []
   if (type.valueType) {
-    _writeValue = _writeValue.concat(getWriteBody(type.valueType, _valueTemp));
+    writeValue = writeValue.concat(getWriteBody(type.valueType, valueTemp))
   }
 
-  const _keyParam = ts.createParameter(undefined, undefined, undefined, _keyTemp);
-  const _valueParam = ts.createParameter(undefined, undefined, undefined, _valueTemp);
+  const keyParam = ts.createParameter(undefined, undefined, undefined, keyTemp)
+  const valueParam = ts.createParameter(undefined, undefined, undefined, valueTemp)
 
-  const _loopBody = ts.createBlock([
-    ..._writeKey,
-    ..._writeValue
-  ], true);
+  const loopBody = ts.createBlock([
+    ...writeKey,
+    ...writeValue,
+  ], true)
 
-  const _callback = ts.createArrowFunction(undefined, undefined, [_valueParam, _keyParam], undefined, undefined, _loopBody);
+  const callback = ts.createArrowFunction(undefined, undefined, [valueParam, keyParam], undefined, undefined, loopBody)
 
-  const _forEachAccess = ts.createPropertyAccess(accessVar, 'forEach');
-  const _forEach = ts.createCall(_forEachAccess, undefined, [_callback]);
+  const forEachAccess = ts.createPropertyAccess(accessVar, 'forEach')
+  const forEach = ts.createCall(forEachAccess, undefined, [callback])
 
-  return ts.createStatement(_forEach);
+  return ts.createStatement(forEach)
 }
 
 function createSetBody(type, accessVar) {
-  const _forEach = createLoopBody(type, accessVar);
+  const forEach = createLoopBody(type, accessVar)
 
-  const _enumType = type.valueType.toEnum();
+  const enumType = type.valueType.toEnum()
 
   return [
     writeContainerBegin(_methods.writeSetBegin, [
-      _types[_enumType],
-      ts.createPropertyAccess(accessVar, 'size')
+      _types[enumType],
+      ts.createPropertyAccess(accessVar, 'size'),
     ]),
-    _forEach,
-    writeContainerEnd(_methods.writeSetEnd)
-  ];
+    forEach,
+    writeContainerEnd(_methods.writeSetEnd),
+  ]
 }
 
 function createListBody(type, accessVar) {
-  const _forEach = createLoopBody(type, accessVar);
+  const forEach = createLoopBody(type, accessVar)
 
-  const _enumType = type.valueType.toEnum();
+  const enumType = type.valueType.toEnum()
 
   return [
     writeContainerBegin(_methods.writeListBegin, [
-      _types[_enumType],
-      ts.createPropertyAccess(accessVar, 'length')
+      _types[enumType],
+      ts.createPropertyAccess(accessVar, 'length'),
     ]),
-    _forEach,
-    writeContainerEnd(_methods.writeListEnd)
-  ];
+    forEach,
+    writeContainerEnd(_methods.writeListEnd),
+  ]
 }
 
 function createMapBody(type, accessVar) {
-  const _forEach = createLoopBody(type, accessVar);
+  const forEach = createLoopBody(type, accessVar)
 
-  const keyType = type.keyType.toEnum();
-  const valueType = type.valueType.toEnum();
+  const keyType = type.keyType.toEnum()
+  const valueType = type.valueType.toEnum()
 
   return [
     writeContainerBegin(_methods.writeMapBegin, [
       _types[keyType],
       _types[valueType],
-      ts.createPropertyAccess(accessVar, 'size')
+      ts.createPropertyAccess(accessVar, 'size'),
     ]),
-    _forEach,
-    writeContainerEnd(_methods.writeMapEnd)
-  ];
+    forEach,
+    writeContainerEnd(_methods.writeMapEnd),
+  ]
 }
 
 function createStructBody(type, accessVar) {
 
-  const _writeStruct = ts.createPropertyAccess(accessVar, 'write');
-  const _writeStructCall = ts.createCall(_writeStruct, undefined, [_id.output]);
+  const writeStruct = ts.createPropertyAccess(accessVar, 'write')
+  const writeStructCall = ts.createCall(writeStruct, undefined, [_id.output])
 
-  return ts.createStatement(_writeStructCall)
+  return ts.createStatement(writeStructCall)
 }
 
 export function getWriteBody(type, accessVar) {
-  switch(type.toEnum()) {
+  switch (type.toEnum()) {
     // TODO:
     //  'writeValue'?
     case 'SET': {
-      return createSetBody(type, accessVar);
+      return createSetBody(type, accessVar)
     }
     case 'LIST': {
-      return createListBody(type, accessVar);
+      return createListBody(type, accessVar)
     }
     case 'MAP': {
-      return createMapBody(type, accessVar);
+      return createMapBody(type, accessVar)
     }
     case 'STRUCT': {
-      return createStructBody(type, accessVar);
+      return createStructBody(type, accessVar)
     }
     default: {
-      return createWriteBody(type, accessVar);
+      return createWriteBody(type, accessVar)
     }
   }
 }

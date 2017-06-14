@@ -1,67 +1,59 @@
 import * as ts from 'typescript'
-import {
-  createVariable
-} from './ast-helpers';
 
-import {
-  identifiers as _id
-} from './ast/identifiers';
-import {
-  types as _types
-} from './ast/thrift-types';
-import {
-  methods as _methods
-} from './ast/methods';
+import { createVariable } from './ast-helpers'
+import { identifiers as _id } from './ast/identifiers'
+import { methods as _methods } from './ast/methods'
+import { types as _types } from './ast/thrift-types'
 
 // readStruct
 export function readStructBegin() {
-  const _readStructBeginCall = ts.createCall(_methods.readStructBegin, undefined, undefined);
-  const _readStructBeginStatement = ts.createStatement(_readStructBeginCall);
+  const readStructBeginCall = ts.createCall(_methods.readStructBegin, undefined, undefined)
+  const readStructBeginStatement = ts.createStatement(readStructBeginCall)
 
-  return _readStructBeginStatement;
+  return readStructBeginStatement
 }
 export function readStructEnd() {
-  const _readStructEndCall = ts.createCall(_methods.readStructEnd, undefined, undefined);
-  const _readStructEndStatement = ts.createStatement(_readStructEndCall);
+  const readStructEndCall = ts.createCall(_methods.readStructEnd, undefined, undefined)
+  const readStructEndStatement = ts.createStatement(readStructEndCall)
 
-  return _readStructEndStatement;
+  return readStructEndStatement
 }
 
 // readField
 export function readFieldBegin() {
-  const _readFieldBeginCall = ts.createCall(_methods.readFieldBegin, undefined, undefined);
-  const _assignmentConst = createVariable(_id.ret, _readFieldBeginCall);
+  const readFieldBeginCall = ts.createCall(_methods.readFieldBegin, undefined, undefined)
+  const assignmentConst = createVariable(_id.ret, readFieldBeginCall)
 
-  return _assignmentConst;
+  return assignmentConst
 }
 export function readFieldEnd() {
-  const _readFieldEndCall = ts.createCall(_methods.readFieldEnd, undefined, undefined);
-  const _readFieldEndStatement = ts.createStatement(_readFieldEndCall);
+  const readFieldEndCall = ts.createCall(_methods.readFieldEnd, undefined, undefined)
+  const readFieldEndStatement = ts.createStatement(readFieldEndCall)
 
-  return _readFieldEndStatement;
+  return readFieldEndStatement
 }
 
 // writeField
-export function writeFieldBegin(name: string, type: string, fieldId: number) : ts.ExpressionStatement {
-  const _writeFieldBeginCall = ts.createCall(_methods.writeFieldBegin, undefined, [
+export function writeFieldBegin(name: string, type: string, fieldId: number): ts.ExpressionStatement {
+  const writeFieldBeginCall = ts.createCall(_methods.writeFieldBegin, undefined, [
     ts.createLiteral(name),
     _types[type],
-    ts.createLiteral(fieldId)
-  ]);
-  const _writeFieldBeginStatement = ts.createStatement(_writeFieldBeginCall);
-  return _writeFieldBeginStatement;
+    ts.createLiteral(fieldId),
+  ])
+  const writeFieldBeginStatement = ts.createStatement(writeFieldBeginCall)
+  return writeFieldBeginStatement
 }
-export function writeFieldEnd() : ts.ExpressionStatement {
-  const _writeFieldEndCall = ts.createCall(_methods.writeFieldEnd, undefined, undefined);
-  const _writeFieldEndStatement = ts.createStatement(_writeFieldEndCall);
+export function writeFieldEnd(): ts.ExpressionStatement {
+  const writeFieldEndCall = ts.createCall(_methods.writeFieldEnd, undefined, undefined)
+  const writeFieldEndStatement = ts.createStatement(writeFieldEndCall)
 
-  return _writeFieldEndStatement;
+  return writeFieldEndStatement
 }
 
 
 export function skip() {
-  const _skipCall = ts.createCall(_methods.skip, undefined, [_id.ftype]);
-  const _skipStatement = ts.createStatement(_skipCall);
+  const skipCall = ts.createCall(_methods.skip, undefined, [_id.ftype])
+  const skipStatement = ts.createStatement(skipCall)
 
-  return _skipStatement;
+  return skipStatement
 }

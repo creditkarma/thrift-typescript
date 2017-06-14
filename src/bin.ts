@@ -9,8 +9,8 @@ const packagejson = require('../package.json')
 import * as program from 'commander'
 import * as fs from 'fs'
 import * as path from 'path'
-import {generateIDLTypes} from './index'
 import {generateIDLServices} from './handlebars'
+import {generateIDLTypes} from './index'
 
 program
   .version(packagejson.version)
@@ -20,13 +20,13 @@ program
   .description('Generate TypeScript client for Thrift IDL')
   .parse(process.argv)
 
-async function generateCode(fileName, outputFileName, generator: Function) {
+async function generateCode(fileName, outputFileName, generator: (filename: string) => Promise<string>) {
   console.log(`Parsing Thrift IDL from ${fileName}`)
   try {
     const script = await generator(fileName)
     const outputName = path.basename(outputFileName)
     const upcaseName = outputName[0].toUpperCase() + outputName.substr(1)
-    const outputFile = `${program['output']}/${upcaseName}`
+    const outputFile = `${program.output}/${upcaseName}`
     console.log(`Generating TypeScript to ${outputFile}`)
     ensureDirectoryExistence(outputFile)
     fs.writeFileSync(outputFile, script)

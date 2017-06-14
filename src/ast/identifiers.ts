@@ -1,6 +1,6 @@
-import { createIdentifier, Identifier } from 'typescript';
+import { createIdentifier, Identifier } from 'typescript'
 
-export interface Identifiers {
+export interface IIdentifiers {
   // globals
   readonly Set: Identifier,
   readonly Map: Identifier,
@@ -23,25 +23,19 @@ export interface Identifiers {
   readonly write: Identifier
 }
 
-export const identifiers: Identifiers = {
-  // globals
-  Set: createIdentifier('Set'),
-  Map: createIdentifier('Map'),
+export const identifiers: IIdentifiers = {
   Array: createIdentifier('Array'),
-  // pseudo-globals
+  Map: createIdentifier('Map'),
+  Set: createIdentifier('Set'),
   Thrift: createIdentifier('Thrift'),
-  // static props
-  success: createIdentifier('success'),
-  // constructor vars
   args: createIdentifier('args'),
-  // read vars
-  input: createIdentifier('input'),
-  ret: createIdentifier('ret'),
+  fid: createIdentifier('fid'),
   fname: createIdentifier('fname'),
   ftype: createIdentifier('ftype'),
-  fid: createIdentifier('fid'),
-  read: createIdentifier('read'),
-  // write vars
+  input: createIdentifier('input'),
   output: createIdentifier('output'),
-  write: createIdentifier('write')
-};
+  read: createIdentifier('read'),
+  ret: createIdentifier('ret'),
+  success: createIdentifier('success'),
+  write: createIdentifier('write'),
+}

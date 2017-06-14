@@ -1,8 +1,8 @@
-import { createPropertyAccess, PropertyAccessExpression } from 'typescript';
+import { createPropertyAccess, PropertyAccessExpression } from 'typescript'
 
-import { identifiers as _id } from './identifiers';
+import { identifiers as _id } from './identifiers'
 
-export interface Methods {
+export interface IMethods {
   // globals
   readonly Arrayfrom: PropertyAccessExpression,
   // read
@@ -47,49 +47,49 @@ export interface Methods {
   readonly writeFieldStop: PropertyAccessExpression,
 }
 
-export const methods: Methods = {
+export const methods: IMethods = {
   // globals
   Arrayfrom: createPropertyAccess(_id.Array, 'from'),
   // read
-  readStructBegin: createPropertyAccess(_id.input, 'readStructBegin'),
-  readStructEnd: createPropertyAccess(_id.input, 'readStructEnd'),
+  readBinary: createPropertyAccess(_id.input, 'readBinary'),
+  readBool: createPropertyAccess(_id.input, 'readBool'),
+  readByte: createPropertyAccess(_id.input, 'readByte'),
+  readDouble: createPropertyAccess(_id.input, 'readDouble'),
   readFieldBegin: createPropertyAccess(_id.input, 'readFieldBegin'),
   readFieldEnd: createPropertyAccess(_id.input, 'readFieldEnd'),
+  readI16: createPropertyAccess(_id.input, 'readI16'),
+  readI32: createPropertyAccess(_id.input, 'readI32'),
+  readI64: createPropertyAccess(_id.input, 'readI64'),
+  readListBegin: createPropertyAccess(_id.input, 'readListBegin'),
+  readListEnd: createPropertyAccess(_id.input, 'readListEnd'),
   readMapBegin: createPropertyAccess(_id.input, 'readMapBegin'),
   readMapEnd: createPropertyAccess(_id.input, 'readMapEnd'),
   readSetBegin: createPropertyAccess(_id.input, 'readSetBegin'),
   readSetEnd: createPropertyAccess(_id.input, 'readSetEnd'),
-  readListBegin: createPropertyAccess(_id.input, 'readListBegin'),
-  readListEnd: createPropertyAccess(_id.input, 'readListEnd'),
-  readBool: createPropertyAccess(_id.input, 'readBool'),
-  readI32: createPropertyAccess(_id.input, 'readI32'),
-  readI16: createPropertyAccess(_id.input, 'readI16'),
   readString: createPropertyAccess(_id.input, 'readString'),
-  readBinary: createPropertyAccess(_id.input, 'readBinary'),
-  readDouble: createPropertyAccess(_id.input, 'readDouble'),
-  readI64: createPropertyAccess(_id.input, 'readI64'),
-  readByte: createPropertyAccess(_id.input, 'readByte'),
+  readStructBegin: createPropertyAccess(_id.input, 'readStructBegin'),
+  readStructEnd: createPropertyAccess(_id.input, 'readStructEnd'),
   // TODO: alias i08?
   skip: createPropertyAccess(_id.input, 'skip'),
   // write
-  writeStructBegin: createPropertyAccess(_id.output, 'writeStructBegin'),
-  writeStructEnd: createPropertyAccess(_id.output, 'writeStructEnd'),
+  writeBinary: createPropertyAccess(_id.output, 'writeBinary'),
+  writeBool: createPropertyAccess(_id.output, 'writeBool'),
+  writeByte: createPropertyAccess(_id.output, 'writeByte'),
+  writeDouble: createPropertyAccess(_id.output, 'writeDouble'),
   writeFieldBegin: createPropertyAccess(_id.output, 'writeFieldBegin'),
   writeFieldEnd: createPropertyAccess(_id.output, 'writeFieldEnd'),
+  writeFieldStop: createPropertyAccess(_id.output, 'writeFieldStop'),
+  writeI16: createPropertyAccess(_id.output, 'writeI16'),
+  writeI32: createPropertyAccess(_id.output, 'writeI32'),
+  writeI64: createPropertyAccess(_id.output, 'writeI64'),
+  writeListBegin: createPropertyAccess(_id.output, 'writeListBegin'),
+  writeListEnd: createPropertyAccess(_id.output, 'writeListEnd'),
   writeMapBegin: createPropertyAccess(_id.output, 'writeMapBegin'),
   writeMapEnd: createPropertyAccess(_id.output, 'writeMapEnd'),
   writeSetBegin: createPropertyAccess(_id.output, 'writeSetBegin'),
   writeSetEnd: createPropertyAccess(_id.output, 'writeSetEnd'),
-  writeListBegin: createPropertyAccess(_id.output, 'writeListBegin'),
-  writeListEnd: createPropertyAccess(_id.output, 'writeListEnd'),
-  writeBool: createPropertyAccess(_id.output, 'writeBool'),
-  writeI32: createPropertyAccess(_id.output, 'writeI32'),
-  writeI16: createPropertyAccess(_id.output, 'writeI16'),
   writeString: createPropertyAccess(_id.output, 'writeString'),
-  writeBinary: createPropertyAccess(_id.output, 'writeBinary'),
-  writeDouble: createPropertyAccess(_id.output, 'writeDouble'),
-  writeI64: createPropertyAccess(_id.output, 'writeI64'),
-  writeByte: createPropertyAccess(_id.output, 'writeByte'),
+  writeStructBegin: createPropertyAccess(_id.output, 'writeStructBegin'),
+  writeStructEnd: createPropertyAccess(_id.output, 'writeStructEnd'),
   // TODO: alias i08
-  writeFieldStop: createPropertyAccess(_id.output, 'writeFieldStop')
-};
+}

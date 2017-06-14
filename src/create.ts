@@ -1,279 +1,283 @@
-import * as ts from 'typescript';
+import * as ts from 'typescript'
 
-import { getReadBody } from './read-types';
-import { getWriteBody } from './write-types';
+import { getReadBody } from './read-types'
+import { getWriteBody } from './write-types'
 
 import {
   createIf,
+  createNotEquals,
   createThrow,
   createVariable,
-  createNotEquals
 } from './ast-helpers'
 import * as gen from './ast-specifics'
 
-import { identifiers as _id } from './ast/identifiers';
-import { types as _types } from './ast/thrift-types';
-import { methods as _methods } from './ast/methods';
-import { tokens as _tokens } from './ast/tokens';
+import { identifiers as _id } from './ast/identifiers'
+import { methods as _methods } from './ast/methods'
+import { types as _types } from './ast/thrift-types'
+import { tokens as _tokens } from './ast/tokens'
 
-import {
-  StructTypeNode
-} from './resolve/typedefs';
+import { StructTypeNode } from './resolve/typedefs'
 
 function createAssignment(left, right) {
-  const _propertyAssignment = ts.createAssignment(left, right);
+  const propertyAssignment = ts.createAssignment(left, right)
 
-  return ts.createStatement(_propertyAssignment);
+  return ts.createStatement(propertyAssignment)
 }
 
 export function createConstructor(struct) {
 
-  const hasFields = (struct.fields.length > 0);
+  const hasFields = (struct.fields.length > 0)
 
-  let _argsType;
+  let argsType
   if (hasFields) {
-    _argsType = ts.createTypeReferenceNode(struct.implements, undefined);
+    argsType = ts.createTypeReferenceNode(struct.implements, undefined)
   }
 
-  const _argsParameter = ts.createParameter(undefined, undefined, undefined, _id.args, _tokens.question, _argsType, undefined);
+  const argsParameter = ts.createParameter(undefined, undefined, undefined,
+    _id.args, _tokens.question, argsType, undefined)
 
-  const _fieldAssignments = struct.fields.map(function(field) {
+  const fieldAssignments = struct.fields.map((field) => {
 
-    const _argsPropAccess = ts.createPropertyAccess(_id.args, field.name);
-    const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
+    const argsPropAccess = ts.createPropertyAccess(_id.args, field.name)
+    const thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name)
 
     // Map is supposed to use Thrift.copyMap but that doesn't work if we use something better than an object
-    // Set/List is supposed to use Thrift.copyList but the implementation is weird and might not work when combined with the custom Map copying
+    // Set/List is supposed to use Thrift.copyList but the implementation is weird and might not work
+    // when combined with the custom Map copying
     // TODO: should we perform a deep clone? Currently shallow but not sure if deep cloning is actually needed
-    let _thenAssign;
-    switch(field.type.toEnum()) {
+    let thenAssign
+    switch (field.type.toEnum()) {
       case 'SET': {
-        // TODO: without some sort of recursion/deep-clone, a Set inside a Map/Set/List won't be a true Set but forEach should operate the same way
+        // TODO: without some sort of recursion/deep-clone, a Set inside a Map/Set/List
+        // won't be a true Set but forEach should operate the same way
         // However, it wouldn't ensure unique values
-        const _copy = ts.createNew(_id.Set, undefined, [_argsPropAccess]);
-        _thenAssign = createAssignment(_thisPropAccess, _copy);
-        break;
+        const copy = ts.createNew(_id.Set, undefined, [argsPropAccess])
+        thenAssign = createAssignment(thisPropAccess, copy)
+        break
       }
       case 'LIST': {
-        const _copy = ts.createCall(_methods.Arrayfrom, undefined, [_argsPropAccess]);
-        _thenAssign = createAssignment(_thisPropAccess, _copy);
-        break;
+        const copy = ts.createCall(_methods.Arrayfrom, undefined, [argsPropAccess])
+        thenAssign = createAssignment(thisPropAccess, copy)
+        break
       }
       case 'MAP': {
-        // TODO: without some sort of recursion/deep-clone, a Map inside a Map/Set/List won't be a true Map which would screw up our forEach
-        const _copy = ts.createNew(_id.Map, undefined, [_argsPropAccess]);
-        _thenAssign = createAssignment(_thisPropAccess, _copy);
-        break;
+        // TODO: without some sort of recursion/deep-clone, a Map inside a Map/Set/List
+        // won't be a true Map which would screw up our forEach
+        const copy = ts.createNew(_id.Map, undefined, [argsPropAccess])
+        thenAssign = createAssignment(thisPropAccess, copy)
+        break
       }
       case 'STRUCT': {
-        const type = <StructTypeNode>field.type;
+        const type = field.type as StructTypeNode
         // TODO: doesn't handle struct aliases
-        const _new = ts.createNew(ts.createIdentifier(type.valueType), undefined, [_argsPropAccess]);
-        _thenAssign = createAssignment(_thisPropAccess, _new);
-        break;
+        const newCall = ts.createNew(ts.createIdentifier(type.valueType), undefined, [argsPropAccess])
+        thenAssign = createAssignment(thisPropAccess, newCall)
+        break
       }
       case 'BOOL': {
-        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
-        break;
+        thenAssign = createAssignment(thisPropAccess, argsPropAccess)
+        break
       }
       case 'I32': {
-        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
-        break;
+        thenAssign = createAssignment(thisPropAccess, argsPropAccess)
+        break
       }
       case 'I16': {
-        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
-        break;
+        thenAssign = createAssignment(thisPropAccess, argsPropAccess)
+        break
       }
       case 'STRING': {
-        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
-        break;
+        thenAssign = createAssignment(thisPropAccess, argsPropAccess)
+        break
       }
       case 'BINARY': {
-        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
-        break;
+        thenAssign = createAssignment(thisPropAccess, argsPropAccess)
+        break
       }
       case 'DOUBLE': {
-        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
-        break;
+        thenAssign = createAssignment(thisPropAccess, argsPropAccess)
+        break
       }
       case 'I64': {
-        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
-        break;
+        thenAssign = createAssignment(thisPropAccess, argsPropAccess)
+        break
       }
       case 'BYTE': {
-        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
-        break;
+        thenAssign = createAssignment(thisPropAccess, argsPropAccess)
+        break
       }
       // The thrift binary warns to use i8 but then spits out writeByte
       case 'I8': {
-        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
-        break;
+        thenAssign = createAssignment(thisPropAccess, argsPropAccess)
+        break
       }
       // TODO: probably need to handle other type aliases OR the validator/normalize phase can output these
       default:
         // TODO: custom types
-        _thenAssign = createAssignment(_thisPropAccess, _argsPropAccess);
+        thenAssign = createAssignment(thisPropAccess, argsPropAccess)
         // throw new Error('Not Implemented ' + field.type)
     }
 
-    const _comparison = createNotEquals(_argsPropAccess, ts.createNull());
+    const comparison = createNotEquals(argsPropAccess, ts.createNull())
 
-    let _elseThrow;
+    let elseThrow
     if (field.option === 'required') {
-      const _errCtor = ts.createPropertyAccess(_id.Thrift, 'TProtocolException');
-      const _errType = ts.createPropertyAccess(_id.Thrift, 'TProtocolExceptionType.UNKNOWN')
-      const _errArgs = [_errType, ts.createLiteral(`Required field ${field.name} is unset!`)];
-      _elseThrow = createThrow(_errCtor, _errArgs);
+      const errCtor = ts.createPropertyAccess(_id.Thrift, 'TProtocolException')
+      const errType = ts.createPropertyAccess(_id.Thrift, 'TProtocolExceptionType.UNKNOWN')
+      const errArgs = [errType, ts.createLiteral(`Required field ${field.name} is unset!`)]
+      elseThrow = createThrow(errCtor, errArgs)
     }
 
-    return createIf(_comparison, _thenAssign, _elseThrow);
+    return createIf(comparison, thenAssign, elseThrow)
   })
 
-  let _constructorBlock;
-  if (_fieldAssignments.length) {
-    const _ifArgs = createIf(_id.args, _fieldAssignments);
-    _constructorBlock = ts.createBlock([_ifArgs], true);
+  let constructorBlock
+  if (fieldAssignments.length) {
+    const ifArgs = createIf(_id.args, fieldAssignments);
+    constructorBlock = ts.createBlock([ifArgs], true);
   } else {
-    _constructorBlock = ts.createBlock(undefined);
+    constructorBlock = ts.createBlock(undefined);
   }
 
-  return ts.createConstructor(undefined, undefined, [_argsParameter], _constructorBlock);
+  return ts.createConstructor(undefined, undefined, [argsParameter], constructorBlock)
 }
 
 function createReadField(field) {
 
-  const _enumType = field.type.toEnum();
+  const enumType = field.type.toEnum()
 
-  const _comparison = ts.createStrictEquality(_id.ftype, _types[_enumType]);
+  const comparison = ts.createStrictEquality(_id.ftype, _types[enumType])
 
-  const _thisName = ts.createPropertyAccess(ts.createThis(), field.name);
-  const _readAndAssign = getReadBody(field.type, _thisName);
+  const thisName = ts.createPropertyAccess(ts.createThis(), field.name)
+  const readAndAssign = getReadBody(field.type, thisName)
 
-  const _skip = gen.skip();
+  const skip = gen.skip()
 
-  const _break = ts.createBreak();
+  const breakStatement = ts.createBreak()
 
-  const _ifType = createIf(_comparison, _readAndAssign, _skip);
+  const ifType = createIf(comparison, readAndAssign, skip)
 
-  return ts.createCaseClause(ts.createLiteral(field.id), [
-    ts.createBlock([_ifType, _break], true)
-  ]);
+  return ts.createCaseClause(ts.createLiteral(field.id), [ts.createBlock([ifType, breakStatement], true)])
 }
 
 export function createRead(struct) {
-  const hasFields = (struct.fields.length > 0);
+  const hasFields = (struct.fields.length > 0)
 
-  const _readStructBegin = gen.readStructBegin();
-  const _readFieldBegin = gen.readFieldBegin();
+  const readStructBegin = gen.readStructBegin()
+  const readFieldBegin = gen.readFieldBegin()
 
   // TODO: what is this used for? Doesn't seem used in my testing
-  const _retFname = ts.createPropertyAccess(_id.ret, _id.fname);
-  const _fnameConst = createVariable(_id.fname, _retFname);
+  const retFname = ts.createPropertyAccess(_id.ret, _id.fname)
+  const fnameConst = createVariable(_id.fname, retFname)
 
-  const _retFtype = ts.createPropertyAccess(_id.ret, _id.ftype);
-  const _ftypeConst = createVariable(_id.ftype, _retFtype)
+  const retFtype = ts.createPropertyAccess(_id.ret, _id.ftype)
+  const ftypeConst = createVariable(_id.ftype, retFtype)
 
-  const _retFid = ts.createPropertyAccess(_id.ret, _id.fid);
-  const _fidConst = createVariable(_id.fid, _retFid);
+  const retFid = ts.createPropertyAccess(_id.ret, _id.fid)
+  const fidConst = createVariable(_id.fid, retFid)
 
-  const _comparison = ts.createStrictEquality(_id.ftype, _types.STOP);
+  const comparison = ts.createStrictEquality(_id.ftype, _types.STOP)
 
-  const _ifStop = createIf(_comparison, ts.createBreak());
+  const ifStop = createIf(comparison, ts.createBreak())
 
-  const _skip = gen.skip();
-  const _skipBlock = ts.createBlock([_skip], true);
+  const skip = gen.skip()
+  const skipBlock = ts.createBlock([skip], true)
 
-  const _readFieldEnd = gen.readFieldEnd();
+  const readFieldEnd = gen.readFieldEnd()
 
-  let _whileBody;
+  let whileBody
   if (hasFields) {
-    const _cases = struct.fields.map(createReadField);
-    const _default = ts.createDefaultClause([_skipBlock])
-    const _caseBlock = ts.createCaseBlock([
-      ..._cases,
-      _default
-    ]);
-    const _switch = ts.createSwitch(_id.fid, _caseBlock);
+    const cases = struct.fields.map(createReadField)
+    const defaultClause = ts.createDefaultClause([skipBlock])
+    const caseBlock = ts.createCaseBlock([
+      ...cases,
+      defaultClause,
+    ])
+    const switchStatement = ts.createSwitch(_id.fid, caseBlock)
 
-
-    _whileBody = ts.createBlock([
-      _readFieldBegin,
-      _fnameConst,
-      _ftypeConst,
-      _fidConst,
-      _ifStop,
-      _switch,
-      _readFieldEnd
-    ], true);
+    whileBody = ts.createBlock([
+      readFieldBegin,
+      fnameConst,
+      ftypeConst,
+      fidConst,
+      ifStop,
+      switchStatement,
+      readFieldEnd,
+    ], true)
   } else {
-     _whileBody = ts.createBlock([
-      _readFieldBegin,
-      _ftypeConst,
-      _ifStop,
-      _skip,
-      _readFieldEnd
-    ], true);
+     whileBody = ts.createBlock([
+      readFieldBegin,
+      ftypeConst,
+      ifStop,
+      skip,
+      readFieldEnd,
+    ], true)
   }
 
-  const _while = ts.createWhile(ts.createTrue(), _whileBody);
+  const whileStatment = ts.createWhile(ts.createTrue(), whileBody)
 
-  const _readStructEnd = gen.readStructEnd();
+  const readStructEnd = gen.readStructEnd()
 
-  const _readBlock = ts.createBlock([
-    _readStructBegin,
-    _while,
-    _readStructEnd
-  ], true);
+  const readBlock = ts.createBlock([
+    readStructBegin,
+    whileStatment,
+    readStructEnd,
+  ], true)
 
-  const _inputDeclaration = ts.createParameter(undefined, undefined, undefined, _id.input, undefined, undefined, undefined);
-  return ts.createMethod(undefined, [_tokens.public], undefined, _id.read, undefined, undefined, [_inputDeclaration], undefined, _readBlock);
+  const inputDeclaration = ts.createParameter(undefined, undefined, undefined,
+    _id.input, undefined, undefined, undefined)
+
+  return ts.createMethod(undefined, [_tokens.public], undefined, _id.read, undefined, undefined,
+    [inputDeclaration], undefined, readBlock)
 }
 
-
-
-
 function createWriteField(field) {
-  const _thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name);
+  const thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name)
 
-  const _comparison = createNotEquals(_thisPropAccess, ts.createNull());
+  const comparison = createNotEquals(thisPropAccess, ts.createNull())
 
-  const _enumType = field.type.toEnum();
+  const enumType = field.type.toEnum()
 
-  let body = getWriteBody(field.type, _thisPropAccess);
+  let body = getWriteBody(field.type, thisPropAccess)
 
   if (!Array.isArray(body)) {
-    body = [body];
+    body = [body]
   }
 
-  const _if = ts.createIf(_comparison, ts.createBlock([
-    gen.writeFieldBegin(field.name, _enumType, field.id),
+  const ifStatement = ts.createIf(comparison, ts.createBlock([
+    gen.writeFieldBegin(field.name, enumType, field.id),
     ...body,
     gen.writeFieldEnd(),
   ]))
 
-  return _if;
+  return ifStatement
 }
 
 export function createWrite(struct) {
 
-  const _writeStructBeginCall = ts.createCall(_methods.writeStructBegin, undefined, [ts.createLiteral(`${struct.name}`)]);
-  const _writeStructBeginStatement = ts.createStatement(_writeStructBeginCall);
+  const writeStructBeginCall = ts.createCall(_methods.writeStructBegin, undefined, [
+    ts.createLiteral(`${struct.name}`),
+  ])
+  const writeStructBeginStatement = ts.createStatement(writeStructBeginCall)
 
-  const _writeFields = struct.fields.map(createWriteField);
+  const writeFields = struct.fields.map(createWriteField)
 
-  const _writeFieldStopCall = ts.createCall(_methods.writeFieldStop, undefined, undefined);
-  const _writeFieldStopStatement = ts.createStatement(_writeFieldStopCall);
+  const writeFieldStopCall = ts.createCall(_methods.writeFieldStop, undefined, undefined)
+  const writeFieldStopStatement = ts.createStatement(writeFieldStopCall)
 
-  const _writeStructEndCall = ts.createCall(_methods.writeStructEnd, undefined, undefined);
-  const _writeStructEndStatement = ts.createStatement(_writeStructEndCall);
+  const writeStructEndCall = ts.createCall(_methods.writeStructEnd, undefined, undefined)
+  const writeStructEndStatement = ts.createStatement(writeStructEndCall)
 
-  const _writeBlock = ts.createBlock([
-    _writeStructBeginStatement,
-    ..._writeFields,
-    _writeFieldStopStatement,
-    _writeStructEndStatement
-  ], true);
+  const writeBlock = ts.createBlock([
+    writeStructBeginStatement,
+    ...writeFields,
+    writeFieldStopStatement,
+    writeStructEndStatement,
+  ], true)
 
-  const _outputDeclaration = ts.createParameter(undefined, undefined, undefined, _id.output, undefined, undefined, undefined);
-  return ts.createMethod(undefined, [_tokens.public], undefined, _id.write, undefined, undefined, [_outputDeclaration], undefined, _writeBlock);
+  const outputDeclaration = ts.createParameter(undefined, undefined, undefined,
+    _id.output, undefined, undefined, undefined)
+
+  return ts.createMethod(undefined, [_tokens.public], undefined, _id.write, undefined, undefined,
+    [outputDeclaration], undefined, writeBlock)
 }

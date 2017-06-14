@@ -1,45 +1,46 @@
-import { resolveTypeNode } from './typedefs';
-import { StructNode, StructPropertyNode } from './structs';
+import { StructNode, StructPropertyNode } from './structs'
+import { resolveTypeNode } from './typedefs'
 
-import collect from '../collect';
+import collect from '../collect'
 
 export class UnionPropertyNode extends StructPropertyNode {
 
   constructor(args) {
-    super(args);
+    super(args)
     // Forced to "optional"
     // TODO: should we warn here?
-    this.option = 'optional';
+    this.option = 'optional'
   }
 }
 
+// tslint:disable-next-line:max-classes-per-file
 export class UnionNode extends StructNode {
-  public fields: UnionPropertyNode[];
+  public fields: UnionPropertyNode[]
 
   // TODO: validate single default
 }
 
 export function resolveUnions(idl: JsonAST) {
-  const unions = collect(idl.union);
+  const unions = collect(idl.union)
 
   return unions.map((union) => {
-    const { name } = union;
+    const { name } = union
 
-    const fields = union.fields.map((field: { id?: number, name: string, type: string, option?: string, defaultValue?: any }) => {
+    const fields = union.fields.map((field) => {
       return new UnionPropertyNode({
+        defaultValue: field.defaultValue,
         id: field.id,
         name: field.name,
-        type: resolveTypeNode(idl, field.type),
         option: field.option,
-        defaultValue: field.defaultValue
-      });
-    });
+        type: resolveTypeNode(idl, field.type),
+      })
+    })
 
     return new UnionNode({
-      name: name,
+      fields,
       // TODO: this should be a lookup somehow
       implements: `${name}Interface`,
-      fields: fields
-    });
-  });
+      name,
+    })
+  })
 }

@@ -1,11 +1,11 @@
 import { registerHelper } from 'handlebars'
 
 const tsTypeMap = {
-  'string': 'string',
-  'bool': 'boolean',
-  'int': 'number',
-  'i16': 'number',
-  'i32': 'number',
+  string: 'string',
+  bool: 'boolean',
+  int: 'number',
+  i16: 'number',
+  i32: 'number',
 }
 
 function getResultType(type: string) {

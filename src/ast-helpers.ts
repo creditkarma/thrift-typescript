@@ -1,48 +1,52 @@
-import * as ts from 'typescript';
+import * as ts from 'typescript'
 
-import { tokens as _tokens } from './ast/tokens';
+import { tokens as _tokens } from './ast/tokens'
 
-export function createIf(_comparison: ts.BinaryExpression | ts.CallExpression | ts.Identifier, _then?: ts.Statement | ts.Statement[], _else?: ts.Statement | ts.Statement[]) {
-  let _thenBlock;
-  if (_then) {
-    _then = Array.isArray(_then) ? _then : [_then];
-    _thenBlock = ts.createBlock(_then, true);
+export type Comparison = ts.BinaryExpression | ts.CallExpression | ts.Identifier
+export type ThenStatement = ts.Statement | ts.Statement[]
+export type ElseStatement = ts.Statement | ts.Statement[]
+
+export function createIf(comparison: Comparison, thenStatement?: ThenStatement, elseStatement?: ElseStatement) {
+  let thenBlock
+  if (thenStatement) {
+    thenStatement = Array.isArray(thenStatement) ? thenStatement : [thenStatement]
+    thenBlock = ts.createBlock(thenStatement, true)
   }
 
-  let _elseBlock;
-  if (_else) {
-    _else = Array.isArray(_else) ? _else : [_else];
-    _elseBlock = ts.createBlock(_else, true);
+  let elseBlock
+  if (elseStatement) {
+    elseStatement = Array.isArray(elseStatement) ? elseStatement : [elseStatement]
+    elseBlock = ts.createBlock(elseStatement, true)
   }
 
-  return ts.createIf(_comparison, _thenBlock, _elseBlock);
+  return ts.createIf(comparison, thenBlock, elseBlock)
 }
 
-export function createThrow(_ctor, _args) {
-  const _err = ts.createNew(_ctor, undefined, _args);
+export function createThrow(ctor, args) {
+  const err = ts.createNew(ctor, undefined, args)
 
-  return ts.createThrow(_err);
+  return ts.createThrow(err)
 }
 
-export function createNotEquals(_left: ts.Expression, _right: ts.Expression) {
-  return ts.createBinary(_left, ts.SyntaxKind.ExclamationEqualsToken, _right);
+export function createNotEquals(left: ts.Expression, right: ts.Expression) {
+  return ts.createBinary(left, ts.SyntaxKind.ExclamationEqualsToken, right)
 }
 
-export function createVariable(_name: string | ts.Identifier, _init: ts.Expression) {
-  const _varDec = ts.createVariableDeclaration(_name, undefined, _init);
-  const _varDecList = ts.createVariableDeclarationList([_varDec], ts.NodeFlags.Const);
+export function createVariable(name: string | ts.Identifier, init: ts.Expression) {
+  const varDec = ts.createVariableDeclaration(name, undefined, init)
+  const varDecList = ts.createVariableDeclarationList([varDec], ts.NodeFlags.Const)
 
-  return ts.createVariableStatement(undefined, _varDecList);
+  return ts.createVariableStatement(undefined, varDecList)
 }
 
 export function toOptional(option: string = '') {
   // This only works in certain cases, even if the methods take a questionToken as an argument
-  switch(option.toUpperCase()) {
+  switch (option.toUpperCase()) {
     case 'REQUIRED':
       // Ignore
-      return;
+      return
     case 'OPTIONAL':
     default:
-      return _tokens.question;
+      return _tokens.question
   }
 }
