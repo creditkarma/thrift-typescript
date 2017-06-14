@@ -9,7 +9,7 @@
     "build:watch": "tsc --watch",
     "lint": "tslint src/**/*",
     "pretest": "npm run build",
-    "test": "npm run test:only --",
+    "test": "npm run lint && npm run test:only --",
     "test:watch": "npm test -- -w",
     "test:only": "mocha --reporter spec --full-trace ./dist/test/tests.js",
     "coverage": "istanbul cover _mocha -- --full-trace ./dist/test/tests.js",
