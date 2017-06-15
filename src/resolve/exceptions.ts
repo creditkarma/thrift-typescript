@@ -24,7 +24,7 @@ export function resolveExceptions(idl: JsonAST) {
     return new ExceptionNode({
       fields,
       // TODO: this should be a lookup somehow
-      implements: `${name}Interface`,
+      implements: `I${name}`,
       name,
     })
   })
