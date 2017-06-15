@@ -16,7 +16,7 @@ import { methods as _methods } from './ast/methods'
 import { types as _types } from './ast/thrift-types'
 import { tokens as _tokens } from './ast/tokens'
 
-import { StructTypeNode } from './resolve/typedefs'
+import StructTypeNode from './nodes/StructTypeNode'
 
 function createAssignment(left, right) {
   const propertyAssignment = ts.createAssignment(left, right)
