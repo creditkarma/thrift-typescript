@@ -5,7 +5,9 @@ import * as path from 'path'
 
 import readFile from './filesystem/read-file'
 
-import { IDLNode, resolveIDLs } from './resolve/idls'
+import IDLNode from './nodes/IDLNode'
+
+import { resolveIDLs } from './resolve/idls'
 
 import { identifiers as _id } from './ast/identifiers'
 

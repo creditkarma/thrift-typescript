@@ -1,24 +1,9 @@
-import { StructNode, StructPropertyNode } from './structs'
-import { resolveTypeNode } from './typedefs'
+import UnionNode from '../nodes/UnionNode'
+import UnionPropertyNode from '../nodes/UnionPropertyNode'
+
+import { resolveTypes } from './types'
 
 import collect from '../collect'
-
-export class UnionPropertyNode extends StructPropertyNode {
-
-  constructor(args) {
-    super(args)
-    // Forced to "optional"
-    // TODO: should we warn here?
-    this.option = 'optional'
-  }
-}
-
-// tslint:disable-next-line:max-classes-per-file
-export class UnionNode extends StructNode {
-  public fields: UnionPropertyNode[]
-
-  // TODO: validate single default
-}
 
 export function resolveUnions(idl: JsonAST) {
   const unions = collect(idl.union)
@@ -32,7 +17,7 @@ export function resolveUnions(idl: JsonAST) {
         id: field.id,
         name: field.name,
         option: field.option,
-        type: resolveTypeNode(idl, field.type),
+        type: resolveTypes(idl, field.type),
       })
     })
 
