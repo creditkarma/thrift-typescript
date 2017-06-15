@@ -22,7 +22,7 @@ export function resolveInterfaces(idl: JsonAST) {
 
     return new InterfaceNode({
       fields,
-      name: `${name}Interface`,
+      name: `I${name}`,
     })
   })
 }
