@@ -4,23 +4,11 @@ const thriftParser = require('thrift-parser');
 import readFile from './filesystem/read-file';
 
 import {
-  resolveNamespace
-} from './resolve';
-import {
-  TypedefNode,
-  resolveTypedefs,
-} from './resolve/typedefs';
-import {
-  InterfaceNode,
-  resolveInterfaces
-} from './resolve/interfaces';
-import {
-  StructNode,
-  resolveStructs
-} from './resolve/structs';
+  IDLNode,
+  resolveIDLs
+} from './resolve/idls';
 
 import { identifiers as _id } from './ast/identifiers';
-import { tokens as _tokens } from './ast/tokens';
 
 export function parseFile(fileName: string): Promise<any> {
   return readFile(fileName).then(idl => {
@@ -28,15 +16,14 @@ export function parseFile(fileName: string): Promise<any> {
   })
 }
 
-interface ResolvedIDL {
-  namespace?: string,
-  typedefs: TypedefNode[],
-  interfaces: InterfaceNode[],
-  structs: StructNode[],
+function generateModuleFile(idl: IDLNode) {
+  let bodyFile = ts.createSourceFile(`${idl.filename}.ts`, '', ts.ScriptTarget.ES5, false, ts.ScriptKind.TS);
+  bodyFile = ts.updateSourceFileNode(bodyFile, [idl.toAST()]);
+
+  return bodyFile;
 }
 
-function generateTypesAST(idl: ResolvedIDL): string {
-
+function generatePreface() {
   let prefaceFile = ts.createSourceFile('preface.ts', '', ts.ScriptTarget.ES5, false, ts.ScriptKind.TS);
 
   const _thriftImport = ts.createImportClause(undefined, ts.createNamedImports([
@@ -54,68 +41,22 @@ function generateTypesAST(idl: ResolvedIDL): string {
     _require
   ]);
 
-  const _types = idl.typedefs.map((typedef) => typedef.toAST());
-
-  const _interfaces = idl.interfaces.map((iface) => iface.toAST());
-
-  const _structs = idl.structs.map((struct) => struct.toAST());
-
-  let bodyFile = ts.createSourceFile('body.ts', '', ts.ScriptTarget.ES5, false, ts.ScriptKind.TS);
-  // TODO: filename?
-  if (idl.namespace) {
-
-    const namespace = ts.createIdentifier(idl.namespace);
-
-    const _namespaceBlock = ts.createModuleBlock([
-      ..._types,
-      ..._interfaces,
-      ..._structs
-    ]);
-
-    const _namespace = ts.createModuleDeclaration(undefined, [_tokens.export], namespace, _namespaceBlock, ts.NodeFlags.Namespace);
-    bodyFile = ts.updateSourceFileNode(bodyFile, [
-      _namespace
-    ]);
-  } else {
-    bodyFile = ts.updateSourceFileNode(bodyFile, [
-      ..._types,
-      ..._interfaces,
-      ..._structs
-    ]);
-  }
-
-  const printer = ts.createPrinter();
-
-  return printer.printBundle(ts.createBundle([
-    prefaceFile,
-    bodyFile
-  ]));
+  return prefaceFile;
 }
 
+function generateTypescript(files: ts.SourceFile[]) {
+  const printer = ts.createPrinter();
+
+  return printer.printBundle(ts.createBundle(files));
+}
 
 export async function generateIDLTypes(filename: string): Promise<string> {
   let idl = await parseFile(filename);
+  idl.filename = filename;
 
-  const namespace = resolveNamespace(idl);
+  const resolved = resolveIDLs([idl]).map(generateModuleFile);
 
-  // Non-mutation
-  const typedefs = resolveTypedefs(idl);
-  // Currently moved to InvalidTypeNode
-  // validateTypes(typedefs);
+  const files = [generatePreface()].concat(resolved);
 
-  const interfaces = resolveInterfaces(idl);
-  // TODO: validate interfaces
-
-  const structs = resolveStructs(idl);
-  // Type errors should be handled by InvalidTypeNode
-  // validateStructs(structs);
-
-  const resolved = {
-    namespace: namespace,
-    typedefs: typedefs,
-    interfaces: interfaces,
-    structs: structs
-  }
-
-  return generateTypesAST(resolved);
+  return generateTypescript(files);
 }
