@@ -17,7 +17,7 @@ import { methods as _methods } from './ast/methods';
 import { tokens as _tokens } from './ast/tokens';
 
 import {
-  ComplexTypeNode
+  StructTypeNode
 } from './resolve/typedefs';
 
 function createAssignment(left, right) {
@@ -61,9 +61,9 @@ export function createConstructor(struct) {
         break;
       }
       case 'STRUCT': {
-        const type = <ComplexTypeNode>field.type;
+        const type = <StructTypeNode>field.type;
         // TODO: doesn't handle struct aliases
-        const _new = ts.createNew(ts.createIdentifier(type.valueType.name), undefined, [_argsPropAccess]);
+        const _new = ts.createNew(ts.createIdentifier(type.valueType), undefined, [_argsPropAccess]);
         _thenAssign = createAssignment(_thisPropAccess, _new);
         break;
       }

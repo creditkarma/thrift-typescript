@@ -195,8 +195,8 @@ function createReadStruct(type, _storage) {
   // this.bed.read(input);
 
   return [
-    // TODO: type.valueType.name should probably be some sort of access method on the type to get recursively
-    ts.createStatement(ts.createAssignment(_storage, ts.createNew(ts.createIdentifier(type.valueType.name), undefined, []))),
+    // TODO: type.valueType should probably be some sort of access method on the type to get recursively
+    ts.createStatement(ts.createAssignment(_storage, ts.createNew(ts.createIdentifier(type.valueType), undefined, []))),
     ts.createStatement(ts.createCall(ts.createPropertyAccess(_storage, 'read'), undefined, [_id.input]))
   ];
 }
