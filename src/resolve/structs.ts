@@ -83,6 +83,8 @@ export class StructNode {
   public toAST(): ExpressionStatement {
     const fields = this.fields.map((field) => field.toAST());
 
+    const hasFields = (this.fields.filter((field) => field.id).length > 0);
+
     // Build the constructor body
     const ctor = createConstructor(this);
 
@@ -92,11 +94,16 @@ export class StructNode {
     // Build the `write` method
     const write = createWrite(this);
 
-    const _heritage = createHeritageClause(SyntaxKind.ImplementsKeyword, [
-      createExpressionWithTypeArguments(undefined, createIdentifier(this.implements))
-    ]);
+    let _heritage;
+    // TODO: This is a pretty hacky solution
+    if (hasFields) {
+      _heritage = createHeritageClause(SyntaxKind.ImplementsKeyword, [
+        createExpressionWithTypeArguments(undefined, createIdentifier(this.implements))
+      ]);
+      _heritage = [_heritage]
+    }
 
-    const _classExpression = createClassExpression([tokens.export], this.name, [], [_heritage], [
+    const _classExpression = createClassExpression([tokens.export], this.name, [], _heritage, [
       ...fields,
       ctor,
       read,
