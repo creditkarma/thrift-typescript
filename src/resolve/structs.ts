@@ -94,13 +94,13 @@ export class StructNode {
     // Build the `write` method
     const write = createWrite(this);
 
-    let _heritage;
+    const _heritage = [];
     // TODO: This is a pretty hacky solution
     if (hasFields) {
-      _heritage = createHeritageClause(SyntaxKind.ImplementsKeyword, [
+      const _implements = createHeritageClause(SyntaxKind.ImplementsKeyword, [
         createExpressionWithTypeArguments(undefined, createIdentifier(this.implements))
       ]);
-      _heritage = [_heritage]
+      _heritage.push(_implements);
     }
 
     const _classExpression = createClassExpression([tokens.export], this.name, [], _heritage, [

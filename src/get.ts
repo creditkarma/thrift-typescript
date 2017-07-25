@@ -15,12 +15,29 @@ export function getConstants(idl: any) {
   });
 }
 
+export function getInterfaces(idl: any) {
+  const structs = getStructs(idl);
+  const exceptions = getExceptions(idl);
+
+  return structs.concat(exceptions);
+}
+
 export function getStructs(idl: any) {
   const structs = idl.struct || {};
   return Object.keys(structs).map(key => ({
     fields: structs[key],
     name: key,
   }))
+}
+
+export function getExceptions(idl: any) {
+  const exceptions = idl.exception || {};
+  return Object.keys(exceptions).map((key) => {
+    return {
+      name: key,
+      fields: exceptions[key]
+    };
+  });
 }
 
 export function getServices(idl: any) {
