@@ -11,3 +11,7 @@ node_modules
 
 # Typescript artifacts
 dist
+
+# nyc artifacts
+coverage/
+.nyc_output/
