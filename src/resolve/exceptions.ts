@@ -49,7 +49,7 @@ export class ExceptionNode extends StructNode {
     ctor.body = insertLeadingStatements(ctor.body, [_superCall]);
 
     // Build the `read` method
-    const read = createRead(this.fields);
+    const read = createRead(this);
 
     // Build the `write` method
     const write = createWrite(this);

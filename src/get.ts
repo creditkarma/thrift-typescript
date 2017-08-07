@@ -16,10 +16,11 @@ export function getConstants(idl: any) {
 }
 
 export function getInterfaces(idl: any) {
+  const unions = getUnions(idl);
   const structs = getStructs(idl);
   const exceptions = getExceptions(idl);
 
-  return structs.concat(exceptions);
+  return structs.concat(unions).concat(exceptions);
 }
 
 export function getStructs(idl: any) {
@@ -28,6 +29,17 @@ export function getStructs(idl: any) {
     fields: structs[key],
     name: key,
   }))
+}
+
+export function getUnions(idl: any) {
+  const unions = idl.union || {};
+  return Object.keys(unions).map((key) => {
+    return {
+      name: key,
+      // TODO: this is just a workaround for interfaces
+      fields: unions[key].map((field) => Object.assign({}, field, { option: 'optional' }))
+    };
+  });
 }
 
 export function getExceptions(idl: any) {
@@ -42,7 +54,7 @@ export function getExceptions(idl: any) {
 
 export function getServices(idl: any) {
   return Object.keys(idl.service).map(key => ({
-    methods: idl.service[key],
+    methods: idl.service[key].functions,
     name: key,
   }));
 }
