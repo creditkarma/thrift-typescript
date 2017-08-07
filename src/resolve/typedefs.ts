@@ -13,7 +13,7 @@ import {
 } from 'typescript';
 
 import { isBaseType, isListLikeType, isSetLikeType, isMapLikeType } from '../is';
-import { getTypeDefs } from '../get';
+import collect from '../collect';
 import { tokens as _tokens } from '../ast/tokens';
 import { identifiers as _id } from '../ast/identifiers';
 
@@ -227,7 +227,7 @@ export function resolveTypeNode(idl, type) {
 
 
 export function resolveTypedefs(idl) {
-  const typedefs = getTypeDefs(idl);
+  const typedefs = collect(idl.typedef);
 
   return typedefs.map((typedef) => {
     const { name, type } = typedef;

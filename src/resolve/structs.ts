@@ -28,9 +28,7 @@ import {
   tokens
 } from '../ast/tokens';
 
-import {
-  getStructs
-} from '../get';
+import collect from '../collect';
 
 import {
   createConstructor,
@@ -117,7 +115,7 @@ export class StructNode {
 }
 
 export function resolveStructs(idl) {
-  const structs = getStructs(idl);
+  const structs = collect(idl.struct);
 
   return structs.map((struct) => {
     const { name } = struct;
