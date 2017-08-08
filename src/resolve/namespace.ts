@@ -16,7 +16,8 @@ export class NamespaceNode {
   }
 }
 
-export function resolveNamespace(idl) {
+// TODO: IDL has filename attached
+export function resolveNamespace(idl: JsonAST, filename: string) {
   // TODO: the parser doesn't parse dot-separated namespaces
   const scope = 'js';
 
@@ -24,7 +25,7 @@ export function resolveNamespace(idl) {
     const namespace = idl.namespace[scope].serviceName;
     return new NamespaceNode(namespace);
   } else {
-    let namespace = basename(idl.filename, extname(idl.filename));
+    let namespace = basename(filename, extname(filename));
     return new NamespaceNode(namespace);
   }
 }

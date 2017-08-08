@@ -1,5 +1,5 @@
 import * as ts from 'typescript'
-const thriftParser = require('thrift-parser');
+import thriftParser = require('thrift-parser');
 
 import * as path from 'path';
 
@@ -12,12 +12,18 @@ import {
 
 import { identifiers as _id } from './ast/identifiers';
 
-export function parseFile(fileName: string): Promise<any> {
+export interface IDLFile {
+  filename: string;
+  idl: JsonAST
+}
+
+export function parseFile(fileName: string): Promise<IDLFile> {
   return readFile(fileName).then(idl => {
-    let parsed = thriftParser(idl);
-    // TODO: not sure where this belongs
-    parsed.filename = path.relative(process.cwd(), fileName);
-    return parsed;
+    const output: IDLFile = {
+      filename: path.relative(process.cwd(), fileName),
+      idl: thriftParser(idl)
+    };
+    return output;
   });
 }
 
@@ -55,11 +61,11 @@ function generateTypescript(files: ts.SourceFile[]) {
   return printer.printBundle(ts.createBundle(files));
 }
 
-function getIncludes(idl) {
-  const includes = idl.include || {};
-  const dir = path.dirname(idl.filename);
+function getIncludes(file) {
+  const includes = file.idl.include || {};
+  const dir = path.dirname(file.filename);
   return Object.keys(includes).map((inc) => {
-    let filename = idl.include[inc].path;
+    let filename = file.idl.include[inc].path;
     if (!path.extname(filename)) {
       filename = filename + '.thrift';
     }
@@ -68,18 +74,18 @@ function getIncludes(idl) {
 }
 
 export async function generateIDLTypes(filename: string): Promise<string> {
-  let idl = await parseFile(filename);
+  let parsed = await parseFile(filename);
 
-  let idls = [];
+  let parsedFiles: IDLFile[] = [];
 
-  if (idl.include) {
-    const includes = getIncludes(idl);
-    idls = await Promise.all(includes.map(parseFile));
+  if (parsed.idl.include) {
+    const includes = getIncludes(parsed);
+    parsedFiles = await Promise.all(includes.map(parseFile));
   }
 
-  idls.push(idl);
+  parsedFiles.push(parsed);
 
-  const resolved = resolveIDLs(idls).map(generateModuleFile);
+  const resolved = resolveIDLs(parsedFiles).map(generateModuleFile);
 
   const files = [generatePreface()].concat(resolved);
 

@@ -226,7 +226,7 @@ export function resolveTypeNode(idl, type) {
 }
 
 
-export function resolveTypedefs(idl) {
+export function resolveTypedefs(idl: JsonAST) {
   const typedefs = collect(idl.typedef);
 
   return typedefs.map((typedef) => {
