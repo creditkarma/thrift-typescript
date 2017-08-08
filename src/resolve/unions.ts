@@ -5,7 +5,7 @@ import { resolveTypes } from './types'
 
 import collect from '../collect'
 
-export function resolveUnions(idl: JsonAST) {
+export function resolveUnions(idl: JsonAST): UnionNode[] {
   const unions = collect(idl.union)
 
   return unions.map((union) => {

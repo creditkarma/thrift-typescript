@@ -3,7 +3,7 @@ import NamespaceNode from '../nodes/NamespaceNode'
 import { basename, extname } from 'path'
 
 // TODO: IDL has filename attached
-export function resolveNamespace(idl: JsonAST, filename: string) {
+export function resolveNamespace(idl: JsonAST, filename: string): NamespaceNode {
   // TODO: the parser doesn't parse dot-separated namespaces
   const scope = 'js'
 

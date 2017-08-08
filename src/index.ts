@@ -26,14 +26,14 @@ export function parseFile(fileName: string): Promise<IDLFile> {
   })
 }
 
-function generateModuleFile(idl: IDLNode) {
+function generateModuleFile(idl: IDLNode): ts.SourceFile {
   let bodyFile = ts.createSourceFile(`${idl.filename}.ts`, '', ts.ScriptTarget.ES5, false, ts.ScriptKind.TS)
   bodyFile = ts.updateSourceFileNode(bodyFile, [idl.toAST()])
 
   return bodyFile
 }
 
-function generatePreface() {
+function generatePreface(): ts.SourceFile {
   let prefaceFile = ts.createSourceFile('preface.ts', '', ts.ScriptTarget.ES5, false, ts.ScriptKind.TS)
 
   const thriftImport = ts.createImportClause(undefined, ts.createNamedImports([
@@ -55,13 +55,13 @@ function generatePreface() {
   return prefaceFile
 }
 
-function generateTypescript(files: ts.SourceFile[]) {
+function generateTypescript(files: ts.SourceFile[]): string {
   const printer = ts.createPrinter()
 
   return printer.printBundle(ts.createBundle(files))
 }
 
-function getIncludes(file) {
+function getIncludes(file): Array<string> {
   const includes = file.idl.include || {}
   const dir = path.dirname(file.filename)
   return Object.keys(includes).map((inc) => {
@@ -87,7 +87,7 @@ export async function generateIDLTypes(filename: string): Promise<string> {
 
   const resolved = resolveIDLs(parsedFiles).map(generateModuleFile)
 
-  const files = [generatePreface()].concat(resolved)
+  const files = [ generatePreface() ].concat(resolved)
 
   return generateTypescript(files)
 }

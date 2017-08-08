@@ -5,7 +5,7 @@ import { resolveTypes } from './types'
 
 import { getInterfaces } from '../get'
 
-export function resolveInterfaces(idl: JsonAST) {
+export function resolveInterfaces(idl: JsonAST): InterfaceNode[] {
   const interfaces = getInterfaces(idl)
 
   // TODO: This is a pretty hacky solution

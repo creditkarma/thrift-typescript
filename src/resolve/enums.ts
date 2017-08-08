@@ -3,7 +3,7 @@ import EnumPropertyNode from '../nodes/EnumPropertyNode'
 
 import collect from '../collect'
 
-export function resolveEnums(idl: JsonAST) {
+export function resolveEnums(idl: JsonAST): EnumNode[] {
   const enums = collect(idl.enum)
 
   return enums.map(({ name, items }) => {
