@@ -5,7 +5,7 @@ import { resolveTypes } from './types'
 
 import collect from '../collect'
 
-export function resolveExceptions(idl: JsonAST) {
+export function resolveExceptions(idl: JsonAST): ExceptionNode[] {
   const exceptions = collect(idl.exception)
 
   return exceptions.map((exception) => {

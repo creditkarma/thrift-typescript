@@ -7,12 +7,12 @@ import readFile from './filesystem/read-file'
 import { getServices, getStructs } from './get'
 import { registerHelpers } from './ts-helpers'
 
-async function generateTypes(types: any) {
+async function generateTypes(types: any): Promise<string> {
   const template: HandlebarsTemplateDelegate = await loadTemplate('types.hbs')
   return template(types)
 }
 
-async function generateServices(services: any) {
+async function generateServices(services: any): Promise<string> {
   const template: HandlebarsTemplateDelegate = await loadTemplate('services.hbs')
   return template(services)
 }

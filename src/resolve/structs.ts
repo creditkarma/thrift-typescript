@@ -5,7 +5,7 @@ import { resolveTypes } from './types'
 
 import collect from '../collect'
 
-export function resolveStructs(idl: JsonAST) {
+export function resolveStructs(idl: JsonAST): StructNode[] {
   const structs = collect(idl.struct)
 
   return structs.map((struct) => {
