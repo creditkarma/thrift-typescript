@@ -12,7 +12,7 @@ export default class MapTypeNode {
   public keyType: TypeNode
   public valueType: TypeNode
 
-  constructor(args) {
+  constructor(args: { name: string, keyType: TypeNode, valueType: TypeNode }) {
     this.name = args.name
     this.keyType = args.keyType
     this.valueType = args.valueType

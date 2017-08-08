@@ -4,7 +4,7 @@ import { resolveTypes } from './types'
 
 import collect from '../collect'
 
-export function resolveTypedefs(idl: JsonAST) {
+export function resolveTypedefs(idl: JsonAST): TypedefNode[] {
   const typedefs = collect(idl.typedef)
 
   return typedefs.map((typedef) => {

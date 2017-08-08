@@ -5,7 +5,7 @@ import { resolveValues } from './values'
 
 import collect from '../collect'
 
-export function resolveConsts(idl: JsonAST) {
+export function resolveConsts(idl: JsonAST): ConstNode[] {
   const constants = collect(idl.const)
 
   return constants.map((constant) => {
