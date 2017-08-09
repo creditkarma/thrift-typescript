@@ -61,7 +61,7 @@ function generateTypescript(files: ts.SourceFile[]): string {
   return printer.printBundle(ts.createBundle(files))
 }
 
-function getIncludes(file): Array<string> {
+function getIncludes(file): string[] {
   const includes = file.idl.include || {}
   const dir = path.dirname(file.filename)
   return Object.keys(includes).map((inc) => {
