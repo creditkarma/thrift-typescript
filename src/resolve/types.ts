@@ -1,7 +1,6 @@
 import AliasTypeNode from '../nodes/AliasTypeNode'
 import BaseTypeNode from '../nodes/BaseTypeNode'
 import EnumTypeNode from '../nodes/EnumTypeNode'
-import InvalidTypeNode from '../nodes/InvalidTypeNode'
 import ListTypeNode from '../nodes/ListTypeNode'
 import MapTypeNode from '../nodes/MapTypeNode'
 import SetTypeNode from '../nodes/SetTypeNode'
@@ -65,6 +64,5 @@ export function resolveTypes(idl, type) {
     })
   }
 
-  // TODO: does validation belong in here?
-  return new InvalidTypeNode(type)
+  throw new Error(`Cannont resolve type: ${type}`)
 }

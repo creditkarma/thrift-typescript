@@ -3,13 +3,13 @@ import {
   TypeAliasDeclaration,
 } from 'typescript'
 
-import TypeNode from './TypeNode'
+import { ITypeNode } from './interfaces'
 
 import { tokens } from '../ast/tokens'
 
 export default class TypedefNode {
   public name: string
-  public type: TypeNode
+  public type: ITypeNode
 
   constructor(args) {
     this.name = args.name

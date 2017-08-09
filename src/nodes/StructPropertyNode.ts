@@ -5,7 +5,7 @@ import {
   PropertyDeclaration,
 } from 'typescript'
 
-import TypeNode from './TypeNode'
+import { ITypeNode } from './interfaces'
 
 import { toOptional } from '../ast-helpers'
 import { tokens } from '../ast/tokens'
@@ -13,7 +13,7 @@ import { tokens } from '../ast/tokens'
 export default class StructPropertyNode {
   public id?: number
   public name: string
-  public type: TypeNode
+  public type: ITypeNode
   public option?: string
   public defaultValue?: any // TODO: better type?
 

@@ -3,7 +3,7 @@ import * as ts from 'typescript'
 import { read as eRead } from './ast/enum-mapped'
 import { identifiers as _id } from './ast/identifiers'
 import { methods as _methods } from './ast/methods'
-import TypeNode from './nodes/TypeNode'
+import { ITypeNode } from './nodes/interfaces'
 
 // Map/Set/List don't seem to use the etype,ktype,vtype property that's initialized
 
@@ -205,7 +205,7 @@ function createReadStruct(type, storage) {
   ]
 }
 
-export function getReadBody(type: TypeNode, storage: ts.Node) {
+export function getReadBody(type: ITypeNode, storage: ts.Node) {
   // TODO:
   //  'readValue'?
   switch (type.toEnum()) {

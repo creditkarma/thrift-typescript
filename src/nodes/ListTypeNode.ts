@@ -3,11 +3,11 @@ import {
   createArrayTypeNode,
 } from 'typescript'
 
-import TypeNode from './TypeNode'
+import { ITypeNode } from './interfaces'
 
-export default class ListTypeNode {
+export default class ListTypeNode implements ITypeNode {
   public name: string
-  public valueType: TypeNode
+  public valueType: ITypeNode
 
   constructor(args) {
     this.name = args.name

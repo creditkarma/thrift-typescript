@@ -1,5 +1,4 @@
 import BaseValueNode from '../nodes/BaseValueNode'
-import InvalidValueNode from '../nodes/InvalidValueNode'
 import ListValueNode from '../nodes/ListValueNode'
 import MapValueNode from '../nodes/MapValueNode'
 import SetValueNode from '../nodes/SetValueNode'
@@ -57,5 +56,5 @@ export function resolveValues(idl: JsonAST, type, value) {
     })
   }
 
-  return new InvalidValueNode(value)
+  throw new Error(`Cannont resolve value for type: ${type}`)
 }

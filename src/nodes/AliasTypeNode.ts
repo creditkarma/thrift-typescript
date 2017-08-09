@@ -1,15 +1,11 @@
-import {
-  ArrayTypeNode,
-  KeywordTypeNode,
-  TypeReferenceNode,
-} from 'typescript'
+import { TypeNode } from 'typescript'
 
-import TypeNode from './TypeNode'
+import { ITypeNode } from './interfaces'
 
 // Aliases are just proxies to the underlying type
-export default class AliasTypeNode {
+export default class AliasTypeNode implements ITypeNode {
   public name: string
-  public valueType: TypeNode
+  public valueType: ITypeNode
 
   constructor(args) {
     this.name = args.name
@@ -21,7 +17,7 @@ export default class AliasTypeNode {
   }
 
   // Aliases can be whatever type
-  public toAST(): TypeReferenceNode | ArrayTypeNode | KeywordTypeNode {
+  public toAST(): TypeNode {
     return this.valueType.toAST()
   }
 }
