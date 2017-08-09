@@ -4,8 +4,7 @@ import { basename, extname } from 'path'
 
 // TODO: IDL has filename attached
 export function resolveNamespace(idl: JsonAST, filename: string) {
-  // TODO: the parser doesn't parse dot-separated namespaces
-  const scope = 'js'
+  const scope = 'js.ts'
 
   if (idl.namespace && idl.namespace[scope]) {
     const namespace = idl.namespace[scope].serviceName
