@@ -1,15 +1,14 @@
 import * as ts from 'typescript'
 
-import { write as eWrite } from './ast/enum-mapped'
-import { identifiers as _id } from './ast/identifiers'
-import { methods as _methods } from './ast/methods'
-import { types as _types } from './ast/thrift-types'
+import { write } from './ast/enum-mapped'
+import { identifiers } from './ast/identifiers'
+import { methods } from './ast/methods'
+import { types } from './ast/thrift-types'
 
 function createWriteBody(type, accessVar: ts.Expression) {
   const enumType = type.toEnum()
 
-  // TODO: better name for eWrite
-  const writeTypeCall = ts.createCall(eWrite[enumType], undefined, [accessVar])
+  const writeTypeCall = ts.createCall(write[enumType], undefined, [accessVar])
 
   return ts.createStatement(writeTypeCall)
 }
@@ -65,12 +64,12 @@ function createSetBody(type, accessVar) {
   const enumType = type.valueType.toEnum()
 
   return [
-    writeContainerBegin(_methods.writeSetBegin, [
-      _types[enumType],
+    writeContainerBegin(methods.writeSetBegin, [
+      types[enumType],
       ts.createPropertyAccess(accessVar, 'size'),
     ]),
     forEach,
-    writeContainerEnd(_methods.writeSetEnd),
+    writeContainerEnd(methods.writeSetEnd),
   ]
 }
 
@@ -80,12 +79,12 @@ function createListBody(type, accessVar) {
   const enumType = type.valueType.toEnum()
 
   return [
-    writeContainerBegin(_methods.writeListBegin, [
-      _types[enumType],
+    writeContainerBegin(methods.writeListBegin, [
+      types[enumType],
       ts.createPropertyAccess(accessVar, 'length'),
     ]),
     forEach,
-    writeContainerEnd(_methods.writeListEnd),
+    writeContainerEnd(methods.writeListEnd),
   ]
 }
 
@@ -96,20 +95,20 @@ function createMapBody(type, accessVar) {
   const valueType = type.valueType.toEnum()
 
   return [
-    writeContainerBegin(_methods.writeMapBegin, [
-      _types[keyType],
-      _types[valueType],
+    writeContainerBegin(methods.writeMapBegin, [
+      types[keyType],
+      types[valueType],
       ts.createPropertyAccess(accessVar, 'size'),
     ]),
     forEach,
-    writeContainerEnd(_methods.writeMapEnd),
+    writeContainerEnd(methods.writeMapEnd),
   ]
 }
 
 function createStructBody(type, accessVar) {
 
   const writeStruct = ts.createPropertyAccess(accessVar, 'write')
-  const writeStructCall = ts.createCall(writeStruct, undefined, [_id.output])
+  const writeStructCall = ts.createCall(writeStruct, undefined, [identifiers.output])
 
   return ts.createStatement(writeStructCall)
 }
