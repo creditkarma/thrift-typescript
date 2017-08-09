@@ -113,8 +113,8 @@ function createReadSet(type: SetTypeNode, storage: Expression): Statement[] {
   const size = createUniqueName('size')
   const value = createUniqueName('value')
 
-  const metadataVar = createVariableDeclaration(metadata, undefined,
-    createCall(methods.readSetBegin, undefined, undefined))
+  const readSetBeginCall = createCall(methods.readSetBegin, undefined, undefined)
+  const metadataVar = createVariableDeclaration(metadata, undefined, readSetBeginCall)
   const sizeVar = createVariableDeclaration(size, undefined, createPropertyAccess(metadata, 'size'))
 
   const varList = createVariableDeclarationList([
@@ -164,8 +164,8 @@ function createReadList(type: ListTypeNode, storage: Expression): Statement[] {
   const size = createUniqueName('size')
   const value = createUniqueName('value')
 
-  const metadataVar = createVariableDeclaration(metadata, undefined,
-    createCall(methods.readListBegin, undefined, undefined))
+  const readListBeginCall = createCall(methods.readListBegin, undefined, undefined)
+  const metadataVar = createVariableDeclaration(metadata, undefined, readListBeginCall)
   const sizeVar = createVariableDeclaration(size, undefined, createPropertyAccess(metadata, 'size'))
 
   const varList = createVariableDeclarationList([
