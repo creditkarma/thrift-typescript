@@ -33,7 +33,6 @@ export default class ExceptionNode extends StructNode {
     const superCall = createCall(createSuper(), undefined, [name])
 
     const fields = this.fields.map((field) => field.toAST())
-    const hasFields = (this.fields.length > 0)
 
     // Build the constructor body
     const ctor = createConstructor(this)
@@ -52,7 +51,7 @@ export default class ExceptionNode extends StructNode {
     ])
     heritage.push(extendsClause)
     // TODO: This is a pretty hacky solution
-    if (hasFields) {
+    if (this.size) {
       const implementsClause = createHeritageClause(SyntaxKind.ImplementsKeyword, [
         createExpressionWithTypeArguments(undefined, createIdentifier(this.implements)),
       ])

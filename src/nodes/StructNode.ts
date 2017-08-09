@@ -25,10 +25,12 @@ export default class StructNode {
     this.fields = args.fields
   }
 
+  get size(): number {
+    return this.fields.length
+  }
+
   public toAST(): ExpressionStatement {
     const fields = this.fields.map((field) => field.toAST())
-
-    const hasFields = (this.fields.length > 0)
 
     // Build the constructor body
     const ctor = createConstructor(this)
@@ -41,7 +43,7 @@ export default class StructNode {
 
     const heritage = []
     // TODO: This is a pretty hacky solution
-    if (hasFields) {
+    if (this.size) {
       const implementsClause = createHeritageClause(SyntaxKind.ImplementsKeyword, [
         createExpressionWithTypeArguments(undefined, createIdentifier(this.implements)),
       ])
