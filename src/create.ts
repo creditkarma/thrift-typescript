@@ -16,20 +16,20 @@ import { methods as _methods } from './ast/methods'
 import { types as _types } from './ast/thrift-types'
 import { tokens as _tokens } from './ast/tokens'
 
+import StructNode from './nodes/StructNode'
+import StructPropertyNode from './nodes/StructPropertyNode'
 import StructTypeNode from './nodes/StructTypeNode'
 
-function createAssignment(left, right) {
+function createAssignment(left, right): ts.ExpressionStatement {
   const propertyAssignment = ts.createAssignment(left, right)
 
   return ts.createStatement(propertyAssignment)
 }
 
-export function createConstructor(struct) {
-
-  const hasFields = (struct.fields.length > 0)
+export function createConstructor(struct: StructNode): ts.ConstructorDeclaration {
 
   let argsType
-  if (hasFields) {
+  if (struct.size) {
     argsType = ts.createTypeReferenceNode(struct.implements, undefined)
   }
 
@@ -133,16 +133,16 @@ export function createConstructor(struct) {
 
   let constructorBlock
   if (fieldAssignments.length) {
-    const ifArgs = createIf(_id.args, fieldAssignments);
-    constructorBlock = ts.createBlock([ifArgs], true);
+    const ifArgs = createIf(_id.args, fieldAssignments)
+    constructorBlock = ts.createBlock([ifArgs], true)
   } else {
-    constructorBlock = ts.createBlock(undefined);
+    constructorBlock = ts.createBlock(undefined)
   }
 
   return ts.createConstructor(undefined, undefined, [argsParameter], constructorBlock)
 }
 
-function createReadField(field) {
+function createReadField(field: StructPropertyNode): ts.CaseClause {
 
   const enumType = field.type.toEnum()
 
@@ -160,9 +160,7 @@ function createReadField(field) {
   return ts.createCaseClause(ts.createLiteral(field.id), [ts.createBlock([ifType, breakStatement], true)])
 }
 
-export function createRead(struct) {
-  const hasFields = (struct.fields.length > 0)
-
+export function createRead(struct: StructNode): ts.MethodDeclaration {
   const readStructBegin = gen.readStructBegin()
   const readFieldBegin = gen.readFieldBegin()
 
@@ -186,7 +184,7 @@ export function createRead(struct) {
   const readFieldEnd = gen.readFieldEnd()
 
   let whileBody
-  if (hasFields) {
+  if (struct.size) {
     const cases = struct.fields.map(createReadField)
     const defaultClause = ts.createDefaultClause([skipBlock])
     const caseBlock = ts.createCaseBlock([
@@ -231,7 +229,7 @@ export function createRead(struct) {
     [inputDeclaration], undefined, readBlock)
 }
 
-function createWriteField(field) {
+function createWriteField(field: StructPropertyNode): ts.IfStatement {
   const thisPropAccess = ts.createPropertyAccess(ts.createThis(), field.name)
 
   const comparison = createNotEquals(thisPropAccess, ts.createNull())
@@ -253,7 +251,7 @@ function createWriteField(field) {
   return ifStatement
 }
 
-export function createWrite(struct) {
+export function createWrite(struct: StructNode): ts.MethodDeclaration {
 
   const writeStructBeginCall = ts.createCall(_methods.writeStructBegin, undefined, [
     ts.createLiteral(`${struct.name}`),
