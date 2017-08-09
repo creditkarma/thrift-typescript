@@ -9,6 +9,8 @@ import {
   isListLikeType,
   isMapLikeType,
   isSetLikeType,
+  isStruct,
+  isTypedef,
 } from '../is'
 
 export function resolveValues(idl: JsonAST, type, value) {
@@ -36,12 +38,12 @@ export function resolveValues(idl: JsonAST, type, value) {
     return new ListValueNode(values)
   }
 
-  if (idl.typedef[type]) {
+  if (isTypedef(idl, type)) {
     // We don't need a custom ValueNode type here, instead we can just resolve it to what it's supposed to be
     return resolveValues(idl, idl.typedef[type].type, value)
   }
 
-  if (idl.struct[type]) {
+  if (isStruct(idl, type)) {
     const values = value.map((tuple, idx) => {
       // TODO: shouldn't be using idx and should lookup name, I think?
       const fieldType = idl.struct[type][idx].type
