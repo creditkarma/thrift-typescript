@@ -5,7 +5,7 @@ export function isBaseType(type: string) {
   return (baseTypes.indexOf(type) !== -1)
 }
 
-export function isListLikeType(type: string | { name: string }) {
+export function isListLikeType(type: string | { name: string }): boolean {
   if (typeof type !== 'object') {
     return false
   }
@@ -15,7 +15,7 @@ export function isListLikeType(type: string | { name: string }) {
   return (containerTypes.indexOf(type.name) !== -1)
 }
 
-export function isSetLikeType(type: string | { name: string }) {
+export function isSetLikeType(type: string | { name: string }): boolean {
   if (typeof type !== 'object') {
     return false
   }
@@ -25,7 +25,7 @@ export function isSetLikeType(type: string | { name: string }) {
   return (containerTypes.indexOf(type.name) !== -1)
 }
 
-export function isMapLikeType(type: string | { name: string }) {
+export function isMapLikeType(type: string | { name: string }): boolean {
   if (typeof type !== 'object') {
     return false
   }
@@ -35,7 +35,7 @@ export function isMapLikeType(type: string | { name: string }) {
   return (containerTypes.indexOf(type.name) !== -1)
 }
 
-export function isTypedef(idl: JsonAST, type: string | { name: string }) {
+export function isTypedef(idl: JsonAST, type: string | { name: string }): boolean {
   if (typeof type !== 'string') {
     return false
   }
@@ -45,7 +45,7 @@ export function isTypedef(idl: JsonAST, type: string | { name: string }) {
   return !!(typedefs[type])
 }
 
-export function isStruct(idl: JsonAST, type: string | { name: string }) {
+export function isStruct(idl: JsonAST, type: string | { name: string }): boolean {
   if (typeof type !== 'string') {
     return false
   }
@@ -55,7 +55,7 @@ export function isStruct(idl: JsonAST, type: string | { name: string }) {
   return !!(structs[type])
 }
 
-export function isEnum(idl: JsonAST, type: string | { name: string }) {
+export function isEnum(idl: JsonAST, type: string | { name: string }): boolean {
   if (typeof type !== 'string') {
     return false
   }
