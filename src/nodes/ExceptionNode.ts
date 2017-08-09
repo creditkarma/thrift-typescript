@@ -35,6 +35,8 @@ export default class ExceptionNode extends StructNode {
     const fields = this.fields.map((field) => field.toAST())
 
     // Build the constructor body
+    // TODO: Maybe createConstructor can read an "extends" property and generate the super call internally
+    // which would let us get rid of the hacky `insertLeadingStatments` stuff
     const ctor = createConstructor(this)
     ctor.body = insertLeadingStatements(ctor.body, [superCall])
 
