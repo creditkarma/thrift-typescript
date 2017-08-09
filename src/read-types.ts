@@ -35,20 +35,6 @@ import StructTypeNode from './nodes/StructTypeNode'
 // Map/Set/List don't seem to use the etype,ktype,vtype property that's initialized
 
 function createReadMap(type: MapTypeNode, storage: Expression): Statement[] {
-  /*
-    let storage; // outside of recursion
-    storage = new Map();
-    var _rtmp34 = input.readMapBegin();
-    var size0 = _rtmp34.size;
-    for (var _i5 = 0; _i5 < size0; ++_i5) {
-      let key6;
-      key6 = // recursion
-      let val7;
-      val7 = // recursion
-      storage.set(key6, val7);
-    }
-    input.readMapEnd();
-  */
   const loopTmp = createLoopVariable()
   const metadata = createUniqueName('metadata')
   const size = createUniqueName('size')
@@ -97,17 +83,6 @@ function createReadMap(type: MapTypeNode, storage: Expression): Statement[] {
 }
 
 function createReadSet(type: SetTypeNode, storage: Expression): Statement[] {
-  /*
-    let storage; // outside of recursion
-    storage = new Set();
-    const _rtmp312 = input.readSetBegin();
-    const size8 = _rtmp312.size;
-    for (var _i13 = 0; _i13 < size8; ++_i13) {
-      const elem14 = // recursion
-      storage.add(elem14);
-    }
-    input.readSetEnd();
-  */
   const loopTmp = createLoopVariable()
   const metadata = createUniqueName('metadata')
   const size = createUniqueName('size')
@@ -148,17 +123,6 @@ function createReadSet(type: SetTypeNode, storage: Expression): Statement[] {
 }
 
 function createReadList(type: ListTypeNode, storage: Expression): Statement[] {
-  /*
-    let storage; // outside of recursion
-    storage = [];
-    const _rtmp312 = input.readListBegin();
-    const size8 = _rtmp312.size;
-    for (var _i13 = 0; _i13 < size8; ++_i13) {
-      const elem14 = // recursion
-      storage.push(elem14);
-    }
-    input.readListEnd();
-  */
   const loopTmp = createLoopVariable()
   const metadata = createUniqueName('metadata')
   const size = createUniqueName('size')
@@ -208,9 +172,6 @@ function createReadValue(type: ITypeNode, storage: Expression): ExpressionStatem
 }
 
 function createReadStruct(type: StructTypeNode, storage: Expression): ExpressionStatement[] {
-  // this.bed = new ttypes.Embed();
-  // this.bed.read(input);
-
   return [
     // TODO: type.valueType should probably be some sort of access method on the type to get recursively
     createStatement(createAssignment(storage, createNew(createIdentifier(type.valueType), undefined, []))),
