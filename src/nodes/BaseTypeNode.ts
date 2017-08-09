@@ -4,7 +4,9 @@ import {
   SyntaxKind,
 } from 'typescript'
 
-export default class BaseTypeNode {
+import ITypeNode from './ITypeNode'
+
+export default class BaseTypeNode implements ITypeNode {
   public name: string
 
   constructor(name) {

@@ -3,7 +3,9 @@ import {
   TypeReferenceNode,
 } from 'typescript'
 
-export default class EnumTypeNode {
+import ITypeNode from './ITypeNode'
+
+export default class EnumTypeNode implements ITypeNode {
   public name: string
   public valueType: string
 

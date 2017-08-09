@@ -6,14 +6,14 @@ import {
   VariableStatement,
 } from 'typescript'
 
-import TypeNode from '../nodes/TypeNode'
-import ValueNode from '../nodes/ValueNode'
+import ITypeNode from './ITypeNode'
+import ValueNode from './ValueNode'
 
 import { tokens } from '../ast/tokens'
 
 export default class ConstNode {
   public name: string
-  public type: TypeNode
+  public type: ITypeNode
   public value: ValueNode
 
   constructor(args) {

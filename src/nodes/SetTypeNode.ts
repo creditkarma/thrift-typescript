@@ -3,13 +3,13 @@ import {
   TypeReferenceNode,
 } from 'typescript'
 
-import TypeNode from './TypeNode'
+import ITypeNode from './ITypeNode'
 
 import { identifiers } from '../ast/identifiers'
 
-export default class SetTypeNode {
+export default class SetTypeNode implements ITypeNode {
   public name: string
-  public valueType: TypeNode
+  public valueType: ITypeNode
 
   constructor(args) {
     this.name = args.name

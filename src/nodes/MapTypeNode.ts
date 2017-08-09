@@ -3,16 +3,16 @@ import {
   TypeReferenceNode,
 } from 'typescript'
 
-import TypeNode from './TypeNode'
+import ITypeNode from './ITypeNode'
 
 import { identifiers } from '../ast/identifiers'
 
-export default class MapTypeNode {
+export default class MapTypeNode implements ITypeNode {
   public name: string
-  public keyType: TypeNode
-  public valueType: TypeNode
+  public keyType: ITypeNode
+  public valueType: ITypeNode
 
-  constructor(args: { name: string, keyType: TypeNode, valueType: TypeNode }) {
+  constructor(args: { name: string, keyType: ITypeNode, valueType: ITypeNode }) {
     this.name = args.name
     this.keyType = args.keyType
     this.valueType = args.valueType

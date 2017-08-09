@@ -3,13 +3,13 @@ import {
   PropertySignature,
 } from 'typescript'
 
-import TypeNode from './TypeNode'
+import ITypeNode from './ITypeNode'
 
 import { toOptional } from '../ast-helpers'
 
 export default class InterfacePropertyNode {
   public name: string
-  public type: TypeNode
+  public type: ITypeNode
   public option?: string
 
   constructor(args) {
