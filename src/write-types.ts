@@ -16,13 +16,13 @@ import { identifiers } from './ast/identifiers'
 import { methods } from './ast/methods'
 import { types } from './ast/thrift-types'
 
+import { ITypeNode } from './nodes/interfaces'
 import ListTypeNode from './nodes/ListTypeNode'
 import MapTypeNode from './nodes/MapTypeNode'
 import SetTypeNode from './nodes/SetTypeNode'
-import TypeNode from './nodes/TypeNode'
 
 // TODO: Should this be a subset of TypeNode since it doesn't get container types?
-function createWriteBody(type: TypeNode, accessVar: Expression): ExpressionStatement {
+function createWriteBody(type: ITypeNode, accessVar: Expression): ExpressionStatement {
   const enumType = type.toEnum()
 
   const writeTypeCall = createCall(write[enumType], undefined, [accessVar])
@@ -123,7 +123,7 @@ function createMapBody(type: MapTypeNode, accessVar: Expression): ExpressionStat
   ]
 }
 
-function createStructBody(type: TypeNode, accessVar: Expression): ExpressionStatement {
+function createStructBody(type: ITypeNode, accessVar: Expression): ExpressionStatement {
 
   const writeStruct = createPropertyAccess(accessVar, 'write')
   const writeStructCall = createCall(writeStruct, undefined, [identifiers.output])
@@ -131,7 +131,7 @@ function createStructBody(type: TypeNode, accessVar: Expression): ExpressionStat
   return createStatement(writeStructCall)
 }
 
-export function getWriteBody(type: TypeNode, accessVar: Expression): ExpressionStatement[] {
+export function getWriteBody(type: ITypeNode, accessVar: Expression): ExpressionStatement[] {
   // TODO: Can compare instanceof or something here?
   switch (type.toEnum()) {
     // TODO:
