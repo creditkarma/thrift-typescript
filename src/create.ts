@@ -236,7 +236,7 @@ function createWriteField(field: StructPropertyNode): ts.IfStatement {
 
   const enumType = field.type.toEnum()
 
-  let body = getWriteBody(field.type, thisPropAccess)
+  const body = getWriteBody(field.type, thisPropAccess)
 
   const ifStatement = ts.createIf(comparison, ts.createBlock([
     gen.writeFieldBegin(field.name, enumType, field.id),
