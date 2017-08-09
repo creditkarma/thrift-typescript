@@ -238,10 +238,6 @@ function createWriteField(field: StructPropertyNode): ts.IfStatement {
 
   let body = getWriteBody(field.type, thisPropAccess)
 
-  if (!Array.isArray(body)) {
-    body = [body]
-  }
-
   const ifStatement = ts.createIf(comparison, ts.createBlock([
     gen.writeFieldBegin(field.name, enumType, field.id),
     ...body,
