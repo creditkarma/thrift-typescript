@@ -1,6 +1,6 @@
 include 'simple'
 
-namespace js MyThing
+namespace js.ts MyThing
 
 typedef string Json
 typedef i32 MyInteger
