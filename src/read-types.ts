@@ -1,13 +1,18 @@
 import * as ts from 'typescript'
 
-import { read as eRead } from './ast/enum-mapped'
-import { identifiers as _id } from './ast/identifiers'
-import { methods as _methods } from './ast/methods'
+import { read } from './ast/enum-mapped'
+import { identifiers } from './ast/identifiers'
+import { methods } from './ast/methods'
+
 import { ITypeNode } from './nodes/interfaces'
+import ListTypeNode from './nodes/ListTypeNode'
+import MapTypeNode from './nodes/MapTypeNode'
+import SetTypeNode from './nodes/SetTypeNode'
+import StructTypeNode from './nodes/StructTypeNode'
 
 // Map/Set/List don't seem to use the etype,ktype,vtype property that's initialized
 
-function createReadMap(type, storage) {
+function createReadMap(type: MapTypeNode, storage: ts.Expression): ts.Statement[] {
   /*
     let storage; // outside of recursion
     storage = new Map();
@@ -29,7 +34,7 @@ function createReadMap(type, storage) {
   const value = ts.createUniqueName('value')
 
   const metadataVar = ts.createVariableDeclaration(metadata, undefined,
-    ts.createCall(_methods.readMapBegin, undefined, undefined))
+    ts.createCall(methods.readMapBegin, undefined, undefined))
   const sizeVar = ts.createVariableDeclaration(size, undefined, ts.createPropertyAccess(metadata, 'size'))
 
   const varList = ts.createVariableDeclarationList([
@@ -43,14 +48,8 @@ function createReadMap(type, storage) {
   const loopIncrement = ts.createPostfixIncrement(loopTmp)
 
   // Recursion
-  let keyCall = getReadBody(type.keyType, key)
-  if (!Array.isArray(keyCall)) {
-    keyCall = [keyCall]
-  }
-  let valueCall = getReadBody(type.valueType, value)
-  if (!Array.isArray(valueCall)) {
-    valueCall = [valueCall]
-  }
+  const keyCall = getReadBody(type.keyType, key)
+  const valueCall = getReadBody(type.valueType, value)
 
   const keyVar = ts.createVariableDeclaration(key, undefined, undefined)
   const valueVar = ts.createVariableDeclaration(value, undefined, undefined)
@@ -68,14 +67,14 @@ function createReadMap(type, storage) {
   ])
 
   return [
-    ts.createStatement(ts.createAssignment(storage, ts.createNew(_id.Map, undefined, []))),
+    ts.createStatement(ts.createAssignment(storage, ts.createNew(identifiers.Map, undefined, []))),
     ts.createVariableStatement(undefined, varList),
     ts.createFor(loopVarList, loopCompare, loopIncrement, loopBody),
-    ts.createStatement(ts.createCall(_methods.readMapEnd, undefined, undefined)),
+    ts.createStatement(ts.createCall(methods.readMapEnd, undefined, undefined)),
   ]
 }
 
-function createReadSet(type, storage) {
+function createReadSet(type: SetTypeNode, storage: ts.Expression): ts.Statement[] {
   /*
     let storage; // outside of recursion
     storage = new Set();
@@ -93,7 +92,7 @@ function createReadSet(type, storage) {
   const value = ts.createUniqueName('value')
 
   const metadataVar = ts.createVariableDeclaration(metadata, undefined,
-    ts.createCall(_methods.readSetBegin, undefined, undefined))
+    ts.createCall(methods.readSetBegin, undefined, undefined))
   const sizeVar = ts.createVariableDeclaration(size, undefined, ts.createPropertyAccess(metadata, 'size'))
 
   const varList = ts.createVariableDeclarationList([
@@ -108,10 +107,7 @@ function createReadSet(type, storage) {
 
   const valueVar = ts.createVariableDeclaration(value, undefined, undefined)
   // Recursion
-  let call = getReadBody(type.valueType, value)
-  if (!Array.isArray(call)) {
-    call = [call]
-  }
+  const call = getReadBody(type.valueType, value)
 
   const innerVarList = ts.createVariableDeclarationList([valueVar], ts.NodeFlags.Let)
 
@@ -122,14 +118,14 @@ function createReadSet(type, storage) {
   ])
 
   return [
-    ts.createStatement(ts.createAssignment(storage, ts.createNew(_id.Set, undefined, []))),
+    ts.createStatement(ts.createAssignment(storage, ts.createNew(identifiers.Set, undefined, []))),
     ts.createVariableStatement(undefined, varList),
     ts.createFor(loopVarList, loopCompare, loopIncrement, loopBody),
-    ts.createStatement(ts.createCall(_methods.readSetEnd, undefined, undefined)),
+    ts.createStatement(ts.createCall(methods.readSetEnd, undefined, undefined)),
   ]
 }
 
-function createReadList(type, storage) {
+function createReadList(type: ListTypeNode, storage: ts.Expression): ts.Statement[] {
   /*
     let storage; // outside of recursion
     storage = [];
@@ -147,7 +143,7 @@ function createReadList(type, storage) {
   const value = ts.createUniqueName('value')
 
   const metadataVar = ts.createVariableDeclaration(metadata, undefined,
-    ts.createCall(_methods.readListBegin, undefined, undefined))
+    ts.createCall(methods.readListBegin, undefined, undefined))
   const sizeVar = ts.createVariableDeclaration(size, undefined, ts.createPropertyAccess(metadata, 'size'))
 
   const varList = ts.createVariableDeclarationList([
@@ -162,10 +158,7 @@ function createReadList(type, storage) {
 
   const valueVar = ts.createVariableDeclaration(value, undefined, undefined)
   // Recursion
-  let call = getReadBody(type.valueType, value)
-  if (!Array.isArray(call)) {
-    call = [call]
-  }
+  const call = getReadBody(type.valueType, value)
 
   const innerVarList = ts.createVariableDeclarationList([valueVar], ts.NodeFlags.Let)
 
@@ -179,48 +172,52 @@ function createReadList(type, storage) {
     ts.createStatement(ts.createAssignment(storage, ts.createArrayLiteral())),
     ts.createVariableStatement(undefined, varList),
     ts.createFor(loopVarList, loopCompare, loopIncrement, loopBody),
-    ts.createStatement(ts.createCall(_methods.readListEnd, undefined, undefined)),
+    ts.createStatement(ts.createCall(methods.readListEnd, undefined, undefined)),
   ]
 }
 
-function createReadValue(type, storage) {
+function createReadValue(type: ITypeNode, storage: ts.Expression): ts.ExpressionStatement {
   const enumType = type.toEnum()
 
-  // TODO: better name for eRead
-  const call = ts.createCall(eRead[enumType], undefined, undefined)
+  const call = ts.createCall(read[enumType], undefined, undefined)
   const assign = ts.createAssignment(storage, call)
 
   return ts.createStatement(assign)
 }
 
-function createReadStruct(type, storage) {
+function createReadStruct(type: StructTypeNode, storage: ts.Expression): ts.ExpressionStatement[] {
   // this.bed = new ttypes.Embed();
   // this.bed.read(input);
 
   return [
     // TODO: type.valueType should probably be some sort of access method on the type to get recursively
     ts.createStatement(ts.createAssignment(storage, ts.createNew(ts.createIdentifier(type.valueType), undefined, []))),
-    ts.createStatement(ts.createCall(ts.createPropertyAccess(storage, 'read'), undefined, [_id.input])),
+    ts.createStatement(ts.createCall(ts.createPropertyAccess(storage, 'read'), undefined, [identifiers.input])),
   ]
 }
 
-export function getReadBody(type: ITypeNode, storage: ts.Node) {
-  // TODO:
-  //  'readValue'?
+export function getReadBody(type: ITypeNode, storage: ts.Expression): ts.Statement[] {
+  // TODO: Can compare instanceof or something here?
   switch (type.toEnum()) {
+    // TODO:
+    //  'readValue'?
     case 'SET': {
-      return createReadSet(type, storage)
+      // TODO: I'd like to avoid this "as"
+      return createReadSet(type as SetTypeNode, storage)
     }
     case 'LIST': {
-      return createReadList(type, storage)
+      // TODO: I'd like to avoid this "as"
+      return createReadList(type as ListTypeNode, storage)
     }
     case 'MAP': {
-      return createReadMap(type, storage)
+      // TODO: I'd like to avoid this "as"
+      return createReadMap(type as MapTypeNode, storage)
     }
     case 'STRUCT': {
-      return createReadStruct(type, storage)
+      // TODO: I'd like to avoid this "as"
+      return createReadStruct(type as StructTypeNode, storage)
     }
     default:
-      return createReadValue(type, storage)
+      return [createReadValue(type, storage)]
   }
 }
