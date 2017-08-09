@@ -6,7 +6,7 @@ import {
   VariableStatement,
 } from 'typescript'
 
-import ITypeNode from './ITypeNode'
+import { ITypeNode } from './interfaces'
 import ValueNode from './ValueNode'
 
 import { tokens } from '../ast/tokens'

@@ -5,7 +5,7 @@ import {
   PropertyDeclaration,
 } from 'typescript'
 
-import ITypeNode from './ITypeNode'
+import { ITypeNode } from './interfaces'
 
 import { toOptional } from '../ast-helpers'
 import { tokens } from '../ast/tokens'

@@ -3,7 +3,7 @@ import {
   createArrayTypeNode,
 } from 'typescript'
 
-import ITypeNode from './ITypeNode'
+import { ITypeNode } from './interfaces'
 
 export default class ListTypeNode implements ITypeNode {
   public name: string

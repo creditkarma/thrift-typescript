@@ -4,7 +4,7 @@ import {
   SyntaxKind,
 } from 'typescript'
 
-import ITypeNode from './ITypeNode'
+import { ITypeNode } from './interfaces'
 
 export default class BaseTypeNode implements ITypeNode {
   public name: string

@@ -3,7 +3,7 @@ import {
   TypeReferenceNode,
 } from 'typescript'
 
-import ITypeNode from './ITypeNode'
+import { ITypeNode } from './interfaces'
 
 export default class StructTypeNode implements ITypeNode {
   public name: string

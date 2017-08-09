@@ -1,6 +1,6 @@
-import * as ts from 'typescript'
+import { TypeNode } from 'typescript'
 
-import ITypeNode from './ITypeNode'
+import { ITypeNode } from './interfaces'
 
 // Aliases are just proxies to the underlying type
 export default class AliasTypeNode implements ITypeNode {
@@ -17,7 +17,7 @@ export default class AliasTypeNode implements ITypeNode {
   }
 
   // Aliases can be whatever type
-  public toAST(): ts.TypeNode {
+  public toAST(): TypeNode {
     return this.valueType.toAST()
   }
 }

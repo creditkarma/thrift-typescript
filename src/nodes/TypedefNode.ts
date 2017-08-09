@@ -3,7 +3,7 @@ import {
   TypeAliasDeclaration,
 } from 'typescript'
 
-import ITypeNode from './ITypeNode'
+import { ITypeNode } from './interfaces'
 
 import { tokens } from '../ast/tokens'
 

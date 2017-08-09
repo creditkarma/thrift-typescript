@@ -3,7 +3,7 @@ import {
   TypeReferenceNode,
 } from 'typescript'
 
-import ITypeNode from './ITypeNode'
+import { ITypeNode } from './interfaces'
 
 import { identifiers } from '../ast/identifiers'
 

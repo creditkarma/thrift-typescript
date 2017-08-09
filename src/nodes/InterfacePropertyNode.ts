@@ -3,7 +3,7 @@ import {
   PropertySignature,
 } from 'typescript'
 
-import ITypeNode from './ITypeNode'
+import { ITypeNode } from './interfaces'
 
 import { toOptional } from '../ast-helpers'
 
