@@ -183,7 +183,6 @@ function createReadList(type, storage) {
   ]
 }
 
-
 function createReadValue(type, storage) {
   const enumType = type.toEnum()
 

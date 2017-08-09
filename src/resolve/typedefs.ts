@@ -10,11 +10,9 @@ export function resolveTypedefs(idl: JsonAST): TypedefNode[] {
   return typedefs.map((typedef) => {
     const { name, type } = typedef
 
-    const entry = new TypedefNode({
+    return new TypedefNode({
       name,
       type: resolveTypes(idl, type),
     })
-
-    return entry
   })
 }

@@ -50,7 +50,6 @@ export function writeFieldEnd(): ts.ExpressionStatement {
   return writeFieldEndStatement
 }
 
-
 export function skip() {
   const skipCall = ts.createCall(_methods.skip, undefined, [_id.ftype])
   const skipStatement = ts.createStatement(skipCall)
