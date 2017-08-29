@@ -9,6 +9,10 @@
       true,
       "never"
     ],
+    "array-type": [
+      true,
+      "generic"
+    ],
     "quotemark": [
       true,
       "single",
