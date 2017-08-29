@@ -1,13 +1,13 @@
 {
-  "name": "thrift-typescript",
+  "name": "thrift-typescript-2",
   "version": "0.1.0",
   "description": "Generate TypeScript from Thrift IDL files",
   "main": "./dist/index.js",
   "scripts": {
     "clean": "rimraf coverage/ dist/ node_modules/",
-    "build": "tsc",
+    "build": "rimraf dist/; tsc",
     "build:watch": "tsc --watch",
-    "lint": "tslint src/**/*",
+    "lint": "tslint --fix src/**/*",
     "pretest": "npm run build",
     "test": "npm run lint && npm run test:only --",
     "test:watch": "npm test -- -w",
@@ -25,8 +25,6 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/chai": "^3.4.34",
-    "@types/commander": "^2.3.30",
-    "@types/handlebars": "^4.0.31",
     "@types/mocha": "^2.2.32",
     "@types/node": "^7.0.22",
     "@types/rimraf": "0.0.28",
@@ -37,18 +35,10 @@
     "source-map-support": "^0.4.0",
     "thrift": "^0.10.0",
     "ts-node": "^3.3.0",
-    "tslint": "^5.3.2"
-  },
-  "dependencies": {
-    "commander": "^2.9.0",
-    "handlebars": "^4.0.5",
-    "thrift-parser": "^0.4.2",
+    "tslint": "^5.3.2",
     "typescript": "^2.4.2"
   },
-  "typings": "dist/index.d.ts",
-  "typescript": {
-    "definition": "dist/index.d.ts"
-  },
+  "types": "dist/index.d.ts",
   "nyc": {
     "include": [
       "src/*.ts",

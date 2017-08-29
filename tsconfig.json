@@ -7,13 +7,16 @@
     "declaration": true,
     "rootDir": "./src",
     "outDir": "./dist",
+    "noUnusedLocals": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
     "allowSyntheticDefaultImports": true,
     "pretty": true,
     "removeComments": true,
     "types": [
       "@types/node",
       "@types/mocha",
-      "thrift-parser"
+      "@creditkarma/thrift-parser"
     ]
   },
   "exclude": [
