@@ -90,6 +90,7 @@ export function renderConst(node: ConstDefinition): Statement {
 }
 
 /**
+ * Given a Thrift declaration return the corresponding TypeScript statement
  *
  * @param statement
  */

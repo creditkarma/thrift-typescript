@@ -23,7 +23,6 @@ import {
 
 import {
   FieldType,
-  BaseType,
   ContainerType,
   SetType,
   ListType,
@@ -45,6 +44,11 @@ import {
   thriftPropertyAccessForFieldType,
   typeNodeForFieldType
 } from '../types'
+
+import {
+  WRITE_METHODS,
+  WriteMethodName
+} from './methods'
 
 /**
  * public write(output: TProtocol): void {
@@ -124,43 +128,6 @@ export function createWriteForFieldType(struct: StructDefinition, field: FieldDe
   ])
 }
 
-export type WriteMethodName =
-  'writeString' | 'writeBinary' | 'writeDouble' | 'writeI16' |
-  'writeI32' | 'writeI64' | 'writeByte' | 'writeBool'
-
-function writeMethodForBaseType(fieldType: BaseType): WriteMethodName {
-  switch(fieldType.type) {
-    case SyntaxType.BoolKeyword:
-      return 'writeBool'
-
-    case SyntaxType.BinaryKeyword:
-      return 'writeBinary'
-
-    case SyntaxType.StringKeyword:
-      return 'writeString'
-      
-    case SyntaxType.DoubleKeyword:
-      return 'writeDouble'
-
-    case SyntaxType.I8Keyword:
-    case SyntaxType.ByteKeyword:
-      return 'writeByte'
-
-    case SyntaxType.I16Keyword:
-      return 'writeI16'
-
-    case SyntaxType.I32Keyword:
-      return 'writeI32'
-    
-    case SyntaxType.I64Keyword:
-      return 'writeI64'
-
-    default:
-      const msg: never = fieldType.type
-      throw new Error(`Non-exhaustive match for ${msg}`)
-  }
-}
-
 export function writeValueForType(
   struct: StructDefinition,
   fieldType: FieldType,
@@ -216,7 +183,7 @@ export function writeValueForType(
     case SyntaxType.I16Keyword:
     case SyntaxType.I32Keyword:
     case SyntaxType.I64Keyword:
-      return [ writeMethodForName(writeMethodForBaseType(fieldType), fieldName) ]
+      return [ writeMethodForName(WRITE_METHODS[fieldType.type], fieldName) ]
 
     default:
       const msg: never = fieldType
