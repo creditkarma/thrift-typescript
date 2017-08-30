@@ -8,7 +8,6 @@
     "build": "rimraf dist/; tsc",
     "build:watch": "tsc --watch",
     "lint": "tslint --fix src/**/*",
-    "pretest": "npm run build",
     "test": "npm run lint && npm run test:only --",
     "test:watch": "npm test -- -w",
     "test:only": "NODE_ENV=test mocha --opts mocha.opts",

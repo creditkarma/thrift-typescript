@@ -36,7 +36,6 @@ import {
 import {
   FieldType,
   SyntaxType,
-  BaseType,
   ContainerType,
   StructDefinition,
   FieldDefinition
@@ -60,6 +59,10 @@ import {
   createLet,
   createEquals
 } from '../utils'
+
+import {
+  READ_METHODS
+} from './methods'
 
 /**
  * public read(input: TProtocol): void {
@@ -371,7 +374,7 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
           fieldName,
           typeNodeForFieldType(fieldType),
           createCall(
-            propertyAccessForIdentifier('input', readMethodForBaseType(fieldType)),
+            propertyAccessForIdentifier('input', READ_METHODS[fieldType.type]),
             undefined,
             undefined
           )
@@ -470,7 +473,7 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
         createAssignmentStatement(
           fieldName,
           createCall(
-            propertyAccessForIdentifier('input', readMethodForBaseType(fieldType)),
+            propertyAccessForIdentifier('input', READ_METHODS[fieldType.type]),
             undefined,
             undefined
           )
@@ -524,43 +527,6 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
     default:
       const msg: never = fieldType
       throw new Error(`Non-exhaustive match for: ${msg}`)
-  }
-}
-
-export type ReadMethodName =
-  'readString' | 'readBinary' | 'readDouble' | 'readI16' |
-  'readI32' | 'readI64' | 'readByte' | 'readBool'
-
-export function readMethodForBaseType(fieldType: BaseType): ReadMethodName {
-  switch(fieldType.type) {
-    case SyntaxType.BoolKeyword:
-      return 'readBool'
-
-    case SyntaxType.BinaryKeyword:
-      return 'readBinary'
-
-    case SyntaxType.StringKeyword:
-      return 'readString'
-      
-    case SyntaxType.DoubleKeyword:
-      return 'readDouble'
-
-    case SyntaxType.I8Keyword:
-    case SyntaxType.ByteKeyword:
-      return 'readByte'
-
-    case SyntaxType.I16Keyword:
-      return 'readI16'
-
-    case SyntaxType.I32Keyword:
-      return 'readI32'
-    
-    case SyntaxType.I64Keyword:
-      return 'readI64'
-
-    default:
-      const msg: never = fieldType.type
-      throw new Error(`Non-exhaustive match for ${msg}`)
   }
 }
 
