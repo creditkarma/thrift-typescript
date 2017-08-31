@@ -16,26 +16,6 @@ import {
 
 import { COMMON_IDENTIFIERS } from './identifiers'
 
-export function renderMap(node: ConstMap): NewExpression {
-  const values = node.properties.map(({ name, initializer }) => {
-    return createArrayLiteral([
-      renderValue(name),
-      renderValue(initializer),
-    ])
-  })
-
-  return createNew(
-    COMMON_IDENTIFIERS.Map,
-    undefined,
-    [ createArrayLiteral(values) ],
-  )
-}
-
-export function renderList(node: ConstList): ArrayLiteralExpression {
-  const values = node.elements.map((val: ConstValue) => renderValue(node))
-  return createArrayLiteral(values)
-}
-
 /**
  *
  * @param node
@@ -57,4 +37,24 @@ export function renderValue(node: ConstValue): Expression {
     default:
       return null
   }
+}
+
+export function renderMap(node: ConstMap): NewExpression {
+  const values = node.properties.map(({ name, initializer }) => {
+    return createArrayLiteral([
+      renderValue(name),
+      renderValue(initializer),
+    ])
+  })
+
+  return createNew(
+    COMMON_IDENTIFIERS.Map,
+    undefined,
+    [ createArrayLiteral(values) ],
+  )
+}
+
+export function renderList(node: ConstList): ArrayLiteralExpression {
+  const values = node.elements.map((val: ConstValue) => renderValue(node))
+  return createArrayLiteral(values)
 }
