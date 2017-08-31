@@ -8,7 +8,7 @@ describe('Thrift TypeScript Generator', () => {
       const bool FALSE_CONST = false
       //const set<string> SET_CONST = ['hello', 'world', 'foo', 'bar']
       const map<string,string> MAP_CONST = {'hello': 'world', 'foo': 'bar' }
-    `;
+    `
     const actual: string = make(content)
     const expected: string =
 `export const FALSE_CONST: boolean = false;
@@ -20,8 +20,8 @@ export const MAP_CONST: Map<string, string> = new Map([["hello", "world"], ["foo
   it('should correctly generate a type alias', () => {
     const content: string = `
       typedef string name
-    `;
-    const expected: string = `export type name = string;\n`;
+    `
+    const expected: string = `export type name = string;\n`
     const actual: string = make(content)
 
     assert.equal(actual, expected)
@@ -34,14 +34,14 @@ export const MAP_CONST: Map<string, string> = new Map([["hello", "world"], ["foo
         TWO,
         THREE
       }
-    `;
+    `
     const expected: string =
 `export enum MyEnum {
     ONE,
     TWO,
     THREE
 }
-`;
+`
     const actual: string = make(content)
     assert.equal(actual, expected)
   })
@@ -53,14 +53,14 @@ export const MAP_CONST: Map<string, string> = new Map([["hello", "world"], ["foo
         TWO = 3,
         THREE = 6
       }
-    `;
+    `
     const expected: string =
 `export enum MyEnum {
     ONE = 5,
     TWO = 3,
     THREE = 6
 }
-`;
+`
     const actual: string = make(content)
     assert.equal(actual, expected)
   })
@@ -72,7 +72,7 @@ export const MAP_CONST: Map<string, string> = new Map([["hello", "world"], ["foo
           2: required string word
           3: optional double field1
       }
-    `;
+    `
     const expected: string =
 `export interface IMyStruct {
     id: number;
@@ -168,17 +168,17 @@ export class MyStruct {
         input.readStructEnd();
     }
 };
-`;
+`
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
-  
+
   it('should correctly generate a struct with a map field', () => {
     const content: string = `
       struct MyStruct {
           1: required map<string,string> field1
       }
-    `;
+    `
     const expected: string =
 `export interface IMyStruct {
     field1: Map<string, string>;
@@ -252,7 +252,7 @@ export class MyStruct {
         input.readStructEnd();
     }
 };
-`;
+`
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
@@ -262,7 +262,7 @@ export class MyStruct {
       struct MyStruct {
           1: required map<string,map<string,i32>> field1
       }
-    `;
+    `
     const expected: string =
 `export interface IMyStruct {
     field1: Map<string, Map<string, number>>;
@@ -353,7 +353,7 @@ export class MyStruct {
         input.readStructEnd();
     }
 };
-`;
+`
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
@@ -363,7 +363,7 @@ export class MyStruct {
       struct MyStruct {
           1: required list<string> field1
       }
-    `;
+    `
     const expected: string =
 `export interface IMyStruct {
     field1: Array<string>;
@@ -434,7 +434,7 @@ export class MyStruct {
         input.readStructEnd();
     }
 };
-`;
+`
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
@@ -444,7 +444,7 @@ export class MyStruct {
       struct MyStruct {
           1: required list<list<string>> field1
       }
-    `;
+    `
     const expected: string =
 `export interface IMyStruct {
     field1: Array<Array<string>>;
@@ -529,7 +529,7 @@ export class MyStruct {
         input.readStructEnd();
     }
 };
-`;
+`
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
@@ -539,7 +539,7 @@ export class MyStruct {
       struct MyStruct {
           1: required set<string> field1
       }
-    `;
+    `
     const expected: string =
 `export interface IMyStruct {
     field1: Set<string>;
@@ -610,7 +610,7 @@ export class MyStruct {
         input.readStructEnd();
     }
 };
-`;
+`
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
@@ -620,7 +620,7 @@ export class MyStruct {
       struct MyStruct {
           1: required set<set<string>> field1
       }
-    `;
+    `
     const expected: string =
 `export interface IMyStruct {
     field1: Set<Set<string>>;
@@ -705,7 +705,7 @@ export class MyStruct {
         input.readStructEnd();
     }
 };
-`;
+`
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
@@ -715,7 +715,7 @@ export class MyStruct {
       struct MyStruct {
           1: required OtherStruct field1
       }
-    `;
+    `
     const expected: string =
 `export interface IMyStruct {
     field1: OtherStruct;
@@ -773,7 +773,7 @@ export class MyStruct {
         input.readStructEnd();
     }
 };
-`;
+`
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
@@ -783,7 +783,7 @@ export class MyStruct {
       struct MyStruct {
           1: required set<OtherStruct> field1
       }
-    `;
+    `
     const expected: string =
 `export interface IMyStruct {
     field1: Set<OtherStruct>;
@@ -855,7 +855,7 @@ export class MyStruct {
         input.readStructEnd();
     }
 };
-`;
+`
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })

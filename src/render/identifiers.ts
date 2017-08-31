@@ -3,11 +3,11 @@ import {
   Identifier,
 } from 'typescript'
 
-export interface IdentifierMap {
+export interface IIdentifierMap {
   [name: string]: Identifier
 }
 
-export const COMMON_IDENTIFIERS: IdentifierMap = {
+export const COMMON_IDENTIFIERS: IIdentifierMap = {
   input: createIdentifier('input'),
   output: createIdentifier('output'),
   ftype: createIdentifier('ftype'),
