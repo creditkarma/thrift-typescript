@@ -69,7 +69,7 @@ export function createFunctionCall(
  *
  * EXAMPLE
  *
- * propertyAccessForIdentifier('test', 'this') => test.this
+ * propertyAccessForIdentifier('test', 'this') => 'test.this'
  *
  * @param obj
  * @param field
@@ -133,7 +133,7 @@ export function createLet(
  *
  * EXAMPLE
  *
- * createNotEquals(left, right) => left !== right
+ * createNotEquals(left, right) => 'left !== right'
  *
  * @param left
  * @param right
@@ -147,7 +147,7 @@ export function createNotEquals(left: Expression, right: Expression): BinaryExpr
  *
  * EXAMPLE
  *
- * createEquals(left, right) => left === right
+ * createEquals(left, right) => 'left === right'
  *
  * @param left
  * @param right
@@ -161,7 +161,7 @@ export function createEquals(left: Expression, right: Expression): BinaryExpress
  *
  * EXAMPLE
  *
- * createNotNull(obj, prop) => obj && (obj.prop !== null && obj.prop !== undefined)
+ * createNotNull(obj, prop) => 'obj && (obj.prop !== null && obj.prop !== undefined)'
  *
  * @param obj
  * @param prop

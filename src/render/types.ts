@@ -43,10 +43,22 @@ export function createTypeProperty(name: string, type: TypeNode): PropertySignat
 }
 
 /**
+ * Creates type annotations for Thrift types
+ *
+ * EXAMPLE
+ *
+ * // thrift
+ * const bool FALSE_CONST = false
+ *
+ * // typescript
+ * const FALSE_CONST: boolean = false
+ *
+ * This function provides the ': boolean' bit.
+ *
  * Container types:
  * SetType | MapType | ListType
  *
- * Keyword types:
+ * Base types:
  * SyntaxType.StringKeyword | SyntaxType.DoubleKeyword | SyntaxType.BoolKeyword |
  * SyntaxType.I8Keyword | SyntaxType.I16Keyword | SyntaxType.I32Keyword |
  * SyntaxType.I64Keyword | SyntaxType.BinaryKeyword | SyntaxType.ByteKeyword;
@@ -75,10 +87,10 @@ export function typeNodeForFieldType(fieldType: FieldType): TypeNode {
       )
 
     case SyntaxType.StringKeyword:
-      return createKeywordTypeNode(SyntaxKind.StringKeyword)
+      return createStringType()
 
     case SyntaxType.BoolKeyword:
-      return createKeywordTypeNode(SyntaxKind.BooleanKeyword)
+      return createBooleanType()
 
     case SyntaxType.DoubleKeyword:
     case SyntaxType.I8Keyword:
@@ -87,7 +99,7 @@ export function typeNodeForFieldType(fieldType: FieldType): TypeNode {
     case SyntaxType.I64Keyword:
     case SyntaxType.BinaryKeyword:
     case SyntaxType.ByteKeyword:
-      return createKeywordTypeNode(SyntaxKind.NumberKeyword)
+      return createNumberType()
 
     default:
       const msg: never = fieldType
@@ -95,7 +107,24 @@ export function typeNodeForFieldType(fieldType: FieldType): TypeNode {
   }
 }
 
-function thriftType(fieldType: FieldType): string {
+type ThriftTypeAccess =
+  'Type.STRUCT' | 'Type.SET' | 'Type.MAP' | 'Type.LIST' | 'Type.STRING' |
+  'Type.BOOL' | 'Type.DOUBLE' | 'Type.BYTE' | 'Type.I16' | 'Type.I32' |
+  'Type.I64'
+
+/**
+ * Gets the type access for the 'Thrift' object for a given FieldType.
+ *
+ * This could and should probably be a map of FieldType -> ThriftAccess.
+ * However, using a switch statement gives us the safety of exhaustive matching
+ * for FieldTypes.
+ *
+ * @todo Clean up so that we can use the strictNullChecks compiler flag which
+ * would allow us to use a map and get the same safety as the switch.
+ *
+ * @param fieldType
+ */
+function thriftAccessForFieldType(fieldType: FieldType): ThriftTypeAccess {
   switch (fieldType.type) {
     case SyntaxType.Identifier:
       return 'Type.STRUCT'
@@ -148,5 +177,8 @@ function thriftType(fieldType: FieldType): string {
  * @param fieldType
  */
 export function thriftPropertyAccessForFieldType(fieldType: FieldType): PropertyAccessExpression {
-  return createPropertyAccess(createIdentifier('Thrift'), thriftType(fieldType))
+  return createPropertyAccess(
+    createIdentifier('Thrift'),
+    thriftAccessForFieldType(fieldType),
+  )
 }
