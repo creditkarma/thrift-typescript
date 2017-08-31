@@ -15,7 +15,7 @@ import { parse, ThriftDocument } from '@creditkarma/thrift-parser'
 import { render } from './render'
 
 export function makeFile(filename: string): string {
-  const contents: string = fs.readFileSync(filename).toString('utf-8')
+  const contents: string = fs.readFileSync(filename, 'utf-8')
   return make(contents)
 }
 
