@@ -4,7 +4,7 @@ export interface IMyStruct {
 export class MyStruct {
     public field1: Set<Set<string>> = null;
     constructor(args?: IMyStruct) {
-        if (args && (args.field1 !== null && args.field1 !== undefined)) {
+        if (args && args.field1 != null) {
             this.field1 = new Set(args.field1);
         }
         else {
@@ -13,7 +13,7 @@ export class MyStruct {
     }
     public write(output: TProtocol): void {
         output.writeStructBegin("MyStruct");
-        if (this && (this.field1 !== null && this.field1 !== undefined)) {
+        if (this && this.field1 != null) {
             output.writeFieldBegin("field1", Thrift.Type.SET, 1);
             output.writeSetBegin(Thrift.Type.SET, this.field1.size);
             this.field1.forEach((value_1: Set<string>): void => {

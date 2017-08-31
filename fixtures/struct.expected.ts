@@ -8,35 +8,35 @@ export class MyStruct {
     public word: string = null;
     public field1?: number = null;
     constructor(args?: IMyStruct) {
-        if (args && (args.id !== null && args.id !== undefined)) {
+        if (args && args.id != null) {
             this.id = args.id;
         }
         else {
             throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field id is unset!");
         }
-        if (args && (args.word !== null && args.word !== undefined)) {
+        if (args && args.word != null) {
             this.word = args.word;
         }
         else {
             throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field word is unset!");
         }
-        if (args && (args.field1 !== null && args.field1 !== undefined)) {
+        if (args && args.field1 != null) {
             this.field1 = args.field1;
         }
     }
     public write(output: TProtocol): void {
         output.writeStructBegin("MyStruct");
-        if (this && (this.id !== null && this.id !== undefined)) {
+        if (this && this.id != null) {
             output.writeFieldBegin("id", Thrift.Type.I32, 1);
             output.writeI32(this.id);
             output.writeFieldEnd();
         }
-        if (this && (this.word !== null && this.word !== undefined)) {
+        if (this && this.word != null) {
             output.writeFieldBegin("word", Thrift.Type.STRING, 2);
             output.writeString(this.word);
             output.writeFieldEnd();
         }
-        if (this && (this.field1 !== null && this.field1 !== undefined)) {
+        if (this && this.field1 != null) {
             output.writeFieldBegin("field1", Thrift.Type.DOUBLE, 3);
             output.writeDouble(this.field1);
             output.writeFieldEnd();
