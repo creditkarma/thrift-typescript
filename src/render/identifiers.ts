@@ -3,11 +3,13 @@ import {
   Identifier,
 } from 'typescript'
 
-export interface IdentifierMap {
+// TODO: This interface is too generic and was telling me a property (args) I was trying to access was the proper type
+// even though it didn't exist
+export interface IIdentifierMap {
   [name: string]: Identifier
 }
 
-export const COMMON_IDENTIFIERS: IdentifierMap = {
+export const COMMON_IDENTIFIERS: IIdentifierMap = {
   input: createIdentifier('input'),
   output: createIdentifier('output'),
   ftype: createIdentifier('ftype'),
@@ -16,4 +18,5 @@ export const COMMON_IDENTIFIERS: IdentifierMap = {
   Map: createIdentifier('Map'),
   Array: createIdentifier('Array'),
   Set: createIdentifier('Set'),
+  args: createIdentifier('args'),
 }

@@ -1,71 +1,75 @@
 import {
-  SyntaxKind,
-  Statement,
-  PropertyDeclaration,
-  HeritageClause,
-  ClassExpression,
   BinaryExpression,
-  PropertyAccessExpression,
-  ParameterDeclaration,
+  ClassExpression,
   ConstructorDeclaration,
-  TypeReferenceNode,
-  IfStatement,
-  ExpressionStatement,
-  MethodDeclaration,
-  ThrowStatement,
-  createIdentifier,
-  createLiteral,
-  createCall,
-  createThrow,
-  createNew,
-  createIf,
-  createNull,
-  createToken,
   createBlock,
-  createProperty,
-  createStatement,
+  createCall,
   createClassExpression,
+  createIdentifier,
+  createIf,
+  createLiteral,
+  createLogicalNot,
+  createNew,
+  createNull,
+  createProperty,
   createPropertyAccess,
-  createTypeReferenceNode
+  createReturn,
+  createStatement,
+  createThrow,
+  createToken,
+  createTypeReferenceNode,
+  ExpressionStatement,
+  HeritageClause,
+  IfStatement,
+  MethodDeclaration,
+  ParameterDeclaration,
+  PropertyAccessExpression,
+  PropertyDeclaration,
+  Statement,
+  SyntaxKind,
+  ThrowStatement,
+  TypeReferenceNode,
 } from 'typescript'
 
 import {
-  StructDefinition,
   FieldDefinition,
-  SyntaxType
+  StructDefinition,
+  SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-import { renderValue } from '../values'
 import {
-  typeNodeForFieldType
+  typeNodeForFieldType,
 } from '../types'
 import {
-  renderOptional,
-  createFunctionParameter,
-  createClassConstructor,
   createAssignmentStatement,
+  createClassConstructor,
+  createFunctionParameter,
+  createNotNull,
   propertyAccessForIdentifier,
-  createNotNull
+  renderOptional,
 } from '../utils'
+import { renderValue } from '../values'
 
-import { interfaceNameForClass } from '../interface'
 import { COMMON_IDENTIFIERS } from '../identifiers'
+import { interfaceNameForClass } from '../interface'
 import { createReadMethod } from './read'
 import { createWriteMethod } from './write'
 
 export function renderStruct(node: StructDefinition): Statement {
   const fields: Array<PropertyDeclaration> = node.fields.map(renderFieldDeclarations)
 
+  const ifNotArgsReturn = createIf(createLogicalNot(COMMON_IDENTIFIERS.args), createReturn())
+
   /**
    * After creating the properties on our class for the struct fields we must create
    * a constructor that knows how to assign these values based on a passed args.
-   * 
+   *
    * The constructor will take one arguments 'args'. This argument will be an object
    * of an interface matching the struct definition. This interface is built by another
    * function in src/render/interface
-   * 
+   *
    * The interface follows the naming convention of 'I<struct name>'
-   * 
+   *
    * If a required argument is not on the passed 'args' argument we need to throw on error.
    * Optional fields we must allow to be null or undefined.
    */
@@ -77,7 +81,7 @@ export function renderStruct(node: StructDefinition): Statement {
   const argsParameter: ParameterDeclaration = createFunctionParameter('args', argsType, undefined, true)
 
   // Build the constructor body
-  const ctor: ConstructorDeclaration = createClassConstructor([ argsParameter ], fieldAssignments)
+  const ctor: ConstructorDeclaration = createClassConstructor([ argsParameter ], [ifNotArgsReturn, ...fieldAssignments])
 
   // Build the `read` method
   const readMethod: MethodDeclaration = createReadMethod(node)
@@ -86,7 +90,8 @@ export function renderStruct(node: StructDefinition): Statement {
   const writeMethod: MethodDeclaration = createWriteMethod(node)
 
   // Does this struct inherit from another struct?
-  const heritage: HeritageClause[] = []
+  // TODO: Why was this changed in the lint settings?
+  const heritage: Array<HeritageClause> = []
   // // TODO: This is a pretty hacky solution
   // if (this.size) {
   //   const implementsClause = createHeritageClause(SyntaxKind.ImplementsKeyword, [
@@ -101,7 +106,7 @@ export function renderStruct(node: StructDefinition): Statement {
     node.name.value,
     [],
     heritage,
-    [ ...fields, ctor, writeMethod, readMethod ]
+    [ ...fields, ctor, writeMethod, readMethod ],
   )
 
   return createStatement(classExpression)
@@ -110,19 +115,19 @@ export function renderStruct(node: StructDefinition): Statement {
 /**
  * This actually creates the assignment for some field in the args argument to the corresponding field
  * in our struct class
- * 
+ *
  * interface IStructArgs {
  *   id: number;
  * }
- * 
+ *
  * constructor(args: IStructArgs) {
  *   if (args.id !== null && args.id !== undefined) {
  *     this.id = args.id;
  *   }
  * }
- * 
+ *
  * This function creates the 'this.id = args.id' bit.
- * 
+ *
  * @param field
  */
 function assignmentForField(field: FieldDefinition): ExpressionStatement {
@@ -131,7 +136,7 @@ function assignmentForField(field: FieldDefinition): ExpressionStatement {
 
   switch (field.fieldType.type) {
     case SyntaxType.SetType: {
-      const copy = createNew(COMMON_IDENTIFIERS['Set'], undefined, [ argsPropAccess ])
+      const copy = createNew(COMMON_IDENTIFIERS.Set, undefined, [ argsPropAccess ])
       return createAssignmentStatement(thisPropAccess, copy)
     }
 
@@ -141,7 +146,7 @@ function assignmentForField(field: FieldDefinition): ExpressionStatement {
     }
 
     case SyntaxType.MapType: {
-      const copy = createNew(COMMON_IDENTIFIERS['Map'], undefined, [ argsPropAccess ])
+      const copy = createNew(COMMON_IDENTIFIERS.Map, undefined, [ argsPropAccess ])
       return createAssignmentStatement(thisPropAccess, copy)
     }
 
@@ -152,7 +157,7 @@ function assignmentForField(field: FieldDefinition): ExpressionStatement {
 
 /**
  * throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
- * @param field 
+ * @param field
  */
 function throwForField(field: FieldDefinition): ThrowStatement | undefined {
   if (field.requiredness === 'required') {
@@ -167,13 +172,13 @@ function throwForField(field: FieldDefinition): ThrowStatement | undefined {
 
 /**
  * Assign field if contained in args:
- * 
+ *
  * if (args && args.<field.name> != null) {
  *   this.<field.name> = args.<field.name>
  * }
- * 
+ *
  * If field is required throw an error:
- * 
+ *
  * else {
  *   throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
  * }
@@ -186,30 +191,30 @@ export function createFieldAssignment(field: FieldDefinition): IfStatement {
   const comparison: BinaryExpression = createNotNull('args', field.name.value)
   const thenAssign: ExpressionStatement = assignmentForField(field)
   const elseThrow: ThrowStatement = throwForField(field)
-  
+
   return createIf(
     comparison,
     createBlock([ thenAssign ], true),
-    (elseThrow !== undefined) ? createBlock([ elseThrow ], true) : undefined
+    (elseThrow !== undefined) ? createBlock([ elseThrow ], true) : undefined,
   )
 }
 
 /**
  * Render properties for struct class based on values thrift file
- * 
+ *
  * EXAMPLE:
- * 
+ *
  * // example.thrift
  * stuct MyStruct {
  *   1: required i32 id,
  *   2: optional bool field1,
  * }
- * 
+ *
  * // example.ts
  * export class MyStruct {
  *   public id: number = null;
  *   public field1?: boolean = null;
- * 
+ *
  *   ...
  * }
  */
@@ -224,6 +229,6 @@ export function renderFieldDeclarations(field: FieldDefinition): PropertyDeclara
     field.name.value,
     renderOptional(field.requiredness),
     typeNodeForFieldType(field.fieldType),
-    defaultValue
+    defaultValue,
   )
 }

@@ -1,20 +1,21 @@
 import * as fs from 'fs'
 import {
-  createPrinter,
   createBundle,
+  createPrinter,
   createSourceFile,
-  updateSourceFileNode,
   Printer,
-  ScriptTarget,
   ScriptKind,
+  ScriptTarget,
   SourceFile,
-  Statement
+  Statement,
+  updateSourceFileNode,
 } from 'typescript'
+
 import { parse, ThriftDocument } from '@creditkarma/thrift-parser'
 import { render } from './render'
 
 export function makeFile(filename: string): string {
-  const contents: string = fs.readFileSync(filename).toString('utf-8')
+  const contents: string = fs.readFileSync(filename, 'utf-8')
   return make(contents)
 }
 
@@ -24,6 +25,6 @@ export function make(raw: string): string {
   const printer: Printer = createPrinter()
   const rawSourceFile: SourceFile = createSourceFile(`what.ts`, '', ScriptTarget.ES5, false, ScriptKind.TS)
   const bodyFile: SourceFile = updateSourceFileNode(rawSourceFile, statements)
-  
+
   return printer.printBundle(createBundle([ bodyFile ]))
 }

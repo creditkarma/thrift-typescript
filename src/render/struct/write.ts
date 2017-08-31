@@ -1,58 +1,58 @@
 import {
-  SyntaxKind,
-  Statement,
-  Expression,
-  ExpressionStatement,
-  CallExpression,
-  IfStatement,
-  Identifier,
   Block,
-  ParameterDeclaration,
-  MethodDeclaration,
-  createToken,
-  createIdentifier,
+  CallExpression,
+  createArrowFunction,
   createBlock,
+  createIdentifier,
+  createIf,
   createLiteral,
   createStatement,
-  createIf,
-  createArrowFunction,
+  createToken,
   createTypeReferenceNode,
-  createUniqueName
+  createUniqueName,
+  Expression,
+  ExpressionStatement,
+  Identifier,
+  IfStatement,
+  MethodDeclaration,
+  ParameterDeclaration,
+  Statement,
+  SyntaxKind,
 } from 'typescript'
 
 import {
-  FieldType,
   ContainerType,
-  SetType,
+  FieldDefinition,
+  FieldType,
   ListType,
   MapType,
+  SetType,
   StructDefinition,
-  FieldDefinition,
-  SyntaxType
+  SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
-  createFunctionCall,
   createCallStatement,
-  propertyAccessForIdentifier,
+  createFunctionCall,
   createFunctionParameter,
   createNotNull,
-  createPublicMethod
+  createPublicMethod,
+  propertyAccessForIdentifier,
 } from '../utils'
 
 import {
   createVoidType,
   thriftPropertyAccessForFieldType,
-  typeNodeForFieldType
+  typeNodeForFieldType,
 } from '../types'
 
 import {
-  COMMON_IDENTIFIERS
+  COMMON_IDENTIFIERS,
 } from '../identifiers'
 
 import {
   WRITE_METHODS,
-  WriteMethodName
+  WriteMethodName,
 } from './methods'
 
 /**
@@ -71,7 +71,7 @@ import {
 export function createWriteMethod(struct: StructDefinition): MethodDeclaration {
   const fieldWrites: Array<IfStatement> = struct.fields.map((field) => createWriteForField(struct, field))
   const inputParameter: ParameterDeclaration = createFunctionParameter('output', createTypeReferenceNode('TProtocol', undefined))
-  
+
   return createPublicMethod(
     'write', // Method name
     [ inputParameter ], // Method parameters
@@ -80,8 +80,8 @@ export function createWriteMethod(struct: StructDefinition): MethodDeclaration {
       writeStructBegin(struct.name.value),
       ...fieldWrites,
       writeFieldStop(),
-      writeStructEnd()
-    ] // Method body statements
+      writeStructEnd(),
+    ], // Method body statements
   )
 }
 
@@ -109,70 +109,70 @@ export function createWriteForField(struct: StructDefinition, field: FieldDefini
   return createIf(
     createNotNull('this', field.name.value), // Condition
     createWriteForFieldType(struct, field, createIdentifier(`this.${field.name.value}`)), // Then block
-    undefined // Else block
+    undefined, // Else block
   )
 }
 
 /**
  * This generates the method calls to write for a single field
- * 
+ *
  * EXAMPLE
- * 
+ *
  * output.writeFieldBegin("id", Thrift.Type.I32, 1);
  * output.writeI32(this.id);
  * output.writeFieldEnd();
- * 
+ *
  * @param struct
- * @param field 
+ * @param field
  */
 export function createWriteForFieldType(struct: StructDefinition, field: FieldDefinition, fieldName: Identifier): Block {
   return createBlock([
     writeFieldBegin(field),
     ...writeValueForField(struct, field.fieldType, fieldName),
-    writeFieldEnd()
+    writeFieldEnd(),
   ])
 }
 
 export function writeValueForType(
   struct: StructDefinition,
   fieldType: FieldType,
-  fieldName: Identifier
+  fieldName: Identifier,
 ): Array<Expression> {
   switch (fieldType.type) {
     case SyntaxType.Identifier:
       return [ createFunctionCall(fieldName, 'write', [
-        COMMON_IDENTIFIERS['output']
+        COMMON_IDENTIFIERS.output,
       ]) ]
 
     /**
      * Container types:
-     * 
+     *
      * SetType | MapType | ListType
      */
     case SyntaxType.SetType:
       return  [
         writeSetBegin(fieldType, fieldName),
         forEach(struct, fieldType, fieldName),
-        writeSetEnd()
+        writeSetEnd(),
       ]
 
     case SyntaxType.MapType:
       return [
         writeMapBegin(fieldType, fieldName),
         forEach(struct, fieldType, fieldName),
-        writeMapEnd()
+        writeMapEnd(),
       ]
 
     case SyntaxType.ListType:
       return  [
         writeListBegin(fieldType, fieldName),
         forEach(struct, fieldType, fieldName),
-        writeListEnd()
+        writeListEnd(),
       ]
 
     /**
      * BaseTypes:
-     * 
+     *
      * SyntaxType.StringKeyword | SyntaxType.DoubleKeyword | SyntaxType.BoolKeyword |
      * SyntaxType.I8Keyword | SyntaxType.I16Keyword | SyntaxType.I32Keyword |
      * SyntaxType.I64Keyword | SyntaxType.BinaryKeyword | SyntaxType.ByteKeyword
@@ -201,45 +201,45 @@ function writeMethodForName(methodName: WriteMethodName, fieldName: Identifier):
 function writeValueForField(
   struct: StructDefinition,
   fieldType: FieldType,
-  fieldName: Identifier
+  fieldName: Identifier,
 ): Array<ExpressionStatement> {
   return writeValueForType(struct, fieldType, fieldName).map(createStatement)
 }
 
 /**
  * Loop through container types and write the values for all children
- * 
+ *
  * EXAMPLE FOR SET
- * 
+ *
  * // thrift
  * struct MyStruct {
  *   1: required set<string> field1;
  * }
- * 
+ *
  * // typescript
  * this.field1.forEach((value_1: string): void => {
  *   output.writeString(value_1);
  * });
- * 
- * @param struct 
- * @param fieldType 
- * @param fieldName 
+ *
+ * @param struct
+ * @param fieldType
+ * @param fieldName
  */
 function forEach(
   struct: StructDefinition,
   fieldType: ContainerType,
-  fieldName: Identifier
+  fieldName: Identifier,
 ): CallExpression {
   const value: Identifier = createUniqueName('value')
   const forEachParameters: Array<ParameterDeclaration> = [
     createFunctionParameter(
       value,
-      typeNodeForFieldType(fieldType.valueType)
-    )
+      typeNodeForFieldType(fieldType.valueType),
+    ),
   ]
 
   const forEachStatements: Array<Statement> = [
-    ...writeValueForField(struct, fieldType.valueType, value)
+    ...writeValueForField(struct, fieldType.valueType, value),
   ]
 
   // If map we have to handle key type as well as value type
@@ -247,12 +247,12 @@ function forEach(
     const key: Identifier = createUniqueName('key')
     forEachParameters.push(createFunctionParameter(
       key,
-      typeNodeForFieldType(fieldType.keyType)
+      typeNodeForFieldType(fieldType.keyType),
     ))
 
     forEachStatements.unshift(...writeValueForField(struct, fieldType.keyType, key))
   }
-  
+
   return createFunctionCall(fieldName, 'forEach', [
     createArrowFunction(
       undefined, // modifiers
@@ -260,15 +260,15 @@ function forEach(
       forEachParameters, // parameters
       createVoidType(), // return type,
       createToken(SyntaxKind.EqualsGreaterThanToken), // greater than equals token
-      createBlock(forEachStatements, true) // body
-    )
+      createBlock(forEachStatements, true), // body
+    ),
   ])
 }
 
 // output.writeStructBegin(<structName>)
 function writeStructBegin(structName: string): ExpressionStatement {
   return createCallStatement('output', 'writeStructBegin', [
-    createLiteral(structName)
+    createLiteral(structName),
   ])
 }
 
@@ -282,7 +282,7 @@ function writeMapBegin(fieldType: MapType, fieldName: string | Identifier): Call
   return createFunctionCall('output', 'writeMapBegin', [
     thriftPropertyAccessForFieldType(fieldType.keyType),
     thriftPropertyAccessForFieldType(fieldType.valueType),
-    propertyAccessForIdentifier(fieldName, 'size')
+    propertyAccessForIdentifier(fieldName, 'size'),
   ])
 }
 
@@ -295,7 +295,7 @@ function writeMapEnd(): CallExpression {
 function writeListBegin(fieldType: ListType, fieldName: string | Identifier): CallExpression {
   return createFunctionCall('output', 'writeListBegin', [
     thriftPropertyAccessForFieldType(fieldType.valueType),
-    propertyAccessForIdentifier(fieldName, 'length')
+    propertyAccessForIdentifier(fieldName, 'length'),
   ])
 }
 
@@ -308,7 +308,7 @@ function writeListEnd(): CallExpression {
 function writeSetBegin(fieldType: SetType, fieldName: string | Identifier): CallExpression {
   return createFunctionCall('output', 'writeSetBegin', [
     thriftPropertyAccessForFieldType(fieldType.valueType),
-    propertyAccessForIdentifier(fieldName, 'size')
+    propertyAccessForIdentifier(fieldName, 'size'),
   ])
 }
 
@@ -322,7 +322,7 @@ function writeFieldBegin(field: FieldDefinition): ExpressionStatement {
   return createCallStatement('output', 'writeFieldBegin', [
     createLiteral(field.name.value),
     thriftPropertyAccessForFieldType(field.fieldType),
-    createLiteral(field.fieldID.value)
+    createLiteral(field.fieldID.value),
   ])
 }
 

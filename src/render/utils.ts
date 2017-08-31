@@ -129,16 +129,30 @@ export function createLet(
 }
 
 /**
- * Create a check for strict inequality
+ * Create a check for inequality
  *
  * EXAMPLE
  *
- * createNotEquals(left, right) => 'left !== right'
+ * createNotEquals(left, right) => 'left != right'
  *
  * @param left
  * @param right
  */
 export function createNotEquals(left: Expression, right: Expression): BinaryExpression {
+  return createBinary(left, SyntaxKind.ExclamationEqualsToken, right)
+}
+
+/**
+ * Create a check for strict inequality
+ *
+ * EXAMPLE
+ *
+ * createNotEqualsEquals(left, right) => 'left !== right'
+ *
+ * @param left
+ * @param right
+ */
+export function createNotEqualsEquals(left: Expression, right: Expression): BinaryExpression {
   return createBinary(left, SyntaxKind.ExclamationEqualsEqualsToken, right)
 }
 
@@ -167,15 +181,7 @@ export function createEquals(left: Expression, right: Expression): BinaryExpress
  * @param prop
  */
 export function createNotNull(obj: string | Identifier, prop: string): BinaryExpression {
-  return createBinary(
-    (typeof obj === 'string' ? createIdentifier(obj) : obj),
-    SyntaxKind.AmpersandAmpersandToken,
-    createBinary(
-      createNotEquals(propertyAccessForIdentifier(obj, prop), createNull()),
-      SyntaxKind.AmpersandAmpersandToken,
-      createNotEquals(propertyAccessForIdentifier(obj, prop), createIdentifier('undefined')),
-    ),
-  )
+  return createNotEquals(propertyAccessForIdentifier(obj, prop), createNull())
 }
 
 export function renderOptional(value: FieldRequired): Token<SyntaxKind.QuestionToken> | undefined {

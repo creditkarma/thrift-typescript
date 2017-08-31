@@ -1,72 +1,72 @@
 import {
   Block,
   CallExpression,
-  Identifier,
-  MethodDeclaration,
-  ParameterDeclaration,
-  ExpressionStatement,
-  WhileStatement,
-  VariableStatement,
-  SwitchStatement,
-  Statement,
   CaseClause,
-  IfStatement,
-  TypeLiteralNode,
-  createIf,
-  createFor,
-  createUniqueName,
-  createLessThan,
-  createPostfixIncrement,
-  createTypeReferenceNode,
-  createTypeLiteralNode,
-  createStatement,
-  createLiteral,
-  createWhile,
-  createSwitch,
+  createBlock,
+  createBreak,
   createCaseBlock,
   createCaseClause,
   createDefaultClause,
-  createBlock,
+  createFor,
   createIdentifier,
-  createBreak,
-  createNew
+  createIf,
+  createLessThan,
+  createLiteral,
+  createNew,
+  createPostfixIncrement,
+  createStatement,
+  createSwitch,
+  createTypeLiteralNode,
+  createTypeReferenceNode,
+  createUniqueName,
+  createWhile,
+  ExpressionStatement,
+  Identifier,
+  IfStatement,
+  MethodDeclaration,
+  ParameterDeclaration,
+  Statement,
+  SwitchStatement,
+  TypeLiteralNode,
+  VariableStatement,
+  WhileStatement,
 } from 'typescript'
 
 import {
-  FieldType,
-  SyntaxType,
   ContainerType,
+  FieldDefinition,
+  FieldType,
   StructDefinition,
-  FieldDefinition
+  SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
-  createVoidType,
-  createStringType,
   createNumberType,
+  createStringType,
   createTypeProperty,
+  createVoidType,
   thriftPropertyAccessForFieldType,
-  typeNodeForFieldType
+  typeNodeForFieldType,
 } from '../types'
 
 import {
-  createCallStatement,
-  createFunctionCall,
-  createPublicMethod,
-  createFunctionParameter,
-  propertyAccessForIdentifier,
   createAssignmentStatement,
+  createCallStatement,
   createConstStatement,
+  createEquals,
+  createFunctionCall,
+  createFunctionParameter,
   createLet,
-  createEquals
+  createPublicMethod,
+  propertyAccessForIdentifier,
 } from '../utils'
 
 import {
-  COMMON_IDENTIFIERS
+  COMMON_IDENTIFIERS,
 } from '../identifiers'
 
 import {
-  READ_METHODS
+  READ_METHODS,
 } from './methods'
 
 /**
@@ -103,12 +103,12 @@ import {
  * }
  */
 export function createReadMethod(struct: StructDefinition): MethodDeclaration {
-  //const fieldWrites: Array<IfStatement> = struct.fields.map((field) => createWriteForField(struct, field))
+  // const fieldWrites: Array<IfStatement> = struct.fields.map((field) => createWriteForField(struct, field))
   const inputParameter: ParameterDeclaration = createFunctionParameter(
     'input', // param name
-    createTypeReferenceNode('TProtocol', undefined) // param type
+    createTypeReferenceNode('TProtocol', undefined), // param type
   )
-  
+
   /**
    * cosnt ret: { fname: string; ftype: Thrift.Type; fid: number; } = input.readFieldBegin()
    * const fname: string = ret.fname
@@ -119,17 +119,17 @@ export function createReadMethod(struct: StructDefinition): MethodDeclaration {
   const fname: VariableStatement = createConstStatement('fname', createStringType(), propertyAccessForIdentifier('ret', 'fname'))
   const ftype: VariableStatement = createConstStatement('ftype', createTypeReferenceNode('Thrift.Type', undefined), propertyAccessForIdentifier('ret', 'ftype'))
   const fid: VariableStatement = createConstStatement('fid', createNumberType(), propertyAccessForIdentifier('ret', 'fid'))
-  
+
   /**
    * if (ftype === Thrift.Type.STOP) {
    *     break;
    * }
    */
   const checkStop: IfStatement = createIf(
-    createEquals(COMMON_IDENTIFIERS['ftype'], createIdentifier('Thrift.Type.STOP')),
+    createEquals(COMMON_IDENTIFIERS.ftype, createIdentifier('Thrift.Type.STOP')),
     createBlock([
-      createBreak()
-    ], true)
+      createBreak(),
+    ], true),
   )
 
   const caseStatements: Array<CaseClause> = struct.fields.map(createCaseForField)
@@ -137,16 +137,16 @@ export function createReadMethod(struct: StructDefinition): MethodDeclaration {
   /**
    * switch (fid) {
    *   ...caseStatements
-   * } 
+   * }
    */
   const switchStatement: SwitchStatement = createSwitch(
-    COMMON_IDENTIFIERS['fid'], // what are we switch on
+    COMMON_IDENTIFIERS.fid, // what are we switch on
     createCaseBlock([
       ...caseStatements,
       createDefaultClause([
-        createSkipBlock()
-      ])
-    ])
+        createSkipBlock(),
+      ]),
+    ]),
   )
 
   const whileBlock: Block = createBlock([
@@ -156,10 +156,10 @@ export function createReadMethod(struct: StructDefinition): MethodDeclaration {
     fid,
     checkStop,
     switchStatement,
-    createStatement(readFieldEnd())
+    createStatement(readFieldEnd()),
   ], true)
   const whileLoop: WhileStatement = createWhile(createLiteral(true), whileBlock)
-  
+
   return createPublicMethod(
     'read', // Method name
     [ inputParameter ], // Method parameters
@@ -167,14 +167,14 @@ export function createReadMethod(struct: StructDefinition): MethodDeclaration {
     [
       readStructBegin(),
       whileLoop,
-      readStructEnd()
-    ] // Method body statements
+      readStructEnd(),
+    ], // Method body statements
   )
 }
 
 /**
  * EXAMPLE
- * 
+ *
  * case 1: {
  *   if (ftype === Thrift.Type.I32) {
  *     this.id = input.readI32();
@@ -184,19 +184,19 @@ export function createReadMethod(struct: StructDefinition): MethodDeclaration {
  *   }
  *   break;
  * }
- * 
+ *
  * @param field
  */
 function createCaseForField(field: FieldDefinition): CaseClause {
   const checkType: IfStatement = createIf(
-    createEquals(COMMON_IDENTIFIERS['ftype'], thriftPropertyAccessForFieldType(field.fieldType)),
+    createEquals(COMMON_IDENTIFIERS.ftype, thriftPropertyAccessForFieldType(field.fieldType)),
     readValueForFieldType(field.fieldType, createIdentifier(`this.${field.name.value}`)),
-    createSkipBlock()
+    createSkipBlock(),
   )
 
   return createCaseClause(
     createLiteral(field.fieldID.value),
-    [ checkType, createBreak() ]
+    [ checkType, createBreak() ],
   )
 }
 
@@ -258,19 +258,19 @@ function loopBody(fieldType: ContainerType, fieldName: Identifier): Array<Statem
       return [
         ..._readValueForFieldType(fieldType.keyType, key).statements,
         ..._readValueForFieldType(fieldType.valueType, value).statements,
-        createCallStatement(fieldName, 'set', [ key, value ])
+        createCallStatement(fieldName, 'set', [ key, value ]),
       ]
 
     case SyntaxType.ListType:
       return [
         ..._readValueForFieldType(fieldType.valueType, value).statements,
-        createCallStatement(fieldName, 'push', [ value ])
+        createCallStatement(fieldName, 'push', [ value ]),
       ]
 
     case SyntaxType.SetType:
       return [
         ..._readValueForFieldType(fieldType.valueType, value).statements,
-        createCallStatement(fieldName, 'add', [ value ])
+        createCallStatement(fieldName, 'add', [ value ]),
       ]
   }
 }
@@ -278,7 +278,7 @@ function loopBody(fieldType: ContainerType, fieldName: Identifier): Array<Statem
 
 /**
  * EXAMPLE OF MAP FIELD
- * 
+ *
  * if (ftype === Thrift.Type.MAP) {
  *   this.field1 = new Map<string, string>();
  *   const metadata_1: {
@@ -305,26 +305,26 @@ function loopOverContainer(fieldType: ContainerType, fieldName: Identifier): Arr
     createConstStatement(
       metadata,
       metadataTypeForFieldType(fieldType),
-      readBeginForFieldType(fieldType)
+      readBeginForFieldType(fieldType),
     ),
     // cosnt size: number = metadata.size
     createConstStatement(
       size,
       createNumberType(),
-      propertyAccessForIdentifier(metadata, 'size')
+      propertyAccessForIdentifier(metadata, 'size'),
     ),
     // for (let i = 0, i < size; i++) { .. }
     createFor(
       createLet(
         incrementer,
         createNumberType(),
-        createLiteral(0)
+        createLiteral(0),
       ),
       createLessThan(incrementer, size),
       createPostfixIncrement(incrementer),
-      createBlock(loopBody(fieldType, fieldName), true)
+      createBlock(loopBody(fieldType, fieldName), true),
     ),
-    createStatement(readEndForFieldType(fieldType))
+    createStatement(readEndForFieldType(fieldType)),
   ]
 }
 
@@ -337,12 +337,12 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
           createNew(
             createIdentifier(fieldType.value), // class name
             undefined,
-            []
-          )
+            [],
+          ),
         ),
         createCallStatement(fieldName, 'read', [
-          COMMON_IDENTIFIERS['input']
-        ])
+          COMMON_IDENTIFIERS.input,
+        ]),
       ], true)
 
     /**
@@ -364,13 +364,13 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
         createConstStatement(
           fieldName,
           typeNodeForFieldType(fieldType),
-          createFunctionCall('input', READ_METHODS[fieldType.type])
-        )
+          createFunctionCall('input', READ_METHODS[fieldType.type]),
+        ),
       ], true)
 
     /**
      * Container types:
-     * 
+     *
      * SetType | MapType | ListType
      */
     case SyntaxType.MapType:
@@ -379,12 +379,12 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
           fieldName,
           typeNodeForFieldType(fieldType),
           createNew(
-            COMMON_IDENTIFIERS['Map'], // class name
+            COMMON_IDENTIFIERS.Map, // class name
             [ typeNodeForFieldType(fieldType.keyType), typeNodeForFieldType(fieldType.valueType) ],
-            []
-          )
+            [],
+          ),
         ),
-        ...loopOverContainer(fieldType, fieldName)
+        ...loopOverContainer(fieldType, fieldName),
       ], true)
 
     case SyntaxType.ListType:
@@ -393,12 +393,12 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
           fieldName,
           typeNodeForFieldType(fieldType),
           createNew(
-            COMMON_IDENTIFIERS['Array'], // class name
+            COMMON_IDENTIFIERS.Array, // class name
             [ typeNodeForFieldType(fieldType.valueType) ],
-            []
-          )
+            [],
+          ),
         ),
-        ...loopOverContainer(fieldType, fieldName)
+        ...loopOverContainer(fieldType, fieldName),
       ], true)
 
     case SyntaxType.SetType:
@@ -407,12 +407,12 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
           fieldName,
           typeNodeForFieldType(fieldType),
           createNew(
-            COMMON_IDENTIFIERS['Set'], // class name
+            COMMON_IDENTIFIERS.Set, // class name
             [ typeNodeForFieldType(fieldType.valueType) ],
-            []
-          )
+            [],
+          ),
         ),
-        ...loopOverContainer(fieldType, fieldName)
+        ...loopOverContainer(fieldType, fieldName),
       ], true)
 
     default:
@@ -430,17 +430,17 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
           createNew(
             createIdentifier(fieldType.value), // class name
             undefined,
-            []
-          )
+            [],
+          ),
         ),
         createCallStatement(fieldName, 'read', [
-          COMMON_IDENTIFIERS['input']
-        ])
+          COMMON_IDENTIFIERS.input,
+        ]),
       ], true)
 
     /**
      * Base types:
-     * 
+     *
      * SyntaxType.StringKeyword | SyntaxType.DoubleKeyword | SyntaxType.BoolKeyword |
      * SyntaxType.I8Keyword | SyntaxType.I16Keyword | SyntaxType.I32Keyword |
      * SyntaxType.I64Keyword | SyntaxType.BinaryKeyword | SyntaxType.ByteKeyword;
@@ -457,13 +457,13 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
       return createBlock([
         createAssignmentStatement(
           fieldName,
-          createFunctionCall('input', READ_METHODS[fieldType.type])
-        )
+          createFunctionCall('input', READ_METHODS[fieldType.type]),
+        ),
       ], true)
 
     /**
      * Container types:
-     * 
+     *
      * SetType | MapType | ListType
      */
     case SyntaxType.MapType:
@@ -471,12 +471,12 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
         createAssignmentStatement(
           createIdentifier(`${fieldName.text}`),
           createNew(
-            COMMON_IDENTIFIERS['Map'], // class name
+            COMMON_IDENTIFIERS.Map, // class name
             [ typeNodeForFieldType(fieldType.keyType), typeNodeForFieldType(fieldType.valueType) ],
-            []
-          )
+            [],
+          ),
         ),
-        ...loopOverContainer(fieldType, fieldName)
+        ...loopOverContainer(fieldType, fieldName),
       ], true)
 
     case SyntaxType.ListType:
@@ -484,12 +484,12 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
         createAssignmentStatement(
           createIdentifier(`${fieldName.text}`),
           createNew(
-            COMMON_IDENTIFIERS['Array'], // class name
+            COMMON_IDENTIFIERS.Array, // class name
             [ typeNodeForFieldType(fieldType.valueType) ],
-            []
-          )
+            [],
+          ),
         ),
-        ...loopOverContainer(fieldType, fieldName)
+        ...loopOverContainer(fieldType, fieldName),
       ], true)
 
     case SyntaxType.SetType:
@@ -497,12 +497,12 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
         createAssignmentStatement(
           createIdentifier(`${fieldName.text}`),
           createNew(
-            COMMON_IDENTIFIERS['Set'], // class name
+            COMMON_IDENTIFIERS.Set, // class name
             [ typeNodeForFieldType(fieldType.valueType) ],
-            []
-          )
+            [],
+          ),
         ),
-        ...loopOverContainer(fieldType, fieldName)
+        ...loopOverContainer(fieldType, fieldName),
       ], true)
 
     default:
@@ -565,8 +565,8 @@ export function readSetEnd(): CallExpression {
 function createSkipBlock(): Block {
   return createBlock([
     createCallStatement('input', 'skip', [
-      COMMON_IDENTIFIERS['ftype']
-    ])
+      COMMON_IDENTIFIERS.ftype,
+    ]),
   ], true)
 }
 
@@ -575,7 +575,7 @@ function mapMetadataType(): TypeLiteralNode {
   return createTypeLiteralNode([
     createTypeProperty('ktype', createTypeReferenceNode('Thrift.Type', undefined)),
     createTypeProperty('vtype', createTypeReferenceNode('Thrift.Type', undefined)),
-    createTypeProperty('size', createNumberType())
+    createTypeProperty('size', createNumberType()),
   ])
 }
 
@@ -583,7 +583,7 @@ function mapMetadataType(): TypeLiteralNode {
 function listMetadataType(): TypeLiteralNode {
   return createTypeLiteralNode([
     createTypeProperty('etype', createTypeReferenceNode('Thrift.Type', undefined)),
-    createTypeProperty('size', createNumberType())
+    createTypeProperty('size', createNumberType()),
   ])
 }
 
@@ -592,6 +592,6 @@ function fieldMetadataType(): TypeLiteralNode {
   return createTypeLiteralNode([
     createTypeProperty('fname', createStringType()),
     createTypeProperty('ftype', createTypeReferenceNode('Thrift.Type', undefined)),
-    createTypeProperty('fid', createNumberType())
+    createTypeProperty('fid', createNumberType()),
   ])
 }
