@@ -1,7 +1,6 @@
 import {
   ArrayLiteralExpression,
   createArrayLiteral,
-  createIdentifier,
   createLiteral,
   createNew,
   Expression,
@@ -15,6 +14,8 @@ import {
   SyntaxType,
 } from '@creditkarma/thrift-parser'
 
+import { COMMON_IDENTIFIERS } from './identifiers'
+
 export function renderMap(node: ConstMap): NewExpression {
   const values = node.properties.map(({ name, initializer }) => {
     return createArrayLiteral([
@@ -24,7 +25,7 @@ export function renderMap(node: ConstMap): NewExpression {
   })
 
   return createNew(
-    createIdentifier('Map'),
+    COMMON_IDENTIFIERS.Map,
     undefined,
     [ createArrayLiteral(values) ],
   )

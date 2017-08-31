@@ -9,7 +9,6 @@ import {
   Block,
   ParameterDeclaration,
   MethodDeclaration,
-  createCall,
   createToken,
   createIdentifier,
   createBlock,
@@ -33,6 +32,8 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
+  createFunctionCall,
+  createCallStatement,
   propertyAccessForIdentifier,
   createFunctionParameter,
   createNotNull,
@@ -44,6 +45,10 @@ import {
   thriftPropertyAccessForFieldType,
   typeNodeForFieldType
 } from '../types'
+
+import {
+  COMMON_IDENTIFIERS
+} from '../identifiers'
 
 import {
   WRITE_METHODS,
@@ -135,11 +140,9 @@ export function writeValueForType(
 ): Array<Expression> {
   switch (fieldType.type) {
     case SyntaxType.Identifier:
-      return [ createCall(
-        propertyAccessForIdentifier(fieldName, 'write'),
-        undefined,
-        [ createIdentifier('output') ]
-      ) ]
+      return [ createFunctionCall(fieldName, 'write', [
+        COMMON_IDENTIFIERS['output']
+      ]) ]
 
     /**
      * Container types:
@@ -192,11 +195,7 @@ export function writeValueForType(
 }
 
 function writeMethodForName(methodName: WriteMethodName, fieldName: Identifier): CallExpression {
-  return createCall(
-    propertyAccessForIdentifier('output', methodName),
-    undefined,
-    [ fieldName ]
-  )
+  return createFunctionCall('output', methodName, [ fieldName ])
 }
 
 function writeValueForField(
@@ -254,129 +253,85 @@ function forEach(
     forEachStatements.unshift(...writeValueForField(struct, fieldType.keyType, key))
   }
   
-  return createCall(
-    propertyAccessForIdentifier(fieldName, 'forEach'),
-    undefined,
-    [ createArrowFunction(
+  return createFunctionCall(fieldName, 'forEach', [
+    createArrowFunction(
       undefined, // modifiers
       undefined, // type parameters
       forEachParameters, // parameters
       createVoidType(), // return type,
       createToken(SyntaxKind.EqualsGreaterThanToken), // greater than equals token
       createBlock(forEachStatements, true) // body
-    ) ]
-  )
+    )
+  ])
 }
 
 // output.writeStructBegin(<structName>)
 function writeStructBegin(structName: string): ExpressionStatement {
-  return createStatement(createCall(
-    propertyAccessForIdentifier('output', 'wrtieStructBegin'),
-    undefined,
-    [ createLiteral(structName) ]
-  ))
+  return createCallStatement('output', 'writeStructBegin', [
+    createLiteral(structName)
+  ])
 }
 
 // output.writeStructEnd()
 function writeStructEnd(): ExpressionStatement {
-  return createStatement(createCall(
-    propertyAccessForIdentifier('output', 'writeStructEnd'),
-    undefined,
-    undefined
-  ))
+  return createCallStatement('output', 'writeStructEnd')
 }
 
 // output.writeMapBeing(<field.keyType>, <field.valueType>, <field.size>)
 function writeMapBegin(fieldType: MapType, fieldName: string | Identifier): CallExpression {
-  return createCall(
-    propertyAccessForIdentifier('output', 'writeMapBegin'),
-    undefined,
-    [ 
-      thriftPropertyAccessForFieldType(fieldType.keyType),
-      thriftPropertyAccessForFieldType(fieldType.valueType),
-      propertyAccessForIdentifier(fieldName, 'size')
-    ]
-  )
+  return createFunctionCall('output', 'writeMapBegin', [
+    thriftPropertyAccessForFieldType(fieldType.keyType),
+    thriftPropertyAccessForFieldType(fieldType.valueType),
+    propertyAccessForIdentifier(fieldName, 'size')
+  ])
 }
 
 // output.writeMapEnd()
 function writeMapEnd(): CallExpression {
-  return createCall(
-    propertyAccessForIdentifier('output', 'writeMapEnd'),
-    undefined,
-    []
-  )
+  return createFunctionCall('output', 'writeMapEnd')
 }
 
 // output.writeListBegin(<field.type>, <field.length>)
 function writeListBegin(fieldType: ListType, fieldName: string | Identifier): CallExpression {
-  return createCall(
-    propertyAccessForIdentifier('output', 'writeListBegin'),
-    undefined,
-    [ 
-      thriftPropertyAccessForFieldType(fieldType.valueType),
-      propertyAccessForIdentifier(fieldName, 'length')
-    ]
-  )
+  return createFunctionCall('output', 'writeListBegin', [
+    thriftPropertyAccessForFieldType(fieldType.valueType),
+    propertyAccessForIdentifier(fieldName, 'length')
+  ])
 }
 
 // output.writeListEnd()
 function writeListEnd(): CallExpression {
-  return createCall(
-    propertyAccessForIdentifier('output', 'writeListEnd'),
-    undefined,
-    []
-  )
+  return createFunctionCall('output', 'writeListEnd')
 }
 
 // output.writeSetBegin(<field.type>, <field.size>)
 function writeSetBegin(fieldType: SetType, fieldName: string | Identifier): CallExpression {
-  return createCall(
-    propertyAccessForIdentifier('output', 'writeSetBegin'),
-    undefined,
-    [ 
-      thriftPropertyAccessForFieldType(fieldType.valueType),
-      propertyAccessForIdentifier(fieldName, 'size')
-    ]
-  )
+  return createFunctionCall('output', 'writeSetBegin', [
+    thriftPropertyAccessForFieldType(fieldType.valueType),
+    propertyAccessForIdentifier(fieldName, 'size')
+  ])
 }
 
 // output.writeSetEnd()
 function writeSetEnd(): CallExpression {
-  return createCall(
-    propertyAccessForIdentifier('output', 'writeSetEnd'),
-    undefined,
-    []
-  )
+  return createFunctionCall('output', 'writeSetEnd')
 }
 
 // output.writeFieldBegin(<field.name>, <field.fieldType>, <field.fieldID>)
 function writeFieldBegin(field: FieldDefinition): ExpressionStatement {
-  return createStatement(createCall(
-    propertyAccessForIdentifier('output', 'writeFieldBegin'),
-    undefined,
-    [ 
-      createLiteral(field.name.value),
-      thriftPropertyAccessForFieldType(field.fieldType),
-      createLiteral(field.fieldID.value)
-    ]
-  ))
+  return createCallStatement('output', 'writeFieldBegin', [
+    createLiteral(field.name.value),
+    thriftPropertyAccessForFieldType(field.fieldType),
+    createLiteral(field.fieldID.value)
+  ])
 }
 
 // output.writeFieldEnd
 function writeFieldEnd(): ExpressionStatement {
-  return createStatement(createCall(
-    propertyAccessForIdentifier('output', 'writeFieldEnd'),
-    undefined,
-    undefined
-  ))
+  return createCallStatement('output', 'writeFieldEnd')
 }
 
 // output.writeFieldStop
 function writeFieldStop(): ExpressionStatement {
-  return createStatement(createCall(
-    propertyAccessForIdentifier('output', 'writeFieldStop'),
-    undefined,
-    undefined
-  ))
+  return createCallStatement('output', 'writeFieldStop')
 }

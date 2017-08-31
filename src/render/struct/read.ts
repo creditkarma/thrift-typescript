@@ -20,7 +20,6 @@ import {
   createTypeReferenceNode,
   createTypeLiteralNode,
   createStatement,
-  createCall,
   createLiteral,
   createWhile,
   createSwitch,
@@ -51,6 +50,8 @@ import {
 } from '../types'
 
 import {
+  createCallStatement,
+  createFunctionCall,
   createPublicMethod,
   createFunctionParameter,
   propertyAccessForIdentifier,
@@ -59,6 +60,10 @@ import {
   createLet,
   createEquals
 } from '../utils'
+
+import {
+  COMMON_IDENTIFIERS
+} from '../identifiers'
 
 import {
   READ_METHODS
@@ -121,7 +126,7 @@ export function createReadMethod(struct: StructDefinition): MethodDeclaration {
    * }
    */
   const checkStop: IfStatement = createIf(
-    createEquals(createIdentifier('ftype'), createIdentifier('Thrift.Type.STOP')),
+    createEquals(COMMON_IDENTIFIERS['ftype'], createIdentifier('Thrift.Type.STOP')),
     createBlock([
       createBreak()
     ], true)
@@ -135,7 +140,7 @@ export function createReadMethod(struct: StructDefinition): MethodDeclaration {
    * } 
    */
   const switchStatement: SwitchStatement = createSwitch(
-    createIdentifier('fid'), // what are we switch on
+    COMMON_IDENTIFIERS['fid'], // what are we switch on
     createCaseBlock([
       ...caseStatements,
       createDefaultClause([
@@ -184,7 +189,7 @@ export function createReadMethod(struct: StructDefinition): MethodDeclaration {
  */
 function createCaseForField(field: FieldDefinition): CaseClause {
   const checkType: IfStatement = createIf(
-    createEquals(createIdentifier('ftype'), thriftPropertyAccessForFieldType(field.fieldType)),
+    createEquals(COMMON_IDENTIFIERS['ftype'], thriftPropertyAccessForFieldType(field.fieldType)),
     readValueForFieldType(field.fieldType, createIdentifier(`this.${field.name.value}`)),
     createSkipBlock()
   )
@@ -253,31 +258,19 @@ function loopBody(fieldType: ContainerType, fieldName: Identifier): Array<Statem
       return [
         ..._readValueForFieldType(fieldType.keyType, key).statements,
         ..._readValueForFieldType(fieldType.valueType, value).statements,
-        createStatement(createCall(
-          propertyAccessForIdentifier(fieldName, 'set'),
-          undefined,
-          [ key, value ]
-        ))
+        createCallStatement(fieldName, 'set', [ key, value ])
       ]
 
     case SyntaxType.ListType:
       return [
         ..._readValueForFieldType(fieldType.valueType, value).statements,
-        createStatement(createCall(
-          propertyAccessForIdentifier(fieldName, 'push'),
-          undefined,
-          [ value ]
-        ))
+        createCallStatement(fieldName, 'push', [ value ])
       ]
 
     case SyntaxType.SetType:
       return [
         ..._readValueForFieldType(fieldType.valueType, value).statements,
-        createStatement(createCall(
-          propertyAccessForIdentifier(fieldName, 'add'),
-          undefined,
-          [ value ]
-        ))
+        createCallStatement(fieldName, 'add', [ value ])
       ]
   }
 }
@@ -347,11 +340,9 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
             []
           )
         ),
-        createStatement(createCall(
-          propertyAccessForIdentifier(fieldName, 'read'),
-          undefined,
-          [ createIdentifier('input') ]
-        ))
+        createCallStatement(fieldName, 'read', [
+          COMMON_IDENTIFIERS['input']
+        ])
       ], true)
 
     /**
@@ -373,11 +364,7 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
         createConstStatement(
           fieldName,
           typeNodeForFieldType(fieldType),
-          createCall(
-            propertyAccessForIdentifier('input', READ_METHODS[fieldType.type]),
-            undefined,
-            undefined
-          )
+          createFunctionCall('input', READ_METHODS[fieldType.type])
         )
       ], true)
 
@@ -392,7 +379,7 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
           fieldName,
           typeNodeForFieldType(fieldType),
           createNew(
-            createIdentifier('Map'), // class name
+            COMMON_IDENTIFIERS['Map'], // class name
             [ typeNodeForFieldType(fieldType.keyType), typeNodeForFieldType(fieldType.valueType) ],
             []
           )
@@ -406,7 +393,7 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
           fieldName,
           typeNodeForFieldType(fieldType),
           createNew(
-            createIdentifier('Array'), // class name
+            COMMON_IDENTIFIERS['Array'], // class name
             [ typeNodeForFieldType(fieldType.valueType) ],
             []
           )
@@ -420,7 +407,7 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
           fieldName,
           typeNodeForFieldType(fieldType),
           createNew(
-            createIdentifier('Set'), // class name
+            COMMON_IDENTIFIERS['Set'], // class name
             [ typeNodeForFieldType(fieldType.valueType) ],
             []
           )
@@ -446,11 +433,9 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
             []
           )
         ),
-        createStatement(createCall(
-          propertyAccessForIdentifier(fieldName, 'read'),
-          undefined,
-          [ createIdentifier('input') ]
-        ))
+        createCallStatement(fieldName, 'read', [
+          COMMON_IDENTIFIERS['input']
+        ])
       ], true)
 
     /**
@@ -472,11 +457,7 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
       return createBlock([
         createAssignmentStatement(
           fieldName,
-          createCall(
-            propertyAccessForIdentifier('input', READ_METHODS[fieldType.type]),
-            undefined,
-            undefined
-          )
+          createFunctionCall('input', READ_METHODS[fieldType.type])
         )
       ], true)
 
@@ -490,7 +471,7 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
         createAssignmentStatement(
           createIdentifier(`${fieldName.text}`),
           createNew(
-            createIdentifier('Map'), // class name
+            COMMON_IDENTIFIERS['Map'], // class name
             [ typeNodeForFieldType(fieldType.keyType), typeNodeForFieldType(fieldType.valueType) ],
             []
           )
@@ -503,7 +484,7 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
         createAssignmentStatement(
           createIdentifier(`${fieldName.text}`),
           createNew(
-            createIdentifier('Array'), // class name
+            COMMON_IDENTIFIERS['Array'], // class name
             [ typeNodeForFieldType(fieldType.valueType) ],
             []
           )
@@ -516,7 +497,7 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
         createAssignmentStatement(
           createIdentifier(`${fieldName.text}`),
           createNew(
-            createIdentifier('Set'), // class name
+            COMMON_IDENTIFIERS['Set'], // class name
             [ typeNodeForFieldType(fieldType.valueType) ],
             []
           )
@@ -530,104 +511,62 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
   }
 }
 
-// output.readStructBegin(<structName>)
+// input.readStructBegin(<structName>)
 export function readStructBegin(): ExpressionStatement {
-  return createStatement(createCall(
-    propertyAccessForIdentifier('input', 'readStructBegin'),
-    undefined,
-    undefined
-  ))
+  return createCallStatement('input', 'readStructBegin')
 }
 
-// output.readStructEnd()
+// input.readStructEnd()
 export function readStructEnd(): ExpressionStatement {
-  return createStatement(createCall(
-    propertyAccessForIdentifier('input', 'readStructEnd'),
-    undefined,
-    undefined
-  ))
+  return createCallStatement('input', 'readStructEnd')
 }
 
-// output.readFieldBegin()
+// input.readFieldBegin()
 export function readFieldBegin(): CallExpression {
-  return createCall(
-    propertyAccessForIdentifier('input', 'readFieldBegin'),
-    undefined,
-    undefined
-  )
+  return createFunctionCall('input', 'readFieldBegin')
 }
 
-// output.readFieldEnd()
+// input.readFieldEnd()
 export function readFieldEnd(): CallExpression {
-  return createCall(
-    propertyAccessForIdentifier('input', 'readFieldEnd'),
-    undefined,
-    undefined
-  )
+  return createFunctionCall('input', 'readFieldEnd')
 }
 
-// output.readMapBegin()
+// input.readMapBegin()
 export function readMapBegin(): CallExpression {
-  return createCall(
-    propertyAccessForIdentifier('input', 'readMapBegin'),
-    undefined,
-    undefined
-  )
+  return createFunctionCall('input', 'readMapBegin')
 }
 
-// output.readMapEnd()
+// input.readMapEnd()
 export function readMapEnd(): CallExpression {
-  return createCall(
-    propertyAccessForIdentifier('input', 'readMapEnd'),
-    undefined,
-    undefined
-  )
+  return createFunctionCall('input', 'readMapEnd')
 }
 
-// output.readListBegin()
+// input.readListBegin()
 export function readListBegin(): CallExpression {
-  return createCall(
-    propertyAccessForIdentifier('input', 'readListBegin'),
-    undefined,
-    undefined
-  )
+  return createFunctionCall('input', 'readListBegin')
 }
 
-// output.readListEnd()
+// input.readListEnd()
 export function readListEnd(): CallExpression {
-  return createCall(
-    propertyAccessForIdentifier('input', 'readListEnd'),
-    undefined,
-    undefined
-  )
+  return createFunctionCall('input', 'readListEnd')
 }
 
-// output.readSetBegin()
+// input.readSetBegin()
 export function readSetBegin(): CallExpression {
-  return createCall(
-    propertyAccessForIdentifier('input', 'readSetBegin'),
-    undefined,
-    undefined
-  )
+  return createFunctionCall('input', 'readSetBegin')
 }
 
-// output.readSetEnd()
+// input.readSetEnd()
 export function readSetEnd(): CallExpression {
-  return createCall(
-    propertyAccessForIdentifier('input', 'readSetEnd'),
-    undefined,
-    undefined
-  )
+  return createFunctionCall('input', 'readSetEnd')
 }
 
 // input.skip(ftype)
 function createSkipBlock(): Block {
   return createBlock([
-    createStatement(createCall(
-      propertyAccessForIdentifier('input', 'skip'),
-      undefined,
-      [ createIdentifier('ftype') ]
-    ))
+    createCallStatement('input', 'skip', [
+      COMMON_IDENTIFIERS['ftype']
+    ])
   ], true)
 }
 
