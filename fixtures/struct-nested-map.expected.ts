@@ -4,7 +4,9 @@ export interface IMyStruct {
 export class MyStruct {
     public field1: Map<string, Map<string, number>> = null;
     constructor(args?: IMyStruct) {
-        if (args && args.field1 != null) {
+        if (!args)
+            return;
+        if (args.field1 != null) {
             this.field1 = new Map(args.field1);
         }
         else {
@@ -13,7 +15,7 @@ export class MyStruct {
     }
     public write(output: TProtocol): void {
         output.writeStructBegin("MyStruct");
-        if (this && this.field1 != null) {
+        if (this.field1 != null) {
             output.writeFieldBegin("field1", Thrift.Type.MAP, 1);
             output.writeMapBegin(Thrift.Type.STRING, Thrift.Type.MAP, this.field1.size);
             this.field1.forEach((value_1: Map<string, number>, key_1: string): void => {

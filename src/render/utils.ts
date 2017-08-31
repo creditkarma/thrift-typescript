@@ -181,11 +181,7 @@ export function createEquals(left: Expression, right: Expression): BinaryExpress
  * @param prop
  */
 export function createNotNull(obj: string | Identifier, prop: string): BinaryExpression {
-  return createBinary(
-    (typeof obj === 'string' ? createIdentifier(obj) : obj),
-    SyntaxKind.AmpersandAmpersandToken,
-    createNotEquals(propertyAccessForIdentifier(obj, prop), createNull()),
-  )
+  return createNotEquals(propertyAccessForIdentifier(obj, prop), createNull())
 }
 
 export function renderOptional(value: FieldRequired): Token<SyntaxKind.QuestionToken> | undefined {

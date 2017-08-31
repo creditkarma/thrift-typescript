@@ -8,10 +8,12 @@ import {
   createIdentifier,
   createIf,
   createLiteral,
+  createLogicalNot,
   createNew,
   createNull,
   createProperty,
   createPropertyAccess,
+  createReturn,
   createStatement,
   createThrow,
   createToken,
@@ -56,6 +58,8 @@ import { createWriteMethod } from './write'
 export function renderStruct(node: StructDefinition): Statement {
   const fields: Array<PropertyDeclaration> = node.fields.map(renderFieldDeclarations)
 
+  const ifNotArgsReturn = createIf(createLogicalNot(COMMON_IDENTIFIERS.args), createReturn())
+
   /**
    * After creating the properties on our class for the struct fields we must create
    * a constructor that knows how to assign these values based on a passed args.
@@ -77,7 +81,7 @@ export function renderStruct(node: StructDefinition): Statement {
   const argsParameter: ParameterDeclaration = createFunctionParameter('args', argsType, undefined, true)
 
   // Build the constructor body
-  const ctor: ConstructorDeclaration = createClassConstructor([ argsParameter ], fieldAssignments)
+  const ctor: ConstructorDeclaration = createClassConstructor([ argsParameter ], [ifNotArgsReturn, ...fieldAssignments])
 
   // Build the `read` method
   const readMethod: MethodDeclaration = createReadMethod(node)
