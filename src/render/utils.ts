@@ -1,9 +1,11 @@
 import {
   BinaryExpression,
+  CallExpression,
   ConstructorDeclaration,
   createAssignment,
   createBinary,
   createBlock,
+  createCall,
   createConstructor,
   createIdentifier,
   createMethod,
@@ -41,6 +43,26 @@ import {
  * This module contains abstractions around the TypeScript factory functions to make them more
  * concise.
  */
+
+export function createCallStatement(
+  obj: string | Identifier,
+  method: string,
+  args: Array<Expression> = [],
+): ExpressionStatement {
+  return createStatement(createFunctionCall(obj, method, args))
+}
+
+export function createFunctionCall(
+  obj: string | Identifier,
+  method: string,
+  args: Array<Expression> = [],
+): CallExpression {
+  return createCall(
+    propertyAccessForIdentifier(obj, method),
+    undefined,
+    args,
+  )
+}
 
 /**
  * Given an object identifier and a field name, this returns an expression accessing that property
@@ -156,9 +178,9 @@ export function createNotNull(obj: string | Identifier, prop: string): BinaryExp
   )
 }
 
-export function renderOptional(value: FieldRequired): Token<SyntaxKind.QuestionToken> {
+export function renderOptional(value: FieldRequired): Token<SyntaxKind.QuestionToken> | undefined {
   if (value === 'required') {
-    return null
+    return undefined
   } else {
     return createToken(SyntaxKind.QuestionToken)
   }

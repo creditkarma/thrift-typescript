@@ -91,7 +91,7 @@ export function typeNodeForFieldType(fieldType: FieldType): TypeNode {
 
     default:
       const msg: never = fieldType
-      throw new Error(`Unexpected type found: ${msg}`)
+      throw new Error(`Non-exhaustive match for: ${msg}`)
   }
 }
 
@@ -134,7 +134,7 @@ function thriftType(fieldType: FieldType): string {
 
     default:
       const msg: never = fieldType
-      throw new Error(`Unexpected type found: ${msg}`)
+      throw new Error(`Non-exhaustive match for: ${msg}`)
   }
 }
 

@@ -108,9 +108,11 @@ export function renderStatement(statement: ThriftStatement): Array<Statement> {
     case SyntaxType.StructDefinition:
       return [ renderInterface(statement), renderStruct(statement) ]
 
-    default:
-      return null
+    // default:
+    //   return null
   }
+
+  return []
 }
 
 /**

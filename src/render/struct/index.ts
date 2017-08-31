@@ -47,8 +47,9 @@ import {
   propertyAccessForIdentifier,
   createNotNull
 } from '../utils'
-import { interfaceNameForClass } from '../interface'
 
+import { interfaceNameForClass } from '../interface'
+import { COMMON_IDENTIFIERS } from '../identifiers'
 import { createReadMethod } from './read'
 import { createWriteMethod } from './write'
 
@@ -130,7 +131,7 @@ function assignmentForField(field: FieldDefinition): ExpressionStatement {
 
   switch (field.fieldType.type) {
     case SyntaxType.SetType: {
-      const copy = createNew(createIdentifier('Set'), undefined, [ argsPropAccess ])
+      const copy = createNew(COMMON_IDENTIFIERS['Set'], undefined, [ argsPropAccess ])
       return createAssignmentStatement(thisPropAccess, copy)
     }
 
@@ -140,7 +141,7 @@ function assignmentForField(field: FieldDefinition): ExpressionStatement {
     }
 
     case SyntaxType.MapType: {
-      const copy = createNew(createIdentifier('Map'), undefined, [ argsPropAccess ])
+      const copy = createNew(COMMON_IDENTIFIERS['Map'], undefined, [ argsPropAccess ])
       return createAssignmentStatement(thisPropAccess, copy)
     }
 

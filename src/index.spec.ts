@@ -101,7 +101,7 @@ export class MyStruct {
         }
     }
     public write(output: TProtocol): void {
-        output.wrtieStructBegin("MyStruct");
+        output.writeStructBegin("MyStruct");
         if (this && (this.id !== null && this.id !== undefined)) {
             output.writeFieldBegin("id", Thrift.Type.I32, 1);
             output.writeI32(this.id);
@@ -170,7 +170,7 @@ export class MyStruct {
 };
 `;
     const actual: string = make(content)
-    assert.equal(actual, expected)
+    assert.deepEqual(actual, expected)
   })
   
   it('should correctly generate a struct with a map field', () => {
@@ -194,7 +194,7 @@ export class MyStruct {
         }
     }
     public write(output: TProtocol): void {
-        output.wrtieStructBegin("MyStruct");
+        output.writeStructBegin("MyStruct");
         if (this && (this.field1 !== null && this.field1 !== undefined)) {
             output.writeFieldBegin("field1", Thrift.Type.MAP, 1);
             output.writeMapBegin(Thrift.Type.STRING, Thrift.Type.STRING, this.field1.size);
@@ -254,7 +254,7 @@ export class MyStruct {
 };
 `;
     const actual: string = make(content)
-    assert.equal(actual, expected)
+    assert.deepEqual(actual, expected)
   })
 
   it('should correctly generate a struct with a nested map field', () => {
@@ -278,7 +278,7 @@ export class MyStruct {
         }
     }
     public write(output: TProtocol): void {
-        output.wrtieStructBegin("MyStruct");
+        output.writeStructBegin("MyStruct");
         if (this && (this.field1 !== null && this.field1 !== undefined)) {
             output.writeFieldBegin("field1", Thrift.Type.MAP, 1);
             output.writeMapBegin(Thrift.Type.STRING, Thrift.Type.MAP, this.field1.size);
@@ -355,7 +355,7 @@ export class MyStruct {
 };
 `;
     const actual: string = make(content)
-    assert.equal(actual, expected)
+    assert.deepEqual(actual, expected)
   })
 
   it('should correctly generate a struct with a list field', () => {
@@ -379,7 +379,7 @@ export class MyStruct {
         }
     }
     public write(output: TProtocol): void {
-        output.wrtieStructBegin("MyStruct");
+        output.writeStructBegin("MyStruct");
         if (this && (this.field1 !== null && this.field1 !== undefined)) {
             output.writeFieldBegin("field1", Thrift.Type.LIST, 1);
             output.writeListBegin(Thrift.Type.STRING, this.field1.length);
@@ -436,7 +436,7 @@ export class MyStruct {
 };
 `;
     const actual: string = make(content)
-    assert.equal(actual, expected)
+    assert.deepEqual(actual, expected)
   })
 
   it('should correctly generate a struct with a nested list field', () => {
@@ -460,7 +460,7 @@ export class MyStruct {
         }
     }
     public write(output: TProtocol): void {
-        output.wrtieStructBegin("MyStruct");
+        output.writeStructBegin("MyStruct");
         if (this && (this.field1 !== null && this.field1 !== undefined)) {
             output.writeFieldBegin("field1", Thrift.Type.LIST, 1);
             output.writeListBegin(Thrift.Type.LIST, this.field1.length);
@@ -531,7 +531,7 @@ export class MyStruct {
 };
 `;
     const actual: string = make(content)
-    assert.equal(actual, expected)
+    assert.deepEqual(actual, expected)
   })
 
   it('should correctly generate a struct with a set field', () => {
@@ -555,7 +555,7 @@ export class MyStruct {
         }
     }
     public write(output: TProtocol): void {
-        output.wrtieStructBegin("MyStruct");
+        output.writeStructBegin("MyStruct");
         if (this && (this.field1 !== null && this.field1 !== undefined)) {
             output.writeFieldBegin("field1", Thrift.Type.SET, 1);
             output.writeSetBegin(Thrift.Type.STRING, this.field1.size);
@@ -612,7 +612,7 @@ export class MyStruct {
 };
 `;
     const actual: string = make(content)
-    assert.equal(actual, expected)
+    assert.deepEqual(actual, expected)
   })
 
   it('should correctly generate a struct with a nested set field', () => {
@@ -636,7 +636,7 @@ export class MyStruct {
         }
     }
     public write(output: TProtocol): void {
-        output.wrtieStructBegin("MyStruct");
+        output.writeStructBegin("MyStruct");
         if (this && (this.field1 !== null && this.field1 !== undefined)) {
             output.writeFieldBegin("field1", Thrift.Type.SET, 1);
             output.writeSetBegin(Thrift.Type.SET, this.field1.size);
@@ -707,7 +707,7 @@ export class MyStruct {
 };
 `;
     const actual: string = make(content)
-    assert.equal(actual, expected)
+    assert.deepEqual(actual, expected)
   })
 
   it('should correctly generate a struct with an identifier field type', () => {
@@ -731,7 +731,7 @@ export class MyStruct {
         }
     }
     public write(output: TProtocol): void {
-        output.wrtieStructBegin("MyStruct");
+        output.writeStructBegin("MyStruct");
         if (this && (this.field1 !== null && this.field1 !== undefined)) {
             output.writeFieldBegin("field1", Thrift.Type.STRUCT, 1);
             this.field1.write(output);
@@ -775,7 +775,7 @@ export class MyStruct {
 };
 `;
     const actual: string = make(content)
-    assert.equal(actual, expected)
+    assert.deepEqual(actual, expected)
   })
 
   it('should correctly generate a struct with an identifier inside of a container', () => {
@@ -799,7 +799,7 @@ export class MyStruct {
         }
     }
     public write(output: TProtocol): void {
-        output.wrtieStructBegin("MyStruct");
+        output.writeStructBegin("MyStruct");
         if (this && (this.field1 !== null && this.field1 !== undefined)) {
             output.writeFieldBegin("field1", Thrift.Type.SET, 1);
             output.writeSetBegin(Thrift.Type.STRUCT, this.field1.size);
@@ -857,6 +857,6 @@ export class MyStruct {
 };
 `;
     const actual: string = make(content)
-    assert.equal(actual, expected)
+    assert.deepEqual(actual, expected)
   })
 })
