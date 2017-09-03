@@ -108,11 +108,24 @@ export function renderStatement(statement: ThriftStatement): Array<Statement> {
     case SyntaxType.StructDefinition:
       return [ renderInterface(statement), renderStruct(statement) ]
 
-    // default:
-    //   return null
-  }
+    case SyntaxType.UnionDefinition:
+      return [ renderInterface(statement) ]
 
-  return []
+    case SyntaxType.ExceptionDefinition:
+      return [ renderInterface(statement) ]
+
+    case SyntaxType.ServiceDefinition:
+      return []
+
+    case SyntaxType.NamespaceDefinition:
+    case SyntaxType.CppIncludeDefinition:
+    case SyntaxType.IncludeDefinition:
+      return []
+
+    default:
+      const msg: never = statement
+      throw new Error(`Non-exhaustive match for statement: ${msg}`)
+  }
 }
 
 /**

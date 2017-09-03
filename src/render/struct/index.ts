@@ -13,9 +13,7 @@ import {
   ExpressionStatement,
   MethodDeclaration,
   ThrowStatement,
-  createIdentifier,
   createLiteral,
-  createCall,
   createThrow,
   createNew,
   createIf,
@@ -32,7 +30,6 @@ import {
 import {
   StructDefinition,
   FieldDefinition,
-  SyntaxType
 } from '@creditkarma/thrift-parser'
 
 import { renderValue } from '../values'
@@ -70,6 +67,22 @@ export function renderStruct(node: StructDefinition): Statement {
    * Optional fields we must allow to be null or undefined.
    */
   const fieldAssignments: Array<IfStatement> = node.fields.map(createFieldAssignment)
+
+  /**
+   * Field assignments rely on there being an args argument passed in. We need to wrap
+   * field assignments in a conditional to check for the existance of args
+   * 
+   * if (args != null) {
+   *   ...fieldAssignments
+   * }
+   */
+  const isArgsNull: BinaryExpression = createNotNull('args')
+  const argsCheck: IfStatement = createIf(
+    isArgsNull, // condition
+    createBlock(fieldAssignments, true), // then
+    undefined // else
+  )
+
   const argsType: TypeReferenceNode = (node.fields.length > 0) ?
     createTypeReferenceNode(interfaceNameForClass(node), undefined) :
     undefined
@@ -77,7 +90,7 @@ export function renderStruct(node: StructDefinition): Statement {
   const argsParameter: ParameterDeclaration = createFunctionParameter('args', argsType, undefined, true)
 
   // Build the constructor body
-  const ctor: ConstructorDeclaration = createClassConstructor([ argsParameter ], fieldAssignments)
+  const ctor: ConstructorDeclaration = createClassConstructor([ argsParameter ], [ argsCheck ])
 
   // Build the `read` method
   const readMethod: MethodDeclaration = createReadMethod(node)
@@ -85,7 +98,6 @@ export function renderStruct(node: StructDefinition): Statement {
   // Build the `write` method
   const writeMethod: MethodDeclaration = createWriteMethod(node)
 
-  // Does this struct inherit from another struct?
   const heritage: HeritageClause[] = []
   // // TODO: This is a pretty hacky solution
   // if (this.size) {
@@ -129,25 +141,7 @@ function assignmentForField(field: FieldDefinition): ExpressionStatement {
   const thisPropAccess: PropertyAccessExpression = propertyAccessForIdentifier('this', field.name.value)
   const argsPropAccess: PropertyAccessExpression = propertyAccessForIdentifier('args', field.name.value)
 
-  switch (field.fieldType.type) {
-    case SyntaxType.SetType: {
-      const copy = createNew(COMMON_IDENTIFIERS['Set'], undefined, [ argsPropAccess ])
-      return createAssignmentStatement(thisPropAccess, copy)
-    }
-
-    case SyntaxType.ListType: {
-      const copy = createCall(propertyAccessForIdentifier('Array', 'from'), undefined, [ argsPropAccess ])
-      return createAssignmentStatement(thisPropAccess, copy)
-    }
-
-    case SyntaxType.MapType: {
-      const copy = createNew(COMMON_IDENTIFIERS['Map'], undefined, [ argsPropAccess ])
-      return createAssignmentStatement(thisPropAccess, copy)
-    }
-
-    default:
-      return createAssignmentStatement(thisPropAccess, argsPropAccess)
-  }
+  return createAssignmentStatement(thisPropAccess, argsPropAccess)
 }
 
 /**
@@ -156,8 +150,8 @@ function assignmentForField(field: FieldDefinition): ExpressionStatement {
  */
 function throwForField(field: FieldDefinition): ThrowStatement | undefined {
   if (field.requiredness === 'required') {
-    const errCtor = createPropertyAccess(createIdentifier('Thrift'), 'TProtocolException')
-    const errType = createPropertyAccess(createIdentifier('Thrift'), 'TProtocolExceptionType.UNKNOWN')
+    const errCtor = createPropertyAccess(COMMON_IDENTIFIERS['Thrift'], 'TProtocolException')
+    const errType = createPropertyAccess(COMMON_IDENTIFIERS['Thrift'], 'TProtocolExceptionType.UNKNOWN')
     const errArgs = [ errType, createLiteral(`Required field ${field.name.value} is unset!`) ]
     return createThrow(createNew(errCtor, undefined, errArgs))
   } else {
@@ -183,7 +177,7 @@ export function createFieldAssignment(field: FieldDefinition): IfStatement {
   // Set/List is supposed to use Thrift.copyList but the implementation is weird and might not work
   // when combined with the custom Map copying
   // TODO: should we perform a deep clone? Currently shallow but not sure if deep cloning is actually needed
-  const comparison: BinaryExpression = createNotNull('args', field.name.value)
+  const comparison: BinaryExpression = createNotNull(`args.${field.name.value}`)
   const thenAssign: ExpressionStatement = assignmentForField(field)
   const elseThrow: ThrowStatement = throwForField(field)
   

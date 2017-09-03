@@ -32,7 +32,7 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-  createFunctionCall,
+  createMethodCall,
   createCallStatement,
   propertyAccessForIdentifier,
   createFunctionParameter,
@@ -107,7 +107,7 @@ export function createWriteMethod(struct: StructDefinition): MethodDeclaration {
  */
 export function createWriteForField(struct: StructDefinition, field: FieldDefinition): IfStatement {
   return createIf(
-    createNotNull('this', field.name.value), // Condition
+    createNotNull(`this.${field.name.value}`), // Condition
     createWriteForFieldType(struct, field, createIdentifier(`this.${field.name.value}`)), // Then block
     undefined // Else block
   )
@@ -140,7 +140,7 @@ export function writeValueForType(
 ): Array<Expression> {
   switch (fieldType.type) {
     case SyntaxType.Identifier:
-      return [ createFunctionCall(fieldName, 'write', [
+      return [ createMethodCall(fieldName, 'write', [
         COMMON_IDENTIFIERS['output']
       ]) ]
 
@@ -195,7 +195,7 @@ export function writeValueForType(
 }
 
 function writeMethodForName(methodName: WriteMethodName, fieldName: Identifier): CallExpression {
-  return createFunctionCall('output', methodName, [ fieldName ])
+  return createMethodCall('output', methodName, [ fieldName ])
 }
 
 function writeValueForField(
@@ -253,7 +253,7 @@ function forEach(
     forEachStatements.unshift(...writeValueForField(struct, fieldType.keyType, key))
   }
   
-  return createFunctionCall(fieldName, 'forEach', [
+  return createMethodCall(fieldName, 'forEach', [
     createArrowFunction(
       undefined, // modifiers
       undefined, // type parameters
@@ -279,7 +279,7 @@ function writeStructEnd(): ExpressionStatement {
 
 // output.writeMapBeing(<field.keyType>, <field.valueType>, <field.size>)
 function writeMapBegin(fieldType: MapType, fieldName: string | Identifier): CallExpression {
-  return createFunctionCall('output', 'writeMapBegin', [
+  return createMethodCall('output', 'writeMapBegin', [
     thriftPropertyAccessForFieldType(fieldType.keyType),
     thriftPropertyAccessForFieldType(fieldType.valueType),
     propertyAccessForIdentifier(fieldName, 'size')
@@ -288,12 +288,12 @@ function writeMapBegin(fieldType: MapType, fieldName: string | Identifier): Call
 
 // output.writeMapEnd()
 function writeMapEnd(): CallExpression {
-  return createFunctionCall('output', 'writeMapEnd')
+  return createMethodCall('output', 'writeMapEnd')
 }
 
 // output.writeListBegin(<field.type>, <field.length>)
 function writeListBegin(fieldType: ListType, fieldName: string | Identifier): CallExpression {
-  return createFunctionCall('output', 'writeListBegin', [
+  return createMethodCall('output', 'writeListBegin', [
     thriftPropertyAccessForFieldType(fieldType.valueType),
     propertyAccessForIdentifier(fieldName, 'length')
   ])
@@ -301,12 +301,12 @@ function writeListBegin(fieldType: ListType, fieldName: string | Identifier): Ca
 
 // output.writeListEnd()
 function writeListEnd(): CallExpression {
-  return createFunctionCall('output', 'writeListEnd')
+  return createMethodCall('output', 'writeListEnd')
 }
 
 // output.writeSetBegin(<field.type>, <field.size>)
 function writeSetBegin(fieldType: SetType, fieldName: string | Identifier): CallExpression {
-  return createFunctionCall('output', 'writeSetBegin', [
+  return createMethodCall('output', 'writeSetBegin', [
     thriftPropertyAccessForFieldType(fieldType.valueType),
     propertyAccessForIdentifier(fieldName, 'size')
   ])
@@ -314,7 +314,7 @@ function writeSetBegin(fieldType: SetType, fieldName: string | Identifier): Call
 
 // output.writeSetEnd()
 function writeSetEnd(): CallExpression {
-  return createFunctionCall('output', 'writeSetEnd')
+  return createMethodCall('output', 'writeSetEnd')
 }
 
 // output.writeFieldBegin(<field.name>, <field.fieldType>, <field.fieldID>)
