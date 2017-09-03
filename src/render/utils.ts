@@ -49,10 +49,10 @@ export function createCallStatement(
   method: string,
   args: Array<Expression> = [],
 ): ExpressionStatement {
-  return createStatement(createFunctionCall(obj, method, args))
+  return createStatement(createMethodCall(obj, method, args))
 }
 
-export function createFunctionCall(
+export function createMethodCall(
   obj: string | Identifier,
   method: string,
   args: Array<Expression> = [],
@@ -157,24 +157,20 @@ export function createEquals(left: Expression, right: Expression): BinaryExpress
 }
 
 /**
- * Create a binary expression for testing strickly not equal to null or undefined
+ * Create a binary expression for testing not equal to null
  *
  * EXAMPLE
  *
- * createNotNull(obj, prop) => 'obj && (obj.prop !== null && obj.prop !== undefined)'
+ * createNotNull(obj, prop) => 'obj && (obj.prop != null)'
  *
  * @param obj
  * @param prop
  */
-export function createNotNull(obj: string | Identifier, prop: string): BinaryExpression {
+export function createNotNull(obj: string | Identifier ): BinaryExpression {
   return createBinary(
-    (typeof obj === 'string' ? createIdentifier(obj) : obj),
-    SyntaxKind.AmpersandAmpersandToken,
-    createBinary(
-      createNotEquals(propertyAccessForIdentifier(obj, prop), createNull()),
-      SyntaxKind.AmpersandAmpersandToken,
-      createNotEquals(propertyAccessForIdentifier(obj, prop), createIdentifier('undefined')),
-    ),
+    ((typeof obj === 'string') ? createIdentifier(obj) : obj),
+    SyntaxKind.ExclamationEqualsToken,
+    createNull(),
   )
 }
 

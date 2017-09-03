@@ -84,35 +84,37 @@ export class MyStruct {
     public word: string = null;
     public field1?: number = null;
     constructor(args?: IMyStruct) {
-        if (args && (args.id !== null && args.id !== undefined)) {
-            this.id = args.id;
-        }
-        else {
-            throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field id is unset!");
-        }
-        if (args && (args.word !== null && args.word !== undefined)) {
-            this.word = args.word;
-        }
-        else {
-            throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field word is unset!");
-        }
-        if (args && (args.field1 !== null && args.field1 !== undefined)) {
-            this.field1 = args.field1;
+        if (args != null) {
+            if (args.id != null) {
+                this.id = args.id;
+            }
+            else {
+                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field id is unset!");
+            }
+            if (args.word != null) {
+                this.word = args.word;
+            }
+            else {
+                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field word is unset!");
+            }
+            if (args.field1 != null) {
+                this.field1 = args.field1;
+            }
         }
     }
     public write(output: TProtocol): void {
         output.writeStructBegin("MyStruct");
-        if (this && (this.id !== null && this.id !== undefined)) {
+        if (this.id != null) {
             output.writeFieldBegin("id", Thrift.Type.I32, 1);
             output.writeI32(this.id);
             output.writeFieldEnd();
         }
-        if (this && (this.word !== null && this.word !== undefined)) {
+        if (this.word != null) {
             output.writeFieldBegin("word", Thrift.Type.STRING, 2);
             output.writeString(this.word);
             output.writeFieldEnd();
         }
-        if (this && (this.field1 !== null && this.field1 !== undefined)) {
+        if (this.field1 != null) {
             output.writeFieldBegin("field1", Thrift.Type.DOUBLE, 3);
             output.writeDouble(this.field1);
             output.writeFieldEnd();
@@ -186,16 +188,18 @@ export class MyStruct {
 export class MyStruct {
     public field1: Map<string, string> = null;
     constructor(args?: IMyStruct) {
-        if (args && (args.field1 !== null && args.field1 !== undefined)) {
-            this.field1 = new Map(args.field1);
-        }
-        else {
-            throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+        if (args != null) {
+            if (args.field1 != null) {
+                this.field1 = args.field1;
+            }
+            else {
+                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+            }
         }
     }
     public write(output: TProtocol): void {
         output.writeStructBegin("MyStruct");
-        if (this && (this.field1 !== null && this.field1 !== undefined)) {
+        if (this.field1 != null) {
             output.writeFieldBegin("field1", Thrift.Type.MAP, 1);
             output.writeMapBegin(Thrift.Type.STRING, Thrift.Type.STRING, this.field1.size);
             this.field1.forEach((value_1: string, key_1: string): void => {
@@ -270,16 +274,18 @@ export class MyStruct {
 export class MyStruct {
     public field1: Map<string, Map<string, number>> = null;
     constructor(args?: IMyStruct) {
-        if (args && (args.field1 !== null && args.field1 !== undefined)) {
-            this.field1 = new Map(args.field1);
-        }
-        else {
-            throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+        if (args != null) {
+            if (args.field1 != null) {
+                this.field1 = args.field1;
+            }
+            else {
+                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+            }
         }
     }
     public write(output: TProtocol): void {
         output.writeStructBegin("MyStruct");
-        if (this && (this.field1 !== null && this.field1 !== undefined)) {
+        if (this.field1 != null) {
             output.writeFieldBegin("field1", Thrift.Type.MAP, 1);
             output.writeMapBegin(Thrift.Type.STRING, Thrift.Type.MAP, this.field1.size);
             this.field1.forEach((value_1: Map<string, number>, key_1: string): void => {
@@ -371,16 +377,18 @@ export class MyStruct {
 export class MyStruct {
     public field1: Array<string> = null;
     constructor(args?: IMyStruct) {
-        if (args && (args.field1 !== null && args.field1 !== undefined)) {
-            this.field1 = Array.from(args.field1);
-        }
-        else {
-            throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+        if (args != null) {
+            if (args.field1 != null) {
+                this.field1 = args.field1;
+            }
+            else {
+                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+            }
         }
     }
     public write(output: TProtocol): void {
         output.writeStructBegin("MyStruct");
-        if (this && (this.field1 !== null && this.field1 !== undefined)) {
+        if (this.field1 != null) {
             output.writeFieldBegin("field1", Thrift.Type.LIST, 1);
             output.writeListBegin(Thrift.Type.STRING, this.field1.length);
             this.field1.forEach((value_1: string): void => {
@@ -452,16 +460,18 @@ export class MyStruct {
 export class MyStruct {
     public field1: Array<Array<string>> = null;
     constructor(args?: IMyStruct) {
-        if (args && (args.field1 !== null && args.field1 !== undefined)) {
-            this.field1 = Array.from(args.field1);
-        }
-        else {
-            throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+        if (args != null) {
+            if (args.field1 != null) {
+                this.field1 = args.field1;
+            }
+            else {
+                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+            }
         }
     }
     public write(output: TProtocol): void {
         output.writeStructBegin("MyStruct");
-        if (this && (this.field1 !== null && this.field1 !== undefined)) {
+        if (this.field1 != null) {
             output.writeFieldBegin("field1", Thrift.Type.LIST, 1);
             output.writeListBegin(Thrift.Type.LIST, this.field1.length);
             this.field1.forEach((value_1: Array<string>): void => {
@@ -547,16 +557,18 @@ export class MyStruct {
 export class MyStruct {
     public field1: Set<string> = null;
     constructor(args?: IMyStruct) {
-        if (args && (args.field1 !== null && args.field1 !== undefined)) {
-            this.field1 = new Set(args.field1);
-        }
-        else {
-            throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+        if (args != null) {
+            if (args.field1 != null) {
+                this.field1 = args.field1;
+            }
+            else {
+                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+            }
         }
     }
     public write(output: TProtocol): void {
         output.writeStructBegin("MyStruct");
-        if (this && (this.field1 !== null && this.field1 !== undefined)) {
+        if (this.field1 != null) {
             output.writeFieldBegin("field1", Thrift.Type.SET, 1);
             output.writeSetBegin(Thrift.Type.STRING, this.field1.size);
             this.field1.forEach((value_1: string): void => {
@@ -628,16 +640,18 @@ export class MyStruct {
 export class MyStruct {
     public field1: Set<Set<string>> = null;
     constructor(args?: IMyStruct) {
-        if (args && (args.field1 !== null && args.field1 !== undefined)) {
-            this.field1 = new Set(args.field1);
-        }
-        else {
-            throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+        if (args != null) {
+            if (args.field1 != null) {
+                this.field1 = args.field1;
+            }
+            else {
+                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+            }
         }
     }
     public write(output: TProtocol): void {
         output.writeStructBegin("MyStruct");
-        if (this && (this.field1 !== null && this.field1 !== undefined)) {
+        if (this.field1 != null) {
             output.writeFieldBegin("field1", Thrift.Type.SET, 1);
             output.writeSetBegin(Thrift.Type.SET, this.field1.size);
             this.field1.forEach((value_1: Set<string>): void => {
@@ -723,16 +737,18 @@ export class MyStruct {
 export class MyStruct {
     public field1: OtherStruct = null;
     constructor(args?: IMyStruct) {
-        if (args && (args.field1 !== null && args.field1 !== undefined)) {
-            this.field1 = args.field1;
-        }
-        else {
-            throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+        if (args != null) {
+            if (args.field1 != null) {
+                this.field1 = args.field1;
+            }
+            else {
+                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+            }
         }
     }
     public write(output: TProtocol): void {
         output.writeStructBegin("MyStruct");
-        if (this && (this.field1 !== null && this.field1 !== undefined)) {
+        if (this.field1 != null) {
             output.writeFieldBegin("field1", Thrift.Type.STRUCT, 1);
             this.field1.write(output);
             output.writeFieldEnd();
@@ -791,16 +807,18 @@ export class MyStruct {
 export class MyStruct {
     public field1: Set<OtherStruct> = null;
     constructor(args?: IMyStruct) {
-        if (args && (args.field1 !== null && args.field1 !== undefined)) {
-            this.field1 = new Set(args.field1);
-        }
-        else {
-            throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+        if (args != null) {
+            if (args.field1 != null) {
+                this.field1 = args.field1;
+            }
+            else {
+                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+            }
         }
     }
     public write(output: TProtocol): void {
         output.writeStructBegin("MyStruct");
-        if (this && (this.field1 !== null && this.field1 !== undefined)) {
+        if (this.field1 != null) {
             output.writeFieldBegin("field1", Thrift.Type.SET, 1);
             output.writeSetBegin(Thrift.Type.STRUCT, this.field1.size);
             this.field1.forEach((value_1: OtherStruct): void => {

@@ -16,4 +16,5 @@ export const COMMON_IDENTIFIERS: IdentifierMap = {
   Map: createIdentifier('Map'),
   Array: createIdentifier('Array'),
   Set: createIdentifier('Set'),
+  Thrift: createIdentifier('Thrift'),
 }

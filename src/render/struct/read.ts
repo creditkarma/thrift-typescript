@@ -51,7 +51,7 @@ import {
 
 import {
   createCallStatement,
-  createFunctionCall,
+  createMethodCall,
   createPublicMethod,
   createFunctionParameter,
   propertyAccessForIdentifier,
@@ -347,6 +347,7 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
 
     /**
      * Base types:
+     * 
      * SyntaxType.StringKeyword | SyntaxType.DoubleKeyword | SyntaxType.BoolKeyword |
      * SyntaxType.I8Keyword | SyntaxType.I16Keyword | SyntaxType.I32Keyword |
      * SyntaxType.I64Keyword | SyntaxType.BinaryKeyword | SyntaxType.ByteKeyword;
@@ -364,7 +365,7 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
         createConstStatement(
           fieldName,
           typeNodeForFieldType(fieldType),
-          createFunctionCall('input', READ_METHODS[fieldType.type])
+          createMethodCall('input', READ_METHODS[fieldType.type])
         )
       ], true)
 
@@ -457,7 +458,7 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
       return createBlock([
         createAssignmentStatement(
           fieldName,
-          createFunctionCall('input', READ_METHODS[fieldType.type])
+          createMethodCall('input', READ_METHODS[fieldType.type])
         )
       ], true)
 
@@ -523,42 +524,42 @@ export function readStructEnd(): ExpressionStatement {
 
 // input.readFieldBegin()
 export function readFieldBegin(): CallExpression {
-  return createFunctionCall('input', 'readFieldBegin')
+  return createMethodCall('input', 'readFieldBegin')
 }
 
 // input.readFieldEnd()
 export function readFieldEnd(): CallExpression {
-  return createFunctionCall('input', 'readFieldEnd')
+  return createMethodCall('input', 'readFieldEnd')
 }
 
 // input.readMapBegin()
 export function readMapBegin(): CallExpression {
-  return createFunctionCall('input', 'readMapBegin')
+  return createMethodCall('input', 'readMapBegin')
 }
 
 // input.readMapEnd()
 export function readMapEnd(): CallExpression {
-  return createFunctionCall('input', 'readMapEnd')
+  return createMethodCall('input', 'readMapEnd')
 }
 
 // input.readListBegin()
 export function readListBegin(): CallExpression {
-  return createFunctionCall('input', 'readListBegin')
+  return createMethodCall('input', 'readListBegin')
 }
 
 // input.readListEnd()
 export function readListEnd(): CallExpression {
-  return createFunctionCall('input', 'readListEnd')
+  return createMethodCall('input', 'readListEnd')
 }
 
 // input.readSetBegin()
 export function readSetBegin(): CallExpression {
-  return createFunctionCall('input', 'readSetBegin')
+  return createMethodCall('input', 'readSetBegin')
 }
 
 // input.readSetEnd()
 export function readSetEnd(): CallExpression {
-  return createFunctionCall('input', 'readSetEnd')
+  return createMethodCall('input', 'readSetEnd')
 }
 
 // input.skip(ftype)

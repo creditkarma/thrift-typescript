@@ -4,8 +4,6 @@ import {
   createToken,
   InterfaceDeclaration,
   SyntaxKind,
-  Token,
-  TypeNode,
 } from 'typescript'
 
 import {
@@ -40,13 +38,11 @@ export function interfaceNameForClass(statement: InterfaceWithFields): string {
  */
 export function renderInterface(statement: InterfaceWithFields): InterfaceDeclaration {
   const signatures = statement.fields.map((field: FieldDefinition) => {
-    const type: TypeNode = typeNodeForFieldType(field.fieldType)
-    const optional: Token<SyntaxKind.QuestionToken> = renderOptional(field.requiredness)
     return createPropertySignature(
       undefined,
       field.name.value,
-      optional,
-      type,
+      renderOptional(field.requiredness),
+      typeNodeForFieldType(field.fieldType),
       undefined,
     )
   })
