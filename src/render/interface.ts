@@ -15,7 +15,7 @@ import { typeNodeForFieldType } from './types'
 import { renderOptional } from './utils'
 
 export function interfaceNameForClass(statement: InterfaceWithFields): string {
-  return `I${statement.name.value}`
+  return `I${statement.name.value}Args`
 }
 
 /**

@@ -107,7 +107,12 @@ export function typeNodeForFieldType(fieldType: FieldType): TypeNode {
   }
 }
 
-type ThriftTypeAccess =
+export type TProtocolException =
+  'TProtocolExceptionType.UNKNOWN' | 'TProtocolExceptionType.INVALID_DATA' | 'TProtocolExceptionType.NEGATIVE_SIZE' |
+  'TProtocolExceptionType.SIZE_LIMIT' | 'TProtocolExceptionType.BAD_VERSION' | 'TProtocolExceptionType.NOT_IMPLEMENTED' |
+  'TProtocolExceptionType.DEPTH_LIMIT'
+
+export type ThriftTypeAccess =
   'Type.STRUCT' | 'Type.SET' | 'Type.MAP' | 'Type.LIST' | 'Type.STRING' |
   'Type.BOOL' | 'Type.DOUBLE' | 'Type.BYTE' | 'Type.I16' | 'Type.I32' |
   'Type.I64'

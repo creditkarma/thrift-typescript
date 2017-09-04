@@ -18,7 +18,6 @@ import {
   createLessThan,
   createPostfixIncrement,
   createTypeReferenceNode,
-  createTypeLiteralNode,
   createStatement,
   createLiteral,
   createWhile,
@@ -44,7 +43,6 @@ import {
   createVoidType,
   createStringType,
   createNumberType,
-  createTypeProperty,
   thriftPropertyAccessForFieldType,
   typeNodeForFieldType
 } from '../types'
@@ -68,6 +66,12 @@ import {
 import {
   READ_METHODS
 } from './methods'
+
+import {
+  fieldMetadataType,
+  listMetadataType,
+  mapMetadataType
+} from './types'
 
 /**
  * public read(input: TProtocol): void {
@@ -104,10 +108,7 @@ import {
  */
 export function createReadMethod(struct: InterfaceWithFields): MethodDeclaration {
   //const fieldWrites: Array<IfStatement> = struct.fields.map((field) => createWriteForField(struct, field))
-  const inputParameter: ParameterDeclaration = createFunctionParameter(
-    'input', // param name
-    createTypeReferenceNode('TProtocol', undefined) // param type
-  )
+  const inputParameter: ParameterDeclaration = createInputParameter();
   
   /**
    * cosnt ret: { fname: string; ftype: Thrift.Type; fid: number; } = input.readFieldBegin()
@@ -140,7 +141,7 @@ export function createReadMethod(struct: InterfaceWithFields): MethodDeclaration
    * } 
    */
   const switchStatement: SwitchStatement = createSwitch(
-    COMMON_IDENTIFIERS['fid'], // what are we switch on
+    COMMON_IDENTIFIERS['fid'], // what to switch on
     createCaseBlock([
       ...caseStatements,
       createDefaultClause([
@@ -172,6 +173,13 @@ export function createReadMethod(struct: InterfaceWithFields): MethodDeclaration
   )
 }
 
+export function createInputParameter(): ParameterDeclaration {
+  return createFunctionParameter(
+    'input', // param name
+    createTypeReferenceNode('TProtocol', undefined) // param type
+  )
+}
+
 /**
  * EXAMPLE
  * 
@@ -187,10 +195,10 @@ export function createReadMethod(struct: InterfaceWithFields): MethodDeclaration
  * 
  * @param field
  */
-function createCaseForField(field: FieldDefinition): CaseClause {
+export function createCaseForField(field: FieldDefinition): CaseClause {
   const checkType: IfStatement = createIf(
     createEquals(COMMON_IDENTIFIERS['ftype'], thriftPropertyAccessForFieldType(field.fieldType)),
-    readValueForFieldType(field.fieldType, createIdentifier(`this.${field.name.value}`)),
+    createBlock(readValueForFieldType(field.fieldType, createIdentifier(`this.${field.name.value}`)), true),
     createSkipBlock()
   )
 
@@ -200,7 +208,7 @@ function createCaseForField(field: FieldDefinition): CaseClause {
   )
 }
 
-function metadataTypeForFieldType(fieldType: ContainerType): TypeLiteralNode {
+export function metadataTypeForFieldType(fieldType: ContainerType): TypeLiteralNode {
   switch (fieldType.type) {
     case SyntaxType.MapType:
       return mapMetadataType()
@@ -256,20 +264,20 @@ function loopBody(fieldType: ContainerType, fieldName: Identifier): Array<Statem
     case SyntaxType.MapType:
       const key: Identifier = createUniqueName('key')
       return [
-        ..._readValueForFieldType(fieldType.keyType, key).statements,
-        ..._readValueForFieldType(fieldType.valueType, value).statements,
+        ..._readValueForFieldType(fieldType.keyType, key),
+        ..._readValueForFieldType(fieldType.valueType, value),
         createCallStatement(fieldName, 'set', [ key, value ])
       ]
 
     case SyntaxType.ListType:
       return [
-        ..._readValueForFieldType(fieldType.valueType, value).statements,
+        ..._readValueForFieldType(fieldType.valueType, value),
         createCallStatement(fieldName, 'push', [ value ])
       ]
 
     case SyntaxType.SetType:
       return [
-        ..._readValueForFieldType(fieldType.valueType, value).statements,
+        ..._readValueForFieldType(fieldType.valueType, value),
         createCallStatement(fieldName, 'add', [ value ])
       ]
   }
@@ -328,10 +336,10 @@ function loopOverContainer(fieldType: ContainerType, fieldName: Identifier): Arr
   ]
 }
 
-function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Block {
+function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Array<Statement> {
   switch (fieldType.type) {
     case SyntaxType.Identifier:
-      return createBlock([
+      return [
         createAssignmentStatement(
           fieldName,
           createNew(
@@ -343,7 +351,7 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
         createCallStatement(fieldName, 'read', [
           COMMON_IDENTIFIERS['input']
         ])
-      ], true)
+      ]
 
     /**
      * Base types:
@@ -361,13 +369,13 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
     case SyntaxType.I16Keyword:
     case SyntaxType.I32Keyword:
     case SyntaxType.I64Keyword:
-      return createBlock([
+      return [
         createConstStatement(
           fieldName,
           typeNodeForFieldType(fieldType),
           createMethodCall('input', READ_METHODS[fieldType.type])
         )
-      ], true)
+      ]
 
     /**
      * Container types:
@@ -375,7 +383,7 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
      * SetType | MapType | ListType
      */
     case SyntaxType.MapType:
-      return createBlock([
+      return [
         createConstStatement(
           fieldName,
           typeNodeForFieldType(fieldType),
@@ -386,10 +394,10 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
           )
         ),
         ...loopOverContainer(fieldType, fieldName)
-      ], true)
+      ]
 
     case SyntaxType.ListType:
-      return createBlock([
+      return [
         createConstStatement(
           fieldName,
           typeNodeForFieldType(fieldType),
@@ -400,10 +408,10 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
           )
         ),
         ...loopOverContainer(fieldType, fieldName)
-      ], true)
+      ]
 
     case SyntaxType.SetType:
-      return createBlock([
+      return [
         createConstStatement(
           fieldName,
           typeNodeForFieldType(fieldType),
@@ -414,7 +422,7 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
           )
         ),
         ...loopOverContainer(fieldType, fieldName)
-      ], true)
+      ]
 
     default:
       const msg: never = fieldType
@@ -422,10 +430,10 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Bl
   }
 }
 
-export function readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Block {
+export function readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Array<Statement> {
   switch (fieldType.type) {
     case SyntaxType.Identifier:
-      return createBlock([
+      return [
         createAssignmentStatement(
           fieldName,
           createNew(
@@ -437,7 +445,7 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
         createCallStatement(fieldName, 'read', [
           COMMON_IDENTIFIERS['input']
         ])
-      ], true)
+      ]
 
     /**
      * Base types:
@@ -455,12 +463,12 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
     case SyntaxType.I16Keyword:
     case SyntaxType.I32Keyword:
     case SyntaxType.I64Keyword:
-      return createBlock([
+      return [
         createAssignmentStatement(
           fieldName,
           createMethodCall('input', READ_METHODS[fieldType.type])
         )
-      ], true)
+      ]
 
     /**
      * Container types:
@@ -468,7 +476,7 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
      * SetType | MapType | ListType
      */
     case SyntaxType.MapType:
-      return createBlock([
+      return [
         createAssignmentStatement(
           createIdentifier(`${fieldName.text}`),
           createNew(
@@ -478,10 +486,10 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
           )
         ),
         ...loopOverContainer(fieldType, fieldName)
-      ], true)
+      ]
 
     case SyntaxType.ListType:
-      return createBlock([
+      return [
         createAssignmentStatement(
           createIdentifier(`${fieldName.text}`),
           createNew(
@@ -491,10 +499,10 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
           )
         ),
         ...loopOverContainer(fieldType, fieldName)
-      ], true)
+      ]
 
     case SyntaxType.SetType:
-      return createBlock([
+      return [
         createAssignmentStatement(
           createIdentifier(`${fieldName.text}`),
           createNew(
@@ -504,7 +512,7 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
           )
         ),
         ...loopOverContainer(fieldType, fieldName)
-      ], true)
+      ]
 
     default:
       const msg: never = fieldType
@@ -563,36 +571,10 @@ export function readSetEnd(): CallExpression {
 }
 
 // input.skip(ftype)
-function createSkipBlock(): Block {
+export function createSkipBlock(): Block {
   return createBlock([
     createCallStatement('input', 'skip', [
       COMMON_IDENTIFIERS['ftype']
     ])
   ], true)
-}
-
-// { ktype: Thrift.Type; vtype: Thrift.Type; size: number; }
-function mapMetadataType(): TypeLiteralNode {
-  return createTypeLiteralNode([
-    createTypeProperty('ktype', createTypeReferenceNode('Thrift.Type', undefined)),
-    createTypeProperty('vtype', createTypeReferenceNode('Thrift.Type', undefined)),
-    createTypeProperty('size', createNumberType())
-  ])
-}
-
-// { etype: Thrift.Type; size: number; }
-function listMetadataType(): TypeLiteralNode {
-  return createTypeLiteralNode([
-    createTypeProperty('etype', createTypeReferenceNode('Thrift.Type', undefined)),
-    createTypeProperty('size', createNumberType())
-  ])
-}
-
-// { fname: string; ftype: Thrift.Type; fid: number; }
-function fieldMetadataType(): TypeLiteralNode {
-  return createTypeLiteralNode([
-    createTypeProperty('fname', createStringType()),
-    createTypeProperty('ftype', createTypeReferenceNode('Thrift.Type', undefined)),
-    createTypeProperty('fid', createNumberType())
-  ])
 }
