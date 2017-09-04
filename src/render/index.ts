@@ -1,7 +1,6 @@
 import {
   createEnumDeclaration,
   createEnumMember,
-  createIdentifier,
   createLiteral,
   createToken,
   createTypeAliasDeclaration,
@@ -21,9 +20,11 @@ import {
   TypedefDefinition,
 } from '@creditkarma/thrift-parser'
 
+import { renderException } from './exception'
 import { renderInterface } from './interface'
 import { renderStruct } from './struct'
 import { typeNodeForFieldType } from './types'
+import { renderUnion } from './union'
 import { createConst } from './utils'
 import { renderValue } from './values'
 
@@ -110,10 +111,10 @@ export function renderStatement(statement: ThriftStatement): Array<Statement> {
       return [ renderInterface(statement), renderStruct(statement) ]
 
     case SyntaxType.UnionDefinition:
-      return [ renderInterface(statement) ]
+      return [ renderInterface(statement), renderUnion(statement) ]
 
     case SyntaxType.ExceptionDefinition:
-      return [ renderInterface(statement), renderStruct(statement, createIdentifier('Thrift.TException')) ]
+      return [ renderInterface(statement), renderException(statement) ]
 
     case SyntaxType.ServiceDefinition:
       return []

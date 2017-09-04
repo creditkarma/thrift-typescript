@@ -8,12 +8,15 @@ import {
   createCall,
   createConstructor,
   createIdentifier,
+  createLiteral,
   createMethod,
+  createNew,
   createNull,
   createParameter,
   createPropertyAccess,
   createStatement,
   createThis,
+  createThrow,
   createToken,
   createVariableDeclaration,
   createVariableDeclarationList,
@@ -27,6 +30,7 @@ import {
   PropertyAccessExpression,
   Statement,
   SyntaxKind,
+  ThrowStatement,
   Token,
   TypeNode,
   VariableDeclarationList,
@@ -37,12 +41,30 @@ import {
   FieldRequired,
 } from '@creditkarma/thrift-parser'
 
+import {
+  TProtocolException,
+} from './types'
+
+import {
+  COMMON_IDENTIFIERS,
+} from './identifiers'
+
 /**
  * UTILS
  *
  * This module contains abstractions around the TypeScript factory functions to make them more
  * concise.
  */
+
+export function createProtocolException(
+  type: TProtocolException,
+  message: string,
+): ThrowStatement {
+  const errCtor = createPropertyAccess(COMMON_IDENTIFIERS.Thrift, 'TProtocolException')
+  const errType = createPropertyAccess(COMMON_IDENTIFIERS.Thrift, type)
+  const errArgs = [ errType, createLiteral(message) ]
+  return createThrow(createNew(errCtor, undefined, errArgs))
+}
 
 export function createCallStatement(
   obj: string | Identifier,
@@ -95,6 +117,17 @@ export function propertyAccessForIdentifier(obj: string | Identifier, prop: stri
  */
 export function createAssignmentStatement(left: Expression, right: Expression): ExpressionStatement {
   return createStatement(createAssignment(left, right))
+}
+
+export function createLetStatement(
+  name: string | Identifier,
+  type?: TypeNode,
+  initializer?: Expression,
+): VariableStatement {
+  return createVariableStatement(
+    undefined,
+    createLet(name, type, initializer),
+  )
 }
 
 export function createConstStatement(

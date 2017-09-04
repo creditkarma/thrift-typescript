@@ -171,7 +171,7 @@ export function writeValueForType(
       ]
 
     /**
-     * BaseTypes:
+     * Base types:
      * 
      * SyntaxType.StringKeyword | SyntaxType.DoubleKeyword | SyntaxType.BoolKeyword |
      * SyntaxType.I8Keyword | SyntaxType.I16Keyword | SyntaxType.I32Keyword |

@@ -74,7 +74,7 @@ export const MAP_CONST: Map<string, string> = new Map([["hello", "world"], ["foo
       }
     `;
     const expected: string =
-`export interface IMyStruct {
+`export interface IMyStructArgs {
     id: number;
     word: string;
     field1?: number;
@@ -83,7 +83,7 @@ export class MyStruct {
     public id: number = null;
     public word: string = null;
     public field1?: number = null;
-    constructor(args?: IMyStruct) {
+    constructor(args?: IMyStructArgs) {
         if (args != null) {
             if (args.id != null) {
                 this.id = args.id;
@@ -169,7 +169,7 @@ export class MyStruct {
         }
         input.readStructEnd();
     }
-};
+}
 `;
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
@@ -182,12 +182,12 @@ export class MyStruct {
       }
     `;
     const expected: string =
-`export interface IMyStruct {
+`export interface IMyStructArgs {
     field1: Map<string, string>;
 }
 export class MyStruct {
     public field1: Map<string, string> = null;
-    constructor(args?: IMyStruct) {
+    constructor(args?: IMyStructArgs) {
         if (args != null) {
             if (args.field1 != null) {
                 this.field1 = args.field1;
@@ -255,7 +255,7 @@ export class MyStruct {
         }
         input.readStructEnd();
     }
-};
+}
 `;
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
@@ -268,12 +268,12 @@ export class MyStruct {
       }
     `;
     const expected: string =
-`export interface IMyStruct {
+`export interface IMyStructArgs {
     field1: Map<string, Map<string, number>>;
 }
 export class MyStruct {
     public field1: Map<string, Map<string, number>> = null;
-    constructor(args?: IMyStruct) {
+    constructor(args?: IMyStructArgs) {
         if (args != null) {
             if (args.field1 != null) {
                 this.field1 = args.field1;
@@ -358,7 +358,7 @@ export class MyStruct {
         }
         input.readStructEnd();
     }
-};
+}
 `;
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
@@ -371,12 +371,12 @@ export class MyStruct {
       }
     `;
     const expected: string =
-`export interface IMyStruct {
+`export interface IMyStructArgs {
     field1: Array<string>;
 }
 export class MyStruct {
     public field1: Array<string> = null;
-    constructor(args?: IMyStruct) {
+    constructor(args?: IMyStructArgs) {
         if (args != null) {
             if (args.field1 != null) {
                 this.field1 = args.field1;
@@ -441,7 +441,7 @@ export class MyStruct {
         }
         input.readStructEnd();
     }
-};
+}
 `;
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
@@ -454,12 +454,12 @@ export class MyStruct {
       }
     `;
     const expected: string =
-`export interface IMyStruct {
+`export interface IMyStructArgs {
     field1: Array<Array<string>>;
 }
 export class MyStruct {
     public field1: Array<Array<string>> = null;
-    constructor(args?: IMyStruct) {
+    constructor(args?: IMyStructArgs) {
         if (args != null) {
             if (args.field1 != null) {
                 this.field1 = args.field1;
@@ -538,7 +538,7 @@ export class MyStruct {
         }
         input.readStructEnd();
     }
-};
+}
 `;
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
@@ -551,12 +551,12 @@ export class MyStruct {
       }
     `;
     const expected: string =
-`export interface IMyStruct {
+`export interface IMyStructArgs {
     field1: Set<string>;
 }
 export class MyStruct {
     public field1: Set<string> = null;
-    constructor(args?: IMyStruct) {
+    constructor(args?: IMyStructArgs) {
         if (args != null) {
             if (args.field1 != null) {
                 this.field1 = args.field1;
@@ -621,7 +621,7 @@ export class MyStruct {
         }
         input.readStructEnd();
     }
-};
+}
 `;
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
@@ -634,12 +634,12 @@ export class MyStruct {
       }
     `;
     const expected: string =
-`export interface IMyStruct {
+`export interface IMyStructArgs {
     field1: Set<Set<string>>;
 }
 export class MyStruct {
     public field1: Set<Set<string>> = null;
-    constructor(args?: IMyStruct) {
+    constructor(args?: IMyStructArgs) {
         if (args != null) {
             if (args.field1 != null) {
                 this.field1 = args.field1;
@@ -718,7 +718,7 @@ export class MyStruct {
         }
         input.readStructEnd();
     }
-};
+}
 `;
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
@@ -731,12 +731,12 @@ export class MyStruct {
       }
     `;
     const expected: string =
-`export interface IMyStruct {
+`export interface IMyStructArgs {
     field1: OtherStruct;
 }
 export class MyStruct {
     public field1: OtherStruct = null;
-    constructor(args?: IMyStruct) {
+    constructor(args?: IMyStructArgs) {
         if (args != null) {
             if (args.field1 != null) {
                 this.field1 = args.field1;
@@ -788,7 +788,7 @@ export class MyStruct {
         }
         input.readStructEnd();
     }
-};
+}
 `;
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
@@ -801,12 +801,12 @@ export class MyStruct {
       }
     `;
     const expected: string =
-`export interface IMyStruct {
+`export interface IMyStructArgs {
     field1: Set<OtherStruct>;
 }
 export class MyStruct {
     public field1: Set<OtherStruct> = null;
-    constructor(args?: IMyStruct) {
+    constructor(args?: IMyStructArgs) {
         if (args != null) {
             if (args.field1 != null) {
                 this.field1 = args.field1;
@@ -872,7 +872,7 @@ export class MyStruct {
         }
         input.readStructEnd();
     }
-};
+}
 `;
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
@@ -885,12 +885,12 @@ export class MyStruct {
       }
     `;
     const expected: string =
-`export interface IMyException {
+`export interface IMyExceptionArgs {
     message: string;
 }
 export class MyException extends Thrift.TException {
     public message: string = null;
-    constructor(args?: IMyException) {
+    constructor(args?: IMyExceptionArgs) {
         if (args != null) {
             if (args.message != null) {
                 this.message = args.message;
@@ -941,7 +941,110 @@ export class MyException extends Thrift.TException {
         }
         input.readStructEnd();
     }
-};
+}
+`;
+    const actual: string = make(content)
+    assert.deepEqual(actual, expected)
+  })
+
+  it('should correctly generate a class for a union', () => {
+    const content: string = `
+      union MyUnion {
+          1: string field1;
+          2: string field2;
+      }
+    `;
+    const expected: string =
+`export interface IMyUnionArgs {
+    field1?: string;
+    field2?: string;
+}
+export class MyUnion {
+    public field1?: string = null;
+    public field2?: string = null;
+    constructor(args?: IMyUnionArgs) {
+        let fieldsSet: number = 0;
+        if (args != null) {
+            if (args.field1 != null) {
+                fieldsSet++;
+                this.field1 = args.field1;
+            }
+            if (args.field2 != null) {
+                fieldsSet++;
+                this.field2 = args.field2;
+            }
+            if (fieldsSet > 1) {
+                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
+            }
+            else if (fieldsSet < 1) {
+                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
+            }
+        }
+    }
+    public write(output: TProtocol): void {
+        output.writeStructBegin("MyUnion");
+        if (this.field1 != null) {
+            output.writeFieldBegin("field1", Thrift.Type.STRING, 1);
+            output.writeString(this.field1);
+            output.writeFieldEnd();
+        }
+        if (this.field2 != null) {
+            output.writeFieldBegin("field2", Thrift.Type.STRING, 2);
+            output.writeString(this.field2);
+            output.writeFieldEnd();
+        }
+        output.writeFieldStop();
+        output.writeStructEnd();
+    }
+    public read(input: TProtocol): void {
+        let fieldsSet: number = 0;
+        input.readStructBegin();
+        while (true) {
+            const ret: {
+                fname: string;
+                ftype: Thrift.Type;
+                fid: number;
+            } = input.readFieldBegin();
+            const fname: string = ret.fname;
+            const ftype: Thrift.Type = ret.ftype;
+            const fid: number = ret.fid;
+            if (ftype === Thrift.Type.STOP) {
+                break;
+            }
+            switch (fid) {
+                case 1:
+                    if (ftype === Thrift.Type.STRING) {
+                        fieldsSet++;
+                        this.field1 = input.readString();
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
+                    break;
+                case 2:
+                    if (ftype === Thrift.Type.STRING) {
+                        fieldsSet++;
+                        this.field2 = input.readString();
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
+                    break;
+                default: {
+                    input.skip(ftype);
+                }
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        if (fieldsSet > 1) {
+            throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
+        }
+        else if (fieldsSet < 1) {
+            throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
+        }
+    }
+}
 `;
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
