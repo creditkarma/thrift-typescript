@@ -1,4 +1,5 @@
 import {
+  Identifier,
   SyntaxKind,
   Statement,
   PropertyDeclaration,
@@ -24,11 +25,13 @@ import {
   createStatement,
   createClassExpression,
   createPropertyAccess,
-  createTypeReferenceNode
+  createTypeReferenceNode,
+  createHeritageClause,
+  createExpressionWithTypeArguments
 } from 'typescript'
 
 import {
-  StructDefinition,
+  InterfaceWithFields,
   FieldDefinition,
 } from '@creditkarma/thrift-parser'
 
@@ -50,7 +53,7 @@ import { COMMON_IDENTIFIERS } from '../identifiers'
 import { createReadMethod } from './read'
 import { createWriteMethod } from './write'
 
-export function renderStruct(node: StructDefinition): Statement {
+export function renderStruct(node: InterfaceWithFields, parent?: Identifier): Statement {
   const fields: Array<PropertyDeclaration> = node.fields.map(renderFieldDeclarations)
 
   /**
@@ -99,13 +102,11 @@ export function renderStruct(node: StructDefinition): Statement {
   const writeMethod: MethodDeclaration = createWriteMethod(node)
 
   const heritage: HeritageClause[] = []
-  // // TODO: This is a pretty hacky solution
-  // if (this.size) {
-  //   const implementsClause = createHeritageClause(SyntaxKind.ImplementsKeyword, [
-  //     createExpressionWithTypeArguments(undefined, createIdentifier(this.implements)),
-  //   ])
-  //   heritage.push(implementsClause)
-  // }
+  if (parent !== undefined) {
+    heritage.push(createHeritageClause(SyntaxKind.ExtendsKeyword, [
+      createExpressionWithTypeArguments(undefined, parent),
+    ]))
+  }
 
   // export class <node.name> { ... }
   const classExpression: ClassExpression = createClassExpression(

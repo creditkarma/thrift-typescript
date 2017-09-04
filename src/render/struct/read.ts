@@ -36,7 +36,7 @@ import {
   FieldType,
   SyntaxType,
   ContainerType,
-  StructDefinition,
+  InterfaceWithFields,
   FieldDefinition
 } from '@creditkarma/thrift-parser'
 
@@ -102,7 +102,7 @@ import {
  *     return
  * }
  */
-export function createReadMethod(struct: StructDefinition): MethodDeclaration {
+export function createReadMethod(struct: InterfaceWithFields): MethodDeclaration {
   //const fieldWrites: Array<IfStatement> = struct.fields.map((field) => createWriteForField(struct, field))
   const inputParameter: ParameterDeclaration = createFunctionParameter(
     'input', // param name

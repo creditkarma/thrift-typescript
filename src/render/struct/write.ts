@@ -26,7 +26,7 @@ import {
   SetType,
   ListType,
   MapType,
-  StructDefinition,
+  InterfaceWithFields,
   FieldDefinition,
   SyntaxType
 } from '@creditkarma/thrift-parser'
@@ -68,7 +68,7 @@ import {
  *     return
  * }
  */
-export function createWriteMethod(struct: StructDefinition): MethodDeclaration {
+export function createWriteMethod(struct: InterfaceWithFields): MethodDeclaration {
   const fieldWrites: Array<IfStatement> = struct.fields.map((field) => createWriteForField(struct, field))
   const inputParameter: ParameterDeclaration = createFunctionParameter('output', createTypeReferenceNode('TProtocol', undefined))
   
@@ -105,7 +105,7 @@ export function createWriteMethod(struct: StructDefinition): MethodDeclaration {
  *     output.writeFieldEnd()
  * }
  */
-export function createWriteForField(struct: StructDefinition, field: FieldDefinition): IfStatement {
+export function createWriteForField(struct: InterfaceWithFields, field: FieldDefinition): IfStatement {
   return createIf(
     createNotNull(`this.${field.name.value}`), // Condition
     createWriteForFieldType(struct, field, createIdentifier(`this.${field.name.value}`)), // Then block
@@ -125,7 +125,7 @@ export function createWriteForField(struct: StructDefinition, field: FieldDefini
  * @param struct
  * @param field 
  */
-export function createWriteForFieldType(struct: StructDefinition, field: FieldDefinition, fieldName: Identifier): Block {
+export function createWriteForFieldType(struct: InterfaceWithFields, field: FieldDefinition, fieldName: Identifier): Block {
   return createBlock([
     writeFieldBegin(field),
     ...writeValueForField(struct, field.fieldType, fieldName),
@@ -134,7 +134,7 @@ export function createWriteForFieldType(struct: StructDefinition, field: FieldDe
 }
 
 export function writeValueForType(
-  struct: StructDefinition,
+  struct: InterfaceWithFields,
   fieldType: FieldType,
   fieldName: Identifier
 ): Array<Expression> {
@@ -199,7 +199,7 @@ function writeMethodForName(methodName: WriteMethodName, fieldName: Identifier):
 }
 
 function writeValueForField(
-  struct: StructDefinition,
+  struct: InterfaceWithFields,
   fieldType: FieldType,
   fieldName: Identifier
 ): Array<ExpressionStatement> {
@@ -226,7 +226,7 @@ function writeValueForField(
  * @param fieldName 
  */
 function forEach(
-  struct: StructDefinition,
+  struct: InterfaceWithFields,
   fieldType: ContainerType,
   fieldName: Identifier
 ): CallExpression {
