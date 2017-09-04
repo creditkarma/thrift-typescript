@@ -1,6 +1,7 @@
 import {
   createEnumDeclaration,
   createEnumMember,
+  createIdentifier,
   createLiteral,
   createToken,
   createTypeAliasDeclaration,
@@ -112,7 +113,7 @@ export function renderStatement(statement: ThriftStatement): Array<Statement> {
       return [ renderInterface(statement) ]
 
     case SyntaxType.ExceptionDefinition:
-      return [ renderInterface(statement) ]
+      return [ renderInterface(statement), renderStruct(statement, createIdentifier('Thrift.TException')) ]
 
     case SyntaxType.ServiceDefinition:
       return []
