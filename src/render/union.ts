@@ -44,9 +44,9 @@ import {
   createFunctionParameter,
   createLetStatement,
   createNotNull,
-  createProtocolException,
   createPublicMethod,
   propertyAccessForIdentifier,
+  throwProtocolException,
 } from './utils'
 
 import {
@@ -155,10 +155,6 @@ export function renderUnion(node: UnionDefinition): ClassDeclaration {
  * }
  */
 function createFieldAssignment(field: FieldDefinition): IfStatement {
-  // Map is supposed to use Thrift.copyMap but that doesn't work if we use something better than an object
-  // Set/List is supposed to use Thrift.copyList but the implementation is weird and might not work
-  // when combined with the custom Map copying
-  // TODO: should we perform a deep clone? Currently shallow but not sure if deep cloning is actually needed
   const comparison: BinaryExpression = createNotNull(`args.${field.name.value}`)
   const thenAssign: ExpressionStatement = assignmentForField(field)
   const incrementer: ExpressionStatement = incrementFieldsSet()
@@ -293,7 +289,7 @@ export function createFieldValidation(): IfStatement {
       createLiteral(1),
     ),
     createBlock([
-      createProtocolException(
+      throwProtocolException(
         'TProtocolExceptionType.INVALID_DATA',
         'Cannot read a TUnion with more than one set value!',
       ),
@@ -305,7 +301,7 @@ export function createFieldValidation(): IfStatement {
         createLiteral(1),
       ),
       createBlock([
-        createProtocolException(
+        throwProtocolException(
           'TProtocolExceptionType.INVALID_DATA',
           'Cannot read a TUnion with no set value!',
         ),

@@ -7,7 +7,6 @@ import {
   ExpressionStatement,
   WhileStatement,
   VariableStatement,
-  SwitchStatement,
   Statement,
   CaseClause,
   IfStatement,
@@ -22,6 +21,7 @@ import {
   createLiteral,
   createWhile,
   createSwitch,
+  createReturn,
   createCaseBlock,
   createCaseClause,
   createDefaultClause,
@@ -32,7 +32,7 @@ import {
 } from 'typescript'
 
 import {
-  FieldType,
+  FunctionType,
   SyntaxType,
   ContainerType,
   InterfaceWithFields,
@@ -48,7 +48,7 @@ import {
 } from '../types'
 
 import {
-  createCallStatement,
+  createMethodCallStatement,
   createMethodCall,
   createPublicMethod,
   createFunctionParameter,
@@ -133,33 +133,26 @@ export function createReadMethod(struct: InterfaceWithFields): MethodDeclaration
     ], true)
   )
 
-  const caseStatements: Array<CaseClause> = struct.fields.map(createCaseForField)
-
-  /**
-   * switch (fid) {
-   *   ...caseStatements
-   * } 
-   */
-  const switchStatement: SwitchStatement = createSwitch(
-    COMMON_IDENTIFIERS['fid'], // what to switch on
-    createCaseBlock([
-      ...caseStatements,
-      createDefaultClause([
-        createSkipBlock()
-      ])
-    ])
+  const whileLoop: WhileStatement = createWhile(
+    createLiteral(true),
+    createBlock([
+      ret,
+      fname,
+      ftype,
+      fid,
+      checkStop,
+      createSwitch(
+        COMMON_IDENTIFIERS['fid'], // what to switch on
+        createCaseBlock([
+          ...struct.fields.map(createCaseForField),
+          createDefaultClause([
+            createSkipBlock()
+          ])
+        ])
+      ),
+      createStatement(readFieldEnd())
+    ], true)
   )
-
-  const whileBlock: Block = createBlock([
-    ret,
-    fname,
-    ftype,
-    fid,
-    checkStop,
-    switchStatement,
-    createStatement(readFieldEnd())
-  ], true)
-  const whileLoop: WhileStatement = createWhile(createLiteral(true), whileBlock)
   
   return createPublicMethod(
     'read', // Method name
@@ -168,7 +161,8 @@ export function createReadMethod(struct: InterfaceWithFields): MethodDeclaration
     [
       readStructBegin(),
       whileLoop,
-      readStructEnd()
+      readStructEnd(),
+      createReturn()
     ] // Method body statements
   )
 }
@@ -266,19 +260,19 @@ function loopBody(fieldType: ContainerType, fieldName: Identifier): Array<Statem
       return [
         ..._readValueForFieldType(fieldType.keyType, key),
         ..._readValueForFieldType(fieldType.valueType, value),
-        createCallStatement(fieldName, 'set', [ key, value ])
+        createMethodCallStatement(fieldName, 'set', [ key, value ])
       ]
 
     case SyntaxType.ListType:
       return [
         ..._readValueForFieldType(fieldType.valueType, value),
-        createCallStatement(fieldName, 'push', [ value ])
+        createMethodCallStatement(fieldName, 'push', [ value ])
       ]
 
     case SyntaxType.SetType:
       return [
         ..._readValueForFieldType(fieldType.valueType, value),
-        createCallStatement(fieldName, 'add', [ value ])
+        createMethodCallStatement(fieldName, 'add', [ value ])
       ]
   }
 }
@@ -336,7 +330,7 @@ function loopOverContainer(fieldType: ContainerType, fieldName: Identifier): Arr
   ]
 }
 
-function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Array<Statement> {
+function _readValueForFieldType(fieldType: FunctionType, fieldName: Identifier): Array<Statement> {
   switch (fieldType.type) {
     case SyntaxType.Identifier:
       return [
@@ -348,7 +342,7 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Ar
             []
           )
         ),
-        createCallStatement(fieldName, 'read', [
+        createMethodCallStatement(fieldName, 'read', [
           COMMON_IDENTIFIERS['input']
         ])
       ]
@@ -422,6 +416,13 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Ar
           )
         ),
         ...loopOverContainer(fieldType, fieldName)
+      ]
+
+    case SyntaxType.VoidKeyword:
+      return [
+        createMethodCallStatement('input', 'skip', [
+          COMMON_IDENTIFIERS['ftype']
+        ])
       ]
 
     default:
@@ -430,7 +431,7 @@ function _readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Ar
   }
 }
 
-export function readValueForFieldType(fieldType: FieldType, fieldName: Identifier): Array<Statement> {
+export function readValueForFieldType(fieldType: FunctionType, fieldName: Identifier): Array<Statement> {
   switch (fieldType.type) {
     case SyntaxType.Identifier:
       return [
@@ -442,7 +443,7 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
             []
           )
         ),
-        createCallStatement(fieldName, 'read', [
+        createMethodCallStatement(fieldName, 'read', [
           COMMON_IDENTIFIERS['input']
         ])
       ]
@@ -512,6 +513,13 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
           )
         ),
         ...loopOverContainer(fieldType, fieldName)
+      ]
+
+    case SyntaxType.VoidKeyword:
+      return [
+        createMethodCallStatement('input', 'skip', [
+          COMMON_IDENTIFIERS['ftype']
+        ])
       ]
 
     default:
@@ -522,12 +530,12 @@ export function readValueForFieldType(fieldType: FieldType, fieldName: Identifie
 
 // input.readStructBegin(<structName>)
 export function readStructBegin(): ExpressionStatement {
-  return createCallStatement('input', 'readStructBegin')
+  return createMethodCallStatement('input', 'readStructBegin')
 }
 
 // input.readStructEnd()
 export function readStructEnd(): ExpressionStatement {
-  return createCallStatement('input', 'readStructEnd')
+  return createMethodCallStatement('input', 'readStructEnd')
 }
 
 // input.readFieldBegin()
@@ -573,8 +581,12 @@ export function readSetEnd(): CallExpression {
 // input.skip(ftype)
 export function createSkipBlock(): Block {
   return createBlock([
-    createCallStatement('input', 'skip', [
-      COMMON_IDENTIFIERS['ftype']
-    ])
+    createSkipStatement()
   ], true)
+}
+
+function createSkipStatement(): ExpressionStatement {
+  return createMethodCallStatement('input', 'skip', [
+    COMMON_IDENTIFIERS['ftype']
+  ])
 }

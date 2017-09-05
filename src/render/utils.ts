@@ -1,47 +1,12 @@
-import {
-  BinaryExpression,
-  CallExpression,
-  ConstructorDeclaration,
-  createAssignment,
-  createBinary,
-  createBlock,
-  createCall,
-  createConstructor,
-  createIdentifier,
-  createLiteral,
-  createMethod,
-  createNew,
-  createNull,
-  createParameter,
-  createPropertyAccess,
-  createStatement,
-  createThis,
-  createThrow,
-  createToken,
-  createVariableDeclaration,
-  createVariableDeclarationList,
-  createVariableStatement,
-  Expression,
-  ExpressionStatement,
-  Identifier,
-  MethodDeclaration,
-  NodeFlags,
-  ParameterDeclaration,
-  PropertyAccessExpression,
-  Statement,
-  SyntaxKind,
-  ThrowStatement,
-  Token,
-  TypeNode,
-  VariableDeclarationList,
-  VariableStatement,
-} from 'typescript'
+import * as ts from 'typescript'
 
 import {
   FieldRequired,
 } from '@creditkarma/thrift-parser'
 
 import {
+  createVoidType,
+  TApplicationException,
   TProtocolException,
 } from './types'
 
@@ -56,30 +21,113 @@ import {
  * concise.
  */
 
+export function createPrivateProperty(name: string | ts.Identifier, type?: ts.TypeNode, initializer?: ts.Expression): ts.PropertyDeclaration {
+  return ts.createProperty(
+    undefined,
+    [ ts.createToken(ts.SyntaxKind.PrivateKeyword) ],
+    name,
+    undefined,
+    type,
+    initializer,
+  )
+}
+
+export function createPublicProperty(name: string | ts.Identifier, type?: ts.TypeNode, initializer?: ts.Expression) {
+  return ts.createProperty(
+    undefined,
+    [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
+    name,
+    undefined,
+    type,
+    initializer,
+  )
+}
+
+export function createPromise(type: ts.TypeNode, body: Array<ts.Statement>): ts.NewExpression {
+  return ts.createNew(
+    ts.createIdentifier('Promise'),
+    [ type ],
+    [ ts.createArrowFunction(
+      undefined,
+      undefined,
+      [
+        createFunctionParameter('resolve', undefined),
+        createFunctionParameter('reject', undefined),
+      ],
+      createVoidType(),
+      undefined,
+      ts.createBlock([
+        ...body,
+      ], true),
+    ) ],
+  )
+}
+
 export function createProtocolException(
   type: TProtocolException,
   message: string,
-): ThrowStatement {
-  const errCtor = createPropertyAccess(COMMON_IDENTIFIERS.Thrift, 'TProtocolException')
-  const errType = createPropertyAccess(COMMON_IDENTIFIERS.Thrift, type)
-  const errArgs = [ errType, createLiteral(message) ]
-  return createThrow(createNew(errCtor, undefined, errArgs))
+): ts.NewExpression {
+  const errCtor = ts.createPropertyAccess(COMMON_IDENTIFIERS.Thrift, 'TProtocolException')
+  const errType = ts.createPropertyAccess(COMMON_IDENTIFIERS.Thrift, type)
+  const errArgs = [ errType, ts.createLiteral(message) ]
+  return ts.createNew(errCtor, undefined, errArgs)
+}
+
+export function throwProtocolException(
+  type: TProtocolException,
+  message: string,
+): ts.ThrowStatement {
+  return ts.createThrow(createProtocolException(type, message))
+}
+
+export function createApplicationException(
+  type: TApplicationException,
+  message: string | ts.Expression,
+): ts.NewExpression {
+  const errCtor = ts.createPropertyAccess(COMMON_IDENTIFIERS.Thrift, 'TApplicationException')
+  const errType = ts.createPropertyAccess(COMMON_IDENTIFIERS.Thrift, type)
+  const errArgs = [
+    errType,
+    (typeof message === 'string' ? ts.createLiteral(message) : message),
+  ]
+  return ts.createNew(errCtor, undefined, errArgs)
+}
+
+export function throwApplicationException(
+  type: TApplicationException,
+  message: string,
+): ts.ThrowStatement {
+  return ts.createThrow(createApplicationException(type, message))
 }
 
 export function createCallStatement(
-  obj: string | Identifier,
-  method: string,
-  args: Array<Expression> = [],
-): ExpressionStatement {
-  return createStatement(createMethodCall(obj, method, args))
+  obj: ts.Expression,
+  args: Array<ts.Expression> = [],
+): ts.ExpressionStatement {
+  return ts.createStatement(ts.createCall(
+    (typeof obj === 'string' ? ts.createIdentifier(obj) : obj),
+    undefined,
+    args,
+  ))
+}
+
+export function createMethodCallStatement(
+  obj: string | ts.Identifier,
+  methodName: string,
+  args: Array<ts.Expression> = [],
+): ts.ExpressionStatement {
+  return createCallStatement(
+    propertyAccessForIdentifier(obj, methodName),
+    args,
+  )
 }
 
 export function createMethodCall(
-  obj: string | Identifier,
+  obj: string | ts.Expression,
   method: string,
-  args: Array<Expression> = [],
-): CallExpression {
-  return createCall(
+  args: Array<ts.Expression> = [],
+): ts.CallExpression {
+  return ts.createCall(
     propertyAccessForIdentifier(obj, method),
     undefined,
     args,
@@ -87,7 +135,7 @@ export function createMethodCall(
 }
 
 /**
- * Given an object identifier and a field name, this returns an expression accessing that property
+ * Given an object ts.Identifier and a field name, this returns an ts.Expression accessing that property
  *
  * EXAMPLE
  *
@@ -96,69 +144,69 @@ export function createMethodCall(
  * @param obj
  * @param field
  */
-export function propertyAccessForIdentifier(obj: string | Identifier, prop: string): PropertyAccessExpression {
+export function propertyAccessForIdentifier(obj: string | ts.Expression, prop: string): ts.PropertyAccessExpression {
   switch (obj) {
     case 'this':
-      return createPropertyAccess(createThis(), prop)
+      return ts.createPropertyAccess(ts.createThis(), prop)
 
     default:
-      return createPropertyAccess(
-        (typeof obj === 'string' ? createIdentifier(obj) : obj),
+      return ts.createPropertyAccess(
+        (typeof obj === 'string' ? ts.createIdentifier(obj) : obj),
         prop,
       )
   }
 }
 
 /**
- * Create assignment of one expression to another
+ * Create assignment of one ts.Expression to another
  *
  * @param left
  * @param right
  */
-export function createAssignmentStatement(left: Expression, right: Expression): ExpressionStatement {
-  return createStatement(createAssignment(left, right))
+export function createAssignmentStatement(left: ts.Expression, right: ts.Expression): ts.ExpressionStatement {
+  return ts.createStatement(ts.createAssignment(left, right))
 }
 
 export function createLetStatement(
-  name: string | Identifier,
-  type?: TypeNode,
-  initializer?: Expression,
-): VariableStatement {
-  return createVariableStatement(
+  name: string | ts.Identifier,
+  type?: ts.TypeNode,
+  initializer?: ts.Expression,
+): ts.VariableStatement {
+  return ts.createVariableStatement(
     undefined,
     createLet(name, type, initializer),
   )
 }
 
 export function createConstStatement(
-  name: string | Identifier,
-  type?: TypeNode,
-  initializer?: Expression,
-): VariableStatement {
-  return createVariableStatement(
+  name: string | ts.Identifier,
+  type?: ts.TypeNode,
+  initializer?: ts.Expression,
+): ts.VariableStatement {
+  return ts.createVariableStatement(
     undefined,
     createConst(name, type, initializer),
   )
 }
 
 export function createConst(
-  name: string | Identifier,
-  type?: TypeNode,
-  initializer?: Expression,
-): VariableDeclarationList {
-  return createVariableDeclarationList([
-    createVariableDeclaration(name, type, initializer),
-  ], NodeFlags.Const)
+  name: string | ts.Identifier,
+  type?: ts.TypeNode,
+  initializer?: ts.Expression,
+): ts.VariableDeclarationList {
+  return ts.createVariableDeclarationList([
+    ts.createVariableDeclaration(name, type, initializer),
+  ], ts.NodeFlags.Const)
 }
 
 export function createLet(
-  name: string | Identifier,
-  type?: TypeNode,
-  initializer?: Expression,
-): VariableDeclarationList {
-  return createVariableDeclarationList([
-    createVariableDeclaration(name, type, initializer),
-  ], NodeFlags.Let)
+  name: string | ts.Identifier,
+  type?: ts.TypeNode,
+  initializer?: ts.Expression,
+): ts.VariableDeclarationList {
+  return ts.createVariableDeclarationList([
+    ts.createVariableDeclaration(name, type, initializer),
+  ], ts.NodeFlags.Let)
 }
 
 /**
@@ -171,8 +219,8 @@ export function createLet(
  * @param left
  * @param right
  */
-export function createNotEquals(left: Expression, right: Expression): BinaryExpression {
-  return createBinary(left, SyntaxKind.ExclamationEqualsEqualsToken, right)
+export function createNotEquals(left: ts.Expression, right: ts.Expression): ts.BinaryExpression {
+  return ts.createBinary(left, ts.SyntaxKind.ExclamationEqualsEqualsToken, right)
 }
 
 /**
@@ -185,12 +233,12 @@ export function createNotEquals(left: Expression, right: Expression): BinaryExpr
  * @param left
  * @param right
  */
-export function createEquals(left: Expression, right: Expression): BinaryExpression {
-  return createBinary(left, SyntaxKind.EqualsEqualsEqualsToken, right)
+export function createEquals(left: ts.Expression, right: ts.Expression): ts.BinaryExpression {
+  return ts.createBinary(left, ts.SyntaxKind.EqualsEqualsEqualsToken, right)
 }
 
 /**
- * Create a binary expression for testing not equal to null
+ * Create a binary ts.Expression for testing not equal to null
  *
  * EXAMPLE
  *
@@ -199,41 +247,46 @@ export function createEquals(left: Expression, right: Expression): BinaryExpress
  * @param obj
  * @param prop
  */
-export function createNotNull(obj: string | Identifier ): BinaryExpression {
-  return createBinary(
-    ((typeof obj === 'string') ? createIdentifier(obj) : obj),
-    SyntaxKind.ExclamationEqualsToken,
-    createNull(),
+export function createNotNull(obj: string | ts.Expression ): ts.BinaryExpression {
+  return ts.createBinary(
+    ((typeof obj === 'string') ? ts.createIdentifier(obj) : obj),
+    ts.SyntaxKind.ExclamationEqualsToken,
+    ts.createNull(),
   )
 }
 
-export function renderOptional(value: FieldRequired): Token<SyntaxKind.QuestionToken> | undefined {
-  if (value === 'required') {
-    return undefined
+export function renderOptional(value: FieldRequired): ts.Token<ts.SyntaxKind.QuestionToken> | undefined {
+  if (value === 'optional') {
+    return ts.createToken(ts.SyntaxKind.QuestionToken)
   } else {
-    return createToken(SyntaxKind.QuestionToken)
+    return undefined
   }
 }
 
 export function createClassConstructor(
-  args: Array<ParameterDeclaration>,
-  statements: Array<Statement>,
-): ConstructorDeclaration {
-  return createConstructor(undefined, undefined, args, createBlock(statements, true))
+  parameters: Array<ts.ParameterDeclaration>,
+  statements: Array<ts.Statement>,
+): ts.ConstructorDeclaration {
+  return ts.createConstructor(
+    undefined,
+    undefined,
+    parameters,
+    ts.createBlock(statements, true),
+  )
 }
 
 export function createFunctionParameter(
-  name: string | Identifier,
-  typeNode: TypeNode,
-  initializer?: Expression,
+  name: string | ts.Identifier,
+  typeNode: ts.TypeNode,
+  initializer?: ts.Expression,
   isOptional?: boolean,
-): ParameterDeclaration {
-  return createParameter(
+): ts.ParameterDeclaration {
+  return ts.createParameter(
     undefined,
     undefined,
     undefined,
-    (typeof name === 'string' ? createIdentifier(name) : name),
-    (isOptional ? createToken(SyntaxKind.QuestionToken) : undefined),
+    (typeof name === 'string' ? ts.createIdentifier(name) : name),
+    (isOptional ? ts.createToken(ts.SyntaxKind.QuestionToken) : undefined),
     typeNode,
     initializer,
   )
@@ -241,19 +294,19 @@ export function createFunctionParameter(
 
 export function createPublicMethod(
   name: string,
-  args: Array<ParameterDeclaration>,
-  type: TypeNode,
-  statements: Array<Statement>,
-): MethodDeclaration {
-  return createMethod(
+  args: Array<ts.ParameterDeclaration>,
+  type: ts.TypeNode,
+  statements: Array<ts.Statement>,
+): ts.MethodDeclaration {
+  return ts.createMethod(
     undefined,
-    [ createToken(SyntaxKind.PublicKeyword) ],
+    [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
     undefined,
-    createIdentifier(name),
+    ts.createIdentifier(name),
     undefined,
     undefined,
     args,
     type,
-    createBlock(statements, true),
+    ts.createBlock(statements, true),
   )
 }

@@ -33,13 +33,12 @@ import {
 } from '../types'
 
 import {
-  renderOptional,
   createFunctionParameter,
   createClassConstructor,
   createAssignmentStatement,
   propertyAccessForIdentifier,
   createNotNull,
-  createProtocolException
+  throwProtocolException
 } from '../utils'
 
 import { interfaceNameForClass } from '../interface'
@@ -99,8 +98,6 @@ export function renderStruct(node: InterfaceWithFields): ClassDeclaration {
     [],
     [ ...fields, ctor, writeMethod, readMethod ]
   )
-
-  //return createStatement(classExpression)
 }
 
 export function createArgsParameterForStruct(node: InterfaceWithFields): ParameterDeclaration {
@@ -117,9 +114,7 @@ export function createFieldsForStruct(node: InterfaceWithFields): Array<Property
 }
 
 export function createArgsTypeForStruct(node: InterfaceWithFields): TypeReferenceNode {
-  return (node.fields.length > 0) ?
-    createTypeReferenceNode(interfaceNameForClass(node), undefined) :
-    undefined
+  return createTypeReferenceNode(interfaceNameForClass(node), undefined)
 }
 
 /**
@@ -158,7 +153,7 @@ export function assignmentForField(field: FieldDefinition): ExpressionStatement 
  */
 export function throwForField(field: FieldDefinition): ThrowStatement | undefined {
   if (field.requiredness === 'required') {
-    return createProtocolException(
+    return throwProtocolException(
       'TProtocolExceptionType.UNKNOWN',
       `Required field ${field.name.value} is unset!`
     )
@@ -181,10 +176,6 @@ export function throwForField(field: FieldDefinition): ThrowStatement | undefine
  * }
  */
 export function createFieldAssignment(field: FieldDefinition): IfStatement {
-  // Map is supposed to use Thrift.copyMap but that doesn't work if we use something better than an object
-  // Set/List is supposed to use Thrift.copyList but the implementation is weird and might not work
-  // when combined with the custom Map copying
-  // TODO: should we perform a deep clone? Currently shallow but not sure if deep cloning is actually needed
   const comparison: BinaryExpression = createNotNull(`args.${field.name.value}`)
   const thenAssign: ExpressionStatement = assignmentForField(field)
   const elseThrow: ThrowStatement = throwForField(field)
@@ -201,13 +192,13 @@ export function createFieldAssignment(field: FieldDefinition): IfStatement {
  * 
  * EXAMPLE:
  * 
- * // example.thrift
+ * // thrift
  * stuct MyStruct {
  *   1: required i32 id,
  *   2: optional bool field1,
  * }
  * 
- * // example.ts
+ * // typescript
  * export class MyStruct {
  *   public id: number = null;
  *   public field1?: boolean = null;
@@ -224,7 +215,7 @@ export function renderFieldDeclarations(field: FieldDefinition): PropertyDeclara
     undefined,
     [ createToken(SyntaxKind.PublicKeyword) ],
     field.name.value,
-    renderOptional(field.requiredness),
+    undefined,
     typeNodeForFieldType(field.fieldType),
     defaultValue
   )
