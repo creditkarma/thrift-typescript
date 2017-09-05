@@ -1,39 +1,28 @@
-import {
-  createIdentifier,
-  createKeywordTypeNode,
-  createPropertyAccess,
-  createPropertySignature,
-  createTypeReferenceNode,
-  KeywordTypeNode,
-  PropertyAccessExpression,
-  PropertySignature,
-  SyntaxKind,
-  TypeNode,
-} from 'typescript'
+import * as ts from 'typescript'
 
 import {
-  FieldType,
+  FunctionType,
   SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-export function createVoidType(): TypeNode {
-  return createKeywordTypeNode(SyntaxKind.VoidKeyword)
+export function createVoidType(): ts.TypeNode {
+  return ts.createKeywordTypeNode(ts.SyntaxKind.VoidKeyword)
 }
 
-export function createStringType(): KeywordTypeNode {
-  return createKeywordTypeNode(SyntaxKind.StringKeyword)
+export function createStringType(): ts.KeywordTypeNode {
+  return ts.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)
 }
 
-export function createNumberType(): KeywordTypeNode {
-  return createKeywordTypeNode(SyntaxKind.NumberKeyword)
+export function createNumberType(): ts.KeywordTypeNode {
+  return ts.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword)
 }
 
-export function createBooleanType(): KeywordTypeNode {
-  return createKeywordTypeNode(SyntaxKind.BooleanKeyword)
+export function createBooleanType(): ts.KeywordTypeNode {
+  return ts.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword)
 }
 
-export function createTypeProperty(name: string, type: TypeNode): PropertySignature {
-  return createPropertySignature(
+export function createTypeProperty(name: string, type: ts.TypeNode): ts.PropertySignature {
+  return ts.createPropertySignature(
     undefined, // modifiers
     name, // name of property
     undefined, // question token if optional
@@ -56,32 +45,38 @@ export function createTypeProperty(name: string, type: TypeNode): PropertySignat
  * This function provides the ': boolean' bit.
  *
  * Container types:
+ *
  * SetType | MapType | ListType
  *
  * Base types:
+ *
  * SyntaxType.StringKeyword | SyntaxType.DoubleKeyword | SyntaxType.BoolKeyword |
  * SyntaxType.I8Keyword | SyntaxType.I16Keyword | SyntaxType.I32Keyword |
  * SyntaxType.I64Keyword | SyntaxType.BinaryKeyword | SyntaxType.ByteKeyword;
+ *
+ * Function types:
+ *
+ * SyntaxType.VoidKeyword
  */
-export function typeNodeForFieldType(fieldType: FieldType): TypeNode {
+export function typeNodeForFieldType(fieldType: FunctionType): ts.TypeNode {
   switch (fieldType.type) {
     case SyntaxType.Identifier:
-      return createTypeReferenceNode(fieldType.value, undefined)
+      return ts.createTypeReferenceNode(fieldType.value, undefined)
 
     case SyntaxType.SetType:
-      return createTypeReferenceNode(
+      return ts.createTypeReferenceNode(
         'Set',
         [ typeNodeForFieldType(fieldType.valueType) ],
       )
 
     case SyntaxType.MapType:
-      return createTypeReferenceNode(
+      return ts.createTypeReferenceNode(
         'Map',
         [ typeNodeForFieldType(fieldType.keyType), typeNodeForFieldType(fieldType.valueType) ],
       )
 
     case SyntaxType.ListType:
-      return createTypeReferenceNode(
+      return ts.createTypeReferenceNode(
         'Array',
         [ typeNodeForFieldType(fieldType.valueType) ],
       )
@@ -101,6 +96,47 @@ export function typeNodeForFieldType(fieldType: FieldType): TypeNode {
     case SyntaxType.ByteKeyword:
       return createNumberType()
 
+    case SyntaxType.VoidKeyword:
+      return createVoidType()
+
+    default:
+      const msg: never = fieldType
+      throw new Error(`Non-exhaustive match for: ${msg}`)
+  }
+}
+
+export function constructorNameForFieldType(fieldType: FunctionType): ts.Identifier {
+  switch (fieldType.type) {
+    case SyntaxType.Identifier:
+      return ts.createIdentifier(fieldType.value)
+
+    case SyntaxType.SetType:
+      return ts.createIdentifier('Set')
+
+    case SyntaxType.MapType:
+      return ts.createIdentifier('Map')
+
+    case SyntaxType.ListType:
+      return ts.createIdentifier('Array')
+
+    case SyntaxType.StringKeyword:
+      return ts.createIdentifier('String')
+
+    case SyntaxType.BoolKeyword:
+      return ts.createIdentifier('Boolean')
+
+    case SyntaxType.DoubleKeyword:
+    case SyntaxType.I8Keyword:
+    case SyntaxType.I16Keyword:
+    case SyntaxType.I32Keyword:
+    case SyntaxType.I64Keyword:
+    case SyntaxType.BinaryKeyword:
+    case SyntaxType.ByteKeyword:
+      return ts.createIdentifier('Number')
+
+    case SyntaxType.VoidKeyword:
+      return ts.createIdentifier('void')
+
     default:
       const msg: never = fieldType
       throw new Error(`Non-exhaustive match for: ${msg}`)
@@ -112,10 +148,16 @@ export type TProtocolException =
   'TProtocolExceptionType.SIZE_LIMIT' | 'TProtocolExceptionType.BAD_VERSION' | 'TProtocolExceptionType.NOT_IMPLEMENTED' |
   'TProtocolExceptionType.DEPTH_LIMIT'
 
+export type TApplicationException =
+  'TApplicationExceptionType.UNKNOWN' | 'TApplicationExceptionType.UNKNOWN_METHOD' | 'TApplicationExceptionType.INVALID_MESSAGE_TYPE' |
+  'TApplicationExceptionType.WRONG_METHOD_NAME' | 'TApplicationExceptionType.BAD_SEQUENCE_ID' | 'TApplicationExceptionType.MISSING_RESULT' |
+  'TApplicationExceptionType.INTERNAL_ERROR' | 'TApplicationExceptionType.PROTOCOL_ERROR' | 'TApplicationExceptionType.INVALID_TRANSFORM' |
+  'TApplicationExceptionType.INVALID_PROTOCOL' | 'TApplicationExceptionType.UNSUPPORTED_CLIENT_TYPE'
+
 export type ThriftTypeAccess =
   'Type.STRUCT' | 'Type.SET' | 'Type.MAP' | 'Type.LIST' | 'Type.STRING' |
   'Type.BOOL' | 'Type.DOUBLE' | 'Type.BYTE' | 'Type.I16' | 'Type.I32' |
-  'Type.I64'
+  'Type.I64' | 'Type.VOID'
 
 /**
  * Gets the type access for the 'Thrift' object for a given FieldType.
@@ -129,7 +171,7 @@ export type ThriftTypeAccess =
  *
  * @param fieldType
  */
-function thriftAccessForFieldType(fieldType: FieldType): ThriftTypeAccess {
+function thriftAccessForFieldType(fieldType: FunctionType): ThriftTypeAccess {
   switch (fieldType.type) {
     case SyntaxType.Identifier:
       return 'Type.STRUCT'
@@ -166,6 +208,9 @@ function thriftAccessForFieldType(fieldType: FieldType): ThriftTypeAccess {
     case SyntaxType.I64Keyword:
       return 'Type.I64'
 
+    case SyntaxType.VoidKeyword:
+      return 'Type.VOID'
+
     default:
       const msg: never = fieldType
       throw new Error(`Non-exhaustive match for: ${msg}`)
@@ -181,9 +226,9 @@ function thriftAccessForFieldType(fieldType: FieldType): ThriftTypeAccess {
  *
  * @param fieldType
  */
-export function thriftPropertyAccessForFieldType(fieldType: FieldType): PropertyAccessExpression {
-  return createPropertyAccess(
-    createIdentifier('Thrift'),
+export function thriftPropertyAccessForFieldType(fieldType: FunctionType): ts.PropertyAccessExpression {
+  return ts.createPropertyAccess(
+    ts.createIdentifier('Thrift'),
     thriftAccessForFieldType(fieldType),
   )
 }

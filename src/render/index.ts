@@ -22,6 +22,12 @@ import {
 
 import { renderException } from './exception'
 import { renderInterface } from './interface'
+import {
+  renderArgsStruct,
+  renderClient,
+  renderProcessor,
+  renderResultStruct,
+} from './service'
 import { renderStruct } from './struct'
 import { typeNodeForFieldType } from './types'
 import { renderUnion } from './union'
@@ -117,7 +123,12 @@ export function renderStatement(statement: ThriftStatement): Array<Statement> {
       return [ renderInterface(statement), renderException(statement) ]
 
     case SyntaxType.ServiceDefinition:
-      return []
+      return [
+        ...renderArgsStruct(statement),
+        ...renderResultStruct(statement),
+        renderClient(statement),
+        renderProcessor(statement),
+      ]
 
     case SyntaxType.NamespaceDefinition:
     case SyntaxType.CppIncludeDefinition:

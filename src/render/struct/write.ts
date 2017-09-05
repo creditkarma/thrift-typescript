@@ -1,27 +1,7 @@
-import {
-  SyntaxKind,
-  Statement,
-  Expression,
-  ExpressionStatement,
-  CallExpression,
-  IfStatement,
-  Identifier,
-  Block,
-  ParameterDeclaration,
-  MethodDeclaration,
-  createToken,
-  createIdentifier,
-  createBlock,
-  createLiteral,
-  createStatement,
-  createIf,
-  createArrowFunction,
-  createTypeReferenceNode,
-  createUniqueName
-} from 'typescript'
+import * as ts from 'typescript'
 
 import {
-  FieldType,
+  FunctionType,
   ContainerType,
   SetType,
   ListType,
@@ -33,7 +13,7 @@ import {
 
 import {
   createMethodCall,
-  createCallStatement,
+  createMethodCallStatement,
   propertyAccessForIdentifier,
   createFunctionParameter,
   createNotNull,
@@ -55,6 +35,10 @@ import {
   WriteMethodName
 } from './methods'
 
+function isNotVoid(field: FieldDefinition): boolean {
+  return field.fieldType.type !== SyntaxType.VoidKeyword;
+}
+
 /**
  * public write(output: TProtocol): void {
  *     output.writeStructBegin("{{StructName}}")
@@ -68,9 +52,9 @@ import {
  *     return
  * }
  */
-export function createWriteMethod(struct: InterfaceWithFields): MethodDeclaration {
-  const fieldWrites: Array<IfStatement> = struct.fields.map((field) => createWriteForField(struct, field))
-  const inputParameter: ParameterDeclaration = createFunctionParameter('output', createTypeReferenceNode('TProtocol', undefined))
+export function createWriteMethod(struct: InterfaceWithFields): ts.MethodDeclaration {
+  const fieldWrites: Array<ts.IfStatement> = struct.fields.filter(isNotVoid).map((field) => createWriteForField(struct, field))
+  const inputParameter: ts.ParameterDeclaration = createFunctionParameter('output', ts.createTypeReferenceNode('TProtocol', undefined))
   
   return createPublicMethod(
     'write', // Method name
@@ -80,7 +64,8 @@ export function createWriteMethod(struct: InterfaceWithFields): MethodDeclaratio
       writeStructBegin(struct.name.value),
       ...fieldWrites,
       writeFieldStop(),
-      writeStructEnd()
+      writeStructEnd(),
+      ts.createReturn()
     ] // Method body statements
   )
 }
@@ -105,10 +90,14 @@ export function createWriteMethod(struct: InterfaceWithFields): MethodDeclaratio
  *     output.writeFieldEnd()
  * }
  */
-export function createWriteForField(struct: InterfaceWithFields, field: FieldDefinition): IfStatement {
-  return createIf(
+export function createWriteForField(struct: InterfaceWithFields, field: FieldDefinition): ts.IfStatement {
+  return ts.createIf(
     createNotNull(`this.${field.name.value}`), // Condition
-    createWriteForFieldType(struct, field, createIdentifier(`this.${field.name.value}`)), // Then block
+    createWriteForFieldType(
+      struct,
+      field,
+      ts.createIdentifier(`this.${field.name.value}`)
+    ), // Then block
     undefined // Else block
   )
 }
@@ -125,8 +114,8 @@ export function createWriteForField(struct: InterfaceWithFields, field: FieldDef
  * @param struct
  * @param field 
  */
-export function createWriteForFieldType(struct: InterfaceWithFields, field: FieldDefinition, fieldName: Identifier): Block {
-  return createBlock([
+export function createWriteForFieldType(struct: InterfaceWithFields, field: FieldDefinition, fieldName: ts.Identifier): ts.Block {
+  return ts.createBlock([
     writeFieldBegin(field),
     ...writeValueForField(struct, field.fieldType, fieldName),
     writeFieldEnd()
@@ -135,9 +124,9 @@ export function createWriteForFieldType(struct: InterfaceWithFields, field: Fiel
 
 export function writeValueForType(
   struct: InterfaceWithFields,
-  fieldType: FieldType,
-  fieldName: Identifier
-): Array<Expression> {
+  fieldType: FunctionType,
+  fieldName: ts.Identifier
+): Array<ts.Expression> {
   switch (fieldType.type) {
     case SyntaxType.Identifier:
       return [ createMethodCall(fieldName, 'write', [
@@ -188,22 +177,25 @@ export function writeValueForType(
     case SyntaxType.I64Keyword:
       return [ writeMethodForName(WRITE_METHODS[fieldType.type], fieldName) ]
 
+    case SyntaxType.VoidKeyword:
+      return []
+
     default:
       const msg: never = fieldType
       throw new Error(`Non-exhaustive match for: ${msg}`)
   }
 }
 
-function writeMethodForName(methodName: WriteMethodName, fieldName: Identifier): CallExpression {
+function writeMethodForName(methodName: WriteMethodName, fieldName: ts.Identifier): ts.CallExpression {
   return createMethodCall('output', methodName, [ fieldName ])
 }
 
 function writeValueForField(
   struct: InterfaceWithFields,
-  fieldType: FieldType,
-  fieldName: Identifier
-): Array<ExpressionStatement> {
-  return writeValueForType(struct, fieldType, fieldName).map(createStatement)
+  fieldType: FunctionType,
+  fieldName: ts.Identifier
+): Array<ts.ExpressionStatement> {
+  return writeValueForType(struct, fieldType, fieldName).map(ts.createStatement)
 }
 
 /**
@@ -228,23 +220,23 @@ function writeValueForField(
 function forEach(
   struct: InterfaceWithFields,
   fieldType: ContainerType,
-  fieldName: Identifier
-): CallExpression {
-  const value: Identifier = createUniqueName('value')
-  const forEachParameters: Array<ParameterDeclaration> = [
+  fieldName: ts.Identifier
+): ts.CallExpression {
+  const value: ts.Identifier = ts.createUniqueName('value')
+  const forEachParameters: Array<ts.ParameterDeclaration> = [
     createFunctionParameter(
       value,
       typeNodeForFieldType(fieldType.valueType)
     )
   ]
 
-  const forEachStatements: Array<Statement> = [
+  const forEachStatements: Array<ts.Statement> = [
     ...writeValueForField(struct, fieldType.valueType, value)
   ]
 
   // If map we have to handle key type as well as value type
   if (fieldType.type === SyntaxType.MapType) {
-    const key: Identifier = createUniqueName('key')
+    const key: ts.Identifier = ts.createUniqueName('key')
     forEachParameters.push(createFunctionParameter(
       key,
       typeNodeForFieldType(fieldType.keyType)
@@ -254,31 +246,31 @@ function forEach(
   }
   
   return createMethodCall(fieldName, 'forEach', [
-    createArrowFunction(
+    ts.createArrowFunction(
       undefined, // modifiers
       undefined, // type parameters
       forEachParameters, // parameters
       createVoidType(), // return type,
-      createToken(SyntaxKind.EqualsGreaterThanToken), // greater than equals token
-      createBlock(forEachStatements, true) // body
+      ts.createToken(ts.SyntaxKind.EqualsGreaterThanToken), // greater than equals token
+      ts.createBlock(forEachStatements, true) // body
     )
   ])
 }
 
 // output.writeStructBegin(<structName>)
-function writeStructBegin(structName: string): ExpressionStatement {
-  return createCallStatement('output', 'writeStructBegin', [
-    createLiteral(structName)
+function writeStructBegin(structName: string): ts.ExpressionStatement {
+  return createMethodCallStatement('output', 'writeStructBegin', [
+    ts.createLiteral(structName)
   ])
 }
 
 // output.writeStructEnd()
-function writeStructEnd(): ExpressionStatement {
-  return createCallStatement('output', 'writeStructEnd')
+function writeStructEnd(): ts.ExpressionStatement {
+  return createMethodCallStatement('output', 'writeStructEnd')
 }
 
 // output.writeMapBeing(<field.keyType>, <field.valueType>, <field.size>)
-function writeMapBegin(fieldType: MapType, fieldName: string | Identifier): CallExpression {
+function writeMapBegin(fieldType: MapType, fieldName: string | ts.Identifier): ts.CallExpression {
   return createMethodCall('output', 'writeMapBegin', [
     thriftPropertyAccessForFieldType(fieldType.keyType),
     thriftPropertyAccessForFieldType(fieldType.valueType),
@@ -287,12 +279,12 @@ function writeMapBegin(fieldType: MapType, fieldName: string | Identifier): Call
 }
 
 // output.writeMapEnd()
-function writeMapEnd(): CallExpression {
+function writeMapEnd(): ts.CallExpression {
   return createMethodCall('output', 'writeMapEnd')
 }
 
 // output.writeListBegin(<field.type>, <field.length>)
-function writeListBegin(fieldType: ListType, fieldName: string | Identifier): CallExpression {
+function writeListBegin(fieldType: ListType, fieldName: string | ts.Identifier): ts.CallExpression {
   return createMethodCall('output', 'writeListBegin', [
     thriftPropertyAccessForFieldType(fieldType.valueType),
     propertyAccessForIdentifier(fieldName, 'length')
@@ -300,12 +292,12 @@ function writeListBegin(fieldType: ListType, fieldName: string | Identifier): Ca
 }
 
 // output.writeListEnd()
-function writeListEnd(): CallExpression {
+function writeListEnd(): ts.CallExpression {
   return createMethodCall('output', 'writeListEnd')
 }
 
 // output.writeSetBegin(<field.type>, <field.size>)
-function writeSetBegin(fieldType: SetType, fieldName: string | Identifier): CallExpression {
+function writeSetBegin(fieldType: SetType, fieldName: string | ts.Identifier): ts.CallExpression {
   return createMethodCall('output', 'writeSetBegin', [
     thriftPropertyAccessForFieldType(fieldType.valueType),
     propertyAccessForIdentifier(fieldName, 'size')
@@ -313,25 +305,25 @@ function writeSetBegin(fieldType: SetType, fieldName: string | Identifier): Call
 }
 
 // output.writeSetEnd()
-function writeSetEnd(): CallExpression {
+function writeSetEnd(): ts.CallExpression {
   return createMethodCall('output', 'writeSetEnd')
 }
 
 // output.writeFieldBegin(<field.name>, <field.fieldType>, <field.fieldID>)
-function writeFieldBegin(field: FieldDefinition): ExpressionStatement {
-  return createCallStatement('output', 'writeFieldBegin', [
-    createLiteral(field.name.value),
+function writeFieldBegin(field: FieldDefinition): ts.ExpressionStatement {
+  return createMethodCallStatement('output', 'writeFieldBegin', [
+    ts.createLiteral(field.name.value),
     thriftPropertyAccessForFieldType(field.fieldType),
-    createLiteral(field.fieldID.value)
+    ts.createLiteral(field.fieldID.value)
   ])
 }
 
 // output.writeFieldEnd
-function writeFieldEnd(): ExpressionStatement {
-  return createCallStatement('output', 'writeFieldEnd')
+function writeFieldEnd(): ts.ExpressionStatement {
+  return createMethodCallStatement('output', 'writeFieldEnd')
 }
 
 // output.writeFieldStop
-function writeFieldStop(): ExpressionStatement {
-  return createCallStatement('output', 'writeFieldStop')
+function writeFieldStop(): ts.ExpressionStatement {
+  return createMethodCallStatement('output', 'writeFieldStop')
 }
