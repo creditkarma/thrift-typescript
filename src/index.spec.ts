@@ -2,6 +2,10 @@ import * as fs from 'fs'
 import { assert } from 'chai'
 import { make } from './index'
 
+function readFixture(name: string): string {
+  return fs.readFileSync(`./fixtures/${name}.solution.ts`, 'utf-8');
+}
+
 describe('Thrift TypeScript Generator', () => {
 
   it('should correctly generate a const', () => {
@@ -11,7 +15,7 @@ describe('Thrift TypeScript Generator', () => {
       const map<string,string> MAP_CONST = {'hello': 'world', 'foo': 'bar' }
     `;
     const actual: string = make(content)
-    const expected: string = fs.readFileSync('./fixtures/basic_const.solution.ts', 'utf-8')
+    const expected: string = readFixture('basic_const')
     assert.equal(actual, expected)
   })
 
@@ -19,7 +23,7 @@ describe('Thrift TypeScript Generator', () => {
     const content: string = `
       typedef string name
     `;
-    const expected: string = fs.readFileSync('./fixtures/basic_typedef.solution.ts', 'utf-8');
+    const expected: string = readFixture('basic_typedef')
     const actual: string = make(content)
 
     assert.equal(actual, expected)
@@ -33,7 +37,7 @@ describe('Thrift TypeScript Generator', () => {
         THREE
       }
     `;
-    const expected: string = fs.readFileSync('./fixtures/basic_enum.solution.ts', 'utf-8');
+    const expected: string = readFixture('basic_enum')
     const actual: string = make(content)
     assert.equal(actual, expected)
   })
@@ -46,7 +50,7 @@ describe('Thrift TypeScript Generator', () => {
         THREE = 6
       }
     `;
-    const expected: string = fs.readFileSync('./fixtures/field_initialized_enum.solution.ts', 'utf-8');
+    const expected: string = readFixture('field_initialized_enum')
     const actual: string = make(content)
     assert.equal(actual, expected)
   })
@@ -59,7 +63,7 @@ describe('Thrift TypeScript Generator', () => {
           3: optional double field1
       }
     `;
-    const expected: string = fs.readFileSync('./fixtures/multi_field_struct.solution.ts', 'utf-8');
+    const expected: string = readFixture('multi_field_struct')
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
@@ -70,7 +74,7 @@ describe('Thrift TypeScript Generator', () => {
           1: required map<string,string> field1
       }
     `;
-    const expected: string = fs.readFileSync('./fixtures/map_struct.solution.ts', 'utf-8');
+    const expected: string = readFixture('map_struct')
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
@@ -81,7 +85,7 @@ describe('Thrift TypeScript Generator', () => {
           1: required map<string,map<string,i32>> field1
       }
     `;
-    const expected: string = fs.readFileSync('./fixtures/nested_map_struct.solution.ts', 'utf-8');
+    const expected: string = readFixture('nested_map_struct')
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
@@ -92,7 +96,7 @@ describe('Thrift TypeScript Generator', () => {
           1: required list<string> field1
       }
     `;
-    const expected: string = fs.readFileSync('./fixtures/list_struct.solution.ts', 'utf-8');
+    const expected: string = readFixture('list_struct')
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
@@ -103,7 +107,7 @@ describe('Thrift TypeScript Generator', () => {
           1: required list<list<string>> field1
       }
     `;
-    const expected: string = fs.readFileSync('./fixtures/nested_list_struct.solution.ts', 'utf-8');
+    const expected: string = readFixture('nested_list_struct')
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
@@ -114,7 +118,7 @@ describe('Thrift TypeScript Generator', () => {
           1: required set<string> field1
       }
     `;
-    const expected: string = fs.readFileSync('./fixtures/set_struct.solution.ts', 'utf-8');
+    const expected: string = readFixture('set_struct')
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
@@ -125,7 +129,7 @@ describe('Thrift TypeScript Generator', () => {
           1: required set<set<string>> field1
       }
     `;
-    const expected: string = fs.readFileSync('./fixtures/nested_set_struct.solution.ts', 'utf-8');
+    const expected: string = readFixture('nested_set_struct')
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
@@ -136,7 +140,7 @@ describe('Thrift TypeScript Generator', () => {
           1: required OtherStruct field1
       }
     `;
-    const expected: string = fs.readFileSync('./fixtures/return_id_struct.solution.ts', 'utf-8');
+    const expected: string = readFixture('return_id_struct')
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
@@ -147,7 +151,7 @@ describe('Thrift TypeScript Generator', () => {
           1: required set<OtherStruct> field1
       }
     `;
-    const expected: string = fs.readFileSync('./fixtures/container_id_struct.solution.ts', 'utf-8');
+    const expected: string = readFixture('container_id_struct')
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
@@ -158,7 +162,7 @@ describe('Thrift TypeScript Generator', () => {
           1: required string message;
       }
     `;
-    const expected: string = fs.readFileSync('./fixtures/basic_exception.solution.ts', 'utf-8');
+    const expected: string = readFixture('basic_exception')
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
@@ -170,7 +174,7 @@ describe('Thrift TypeScript Generator', () => {
           2: string field2;
       }
     `;
-    const expected: string = fs.readFileSync('./fixtures/basic_union.solution.ts', 'utf-8');
+    const expected: string = readFixture('basic_union')
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
   })
@@ -181,7 +185,7 @@ describe('Thrift TypeScript Generator', () => {
           void ping();
       }
     `;
-    const expected: string = fs.readFileSync('./fixtures/basic_service.solution.ts', 'utf-8');
+    const expected: string = readFixture('basic_service')
 
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
@@ -193,7 +197,7 @@ describe('Thrift TypeScript Generator', () => {
           void ping() throws (1: MyException exp);
       }
     `;
-    const expected: string = fs.readFileSync('./fixtures/throw_service.solution.ts', 'utf-8');
+    const expected: string = readFixture('throw_service')
 
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
@@ -205,7 +209,7 @@ describe('Thrift TypeScript Generator', () => {
           string ping(1: i32 status) throws (1: MyException exp);
       }
     `;
-    const expected: string = fs.readFileSync('./fixtures/return_service.solution.ts', 'utf-8');
+    const expected: string = readFixture('return_service')
 
     const actual: string = make(content)
     assert.deepEqual(actual, expected)
