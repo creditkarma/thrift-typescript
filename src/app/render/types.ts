@@ -5,6 +5,10 @@ import {
   SyntaxType,
 } from '@creditkarma/thrift-parser'
 
+import {
+  COMMON_IDENTIFIERS
+} from './identifiers'
+
 export function createVoidType(): ts.TypeNode {
   return ts.createKeywordTypeNode(ts.SyntaxKind.VoidKeyword)
 }
@@ -115,19 +119,19 @@ export function constructorNameForFieldType(fieldType: FunctionType): ts.Identif
       return ts.createIdentifier(fieldType.value)
 
     case SyntaxType.SetType:
-      return ts.createIdentifier('Set')
+      return COMMON_IDENTIFIERS['Set']
 
     case SyntaxType.MapType:
-      return ts.createIdentifier('Map')
+      return COMMON_IDENTIFIERS['Map']
 
     case SyntaxType.ListType:
-      return ts.createIdentifier('Array')
+      return COMMON_IDENTIFIERS['Array']
 
     case SyntaxType.StringKeyword:
-      return ts.createIdentifier('String')
+      return COMMON_IDENTIFIERS['String']
 
     case SyntaxType.BoolKeyword:
-      return ts.createIdentifier('Boolean')
+      return COMMON_IDENTIFIERS['Boolean']
 
     case SyntaxType.DoubleKeyword:
     case SyntaxType.I8Keyword:
@@ -136,10 +140,10 @@ export function constructorNameForFieldType(fieldType: FunctionType): ts.Identif
     case SyntaxType.I64Keyword:
     case SyntaxType.BinaryKeyword:
     case SyntaxType.ByteKeyword:
-      return ts.createIdentifier('Number')
+      return COMMON_IDENTIFIERS['Number']
 
     case SyntaxType.VoidKeyword:
-      return ts.createIdentifier('void')
+      return COMMON_IDENTIFIERS['void']
 
     default:
       const msg: never = fieldType
@@ -232,7 +236,7 @@ function thriftAccessForFieldType(fieldType: FunctionType): ThriftTypeAccess {
  */
 export function thriftPropertyAccessForFieldType(fieldType: FunctionType): ts.PropertyAccessExpression {
   return ts.createPropertyAccess(
-    ts.createIdentifier('Thrift'),
+    COMMON_IDENTIFIERS['Thrift'],
     thriftAccessForFieldType(fieldType),
   )
 }

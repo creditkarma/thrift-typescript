@@ -10,9 +10,10 @@ import {
 import { render } from './render'
 
 export interface IMakeOptions {
-  rootDir?: string;
-  outDir?: string;
-  removeComments?: boolean;
+  rootDir?: string
+  outDir?: string
+  removeComments?: boolean
+  files?: Array<string>
 }
 
 // import { Thrift, TProtocol, TTransport } from 'thrift';
