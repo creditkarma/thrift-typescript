@@ -2,10 +2,11 @@
   "name": "thrift-typescript-2",
   "version": "0.1.0",
   "description": "Generate TypeScript from Thrift IDL files",
-  "main": "./dist/index.js",
+  "main": "./dist/app/index.js",
   "scripts": {
     "clean": "rimraf coverage/ dist/ node_modules/",
     "build": "rimraf dist/; tsc",
+    "postbuild": "rimraf dist/tests",
     "build:watch": "tsc --watch",
     "lint": "tslint --fix src/**/*",
     "test": "npm run lint && npm run test:only --",
@@ -14,7 +15,7 @@
     "coverage": "NODE_ENV=test nyc mocha --opts mocha.cover.opts"
   },
   "bin": {
-    "thrift-typescript": "./dist/bin.js"
+    "thrift-typescript": "./dist/app/bin.js"
   },
   "keywords": [
     "Thrift",
