@@ -1,9 +1,10 @@
 import * as fs from 'fs'
+import * as path from 'path'
 import { assert } from 'chai'
-import { make } from './index'
+import { make } from '../../app/index'
 
 function readFixture(name: string): string {
-  return fs.readFileSync(`./fixtures/${name}.solution.ts`, 'utf-8');
+  return fs.readFileSync(path.join(__dirname, `../fixtures/${name}.solution.ts`), 'utf-8')
 }
 
 describe('Thrift TypeScript Generator', () => {
@@ -16,6 +17,7 @@ describe('Thrift TypeScript Generator', () => {
     `;
     const actual: string = make(content)
     const expected: string = readFixture('basic_const')
+
     assert.equal(actual, expected)
   })
 
@@ -39,6 +41,7 @@ describe('Thrift TypeScript Generator', () => {
     `;
     const expected: string = readFixture('basic_enum')
     const actual: string = make(content)
+
     assert.equal(actual, expected)
   })
 
@@ -52,6 +55,7 @@ describe('Thrift TypeScript Generator', () => {
     `;
     const expected: string = readFixture('field_initialized_enum')
     const actual: string = make(content)
+
     assert.equal(actual, expected)
   })
 
@@ -65,6 +69,7 @@ describe('Thrift TypeScript Generator', () => {
     `;
     const expected: string = readFixture('multi_field_struct')
     const actual: string = make(content)
+
     assert.deepEqual(actual, expected)
   })
   
@@ -76,6 +81,7 @@ describe('Thrift TypeScript Generator', () => {
     `;
     const expected: string = readFixture('map_struct')
     const actual: string = make(content)
+
     assert.deepEqual(actual, expected)
   })
 
@@ -87,6 +93,7 @@ describe('Thrift TypeScript Generator', () => {
     `;
     const expected: string = readFixture('nested_map_struct')
     const actual: string = make(content)
+
     assert.deepEqual(actual, expected)
   })
 
@@ -98,6 +105,7 @@ describe('Thrift TypeScript Generator', () => {
     `;
     const expected: string = readFixture('list_struct')
     const actual: string = make(content)
+
     assert.deepEqual(actual, expected)
   })
 
@@ -109,6 +117,7 @@ describe('Thrift TypeScript Generator', () => {
     `;
     const expected: string = readFixture('nested_list_struct')
     const actual: string = make(content)
+
     assert.deepEqual(actual, expected)
   })
 
@@ -120,6 +129,7 @@ describe('Thrift TypeScript Generator', () => {
     `;
     const expected: string = readFixture('set_struct')
     const actual: string = make(content)
+
     assert.deepEqual(actual, expected)
   })
 
@@ -131,6 +141,7 @@ describe('Thrift TypeScript Generator', () => {
     `;
     const expected: string = readFixture('nested_set_struct')
     const actual: string = make(content)
+
     assert.deepEqual(actual, expected)
   })
 
@@ -142,6 +153,7 @@ describe('Thrift TypeScript Generator', () => {
     `;
     const expected: string = readFixture('return_id_struct')
     const actual: string = make(content)
+
     assert.deepEqual(actual, expected)
   })
 
@@ -153,6 +165,7 @@ describe('Thrift TypeScript Generator', () => {
     `;
     const expected: string = readFixture('container_id_struct')
     const actual: string = make(content)
+
     assert.deepEqual(actual, expected)
   })
 
@@ -164,6 +177,7 @@ describe('Thrift TypeScript Generator', () => {
     `;
     const expected: string = readFixture('basic_exception')
     const actual: string = make(content)
+
     assert.deepEqual(actual, expected)
   })
 
@@ -176,6 +190,7 @@ describe('Thrift TypeScript Generator', () => {
     `;
     const expected: string = readFixture('basic_union')
     const actual: string = make(content)
+
     assert.deepEqual(actual, expected)
   })
 
@@ -186,8 +201,8 @@ describe('Thrift TypeScript Generator', () => {
       }
     `;
     const expected: string = readFixture('basic_service')
-
     const actual: string = make(content)
+
     assert.deepEqual(actual, expected)
   })
 
@@ -198,8 +213,8 @@ describe('Thrift TypeScript Generator', () => {
       }
     `;
     const expected: string = readFixture('throw_service')
-
     const actual: string = make(content)
+
     assert.deepEqual(actual, expected)
   })
 
@@ -210,8 +225,8 @@ describe('Thrift TypeScript Generator', () => {
       }
     `;
     const expected: string = readFixture('return_service')
-
     const actual: string = make(content)
+    
     assert.deepEqual(actual, expected)
   })
 })
