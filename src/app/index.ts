@@ -9,6 +9,12 @@ import {
 
 import { render } from './render'
 
+export interface IMakeOptions {
+  rootDir?: string;
+  outDir?: string;
+  removeComments?: boolean;
+}
+
 // import { Thrift, TProtocol, TTransport } from 'thrift';
 function importThrift(): ts.ImportDeclaration {
   return ts.createImportDeclaration(
@@ -37,8 +43,8 @@ function importThrift(): ts.ImportDeclaration {
   )
 }
 
-export function makeFile(filename: string): string {
-  const contents: string = fs.readFileSync(filename).toString('utf-8')
+export function makeFile(filename: string, options: IMakeOptions = {}): string {
+  const contents: string = fs.readFileSync(filename, 'utf-8')
   return make(contents)
 }
 
