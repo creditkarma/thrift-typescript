@@ -1,3 +1,4 @@
+import { Thrift, TProtocol, TTransport } from "thrift";
 export interface IMyUnionArgs {
     field1?: string;
     field2?: string;
