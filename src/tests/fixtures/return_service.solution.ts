@@ -142,6 +142,12 @@ export class Client {
         this.output = output;
         this.protocol = protocol;
     }
+    public seqid(): number {
+        return this._seqid;
+    }
+    public new_seqid(): number {
+        return this._seqid += 1;
+    }
     public ping(status: number): Promise<string> {
         this._seqid = this.new_seqid();
         return new Promise<string>((resolve, reject): void => {
