@@ -1,3 +1,4 @@
+import { Thrift, TProtocol, TTransport } from "thrift";
 export enum MyEnum {
     ONE = 5,
     TWO = 3,

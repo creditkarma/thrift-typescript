@@ -1,3 +1,4 @@
+import { Thrift, TProtocol, TTransport } from "thrift";
 export interface IMyStructArgs {
     field1: Set<string>;
 }

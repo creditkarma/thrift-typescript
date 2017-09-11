@@ -1,3 +1,4 @@
+import { Thrift, TProtocol, TTransport } from "thrift";
 export interface IMyServicePingArgsArgs {
     status: number;
 }
