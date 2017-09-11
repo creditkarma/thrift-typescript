@@ -38,6 +38,10 @@ import {
   typeNodeForFieldType
 } from '../types'
 
+import {
+  COMMON_IDENTIFIERS
+} from '../identifiers'
+
 export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
   // private _seqid: number;
   const seqid: ts.PropertyDeclaration = createPrivateProperty(
@@ -91,7 +95,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
       ),
       createAssignmentStatement(
         ts.createIdentifier('this.output'),
-        ts.createIdentifier('output')
+        COMMON_IDENTIFIERS['output']
       ),
       createAssignmentStatement(
         ts.createIdentifier('this.protocol'),
@@ -281,7 +285,7 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
     ts.createBlock([
       // const output = new (this.protocol as any)(this.output)
       createConstStatement(
-        ts.createIdentifier('output'),
+        COMMON_IDENTIFIERS['output'],
         undefined,
         ts.createNew(
           ts.createIdentifier('this.protocol'),
@@ -291,7 +295,7 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
       ),
       // output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.seqid())
       createMethodCallStatement(
-        ts.createIdentifier('output'),
+        COMMON_IDENTIFIERS['output'],
         'writeMessageBegin',
         [
           ts.createLiteral(def.name.value),
@@ -306,7 +310,7 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
       // MortgageServiceGetMortgageOffersArgs
       // const args = new {{ServiceName}}{{nameTitleCase}}Args( { {{#args}}{{fieldName}}, {{/args}} } )
       createConstStatement(
-        ts.createIdentifier('args'),
+        COMMON_IDENTIFIERS['args'],
         undefined,
         ts.createNew(
           ts.createIdentifier(createStructArgsName(service, def)),
@@ -320,13 +324,13 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
       ),
       // args.write(output)
       createMethodCallStatement(
-        ts.createIdentifier('args'),
+        COMMON_IDENTIFIERS['args'],
         'write',
-        [ ts.createIdentifier('output') ]
+        [ COMMON_IDENTIFIERS['output'] ]
       ),
       // output.writeMessageEnd()
       createMethodCallStatement(
-        ts.createIdentifier('output'),
+        COMMON_IDENTIFIERS['output'],
         'writeMessageEnd'
       ),
       // return this.output.flush()
@@ -376,7 +380,7 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
     undefined,
     [
       createFunctionParameter(
-        ts.createIdentifier('input'),
+        COMMON_IDENTIFIERS['input'],
         ts.createTypeReferenceNode(
           ts.createIdentifier('TProtocol'),
           undefined
@@ -454,10 +458,10 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
           createMethodCallStatement(
             ts.createIdentifier('x'),
             'read',
-            [ ts.createIdentifier('input') ]
+            [ COMMON_IDENTIFIERS['input'] ]
           ),
           createMethodCallStatement(
-            ts.createIdentifier('input'),
+            COMMON_IDENTIFIERS['input'],
             'readMessageEnd'
           ),
           ts.createReturn(
@@ -483,11 +487,11 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
       createMethodCallStatement(
         ts.createIdentifier('result'),
         'read',
-        [ ts.createIdentifier('input') ]
+        [ COMMON_IDENTIFIERS['input'] ]
       ),
       // input.readMessageEnd()
       createMethodCallStatement(
-        ts.createIdentifier('input'),
+        COMMON_IDENTIFIERS['input'],
         'readMessageEnd'
       ),
       // {{#throws}}if (result.{{throwName}} != null) {
@@ -529,7 +533,7 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
                   ts.createIdentifier('callback'),
                   undefined,
                   [
-                    ts.createIdentifier('undefined'),
+                    COMMON_IDENTIFIERS['undefined'],
                     ts.createIdentifier('result.success')
                   ]
                 )

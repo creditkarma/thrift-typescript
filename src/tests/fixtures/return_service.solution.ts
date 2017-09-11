@@ -136,8 +136,8 @@ export class Client {
         [name: string]: (err: Error | object, r?: any) => void;
     };
     public output: TTransport;
-    public protocol: new () => TProtocol;
-    constructor(output: TTransport, protocol: new () => TProtocol) {
+    public protocol: new (trans: TTransport) => TProtocol;
+    constructor(output: TTransport, protocol: new (trans: TTransport) => TProtocol) {
         this._seqid = 0;
         this._reqs = {};
         this.output = output;
