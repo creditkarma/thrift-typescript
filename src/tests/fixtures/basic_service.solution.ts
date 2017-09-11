@@ -151,8 +151,8 @@ export class Client {
     }
 }
 export class Processor<Context> {
-    private _handler;
-    constructor(handler) {
+    private _handler: any;
+    constructor(handler: any) {
         this._handler = handler;
     }
     public process(input: TProtocol, output: TProtocol, context: Context): void {
@@ -163,18 +163,21 @@ export class Processor<Context> {
         } = input.readMessageBegin();
         const fname: string = metadata.fname;
         const rseqid: number = metadata.rseqid;
-        if (this["process_" + fname] != null) {
-            return this["process_" + fname].call(this, rseqid, input, output, context);
-        }
-        else {
-            input.skip(Thrift.Type.STRUCT);
-            input.readMessageEnd();
-            const errMessage = "Unknown function " + fname;
-            const err = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN_METHOD, errMessage);
-            output.writeMessageBegin(fname, Thrift.MessageType.EXCEPTION, rseqid);
-            err.write(output);
-            output.writeMessageEnd();
-            output.flush();
+        const methodName: string = "process_" + fname;
+        switch (methodName) {
+            case "process_ping": {
+                return this.process_ping(rseqid, input, output, context);
+            }
+            default: {
+                input.skip(Thrift.Type.STRUCT);
+                input.readMessageEnd();
+                const errMessage = "Unknown function " + fname;
+                const err = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN_METHOD, errMessage);
+                output.writeMessageBegin(fname, Thrift.MessageType.EXCEPTION, rseqid);
+                err.write(output);
+                output.writeMessageEnd();
+                output.flush();
+            }
         }
     }
     public process_ping(seqid: number, input: TProtocol, output: TProtocol, context: Context): void {

@@ -26,7 +26,7 @@ import {
   renderArgsStruct,
   renderClient,
   renderProcessor,
-  renderResultStruct,
+  renderResultStruct
 } from './service'
 import { renderStruct } from './struct'
 import { typeNodeForFieldType } from './types'
