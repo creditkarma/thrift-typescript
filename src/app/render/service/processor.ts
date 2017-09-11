@@ -14,7 +14,8 @@ import {
 
 import {
   createStructArgsName,
-  createStructResultName
+  createStructResultName,
+  createStructHandlerName
 } from './utils'
 
 import {
@@ -32,7 +33,6 @@ import {
 } from '../utils'
 
 import {
-  createAnyType,
   createStringType,
   createNumberType,
   createVoidType,
@@ -44,6 +44,58 @@ import {
   COMMON_IDENTIFIERS
 } from '../identifiers'
 
+/**
+ * // thrift
+ * service MyService {
+ *   i32 add(1: i32 a, 2: i32 b)
+ * }
+ * 
+ * // typescript
+ * interface IMyServiceHandler<Context> {
+ *   add(a: number, b: number, context: Context): number
+ * }
+ * @param service 
+ */
+export function renderHandlerInterface(service: ServiceDefinition): ts.InterfaceDeclaration {
+  const signatures = service.functions.map((func: FunctionDefinition) => {
+    return ts.createPropertySignature(
+      undefined,
+      func.name.value,
+      undefined,
+      ts.createFunctionTypeNode(
+        undefined,
+        [
+          ...func.fields.map((field: FieldDefinition) => {
+            return createFunctionParameter(
+              field.name.value,
+              typeNodeForFieldType(field.fieldType)
+            )
+          }),
+          createFunctionParameter(
+            'context',
+            ts.createTypeReferenceNode('Context', undefined)
+          )
+        ],
+        typeNodeForFieldType(func.returnType)
+      ),
+      undefined,
+    )
+  })
+
+  return ts.createInterfaceDeclaration(
+    undefined,
+    [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+    createStructHandlerName(service),
+    [
+      ts.createTypeParameterDeclaration(
+        ts.createIdentifier('Context')
+      )
+    ],
+    [],
+    signatures,
+  )
+}
+
 export function renderProcessor(node: ServiceDefinition): ts.ClassDeclaration {
   // private _handler
   const handler: ts.PropertyDeclaration = ts.createProperty(
@@ -51,7 +103,10 @@ export function renderProcessor(node: ServiceDefinition): ts.ClassDeclaration {
     [ ts.createToken(ts.SyntaxKind.PrivateKeyword) ],
     '_handler',
     undefined,
-    createAnyType(),
+    ts.createTypeReferenceNode(
+      createStructHandlerName(node),
+      [ ts.createTypeReferenceNode('Context', undefined) ]
+    ),
     undefined
   )
 
@@ -59,7 +114,10 @@ export function renderProcessor(node: ServiceDefinition): ts.ClassDeclaration {
     [
       createFunctionParameter(
         ts.createIdentifier('handler'),
-        createAnyType()
+        ts.createTypeReferenceNode(
+          createStructHandlerName(node),
+          [ ts.createTypeReferenceNode('Context', undefined) ]
+        )
       )
     ],
     [
