@@ -8,6 +8,8 @@ export interface IdentifierMap {
 }
 
 export const COMMON_IDENTIFIERS: IdentifierMap = {
+  args: createIdentifier('args'),
+  undefined: createIdentifier('undefined'),
   input: createIdentifier('input'),
   output: createIdentifier('output'),
   ftype: createIdentifier('ftype'),

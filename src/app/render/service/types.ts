@@ -38,7 +38,11 @@ export function createReadMessageType(): TypeLiteralNode {
 }
 
 export function createProtocolType(): ConstructorTypeNode {
-  return createConstructorTypeNode([], [], TProtocolType)
+  return createConstructorTypeNode(
+    [],
+    [ createFunctionParameter('trans', createTypeReferenceNode('TTransport', undefined)) ],
+    TProtocolType
+  )
 }
 
 // { [key: string]: (e?: Error|object, r?: any) => void }
