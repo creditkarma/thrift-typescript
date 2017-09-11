@@ -100,6 +100,42 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
     ] // body
   )
 
+  const seqidGetMethod: ts.MethodDeclaration = ts.createMethod(
+    undefined,
+    [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
+    undefined,
+    'seqid',
+    undefined,
+    undefined,
+    [],
+    createNumberType(),
+    ts.createBlock([
+      ts.createReturn(
+        ts.createIdentifier('this._seqid')
+      )
+    ], true)
+  )
+
+  const newSeqidMethod: ts.MethodDeclaration = ts.createMethod(
+    undefined,
+    [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
+    undefined,
+    'new_seqid',
+    undefined,
+    undefined,
+    [],
+    createNumberType(),
+    ts.createBlock([
+      ts.createReturn(
+        ts.createBinary(
+          ts.createIdentifier('this._seqid'),
+          ts.SyntaxKind.PlusEqualsToken,
+          ts.createLiteral(1)
+        )
+      )
+    ], true)
+  )
+
   const baseMethods: Array<ts.MethodDeclaration> = node.functions.map(createBaseMethodForDefinition)
   const sendMethods: Array<ts.MethodDeclaration> = node.functions.map((next) => {
     return createSendMethodForDefinition(node, next)
@@ -121,6 +157,8 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
       output,
       protocol,
       ctor,
+      seqidGetMethod,
+      newSeqidMethod,
       ...baseMethods,
       ...sendMethods,
       ...recvMethods
