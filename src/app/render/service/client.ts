@@ -517,10 +517,10 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
       // }
       // {{/isVoid}}
       ts.createIf(
-        ts.createBinary(
-          ts.createLiteral(def.returnType.type),
-          ts.SyntaxKind.ExclamationEqualsEqualsToken,
-          ts.createLiteral(SyntaxType.VoidKeyword)
+        (
+          (def.returnType.type === SyntaxType.VoidKeyword) ?
+          ts.createLiteral(false) :
+          ts.createLiteral(true)
         ),
         ts.createBlock([
           ts.createIf(

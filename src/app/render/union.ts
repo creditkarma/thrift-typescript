@@ -51,7 +51,6 @@ import {
 
 import {
   createNumberType,
-  createStringType,
   createVoidType,
   thriftPropertyAccessForFieldType,
 } from './types'
@@ -179,12 +178,10 @@ function createReadMethod(struct: UnionDefinition): MethodDeclaration {
 
   /**
    * cosnt ret: { fname: string; ftype: Thrift.Type; fid: number; } = input.readFieldBegin()
-   * const fname: string = ret.fname
    * const ftype: Thrift.Type = ret.ftype
    * const fid: number = ret.fid
    */
   const ret: VariableStatement = createConstStatement('ret', fieldMetadataType(), readFieldBegin())
-  const fname: VariableStatement = createConstStatement('fname', createStringType(), propertyAccessForIdentifier('ret', 'fname'))
   const ftype: VariableStatement = createConstStatement('ftype', createTypeReferenceNode('Thrift.Type', undefined), propertyAccessForIdentifier('ret', 'ftype'))
   const fid: VariableStatement = createConstStatement('fid', createNumberType(), propertyAccessForIdentifier('ret', 'fid'))
 
@@ -219,7 +216,6 @@ function createReadMethod(struct: UnionDefinition): MethodDeclaration {
 
   const whileBlock: Block = createBlock([
     ret,
-    fname,
     ftype,
     fid,
     checkStop,

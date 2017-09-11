@@ -15,3 +15,6 @@ dist
 # nyc artifacts
 coverage/
 .nyc_output/
+
+# Thrift test artifacts
+./src/tests/integration/thrift

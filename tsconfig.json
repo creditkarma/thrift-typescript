@@ -7,15 +7,22 @@
     "declaration": true,
     "rootDir": "./src",
     "outDir": "./dist",
+    "baseUrl": "./",
     "noUnusedLocals": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
     "allowSyntheticDefaultImports": true,
     "pretty": true,
     "removeComments": true,
+    "paths": {
+      "thrift": [
+        "node_modules/@ck/thrift-typings"
+      ]
+    },
     "types": [
       "@types/node",
       "@types/mocha",
+      "@types/express",
       "@creditkarma/thrift-parser"
     ]
   },
