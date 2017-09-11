@@ -15,3 +15,7 @@ export function createStructArgsName(service: ServiceDefinition, def: FunctionDe
 export function createStructResultName(service: ServiceDefinition, def: FunctionDefinition | FieldDefinition): string {
   return `${service.name.value}${capitalize(def.name.value)}Result`
 }
+
+export function createStructHandlerName(service: ServiceDefinition): string {
+  return `I${service.name.value}Handler`;
+}

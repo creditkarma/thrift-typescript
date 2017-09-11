@@ -26,7 +26,8 @@ import {
   renderArgsStruct,
   renderClient,
   renderProcessor,
-  renderResultStruct
+  renderResultStruct,
+  renderHandlerInterface
 } from './service'
 import { renderStruct } from './struct'
 import { typeNodeForFieldType } from './types'
@@ -127,6 +128,7 @@ export function renderStatement(statement: ThriftStatement): Array<Statement> {
         ...renderArgsStruct(statement),
         ...renderResultStruct(statement),
         renderClient(statement),
+        renderHandlerInterface(statement),
         renderProcessor(statement),
       ]
 

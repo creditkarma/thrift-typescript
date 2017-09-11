@@ -195,9 +195,12 @@ export class Client {
         return callback(new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, "ping failed: unknown result"));
     }
 }
+export interface IMyServiceHandler<Context> {
+    ping: (status: number, context: Context) => string;
+}
 export class Processor<Context> {
-    private _handler: any;
-    constructor(handler: any) {
+    private _handler: IMyServiceHandler<Context>;
+    constructor(handler: IMyServiceHandler<Context>) {
         this._handler = handler;
     }
     public process(input: TProtocol, output: TProtocol, context: Context): void {
