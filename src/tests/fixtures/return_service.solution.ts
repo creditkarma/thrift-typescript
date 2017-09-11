@@ -30,7 +30,6 @@ export class MyServicePingArgs {
                 ftype: Thrift.Type;
                 fid: number;
             } = input.readFieldBegin();
-            const fname: string = ret.fname;
             const ftype: Thrift.Type = ret.ftype;
             const fid: number = ret.fid;
             if (ftype === Thrift.Type.STOP) {
@@ -96,7 +95,6 @@ export class MyServicePingResult {
                 ftype: Thrift.Type;
                 fid: number;
             } = input.readFieldBegin();
-            const fname: string = ret.fname;
             const ftype: Thrift.Type = ret.ftype;
             const fid: number = ret.fid;
             if (ftype === Thrift.Type.STOP) {
@@ -187,7 +185,7 @@ export class Client {
         if (exp != null) {
             return callback(result.exp);
         }
-        if ("StringKeyword" !== "VoidKeyword") {
+        if (true) {
             if (result.success != null) {
                 return callback(undefined, result.success);
             }

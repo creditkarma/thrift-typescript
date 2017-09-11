@@ -10,12 +10,13 @@
     "build:watch": "tsc --watch",
     "lint": "tslint --fix src/**/*",
     "test": "npm run lint && npm run test:only --",
+    "test:integration": "ts-node ./src/tests/integration/index.ts",
     "test:watch": "npm test -- -w",
     "test:only": "NODE_ENV=test mocha --opts mocha.opts",
     "coverage": "NODE_ENV=test nyc mocha --opts mocha.cover.opts"
   },
   "bin": {
-    "thrift-typescript": "./dist/app/bin.js"
+    "thrift-typescript": "./dist/app/bin/index.js"
   },
   "keywords": [
     "Thrift",
@@ -28,10 +29,12 @@
   },
   "devDependencies": {
     "@types/chai": "^3.4.34",
+    "@types/express": "^4.0.37",
     "@types/mocha": "^2.2.32",
     "@types/node": "^7.0.22",
     "@types/rimraf": "0.0.28",
     "chai": "^3.5.0",
+    "express": "^4.15.4",
     "mocha": "^2.5.3",
     "nyc": "^11.1.0",
     "rimraf": "^2.5.4",

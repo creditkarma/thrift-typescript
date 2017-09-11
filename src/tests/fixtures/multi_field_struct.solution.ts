@@ -56,7 +56,6 @@ export class MyStruct {
                 ftype: Thrift.Type;
                 fid: number;
             } = input.readFieldBegin();
-            const fname: string = ret.fname;
             const ftype: Thrift.Type = ret.ftype;
             const fid: number = ret.fid;
             if (ftype === Thrift.Type.STOP) {

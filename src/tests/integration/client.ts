@@ -1,27 +1,52 @@
-// function getClient(errCallback, context: IFrontierContext): Client {
-//   if (!this.thriftClient) {
-//     console.log(`creating Mortgage client at ${this.config.mortgageHostname}:${this.config.mortgagePort}`)
+import {
+  Connection,
+  createClient,
+  createHttpConnection,
+  TBinaryProtocol,
+  TBufferedTransport,
+} from 'thrift'
 
-//     const options = {
-//       transport: TBufferedTransport,
-//       protocol: TBinaryProtocol,
-//       https: false,
-//       headers: {
-//         Host: this.config.mortgageHostname,
-//       },
-//       nodeOptions: {
-//         timeout: this.config.mortgageDownstreamRequestTimeout,
-//       },
-//     }
+import * as express from 'express'
 
-//     if (context.headers.authorization) {
-//       options.headers[AUTH_HEADER] = context.headers.authorization
-//     }
+import * as MyService from './thrift/test'
 
-//     this.connection = createHttpConnection(this.config.mortgageHostname, this.config.mortgagePort, options)
-//     this.thriftClient = createClient(MortgageService, this.connection)
-//   }
+import {
+  Client
+} from './thrift/test'
 
-//   this.connection.once('error', errCallback)
-//   return this.thriftClient
-// }
+const config = {
+  hostName: 'localhost',
+  port: 8080
+}
+
+// const express = require('express')
+const app = express();
+
+const options = {
+  transport: TBufferedTransport,
+  protocol: TBinaryProtocol,
+  https: false,
+  headers: {
+    Host: config.hostName,
+  }
+}
+
+const connection: Connection = createHttpConnection(config.hostName, config.port, options)
+const thriftClient: Client = createClient(MyService, connection)
+
+connection.on('error', (err: Error) => {
+  console.log('err: ', err)
+})
+
+app.get('/', (req, res) => {
+  thriftClient.ping('hello').then((val: string) => {
+    res.send(val)
+  })
+});
+
+const server = app.listen(8000, () => {
+  var host = server.address().address;
+  var port = server.address().port;
+
+  console.log('Web server listening at http://%s:%s', host, port);
+});

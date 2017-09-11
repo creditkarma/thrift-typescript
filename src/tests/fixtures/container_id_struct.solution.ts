@@ -37,7 +37,6 @@ export class MyStruct {
                 ftype: Thrift.Type;
                 fid: number;
             } = input.readFieldBegin();
-            const fname: string = ret.fname;
             const ftype: Thrift.Type = ret.ftype;
             const fid: number = ret.fid;
             if (ftype === Thrift.Type.STOP) {
@@ -53,7 +52,7 @@ export class MyStruct {
                         } = input.readSetBegin();
                         const size_1: number = metadata_1.size;
                         for (let i_1: number = 0; i_1 < size_1; i_1++) {
-                            value_2 = new OtherStruct();
+                            const value_2: OtherStruct = new OtherStruct();
                             value_2.read(input);
                             this.field1.add(value_2);
                         }

@@ -78,7 +78,7 @@ export function renderHandlerInterface(service: ServiceDefinition): ts.Interface
         ],
         typeNodeForFieldType(func.returnType)
       ),
-      undefined,
+      undefined
     )
   })
 
@@ -473,17 +473,13 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
 //     const metadata = input.readMessageBegin()
 //     const fname = metadata.fname;
 //     const rseqid = metadata.rseqid;
-//     if (this["process_" + fname]) {
-//         return this["process_" + fname].call(this, rseqid, input, output, context)
-//     } else {
-//         input.skip(Thrift.Type.STRUCT)
-//         input.readMessageEnd()
-//         const errMessage = `Unknown function ${fname}`
-//         const err = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN_METHOD, errMessage)
-//         output.writeMessageBegin(fname, Thrift.MessageType.EXCEPTION, rseqid)
-//         err.write(output)
-//         output.writeMessageEnd()
-//         output.flush()
+//     const methodName: string = "process_" + fname;
+//     switch (methodName) {
+//       case "process_ping":
+//         return this.process_ping(rseqid, input, output, context)
+//     
+//       default:
+//         ...skip logic
 //     }
 // }
 function createProcessMethod(service: ServiceDefinition): ts.MethodDeclaration {
