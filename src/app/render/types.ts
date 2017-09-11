@@ -9,6 +9,10 @@ export function createVoidType(): ts.TypeNode {
   return ts.createKeywordTypeNode(ts.SyntaxKind.VoidKeyword)
 }
 
+export function createAnyType(): ts.TypeNode {
+  return ts.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword)
+}
+
 export function createStringType(): ts.KeywordTypeNode {
   return ts.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)
 }

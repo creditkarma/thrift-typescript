@@ -26,19 +26,23 @@ import {
   createLetStatement,
   createMethodCall,
   createMethodCallStatement,
-  createNotNull,
   createApplicationException,
   createPromise,
   createCallStatement
 } from '../utils'
 
 import {
+  createAnyType,
   createStringType,
   createNumberType,
   createVoidType,
   typeNodeForFieldType,
   constructorNameForFieldType
 } from '../types'
+
+import {
+  COMMON_IDENTIFIERS
+} from '../identifiers'
 
 export function renderProcessor(node: ServiceDefinition): ts.ClassDeclaration {
   // private _handler
@@ -47,12 +51,17 @@ export function renderProcessor(node: ServiceDefinition): ts.ClassDeclaration {
     [ ts.createToken(ts.SyntaxKind.PrivateKeyword) ],
     '_handler',
     undefined,
-    undefined,
+    createAnyType(),
     undefined
   )
 
   const ctor: ts.ConstructorDeclaration = createClassConstructor(
-    [ createFunctionParameter('handler', undefined) ],
+    [
+      createFunctionParameter(
+        ts.createIdentifier('handler'),
+        createAnyType()
+      )
+    ],
     [
       createAssignmentStatement(
         ts.createIdentifier('this._handler'),
@@ -61,7 +70,7 @@ export function renderProcessor(node: ServiceDefinition): ts.ClassDeclaration {
     ]
   )
 
-  const processMethod: ts.MethodDeclaration = createProcessMethod()
+  const processMethod: ts.MethodDeclaration = createProcessMethod(node)
   const processFunctions: Array<ts.MethodDeclaration> = node.functions.map((next: FunctionDefinition) => {
     return createProcessFunctionMethod(node, next);
   });
@@ -132,7 +141,7 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
     createVoidType(), // return type
     [
       createConstStatement(
-        ts.createIdentifier('args'),
+        COMMON_IDENTIFIERS['args'],
         undefined,
         ts.createNew(
           ts.createIdentifier(createStructArgsName(service, funcDef)),
@@ -142,13 +151,13 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
       ),
       // args.read(input);
       createMethodCallStatement(
-        ts.createIdentifier('args'),
+        COMMON_IDENTIFIERS['args'],
         'read',
-        [ ts.createIdentifier('input') ]
+        [ COMMON_IDENTIFIERS['input'] ]
       ),
       // input.readMessageEnd();
       createMethodCallStatement(
-        ts.createIdentifier('input'),
+        COMMON_IDENTIFIERS['input'],
         'readMessageEnd'
       ),
       // new Promise<{{typeName}}>((resolve, reject) => {
@@ -232,7 +241,7 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                   ),
                   // output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
                   createMethodCallStatement(
-                    ts.createIdentifier('output'),
+                    COMMON_IDENTIFIERS['output'],
                     'writeMessageBegin',
                     [
                       ts.createLiteral(funcDef.name.value),
@@ -245,18 +254,18 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                     ts.createIdentifier('result'),
                     'write',
                     [
-                      ts.createIdentifier('output')
+                      COMMON_IDENTIFIERS['output']
                     ]
                   ),
                   // output.writeMessageEnd()
                   createMethodCallStatement(
-                    ts.createIdentifier('output'),
+                    COMMON_IDENTIFIERS['output'],
                     'writeMessageEnd',
                     []
                   ),
                   // output.flush()
                   createMethodCallStatement(
-                    ts.createIdentifier('output'),
+                    COMMON_IDENTIFIERS['output'],
                     'flush',
                     []
                   ),
@@ -322,7 +331,7 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                           ),
                           // output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
                           createMethodCallStatement(
-                            ts.createIdentifier('output'),
+                            COMMON_IDENTIFIERS['output'],
                             'writeMessageBegin',
                             [
                               ts.createLiteral(funcDef.name.value),
@@ -342,7 +351,7 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                           ),
                           // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
                           createMethodCallStatement(
-                            ts.createIdentifier('output'),
+                            COMMON_IDENTIFIERS['output'],
                             'writeMessageBegin',
                             [
                               ts.createLiteral(funcDef.name.value),
@@ -365,7 +374,7 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                     ),
                     // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
                     createMethodCallStatement(
-                      ts.createIdentifier('output'),
+                      COMMON_IDENTIFIERS['output'],
                       'writeMessageBegin',
                       [
                         ts.createLiteral(funcDef.name.value),
@@ -380,17 +389,17 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                   ts.createIdentifier('result'),
                   'write',
                   [
-                    ts.createIdentifier('output')
+                    COMMON_IDENTIFIERS['output']
                   ]
                 ),
                 // output.writeMessageEnd()
                 createMethodCallStatement(
-                  ts.createIdentifier('output'),
+                  COMMON_IDENTIFIERS['output'],
                   'writeMessageEnd'
                 ),
                 // output.flush()
                 createMethodCallStatement(
-                  ts.createIdentifier('output'),
+                  COMMON_IDENTIFIERS['output'],
                   'flush'
                 ),
               ], true)
@@ -419,7 +428,7 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
 //         output.flush()
 //     }
 // }
-function createProcessMethod(): ts.MethodDeclaration {
+function createProcessMethod(service: ServiceDefinition): ts.MethodDeclaration {
   return createPublicMethod(
     'process',
     [
@@ -433,7 +442,7 @@ function createProcessMethod(): ts.MethodDeclaration {
         'metadata',
         createReadMessageType(),
         createMethodCall(
-          ts.createIdentifier('input'),
+          COMMON_IDENTIFIERS['input'],
           'readMessageBegin',
           []
         )
@@ -448,36 +457,85 @@ function createProcessMethod(): ts.MethodDeclaration {
         createNumberType(),
         ts.createIdentifier('metadata.rseqid')
       ),
-      ts.createIf(
-        createNotNull(
-          createFnameAccess()
-        ),
-        ts.createBlock([
-          // return this["process_" + fname].call(this, rseqid, input, output, context)
-          ts.createReturn(
-            createMethodCall(
-              createFnameAccess(),
-              'call',
-              [
-                ts.createIdentifier('this'),
-                ts.createIdentifier('rseqid'),
-                ts.createIdentifier('input'),
-                ts.createIdentifier('output'),
-                ts.createIdentifier('context'),
-              ]
-            )
+      createConstStatement(
+        ts.createIdentifier('methodName'),
+        createStringType(),
+        ts.createBinary(
+          ts.createLiteral('process_'),
+          ts.SyntaxKind.PlusToken,
+          COMMON_IDENTIFIERS['fname']
+        )
+      ),
+      createMethodCallForFname(service)
+    ] // body
+  )
+}
+
+function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
+  const processMethodName: string = `process_${func.name.value}`
+  return ts.createCaseClause(
+    ts.createLiteral(processMethodName),
+    [
+      ts.createBlock([
+        ts.createReturn(
+          createMethodCall(
+            ts.createIdentifier('this'),
+            processMethodName,
+            [
+              ts.createIdentifier('rseqid'),
+              COMMON_IDENTIFIERS['input'],
+              COMMON_IDENTIFIERS['output'],
+              ts.createIdentifier('context'),
+            ]
           )
-        ], true),
+        )
+      ], true)
+    ]
+  )
+}
+
+/**
+ * In Scrooge we did something like this:
+ * 
+ * if (this["process_" + fname]) {
+ *   retrun this["process_" + fname].call(this, rseqid, input, output, context)
+ * } else {
+ *   ...skip logic
+ * }
+ * 
+ * When doing this we lose type safety. When we use the dynamic index access to call the method
+ * the method and this are inferred to be of type any.
+ * 
+ * We can maintain type safety through the generated code by removing the dynamic index access
+ * and replace with a switch that will do static method calls.
+ * 
+ * const methodName: string = "process_" + fname;
+ * switch (methodName) {
+ *   case "process_ping":
+ *     return this.process_ping(rseqid, input, output, context)
+ * 
+ *   default:
+ *     ...skip logic
+ * }
+ * 
+ * @param service
+ */
+function createMethodCallForFname(service: ServiceDefinition): ts.SwitchStatement {
+  return ts.createSwitch(
+    ts.createIdentifier('methodName'),
+    ts.createCaseBlock([
+      ...service.functions.map(createMethodCallForFunction),
+      ts.createDefaultClause([
         ts.createBlock([
           // input.skip(Thrift.Type.STRUCT)
           createMethodCallStatement(
-            ts.createIdentifier('input'),
+            COMMON_IDENTIFIERS['input'],
             'skip',
             [ ts.createIdentifier('Thrift.Type.STRUCT') ]
           ),
           // input.readMessageEnd()
           createMethodCallStatement(
-            ts.createIdentifier('input'),
+            COMMON_IDENTIFIERS['input'],
             'readMessageEnd'
           ),
           // const err = `Unknown function ${fname}`
@@ -501,7 +559,7 @@ function createProcessMethod(): ts.MethodDeclaration {
           ),
           // output.writeMessageBegin(fname, Thrift.MessageType.EXCEPTION, rseqid)
           createMethodCallStatement(
-            ts.createIdentifier('output'),
+            COMMON_IDENTIFIERS['output'],
             'writeMessageBegin',
             [
               ts.createIdentifier('fname'),
@@ -513,31 +571,20 @@ function createProcessMethod(): ts.MethodDeclaration {
           createMethodCallStatement(
             ts.createIdentifier('err'),
             'write',
-            [ ts.createIdentifier('output') ]
+            [ COMMON_IDENTIFIERS['output'] ]
           ),
           // output.writeMessageEnd()
           createMethodCallStatement(
-            ts.createIdentifier('output'),
+            COMMON_IDENTIFIERS['output'],
             'writeMessageEnd'
           ),
           // output.flush()
           createMethodCallStatement(
-            ts.createIdentifier('output'),
+            COMMON_IDENTIFIERS['output'],
             'flush'
           )
         ], true)
-      )
-    ] // body
-  )
-}
-
-function createFnameAccess(): ts.ElementAccessExpression {
-  return ts.createElementAccess(
-    ts.createIdentifier('this'),
-    ts.createBinary(
-      ts.createLiteral('process_'),
-      ts.SyntaxKind.PlusToken,
-      ts.createIdentifier('fname')
-    )
+      ])
+    ])
   )
 }
