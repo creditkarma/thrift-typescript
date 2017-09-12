@@ -1,4 +1,53 @@
-import { Thrift, TProtocol, TTransport } from "thrift";
+export interface IMyExceptionArgs {
+    message: string;
+}
+export class MyException {
+    public message: string;
+    constructor(args?: IMyExceptionArgs) {
+        if (args != null) {
+            if (args.message != null) {
+                this.message = args.message;
+            }
+        }
+    }
+    public write(output: TProtocol): void {
+        output.writeStructBegin("MyException");
+        if (this.message != null) {
+            output.writeFieldBegin("message", Thrift.Type.STRING, 1);
+            output.writeString(this.message);
+            output.writeFieldEnd();
+        }
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    }
+    public read(input: TProtocol): void {
+        input.readStructBegin();
+        while (true) {
+            const ret: {
+                fname: string;
+                ftype: Thrift.Type;
+                fid: number;
+            } = input.readFieldBegin();
+            const ftype: Thrift.Type = ret.ftype;
+            const fid: number = ret.fid;
+            if (ftype === Thrift.Type.STOP) {
+                break;
+            }
+            switch (fid) {
+                case 1:
+                    this.message = input.readString();
+                    break;
+                default: {
+                    input.skip(ftype);
+                }
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        return;
+    }
+}
 export interface IMyServicePingArgsArgs {
 }
 export class MyServicePingArgs {
@@ -41,8 +90,8 @@ export interface IMyServicePingResultArgs {
     exp?: MyException;
 }
 export class MyServicePingResult {
-    public success: void = null;
-    public exp: MyException = null;
+    public success: void;
+    public exp: MyException;
     constructor(args?: IMyServicePingResultArgs) {
         if (args != null) {
             if (args.success != null) {
@@ -56,7 +105,7 @@ export class MyServicePingResult {
     public write(output: TProtocol): void {
         output.writeStructBegin("MyServicePingResult");
         if (this.exp != null) {
-            output.writeFieldBegin("exp", Thrift.Type.STRUCT, 2);
+            output.writeFieldBegin("exp", Thrift.Type.STRUCT, 1);
             this.exp.write(output);
             output.writeFieldEnd();
         }
@@ -78,22 +127,12 @@ export class MyServicePingResult {
                 break;
             }
             switch (fid) {
-                case 1:
-                    if (ftype === Thrift.Type.VOID) {
-                        input.skip(ftype);
-                    }
-                    else {
-                        input.skip(ftype);
-                    }
+                case 0:
+                    input.skip(ftype);
                     break;
-                case 2:
-                    if (ftype === Thrift.Type.STRUCT) {
-                        this.exp = new MyException();
-                        this.exp.read(input);
-                    }
-                    else {
-                        input.skip(ftype);
-                    }
+                case 1:
+                    this.exp = new MyException();
+                    this.exp.read(input);
                     break;
                 default: {
                     input.skip(ftype);
@@ -108,7 +147,7 @@ export class MyServicePingResult {
 export class Client {
     private _seqid: number;
     private _reqs: {
-        [name: string]: (err: Error | object, r?: any) => void;
+        [name: string]: (err: Error | object | undefined, val?: any) => void;
     };
     public output: TTransport;
     public protocol: new (trans: TTransport) => TProtocol;
@@ -147,7 +186,7 @@ export class Client {
         return this.output.flush();
     }
     public recv_ping(input: TProtocol, mtype: Thrift.MessageType, rseqid: number): void {
-        const noop = (): void => null;
+        const noop = (): any => null;
         const callback = this._reqs[rseqid] || noop;
         delete this._reqs[rseqid];
         if (mtype === Thrift.MessageType.EXCEPTION) {
@@ -159,7 +198,7 @@ export class Client {
         const result = new MyServicePingResult();
         result.read(input);
         input.readMessageEnd();
-        if (exp != null) {
+        if (result.exp != null) {
             return callback(result.exp);
         }
         if (false) {
@@ -221,24 +260,32 @@ export class Processor<Context> {
             output.writeMessageEnd();
             output.flush();
         }).catch((err: Error): void => {
-            let result;
             if (1 > 0) {
                 if (err instanceof MyException) {
-                    result = new MyServicePingResult({ exp: err });
+                    const result: MyServicePingResult = new MyServicePingResult({ exp: err });
                     output.writeMessageBegin("ping", Thrift.MessageType.REPLY, seqid);
+                    result.write(output);
+                    output.writeMessageEnd();
+                    output.flush();
+                    return;
                 }
                 else {
-                    result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+                    const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
                     output.writeMessageBegin("ping", Thrift.MessageType.EXCEPTION, seqid);
+                    result.write(output);
+                    output.writeMessageEnd();
+                    output.flush();
+                    return;
                 }
             }
             else {
-                result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+                const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
                 output.writeMessageBegin("ping", Thrift.MessageType.EXCEPTION, seqid);
+                result.write(output);
+                output.writeMessageEnd();
+                output.flush();
+                return;
             }
-            result.write(output);
-            output.writeMessageEnd();
-            output.flush();
         });
     }
 }

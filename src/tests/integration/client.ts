@@ -8,15 +8,15 @@ import {
 
 import * as express from 'express'
 
-import * as MyService from './thrift/test'
+import * as MyService from './codegen/com/creditkarma/service'
 
 import {
   Client
-} from './thrift/test'
+} from './codegen/com/creditkarma/service'
 
 const config = {
   hostName: 'localhost',
-  port: 8080
+  port: 8045
 }
 
 // const express = require('express')
@@ -39,12 +39,12 @@ connection.on('error', (err: Error) => {
 })
 
 app.get('/', (req, res) => {
-  thriftClient.ping('hello').then((val: string) => {
+  thriftClient.ping(1).then((val: string) => {
     res.send(val)
   })
 });
 
-const server = app.listen(8000, () => {
+const server = app.listen(8044, () => {
   var host = server.address().address;
   var port = server.address().port;
 

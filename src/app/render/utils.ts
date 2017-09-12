@@ -1,7 +1,14 @@
+/**
+ * UTILS
+ *
+ * This module contains abstractions around the TypeScript factory functions to make them more
+ * concise.
+ */
 import * as ts from 'typescript'
 
 import {
   FieldRequired,
+  Identifier
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -14,12 +21,9 @@ import {
   COMMON_IDENTIFIERS,
 } from './identifiers'
 
-/**
- * UTILS
- *
- * This module contains abstractions around the TypeScript factory functions to make them more
- * concise.
- */
+export function nameForIdentifier(identifier: Identifier): string {
+  return '';
+}
 
 export function createPrivateProperty(name: string | ts.Identifier, type?: ts.TypeNode, initializer?: ts.Expression): ts.PropertyDeclaration {
   return ts.createProperty(
@@ -255,7 +259,7 @@ export function createNotNull(obj: string | ts.Expression ): ts.BinaryExpression
   )
 }
 
-export function renderOptional(value: FieldRequired): ts.Token<ts.SyntaxKind.QuestionToken> | undefined {
+export function renderOptional(value: FieldRequired | null): ts.Token<ts.SyntaxKind.QuestionToken> | undefined {
   if (value === 'optional') {
     return ts.createToken(ts.SyntaxKind.QuestionToken)
   } else {
@@ -277,7 +281,7 @@ export function createClassConstructor(
 
 export function createFunctionParameter(
   name: string | ts.Identifier,
-  typeNode: ts.TypeNode,
+  typeNode: ts.TypeNode | undefined,
   initializer?: ts.Expression,
   isOptional?: boolean,
 ): ts.ParameterDeclaration {

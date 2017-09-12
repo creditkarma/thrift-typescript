@@ -66,11 +66,12 @@ export function createReqType(): TypeLiteralNode {
             'err',
             createUnionTypeNode([
               createTypeReferenceNode('Error', undefined),
-              createTypeReferenceNode('object', undefined)
+              createTypeReferenceNode('object', undefined),
+              createTypeReferenceNode('undefined', undefined)
             ])
           ),
           createFunctionParameter(
-            'r',
+            'val',
             createKeywordTypeNode(SyntaxKind.AnyKeyword),
             undefined,
             true

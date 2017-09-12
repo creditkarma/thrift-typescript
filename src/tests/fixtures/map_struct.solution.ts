@@ -1,9 +1,8 @@
-import { Thrift, TProtocol, TTransport } from "thrift";
 export interface IMyStructArgs {
     field1: Map<string, string>;
 }
 export class MyStruct {
-    public field1: Map<string, string> = null;
+    public field1: Map<string, string>;
     constructor(args?: IMyStructArgs) {
         if (args != null) {
             if (args.field1 != null) {
@@ -45,24 +44,19 @@ export class MyStruct {
             }
             switch (fid) {
                 case 1:
-                    if (ftype === Thrift.Type.MAP) {
-                        this.field1 = new Map<string, string>();
-                        const metadata_1: {
-                            ktype: Thrift.Type;
-                            vtype: Thrift.Type;
-                            size: number;
-                        } = input.readMapBegin();
-                        const size_1: number = metadata_1.size;
-                        for (let i_1: number = 0; i_1 < size_1; i_1++) {
-                            const key_2: string = input.readString();
-                            const value_2: string = input.readString();
-                            this.field1.set(key_2, value_2);
-                        }
-                        input.readMapEnd();
+                    this.field1 = new Map<string, string>();
+                    const metadata_1: {
+                        ktype: Thrift.Type;
+                        vtype: Thrift.Type;
+                        size: number;
+                    } = input.readMapBegin();
+                    const size_1: number = metadata_1.size;
+                    for (let i_1: number = 0; i_1 < size_1; i_1++) {
+                        const key_2: string = input.readString();
+                        const value_2: string = input.readString();
+                        this.field1.set(key_2, value_2);
                     }
-                    else {
-                        input.skip(ftype);
-                    }
+                    input.readMapEnd();
                     break;
                 default: {
                     input.skip(ftype);

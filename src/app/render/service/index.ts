@@ -28,6 +28,10 @@ import {
   renderInterface
 } from '../interface'
 
+import {
+  IIdentifierMap
+} from '../../types'
+
 function emptyLocation(): TextLocation {
   return {
     start: { line: 0, column: 0, index: 0 },
@@ -35,7 +39,7 @@ function emptyLocation(): TextLocation {
   };
 }
 
-export function renderArgsStruct(service: ServiceDefinition): Array<ts.InterfaceDeclaration | ts.ClassDeclaration> {
+export function renderArgsStruct(service: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.InterfaceDeclaration | ts.ClassDeclaration> {
   return service.functions.reduce((
     acc: Array<ts.InterfaceDeclaration | ts.ClassDeclaration>,
     func: FunctionDefinition
@@ -54,17 +58,17 @@ export function renderArgsStruct(service: ServiceDefinition): Array<ts.Interface
     return [
       ...acc,
       renderInterface(argsStruct),
-      renderStruct(argsStruct)
+      renderStruct(argsStruct, identifiers)
     ];
   }, []);
 }
 
-export function renderResultStruct(service: ServiceDefinition): Array<ts.InterfaceDeclaration | ts.ClassDeclaration> {
+export function renderResultStruct(service: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.InterfaceDeclaration | ts.ClassDeclaration> {
   return service.functions.reduce((
     acc: Array<ts.InterfaceDeclaration | ts.ClassDeclaration>,
     func: FunctionDefinition
   ): Array<ts.InterfaceDeclaration | ts.ClassDeclaration> => {
-    var fieldID: number = 1;
+    var fieldID: number = 0;
     const resultStruct: StructDefinition = {
       type: SyntaxType.StructDefinition,
       name: createIdentifier(
@@ -99,7 +103,7 @@ export function renderResultStruct(service: ServiceDefinition): Array<ts.Interfa
     return [
       ...acc,
       renderInterface(resultStruct),
-      renderStruct(resultStruct)
+      renderStruct(resultStruct, identifiers)
     ];
   }, []);
 }

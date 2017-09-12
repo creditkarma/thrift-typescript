@@ -4,12 +4,13 @@ import {
 
 import {
   SyntaxType,
-  ThriftDocument,
   ThriftStatement,
 } from '@creditkarma/thrift-parser'
 
 import { renderException } from './exception'
+
 import { renderInterface } from './interface'
+
 import {
   renderArgsStruct,
   renderClient,
@@ -17,18 +18,23 @@ import {
   renderResultStruct,
   renderHandlerInterface
 } from './service'
+
 import { renderStruct } from './struct'
 import { renderUnion } from './union'
 import { renderEnum } from './enum'
 import { renderTypeDef } from './typedef'
 import { renderConst } from './const'
 
+import {
+  IIdentifierMap
+} from '../types'
+
 /**
  * Given a Thrift declaration return the corresponding TypeScript statement
  *
  * @param statement
  */
-export function renderStatement(statement: ThriftStatement): Array<Statement> {
+export function renderStatement(statement: ThriftStatement, identifiers: IIdentifierMap): Array<Statement> {
   switch (statement.type) {
     case SyntaxType.ConstDefinition:
       return [ renderConst(statement) ]
@@ -40,18 +46,18 @@ export function renderStatement(statement: ThriftStatement): Array<Statement> {
       return [ renderTypeDef(statement) ]
 
     case SyntaxType.StructDefinition:
-      return [ renderInterface(statement), renderStruct(statement) ]
+      return [ renderInterface(statement), renderStruct(statement, identifiers) ]
 
     case SyntaxType.UnionDefinition:
-      return [ renderInterface(statement), renderUnion(statement) ]
+      return [ renderInterface(statement), renderUnion(statement, identifiers) ]
 
     case SyntaxType.ExceptionDefinition:
-      return [ renderInterface(statement), renderException(statement) ]
+      return [ renderInterface(statement), renderException(statement, identifiers) ]
 
     case SyntaxType.ServiceDefinition:
       return [
-        ...renderArgsStruct(statement),
-        ...renderResultStruct(statement),
+        ...renderArgsStruct(statement, identifiers),
+        ...renderResultStruct(statement, identifiers),
         renderClient(statement),
         renderHandlerInterface(statement),
         renderProcessor(statement),
@@ -72,9 +78,9 @@ export function renderStatement(statement: ThriftStatement): Array<Statement> {
  *
  * @param ast
  */
-export function render(ast: ThriftDocument): Array<Statement> {
-  return ast.body.reduce((acc: Array<Statement>, next: ThriftStatement) => {
-    const newStatements: Array<Statement> = renderStatement(next)
+export function render(statements: Array<ThriftStatement>, identifiers: IIdentifierMap): Array<Statement> {
+  return statements.reduce((acc: Array<Statement>, next: ThriftStatement) => {
+    const newStatements: Array<Statement> = renderStatement(next, identifiers)
     return [ ...acc, ...newStatements ]
   }, [])
 }

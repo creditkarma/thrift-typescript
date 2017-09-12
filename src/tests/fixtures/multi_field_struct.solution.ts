@@ -1,13 +1,12 @@
-import { Thrift, TProtocol, TTransport } from "thrift";
 export interface IMyStructArgs {
     id: number;
     word: string;
     field1?: number;
 }
 export class MyStruct {
-    public id: number = null;
-    public word: string = null;
-    public field1: number = null;
+    public id: number;
+    public word: string;
+    public field1: number;
     constructor(args?: IMyStructArgs) {
         if (args != null) {
             if (args.id != null) {
@@ -63,28 +62,13 @@ export class MyStruct {
             }
             switch (fid) {
                 case 1:
-                    if (ftype === Thrift.Type.I32) {
-                        this.id = input.readI32();
-                    }
-                    else {
-                        input.skip(ftype);
-                    }
+                    this.id = input.readI32();
                     break;
                 case 2:
-                    if (ftype === Thrift.Type.STRING) {
-                        this.word = input.readString();
-                    }
-                    else {
-                        input.skip(ftype);
-                    }
+                    this.word = input.readString();
                     break;
                 case 3:
-                    if (ftype === Thrift.Type.DOUBLE) {
-                        this.field1 = input.readDouble();
-                    }
-                    else {
-                        input.skip(ftype);
-                    }
+                    this.field1 = input.readDouble();
                     break;
                 default: {
                     input.skip(ftype);

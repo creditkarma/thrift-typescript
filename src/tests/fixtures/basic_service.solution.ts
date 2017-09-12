@@ -1,4 +1,3 @@
-import { Thrift, TProtocol, TTransport } from "thrift";
 export interface IMyServicePingArgsArgs {
 }
 export class MyServicePingArgs {
@@ -40,7 +39,7 @@ export interface IMyServicePingResultArgs {
     success?: void;
 }
 export class MyServicePingResult {
-    public success: void = null;
+    public success: void;
     constructor(args?: IMyServicePingResultArgs) {
         if (args != null) {
             if (args.success != null) {
@@ -68,13 +67,8 @@ export class MyServicePingResult {
                 break;
             }
             switch (fid) {
-                case 1:
-                    if (ftype === Thrift.Type.VOID) {
-                        input.skip(ftype);
-                    }
-                    else {
-                        input.skip(ftype);
-                    }
+                case 0:
+                    input.skip(ftype);
                     break;
                 default: {
                     input.skip(ftype);
@@ -89,7 +83,7 @@ export class MyServicePingResult {
 export class Client {
     private _seqid: number;
     private _reqs: {
-        [name: string]: (err: Error | object, r?: any) => void;
+        [name: string]: (err: Error | object | undefined, val?: any) => void;
     };
     public output: TTransport;
     public protocol: new (trans: TTransport) => TProtocol;
@@ -128,7 +122,7 @@ export class Client {
         return this.output.flush();
     }
     public recv_ping(input: TProtocol, mtype: Thrift.MessageType, rseqid: number): void {
-        const noop = (): void => null;
+        const noop = (): any => null;
         const callback = this._reqs[rseqid] || noop;
         delete this._reqs[rseqid];
         if (mtype === Thrift.MessageType.EXCEPTION) {
@@ -199,16 +193,16 @@ export class Processor<Context> {
             output.writeMessageEnd();
             output.flush();
         }).catch((err: Error): void => {
-            let result;
             if (0 > 0) {
             }
             else {
-                result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+                const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
                 output.writeMessageBegin("ping", Thrift.MessageType.EXCEPTION, seqid);
+                result.write(output);
+                output.writeMessageEnd();
+                output.flush();
+                return;
             }
-            result.write(output);
-            output.writeMessageEnd();
-            output.flush();
         });
     }
 }
