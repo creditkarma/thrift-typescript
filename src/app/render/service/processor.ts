@@ -49,12 +49,12 @@ import {
  * service MyService {
  *   i32 add(1: i32 a, 2: i32 b)
  * }
- * 
+ *
  * // typescript
  * interface IMyServiceHandler<Context> {
  *   add(a: number, b: number, context: Context): number
  * }
- * @param service 
+ * @param service
  */
 export function renderHandlerInterface(service: ServiceDefinition): ts.InterfaceDeclaration {
   const signatures = service.functions.map((func: FunctionDefinition) => {
@@ -348,10 +348,6 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
               createVoidType(),
               undefined,
               ts.createBlock([
-                // let result;
-                createLetStatement(
-                  ts.createIdentifier('result')
-                ),
                 // if (def.throws.length > 0)
                 ts.createIf(
                   ts.createBinary(
@@ -369,9 +365,13 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                           constructorNameForFieldType(throwDef.fieldType)
                         ),
                         ts.createBlock([
-                          // result = new {{ServiceName}}{{nameTitleCase}}Result({{{throwName}}: err as {{throwType}}})
-                          createAssignmentStatement(
+                          // const result: {{throwType}} = new {{ServiceName}}{{nameTitleCase}}Result({{{throwName}}: err as {{throwType}}});
+                          createConstStatement(
                             ts.createIdentifier('result'),
+                            ts.createTypeReferenceNode(
+                              ts.createIdentifier(createStructResultName(service, funcDef)),
+                              undefined
+                            ),
                             ts.createNew(
                               ts.createIdentifier(createStructResultName(service, funcDef)),
                               undefined,
@@ -396,12 +396,35 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                               ts.createIdentifier('Thrift.MessageType.REPLY'),
                               ts.createIdentifier('seqid')
                             ]
-                          )
+                          ),
+                          // result.write(output)
+                          createMethodCallStatement(
+                            ts.createIdentifier('result'),
+                            'write',
+                            [
+                              COMMON_IDENTIFIERS['output']
+                            ]
+                          ),
+                          // output.writeMessageEnd()
+                          createMethodCallStatement(
+                            COMMON_IDENTIFIERS['output'],
+                            'writeMessageEnd'
+                          ),
+                          // output.flush()
+                          createMethodCallStatement(
+                            COMMON_IDENTIFIERS['output'],
+                            'flush'
+                          ),
+                          ts.createReturn()
                         ], true),
                         ts.createBlock([
-                          // result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
-                          createAssignmentStatement(
+                          // const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
+                          createConstStatement(
                             ts.createIdentifier('result'),
+                            ts.createTypeReferenceNode(
+                              ts.createIdentifier('Thrift.TApplicationException'),
+                              undefined
+                            ),
                             createApplicationException(
                               'TApplicationExceptionType.UNKNOWN',
                               ts.createIdentifier('err.message')
@@ -416,15 +439,38 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                               ts.createIdentifier('Thrift.MessageType.EXCEPTION'),
                               ts.createIdentifier('seqid')
                             ]
-                          )
+                          ),
+                          // result.write(output)
+                          createMethodCallStatement(
+                            ts.createIdentifier('result'),
+                            'write',
+                            [
+                              COMMON_IDENTIFIERS['output']
+                            ]
+                          ),
+                          // output.writeMessageEnd()
+                          createMethodCallStatement(
+                            COMMON_IDENTIFIERS['output'],
+                            'writeMessageEnd'
+                          ),
+                          // output.flush()
+                          createMethodCallStatement(
+                            COMMON_IDENTIFIERS['output'],
+                            'flush'
+                          ),
+                          ts.createReturn()
                         ], true)
                       )
                     })
                   ], true),
                   ts.createBlock([
-                    // result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
-                    createAssignmentStatement(
+                    // const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
+                    createConstStatement(
                       ts.createIdentifier('result'),
+                      ts.createTypeReferenceNode(
+                        ts.createIdentifier('Thrift.TApplicationException'),
+                        undefined
+                      ),
                       createApplicationException(
                         'TApplicationExceptionType.UNKNOWN',
                         ts.createIdentifier('err.message')
@@ -439,27 +485,28 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                         ts.createIdentifier('Thrift.MessageType.EXCEPTION'),
                         ts.createIdentifier('seqid')
                       ]
-                    )
+                    ),
+                    // result.write(output)
+                    createMethodCallStatement(
+                      ts.createIdentifier('result'),
+                      'write',
+                      [
+                        COMMON_IDENTIFIERS['output']
+                      ]
+                    ),
+                    // output.writeMessageEnd()
+                    createMethodCallStatement(
+                      COMMON_IDENTIFIERS['output'],
+                      'writeMessageEnd'
+                    ),
+                    // output.flush()
+                    createMethodCallStatement(
+                      COMMON_IDENTIFIERS['output'],
+                      'flush'
+                    ),
+                    ts.createReturn()
                   ], true)
-                ),
-                // result.write(output)
-                createMethodCallStatement(
-                  ts.createIdentifier('result'),
-                  'write',
-                  [
-                    COMMON_IDENTIFIERS['output']
-                  ]
-                ),
-                // output.writeMessageEnd()
-                createMethodCallStatement(
-                  COMMON_IDENTIFIERS['output'],
-                  'writeMessageEnd'
-                ),
-                // output.flush()
-                createMethodCallStatement(
-                  COMMON_IDENTIFIERS['output'],
-                  'flush'
-                ),
+                )
               ], true)
             )
           ]
@@ -477,7 +524,7 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
 //     switch (methodName) {
 //       case "process_ping":
 //         return this.process_ping(rseqid, input, output, context)
-//     
+//
 //       default:
 //         ...skip logic
 //     }
@@ -550,28 +597,28 @@ function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
 
 /**
  * In Scrooge we did something like this:
- * 
+ *
  * if (this["process_" + fname]) {
  *   retrun this["process_" + fname].call(this, rseqid, input, output, context)
  * } else {
  *   ...skip logic
  * }
- * 
+ *
  * When doing this we lose type safety. When we use the dynamic index access to call the method
  * the method and this are inferred to be of type any.
- * 
+ *
  * We can maintain type safety through the generated code by removing the dynamic index access
  * and replace with a switch that will do static method calls.
- * 
+ *
  * const methodName: string = "process_" + fname;
  * switch (methodName) {
  *   case "process_ping":
  *     return this.process_ping(rseqid, input, output, context)
- * 
+ *
  *   default:
  *     ...skip logic
  * }
- * 
+ *
  * @param service
  */
 function createMethodCallForFname(service: ServiceDefinition): ts.SwitchStatement {

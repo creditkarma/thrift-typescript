@@ -23,4 +23,5 @@ export const COMMON_IDENTIFIERS: IdentifierMap = {
   Number: createIdentifier('Number'),
   void: createIdentifier('void'),
   Thrift: createIdentifier('Thrift'),
+  Int64: createIdentifier('Int64'),
 }

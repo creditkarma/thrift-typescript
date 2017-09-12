@@ -1,9 +1,8 @@
-import { Thrift, TProtocol, TTransport } from "thrift";
 export interface IMyExceptionArgs {
     message: string;
 }
-export class MyException extends Thrift.TException {
-    public message: string = null;
+export class MyException {
+    public message: string;
     constructor(args?: IMyExceptionArgs) {
         if (args != null) {
             if (args.message != null) {
@@ -40,12 +39,7 @@ export class MyException extends Thrift.TException {
             }
             switch (fid) {
                 case 1:
-                    if (ftype === Thrift.Type.STRING) {
-                        this.message = input.readString();
-                    }
-                    else {
-                        input.skip(ftype);
-                    }
+                    this.message = input.readString();
                     break;
                 default: {
                     input.skip(ftype);

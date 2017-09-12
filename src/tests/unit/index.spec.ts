@@ -72,7 +72,7 @@ describe('Thrift TypeScript Generator', () => {
 
     assert.deepEqual(actual, expected)
   })
-  
+
   it('should correctly generate a struct with a map field', () => {
     const content: string = `
       struct MyStruct {
@@ -147,6 +147,10 @@ describe('Thrift TypeScript Generator', () => {
 
   it('should correctly generate a struct with an identifier field type', () => {
     const content: string = `
+      struct OtherStruct {
+        1: required string name
+      }
+
       struct MyStruct {
           1: required OtherStruct field1
       }
@@ -159,6 +163,10 @@ describe('Thrift TypeScript Generator', () => {
 
   it('should correctly generate a struct with an identifier inside of a container', () => {
     const content: string = `
+      struct OtherStruct {
+        1: required string name
+      }
+
       struct MyStruct {
           1: required set<OtherStruct> field1
       }
@@ -208,6 +216,10 @@ describe('Thrift TypeScript Generator', () => {
 
   it('should correctly generate a service with functions that throw', () => {
     const content: string = `
+      exception MyException {
+        1: string message
+      }
+
       service MyService {
           void ping() throws (1: MyException exp);
       }
@@ -220,13 +232,17 @@ describe('Thrift TypeScript Generator', () => {
 
   it('should correctly generate a service with functions that return', () => {
     const content: string = `
+      exception MyException {
+        1: string message
+      }
+
       service MyService {
           string ping(1: i32 status) throws (1: MyException exp);
       }
     `;
     const expected: string = readFixture('return_service')
     const actual: string = make(content)
-    
+
     assert.deepEqual(actual, expected)
   })
 })

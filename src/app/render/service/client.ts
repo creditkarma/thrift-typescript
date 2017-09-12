@@ -35,6 +35,7 @@ import {
 import {
   createNumberType,
   createVoidType,
+  createAnyType,
   typeNodeForFieldType
 } from '../types'
 
@@ -200,18 +201,18 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
       // this._seqid = this.new_seqid()
       createAssignmentStatement(
         ts.createIdentifier('this._seqid'),
-        ts.createCall(ts.createIdentifier('this.new_seqid'), undefined, undefined)
+        ts.createCall(ts.createIdentifier('this.new_seqid'), undefined, [])
       ),
       // return new Promise<type>((resolve, reject) => { ... })
       ts.createReturn(
         createPromise(
           typeNodeForFieldType(def.returnType),
           [
-            // this._reqs[this.seqid()] = (error, result) => 
+            // this._reqs[this.seqid()] = (error, result) =>
             createAssignmentStatement(
               ts.createElementAccess(
                 ts.createIdentifier('this._reqs'),
-                ts.createCall(ts.createIdentifier('this.seqid'), undefined, undefined)
+                ts.createCall(ts.createIdentifier('this.seqid'), undefined, [])
               ),
               ts.createArrowFunction(
                 undefined,
@@ -372,12 +373,12 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
 // }
 function createRecvMethodForDefinition(service: ServiceDefinition, def: FunctionDefinition): ts.MethodDeclaration {
   return ts.createMethod(
-    undefined,
-    [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
-    undefined,
-    `recv_${def.name.value}`,
-    undefined,
-    undefined,
+    undefined, // decorators
+    [ ts.createToken(ts.SyntaxKind.PublicKeyword) ], // modifiers
+    undefined, // asterisk token
+    `recv_${def.name.value}`, // method name
+    undefined, // question token
+    undefined, // type parameters
     [
       createFunctionParameter(
         COMMON_IDENTIFIERS['input'],
@@ -398,7 +399,7 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
         createNumberType()
       )
     ], // parameters
-    createVoidType(),
+    createVoidType(), // return type
     ts.createBlock([
       createConstStatement(
         ts.createIdentifier('noop'),
@@ -408,11 +409,12 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
           undefined,
           undefined,
           [],
-          createVoidType(),
+          createAnyType(),
           undefined,
           ts.createIdentifier('null')
         )
       ),
+
       // const callback = this._reqs[rseqid] || noop
       createConstStatement(
         ts.createIdentifier('callback'),
@@ -426,6 +428,7 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
           ts.createIdentifier('noop')
         )
       ),
+
       // delete this._reqs[rseqid]
       ts.createStatement(ts.createDelete(
         ts.createElementAccess(
@@ -433,6 +436,7 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
           ts.createIdentifier('rseqid')
         )
       )),
+
       // if (mtype === Thrift.MessageType.EXCEPTION) {
       //     const x = new Thrift.TApplicationException()
       //     x.read(input)
@@ -473,6 +477,7 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
           )
         ], true)
       ),
+
       // const result = new {{ServiceName}}{{nameTitleCase}}Result()
       createConstStatement(
         ts.createIdentifier('result'),
@@ -483,23 +488,26 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
           []
         )
       ),
+
       // result.read(input)
       createMethodCallStatement(
         ts.createIdentifier('result'),
         'read',
         [ COMMON_IDENTIFIERS['input'] ]
       ),
+
       // input.readMessageEnd()
       createMethodCallStatement(
         COMMON_IDENTIFIERS['input'],
         'readMessageEnd'
       ),
+
       // {{#throws}}if (result.{{throwName}} != null) {
       //     return callback(result.{{throwName}})
       // }
       ...def.throws.map((next: FieldDefinition): ts.IfStatement => {
         return ts.createIf(
-          createNotNull(next.name.value),
+          createNotNull(`result.${next.name.value}`),
           ts.createBlock([
             ts.createReturn(
               ts.createCall(
@@ -511,6 +519,7 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
           ], true)
         )
       }),
+
       // {{^isVoid}}
       // if (result.success != null) {
       //     return callback(undefined, result.success)

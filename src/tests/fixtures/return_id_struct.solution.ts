@@ -1,9 +1,61 @@
-import { Thrift, TProtocol, TTransport } from "thrift";
+export interface IOtherStructArgs {
+    name: string;
+}
+export class OtherStruct {
+    public name: string;
+    constructor(args?: IOtherStructArgs) {
+        if (args != null) {
+            if (args.name != null) {
+                this.name = args.name;
+            }
+            else {
+                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field name is unset!");
+            }
+        }
+    }
+    public write(output: TProtocol): void {
+        output.writeStructBegin("OtherStruct");
+        if (this.name != null) {
+            output.writeFieldBegin("name", Thrift.Type.STRING, 1);
+            output.writeString(this.name);
+            output.writeFieldEnd();
+        }
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    }
+    public read(input: TProtocol): void {
+        input.readStructBegin();
+        while (true) {
+            const ret: {
+                fname: string;
+                ftype: Thrift.Type;
+                fid: number;
+            } = input.readFieldBegin();
+            const ftype: Thrift.Type = ret.ftype;
+            const fid: number = ret.fid;
+            if (ftype === Thrift.Type.STOP) {
+                break;
+            }
+            switch (fid) {
+                case 1:
+                    this.name = input.readString();
+                    break;
+                default: {
+                    input.skip(ftype);
+                }
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        return;
+    }
+}
 export interface IMyStructArgs {
     field1: OtherStruct;
 }
 export class MyStruct {
-    public field1: OtherStruct = null;
+    public field1: OtherStruct;
     constructor(args?: IMyStructArgs) {
         if (args != null) {
             if (args.field1 != null) {
@@ -40,13 +92,8 @@ export class MyStruct {
             }
             switch (fid) {
                 case 1:
-                    if (ftype === Thrift.Type.STRUCT) {
-                        this.field1 = new OtherStruct();
-                        this.field1.read(input);
-                    }
-                    else {
-                        input.skip(ftype);
-                    }
+                    this.field1 = new OtherStruct();
+                    this.field1.read(input);
                     break;
                 default: {
                     input.skip(ftype);

@@ -2,7 +2,7 @@ import { lstatSync } from 'fs'
 
 import {
   IMakeOptions
-} from '../index'
+} from '../types'
 
 /**
  * --rootDir
@@ -14,8 +14,8 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
   let index: number = 0
   const options: IMakeOptions = {
     rootDir: '.',
-    outDir: './thrift',
-    removeComments: false,
+    outDir: './codegen',
+    sourceDir: './thrift',
     files: []
   }
 
@@ -36,20 +36,24 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
           throw new Error(`Provided root directory "${options.rootDir}" doesn't exist`)
         }
 
+      case '--sourceDir':
+        options.sourceDir = args[(index + 1)]
+        index += 2
+        break
+
       case '--outDir':
         options.outDir = args[(index + 1)]
         index += 2
         break
 
-      case '--removeComments':
-        options.removeComments = (args[(index + 1)] === 'true')
-        index += 2
-        break
-
-      // Assume option is a file to render
       default:
-        options.files.push(next)
-        index += 1
+        if (next.startsWith('--')) {
+          throw new Error(`Unknown option provided to generator "${next}"`)
+        } else {
+          // Assume option is a file to render
+          options.files.push(next)
+          index += 1
+        }
     }
   }
 

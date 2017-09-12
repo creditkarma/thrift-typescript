@@ -6,6 +6,11 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
+  IIdentifierMap,
+  IIdentifierType
+} from '../types'
+
+import {
   COMMON_IDENTIFIERS
 } from './identifiers'
 
@@ -95,11 +100,13 @@ export function typeNodeForFieldType(fieldType: FunctionType): ts.TypeNode {
     case SyntaxType.BoolKeyword:
       return createBooleanType()
 
+    case SyntaxType.I64Keyword:
+      return ts.createTypeReferenceNode(COMMON_IDENTIFIERS['Int64'], undefined)
+
     case SyntaxType.DoubleKeyword:
     case SyntaxType.I8Keyword:
     case SyntaxType.I16Keyword:
     case SyntaxType.I32Keyword:
-    case SyntaxType.I64Keyword:
     case SyntaxType.BinaryKeyword:
     case SyntaxType.ByteKeyword:
       return createNumberType()
@@ -133,11 +140,13 @@ export function constructorNameForFieldType(fieldType: FunctionType): ts.Identif
     case SyntaxType.BoolKeyword:
       return COMMON_IDENTIFIERS['Boolean']
 
+    case SyntaxType.I64Keyword:
+      return COMMON_IDENTIFIERS['Int64']
+
     case SyntaxType.DoubleKeyword:
     case SyntaxType.I8Keyword:
     case SyntaxType.I16Keyword:
     case SyntaxType.I32Keyword:
-    case SyntaxType.I64Keyword:
     case SyntaxType.BinaryKeyword:
     case SyntaxType.ByteKeyword:
       return COMMON_IDENTIFIERS['Number']
@@ -167,6 +176,28 @@ export type ThriftTypeAccess =
   'Type.BOOL' | 'Type.DOUBLE' | 'Type.BYTE' | 'Type.I16' | 'Type.I32' |
   'Type.I64' | 'Type.VOID'
 
+function thriftAccessForIdentifier(id: IIdentifierType, identifiers: IIdentifierMap): ThriftTypeAccess {
+  switch (id.definition.type) {
+    case SyntaxType.StructDefinition:
+    case SyntaxType.UnionDefinition:
+    case SyntaxType.ExceptionDefinition:
+      return 'Type.STRUCT'
+
+    case SyntaxType.EnumDefinition:
+      return 'Type.I32'
+
+    case SyntaxType.TypedefDefinition:
+      return thriftAccessForFieldType(
+        id.definition.definitionType,
+        identifiers
+      )
+
+    default:
+      const msg: never = id.definition
+      throw new Error(`Non-exhaustive match for: ${msg}`)
+  }
+}
+
 /**
  * Gets the type access for the 'Thrift' object for a given FieldType.
  *
@@ -179,10 +210,13 @@ export type ThriftTypeAccess =
  *
  * @param fieldType
  */
-function thriftAccessForFieldType(fieldType: FunctionType): ThriftTypeAccess {
+function thriftAccessForFieldType(fieldType: FunctionType, identifiers: IIdentifierMap): ThriftTypeAccess {
   switch (fieldType.type) {
     case SyntaxType.Identifier:
-      return 'Type.STRUCT'
+      return thriftAccessForIdentifier(
+        identifiers[fieldType.value],
+        identifiers
+      )
 
     case SyntaxType.SetType:
       return 'Type.SET'
@@ -234,9 +268,9 @@ function thriftAccessForFieldType(fieldType: FunctionType): ThriftTypeAccess {
  *
  * @param fieldType
  */
-export function thriftPropertyAccessForFieldType(fieldType: FunctionType): ts.PropertyAccessExpression {
+export function thriftPropertyAccessForFieldType(fieldType: FunctionType, identifiers:IIdentifierMap): ts.PropertyAccessExpression {
   return ts.createPropertyAccess(
     COMMON_IDENTIFIERS['Thrift'],
-    thriftAccessForFieldType(fieldType),
+    thriftAccessForFieldType(fieldType, identifiers),
   )
 }

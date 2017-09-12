@@ -1,11 +1,10 @@
-import { Thrift, TProtocol, TTransport } from "thrift";
 export interface IMyUnionArgs {
     field1?: string;
     field2?: string;
 }
 export class MyUnion {
-    public field1: string = null;
-    public field2: string = null;
+    public field1: string;
+    public field2: string;
     constructor(args?: IMyUnionArgs) {
         let fieldsSet: number = 0;
         if (args != null) {
@@ -57,22 +56,12 @@ export class MyUnion {
             }
             switch (fid) {
                 case 1:
-                    if (ftype === Thrift.Type.STRING) {
-                        fieldsSet++;
-                        this.field1 = input.readString();
-                    }
-                    else {
-                        input.skip(ftype);
-                    }
+                    fieldsSet++;
+                    this.field1 = input.readString();
                     break;
                 case 2:
-                    if (ftype === Thrift.Type.STRING) {
-                        fieldsSet++;
-                        this.field2 = input.readString();
-                    }
-                    else {
-                        input.skip(ftype);
-                    }
+                    fieldsSet++;
+                    this.field2 = input.readString();
                     break;
                 default: {
                     input.skip(ftype);

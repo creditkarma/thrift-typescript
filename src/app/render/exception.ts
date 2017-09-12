@@ -1,35 +1,17 @@
-import {
-  ClassDeclaration,
-  createExpressionWithTypeArguments,
-  createHeritageClause,
-  createIdentifier,
-  HeritageClause,
-  SyntaxKind,
-  updateClassDeclaration,
-} from 'typescript'
+import * as ts from 'typescript'
 
 import {
   ExceptionDefinition,
 } from '@creditkarma/thrift-parser'
 
 import {
-  renderStruct,
+  IIdentifierMap
+} from '../types'
+
+import {
+  renderStruct
 } from './struct'
 
-export function renderException(node: ExceptionDefinition): ClassDeclaration {
-  const structClass: ClassDeclaration = renderStruct(node)
-  const parent: HeritageClause = createHeritageClause(
-    SyntaxKind.ExtendsKeyword,
-    [ createExpressionWithTypeArguments(undefined, createIdentifier('Thrift.TException')) ],
-  )
-
-  return updateClassDeclaration(
-    structClass,
-    structClass.decorators,
-    structClass.modifiers,
-    structClass.name,
-    structClass.typeParameters,
-    [ parent ],
-    structClass.members,
-  )
+export function renderException(node: ExceptionDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
+  return renderStruct(node, identifiers)
 }

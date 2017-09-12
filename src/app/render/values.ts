@@ -35,7 +35,8 @@ export function renderValue(node: ConstValue): Expression {
       return renderMap(node)
 
     default:
-      return null
+      const msg: never = node
+      throw new Error(`Non-exhaustive match for ${msg}`)
   }
 }
 

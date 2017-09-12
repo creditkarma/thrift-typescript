@@ -1,9 +1,8 @@
-import { Thrift, TProtocol, TTransport } from "thrift";
 export interface IMyStructArgs {
     field1: Set<string>;
 }
 export class MyStruct {
-    public field1: Set<string> = null;
+    public field1: Set<string>;
     constructor(args?: IMyStructArgs) {
         if (args != null) {
             if (args.field1 != null) {
@@ -44,22 +43,17 @@ export class MyStruct {
             }
             switch (fid) {
                 case 1:
-                    if (ftype === Thrift.Type.SET) {
-                        this.field1 = new Set<string>();
-                        const metadata_1: {
-                            etype: Thrift.Type;
-                            size: number;
-                        } = input.readSetBegin();
-                        const size_1: number = metadata_1.size;
-                        for (let i_1: number = 0; i_1 < size_1; i_1++) {
-                            const value_2: string = input.readString();
-                            this.field1.add(value_2);
-                        }
-                        input.readSetEnd();
+                    this.field1 = new Set<string>();
+                    const metadata_1: {
+                        etype: Thrift.Type;
+                        size: number;
+                    } = input.readSetBegin();
+                    const size_1: number = metadata_1.size;
+                    for (let i_1: number = 0; i_1 < size_1; i_1++) {
+                        const value_2: string = input.readString();
+                        this.field1.add(value_2);
                     }
-                    else {
-                        input.skip(ftype);
-                    }
+                    input.readSetEnd();
                     break;
                 default: {
                     input.skip(ftype);

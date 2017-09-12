@@ -4,7 +4,7 @@ import {
   TBufferedTransport,
 } from 'thrift'
 
-import * as MyService from './thrift/test'
+import * as MyService from './codegen/com/creditkarma/service'
 
 //ServiceHandler: Implement the hello service
 const myServiceHandler = {
@@ -15,10 +15,10 @@ const myServiceHandler = {
 
 //ServiceOptions: The I/O stack for the service
 const myServiceOpts = {
-    handler: myServiceHandler,
-    processor: MyService,
-    protocol: TBinaryProtocol,
-    transport: TBufferedTransport
+  handler: myServiceHandler,
+  processor: MyService,
+  protocol: TBinaryProtocol,
+  transport: TBufferedTransport
 };
 
 //ServerOptions: Define server features
@@ -29,7 +29,7 @@ const serverOpt = {
 }
 
 //Create and start the web server
-const port: number = 8080;
+const port: number = 8045;
 createWebServer(serverOpt).listen(port, () => {
   console.log(`Thrift server listening on port ${port}`)
 });
