@@ -1,3 +1,4 @@
+import { parse, ThriftDocument } from '@creditkarma/thrift-parser'
 import { assert } from 'chai'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -14,11 +15,24 @@ function test(filestem: string) {
     }
 }
 
+function test2(filestem: string) {
+    const base = path.join(__dirname, `../fixtures/${filestem}`)
+    const content = fs.readFileSync(`${base}.thrift`, 'utf-8')
+    const thriftAST: ThriftDocument = parse(content)
+    const expected = thriftAST.body[0].comments[0].value
+    console.log(JSON.stringify(thriftAST, null, 2))
+
+    return () => {
+        const actual = make(content)
+        assert.equal(actual, expected)
+    }
+}
+
 describe('Thrift TypeScript Generator', () => {
 
   it('should correctly generate a const', test('const'))
 
-  it('should correctly generate a type alias', test('alias'))
+  it('should correctly generate a type alias', test2('alias'))
 
   it('should correctly generate an enum', test('enum'))
 
