@@ -162,14 +162,26 @@ export function createInputParameter(): ts.ParameterDeclaration {
  * @param field
  */
 export function createCaseForField(field: FieldDefinition, identifiers: IIdentifierMap): ts.CaseClause {
-  return ts.createCaseClause(
-    ts.createLiteral(field.fieldID.value),
-    [
-      ...readValueForFieldType(
+  const checkType: ts.IfStatement = ts.createIf(
+    createEquals(
+      COMMON_IDENTIFIERS['ftype'],
+      thriftPropertyAccessForFieldType(field.fieldType, identifiers)
+    ),
+    ts.createBlock(
+      readValueForFieldType(
         field.fieldType,
         ts.createIdentifier(`this.${field.name.value}`),
         identifiers
       ),
+      true
+    ),
+    createSkipBlock()
+  )
+
+  return ts.createCaseClause(
+    ts.createLiteral(field.fieldID.value),
+    [
+      checkType,
       ts.createBreak()
     ]
   )

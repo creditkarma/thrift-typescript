@@ -39,7 +39,12 @@ export class OtherStruct {
             }
             switch (fid) {
                 case 1:
-                    this.name = input.readString();
+                    if (ftype === Thrift.Type.STRING) {
+                        this.name = input.readString();
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
                     break;
                 default: {
                     input.skip(ftype);
@@ -92,8 +97,13 @@ export class MyStruct {
             }
             switch (fid) {
                 case 1:
-                    this.field1 = new OtherStruct();
-                    this.field1.read(input);
+                    if (ftype === Thrift.Type.STRUCT) {
+                        this.field1 = new OtherStruct();
+                        this.field1.read(input);
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
                     break;
                 default: {
                     input.skip(ftype);
