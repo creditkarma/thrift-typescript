@@ -8,10 +8,24 @@ import {
   UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
+/**
+ * The compiler options for our codegen. These can be provided to the generator
+ * directly through the JS API, or via the command line.
+ *
+ * EXAMPLE
+ *
+ * $ thrift-parser --rootDir . --sourceDir thrift --outDir codegen example.thrift
+ */
 export interface IMakeOptions {
   rootDir: string
+
+  // resolved relative to the root directory
   outDir: string
+
+  // resolved relative to the root directory
   sourceDir: string
+
+  // list of files to generate code from
   files: Array<string>
 }
 

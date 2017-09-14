@@ -3,6 +3,8 @@ namespace java com.creditkarma
 // Should include files in other namespaces
 include "core/location.thrift"
 
+typedef location.CityName What
+
 exception MyException {
   1: string message;
   2: location.Status status;

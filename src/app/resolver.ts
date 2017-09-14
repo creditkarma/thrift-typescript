@@ -1,14 +1,13 @@
 /**
  * RESOLVER
  *
- * TODO: A lot of the logic in this file may best fit with thrift-parser. Will need
+ * TODO: Some of the logic in this file may best fit with thrift-parser. Will need
  * to revist this and decide what logic is generic enough to be in the parser. What
  * could other code generators use?
  */
 import * as path from 'path'
 
 import {
-  createIdentifier,
   FieldDefinition,
   FieldType,
   FunctionDefinition,
@@ -34,6 +33,13 @@ export interface IResolver {
   resolve(): IResolvedFile
 }
 
+/**
+ * Find all the namespaces defined in the given Thrift doc and create a map of the form:
+ *
+ * scope -> namespace
+ *
+ * @param thrift
+ */
 function findNamespaces(thrift: ThriftDocument): IResolvedNamespaceMap {
   const statements: Array<ThriftStatement> = thrift.body.filter((next: ThriftStatement): boolean => {
     return next.type === SyntaxType.NamespaceDefinition
@@ -49,6 +55,44 @@ function findNamespaces(thrift: ThriftDocument): IResolvedNamespaceMap {
   }, {})
 }
 
+/**
+ * The job of the resolver is to traverse the AST and find all of the Identifiers. In order to
+ * correctly generate code we need to know the types of all Identifiers. The type of an
+ * Identifier may be defined in this Thrift docs or a Thrift doc imported through an include.
+ *
+ * The resolve function will find the ultimate definition of an Identifier and save its type
+ * to a hash map of the form (name -> type)
+ *
+ * There are ultimately two places we need to look for Identifiers. Types defined by this file
+ * will be defined by a ThriftStatement. When looping through the Thrift statements we need to
+ * save all statements that can be exported and used as types by other files.
+ *
+ * These are Structs, Unions, Exceptions, Enums and TypeDefs
+ *
+ * The other thing we need to do is look at types used by this file (FieldTypes, ReturnTypes),
+ * are the types Identifiers? If so we need to resolve what type they actualy refer to.
+ *
+ *
+ * REDRAW THE AST
+ *
+ * The other thing this will do is redraw the AST so that imported Identifiers no longer use
+ * the dot syntax. The dot syntax is replaced with '$'
+ *
+ * For example
+ *
+ * // thrift
+ * const example.Type name = "value"
+ *
+ * // typescript
+ * const name: example$Type = "value"
+ *
+ * Then, when we create our imports we do this:
+ *
+ * import { Type as example$Type } from './example'
+ *
+ * @param thrift
+ * @param includes
+ */
 function createResolver(thrift: ThriftDocument, includes: IIncludeMap): IResolver {
   const identifiers: IIdentifierMap = {}
   const resolvedIncludes: IResolvedIncludeMap = {}
@@ -80,10 +124,11 @@ function createResolver(thrift: ThriftDocument, includes: IIncludeMap): IResolve
   function resolveFieldType(fieldType: FieldType): FieldType {
     switch (fieldType.type) {
       case SyntaxType.Identifier:
-        return createIdentifier(
-          resolveName(fieldType.value),
-          fieldType.loc,
-        )
+        return {
+          type: SyntaxType.Identifier,
+          value: resolveName(fieldType.value),
+          loc: fieldType.loc,
+        }
 
       case SyntaxType.ListType:
         return {
@@ -137,13 +182,14 @@ function createResolver(thrift: ThriftDocument, includes: IIncludeMap): IResolve
     }
   }
 
+  // Add types defined in this file to our Identifier map
   function addIdentiferForStatement(statement: ThriftStatement): void {
     switch (statement.type) {
       case SyntaxType.StructDefinition:
       case SyntaxType.UnionDefinition:
       case SyntaxType.ExceptionDefinition:
-      case SyntaxType.TypedefDefinition:
       case SyntaxType.EnumDefinition:
+      case SyntaxType.TypedefDefinition:
         identifiers[statement.name.value] = {
           name: statement.name.value,
           resolvedName: statement.name.value,
@@ -166,10 +212,11 @@ function createResolver(thrift: ThriftDocument, includes: IIncludeMap): IResolve
           name: statement.name,
           extends: (
             statement.extends !== null ?
-              createIdentifier(
-                resolveName(statement.extends.value),
-                statement.extends.loc,
-              ) :
+              {
+                type: SyntaxType.Identifier,
+                value: resolveName(statement.extends.value),
+                loc: statement.extends.loc,
+              } :
               null
           ),
           functions: statement.functions.map((next: FunctionDefinition) => {

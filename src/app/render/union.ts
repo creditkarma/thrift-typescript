@@ -48,6 +48,11 @@ import {
 
 const INCREMENTER: string = 'fieldsSet'
 
+/**
+ * There is a lot of duplication here of code with renderStruct. Need to revisit and clean this up.
+ * Probably revisit how functions are defined in the struct rendering code so that it is easier
+ * to insert instrumentation for Unions.
+ */
 export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
   const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(node)
 
