@@ -39,7 +39,12 @@ export class OtherStruct {
             }
             switch (fid) {
                 case 1:
-                    this.name = input.readString();
+                    if (ftype === Thrift.Type.STRING) {
+                        this.name = input.readString();
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
                     break;
                 default: {
                     input.skip(ftype);
@@ -96,18 +101,23 @@ export class MyStruct {
             }
             switch (fid) {
                 case 1:
-                    this.field1 = new Set<OtherStruct>();
-                    const metadata_1: {
-                        etype: Thrift.Type;
-                        size: number;
-                    } = input.readSetBegin();
-                    const size_1: number = metadata_1.size;
-                    for (let i_1: number = 0; i_1 < size_1; i_1++) {
-                        const value_2: OtherStruct = new OtherStruct();
-                        value_2.read(input);
-                        this.field1.add(value_2);
+                    if (ftype === Thrift.Type.SET) {
+                        this.field1 = new Set<OtherStruct>();
+                        const metadata_1: {
+                            etype: Thrift.Type;
+                            size: number;
+                        } = input.readSetBegin();
+                        const size_1: number = metadata_1.size;
+                        for (let i_1: number = 0; i_1 < size_1; i_1++) {
+                            const value_2: OtherStruct = new OtherStruct();
+                            value_2.read(input);
+                            this.field1.add(value_2);
+                        }
+                        input.readSetEnd();
                     }
-                    input.readSetEnd();
+                    else {
+                        input.skip(ftype);
+                    }
                     break;
                 default: {
                     input.skip(ftype);

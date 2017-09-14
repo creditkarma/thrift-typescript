@@ -68,7 +68,12 @@ export class MyServicePingResult {
             }
             switch (fid) {
                 case 0:
-                    input.skip(ftype);
+                    if (ftype === Thrift.Type.VOID) {
+                        input.skip(ftype);
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
                     break;
                 default: {
                     input.skip(ftype);

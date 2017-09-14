@@ -62,13 +62,28 @@ export class MyStruct {
             }
             switch (fid) {
                 case 1:
-                    this.id = input.readI32();
+                    if (ftype === Thrift.Type.I32) {
+                        this.id = input.readI32();
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
                     break;
                 case 2:
-                    this.word = input.readString();
+                    if (ftype === Thrift.Type.STRING) {
+                        this.word = input.readString();
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
                     break;
                 case 3:
-                    this.field1 = input.readDouble();
+                    if (ftype === Thrift.Type.DOUBLE) {
+                        this.field1 = input.readDouble();
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
                     break;
                 default: {
                     input.skip(ftype);

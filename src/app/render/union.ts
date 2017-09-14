@@ -233,15 +233,26 @@ function createReadMethod(struct: UnionDefinition, identifiers: IIdentifierMap):
  * @param field
  */
 export function createCaseForField(field: FieldDefinition, identifiers: IIdentifierMap): ts.CaseClause {
+  const checkType: ts.IfStatement = ts.createIf(
+    createEquals(
+      COMMON_IDENTIFIERS['ftype'],
+      thriftPropertyAccessForFieldType(field.fieldType, identifiers)
+    ),
+    ts.createBlock([
+      incrementFieldsSet(),
+        ...readValueForFieldType(
+          field.fieldType,
+          ts.createIdentifier(`this.${field.name.value}`),
+          identifiers
+        ),
+    ],true),
+    createSkipBlock()
+  )
+
   return ts.createCaseClause(
     ts.createLiteral(field.fieldID.value),
     [
-      incrementFieldsSet(),
-      ...readValueForFieldType(
-        field.fieldType,
-        ts.createIdentifier(`this.${field.name.value}`),
-        identifiers
-      ),
+      checkType,
       ts.createBreak()
     ]
   )
