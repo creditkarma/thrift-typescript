@@ -40,18 +40,42 @@ export function print(statements: Array<ts.Statement>): string {
   return printer.printBundle(ts.createBundle([ bodyFile ]))
 }
 
+/**
+ * This function is mostly for testing purposes. It does not support includes.
+ * Given a string of Thrift IDL it will return a string of TypeScript. If the
+ * given Thrift IDL uses any identifiers not defined in that text an error will
+ * be thrown when trying to build the TypeScript AST.
+ *
+ * @param source
+ */
 export function make(source: string): string {
   const thriftAST: ThriftDocument = parse(source)
   const resolvedAST: IResolvedFile = resolveIdentifiers(thriftAST, {})
   return print(render(thriftAST.body, resolvedAST.identifiers))
 }
 
+/**
+ * The generator is the primary interface for generating TypeScript code from
+ * Thrift IDL. It takes a hash of options that inform it on how to resolve files
+ * and where to save generated code.
+ *
+ * When a Thrift file includes another Thrift file the first place we search for
+ * the include is local to the including file. If no matching file is found we
+ * search relative to the sourceDir defined in the options.
+ *
+ * @param options
+ */
 export function createGenerator(options: IMakeOptions): IThriftGenerator {
   const rootDir: string = path.resolve(process.cwd(), options.rootDir)
   const outDir: string = path.resolve(rootDir, options.outDir)
   const sourceDir: string = path.resolve(rootDir, options.sourceDir)
 
-  // import { Thrift, TProtocol, TTransport } from 'thrift';
+  /**
+   * import { Thrift, TProtocol, TTransport, Int64 } from 'thrift';
+   *
+   * I would really like this to only import what is being used by the file we're
+   * generating. We'll need to keep track of what each files uses.
+   */
   function importThrift(): ts.ImportDeclaration {
     return ts.createImportDeclaration(
       undefined,
@@ -87,6 +111,13 @@ export function createGenerator(options: IMakeOptions): IThriftGenerator {
     return ns.split('.').join('/')
   }
 
+  /**
+   * In Scrooge we are defaulting to use the Java namespace, so keeping that for now.
+   * Probably want to update at somepoint to not fall back to that, or have the fallback
+   * be configurable.
+   *
+   * @param namespaces
+   */
   function getNamespace(namespaces: IResolvedNamespaceMap): string {
     return (
       (namespaces.js != null) ?
@@ -231,8 +262,8 @@ export function createGenerator(options: IMakeOptions): IThriftGenerator {
     })
   }
 
-  function createRenderedFile(sourcePath: string, contents: string): IRenderedFile {
-    const thriftAST: ThriftDocument = parse(contents)
+  function createRenderedFile(sourcePath: string, sourceContents: string): IRenderedFile {
+    const thriftAST: ThriftDocument = parse(sourceContents)
     const includes: IIncludeMap = compileIncludes(sourcePath, findIncludes(thriftAST))
     const resolvedAST: IResolvedFile = resolveIdentifiers(thriftAST, includes)
     const identifiers: IIdentifierMap = resolvedAST.identifiers
@@ -244,13 +275,13 @@ export function createGenerator(options: IMakeOptions): IThriftGenerator {
       ...importIncludes(outPath, includes, resolvedAST.includes),
       ...render(resolvedAST.body, identifiers),
     ]
-    const generated: string = print(statements)
+    const contents: string = print(statements)
 
     return {
       sourcePath,
       outPath,
       namespace: resolvedNamespace,
-      contents: generated,
+      contents,
       includes,
       identifiers,
     }

@@ -9,8 +9,6 @@ import {
   ServiceDefinition,
   FunctionDefinition,
   FieldDefinition,
-  createIdentifier,
-  createFieldDefinition,
   TextLocation,
   createFieldID
 } from '@creditkarma/thrift-parser'
@@ -46,10 +44,11 @@ export function renderArgsStruct(service: ServiceDefinition, identifiers: IIdent
   ): Array<ts.InterfaceDeclaration | ts.ClassDeclaration> => {
     const argsStruct: StructDefinition = {
       type: SyntaxType.StructDefinition,
-      name: createIdentifier(
-        createStructArgsName(service, func),
-        emptyLocation()
-      ),
+      name: {
+        type: SyntaxType.Identifier,
+        value: createStructArgsName(service, func),
+        loc: emptyLocation()
+      },
       fields: func.fields,
       comments: [],
       loc: emptyLocation()
@@ -71,26 +70,45 @@ export function renderResultStruct(service: ServiceDefinition, identifiers: IIde
     var fieldID: number = 0;
     const resultStruct: StructDefinition = {
       type: SyntaxType.StructDefinition,
-      name: createIdentifier(
-        createStructResultName(service, func),
-        emptyLocation()
-      ),
+      name: {
+        type: SyntaxType.Identifier,
+        value: createStructResultName(service, func),
+        loc: emptyLocation()
+      },
       fields: [
-        createFieldDefinition(
-          createIdentifier('success', emptyLocation()),
-          createFieldID((fieldID++), emptyLocation()),
-          'optional',
-          func.returnType,
-          emptyLocation()
-        ),
+        {
+          type: SyntaxType.FieldDefinition,
+          name: {
+            type: SyntaxType.Identifier,
+            value: 'success',
+            loc: emptyLocation()
+          },
+          fieldID: {
+            type: SyntaxType.FieldID,
+            value: (fieldID++),
+            loc: emptyLocation()
+          },
+          requiredness: 'optional',
+          fieldType: func.returnType,
+          defaultValue: null,
+          comments: [],
+          loc: emptyLocation()
+        },
         ...func.throws.map((next: FieldDefinition): FieldDefinition => {
-          return createFieldDefinition(
-            next.name,
-            createFieldID((fieldID++), emptyLocation()),
-            'optional',
-            next.fieldType,
-            emptyLocation()
-          )
+          return {
+            type: SyntaxType.FieldDefinition,
+            name: next.name,
+            fieldID: {
+              type: SyntaxType.FieldID,
+              value: (fieldID++),
+              loc: emptyLocation()
+            },
+            requiredness: 'optional',
+            fieldType: next.fieldType,
+            defaultValue: null,
+            comments: [],
+            loc: emptyLocation()
+          }
         })
       ],
       comments: [],
