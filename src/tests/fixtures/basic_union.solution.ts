@@ -56,12 +56,22 @@ export class MyUnion {
             }
             switch (fid) {
                 case 1:
-                    fieldsSet++;
-                    this.field1 = input.readString();
+                    if (ftype === Thrift.Type.STRING) {
+                        fieldsSet++;
+                        this.field1 = input.readString();
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
                     break;
                 case 2:
-                    fieldsSet++;
-                    this.field2 = input.readString();
+                    if (ftype === Thrift.Type.STRING) {
+                        fieldsSet++;
+                        this.field2 = input.readString();
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
                     break;
                 default: {
                     input.skip(ftype);

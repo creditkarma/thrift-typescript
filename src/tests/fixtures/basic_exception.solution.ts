@@ -39,7 +39,12 @@ export class MyException {
             }
             switch (fid) {
                 case 1:
-                    this.message = input.readString();
+                    if (ftype === Thrift.Type.STRING) {
+                        this.message = input.readString();
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
                     break;
                 default: {
                     input.skip(ftype);

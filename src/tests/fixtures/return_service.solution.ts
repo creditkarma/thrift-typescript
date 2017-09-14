@@ -36,7 +36,12 @@ export class MyException {
             }
             switch (fid) {
                 case 1:
-                    this.message = input.readString();
+                    if (ftype === Thrift.Type.STRING) {
+                        this.message = input.readString();
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
                     break;
                 default: {
                     input.skip(ftype);
@@ -86,7 +91,12 @@ export class MyServicePingArgs {
             }
             switch (fid) {
                 case 1:
-                    this.status = input.readI32();
+                    if (ftype === Thrift.Type.I32) {
+                        this.status = input.readI32();
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
                     break;
                 default: {
                     input.skip(ftype);
@@ -146,11 +156,21 @@ export class MyServicePingResult {
             }
             switch (fid) {
                 case 0:
-                    this.success = input.readString();
+                    if (ftype === Thrift.Type.STRING) {
+                        this.success = input.readString();
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
                     break;
                 case 1:
-                    this.exp = new MyException();
-                    this.exp.read(input);
+                    if (ftype === Thrift.Type.STRUCT) {
+                        this.exp = new MyException();
+                        this.exp.read(input);
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
                     break;
                 default: {
                     input.skip(ftype);
