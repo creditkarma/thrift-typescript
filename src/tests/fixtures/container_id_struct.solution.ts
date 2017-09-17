@@ -40,7 +40,8 @@ export class OtherStruct {
             switch (fid) {
                 case 1:
                     if (ftype === Thrift.Type.STRING) {
-                        this.name = input.readString();
+                        const value_1: string = input.readString();
+                        this.name = value_1;
                     }
                     else {
                         input.skip(ftype);
@@ -76,8 +77,8 @@ export class MyStruct {
         if (this.field1 != null) {
             output.writeFieldBegin("field1", Thrift.Type.SET, 1);
             output.writeSetBegin(Thrift.Type.STRUCT, this.field1.size);
-            this.field1.forEach((value_1: OtherStruct): void => {
-                value_1.write(output);
+            this.field1.forEach((value_2: OtherStruct): void => {
+                value_2.write(output);
             });
             output.writeSetEnd();
             output.writeFieldEnd();
@@ -102,18 +103,19 @@ export class MyStruct {
             switch (fid) {
                 case 1:
                     if (ftype === Thrift.Type.SET) {
-                        this.field1 = new Set<OtherStruct>();
+                        const value_3: Set<OtherStruct> = new Set<OtherStruct>();
                         const metadata_1: {
                             etype: Thrift.Type;
                             size: number;
                         } = input.readSetBegin();
                         const size_1: number = metadata_1.size;
                         for (let i_1: number = 0; i_1 < size_1; i_1++) {
-                            const value_2: OtherStruct = new OtherStruct();
-                            value_2.read(input);
-                            this.field1.add(value_2);
+                            const value_4: OtherStruct = new OtherStruct();
+                            value_4.read(input);
+                            value_3.add(value_4);
                         }
                         input.readSetEnd();
+                        this.field1 = value_3;
                     }
                     else {
                         input.skip(ftype);

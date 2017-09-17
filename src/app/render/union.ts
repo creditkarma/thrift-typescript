@@ -39,6 +39,7 @@ import {
   readStructBegin,
   readStructEnd,
   readValueForFieldType,
+  endReadForField,
   throwForField,
 } from './struct'
 
@@ -233,6 +234,7 @@ function createReadMethod(struct: UnionDefinition, identifiers: IIdentifierMap):
  * @param field
  */
 export function createCaseForField(field: FieldDefinition, identifiers: IIdentifierMap): ts.CaseClause {
+  const fieldAlias: ts.Identifier = ts.createUniqueName('value')
   const checkType: ts.IfStatement = ts.createIf(
     createEquals(
       COMMON_IDENTIFIERS['ftype'],
@@ -240,12 +242,13 @@ export function createCaseForField(field: FieldDefinition, identifiers: IIdentif
     ),
     ts.createBlock([
       incrementFieldsSet(),
-        ...readValueForFieldType(
-          field.fieldType,
-          ts.createIdentifier(`this.${field.name.value}`),
-          identifiers
-        ),
-    ],true),
+      ...readValueForFieldType(
+        field.fieldType,
+        fieldAlias,
+        identifiers
+      ),
+      ...endReadForField(fieldAlias, field)
+    ], true),
     createSkipBlock()
   )
 

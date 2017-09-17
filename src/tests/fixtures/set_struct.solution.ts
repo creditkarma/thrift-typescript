@@ -44,17 +44,18 @@ export class MyStruct {
             switch (fid) {
                 case 1:
                     if (ftype === Thrift.Type.SET) {
-                        this.field1 = new Set<string>();
+                        const value_2: Set<string> = new Set<string>();
                         const metadata_1: {
                             etype: Thrift.Type;
                             size: number;
                         } = input.readSetBegin();
                         const size_1: number = metadata_1.size;
                         for (let i_1: number = 0; i_1 < size_1; i_1++) {
-                            const value_2: string = input.readString();
-                            this.field1.add(value_2);
+                            const value_3: string = input.readString();
+                            value_2.add(value_3);
                         }
                         input.readSetEnd();
+                        this.field1 = value_2;
                     }
                     else {
                         input.skip(ftype);

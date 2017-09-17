@@ -202,6 +202,19 @@ describe('Thrift TypeScript Generator', () => {
     assert.deepEqual(actual, expected)
   })
 
+  it('should correctly generate a class for a union with nested container types', () => {
+    const content: string = `
+      union MyUnion {
+          1: string field1;
+          2: list<list<string>> field2;
+      }
+    `;
+    const expected: string = readFixture('nested_list_union')
+    const actual: string = make(content)
+
+    assert.deepEqual(actual, expected)
+  })
+
   it('should correctly generate a service', () => {
     const content: string = `
       service MyService {

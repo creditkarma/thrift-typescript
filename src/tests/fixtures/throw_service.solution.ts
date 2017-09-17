@@ -37,7 +37,8 @@ export class MyException {
             switch (fid) {
                 case 1:
                     if (ftype === Thrift.Type.STRING) {
-                        this.message = input.readString();
+                        const value_1: string = input.readString();
+                        this.message = value_1;
                     }
                     else {
                         input.skip(ftype);
@@ -142,8 +143,9 @@ export class MyServicePingResult {
                     break;
                 case 1:
                     if (ftype === Thrift.Type.STRUCT) {
-                        this.exp = new MyException();
-                        this.exp.read(input);
+                        const value_2: MyException = new MyException();
+                        value_2.read(input);
+                        this.exp = value_2;
                     }
                     else {
                         input.skip(ftype);

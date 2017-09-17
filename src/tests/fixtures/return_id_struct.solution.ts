@@ -40,7 +40,8 @@ export class OtherStruct {
             switch (fid) {
                 case 1:
                     if (ftype === Thrift.Type.STRING) {
-                        this.name = input.readString();
+                        const value_1: string = input.readString();
+                        this.name = value_1;
                     }
                     else {
                         input.skip(ftype);
@@ -98,8 +99,9 @@ export class MyStruct {
             switch (fid) {
                 case 1:
                     if (ftype === Thrift.Type.STRUCT) {
-                        this.field1 = new OtherStruct();
-                        this.field1.read(input);
+                        const value_2: OtherStruct = new OtherStruct();
+                        value_2.read(input);
+                        this.field1 = value_2;
                     }
                     else {
                         input.skip(ftype);

@@ -63,7 +63,8 @@ export class MyStruct {
             switch (fid) {
                 case 1:
                     if (ftype === Thrift.Type.I32) {
-                        this.id = input.readI32();
+                        const value_1: number = input.readI32();
+                        this.id = value_1;
                     }
                     else {
                         input.skip(ftype);
@@ -71,7 +72,8 @@ export class MyStruct {
                     break;
                 case 2:
                     if (ftype === Thrift.Type.STRING) {
-                        this.word = input.readString();
+                        const value_2: string = input.readString();
+                        this.word = value_2;
                     }
                     else {
                         input.skip(ftype);
@@ -79,7 +81,8 @@ export class MyStruct {
                     break;
                 case 3:
                     if (ftype === Thrift.Type.DOUBLE) {
-                        this.field1 = input.readDouble();
+                        const value_3: number = input.readDouble();
+                        this.field1 = value_3;
                     }
                     else {
                         input.skip(ftype);
