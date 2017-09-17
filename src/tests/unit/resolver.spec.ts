@@ -259,6 +259,8 @@ describe('Thrift TypeScript Resolver', () => {
                   }
                 }
               ],
+              oneway: false,
+              modifiers: [],
               comments: [],
               loc: {
                 start: {

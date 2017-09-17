@@ -45,7 +45,7 @@ export class MyStruct {
             switch (fid) {
                 case 1:
                     if (ftype === Thrift.Type.MAP) {
-                        this.field1 = new Map<string, string>();
+                        const value_2: Map<string, string> = new Map<string, string>();
                         const metadata_1: {
                             ktype: Thrift.Type;
                             vtype: Thrift.Type;
@@ -54,10 +54,11 @@ export class MyStruct {
                         const size_1: number = metadata_1.size;
                         for (let i_1: number = 0; i_1 < size_1; i_1++) {
                             const key_2: string = input.readString();
-                            const value_2: string = input.readString();
-                            this.field1.set(key_2, value_2);
+                            const value_3: string = input.readString();
+                            value_2.set(key_2, value_3);
                         }
                         input.readMapEnd();
+                        this.field1 = value_2;
                     }
                     else {
                         input.skip(ftype);

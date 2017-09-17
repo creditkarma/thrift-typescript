@@ -25,6 +25,7 @@
   "author": "Credit Karma",
   "license": "Apache-2.0",
   "dependencies": {
+    "@creditkarma/thrift-parser": "git@github.com:creditkarma/thrift-parser.git",
     "typescript": "^2.4.2"
   },
   "devDependencies": {

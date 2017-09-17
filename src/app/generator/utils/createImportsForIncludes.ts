@@ -8,6 +8,14 @@ import {
   IRenderedFile
 } from '../../types'
 
+/**
+ * Given a hash of included files this will return a list of import statements.
+ *
+ * @param currentPath The path of the file performing imports. Import paths are
+ *                    resolved relative to this.
+ * @param includes A hash of all included files
+ * @param resolved A hash of include name to a list of ids used from this include
+ */
 export function createImportsForIncludes(
   currentPath: string,
   includes: IIncludeMap,

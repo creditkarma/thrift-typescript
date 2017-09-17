@@ -58,16 +58,15 @@ function findNamespaces(thrift: ThriftDocument): IResolvedNamespaceMap {
 /**
  * The job of the resolver is to traverse the AST and find all of the Identifiers. In order to
  * correctly generate code we need to know the types of all Identifiers. The type of an
- * Identifier may be defined in this Thrift docs or a Thrift doc imported through an include.
+ * Identifier may be defined in this Thrift doc or a Thrift doc imported through an include.
  *
  * The resolve function will find the ultimate definition of an Identifier and save its type
  * to a hash map of the form (name -> type)
  *
  * There are ultimately two places we need to look for Identifiers. Types defined by this file
  * will be defined by a ThriftStatement. When looping through the Thrift statements we need to
- * save all statements that can be exported and used as types by other files.
- *
- * These are Structs, Unions, Exceptions, Enums and TypeDefs
+ * save all statements that can be exported and used as types by other files. These are Structs,
+ * Unions, Exceptions, Enums and TypeDefs
  *
  * The other thing we need to do is look at types used by this file (FieldTypes, ReturnTypes),
  * are the types Identifiers? If so we need to resolve what type they actualy refer to.
@@ -89,6 +88,20 @@ function findNamespaces(thrift: ThriftDocument): IResolvedNamespaceMap {
  * Then, when we create our imports we do this:
  *
  * import { Type as example$Type } from './example'
+ *
+ *
+ * KEEP TRACK OF USED IMPORTS
+ *
+ * When we ultimately generate TypeScript we will need to import types from the included files. The
+ * final thing the resolver does is keep a list of all Identifiers used from a specific import. This
+ * allows us to only import what we need from given files.
+ *
+ *
+ * IRESOLVEDFILE
+ *
+ * Ultimately this returns an object of the type IResolvedFile which will contain the namespaces for
+ * this Thrift file, the resolved includes, the resolved Identifiers and a new doc body where Identifiers
+ * in statements are using the rewritten names.
  *
  * @param thrift
  * @param includes
@@ -165,6 +178,8 @@ function createResolver(thrift: ThriftDocument, includes: IIncludeMap): IResolve
       fields: func.fields.map(resolveField),
       throws: func.throws.map(resolveField),
       comments: func.comments,
+      oneway: func.oneway,
+      modifiers: func.modifiers,
       loc: func.loc,
     }
   }

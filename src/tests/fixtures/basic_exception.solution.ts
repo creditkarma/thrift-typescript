@@ -40,7 +40,8 @@ export class MyException {
             switch (fid) {
                 case 1:
                     if (ftype === Thrift.Type.STRING) {
-                        this.message = input.readString();
+                        const value_1: string = input.readString();
+                        this.message = value_1;
                     }
                     else {
                         input.skip(ftype);
