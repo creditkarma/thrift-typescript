@@ -24,6 +24,12 @@ export class MyUnion {
             }
         }
     }
+    public static fromField1(field1: string): MyUnion {
+        return new MyUnion({ field1 });
+    }
+    public static fromField2(field2: string): MyUnion {
+        return new MyUnion({ field2 });
+    }
     public write(output: TProtocol): void {
         output.writeStructBegin("MyUnion");
         if (this.field1 != null) {

@@ -25,6 +25,7 @@ import {
   createNumberType,
   createVoidType,
   thriftPropertyAccessForFieldType,
+  typeNodeForFieldType,
 } from './types'
 
 import {
@@ -101,6 +102,8 @@ export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap):
     [ fieldsSet, argsCheckWithAssignments ],
   )
 
+  const factories: Array<ts.MethodDeclaration> = createUnionFactories(node, identifiers)
+
   // Build the `read` method
   const readMethod: ts.MethodDeclaration = createReadMethod(node, identifiers)
 
@@ -114,8 +117,61 @@ export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap):
     node.name.value, // name
     [], // type parameters
     [], // heritage
-    [ ...fields, ctor, writeMethod, readMethod ], // body
+    [
+      ...fields,
+      ctor,
+      ...factories,
+      writeMethod,
+      readMethod
+    ], // body
   )
+}
+
+function capitalize(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function createFactoryNameForField(field: FieldDefinition): string {
+  return `from${capitalize(field.name.value)}`
+}
+
+function createUnionFactories(node: UnionDefinition, identifiers: IIdentifierMap): Array<ts.MethodDeclaration> {
+  return node.fields.map((next: FieldDefinition): ts.MethodDeclaration => {
+    return ts.createMethod(
+      undefined,
+      [
+        ts.createToken(ts.SyntaxKind.PublicKeyword),
+        ts.createToken(ts.SyntaxKind.StaticKeyword)
+      ],
+      undefined,
+      ts.createIdentifier(createFactoryNameForField(next)),
+      undefined,
+      undefined,
+      [
+        createFunctionParameter(
+          ts.createIdentifier(next.name.value),
+          typeNodeForFieldType(next.fieldType)
+        )
+      ],
+      ts.createTypeReferenceNode(
+        ts.createIdentifier(node.name.value),
+        undefined
+      ),
+      ts.createBlock([
+        ts.createReturn(
+          ts.createNew(
+            ts.createIdentifier(node.name.value),
+            undefined,
+            [
+              ts.createObjectLiteral([
+                ts.createShorthandPropertyAssignment(next.name.value)
+              ])
+            ]
+          )
+        )
+      ], true),
+    )
+  })
 }
 
 /**
@@ -145,7 +201,6 @@ function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
 }
 
 function createReadMethod(struct: UnionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
-  // const fieldWrites: Array<ts.IfStatement> = struct.fields.map((field) => createWriteForField(struct, field))
   const inputParameter: ts.ParameterDeclaration = createFunctionParameter(
     'input', // param name
     ts.createTypeReferenceNode('TProtocol', undefined), // param type
