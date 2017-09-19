@@ -307,13 +307,17 @@ export function createCaseForField(field: FieldDefinition, identifiers: IIdentif
     createSkipBlock()
   )
 
-  return ts.createCaseClause(
-    ts.createLiteral(field.fieldID.value),
-    [
-      checkType,
-      ts.createBreak()
-    ]
-  )
+  if (field.fieldID !== null) {
+    return ts.createCaseClause(
+      ts.createLiteral(field.fieldID.value),
+      [
+        checkType,
+        ts.createBreak()
+      ]
+    )
+  } else {
+    throw new Error(`FieldID on line ${field.loc.start.line} is null`)
+  }
 }
 
 /**

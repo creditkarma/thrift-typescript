@@ -1,7 +1,7 @@
 import {
+  ConstDefinition,
   EnumDefinition,
   ExceptionDefinition,
-  FieldType,
   StructDefinition,
   ThriftStatement,
   TypedefDefinition,
@@ -67,7 +67,8 @@ export interface IResolvedFile {
 export interface IIdentifierType {
   name: string
   resolvedName: string
-  definition: StructDefinition | UnionDefinition | ExceptionDefinition | EnumDefinition | TypedefDefinition
+  definition: ConstDefinition | StructDefinition | UnionDefinition |
+              ExceptionDefinition | EnumDefinition | TypedefDefinition
 }
 
 export interface IIdentifierMap {

@@ -4,307 +4,181 @@ import {
   ThriftDocument,
   parse,
   SyntaxType,
-  ExceptionDefinition
 } from '@creditkarma/thrift-parser'
 
 import { resolve } from '../../app/resolver'
+import { validate } from '../../app/validator'
 import { IResolvedFile, IIncludeMap } from '../../app/types'
 
-describe('Thrift TypeScript Resolver', () => {
+describe('Thrift TypeScript Validator', () => {
 
-  it('should find and resolve imported identifiers as types', () => {
+  it('should throw if it finds incorrect list types', () => {
     const content: string = `
-      include "exception.thrift"
-
-      service MyService {
-        void ping() throws (1: exception.MyException exp)
-      }
+      const list<string> TEST = [ 32, 41, 65 ]
     `;
-    const ast: ThriftDocument = parse(content)
-    const mockIncludes: IIncludeMap = {
-      exception: {
-        sourcePath: 'exception.thrift',
-        outPath: 'exception.ts',
-        namespace: '',
-        contents: '',
-        includes: {},
-        identifiers: {
-          MyException: {
-            name: 'MyException',
-            resolvedName: 'MyException',
-            definition: {
-              type: SyntaxType.ExceptionDefinition,
-              name: {
-                type: SyntaxType.Identifier,
-                value: 'MyException',
-                loc: {
-                  start: { line: 0, column: 0, index: 0 },
-                  end: { line: 0, column: 0, index: 0 }
-                }
-              },
-              fields: [],
-              comments: [],
-              loc: {
-                start: { line: 0, column: 0, index: 0 },
-                end: { line: 0, column: 0, index: 0 }
-              }
-            }
-          }
-        }
-      }
-    }
-    const actual: IResolvedFile = resolve(ast, mockIncludes)
-    const expected: IResolvedFile = {
-      namespaces: {},
-      includes: {
-        exception: [
-          {
-            name: 'MyException',
-            path: 'exception',
-            resolvedName: 'exception$MyException'
-          }
-        ]
-      },
-      identifiers: {
-        exception$MyException: {
-          name: 'MyException',
-          resolvedName: 'exception$MyException',
-          definition: {
-            type: SyntaxType.ExceptionDefinition,
-            name: {
-              type: SyntaxType.Identifier,
-              value: 'MyException',
-              loc: {
-                start: {
-                  line: 0,
-                  column: 0,
-                  index: 0
-                },
-                end: {
-                  line: 0,
-                  column: 0,
-                  index: 0
-                }
-              }
-            },
-            fields: [],
-            comments: [],
-            loc: {
-              start: {
-                line: 0,
-                column: 0,
-                index: 0
-              },
-              end: {
-                line: 0,
-                column: 0,
-                index: 0
-              }
-            }
-          }
-        }
-      },
-      body: [
-        {
-          type: SyntaxType.IncludeDefinition,
-          path: {
-            type: SyntaxType.StringLiteral,
-            value: 'exception.thrift',
-            loc: {
-              start: {
-                line: 2,
-                column: 15,
-                index: 15
-              },
-              end: {
-                line: 2,
-                column: 33,
-                index: 33
-              }
-            }
-          },
-          comments: [],
-          loc: {
-            start: {
-              line: 2,
-              column: 7,
-              index: 7
-            },
-            end: {
-              line: 2,
-              column: 33,
-              index: 33
-            }
-          }
-        },
-        {
-          type: SyntaxType.ServiceDefinition,
-          name: {
-            type: SyntaxType.Identifier,
-            value: 'MyService',
-            loc: {
-              start: {
-                line: 4,
-                column: 15,
-                index: 49
-              },
-              end: {
-                line: 4,
-                column: 24,
-                index: 58
-              }
-            }
-          },
-          extends: null,
-          functions: [
-            {
-              type: SyntaxType.FunctionDefinition,
-              name: {
-                type: SyntaxType.Identifier,
-                value: 'ping',
-                loc: {
-                  start: {
-                    line: 5,
-                    column: 14,
-                    index: 74
-                  },
-                  end: {
-                    line: 5,
-                    column: 18,
-                    index: 78
-                  }
-                }
-              },
-              returnType: {
-                type: SyntaxType.VoidKeyword,
-                loc: {
-                  start: {
-                    line: 5,
-                    column: 9,
-                    index: 69
-                  },
-                  end: {
-                    line: 5,
-                    column: 13,
-                    index: 73
-                  }
-                }
-              },
-              fields: [],
-              throws: [
-                {
-                  type: SyntaxType.FieldDefinition,
-                  name: {
-                    type: SyntaxType.Identifier,
-                    value: 'exp',
-                    loc: {
-                      start: {
-                        line: 5,
-                        column: 54,
-                        index: 114
-                      },
-                      end: {
-                        line: 5,
-                        column: 57,
-                        index: 117
-                      }
-                    }
-                  },
-                  fieldID: {
-                    type: SyntaxType.FieldID,
-                    value: 1,
-                    loc: {
-                      start: {
-                        line: 5,
-                        column: 29,
-                        index: 89
-                      },
-                      end: {
-                        line: 5,
-                        column: 31,
-                        index: 91
-                      }
-                    }
-                  },
-                  fieldType: {
-                    type: SyntaxType.Identifier,
-                    value: 'exception$MyException',
-                    loc: {
-                      start: {
-                        line: 5,
-                        column: 32,
-                        index: 92
-                      },
-                      end: {
-                        line: 5,
-                        column: 53,
-                        index: 113
-                      }
-                    }
-                  },
-                  requiredness: null,
-                  defaultValue: null,
-                  comments: [],
-                  loc: {
-                    start: {
-                      line: 5,
-                      column: 29,
-                      index: 89
-                    },
-                    end: {
-                      line: 5,
-                      column: 57,
-                      index: 117
-                    }
-                  }
-                }
-              ],
-              oneway: false,
-              modifiers: [],
-              comments: [],
-              loc: {
-                start: {
-                  line: 5,
-                  column: 9,
-                  index: 69
-                },
-                end: {
-                  line: 5,
-                  column: 58,
-                  index: 118
-                }
-              }
-            }
-          ],
-          comments: [],
-          loc: {
-            start: {
-              line: 4,
-              column: 7,
-              index: 41
-            },
-            end: {
-              line: 6,
-              column: 8,
-              index: 126
-            }
-          }
-        }
-      ]
-    }
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
 
-    assert.deepEqual(actual, expected)
+    assert.throws(() => validate(resolvedAST))
   })
 
-  it('should find and resolve imported identifiers as values', () => {
+  it('should not throw if it finds correct list types', () => {
+    const content: string = `
+      const list<i32> TEST = [ 32, 41, 65 ]
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.doesNotThrow(() => validate(resolvedAST))
+  })
+
+  it('should throw if it finds incorrect set types', () => {
+    const content: string = `
+      const set<string> TEST = [ 32, 41, 65 ]
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.throws(() => validate(resolvedAST))
+  })
+
+  it('should not throw if it finds correct set types', () => {
+    const content: string = `
+      const set<i32> TEST = [ 32, 41, 65 ]
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.doesNotThrow(() => validate(resolvedAST))
+  })
+
+  it('should throw if it finds incorrect map types', () => {
+    const content: string = `
+      const map<string,string> TEST = { 'one': 1, 'two': 2 }
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.throws(() => validate(resolvedAST))
+  })
+
+  it('should not throw if it finds correct map types', () => {
+    const content: string = `
+      const map<string,string> TEST = { 'one': 'value one', 'two': 'value two' }
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.doesNotThrow(() => validate(resolvedAST))
+  })
+
+  it('should throw if it finds duplicate field IDs', () => {
+    const content: string = `
+      struct TestStruct {
+        1: i32 field1
+        1: string field2
+      }
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.throws(() => validate(resolvedAST))
+  })
+
+  it('should throw if unable to resolve type of identifier', () => {
+    const content: string = `
+      struct TestStruct {
+        1: i32 test = status.Status.SUCCESS
+      }
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.throws(() => validate(resolvedAST))
+  })
+
+  it('should not throw if assigning an int to and int field', () => {
+    const content: string = `
+      struct TestStruct {
+        1: i32 test = 45
+      }
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.doesNotThrow(() => validate(resolvedAST))
+  })
+
+  it('should throw if assigning a string to an int field', () => {
+    const content: string = `
+      struct TestStruct {
+        1: i32 test = "whoa"
+      }
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.throws(() => validate(resolvedAST))
+  })
+
+  it('should throw when assigning an enum member to i32 field', () => {
+    const content: string = `
+      enum Status {
+        SUCCESS,
+        FAILURE
+      }
+
+      struct TestStruct {
+        1: i32 test = Status.SUCCESS
+      }
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.throws(() => validate(resolvedAST))
+  })
+
+  it('should not throw if assigning valid int to enum type', () => {
+    const content: string = `
+      enum TestEnum {
+        ONE,
+        TWO,
+        THREE
+      }
+
+      const TestEnum test = 1
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.doesNotThrow(() => validate(resolvedAST))
+  })
+
+  it('should throw if assigning to enum out of range', () => {
+    const content: string = `
+      enum TestEnum {
+        ONE,
+        TWO,
+        THREE
+      }
+
+      const TestEnum test = 6
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.throws(() => validate(resolvedAST))
+  })
+
+  it('should validate types for includes', () => {
     const content: string = `
       include "exception.thrift"
 
-      struct MyStruct {
-        1: exception.Status status = exception.Status.SUCCESS
+      exception MyException {
+        1: exception.Status status = exception.Status.SUCCESS;
       }
     `;
-    const ast: ThriftDocument = parse(content)
+    const rawAST: ThriftDocument = parse(content)
     const mockIncludes: IIncludeMap = {
       exception: {
         sourcePath: 'exception.thrift',
@@ -372,7 +246,8 @@ describe('Thrift TypeScript Resolver', () => {
         }
       }
     }
-    const actual: IResolvedFile = resolve(ast, mockIncludes)
+    const resolvedAST: IResolvedFile = resolve(rawAST, mockIncludes)
+    const validatedAST: IResolvedFile = validate(resolvedAST)
     const expected: IResolvedFile = {
       namespaces: {},
       includes: {
@@ -385,24 +260,24 @@ describe('Thrift TypeScript Resolver', () => {
         ]
       },
       identifiers: {
-        MyStruct: {
-          name: 'MyStruct',
-          resolvedName: 'MyStruct',
+        MyException: {
+          name: 'MyException',
+          resolvedName: 'MyException',
           definition: {
-            type: SyntaxType.StructDefinition,
+            type: SyntaxType.ExceptionDefinition,
             name: {
               type: SyntaxType.Identifier,
-              value: 'MyStruct',
+              value: 'MyException',
               loc: {
                 start: {
                   line: 4,
-                  column: 14,
-                  index: 48
+                  column: 17,
+                  index: 51
                 },
                 end: {
                   line: 4,
-                  column: 22,
-                  index: 56
+                  column: 28,
+                  index: 62
                 }
               }
             },
@@ -416,12 +291,12 @@ describe('Thrift TypeScript Resolver', () => {
                     start: {
                       line: 5,
                       column: 29,
-                      index: 87
+                      index: 93
                     },
                     end: {
                       line: 5,
                       column: 35,
-                      index: 93
+                      index: 99
                     }
                   }
                 },
@@ -432,12 +307,12 @@ describe('Thrift TypeScript Resolver', () => {
                     start: {
                       line: 5,
                       column: 9,
-                      index: 67
+                      index: 73
                     },
                     end: {
                       line: 5,
                       column: 11,
-                      index: 69
+                      index: 75
                     }
                   }
                 },
@@ -448,12 +323,12 @@ describe('Thrift TypeScript Resolver', () => {
                     start: {
                       line: 5,
                       column: 12,
-                      index: 70
+                      index: 76
                     },
                     end: {
                       line: 5,
                       column: 28,
-                      index: 86
+                      index: 92
                     }
                   }
                 },
@@ -465,12 +340,12 @@ describe('Thrift TypeScript Resolver', () => {
                     start: {
                       line: 5,
                       column: 38,
-                      index: 96
+                      index: 102
                     },
                     end: {
                       line: 5,
                       column: 62,
-                      index: 120
+                      index: 126
                     }
                   }
                 },
@@ -479,12 +354,12 @@ describe('Thrift TypeScript Resolver', () => {
                   start: {
                     line: 5,
                     column: 9,
-                    index: 67
+                    index: 73
                   },
                   end: {
                     line: 5,
-                    column: 62,
-                    index: 120
+                    column: 63,
+                    index: 127
                   }
                 }
               }
@@ -499,7 +374,7 @@ describe('Thrift TypeScript Resolver', () => {
               end: {
                 line: 6,
                 column: 8,
-                index: 128
+                index: 135
               }
             }
           }
@@ -643,20 +518,20 @@ describe('Thrift TypeScript Resolver', () => {
           }
         },
         {
-          type: SyntaxType.StructDefinition,
+          type: SyntaxType.ExceptionDefinition,
           name: {
             type: SyntaxType.Identifier,
-            value: 'MyStruct',
+            value: 'MyException',
             loc: {
               start: {
                 line: 4,
-                column: 14,
-                index: 48
+                column: 17,
+                index: 51
               },
               end: {
                 line: 4,
-                column: 22,
-                index: 56
+                column: 28,
+                index: 62
               }
             }
           },
@@ -670,12 +545,12 @@ describe('Thrift TypeScript Resolver', () => {
                   start: {
                     line: 5,
                     column: 29,
-                    index: 87
+                    index: 93
                   },
                   end: {
                     line: 5,
                     column: 35,
-                    index: 93
+                    index: 99
                   }
                 }
               },
@@ -686,12 +561,12 @@ describe('Thrift TypeScript Resolver', () => {
                   start: {
                     line: 5,
                     column: 9,
-                    index: 67
+                    index: 73
                   },
                   end: {
                     line: 5,
                     column: 11,
-                    index: 69
+                    index: 75
                   }
                 }
               },
@@ -702,12 +577,12 @@ describe('Thrift TypeScript Resolver', () => {
                   start: {
                     line: 5,
                     column: 12,
-                    index: 70
+                    index: 76
                   },
                   end: {
                     line: 5,
                     column: 28,
-                    index: 86
+                    index: 92
                   }
                 }
               },
@@ -719,12 +594,12 @@ describe('Thrift TypeScript Resolver', () => {
                   start: {
                     line: 5,
                     column: 38,
-                    index: 96
+                    index: 102
                   },
                   end: {
                     line: 5,
                     column: 62,
-                    index: 120
+                    index: 126
                   }
                 }
               },
@@ -733,12 +608,12 @@ describe('Thrift TypeScript Resolver', () => {
                 start: {
                   line: 5,
                   column: 9,
-                  index: 67
+                  index: 73
                 },
                 end: {
                   line: 5,
-                  column: 62,
-                  index: 120
+                  column: 63,
+                  index: 127
                 }
               }
             }
@@ -753,13 +628,13 @@ describe('Thrift TypeScript Resolver', () => {
             end: {
               line: 6,
               column: 8,
-              index: 128
+              index: 135
             }
           }
         }
       ]
     }
 
-    assert.deepEqual(actual, actual)
+    assert.deepEqual(validatedAST, expected)
   })
 })

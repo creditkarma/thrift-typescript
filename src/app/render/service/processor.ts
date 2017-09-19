@@ -24,7 +24,6 @@ import {
   createFunctionParameter,
   createAssignmentStatement,
   createConstStatement,
-  createLetStatement,
   createMethodCall,
   createMethodCallStatement,
   createApplicationException,

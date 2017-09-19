@@ -33,7 +33,7 @@ export function renderConst(node: ConstDefinition): ts.Statement {
     createConst(
       node.name.value,
       typeNodeForFieldType(node.fieldType),
-      renderValue(node.initializer),
+      renderValue(node.fieldType, node.initializer),
     ),
   )
 }

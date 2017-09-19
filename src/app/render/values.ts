@@ -1,17 +1,14 @@
-import {
-  ArrayLiteralExpression,
-  createArrayLiteral,
-  createLiteral,
-  createNew,
-  Expression,
-  NewExpression,
-} from 'typescript'
+import * as ts from 'typescript'
 
 import {
   ConstList,
   ConstMap,
+  FunctionType,
   ConstValue,
   SyntaxType,
+  ListType,
+  SetType,
+  MapType
 } from '@creditkarma/thrift-parser'
 
 import { COMMON_IDENTIFIERS } from './identifiers'
@@ -20,19 +17,40 @@ import { COMMON_IDENTIFIERS } from './identifiers'
  *
  * @param node
  */
-export function renderValue(node: ConstValue): Expression {
+export function renderValue(fieldType: FunctionType, node: ConstValue): ts.Expression {
   switch (node.type) {
+    case SyntaxType.Identifier:
+      return ts.createIdentifier(node.value)
+
+    case SyntaxType.IntConstant:
+      if (fieldType.type === SyntaxType.I64Keyword) {
+        return ts.createNew(
+          ts.createIdentifier('Int64'),
+          undefined,
+          [ ts.createLiteral(node.value) ]
+        )
+      } else {
+        return ts.createLiteral(node.value)
+      }
+
     case SyntaxType.BooleanLiteral:
     case SyntaxType.StringLiteral:
-    case SyntaxType.IntConstant:
     case SyntaxType.DoubleConstant:
-      return createLiteral(node.value)
+      return ts.createLiteral(node.value)
 
     case SyntaxType.ConstList:
-      return renderList(node)
+      if (fieldType.type === SyntaxType.ListType || fieldType.type === SyntaxType.SetType) {
+        return renderList(fieldType, node)
+      } else {
+        throw new TypeError(`Type list | set expected`)
+      }
 
     case SyntaxType.ConstMap:
-      return renderMap(node)
+      if (fieldType.type === SyntaxType.MapType) {
+        return renderMap(fieldType, node)
+      } else {
+        throw new TypeError(`Type map expected`)
+      }
 
     default:
       const msg: never = node
@@ -40,22 +58,25 @@ export function renderValue(node: ConstValue): Expression {
   }
 }
 
-export function renderMap(node: ConstMap): NewExpression {
+function renderMap(fieldType: MapType, node: ConstMap): ts.NewExpression {
   const values = node.properties.map(({ name, initializer }) => {
-    return createArrayLiteral([
-      renderValue(name),
-      renderValue(initializer),
+    return ts.createArrayLiteral([
+      renderValue(fieldType.keyType, name),
+      renderValue(fieldType.valueType, initializer),
     ])
   })
 
-  return createNew(
+  return ts.createNew(
     COMMON_IDENTIFIERS.Map,
     undefined,
-    [ createArrayLiteral(values) ],
+    [ ts.createArrayLiteral(values) ],
   )
 }
 
-export function renderList(node: ConstList): ArrayLiteralExpression {
-  const values = node.elements.map((val: ConstValue) => renderValue(node))
-  return createArrayLiteral(values)
+function renderList(fieldType: ListType | SetType, node: ConstList): ts.ArrayLiteralExpression {
+  const values: Array<ts.Expression> = node.elements.map((val: ConstValue) => {
+    return renderValue(fieldType.valueType, val)
+  })
+
+  return ts.createArrayLiteral(values)
 }

@@ -136,13 +136,16 @@ export function createWriteForFieldType(
 }
 
 function writeValueForIdentifier(
-  identifier: IIdentifierType,
+  id: IIdentifierType,
   struct: InterfaceWithFields,
   fieldType: FunctionType,
   fieldName: ts.Identifier,
   identifiers: IIdentifierMap
 ): Array<ts.Expression> {
-  switch (identifier.definition.type) {
+  switch (id.definition.type) {
+    case SyntaxType.ConstDefinition:
+      throw new TypeError(`Identifier ${id.definition.name.value} is a value being used as a type`)
+
     case SyntaxType.StructDefinition:
     case SyntaxType.UnionDefinition:
     case SyntaxType.ExceptionDefinition:
@@ -160,13 +163,13 @@ function writeValueForIdentifier(
     case SyntaxType.TypedefDefinition:
       return writeValueForType(
         struct,
-        identifier.definition.definitionType,
+        id.definition.definitionType,
         fieldName,
         identifiers
       )
 
     default:
-      const msg: never = identifier.definition
+      const msg: never = id.definition
       throw new Error(`Non-exhaustive match for: ${msg}`)
   }
 }
@@ -379,11 +382,15 @@ function writeSetEnd(): ts.CallExpression {
 
 // output.writeFieldBegin(<field.name>, <field.fieldType>, <field.fieldID>)
 function writeFieldBegin(field: FieldDefinition, identifiers: IIdentifierMap): ts.ExpressionStatement {
-  return createMethodCallStatement('output', 'writeFieldBegin', [
-    ts.createLiteral(field.name.value),
-    thriftPropertyAccessForFieldType(field.fieldType, identifiers),
-    ts.createLiteral(field.fieldID.value)
-  ])
+  if (field.fieldID !== null) {
+    return createMethodCallStatement('output', 'writeFieldBegin', [
+      ts.createLiteral(field.name.value),
+      thriftPropertyAccessForFieldType(field.fieldType, identifiers),
+      ts.createLiteral(field.fieldID.value)
+    ])
+  } else {
+    throw new Error(`FieldID on line ${field.loc.start.line} is null`)
+  }
 }
 
 // output.writeFieldEnd

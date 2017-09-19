@@ -9,8 +9,7 @@ import {
   ServiceDefinition,
   FunctionDefinition,
   FieldDefinition,
-  TextLocation,
-  createFieldID
+  TextLocation
 } from '@creditkarma/thrift-parser'
 
 import {
