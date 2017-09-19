@@ -3,16 +3,14 @@ import * as path from 'path'
 import * as ts from 'typescript'
 
 import {
-  IncludeDefinition,
   parse,
-  SyntaxType,
   ThriftDocument,
-  ThriftStatement,
 } from '@creditkarma/thrift-parser'
 
 import { render } from '../render'
 
-import { resolveIdentifiers } from '../resolver'
+import { resolve } from '../resolver'
+import { validate } from '../validator'
 
 import {
   IIdentifierMap,
@@ -21,9 +19,6 @@ import {
   IMakeOptions,
   IRenderedFile,
   IResolvedFile,
-  IResolvedIdentifier,
-  IResolvedIncludeMap,
-  IResolvedNamespaceMap,
 } from '../types'
 
 import {
@@ -52,7 +47,7 @@ export interface IThriftGenerator {
  */
 export function make(source: string): string {
   const thriftAST: ThriftDocument = parse(source)
-  const resolvedAST: IResolvedFile = resolveIdentifiers(thriftAST, {})
+  const resolvedAST: IResolvedFile = resolve(thriftAST, {})
   return print(render(thriftAST.body, resolvedAST.identifiers))
 }
 
@@ -140,15 +135,16 @@ export function createGenerator(options: IMakeOptions): IThriftGenerator {
   function createRenderedFile(sourcePath: string, sourceContents: string): IRenderedFile {
     const thriftAST: ThriftDocument = parse(sourceContents)
     const includes: IIncludeMap = compileIncludes(sourcePath, collectIncludes(thriftAST))
-    const resolvedAST: IResolvedFile = resolveIdentifiers(thriftAST, includes)
-    const identifiers: IIdentifierMap = resolvedAST.identifiers
-    const resolvedNamespace: string = getNamespace(resolvedAST.namespaces)
+    const resolvedAST: IResolvedFile = resolve(thriftAST, includes)
+    const validatedAST: IResolvedFile = validate(resolvedAST)
+    const identifiers: IIdentifierMap = validatedAST.identifiers
+    const resolvedNamespace: string = getNamespace(validatedAST.namespaces)
     const namespacePath: string = genPathForNamespace(resolvedNamespace)
     const outPath: string = outPathForSourcePath(sourcePath, namespacePath)
     const statements: Array<ts.Statement> = [
       createThriftImports(),
-      ...createImportsForIncludes(outPath, includes, resolvedAST.includes),
-      ...render(resolvedAST.body, identifiers),
+      ...createImportsForIncludes(outPath, includes, validatedAST.includes),
+      ...render(validatedAST.body, identifiers),
     ]
     const contents: string = print(statements)
 

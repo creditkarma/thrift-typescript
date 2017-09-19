@@ -1,22 +1,4 @@
-import {
-  SyntaxKind,
-  PropertyDeclaration,
-  BinaryExpression,
-  ParameterDeclaration,
-  ConstructorDeclaration,
-  TypeReferenceNode,
-  IfStatement,
-  ExpressionStatement,
-  MethodDeclaration,
-  ThrowStatement,
-  createIf,
-  createToken,
-  createBlock,
-  createProperty,
-  createClassDeclaration,
-  ClassDeclaration,
-  createTypeReferenceNode
-} from 'typescript'
+import * as ts from 'typescript'
 
 import {
   InterfaceWithFields,
@@ -48,8 +30,8 @@ import { interfaceNameForClass } from '../interface'
 import { createReadMethod } from './read'
 import { createWriteMethod } from './write'
 
-export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifierMap): ClassDeclaration {
-  const fields: Array<PropertyDeclaration> = createFieldsForStruct(node)
+export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifierMap): ts.ClassDeclaration {
+  const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(node)
 
   /**
    * After creating the properties on our class for the struct fields we must create
@@ -64,7 +46,7 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
    * If a required argument is not on the passed 'args' argument we need to throw on error.
    * Optional fields we must allow to be null or undefined.
    */
-  const fieldAssignments: Array<IfStatement> = node.fields.map(createFieldAssignment)
+  const fieldAssignments: Array<ts.IfStatement> = node.fields.map(createFieldAssignment)
 
   /**
    * Field assignments rely on there being an args argument passed in. We need to wrap
@@ -74,28 +56,28 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
    *   ...fieldAssignments
    * }
    */
-  const isArgsNull: BinaryExpression = createNotNull('args')
-  const argsCheckWithAssignments: IfStatement = createIf(
+  const isArgsNull: ts.BinaryExpression = createNotNull('args')
+  const argsCheckWithAssignments: ts.IfStatement = ts.createIf(
     isArgsNull, // condition
-    createBlock(fieldAssignments, true), // then
+    ts.createBlock(fieldAssignments, true), // then
     undefined // else
   )
 
-  const argsParameter: ParameterDeclaration = createArgsParameterForStruct(node)
+  const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(node)
 
   // Build the constructor body
-  const ctor: ConstructorDeclaration = createClassConstructor([ argsParameter ], [ argsCheckWithAssignments ])
+  const ctor: ts.ConstructorDeclaration = createClassConstructor([ argsParameter ], [ argsCheckWithAssignments ])
 
   // Build the `read` method
-  const readMethod: MethodDeclaration = createReadMethod(node, identifiers)
+  const readMethod: ts.MethodDeclaration = createReadMethod(node, identifiers)
 
   // Build the `write` method
-  const writeMethod: MethodDeclaration = createWriteMethod(node, identifiers)
+  const writeMethod: ts.MethodDeclaration = createWriteMethod(node, identifiers)
 
   // export class <node.name> { ... }
-  return createClassDeclaration(
+  return ts.createClassDeclaration(
     undefined,
-    [ createToken(SyntaxKind.ExportKeyword) ],
+    [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
     node.name.value,
     [],
     [],
@@ -103,7 +85,7 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
   )
 }
 
-export function createArgsParameterForStruct(node: InterfaceWithFields): ParameterDeclaration {
+export function createArgsParameterForStruct(node: InterfaceWithFields): ts.ParameterDeclaration {
   return createFunctionParameter(
     'args', // param name
     createArgsTypeForStruct(node), // param type
@@ -112,12 +94,12 @@ export function createArgsParameterForStruct(node: InterfaceWithFields): Paramet
   )
 }
 
-export function createFieldsForStruct(node: InterfaceWithFields): Array<PropertyDeclaration> {
+export function createFieldsForStruct(node: InterfaceWithFields): Array<ts.PropertyDeclaration> {
   return node.fields.map(renderFieldDeclarations)
 }
 
-export function createArgsTypeForStruct(node: InterfaceWithFields): TypeReferenceNode {
-  return createTypeReferenceNode(interfaceNameForClass(node), undefined)
+export function createArgsTypeForStruct(node: InterfaceWithFields): ts.TypeReferenceNode {
+  return ts.createTypeReferenceNode(interfaceNameForClass(node), undefined)
 }
 
 /**
@@ -138,7 +120,7 @@ export function createArgsTypeForStruct(node: InterfaceWithFields): TypeReferenc
  *
  * @param field
  */
-export function assignmentForField(field: FieldDefinition): ExpressionStatement {
+export function assignmentForField(field: FieldDefinition): ts.ExpressionStatement {
   return createAssignmentStatement(
     propertyAccessForIdentifier('this', field.name.value),
     propertyAccessForIdentifier('args', field.name.value)
@@ -154,7 +136,7 @@ export function assignmentForField(field: FieldDefinition): ExpressionStatement 
  *
  * @param field
  */
-export function throwForField(field: FieldDefinition): ThrowStatement | undefined {
+export function throwForField(field: FieldDefinition): ts.ThrowStatement | undefined {
   if (field.requiredness === 'required') {
     return throwProtocolException(
       'TProtocolExceptionType.UNKNOWN',
@@ -178,15 +160,15 @@ export function throwForField(field: FieldDefinition): ThrowStatement | undefine
  *   throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
  * }
  */
-export function createFieldAssignment(field: FieldDefinition): IfStatement {
-  const comparison: BinaryExpression = createNotNull(`args.${field.name.value}`)
-  const thenAssign: ExpressionStatement = assignmentForField(field)
-  const elseThrow: ThrowStatement | undefined = throwForField(field)
+export function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
+  const comparison: ts.BinaryExpression = createNotNull(`args.${field.name.value}`)
+  const thenAssign: ts.ExpressionStatement = assignmentForField(field)
+  const elseThrow: ts.ThrowStatement | undefined = throwForField(field)
 
-  return createIf(
+  return ts.createIf(
     comparison,
-    createBlock([ thenAssign ], true),
-    (elseThrow !== undefined) ? createBlock([ elseThrow ], true) : undefined
+    ts.createBlock([ thenAssign ], true),
+    (elseThrow !== undefined) ? ts.createBlock([ elseThrow ], true) : undefined
   )
 }
 
@@ -209,14 +191,14 @@ export function createFieldAssignment(field: FieldDefinition): IfStatement {
  *   ...
  * }
  */
-export function renderFieldDeclarations(field: FieldDefinition): PropertyDeclaration {
+export function renderFieldDeclarations(field: FieldDefinition): ts.PropertyDeclaration {
   const defaultValue = (field.defaultValue !== null) ?
-    renderValue(field.defaultValue) :
+    renderValue(field.fieldType, field.defaultValue) :
     undefined
 
-  return createProperty(
+  return ts.createProperty(
     undefined,
-    [ createToken(SyntaxKind.PublicKeyword) ],
+    [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
     field.name.value,
     undefined,
     typeNodeForFieldType(field.fieldType),

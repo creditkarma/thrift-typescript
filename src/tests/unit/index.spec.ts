@@ -21,6 +21,18 @@ describe('Thrift TypeScript Generator', () => {
     assert.equal(actual, expected)
   })
 
+  it('should correctly generate a const', () => {
+    const content: string = `
+      const bool FALSE_CONST = false
+      //const set<string> SET_CONST = ['hello', 'world', 'foo', 'bar']
+      const map<string,string> MAP_CONST = {'hello': 'world', 'foo': 'bar' }
+    `;
+    const actual: string = make(content)
+    const expected: string = readFixture('basic_const')
+
+    assert.equal(actual, expected)
+  })
+
   it('should correctly generate a type alias', () => {
     const content: string = `
       typedef string name
@@ -62,9 +74,10 @@ describe('Thrift TypeScript Generator', () => {
   it('should correctly generate a struct', () => {
     const content: string = `
       struct MyStruct {
-          1: required i32 id
-          2: required string word
-          3: optional double field1
+          1: required i32 id = 45
+          2: required i64 bigID = 23948234
+          3: required string word
+          4: optional double field1
       }
     `;
     const expected: string = readFixture('multi_field_struct')

@@ -1,17 +1,4 @@
-import {
-  SyntaxKind,
-  TypeLiteralNode,
-  createTypeLiteralNode,
-  createIndexSignature,
-  createParameter,
-  createFunctionTypeNode,
-  createUnionTypeNode,
-  createTypeReferenceNode,
-  createKeywordTypeNode,
-  createConstructorTypeNode,
-  ConstructorTypeNode,
-  TypeNode
-} from 'typescript'
+import * as ts from 'typescript'
 
 import {
   createStringType,
@@ -24,34 +11,34 @@ import {
   createFunctionParameter
 } from '../utils'
 
-export const TProtocolType: TypeNode = createTypeReferenceNode('TProtocol', undefined)
+export const TProtocolType: ts.TypeNode = ts.createTypeReferenceNode('TProtocol', undefined)
 
-export const ContextType: TypeNode = createTypeReferenceNode('Context', undefined)
+export const ContextType: ts.TypeNode = ts.createTypeReferenceNode('Context', undefined)
 
 // { fname: string; mtype: Thrift.MessageType; rseqid: number; }
-export function createReadMessageType(): TypeLiteralNode {
-  return createTypeLiteralNode([
+export function createReadMessageType(): ts.TypeLiteralNode {
+  return ts.createTypeLiteralNode([
     createTypeProperty('fname', createStringType()),
-    createTypeProperty('mtype', createTypeReferenceNode('Thrift.MessageType', undefined)),
+    createTypeProperty('mtype', ts.createTypeReferenceNode('Thrift.MessageType', undefined)),
     createTypeProperty('rseqid', createNumberType())
   ])
 }
 
-export function createProtocolType(): ConstructorTypeNode {
-  return createConstructorTypeNode(
+export function createProtocolType(): ts.ConstructorTypeNode {
+  return ts.createConstructorTypeNode(
     [],
-    [ createFunctionParameter('trans', createTypeReferenceNode('TTransport', undefined)) ],
+    [ createFunctionParameter('trans', ts.createTypeReferenceNode('TTransport', undefined)) ],
     TProtocolType
   )
 }
 
 // { [key: string]: (e?: Error|object, r?: any) => void }
-export function createReqType(): TypeLiteralNode {
-  return createTypeLiteralNode([
-    createIndexSignature(
+export function createReqType(): ts.TypeLiteralNode {
+  return ts.createTypeLiteralNode([
+    ts.createIndexSignature(
       undefined,
       undefined,
-      [ createParameter(
+      [ ts.createParameter(
         undefined,
         undefined,
         undefined,
@@ -59,20 +46,20 @@ export function createReqType(): TypeLiteralNode {
         undefined,
         createStringType()
       ) ],
-      createFunctionTypeNode(
+      ts.createFunctionTypeNode(
         undefined,
         [
           createFunctionParameter(
             'err',
-            createUnionTypeNode([
-              createTypeReferenceNode('Error', undefined),
-              createTypeReferenceNode('object', undefined),
-              createTypeReferenceNode('undefined', undefined)
+            ts.createUnionTypeNode([
+              ts.createTypeReferenceNode('Error', undefined),
+              ts.createTypeReferenceNode('object', undefined),
+              ts.createTypeReferenceNode('undefined', undefined)
             ])
           ),
           createFunctionParameter(
             'val',
-            createKeywordTypeNode(SyntaxKind.AnyKeyword),
+            ts.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
             undefined,
             true
           )

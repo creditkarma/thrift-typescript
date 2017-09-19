@@ -1,10 +1,12 @@
 export interface IMyStructArgs {
     id: number;
+    bigID: Int64;
     word: string;
     field1?: number;
 }
 export class MyStruct {
-    public id: number;
+    public id: number = 45;
+    public bigID: Int64 = new Int64(23948234);
     public word: string;
     public field1: number;
     constructor(args?: IMyStructArgs) {
@@ -14,6 +16,12 @@ export class MyStruct {
             }
             else {
                 throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field id is unset!");
+            }
+            if (args.bigID != null) {
+                this.bigID = args.bigID;
+            }
+            else {
+                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field bigID is unset!");
             }
             if (args.word != null) {
                 this.word = args.word;
@@ -33,13 +41,18 @@ export class MyStruct {
             output.writeI32(this.id);
             output.writeFieldEnd();
         }
+        if (this.bigID != null) {
+            output.writeFieldBegin("bigID", Thrift.Type.I64, 2);
+            output.writeI64(this.bigID);
+            output.writeFieldEnd();
+        }
         if (this.word != null) {
-            output.writeFieldBegin("word", Thrift.Type.STRING, 2);
+            output.writeFieldBegin("word", Thrift.Type.STRING, 3);
             output.writeString(this.word);
             output.writeFieldEnd();
         }
         if (this.field1 != null) {
-            output.writeFieldBegin("field1", Thrift.Type.DOUBLE, 3);
+            output.writeFieldBegin("field1", Thrift.Type.DOUBLE, 4);
             output.writeDouble(this.field1);
             output.writeFieldEnd();
         }
@@ -71,18 +84,27 @@ export class MyStruct {
                     }
                     break;
                 case 2:
-                    if (ftype === Thrift.Type.STRING) {
-                        const value_2: string = input.readString();
-                        this.word = value_2;
+                    if (ftype === Thrift.Type.I64) {
+                        const value_2: Int64 = input.readI64();
+                        this.bigID = value_2;
                     }
                     else {
                         input.skip(ftype);
                     }
                     break;
                 case 3:
+                    if (ftype === Thrift.Type.STRING) {
+                        const value_3: string = input.readString();
+                        this.word = value_3;
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
+                    break;
+                case 4:
                     if (ftype === Thrift.Type.DOUBLE) {
-                        const value_3: number = input.readDouble();
-                        this.field1 = value_3;
+                        const value_4: number = input.readDouble();
+                        this.field1 = value_4;
                     }
                     else {
                         input.skip(ftype);

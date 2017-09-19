@@ -5,14 +5,12 @@
  * to revist this and decide what logic is generic enough to be in the parser. What
  * could other code generators use?
  */
-import * as path from 'path'
-
 import {
+  ConstValue,
   FieldDefinition,
   FieldType,
   FunctionDefinition,
   FunctionType,
-  IncludeDefinition,
   NamespaceDefinition,
   SyntaxType,
   ThriftDocument,
@@ -22,7 +20,6 @@ import {
 import {
   IIdentifierMap,
   IIdentifierType,
-  IIncludeData,
   IIncludeMap,
   IResolvedFile,
   IResolvedIncludeMap,
@@ -63,13 +60,16 @@ function findNamespaces(thrift: ThriftDocument): IResolvedNamespaceMap {
  * The resolve function will find the ultimate definition of an Identifier and save its type
  * to a hash map of the form (name -> type)
  *
- * There are ultimately two places we need to look for Identifiers. Types defined by this file
- * will be defined by a ThriftStatement. When looping through the Thrift statements we need to
- * save all statements that can be exported and used as types by other files. These are Structs,
- * Unions, Exceptions, Enums and TypeDefs
+ * There are ultimately two places we need to look for Identifiers. Types or values defined by
+ * this file will be defined by a ThriftStatement. When looping through the Thrift statements
+ * we need to save all statements that can be exported and used as types by other files. These
+ * are Structs, Unions, Exceptions, Enums and TypeDefs
  *
- * The other thing we need to do is look at types used by this file (FieldTypes, ReturnTypes),
- * are the types Identifiers? If so we need to resolve what type they actualy refer to.
+ * The other thing we need to do is look at Identifiers used by this file. Identifiers can appear
+ * in three positions, FieldType, ReturnType or value (initializer or defaultValue). The usual case
+ * is for an Identifier to represent a type, but an Identifier can represent a value if the
+ * Identifier represents a const or an enum. When we find an Identifier we need to resolve what it
+ * actualy refers to.
  *
  *
  * REDRAW THE AST
@@ -170,6 +170,20 @@ function createResolver(thrift: ThriftDocument, includes: IIncludeMap): IResolve
     }
   }
 
+  function resolveValue(constValue: ConstValue): ConstValue {
+    switch (constValue.type) {
+      case SyntaxType.Identifier:
+        return {
+          type: SyntaxType.Identifier,
+          value: resolveName(constValue.value),
+          loc: constValue.loc,
+        }
+
+      default:
+        return constValue
+    }
+  }
+
   function resolveFunction(func: FunctionDefinition): FunctionDefinition {
     return {
       type: SyntaxType.FunctionDefinition,
@@ -191,7 +205,11 @@ function createResolver(thrift: ThriftDocument, includes: IIncludeMap): IResolve
       fieldID: field.fieldID,
       fieldType: resolveFunctionType(field.fieldType),
       requiredness: field.requiredness,
-      defaultValue: field.defaultValue,
+      defaultValue: (
+        (field.defaultValue !== null) ?
+          resolveValue(field.defaultValue) :
+          null
+      ),
       comments: field.comments,
       loc: field.loc,
     }
@@ -205,6 +223,7 @@ function createResolver(thrift: ThriftDocument, includes: IIncludeMap): IResolve
       case SyntaxType.ExceptionDefinition:
       case SyntaxType.EnumDefinition:
       case SyntaxType.TypedefDefinition:
+      case SyntaxType.ConstDefinition:
         identifiers[statement.name.value] = {
           name: statement.name.value,
           resolvedName: statement.name.value,
@@ -221,6 +240,16 @@ function createResolver(thrift: ThriftDocument, includes: IIncludeMap): IResolve
     addIdentiferForStatement(statement)
 
     switch (statement.type) {
+      case SyntaxType.ConstDefinition:
+        return {
+          type: SyntaxType.ConstDefinition,
+          name: statement.name,
+          fieldType: resolveFieldType(statement.fieldType),
+          initializer: resolveValue(statement.initializer),
+          comments: statement.comments,
+          loc: statement.loc,
+        }
+
       case SyntaxType.ServiceDefinition:
         return {
           type: SyntaxType.ServiceDefinition,
@@ -291,12 +320,15 @@ function createResolver(thrift: ThriftDocument, includes: IIncludeMap): IResolve
     return false
   }
 
+  /**
+   *
+   * @param name
+   */
   function resolveName(name: string): string {
     const parts: Array<string> = name.split('.')
-    if (parts.length === 2) {
-      const pathname: string = parts[0]
-      const base: string = parts[1]
 
+    if (parts.length > 1) {
+      const [ pathname, base, ...tail ] = parts
       if (resolvedIncludes[pathname] !== undefined) {
         const resolvedName: string = `${pathname}$${base}`
         const baseIdentifier: IIdentifierType = includes[pathname].identifiers[base]
@@ -313,7 +345,11 @@ function createResolver(thrift: ThriftDocument, includes: IIncludeMap): IResolve
             resolvedName,
           })
         }
-        return resolvedName
+        return (
+          (tail.length > 0) ?
+            `${resolvedName}.${tail.join('.')}` :
+            resolvedName
+        )
       } else {
         return name
       }
@@ -330,7 +366,7 @@ function createResolver(thrift: ThriftDocument, includes: IIncludeMap): IResolve
 /**
  * Iterate through the Thrift AST and find all the identifiers for this file.
  */
-export function resolveIdentifiers(thrift: ThriftDocument, includes: IIncludeMap): IResolvedFile {
+export function resolve(thrift: ThriftDocument, includes: IIncludeMap): IResolvedFile {
   const resolver: IResolver = createResolver(thrift, includes)
   return resolver.resolve()
 }

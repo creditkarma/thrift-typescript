@@ -30,7 +30,11 @@ export function renderEnum(node: EnumDefinition): ts.Statement {
     node.members.map((field: EnumMember) => {
       return ts.createEnumMember(
         field.name.value,
-        ((field.initializer !== null) ? ts.createLiteral(field.initializer.value) : undefined),
+        (
+          (field.initializer !== null) ?
+            ts.createLiteral(field.initializer.value) :
+            undefined
+        ),
       )
     }), // enum members
   )

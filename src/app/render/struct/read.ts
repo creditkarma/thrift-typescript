@@ -178,13 +178,17 @@ export function createCaseForField(field: FieldDefinition, identifiers: IIdentif
     createSkipBlock()
   )
 
-  return ts.createCaseClause(
-    ts.createLiteral(field.fieldID.value),
-    [
-      checkType,
-      ts.createBreak()
-    ]
-  )
+  if (field.fieldID !== null) {
+    return ts.createCaseClause(
+      ts.createLiteral(field.fieldID.value),
+      [
+        checkType,
+        ts.createBreak()
+      ]
+    )
+  } else {
+    throw new Error(`FieldID on line ${field.loc.start.line} is null`)
+  }
 }
 
 export function endReadForField(fieldName: ts.Identifier, field: FieldDefinition): Array<ts.Statement> {
@@ -334,12 +338,15 @@ function loopOverContainer(fieldType: ContainerType, fieldName: ts.Identifier, i
 }
 
 export function readValueForIdentifier(
-  identifier: IIdentifierType,
+  id: IIdentifierType,
   fieldType: FunctionType,
   fieldName: ts.Identifier,
   identifiers: IIdentifierMap
 ): Array<ts.Statement> {
-  switch (identifier.definition.type) {
+  switch (id.definition.type) {
+    case SyntaxType.ConstDefinition:
+      throw new TypeError(`Identifier ${id.definition.name.value} is a value being used as a type`)
+
     case SyntaxType.StructDefinition:
     case SyntaxType.UnionDefinition:
     case SyntaxType.ExceptionDefinition:
@@ -348,7 +355,7 @@ export function readValueForIdentifier(
           fieldName,
           typeNodeForFieldType(fieldType),
           ts.createNew(
-            ts.createIdentifier(identifier.resolvedName), // class name
+            ts.createIdentifier(id.resolvedName), // class name
             undefined,
             []
           )
@@ -372,10 +379,10 @@ export function readValueForIdentifier(
       ]
 
     case SyntaxType.TypedefDefinition:
-      return readValueForFieldType(identifier.definition.definitionType, fieldName, identifiers)
+      return readValueForFieldType(id.definition.definitionType, fieldName, identifiers)
 
     default:
-      const msg: never = identifier.definition
+      const msg: never = id.definition
       throw new Error(`Non-exhaustive match for: ${msg}`)
   }
 }

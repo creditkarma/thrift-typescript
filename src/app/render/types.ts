@@ -178,6 +178,9 @@ export type ThriftTypeAccess =
 
 function thriftAccessForIdentifier(id: IIdentifierType, identifiers: IIdentifierMap): ThriftTypeAccess {
   switch (id.definition.type) {
+    case SyntaxType.ConstDefinition:
+      throw new TypeError(`Identifier ${id.definition.name.value} is a value being used as a type`)
+
     case SyntaxType.StructDefinition:
     case SyntaxType.UnionDefinition:
     case SyntaxType.ExceptionDefinition:
