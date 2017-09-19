@@ -80,7 +80,6 @@ import {
  * }
  */
 export function createReadMethod(struct: InterfaceWithFields, identifiers: IIdentifierMap): ts.MethodDeclaration {
-  //const fieldWrites: Array<ts.IfStatement> = struct.fields.map((field) => createWriteForField(struct, field))
   const inputParameter: ts.ParameterDeclaration = createInputParameter();
 
   /**
