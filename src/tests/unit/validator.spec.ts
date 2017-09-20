@@ -32,6 +32,26 @@ describe('Thrift TypeScript Validator', () => {
     assert.doesNotThrow(() => validate(resolvedAST))
   })
 
+  it('should throw if it finds incorrect nested list types', () => {
+    const content: string = `
+      const list<list<string>> TEST = [ [ 32, 41, 65 ], [ 2, 3 ] ]
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.throws(() => validate(resolvedAST))
+  })
+
+  it('should not throw if it finds correct nested list types', () => {
+    const content: string = `
+      const list<list<i32>> TEST = [ [ 32, 41, 65 ], [ 2, 3 ] ]
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.doesNotThrow(() => validate(resolvedAST))
+  })
+
   it('should throw if it finds incorrect set types', () => {
     const content: string = `
       const set<string> TEST = [ 32, 41, 65 ]
@@ -65,6 +85,26 @@ describe('Thrift TypeScript Validator', () => {
   it('should not throw if it finds correct map types', () => {
     const content: string = `
       const map<string,string> TEST = { 'one': 'value one', 'two': 'value two' }
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.doesNotThrow(() => validate(resolvedAST))
+  })
+
+  it('should throw if it finds incorrect nested map types', () => {
+    const content: string = `
+      const map<string,map<string,string>> TEST = { 'one': { 'a': 1 }, 'two': { 'b': 4 } }
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.throws(() => validate(resolvedAST))
+  })
+
+  it('should not throw if it finds correct nested map types', () => {
+    const content: string = `
+      const map<string,map<string,string>> TEST = { 'one': { 'a': 'blah' }, 'two': { 'b': 'blam' } }
     `;
     const rawAST: ThriftDocument = parse(content)
     const resolvedAST: IResolvedFile = resolve(rawAST, {})
