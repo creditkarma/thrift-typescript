@@ -8,7 +8,7 @@ import * as MyService from './codegen/com/creditkarma/service'
 
 //ServiceHandler: Implement the hello service
 const myServiceHandler = {
-  ping(status: number): string {
+  ping(status: string): string {
     return `${status}: goodbye`
   }
 };
@@ -16,7 +16,7 @@ const myServiceHandler = {
 //ServiceOptions: The I/O stack for the service
 const myServiceOpts = {
   handler: myServiceHandler,
-  processor: MyService.Processor,
+  processor: MyService,
   protocol: TBinaryProtocol,
   transport: TBufferedTransport
 };
@@ -30,6 +30,6 @@ const serverOpt = {
 
 //Create and start the web server
 const port: number = 8045;
-createWebServer<MyService.Processor<void>, MyService.IMyServiceHandler<void>>(serverOpt).listen(port, () => {
+createWebServer(serverOpt).listen(port, () => {
   console.log(`Thrift server listening on port ${port}`)
 });
