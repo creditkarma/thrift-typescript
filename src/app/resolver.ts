@@ -320,10 +320,6 @@ function createResolver(thrift: ThriftDocument, includes: IIncludeMap): IResolve
     return false
   }
 
-  /**
-   *
-   * @param name
-   */
   function resolveName(name: string): string {
     const parts: Array<string> = name.split('.')
 

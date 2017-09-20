@@ -12,6 +12,38 @@ import { IResolvedFile, IIncludeMap } from '../../app/types'
 
 describe('Thrift TypeScript Validator', () => {
 
+  it('should throw if a service tries to extend a non-service', () => {
+    const content: string = `
+      struct TestStruct {
+        1: string field1;
+      }
+
+      service ServiceOne extends TestStruct {
+        void ping()
+      }
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.throws(() => validate(resolvedAST))
+  })
+
+  it('should not throw if a service extends a service', () => {
+    const content: string = `
+      service ServiceOne {
+        void sendMessage(1: string msg)
+      }
+
+      service ServiceTwo extends ServiceOne {
+        void ping()
+      }
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.throws(() => validate(resolvedAST))
+  })
+
   it('should throw if it finds incorrect list types', () => {
     const content: string = `
       const list<string> TEST = [ 32, 41, 65 ]

@@ -9,7 +9,8 @@ import {
   TextLocation,
   ConstValue,
   FunctionType,
-  PropertyAssignment
+  PropertyAssignment,
+  Identifier
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -95,8 +96,6 @@ function typeMismatch(expected: FunctionType, actual: ConstValue, loc: TextLocat
  * @param resolvedAST
  */
 function createValidator(resolvedAST: IResolvedFile): IValidator {
-  var generatedFieldID: number = 0
-  var usedFieldIDs: Array<number> = []
 
   /**
    * The driver behind validating the AST is to loop through the statements of the body and find the pieces
@@ -118,8 +117,14 @@ function createValidator(resolvedAST: IResolvedFile): IValidator {
     }
   }
 
-  function getIdentifier(name: string): IIdentifierType {
-    return resolvedAST.identifiers[name]
+  function getIdentifier(...names: Array<string>): IIdentifierType {
+    for (let name of names) {
+      if (resolvedAST.identifiers[name]) {
+        return resolvedAST.identifiers[name]
+      }
+    }
+
+    throw new TypeError(`Unabled to resolve type of Identifier ${names[0]}`)
   }
 
   function validateStatement(statement: ThriftStatement): ThriftStatement {
@@ -173,7 +178,11 @@ function createValidator(resolvedAST: IResolvedFile): IValidator {
           type: SyntaxType.ServiceDefinition,
           name: statement.name,
           functions: validateFunctions(statement.functions),
-          extends: statement.extends,
+          extends: (
+            (statement.extends !== null) ?
+              validateExtends(statement.extends) :
+              null
+          ),
           comments: statement.comments,
           loc: statement.loc
         }
@@ -184,18 +193,13 @@ function createValidator(resolvedAST: IResolvedFile): IValidator {
     }
   }
 
-  function validateFieldID(fieldID: FieldID | null): FieldID {
-    if (fieldID === null) {
-      return {
-        type: SyntaxType.FieldID,
-        value: (--generatedFieldID),
-        loc: emptyLocation()
-      }
-    } else if (usedFieldIDs.indexOf(fieldID.value) > -1) {
-      throw new Error(`Found duplicate usage of fieldID: ${fieldID.value}, on line: ${fieldID.loc.start.line}`)
+  function validateExtends(id: Identifier): Identifier {
+    const [ baseName, accessName ] = id.value.split('.')
+    const resolvedID: IIdentifierType = getIdentifier(baseName)
+    if (resolvedID.definition.type === SyntaxType.ServiceDefinition) {
+      return id
     } else {
-      usedFieldIDs.push(fieldID.value)
-      return fieldID
+      throw new TypeError(`Service type expected but found type ${resolvedID.definition.type}`)
     }
   }
 
@@ -235,7 +239,7 @@ function createValidator(resolvedAST: IResolvedFile): IValidator {
        */
       case SyntaxType.Identifier:
         const [ baseName, accessName ] = constValue.value.split('.')
-        const resolvedConst: IIdentifierType = getIdentifier(baseName) || getIdentifier(constValue.value)
+        const resolvedConst: IIdentifierType = getIdentifier(baseName, constValue.value)
         if (resolvedConst.resolvedName === enumName) {
           if (enumMembers(enumDef).indexOf(accessName) > -1) {
             return constValue
@@ -265,6 +269,9 @@ function createValidator(resolvedAST: IResolvedFile): IValidator {
 
   function validateTypeForIdentifier(id: IIdentifierType, value: ConstValue): ConstValue {
     switch (id.definition.type) {
+      case SyntaxType.ServiceDefinition:
+        throw new TypeError(`Service ${id.definition.name.value} is begin used as a value`)
+
       case SyntaxType.EnumDefinition:
         return validateEnum(id.resolvedName, id.definition, value)
 
@@ -399,27 +406,43 @@ function createValidator(resolvedAST: IResolvedFile): IValidator {
     }
   }
 
-  function validateField(field: FieldDefinition): FieldDefinition {
-    return {
-      type: SyntaxType.FieldDefinition,
-      name: field.name,
-      fieldID: validateFieldID(field.fieldID),
-      fieldType: validateFieldType(field.fieldType),
-      requiredness: field.requiredness,
-      defaultValue: (
-        (field.defaultValue !== null) ?
-          validateValue(field.fieldType, field.defaultValue) :
-          null
-      ),
-      comments: field.comments,
-      loc: field.loc
-    }
-  }
-
   function validateFields(fields: Array<FieldDefinition>): Array<FieldDefinition> {
-    generatedFieldID = 0
-    usedFieldIDs = []
-    return fields.map(validateField)
+    let generatedFieldID: number = 0
+    let usedFieldIDs: Array<number> = []
+
+    function validateFieldID(fieldID: FieldID | null): FieldID {
+      if (fieldID === null) {
+        return {
+          type: SyntaxType.FieldID,
+          value: (--generatedFieldID),
+          loc: emptyLocation()
+        }
+      } else if (fieldID.value < 0) {
+        throw new Error(`Field IDs should be positive integers, found ${fieldID.value}`)
+      } else if (usedFieldIDs.indexOf(fieldID.value) > -1) {
+        throw new Error(`Found duplicate usage of fieldID: ${fieldID.value}, on line: ${fieldID.loc.start.line}`)
+      } else {
+        usedFieldIDs.push(fieldID.value)
+        return fieldID
+      }
+    }
+
+    return fields.map((field: FieldDefinition): FieldDefinition => {
+      return {
+        type: SyntaxType.FieldDefinition,
+        name: field.name,
+        fieldID: validateFieldID(field.fieldID),
+        fieldType: validateFieldType(field.fieldType),
+        requiredness: field.requiredness,
+        defaultValue: (
+          (field.defaultValue !== null) ?
+            validateValue(field.fieldType, field.defaultValue) :
+            null
+        ),
+        comments: field.comments,
+        loc: field.loc
+      }
+    })
   }
 
   function validateFunctions(funcs: Array<FunctionDefinition>): Array<FunctionDefinition> {
