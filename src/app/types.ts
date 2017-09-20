@@ -2,6 +2,7 @@ import {
   ConstDefinition,
   EnumDefinition,
   ExceptionDefinition,
+  ServiceDefinition,
   StructDefinition,
   ThriftStatement,
   TypedefDefinition,
@@ -68,7 +69,8 @@ export interface IIdentifierType {
   name: string
   resolvedName: string
   definition: ConstDefinition | StructDefinition | UnionDefinition |
-              ExceptionDefinition | EnumDefinition | TypedefDefinition
+              ExceptionDefinition | EnumDefinition | TypedefDefinition |
+              ServiceDefinition
 }
 
 export interface IIdentifierMap {

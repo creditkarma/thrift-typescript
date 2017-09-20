@@ -39,8 +39,10 @@ export function renderValue(fieldType: FunctionType, node: ConstValue): ts.Expre
       return ts.createLiteral(node.value)
 
     case SyntaxType.ConstList:
-      if (fieldType.type === SyntaxType.ListType || fieldType.type === SyntaxType.SetType) {
+      if (fieldType.type === SyntaxType.ListType) {
         return renderList(fieldType, node)
+      } else if (fieldType.type === SyntaxType.SetType) {
+        return renderSet(fieldType, node)
       } else {
         throw new TypeError(`Type list | set expected`)
       }
@@ -73,7 +75,19 @@ function renderMap(fieldType: MapType, node: ConstMap): ts.NewExpression {
   )
 }
 
-function renderList(fieldType: ListType | SetType, node: ConstList): ts.ArrayLiteralExpression {
+function renderSet(fieldType: SetType, node: ConstList): ts.NewExpression {
+  const values: Array<ts.Expression> = node.elements.map((val: ConstValue) => {
+    return renderValue(fieldType.valueType, val)
+  })
+
+  return ts.createNew(
+    COMMON_IDENTIFIERS.Set,
+    undefined,
+    [ ts.createArrayLiteral(values) ]
+  )
+}
+
+function renderList(fieldType: ListType, node: ConstList): ts.ArrayLiteralExpression {
   const values: Array<ts.Expression> = node.elements.map((val: ConstValue) => {
     return renderValue(fieldType.valueType, val)
   })

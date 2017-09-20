@@ -347,6 +347,9 @@ export function readValueForIdentifier(
     case SyntaxType.ConstDefinition:
       throw new TypeError(`Identifier ${id.definition.name.value} is a value being used as a type`)
 
+    case SyntaxType.ServiceDefinition:
+      throw new TypeError(`Service ${id.definition.name.value} is begin used as a type`)
+
     case SyntaxType.StructDefinition:
     case SyntaxType.UnionDefinition:
     case SyntaxType.ExceptionDefinition:

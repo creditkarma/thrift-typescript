@@ -5,12 +5,11 @@ import {
 } from '@creditkarma/thrift-parser'
 
 /**
+ * Takes a ConstValue type from our Thrift AST and generated a string representation of the TypeScript
+ * type. This is just for making our error messages more readable to users.
  *
- * @param value export type ConstValue =
-  StringLiteral | IntConstant | DoubleConstant | BooleanLiteral |
-  ConstMap | ConstList;
+ * @param constValue
  */
-
 export function constToTypeString(constValue: ConstValue): string {
   switch (constValue.type) {
     case SyntaxType.Identifier:
@@ -38,6 +37,12 @@ export function constToTypeString(constValue: ConstValue): string {
   }
 }
 
+/**
+ * Takes a FunctionType type from our Thrift AST and generated a string representation of the TypeScript
+ * type. This is just for making our error messages more readable to users.
+ *
+ * @param fieldType
+ */
 export function fieldTypeToString(fieldType: FunctionType): string {
   switch (fieldType.type) {
     case SyntaxType.Identifier:

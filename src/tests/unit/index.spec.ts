@@ -12,25 +12,14 @@ describe('Thrift TypeScript Generator', () => {
   it('should correctly generate a const', () => {
     const content: string = `
       const bool FALSE_CONST = false
-      //const set<string> SET_CONST = ['hello', 'world', 'foo', 'bar']
+      const set<string> SET_CONST = ['hello', 'world', 'foo', 'bar']
       const map<string,string> MAP_CONST = {'hello': 'world', 'foo': 'bar' }
+      const list<string> LIST_CONST = ['hello', 'world', 'foo', 'bar']
     `;
     const actual: string = make(content)
     const expected: string = readFixture('basic_const')
 
-    assert.equal(actual, expected)
-  })
-
-  it('should correctly generate a const', () => {
-    const content: string = `
-      const bool FALSE_CONST = false
-      //const set<string> SET_CONST = ['hello', 'world', 'foo', 'bar']
-      const map<string,string> MAP_CONST = {'hello': 'world', 'foo': 'bar' }
-    `;
-    const actual: string = make(content)
-    const expected: string = readFixture('basic_const')
-
-    assert.equal(actual, expected)
+    assert.deepEqual(actual, expected)
   })
 
   it('should correctly generate a type alias', () => {
@@ -40,7 +29,7 @@ describe('Thrift TypeScript Generator', () => {
     const expected: string = readFixture('basic_typedef')
     const actual: string = make(content)
 
-    assert.equal(actual, expected)
+    assert.deepEqual(actual, expected)
   })
 
   it('should correctly generate an enum', () => {
@@ -54,7 +43,7 @@ describe('Thrift TypeScript Generator', () => {
     const expected: string = readFixture('basic_enum')
     const actual: string = make(content)
 
-    assert.equal(actual, expected)
+    assert.deepEqual(actual, expected)
   })
 
   it('should correctly generate an enum with member initializer', () => {
@@ -68,7 +57,7 @@ describe('Thrift TypeScript Generator', () => {
     const expected: string = readFixture('field_initialized_enum')
     const actual: string = make(content)
 
-    assert.equal(actual, expected)
+    assert.deepEqual(actual, expected)
   })
 
   it('should correctly generate a struct', () => {
@@ -129,6 +118,30 @@ describe('Thrift TypeScript Generator', () => {
       }
     `;
     const expected: string = readFixture('nested_list_struct')
+    const actual: string = make(content)
+
+    assert.deepEqual(actual, expected)
+  })
+
+  it('should correctly generate a struct with a set field', () => {
+    const content: string = `
+      struct MyStruct {
+          1: required set<string> field1
+      }
+    `;
+    const expected: string = readFixture('set_struct')
+    const actual: string = make(content)
+
+    assert.deepEqual(actual, expected)
+  })
+
+  it('should correctly generate a struct with a nested set field', () => {
+    const content: string = `
+      struct MyStruct {
+          1: required set<set<string>> field1
+      }
+    `;
+    const expected: string = readFixture('nested_set_struct')
     const actual: string = make(content)
 
     assert.deepEqual(actual, expected)
