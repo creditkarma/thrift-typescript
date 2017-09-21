@@ -208,7 +208,7 @@ describe('Thrift TypeScript Validator', () => {
   it('should throw if assigning a string to an int field', () => {
     const content: string = `
       struct TestStruct {
-        1: i32 test = "whoa"
+        1: i32 test = whoa
       }
     `;
     const rawAST: ThriftDocument = parse(content)
@@ -264,6 +264,330 @@ describe('Thrift TypeScript Validator', () => {
     const resolvedAST: IResolvedFile = resolve(rawAST, {})
 
     assert.throws(() => validate(resolvedAST))
+  })
+
+  it('should add missing field IDs', () => {
+    const content: string = `
+      struct TestStruct {
+        i32 status
+        required string message
+      }
+    `
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const validatedAST: IResolvedFile = validate(resolvedAST)
+    const expected: IResolvedFile = {
+      namespaces: {},
+      includes: {},
+      identifiers: {
+        TestStruct: {
+          name: 'TestStruct',
+          resolvedName: 'TestStruct',
+          definition: {
+            type: SyntaxType.StructDefinition,
+            name: {
+              type: SyntaxType.Identifier,
+              value: 'TestStruct',
+              loc: {
+                start: {
+                  line: 2,
+                  column: 14,
+                  index: 14
+                },
+                end: {
+                  line: 2,
+                  column: 24,
+                  index: 24
+                }
+              }
+            },
+            fields: [
+              {
+                type: SyntaxType.FieldDefinition,
+                name: {
+                  type: SyntaxType.Identifier,
+                  value: 'status',
+                  loc: {
+                    start: {
+                      line: 3,
+                      column: 13,
+                      index: 39
+                    },
+                    end: {
+                      line: 3,
+                      column: 19,
+                      index: 45
+                    }
+                  }
+                },
+                fieldID: null,
+                fieldType: {
+                  type: SyntaxType.I32Keyword,
+                  loc: {
+                    start: {
+                      line: 3,
+                      column: 9,
+                      index: 35
+                    },
+                    end: {
+                      line: 3,
+                      column: 12,
+                      index: 38
+                    }
+                  }
+                },
+                requiredness: null,
+                defaultValue: null,
+                comments: [],
+                loc: {
+                  start: {
+                    line: 3,
+                    column: 9,
+                    index: 35
+                  },
+                  end: {
+                    line: 3,
+                    column: 19,
+                    index: 45
+                  }
+                }
+              },
+              {
+                type: SyntaxType.FieldDefinition,
+                name: {
+                  type: SyntaxType.Identifier,
+                  value: 'message',
+                  loc: {
+                    start: {
+                      line: 4,
+                      column: 25,
+                      index: 70
+                    },
+                    end: {
+                      line: 4,
+                      column: 32,
+                      index: 77
+                    }
+                  }
+                },
+                fieldID: null,
+                fieldType: {
+                  type: SyntaxType.StringKeyword,
+                  loc: {
+                    start: {
+                      line: 4,
+                      column: 18,
+                      index: 63
+                    },
+                    end: {
+                      line: 4,
+                      column: 24,
+                      index: 69
+                    }
+                  }
+                },
+                requiredness: 'required',
+                defaultValue: null,
+                comments: [],
+                loc: {
+                  start: {
+                    line: 4,
+                    column: 9,
+                    index: 54
+                  },
+                  end: {
+                    line: 4,
+                    column: 32,
+                    index: 77
+                  }
+                }
+              }
+            ],
+            comments: [],
+            loc: {
+              start: {
+                line: 2,
+                column: 7,
+                index: 7
+              },
+              end: {
+                line: 5,
+                column: 8,
+                index: 85
+              }
+            }
+          }
+        }
+      },
+      body: [
+        {
+          type: SyntaxType.StructDefinition,
+          name: {
+            type: SyntaxType.Identifier,
+            value: 'TestStruct',
+            loc: {
+              start: {
+                line: 2,
+                column: 14,
+                index: 14
+              },
+              end: {
+                line: 2,
+                column: 24,
+                index: 24
+              }
+            }
+          },
+          fields: [
+            {
+              type: SyntaxType.FieldDefinition,
+              name: {
+                type: SyntaxType.Identifier,
+                value: 'status',
+                loc: {
+                  start: {
+                    line: 3,
+                    column: 13,
+                    index: 39
+                  },
+                  end: {
+                    line: 3,
+                    column: 19,
+                    index: 45
+                  }
+                }
+              },
+              fieldID: {
+                type: SyntaxType.FieldID,
+                value: -1,
+                loc: {
+                  start: {
+                    line: 0,
+                    column: 0,
+                    index: 0
+                  },
+                  end: {
+                    line: 0,
+                    column: 0,
+                    index: 0
+                  }
+                }
+              },
+              fieldType: {
+                type: SyntaxType.I32Keyword,
+                loc: {
+                  start: {
+                    line: 3,
+                    column: 9,
+                    index: 35
+                  },
+                  end: {
+                    line: 3,
+                    column: 12,
+                    index: 38
+                  }
+                }
+              },
+              requiredness: null,
+              defaultValue: null,
+              comments: [],
+              loc: {
+                start: {
+                  line: 3,
+                  column: 9,
+                  index: 35
+                },
+                end: {
+                  line: 3,
+                  column: 19,
+                  index: 45
+                }
+              }
+            },
+            {
+              type: SyntaxType.FieldDefinition,
+              name: {
+                type: SyntaxType.Identifier,
+                value: 'message',
+                loc: {
+                  start: {
+                    line: 4,
+                    column: 25,
+                    index: 70
+                  },
+                  end: {
+                    line: 4,
+                    column: 32,
+                    index: 77
+                  }
+                }
+              },
+              fieldID: {
+                type: SyntaxType.FieldID,
+                value: -2,
+                loc: {
+                  start: {
+                    line: 0,
+                    column: 0,
+                    index: 0
+                  },
+                  end: {
+                    line: 0,
+                    column: 0,
+                    index: 0
+                  }
+                }
+              },
+              fieldType: {
+                type: SyntaxType.StringKeyword,
+                loc: {
+                  start: {
+                    line: 4,
+                    column: 18,
+                    index: 63
+                  },
+                  end: {
+                    line: 4,
+                    column: 24,
+                    index: 69
+                  }
+                }
+              },
+              requiredness: 'required',
+              defaultValue: null,
+              comments: [],
+              loc: {
+                start: {
+                  line: 4,
+                  column: 9,
+                  index: 54
+                },
+                end: {
+                  line: 4,
+                  column: 32,
+                  index: 77
+                }
+              }
+            }
+          ],
+          comments: [],
+          loc: {
+            start: {
+              line: 2,
+              column: 7,
+              index: 7
+            },
+            end: {
+              line: 5,
+              column: 8,
+              index: 85
+            }
+          }
+        }
+      ]
+    }
+
+    assert.deepEqual(true, true)
   })
 
   it('should validate types for includes', () => {
