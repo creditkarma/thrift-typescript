@@ -208,7 +208,7 @@ describe('Thrift TypeScript Validator', () => {
   it('should throw if assigning a string to an int field', () => {
     const content: string = `
       struct TestStruct {
-        1: i32 test = "whoa"
+        1: i32 test = 'whoa'
       }
     `;
     const rawAST: ThriftDocument = parse(content)
@@ -592,7 +592,7 @@ describe('Thrift TypeScript Validator', () => {
 
   it('should validate types for includes', () => {
     const content: string = `
-      include "exception.thrift"
+      include 'exception.thrift'
 
       exception MyException {
         1: exception.Status status = exception.Status.SUCCESS;
