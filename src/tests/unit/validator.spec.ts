@@ -208,7 +208,7 @@ describe('Thrift TypeScript Validator', () => {
   it('should throw if assigning a string to an int field', () => {
     const content: string = `
       struct TestStruct {
-        1: i32 test = whoa
+        1: i32 test = "whoa"
       }
     `;
     const rawAST: ThriftDocument = parse(content)
