@@ -12,6 +12,30 @@ import { IResolvedFile, IIncludeMap } from '../../app/types'
 
 describe('Thrift TypeScript Validator', () => {
 
+  it('should throw if oneway keyword is not followed by void type', () => {
+    const content: string = `
+      service Test {
+        oneway string test()
+      }
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.throws(() => validate(resolvedAST))
+  })
+
+  it('should not throw if oneway keyword is followed by void type', () => {
+    const content: string = `
+      service Test {
+        oneway void test()
+      }
+    `;
+    const rawAST: ThriftDocument = parse(content)
+    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+
+    assert.doesNotThrow(() => validate(resolvedAST))
+  })
+
   it('should throw if a service tries to extend a non-service', () => {
     const content: string = `
       struct TestStruct {

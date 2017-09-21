@@ -447,6 +447,10 @@ function createValidator(resolvedAST: IResolvedFile): IValidator {
 
   function validateFunctions(funcs: Array<FunctionDefinition>): Array<FunctionDefinition> {
     return funcs.map((func: FunctionDefinition): FunctionDefinition => {
+      if (func.oneway && func.returnType.type !== SyntaxType.VoidKeyword) {
+        throw new TypeError(`Oneway function must have return type of void, instead found ${fieldTypeToString(func.returnType)}`)
+      }
+
       return {
         type: SyntaxType.FunctionDefinition,
         name: func.name,
