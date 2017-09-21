@@ -270,7 +270,7 @@ function createValidator(resolvedAST: IResolvedFile): IValidator {
   function validateTypeForIdentifier(id: IIdentifierType, value: ConstValue): ConstValue {
     switch (id.definition.type) {
       case SyntaxType.ServiceDefinition:
-        throw new TypeError(`Service ${id.definition.name.value} is begin used as a value`)
+        throw new TypeError(`Service ${id.definition.name.value} is being used as a value`)
 
       case SyntaxType.EnumDefinition:
         return validateEnum(id.resolvedName, id.definition, value)
