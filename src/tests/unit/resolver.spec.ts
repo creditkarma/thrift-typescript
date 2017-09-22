@@ -7,8 +7,8 @@ import {
   ExceptionDefinition
 } from '@creditkarma/thrift-parser'
 
-import { resolve } from '../../app/resolver'
-import { IResolvedFile, IIncludeMap } from '../../app/types'
+import { resolve } from '../../main/resolver'
+import { IResolvedFile, IIncludeMap } from '../../main/types'
 
 describe('Thrift TypeScript Resolver', () => {
 

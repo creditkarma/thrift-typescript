@@ -6,9 +6,9 @@ import {
   SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-import { resolve } from '../../app/resolver'
-import { validate } from '../../app/validator'
-import { IResolvedFile, IIncludeMap } from '../../app/types'
+import { resolve } from '../../main/resolver'
+import { validate } from '../../main/validator'
+import { IResolvedFile, IIncludeMap } from '../../main/types'
 
 describe('Thrift TypeScript Validator', () => {
 

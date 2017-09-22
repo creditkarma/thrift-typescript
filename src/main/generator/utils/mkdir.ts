@@ -1,5 +1,14 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import * as os from 'os'
+
+function rootDir(): string {
+  if (os.platform() === 'win32') {
+    return process.cwd().split(path.sep)[0]
+  } else {
+    return '/'
+  }
+}
 
 function createPath(parts: Array<string>, soFar: string): void {
   const current: string = path.join(soFar, parts[0])
@@ -14,7 +23,11 @@ function createPath(parts: Array<string>, soFar: string): void {
 
 export function mkdir(dirPath: string): void {
   const parts: Array<string> = dirPath.split(path.sep).filter((val: string) => val !== '')
-  if (parts.length > 0) {
-    createPath(parts, '.')
+
+  // Check for absolute path
+  if (parts.length > 0 && path.isAbsolute(dirPath)) {
+    createPath(parts, rootDir())
+  } else if (parts.length > 0) {
+    createPath(parts, process.cwd())
   }
 }

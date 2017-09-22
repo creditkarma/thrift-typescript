@@ -26,9 +26,12 @@
       "@creditkarma/thrift-parser"
     ]
   },
+  "files": [
+    "./src/main/index.ts",
+    "./src/main/bin/index.ts"
+  ],
   "exclude": [
     "node_modules",
-    "src/tests/fixtures",
     "src/tests",
     "dist"
   ]

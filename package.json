@@ -2,11 +2,13 @@
   "name": "@creditkarma/thrift-typescript",
   "version": "0.1.0",
   "description": "Generate TypeScript from Thrift IDL files",
-  "main": "./dist/app/index.js",
+  "main": "./dist/main/index.js",
+  "bin": {
+    "thrift-typescript": "./dist/main/bin/index.js"
+  },
   "scripts": {
     "clean": "rimraf coverage/ dist/ node_modules/",
     "build": "rimraf dist/; tsc",
-    "postbuild": "rimraf dist/tests",
     "build:watch": "tsc --watch",
     "lint": "tslint --fix src/**/*",
     "test": "npm run lint && npm run test:only --",
@@ -15,15 +17,16 @@
     "test:only": "NODE_ENV=test mocha --opts mocha.opts",
     "coverage": "NODE_ENV=test nyc mocha --opts mocha.cover.opts"
   },
-  "bin": {
-    "thrift-typescript": "./dist/app/bin/index.js"
-  },
   "keywords": [
     "Thrift",
     "TypeScript"
   ],
   "author": "Credit Karma",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/creditkarma/thrift-typescript"
+  },
   "dependencies": {
     "@creditkarma/thrift-parser": "git@github.com:creditkarma/thrift-parser.git",
     "typescript": "^2.4.2"
@@ -56,10 +59,6 @@
     ],
     "extension": [
       ".ts"
-    ],
-    "reporter": [
-      "lcov",
-      "json"
     ],
     "all": true
   }

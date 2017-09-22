@@ -1,5 +1,5 @@
 import { fork, exec } from 'child_process'
-import { createGenerator } from '../../app/'
+import { createGenerator } from '../../main/'
 
 process.chdir(__dirname)
 

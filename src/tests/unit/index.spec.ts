@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { assert } from 'chai'
-import { make } from '../../app/index'
+import { make } from '../../main/index'
 
 function readFixture(name: string): string {
   return fs.readFileSync(path.join(__dirname, `../fixtures/${name}.solution.ts`), 'utf-8')

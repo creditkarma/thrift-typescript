@@ -8,7 +8,7 @@ import * as MyService from './codegen/com/creditkarma/service'
 
 //ServiceHandler: Implement the hello service
 const myServiceHandler = {
-  ping(status: string): string {
+  ping(status: number): string {
     return `${status}: goodbye`
   }
 };
@@ -24,7 +24,7 @@ const myServiceOpts = {
 //ServerOptions: Define server features
 const serverOpt = {
    services: {
-      "/": myServiceOpts
+      '/': myServiceOpts
    }
 }
 
