@@ -8,6 +8,7 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "baseUrl": "./",
+    "noEmitOnError": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictNullChecks": true,

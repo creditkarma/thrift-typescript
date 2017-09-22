@@ -1,16 +1,14 @@
 import { fork, exec } from 'child_process'
-import { createGenerator } from '../../main/'
+import { generate } from '../../main/'
 
 process.chdir(__dirname)
 
-const generator = createGenerator({
+generate({
   rootDir: '.',
   outDir: 'codegen',
   sourceDir: 'thrift',
   files: [ './test_service/service.thrift' ]
-});
-
-generator.makeFiles()
+})
 
 const clientProc = fork('./client.ts')
 const serverProc = fork('./server.ts')

@@ -194,7 +194,7 @@ function createValidator(resolvedAST: IResolvedFile): IValidator {
   }
 
   function validateExtends(id: Identifier): Identifier {
-    const [ baseName, accessName ] = id.value.split('.')
+    const [ baseName ] = id.value.split('.')
     const resolvedID: IIdentifierType = getIdentifier(baseName)
     if (resolvedID.definition.type === SyntaxType.ServiceDefinition) {
       return id
@@ -205,7 +205,7 @@ function createValidator(resolvedAST: IResolvedFile): IValidator {
 
   function valuesForEnum(enumDef: EnumDefinition): Array<number> {
     let previousValue: number = -1
-    const values: Array<number | null> = enumDef.members.reduce((acc, next: EnumMember): Array<number | null> => {
+    const values: Array<number | null> = enumDef.members.reduce((acc: Array<number | null>, next: EnumMember): Array<number | null> => {
       if (next.initializer !== null) {
         return [ ...acc, next.initializer.value ]
       } else {

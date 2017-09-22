@@ -48,9 +48,10 @@ thrift-typescript one.thrift two.thrift three.thrift
 You can also generate files using the JavaScript API:
 
 ```js
-import { createGenerator } from '@creditkarma/thrift-typescript'
+import { generate } from '@creditkarma/thrift-typescript'
 
-const generator = createGenerator({
+// Generates TypeScript and saves to given outDir
+generate({
   rootDir: '.',
   sourceDir: 'thirft',
   outDir: 'codegen',
@@ -58,12 +59,11 @@ const generator = createGenerator({
     'simple.thrift'
   ]
 })
-
-// Generates TypeScript and saves to given outDir
-generator.makeFiles()
 ```
 
-You can generate TypeScript from a string of Thrift without saving to file:
+You can generate TypeScript from a string of Thrift without saving to file.
+
+Note: This method of code generation does not support includes. The Thrift generator must be able to resolve all identifiers which it can't do without a description of the file structure.
 
 ```js
 import { readFileSync } from 'fs'

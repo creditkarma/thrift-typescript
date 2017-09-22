@@ -1,3 +1,5 @@
+import * as ts from 'typescript'
+
 import {
   ConstDefinition,
   EnumDefinition,
@@ -81,7 +83,7 @@ export interface IRenderedFile {
   sourcePath: string
   outPath: string
   namespace: string
-  contents: string
   includes: IIncludeMap
   identifiers: IIdentifierMap
+  statements: Array<ts.Statement>
 }

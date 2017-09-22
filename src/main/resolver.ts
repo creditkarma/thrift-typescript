@@ -22,13 +22,10 @@ import {
   IIdentifierType,
   IIncludeMap,
   IResolvedFile,
+  IResolvedIdentifier,
   IResolvedIncludeMap,
   IResolvedNamespaceMap,
 } from './types'
-
-export interface IResolver {
-  resolve(): IResolvedFile
-}
 
 /**
  * Find all the namespaces defined in the given Thrift doc and create a map of the form:
@@ -106,22 +103,13 @@ function findNamespaces(thrift: ThriftDocument): IResolvedNamespaceMap {
  * @param thrift
  * @param includes
  */
-function createResolver(thrift: ThriftDocument, includes: IIncludeMap): IResolver {
+export function resolve(thrift: ThriftDocument, includes: IIncludeMap): IResolvedFile {
   const identifiers: IIdentifierMap = {}
   const resolvedIncludes: IResolvedIncludeMap = {}
   const namespaces: IResolvedNamespaceMap = findNamespaces(thrift)
 
   for (const name of Object.keys(includes)) {
     resolvedIncludes[name] = []
-  }
-
-  function resolve(): IResolvedFile {
-    return {
-      namespaces,
-      includes: resolvedIncludes,
-      identifiers,
-      body: thrift.body.map(resolveStatement),
-    }
   }
 
   function resolveFunctionType(fieldType: FunctionType): FunctionType {
@@ -335,11 +323,12 @@ function createResolver(thrift: ThriftDocument, includes: IIncludeMap): IResolve
         }
 
         if (!containsIdentifier(pathname, resolvedName)) {
-          resolvedIncludes[pathname].push({
+          const resolvedIdentifier: IResolvedIdentifier = {
             name: base,
             path: pathname,
             resolvedName,
-          })
+          }
+          resolvedIncludes[pathname].push(resolvedIdentifier)
         }
         return (
           (tail.length > 0) ?
@@ -355,14 +344,9 @@ function createResolver(thrift: ThriftDocument, includes: IIncludeMap): IResolve
   }
 
   return {
-    resolve,
+    namespaces,
+    includes: resolvedIncludes,
+    identifiers,
+    body: thrift.body.map(resolveStatement),
   }
-}
-
-/**
- * Iterate through the Thrift AST and find all the identifiers for this file.
- */
-export function resolve(thrift: ThriftDocument, includes: IIncludeMap): IResolvedFile {
-  const resolver: IResolver = createResolver(thrift, includes)
-  return resolver.resolve()
 }

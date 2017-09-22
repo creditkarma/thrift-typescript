@@ -8,7 +8,6 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import { render } from '../render'
-
 import { resolve } from '../resolver'
 import { validate } from '../validator'
 
@@ -22,34 +21,12 @@ import {
 } from '../types'
 
 import {
-  mkdir,
-  print,
   collectIncludes,
-  collectAllFiles,
   createImportsForIncludes,
   createThriftImports,
   genPathForNamespace,
   getNamespace
 } from './utils'
-
-export interface IThriftGenerator {
-  compile(): Array<IRenderedFile>
-  makeFiles(): void
-}
-
-/**
- * This function is mostly for testing purposes. It does not support includes.
- * Given a string of Thrift IDL it will return a string of TypeScript. If the
- * given Thrift IDL uses any identifiers not defined in that text an error will
- * be thrown when trying to build the TypeScript AST.
- *
- * @param source
- */
-export function make(source: string): string {
-  const thriftAST: ThriftDocument = parse(source)
-  const resolvedAST: IResolvedFile = resolve(thriftAST, {})
-  return print(render(thriftAST.body, resolvedAST.identifiers))
-}
 
 /**
  * The generator is the primary interface for generating TypeScript code from
@@ -62,7 +39,7 @@ export function make(source: string): string {
  *
  * @param options
  */
-export function createGenerator(options: IMakeOptions): IThriftGenerator {
+export function compile(options: IMakeOptions): Array<IRenderedFile> {
   const rootDir: string = path.resolve(process.cwd(), options.rootDir)
   const outDir: string = path.resolve(rootDir, options.outDir)
   const sourceDir: string = path.resolve(rootDir, options.sourceDir)
@@ -71,33 +48,12 @@ export function createGenerator(options: IMakeOptions): IThriftGenerator {
     const basename: string = path.basename(sourcePath, '.thrift')
     const filename: string = `${basename}.ts`
     const outFile: string = path.resolve(
-      options.rootDir,
-      options.outDir,
+      outDir,
       namespacePath,
       filename,
     )
 
     return outFile
-  }
-
-  function makeFiles(): void {
-    mkdir(options.outDir)
-    collectAllFiles(compile()).forEach((next: IRenderedFile) => {
-      mkdir(path.relative(
-        rootDir,
-        path.join(outDir, genPathForNamespace(next.namespace)),
-      ))
-
-      fs.writeFile(next.outPath, next.contents, (err: Error) => {
-        if (err != null) {
-          throw new Error(`Unable to save generated files to: ${next.outPath}`)
-        }
-      })
-    })
-  }
-
-  function compile(): Array<IRenderedFile> {
-    return options.files.map(compileFile)
   }
 
   function compileFile(file: string): IRenderedFile {
@@ -146,20 +102,16 @@ export function createGenerator(options: IMakeOptions): IThriftGenerator {
       ...createImportsForIncludes(outPath, includes, validatedAST.includes),
       ...render(validatedAST.body, identifiers),
     ]
-    const contents: string = print(statements)
 
     return {
       sourcePath,
       outPath,
       namespace: resolvedNamespace,
-      contents,
+      statements,
       includes,
       identifiers,
     }
   }
 
-  return {
-    compile,
-    makeFiles,
-  }
+  return options.files.map(compileFile)
 }

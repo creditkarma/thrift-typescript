@@ -36,6 +36,7 @@ const thriftClient: Client = createClient(MyService, connection)
 
 connection.on('error', (err: Error) => {
   console.log('err: ', err)
+  process.exit(1)
 })
 
 app.get('/', (req, res) => {

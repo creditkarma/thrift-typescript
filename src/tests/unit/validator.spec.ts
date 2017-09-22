@@ -604,7 +604,7 @@ describe('Thrift TypeScript Validator', () => {
         sourcePath: 'exception.thrift',
         outPath: 'exception.ts',
         namespace: '',
-        contents: '',
+        statements: [],
         includes: {},
         identifiers: {
           Status: {

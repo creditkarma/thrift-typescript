@@ -26,7 +26,7 @@ describe('Thrift TypeScript Resolver', () => {
         sourcePath: 'exception.thrift',
         outPath: 'exception.ts',
         namespace: '',
-        contents: '',
+        statements: [],
         includes: {},
         identifiers: {
           MyException: {
@@ -310,7 +310,7 @@ describe('Thrift TypeScript Resolver', () => {
         sourcePath: 'exception.thrift',
         outPath: 'exception.ts',
         namespace: '',
-        contents: '',
+        statements: [],
         includes: {},
         identifiers: {
           Status: {
