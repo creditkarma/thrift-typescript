@@ -12,10 +12,6 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-  resolve,
-} from './resolver'
-
-import {
   IIncludeData,
   IMakeOptions,
   IParsedFile,
@@ -33,7 +29,15 @@ import {
 } from './render'
 
 import {
-  compile,
+  resolveFile,
+} from './resolver'
+
+import {
+  validateFile,
+} from './validator'
+
+import {
+  generateFile,
 } from './generator'
 
 import {
@@ -49,9 +53,9 @@ import {
  * @param source
  */
 export function make(source: string): string {
-  const thriftAST: ThriftDocument = parse(source)
-  const resolvedAST: IResolvedFile = resolve(thriftAST, {})
-  return print(render(thriftAST.body, resolvedAST.identifiers))
+  const parsedFile: IParsedFile = parseSource(source)
+  const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+  return print(render(resolvedAST.body, resolvedAST.identifiers))
 }
 
 /**
@@ -91,7 +95,7 @@ function readThriftFile(file: string, searchPaths: Array<string>): IThriftFile {
     const filePath: string = path.resolve(sourcePath, file)
     if (fs.existsSync(filePath)) {
       return {
-        name: path.basename(filePath),
+        name: path.basename(filePath, '.thrift'),
         path: path.dirname(filePath),
         contents: fs.readFileSync(filePath, 'utf-8'),
       }
@@ -142,6 +146,15 @@ function parseFile(sourceDir: string, file: IThriftFile): IParsedFile {
   }
 }
 
+function parseSource(source: string): IParsedFile {
+  return {
+    name: 'source',
+    path: '',
+    includes: [],
+    ast: parse(source),
+  }
+}
+
 /**
  * Generate TypeScript files from Thrift IDL files. The generated TS files will be saved
  * based on the options passed in.
@@ -163,6 +176,12 @@ export function generate(options: IMakeOptions): void {
   const parsedFiles: Array<IParsedFile> = rawFiles.map((next: IThriftFile): IParsedFile => {
     return parseFile(sourceDir, next)
   })
-  const renderedFiles: Array<IRenderedFile> = compile(rootDir, outDir, sourceDir, parsedFiles)
+  const resolvedFiles: Array<IResolvedFile> = parsedFiles.map((next: IParsedFile): IResolvedFile => {
+    return resolveFile(next)
+  })
+  const validatedFiles: Array<IResolvedFile> = resolvedFiles.map((next: IResolvedFile): IResolvedFile => {
+    return validateFile(next)
+  })
+  const renderedFiles: Array<IRenderedFile> = generateFile(rootDir, outDir, sourceDir, validatedFiles)
   saveFiles(rootDir, outDir, renderedFiles)
 }

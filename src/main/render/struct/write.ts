@@ -13,7 +13,7 @@ import {
 
 import {
   IIdentifierMap,
-  IIdentifierType
+  IResolvedIdentifier
 } from '../../types'
 
 import {
@@ -136,7 +136,7 @@ export function createWriteForFieldType(
 }
 
 function writeValueForIdentifier(
-  id: IIdentifierType,
+  id: IResolvedIdentifier,
   struct: InterfaceWithFields,
   fieldType: FunctionType,
   fieldName: ts.Identifier,

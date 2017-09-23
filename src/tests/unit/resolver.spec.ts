@@ -1,68 +1,377 @@
 import { assert } from 'chai'
 
 import {
-  ThriftDocument,
   parse,
   SyntaxType
 } from '@creditkarma/thrift-parser'
 
-import { resolve } from '../../main/resolver'
-import { IResolvedFile, IIncludeMap } from '../../main/types'
+import { resolveFile } from '../../main/resolver'
+import {
+  IResolvedFile,
+  IParsedFile,
+} from '../../main/types'
 
+/**
+ * interface IParsedFile {
+ *   name: string
+ *   path: string
+ *   includes: Array<IParsedFile>
+ *   ast: ThriftDocument
+ * }
+ */
 describe('Thrift TypeScript Resolver', () => {
 
   it('should find and resolve imported identifiers as types', () => {
     const content: string = `
-      include "exception.thrift"
+      include 'exception.thrift'
 
       service MyService {
         void ping() throws (1: exception.MyException exp)
       }
     `;
-    const ast: ThriftDocument = parse(content)
-    const mockIncludes: IIncludeMap = {
-      exception: {
-        sourcePath: 'exception.thrift',
-        outPath: 'exception.ts',
-        namespace: '',
-        statements: [],
-        includes: {},
-        identifiers: {
-          MyException: {
-            name: 'MyException',
-            resolvedName: 'MyException',
-            definition: {
-              type: SyntaxType.ExceptionDefinition,
-              name: {
-                type: SyntaxType.Identifier,
-                value: 'MyException',
-                loc: {
-                  start: { line: 0, column: 0, index: 0 },
-                  end: { line: 0, column: 0, index: 0 }
-                }
-              },
-              fields: [],
-              comments: [],
-              loc: {
-                start: { line: 0, column: 0, index: 0 },
-                end: { line: 0, column: 0, index: 0 }
-              }
-            }
-          }
-        }
+    const mockIncludeContent = `
+      exception MyException {
+        1: required string message
       }
+    `
+    const mockParsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [
+        {
+          name: 'exception',
+          path: '',
+          includes: [],
+          ast: parse(mockIncludeContent)
+        }
+      ],
+      ast: parse(content)
     }
-    const actual: IResolvedFile = resolve(ast, mockIncludes)
+    const actual: IResolvedFile = resolveFile(mockParsedFile)
     const expected: IResolvedFile = {
+      name: 'test',
+      path: '',
       namespaces: {},
       includes: {
-        exception: [
-          {
-            name: 'MyException',
-            path: 'exception',
-            resolvedName: 'exception$MyException'
-          }
-        ]
+        exception: {
+          file: {
+            name: 'exception',
+            path: '',
+            namespaces: {},
+            includes: {},
+            identifiers: {
+              MyException: {
+                name: 'MyException',
+                resolvedName: 'MyException',
+                definition: {
+                  type: SyntaxType.ExceptionDefinition,
+                  name: {
+                    type: SyntaxType.Identifier,
+                    value: 'MyException',
+                    loc: {
+                      start: {
+                        line: 2,
+                        column: 17,
+                        index: 17
+                      },
+                      end: {
+                        line: 2,
+                        column: 28,
+                        index: 28
+                      }
+                    }
+                  },
+                  fields: [
+                    {
+                      type: SyntaxType.FieldDefinition,
+                      name: {
+                        type: SyntaxType.Identifier,
+                        value: 'message',
+                        loc: {
+                          start: {
+                            line: 3,
+                            column: 28,
+                            index: 58
+                          },
+                          end: {
+                            line: 3,
+                            column: 35,
+                            index: 65
+                          }
+                        }
+                      },
+                      fieldID: {
+                        type: SyntaxType.FieldID,
+                        value: 1,
+                        loc: {
+                          start: {
+                            line: 3,
+                            column: 9,
+                            index: 39
+                          },
+                          end: {
+                            line: 3,
+                            column: 11,
+                            index: 41
+                          }
+                        }
+                      },
+                      fieldType: {
+                        type: SyntaxType.StringKeyword,
+                        loc: {
+                          start: {
+                            line: 3,
+                            column: 21,
+                            index: 51
+                          },
+                          end: {
+                            line: 3,
+                            column: 27,
+                            index: 57
+                          }
+                        }
+                      },
+                      requiredness: 'required',
+                      defaultValue: null,
+                      comments: [],
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 9,
+                          index: 39
+                        },
+                        end: {
+                          line: 3,
+                          column: 35,
+                          index: 65
+                        }
+                      }
+                    }
+                  ],
+                  comments: [],
+                  loc: {
+                    start: {
+                      line: 2,
+                      column: 7,
+                      index: 7
+                    },
+                    end: {
+                      line: 4,
+                      column: 8,
+                      index: 73
+                    }
+                  }
+                }
+              }
+            },
+            body: [
+              {
+                type: SyntaxType.ExceptionDefinition,
+                name: {
+                  type: SyntaxType.Identifier,
+                  value: 'MyException',
+                  loc: {
+                    start: {
+                      line: 2,
+                      column: 17,
+                      index: 17
+                    },
+                    end: {
+                      line: 2,
+                      column: 28,
+                      index: 28
+                    }
+                  }
+                },
+                fields: [
+                  {
+                    type: SyntaxType.FieldDefinition,
+                    name: {
+                      type: SyntaxType.Identifier,
+                      value: 'message',
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 28,
+                          index: 58
+                        },
+                        end: {
+                          line: 3,
+                          column: 35,
+                          index: 65
+                        }
+                      }
+                    },
+                    fieldID: {
+                      type: SyntaxType.FieldID,
+                      value: 1,
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 9,
+                          index: 39
+                        },
+                        end: {
+                          line: 3,
+                          column: 11,
+                          index: 41
+                        }
+                      }
+                    },
+                    fieldType: {
+                      type: SyntaxType.StringKeyword,
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 21,
+                          index: 51
+                        },
+                        end: {
+                          line: 3,
+                          column: 27,
+                          index: 57
+                        }
+                      }
+                    },
+                    requiredness: 'required',
+                    defaultValue: null,
+                    comments: [],
+                    loc: {
+                      start: {
+                        line: 3,
+                        column: 9,
+                        index: 39
+                      },
+                      end: {
+                        line: 3,
+                        column: 35,
+                        index: 65
+                      }
+                    }
+                  }
+                ],
+                comments: [],
+                loc: {
+                  start: {
+                    line: 2,
+                    column: 7,
+                    index: 7
+                  },
+                  end: {
+                    line: 4,
+                    column: 8,
+                    index: 73
+                  }
+                }
+              }
+            ]
+          },
+          identifiers: [
+            {
+              name: 'MyException',
+              resolvedName: 'exception$MyException',
+              definition: {
+                type: SyntaxType.ExceptionDefinition,
+                name: {
+                  type: SyntaxType.Identifier,
+                  value: 'MyException',
+                  loc: {
+                    start: {
+                      line: 2,
+                      column: 17,
+                      index: 17
+                    },
+                    end: {
+                      line: 2,
+                      column: 28,
+                      index: 28
+                    }
+                  }
+                },
+                fields: [
+                  {
+                    type: SyntaxType.FieldDefinition,
+                    name: {
+                      type: SyntaxType.Identifier,
+                      value: 'message',
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 28,
+                          index: 58
+                        },
+                        end: {
+                          line: 3,
+                          column: 35,
+                          index: 65
+                        }
+                      }
+                    },
+                    fieldID: {
+                      type: SyntaxType.FieldID,
+                      value: 1,
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 9,
+                          index: 39
+                        },
+                        end: {
+                          line: 3,
+                          column: 11,
+                          index: 41
+                        }
+                      }
+                    },
+                    fieldType: {
+                      type: SyntaxType.StringKeyword,
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 21,
+                          index: 51
+                        },
+                        end: {
+                          line: 3,
+                          column: 27,
+                          index: 57
+                        }
+                      }
+                    },
+                    requiredness: 'required',
+                    defaultValue: null,
+                    comments: [],
+                    loc: {
+                      start: {
+                        line: 3,
+                        column: 9,
+                        index: 39
+                      },
+                      end: {
+                        line: 3,
+                        column: 35,
+                        index: 65
+                      }
+                    }
+                  }
+                ],
+                comments: [],
+                loc: {
+                  start: {
+                    line: 2,
+                    column: 7,
+                    index: 7
+                  },
+                  end: {
+                    line: 4,
+                    column: 8,
+                    index: 73
+                  }
+                }
+              }
+            }
+          ]
+        }
       },
       identifiers: {
         exception$MyException: {
@@ -75,29 +384,95 @@ describe('Thrift TypeScript Resolver', () => {
               value: 'MyException',
               loc: {
                 start: {
-                  line: 0,
-                  column: 0,
-                  index: 0
+                  line: 2,
+                  column: 17,
+                  index: 17
                 },
                 end: {
-                  line: 0,
-                  column: 0,
-                  index: 0
+                  line: 2,
+                  column: 28,
+                  index: 28
                 }
               }
             },
-            fields: [],
+            fields: [
+              {
+                type: SyntaxType.FieldDefinition,
+                name: {
+                  type: SyntaxType.Identifier,
+                  value: 'message',
+                  loc: {
+                    start: {
+                      line: 3,
+                      column: 28,
+                      index: 58
+                    },
+                    end: {
+                      line: 3,
+                      column: 35,
+                      index: 65
+                    }
+                  }
+                },
+                fieldID: {
+                  type: SyntaxType.FieldID,
+                  value: 1,
+                  loc: {
+                    start: {
+                      line: 3,
+                      column: 9,
+                      index: 39
+                    },
+                    end: {
+                      line: 3,
+                      column: 11,
+                      index: 41
+                    }
+                  }
+                },
+                fieldType: {
+                  type: SyntaxType.StringKeyword,
+                  loc: {
+                    start: {
+                      line: 3,
+                      column: 21,
+                      index: 51
+                    },
+                    end: {
+                      line: 3,
+                      column: 27,
+                      index: 57
+                    }
+                  }
+                },
+                requiredness: 'required',
+                defaultValue: null,
+                comments: [],
+                loc: {
+                  start: {
+                    line: 3,
+                    column: 9,
+                    index: 39
+                  },
+                  end: {
+                    line: 3,
+                    column: 35,
+                    index: 65
+                  }
+                }
+              }
+            ],
             comments: [],
             loc: {
               start: {
-                line: 0,
-                column: 0,
-                index: 0
+                line: 2,
+                column: 7,
+                index: 7
               },
               end: {
-                line: 0,
-                column: 0,
-                index: 0
+                line: 4,
+                column: 8,
+                index: 73
               }
             }
           }
@@ -258,9 +633,9 @@ describe('Thrift TypeScript Resolver', () => {
                   }
                 }
               ],
+              comments: [],
               oneway: false,
               modifiers: [],
-              comments: [],
               loc: {
                 start: {
                   line: 5,
@@ -297,91 +672,359 @@ describe('Thrift TypeScript Resolver', () => {
 
   it('should find and resolve imported identifiers as values', () => {
     const content: string = `
-      include "exception.thrift"
+      include 'exception.thrift'
 
       struct MyStruct {
         1: exception.Status status = exception.Status.SUCCESS
       }
     `;
-    const ast: ThriftDocument = parse(content)
-    const mockIncludes: IIncludeMap = {
-      exception: {
-        sourcePath: 'exception.thrift',
-        outPath: 'exception.ts',
-        namespace: '',
-        statements: [],
-        includes: {},
-        identifiers: {
-          Status: {
-            name: 'Status',
-            resolvedName: 'Status',
-            definition: {
-              type: SyntaxType.EnumDefinition,
-              name: {
-                type: SyntaxType.Identifier,
-                value: 'Status',
-                loc: {
-                  start: { line: 0, column: 0, index: 0 },
-                  end: { line: 0, column: 0, index: 0 }
-                }
-              },
-              members: [
-                {
-                  type: SyntaxType.EnumMember,
-                  name: {
-                    type: SyntaxType.Identifier,
-                    value: 'SUCCESS',
-                    loc: {
-                      start: { line: 0, column: 0, index: 0 },
-                      end: { line: 0, column: 0, index: 0 }
-                    }
-                  },
-                  initializer: null,
-                  comments: [],
-                  loc: {
-                    start: { line: 0, column: 0, index: 0 },
-                    end: { line: 0, column: 0, index: 0 }
-                  }
-                },
-                {
-                  type: SyntaxType.EnumMember,
-                  name: {
-                    type: SyntaxType.Identifier,
-                    value: 'FAILURE',
-                    loc: {
-                      start: { line: 0, column: 0, index: 0 },
-                      end: { line: 0, column: 0, index: 0 }
-                    }
-                  },
-                  initializer: null,
-                  comments: [],
-                  loc: {
-                    start: { line: 0, column: 0, index: 0 },
-                    end: { line: 0, column: 0, index: 0 }
-                  }
-                }
-              ],
-              comments: [],
-              loc: {
-                start: { line: 0, column: 0, index: 0 },
-                end: { line: 0, column: 0, index: 0 }
-              }
-            }
-          }
-        }
+    const mockIncludeContent: string = `
+      enum Status {
+        SUCCESS,
+        FAILURE
       }
+    `
+    const mockParsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [
+        {
+          name: 'exception',
+          path: '',
+          includes: [],
+          ast: parse(mockIncludeContent)
+        }
+      ],
+      ast: parse(content)
     }
-    const actual: IResolvedFile = resolve(ast, mockIncludes)
+    const actual: IResolvedFile = resolveFile(mockParsedFile)
     const expected: IResolvedFile = {
+      name: 'test',
+      path: '',
       namespaces: {},
       includes: {
-        exception: [
-          {
-            name: 'Status',
-            path: 'exception',
-            resolvedName: 'exception$Status'
-          }
-        ]
+        exception: {
+          file: {
+            name: 'exception',
+            path: '',
+            namespaces: {},
+            includes: {},
+            identifiers: {
+              Status: {
+                name: 'Status',
+                resolvedName: 'Status',
+                definition: {
+                  type: SyntaxType.EnumDefinition,
+                  name: {
+                    type: SyntaxType.Identifier,
+                    value: 'Status',
+                    loc: {
+                      start: {
+                        line: 2,
+                        column: 12,
+                        index: 12
+                      },
+                      end: {
+                        line: 2,
+                        column: 18,
+                        index: 18
+                      }
+                    }
+                  },
+                  members: [
+                    {
+                      type: SyntaxType.EnumMember,
+                      name: {
+                        type: SyntaxType.Identifier,
+                        value: 'SUCCESS',
+                        loc: {
+                          start: {
+                            line: 3,
+                            column: 9,
+                            index: 29
+                          },
+                          end: {
+                            line: 3,
+                            column: 16,
+                            index: 36
+                          }
+                        }
+                      },
+                      initializer: null,
+                      comments: [],
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 9,
+                          index: 29
+                        },
+                        end: {
+                          line: 3,
+                          column: 16,
+                          index: 36
+                        }
+                      }
+                    },
+                    {
+                      type: SyntaxType.EnumMember,
+                      name: {
+                        type: SyntaxType.Identifier,
+                        value: 'FAILURE',
+                        loc: {
+                          start: {
+                            line: 4,
+                            column: 9,
+                            index: 46
+                          },
+                          end: {
+                            line: 4,
+                            column: 16,
+                            index: 53
+                          }
+                        }
+                      },
+                      initializer: null,
+                      comments: [],
+                      loc: {
+                        start: {
+                          line: 4,
+                          column: 9,
+                          index: 46
+                        },
+                        end: {
+                          line: 4,
+                          column: 16,
+                          index: 53
+                        }
+                      }
+                    }
+                  ],
+                  comments: [],
+                  loc: {
+                    start: {
+                      line: 2,
+                      column: 7,
+                      index: 7
+                    },
+                    end: {
+                      line: 5,
+                      column: 8,
+                      index: 61
+                    }
+                  }
+                }
+              }
+            },
+            body: [
+              {
+                type: SyntaxType.EnumDefinition,
+                name: {
+                  type: SyntaxType.Identifier,
+                  value: 'Status',
+                  loc: {
+                    start: {
+                      line: 2,
+                      column: 12,
+                      index: 12
+                    },
+                    end: {
+                      line: 2,
+                      column: 18,
+                      index: 18
+                    }
+                  }
+                },
+                members: [
+                  {
+                    type: SyntaxType.EnumMember,
+                    name: {
+                      type: SyntaxType.Identifier,
+                      value: 'SUCCESS',
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 9,
+                          index: 29
+                        },
+                        end: {
+                          line: 3,
+                          column: 16,
+                          index: 36
+                        }
+                      }
+                    },
+                    initializer: null,
+                    comments: [],
+                    loc: {
+                      start: {
+                        line: 3,
+                        column: 9,
+                        index: 29
+                      },
+                      end: {
+                        line: 3,
+                        column: 16,
+                        index: 36
+                      }
+                    }
+                  },
+                  {
+                    type: SyntaxType.EnumMember,
+                    name: {
+                      type: SyntaxType.Identifier,
+                      value: 'FAILURE',
+                      loc: {
+                        start: {
+                          line: 4,
+                          column: 9,
+                          index: 46
+                        },
+                        end: {
+                          line: 4,
+                          column: 16,
+                          index: 53
+                        }
+                      }
+                    },
+                    initializer: null,
+                    comments: [],
+                    loc: {
+                      start: {
+                        line: 4,
+                        column: 9,
+                        index: 46
+                      },
+                      end: {
+                        line: 4,
+                        column: 16,
+                        index: 53
+                      }
+                    }
+                  }
+                ],
+                comments: [],
+                loc: {
+                  start: {
+                    line: 2,
+                    column: 7,
+                    index: 7
+                  },
+                  end: {
+                    line: 5,
+                    column: 8,
+                    index: 61
+                  }
+                }
+              }
+            ]
+          },
+          identifiers: [
+            {
+              name: 'Status',
+              resolvedName: 'exception$Status',
+              definition: {
+                type: SyntaxType.EnumDefinition,
+                name: {
+                  type: SyntaxType.Identifier,
+                  value: 'Status',
+                  loc: {
+                    start: {
+                      line: 2,
+                      column: 12,
+                      index: 12
+                    },
+                    end: {
+                      line: 2,
+                      column: 18,
+                      index: 18
+                    }
+                  }
+                },
+                members: [
+                  {
+                    type: SyntaxType.EnumMember,
+                    name: {
+                      type: SyntaxType.Identifier,
+                      value: 'SUCCESS',
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 9,
+                          index: 29
+                        },
+                        end: {
+                          line: 3,
+                          column: 16,
+                          index: 36
+                        }
+                      }
+                    },
+                    initializer: null,
+                    comments: [],
+                    loc: {
+                      start: {
+                        line: 3,
+                        column: 9,
+                        index: 29
+                      },
+                      end: {
+                        line: 3,
+                        column: 16,
+                        index: 36
+                      }
+                    }
+                  },
+                  {
+                    type: SyntaxType.EnumMember,
+                    name: {
+                      type: SyntaxType.Identifier,
+                      value: 'FAILURE',
+                      loc: {
+                        start: {
+                          line: 4,
+                          column: 9,
+                          index: 46
+                        },
+                        end: {
+                          line: 4,
+                          column: 16,
+                          index: 53
+                        }
+                      }
+                    },
+                    initializer: null,
+                    comments: [],
+                    loc: {
+                      start: {
+                        line: 4,
+                        column: 9,
+                        index: 46
+                      },
+                      end: {
+                        line: 4,
+                        column: 16,
+                        index: 53
+                      }
+                    }
+                  }
+                ],
+                comments: [],
+                loc: {
+                  start: {
+                    line: 2,
+                    column: 7,
+                    index: 7
+                  },
+                  end: {
+                    line: 5,
+                    column: 8,
+                    index: 61
+                  }
+                }
+              }
+            }
+          ]
+        }
       },
       identifiers: {
         MyStruct: {
@@ -513,14 +1156,14 @@ describe('Thrift TypeScript Resolver', () => {
               value: 'Status',
               loc: {
                 start: {
-                  line: 0,
-                  column: 0,
-                  index: 0
+                  line: 2,
+                  column: 12,
+                  index: 12
                 },
                 end: {
-                  line: 0,
-                  column: 0,
-                  index: 0
+                  line: 2,
+                  column: 18,
+                  index: 18
                 }
               }
             },
@@ -532,14 +1175,14 @@ describe('Thrift TypeScript Resolver', () => {
                   value: 'SUCCESS',
                   loc: {
                     start: {
-                      line: 0,
-                      column: 0,
-                      index: 0
+                      line: 3,
+                      column: 9,
+                      index: 29
                     },
                     end: {
-                      line: 0,
-                      column: 0,
-                      index: 0
+                      line: 3,
+                      column: 16,
+                      index: 36
                     }
                   }
                 },
@@ -547,14 +1190,14 @@ describe('Thrift TypeScript Resolver', () => {
                 comments: [],
                 loc: {
                   start: {
-                    line: 0,
-                    column: 0,
-                    index: 0
+                    line: 3,
+                    column: 9,
+                    index: 29
                   },
                   end: {
-                    line: 0,
-                    column: 0,
-                    index: 0
+                    line: 3,
+                    column: 16,
+                    index: 36
                   }
                 }
               },
@@ -565,14 +1208,14 @@ describe('Thrift TypeScript Resolver', () => {
                   value: 'FAILURE',
                   loc: {
                     start: {
-                      line: 0,
-                      column: 0,
-                      index: 0
+                      line: 4,
+                      column: 9,
+                      index: 46
                     },
                     end: {
-                      line: 0,
-                      column: 0,
-                      index: 0
+                      line: 4,
+                      column: 16,
+                      index: 53
                     }
                   }
                 },
@@ -580,14 +1223,14 @@ describe('Thrift TypeScript Resolver', () => {
                 comments: [],
                 loc: {
                   start: {
-                    line: 0,
-                    column: 0,
-                    index: 0
+                    line: 4,
+                    column: 9,
+                    index: 46
                   },
                   end: {
-                    line: 0,
-                    column: 0,
-                    index: 0
+                    line: 4,
+                    column: 16,
+                    index: 53
                   }
                 }
               }
@@ -595,14 +1238,14 @@ describe('Thrift TypeScript Resolver', () => {
             comments: [],
             loc: {
               start: {
-                line: 0,
-                column: 0,
-                index: 0
+                line: 2,
+                column: 7,
+                index: 7
               },
               end: {
-                line: 0,
-                column: 0,
-                index: 0
+                line: 5,
+                column: 8,
+                index: 61
               }
             }
           }

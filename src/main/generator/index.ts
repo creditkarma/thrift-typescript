@@ -2,15 +2,13 @@ import * as path from 'path'
 import * as ts from 'typescript'
 
 import { render } from '../render'
-import { resolve } from '../resolver'
-import { validate } from '../validator'
 
 import {
   IIdentifierMap,
-  IIncludeMap,
+  IRenderedFileMap,
   IRenderedFile,
   IResolvedFile,
-  IParsedFile,
+  IResolvedIncludeMap,
 } from '../types'
 
 import {
@@ -31,7 +29,7 @@ import {
  *
  * @param options
  */
-export function compile(rootDir: string, outDir: string, sourceDir: string, files: Array<IParsedFile>): Array<IRenderedFile> {
+export function generateFile(rootDir: string, outDir: string, sourceDir: string, files: Array<IResolvedFile>): Array<IRenderedFile> {
   function outPathForSourcePath(fileName: string, namespacePath: string): string {
     const basename: string = path.basename(fileName, '.thrift')
     const filename: string = `${basename}.ts`
@@ -44,31 +42,30 @@ export function compile(rootDir: string, outDir: string, sourceDir: string, file
     return outFile
   }
 
-  function createIncludes(currentPath: string, includes: Array<IParsedFile>): IIncludeMap {
-    return includes.reduce((acc: IIncludeMap, next: IParsedFile): IIncludeMap => {
-      const renderedFile: IRenderedFile = createRenderedFile(next)
-      const includeName: string = next.name.replace('.thrift', '')
-      acc[includeName] = renderedFile
+  function createIncludes(currentPath: string, includes: IResolvedIncludeMap): IRenderedFileMap {
+    return Object.keys(includes).reduce((acc: IRenderedFileMap, next: string): IRenderedFileMap => {
+      const include: IResolvedFile = includes[next].file
+      const renderedFile: IRenderedFile = createRenderedFile(include)
+      acc[next] = renderedFile
       return acc
     }, {})
   }
 
-  function createRenderedFile(parsedFile: IParsedFile): IRenderedFile {
-    const includes: IIncludeMap = createIncludes(parsedFile.path, parsedFile.includes)
-    const resolvedAST: IResolvedFile = resolve(parsedFile.ast, includes)
-    const validatedAST: IResolvedFile = validate(resolvedAST)
-    const identifiers: IIdentifierMap = validatedAST.identifiers
-    const resolvedNamespace: string = getNamespace(validatedAST.namespaces)
+  function createRenderedFile(resolvedFile: IResolvedFile): IRenderedFile {
+    const includes: IRenderedFileMap = createIncludes(resolvedFile.path, resolvedFile.includes)
+    const identifiers: IIdentifierMap = resolvedFile.identifiers
+    const resolvedNamespace: string = getNamespace(resolvedFile.namespaces)
     const namespacePath: string = genPathForNamespace(resolvedNamespace)
-    const outPath: string = outPathForSourcePath(parsedFile.name, namespacePath)
+    const outPath: string = outPathForSourcePath(resolvedFile.name, namespacePath)
     const statements: Array<ts.Statement> = [
       createThriftImports(),
-      ...createImportsForIncludes(outPath, includes, validatedAST.includes),
-      ...render(validatedAST.body, identifiers),
+      ...createImportsForIncludes(outPath, includes, resolvedFile.includes),
+      ...render(resolvedFile.body, identifiers),
     ]
 
     return {
-      sourcePath: parsedFile.path,
+      name: resolvedFile.name,
+      path: resolvedFile.path,
       outPath,
       namespace: resolvedNamespace,
       statements,
@@ -77,7 +74,7 @@ export function compile(rootDir: string, outDir: string, sourceDir: string, file
     }
   }
 
-  return files.map((next: IParsedFile): IRenderedFile => {
+  return files.map((next: IResolvedFile): IRenderedFile => {
     return createRenderedFile(next)
   })
 }

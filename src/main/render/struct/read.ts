@@ -10,7 +10,7 @@ import {
 
 import {
   IIdentifierMap,
-  IIdentifierType
+  IResolvedIdentifier
 } from '../../types'
 
 import {
@@ -338,7 +338,7 @@ function loopOverContainer(fieldType: ContainerType, fieldName: ts.Identifier, i
 }
 
 export function readValueForIdentifier(
-  id: IIdentifierType,
+  id: IResolvedIdentifier,
   fieldType: FunctionType,
   fieldName: ts.Identifier,
   identifiers: IIdentifierMap

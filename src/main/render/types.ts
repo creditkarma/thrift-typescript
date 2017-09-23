@@ -7,7 +7,7 @@ import {
 
 import {
   IIdentifierMap,
-  IIdentifierType
+  IResolvedIdentifier
 } from '../types'
 
 import {
@@ -176,7 +176,7 @@ export type ThriftTypeAccess =
   'Type.BOOL' | 'Type.DOUBLE' | 'Type.BYTE' | 'Type.I16' | 'Type.I32' |
   'Type.I64' | 'Type.VOID'
 
-function thriftAccessForIdentifier(id: IIdentifierType, identifiers: IIdentifierMap): ThriftTypeAccess {
+function thriftAccessForIdentifier(id: IResolvedIdentifier, identifiers: IIdentifierMap): ThriftTypeAccess {
   switch (id.definition.type) {
     case SyntaxType.ConstDefinition:
       throw new TypeError(`Identifier ${id.definition.name.value} is a value being used as a type`)

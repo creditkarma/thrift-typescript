@@ -46,19 +46,31 @@ export interface IParsedFile {
   ast: ThriftDocument
 }
 
+export interface IResolvedFile {
+  name: string
+  path: string
+  namespaces: IResolvedNamespaceMap
+  includes: IResolvedIncludeMap
+  identifiers: IIdentifierMap
+  body: Array<ThriftStatement>
+}
+
 export interface IRenderedFile {
-  sourcePath: string
+  name: string
+  path: string
   outPath: string
   namespace: string
-  includes: IIncludeMap
+  includes: IRenderedFileMap
   identifiers: IIdentifierMap
   statements: Array<ts.Statement>
 }
 
-export interface IResolvedIdentifier {
-  name: string
-  path: string
-  resolvedName: string
+export interface IResolvedFileMap {
+  [name: string]: IResolvedFile
+}
+
+export interface IRenderedFileMap {
+  [name: string]: IRenderedFile
 }
 
 export interface IResolvedNamespace {
@@ -70,8 +82,15 @@ export interface IResolvedNamespaceMap {
   [name: string]: IResolvedNamespace
 }
 
+export interface IResolvedInclude {
+  file: IResolvedFile
+
+  // Identifiers used from this include
+  identifiers: Array<IResolvedIdentifier>
+}
+
 export interface IResolvedIncludeMap {
-  [name: string]: Array<IResolvedIdentifier>
+  [name: string]: IResolvedInclude
 }
 
 export interface IIncludeData {
@@ -79,18 +98,7 @@ export interface IIncludeData {
   base: string
 }
 
-export interface IIncludeMap {
-  [name: string]: IRenderedFile
-}
-
-export interface IResolvedFile {
-  namespaces: IResolvedNamespaceMap
-  includes: IResolvedIncludeMap
-  identifiers: IIdentifierMap
-  body: Array<ThriftStatement>
-}
-
-export interface IIdentifierType {
+export interface IResolvedIdentifier {
   name: string
   resolvedName: string
   definition: ConstDefinition | StructDefinition | UnionDefinition |
@@ -99,5 +107,5 @@ export interface IIdentifierType {
 }
 
 export interface IIdentifierMap {
-  [name: string]: IIdentifierType
+  [name: string]: IResolvedIdentifier
 }

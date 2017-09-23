@@ -2,7 +2,7 @@ import * as ts from 'typescript'
 import * as path from 'path'
 
 import {
-  IIncludeMap,
+  IRenderedFileMap,
   IResolvedIncludeMap,
   IResolvedIdentifier,
   IRenderedFile
@@ -18,12 +18,12 @@ import {
  */
 export function createImportsForIncludes(
   currentPath: string,
-  includes: IIncludeMap,
+  includes: IRenderedFileMap,
   resolved: IResolvedIncludeMap,
 ): Array<ts.ImportDeclaration> {
   const imports: Array<ts.ImportDeclaration> = []
   for (const name of Object.keys(resolved)) {
-    const resolvedIncludes: Array<IResolvedIdentifier> = resolved[name]
+    const resolvedIncludes: Array<IResolvedIdentifier> = resolved[name].identifiers
     const includeFile: IRenderedFile = includes[name]
 
     if (resolvedIncludes != null && includeFile != null) {

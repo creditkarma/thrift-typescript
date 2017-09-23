@@ -19,9 +19,9 @@ import {
 
 import {
   IIdentifierMap,
-  IIdentifierType,
-  IIncludeMap,
+  IParsedFile,
   IResolvedFile,
+  IResolvedFileMap,
   IResolvedIdentifier,
   IResolvedIncludeMap,
   IResolvedNamespaceMap,
@@ -103,13 +103,23 @@ function findNamespaces(thrift: ThriftDocument): IResolvedNamespaceMap {
  * @param thrift
  * @param includes
  */
-export function resolve(thrift: ThriftDocument, includes: IIncludeMap): IResolvedFile {
+export function resolveFile(parsedFile: IParsedFile): IResolvedFile {
   const identifiers: IIdentifierMap = {}
   const resolvedIncludes: IResolvedIncludeMap = {}
-  const namespaces: IResolvedNamespaceMap = findNamespaces(thrift)
+  const namespaces: IResolvedNamespaceMap = findNamespaces(parsedFile.ast)
+  const includes: Array<IResolvedFile> = parsedFile.includes.map((next: IParsedFile): IResolvedFile => {
+    return resolveFile(next)
+  })
+  const includeMap: IResolvedFileMap = includes.reduce((acc: IResolvedFileMap, next: IResolvedFile): IResolvedFileMap => {
+    acc[next.name] = next
+    return acc
+  }, {})
 
-  for (const name of Object.keys(includes)) {
-    resolvedIncludes[name] = []
+  for (const include of includes) {
+    resolvedIncludes[include.name] = {
+      file: include,
+      identifiers: [],
+    }
   }
 
   function resolveFunctionType(fieldType: FunctionType): FunctionType {
@@ -300,7 +310,7 @@ export function resolve(thrift: ThriftDocument, includes: IIncludeMap): IResolve
   }
 
   function containsIdentifier(pathName: string, resolvedName: string): boolean {
-    for (const include of resolvedIncludes[pathName]) {
+    for (const include of resolvedIncludes[pathName].identifiers) {
       if (include.resolvedName === resolvedName) {
         return true
       }
@@ -315,7 +325,7 @@ export function resolve(thrift: ThriftDocument, includes: IIncludeMap): IResolve
       const [ pathname, base, ...tail ] = parts
       if (resolvedIncludes[pathname] !== undefined) {
         const resolvedName: string = `${pathname}$${base}`
-        const baseIdentifier: IIdentifierType = includes[pathname].identifiers[base]
+        const baseIdentifier: IResolvedIdentifier = includeMap[pathname].identifiers[base]
         identifiers[resolvedName] = {
           name: baseIdentifier.name,
           resolvedName,
@@ -325,10 +335,10 @@ export function resolve(thrift: ThriftDocument, includes: IIncludeMap): IResolve
         if (!containsIdentifier(pathname, resolvedName)) {
           const resolvedIdentifier: IResolvedIdentifier = {
             name: base,
-            path: pathname,
             resolvedName,
+            definition: baseIdentifier.definition,
           }
-          resolvedIncludes[pathname].push(resolvedIdentifier)
+          resolvedIncludes[pathname].identifiers.push(resolvedIdentifier)
         }
         return (
           (tail.length > 0) ?
@@ -344,9 +354,11 @@ export function resolve(thrift: ThriftDocument, includes: IIncludeMap): IResolve
   }
 
   return {
+    name: parsedFile.name,
+    path: parsedFile.path,
     namespaces,
     includes: resolvedIncludes,
     identifiers,
-    body: thrift.body.map(resolveStatement),
+    body: parsedFile.ast.body.map(resolveStatement),
   }
 }

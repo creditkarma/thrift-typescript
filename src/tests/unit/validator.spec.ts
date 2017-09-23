@@ -1,14 +1,16 @@
 import { assert } from 'chai'
 
 import {
-  ThriftDocument,
   parse,
   SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-import { resolve } from '../../main/resolver'
-import { validate } from '../../main/validator'
-import { IResolvedFile, IIncludeMap } from '../../main/types'
+import { resolveFile } from '../../main/resolver'
+import { validateFile } from '../../main/validator'
+import {
+  IResolvedFile,
+  IParsedFile,
+} from '../../main/types'
 
 describe('Thrift TypeScript Validator', () => {
 
@@ -18,10 +20,15 @@ describe('Thrift TypeScript Validator', () => {
         oneway string test()
       }
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.throws(() => validate(resolvedAST))
+    assert.throws(() => validateFile(resolvedAST))
   })
 
   it('should not throw if oneway keyword is followed by void type', () => {
@@ -30,10 +37,15 @@ describe('Thrift TypeScript Validator', () => {
         oneway void test()
       }
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.doesNotThrow(() => validate(resolvedAST))
+    assert.doesNotThrow(() => validateFile(resolvedAST))
   })
 
   it('should throw if a service tries to extend a non-service', () => {
@@ -46,10 +58,15 @@ describe('Thrift TypeScript Validator', () => {
         void ping()
       }
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.throws(() => validate(resolvedAST))
+    assert.throws(() => validateFile(resolvedAST))
   })
 
   it('should not throw if a service extends a service', () => {
@@ -62,110 +79,165 @@ describe('Thrift TypeScript Validator', () => {
         void ping()
       }
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.throws(() => validate(resolvedAST))
+    assert.throws(() => validateFile(resolvedAST))
   })
 
   it('should throw if it finds incorrect list types', () => {
     const content: string = `
       const list<string> TEST = [ 32, 41, 65 ]
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.throws(() => validate(resolvedAST))
+    assert.throws(() => validateFile(resolvedAST))
   })
 
   it('should not throw if it finds correct list types', () => {
     const content: string = `
       const list<i32> TEST = [ 32, 41, 65 ]
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.doesNotThrow(() => validate(resolvedAST))
+    assert.doesNotThrow(() => validateFile(resolvedAST))
   })
 
   it('should throw if it finds incorrect nested list types', () => {
     const content: string = `
       const list<list<string>> TEST = [ [ 32, 41, 65 ], [ 2, 3 ] ]
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.throws(() => validate(resolvedAST))
+    assert.throws(() => validateFile(resolvedAST))
   })
 
   it('should not throw if it finds correct nested list types', () => {
     const content: string = `
       const list<list<i32>> TEST = [ [ 32, 41, 65 ], [ 2, 3 ] ]
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.doesNotThrow(() => validate(resolvedAST))
+    assert.doesNotThrow(() => validateFile(resolvedAST))
   })
 
   it('should throw if it finds incorrect set types', () => {
     const content: string = `
       const set<string> TEST = [ 32, 41, 65 ]
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.throws(() => validate(resolvedAST))
+    assert.throws(() => validateFile(resolvedAST))
   })
 
   it('should not throw if it finds correct set types', () => {
     const content: string = `
       const set<i32> TEST = [ 32, 41, 65 ]
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.doesNotThrow(() => validate(resolvedAST))
+    assert.doesNotThrow(() => validateFile(resolvedAST))
   })
 
   it('should throw if it finds incorrect map types', () => {
     const content: string = `
       const map<string,string> TEST = { 'one': 1, 'two': 2 }
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.throws(() => validate(resolvedAST))
+    assert.throws(() => validateFile(resolvedAST))
   })
 
   it('should not throw if it finds correct map types', () => {
     const content: string = `
       const map<string,string> TEST = { 'one': 'value one', 'two': 'value two' }
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.doesNotThrow(() => validate(resolvedAST))
+    assert.doesNotThrow(() => validateFile(resolvedAST))
   })
 
   it('should throw if it finds incorrect nested map types', () => {
     const content: string = `
       const map<string,map<string,string>> TEST = { 'one': { 'a': 1 }, 'two': { 'b': 4 } }
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.throws(() => validate(resolvedAST))
+    assert.throws(() => validateFile(resolvedAST))
   })
 
   it('should not throw if it finds correct nested map types', () => {
     const content: string = `
       const map<string,map<string,string>> TEST = { 'one': { 'a': 'blah' }, 'two': { 'b': 'blam' } }
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.doesNotThrow(() => validate(resolvedAST))
+    assert.doesNotThrow(() => validateFile(resolvedAST))
   })
 
   it('should throw if it finds duplicate field IDs', () => {
@@ -175,10 +247,15 @@ describe('Thrift TypeScript Validator', () => {
         1: string field2
       }
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.throws(() => validate(resolvedAST))
+    assert.throws(() => validateFile(resolvedAST))
   })
 
   it('should throw if unable to resolve type of identifier', () => {
@@ -187,10 +264,15 @@ describe('Thrift TypeScript Validator', () => {
         1: i32 test = status.Status.SUCCESS
       }
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.throws(() => validate(resolvedAST))
+    assert.throws(() => validateFile(resolvedAST))
   })
 
   it('should not throw if assigning an int to and int field', () => {
@@ -199,10 +281,15 @@ describe('Thrift TypeScript Validator', () => {
         1: i32 test = 45
       }
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.doesNotThrow(() => validate(resolvedAST))
+    assert.doesNotThrow(() => validateFile(resolvedAST))
   })
 
   it('should throw if assigning a string to an int field', () => {
@@ -211,10 +298,15 @@ describe('Thrift TypeScript Validator', () => {
         1: i32 test = 'whoa'
       }
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.throws(() => validate(resolvedAST))
+    assert.throws(() => validateFile(resolvedAST))
   })
 
   it('should throw when assigning an enum member to i32 field', () => {
@@ -228,10 +320,15 @@ describe('Thrift TypeScript Validator', () => {
         1: i32 test = Status.SUCCESS
       }
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.throws(() => validate(resolvedAST))
+    assert.throws(() => validateFile(resolvedAST))
   })
 
   it('should not throw if assigning valid int to enum type', () => {
@@ -244,10 +341,15 @@ describe('Thrift TypeScript Validator', () => {
 
       const TestEnum test = 1
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.doesNotThrow(() => validate(resolvedAST))
+    assert.doesNotThrow(() => validateFile(resolvedAST))
   })
 
   it('should throw if assigning to enum out of range', () => {
@@ -260,10 +362,15 @@ describe('Thrift TypeScript Validator', () => {
 
       const TestEnum test = 6
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
 
-    assert.throws(() => validate(resolvedAST))
+    assert.throws(() => validateFile(resolvedAST))
   })
 
   it('should add missing field IDs', () => {
@@ -273,10 +380,17 @@ describe('Thrift TypeScript Validator', () => {
         required string message
       }
     `
-    const rawAST: ThriftDocument = parse(content)
-    const resolvedAST: IResolvedFile = resolve(rawAST, {})
-    const validatedAST: IResolvedFile = validate(resolvedAST)
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [],
+      ast: parse(content)
+    }
+    const resolvedFile: IResolvedFile = resolveFile(parsedFile)
+    const validatedFile: IResolvedFile = validateFile(resolvedFile)
     const expected: IResolvedFile = {
+      name: 'test',
+      path: '',
       namespaces: {},
       includes: {},
       identifiers: {
@@ -587,7 +701,7 @@ describe('Thrift TypeScript Validator', () => {
       ]
     }
 
-    assert.deepEqual(validatedAST, expected)
+    assert.deepEqual(validatedFile, expected)
   })
 
   it('should validate types for includes', () => {
@@ -598,86 +712,354 @@ describe('Thrift TypeScript Validator', () => {
         1: exception.Status status = exception.Status.SUCCESS;
       }
     `;
-    const rawAST: ThriftDocument = parse(content)
-    const mockIncludes: IIncludeMap = {
-      exception: {
-        sourcePath: 'exception.thrift',
-        outPath: 'exception.ts',
-        namespace: '',
-        statements: [],
-        includes: {},
-        identifiers: {
-          Status: {
-            name: 'Status',
-            resolvedName: 'Status',
-            definition: {
-              type: SyntaxType.EnumDefinition,
-              name: {
-                type: SyntaxType.Identifier,
-                value: 'Status',
-                loc: {
-                  start: { line: 0, column: 0, index: 0 },
-                  end: { line: 0, column: 0, index: 0 }
-                }
-              },
-              members: [
-                {
-                  type: SyntaxType.EnumMember,
-                  name: {
-                    type: SyntaxType.Identifier,
-                    value: 'SUCCESS',
-                    loc: {
-                      start: { line: 0, column: 0, index: 0 },
-                      end: { line: 0, column: 0, index: 0 }
-                    }
-                  },
-                  initializer: null,
-                  comments: [],
-                  loc: {
-                    start: { line: 0, column: 0, index: 0 },
-                    end: { line: 0, column: 0, index: 0 }
-                  }
-                },
-                {
-                  type: SyntaxType.EnumMember,
-                  name: {
-                    type: SyntaxType.Identifier,
-                    value: 'FAILURE',
-                    loc: {
-                      start: { line: 0, column: 0, index: 0 },
-                      end: { line: 0, column: 0, index: 0 }
-                    }
-                  },
-                  initializer: null,
-                  comments: [],
-                  loc: {
-                    start: { line: 0, column: 0, index: 0 },
-                    end: { line: 0, column: 0, index: 0 }
-                  }
-                }
-              ],
-              comments: [],
-              loc: {
-                start: { line: 0, column: 0, index: 0 },
-                end: { line: 0, column: 0, index: 0 }
-              }
-            }
-          }
-        }
+    const mockIncludeContent: string = `
+      enum Status {
+        SUCCESS,
+        FAILURE
       }
+    `
+    const parsedFile: IParsedFile = {
+      name: 'test',
+      path: '',
+      includes: [
+        {
+          name: 'exception',
+          path: '',
+          includes: [],
+          ast: parse(mockIncludeContent)
+        }
+      ],
+      ast: parse(content)
     }
-    const resolvedAST: IResolvedFile = resolve(rawAST, mockIncludes)
-    const validatedAST: IResolvedFile = validate(resolvedAST)
+    const resolvedFile: IResolvedFile = resolveFile(parsedFile)
+    const validatedFile: IResolvedFile = validateFile(resolvedFile)
     const expected: IResolvedFile = {
+      name: 'test',
+      path: '',
       namespaces: {},
       includes: {
-        exception: [
-          {
-            name: 'Status',
-            path: 'exception',
-            resolvedName: 'exception$Status'
-          }
-        ]
+        exception: {
+          file: {
+            name: 'exception',
+            path: '',
+            namespaces: {},
+            includes: {},
+            identifiers: {
+              Status: {
+                name: 'Status',
+                resolvedName: 'Status',
+                definition: {
+                  type: SyntaxType.EnumDefinition,
+                  name: {
+                    type: SyntaxType.Identifier,
+                    value: 'Status',
+                    loc: {
+                      start: {
+                        line: 2,
+                        column: 12,
+                        index: 12
+                      },
+                      end: {
+                        line: 2,
+                        column: 18,
+                        index: 18
+                      }
+                    }
+                  },
+                  members: [
+                    {
+                      type: SyntaxType.EnumMember,
+                      name: {
+                        type: SyntaxType.Identifier,
+                        value: 'SUCCESS',
+                        loc: {
+                          start: {
+                            line: 3,
+                            column: 9,
+                            index: 29
+                          },
+                          end: {
+                            line: 3,
+                            column: 16,
+                            index: 36
+                          }
+                        }
+                      },
+                      initializer: null,
+                      comments: [],
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 9,
+                          index: 29
+                        },
+                        end: {
+                          line: 3,
+                          column: 16,
+                          index: 36
+                        }
+                      }
+                    },
+                    {
+                      type: SyntaxType.EnumMember,
+                      name: {
+                        type: SyntaxType.Identifier,
+                        value: 'FAILURE',
+                        loc: {
+                          start: {
+                            line: 4,
+                            column: 9,
+                            index: 46
+                          },
+                          end: {
+                            line: 4,
+                            column: 16,
+                            index: 53
+                          }
+                        }
+                      },
+                      initializer: null,
+                      comments: [],
+                      loc: {
+                        start: {
+                          line: 4,
+                          column: 9,
+                          index: 46
+                        },
+                        end: {
+                          line: 4,
+                          column: 16,
+                          index: 53
+                        }
+                      }
+                    }
+                  ],
+                  comments: [],
+                  loc: {
+                    start: {
+                      line: 2,
+                      column: 7,
+                      index: 7
+                    },
+                    end: {
+                      line: 5,
+                      column: 8,
+                      index: 61
+                    }
+                  }
+                }
+              }
+            },
+            body: [
+              {
+                type: SyntaxType.EnumDefinition,
+                name: {
+                  type: SyntaxType.Identifier,
+                  value: 'Status',
+                  loc: {
+                    start: {
+                      line: 2,
+                      column: 12,
+                      index: 12
+                    },
+                    end: {
+                      line: 2,
+                      column: 18,
+                      index: 18
+                    }
+                  }
+                },
+                members: [
+                  {
+                    type: SyntaxType.EnumMember,
+                    name: {
+                      type: SyntaxType.Identifier,
+                      value: 'SUCCESS',
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 9,
+                          index: 29
+                        },
+                        end: {
+                          line: 3,
+                          column: 16,
+                          index: 36
+                        }
+                      }
+                    },
+                    initializer: null,
+                    comments: [],
+                    loc: {
+                      start: {
+                        line: 3,
+                        column: 9,
+                        index: 29
+                      },
+                      end: {
+                        line: 3,
+                        column: 16,
+                        index: 36
+                      }
+                    }
+                  },
+                  {
+                    type: SyntaxType.EnumMember,
+                    name: {
+                      type: SyntaxType.Identifier,
+                      value: 'FAILURE',
+                      loc: {
+                        start: {
+                          line: 4,
+                          column: 9,
+                          index: 46
+                        },
+                        end: {
+                          line: 4,
+                          column: 16,
+                          index: 53
+                        }
+                      }
+                    },
+                    initializer: null,
+                    comments: [],
+                    loc: {
+                      start: {
+                        line: 4,
+                        column: 9,
+                        index: 46
+                      },
+                      end: {
+                        line: 4,
+                        column: 16,
+                        index: 53
+                      }
+                    }
+                  }
+                ],
+                comments: [],
+                loc: {
+                  start: {
+                    line: 2,
+                    column: 7,
+                    index: 7
+                  },
+                  end: {
+                    line: 5,
+                    column: 8,
+                    index: 61
+                  }
+                }
+              }
+            ]
+          },
+          identifiers: [
+            {
+              name: 'Status',
+              resolvedName: 'exception$Status',
+              definition: {
+                type: SyntaxType.EnumDefinition,
+                name: {
+                  type: SyntaxType.Identifier,
+                  value: 'Status',
+                  loc: {
+                    start: {
+                      line: 2,
+                      column: 12,
+                      index: 12
+                    },
+                    end: {
+                      line: 2,
+                      column: 18,
+                      index: 18
+                    }
+                  }
+                },
+                members: [
+                  {
+                    type: SyntaxType.EnumMember,
+                    name: {
+                      type: SyntaxType.Identifier,
+                      value: 'SUCCESS',
+                      loc: {
+                        start: {
+                          line: 3,
+                          column: 9,
+                          index: 29
+                        },
+                        end: {
+                          line: 3,
+                          column: 16,
+                          index: 36
+                        }
+                      }
+                    },
+                    initializer: null,
+                    comments: [],
+                    loc: {
+                      start: {
+                        line: 3,
+                        column: 9,
+                        index: 29
+                      },
+                      end: {
+                        line: 3,
+                        column: 16,
+                        index: 36
+                      }
+                    }
+                  },
+                  {
+                    type: SyntaxType.EnumMember,
+                    name: {
+                      type: SyntaxType.Identifier,
+                      value: 'FAILURE',
+                      loc: {
+                        start: {
+                          line: 4,
+                          column: 9,
+                          index: 46
+                        },
+                        end: {
+                          line: 4,
+                          column: 16,
+                          index: 53
+                        }
+                      }
+                    },
+                    initializer: null,
+                    comments: [],
+                    loc: {
+                      start: {
+                        line: 4,
+                        column: 9,
+                        index: 46
+                      },
+                      end: {
+                        line: 4,
+                        column: 16,
+                        index: 53
+                      }
+                    }
+                  }
+                ],
+                comments: [],
+                loc: {
+                  start: {
+                    line: 2,
+                    column: 7,
+                    index: 7
+                  },
+                  end: {
+                    line: 5,
+                    column: 8,
+                    index: 61
+                  }
+                }
+              }
+            }
+          ]
+        }
       },
       identifiers: {
         MyException: {
@@ -809,14 +1191,14 @@ describe('Thrift TypeScript Validator', () => {
               value: 'Status',
               loc: {
                 start: {
-                  line: 0,
-                  column: 0,
-                  index: 0
+                  line: 2,
+                  column: 12,
+                  index: 12
                 },
                 end: {
-                  line: 0,
-                  column: 0,
-                  index: 0
+                  line: 2,
+                  column: 18,
+                  index: 18
                 }
               }
             },
@@ -828,14 +1210,14 @@ describe('Thrift TypeScript Validator', () => {
                   value: 'SUCCESS',
                   loc: {
                     start: {
-                      line: 0,
-                      column: 0,
-                      index: 0
+                      line: 3,
+                      column: 9,
+                      index: 29
                     },
                     end: {
-                      line: 0,
-                      column: 0,
-                      index: 0
+                      line: 3,
+                      column: 16,
+                      index: 36
                     }
                   }
                 },
@@ -843,14 +1225,14 @@ describe('Thrift TypeScript Validator', () => {
                 comments: [],
                 loc: {
                   start: {
-                    line: 0,
-                    column: 0,
-                    index: 0
+                    line: 3,
+                    column: 9,
+                    index: 29
                   },
                   end: {
-                    line: 0,
-                    column: 0,
-                    index: 0
+                    line: 3,
+                    column: 16,
+                    index: 36
                   }
                 }
               },
@@ -861,14 +1243,14 @@ describe('Thrift TypeScript Validator', () => {
                   value: 'FAILURE',
                   loc: {
                     start: {
-                      line: 0,
-                      column: 0,
-                      index: 0
+                      line: 4,
+                      column: 9,
+                      index: 46
                     },
                     end: {
-                      line: 0,
-                      column: 0,
-                      index: 0
+                      line: 4,
+                      column: 16,
+                      index: 53
                     }
                   }
                 },
@@ -876,14 +1258,14 @@ describe('Thrift TypeScript Validator', () => {
                 comments: [],
                 loc: {
                   start: {
-                    line: 0,
-                    column: 0,
-                    index: 0
+                    line: 4,
+                    column: 9,
+                    index: 46
                   },
                   end: {
-                    line: 0,
-                    column: 0,
-                    index: 0
+                    line: 4,
+                    column: 16,
+                    index: 53
                   }
                 }
               }
@@ -891,14 +1273,14 @@ describe('Thrift TypeScript Validator', () => {
             comments: [],
             loc: {
               start: {
-                line: 0,
-                column: 0,
-                index: 0
+                line: 2,
+                column: 7,
+                index: 7
               },
               end: {
-                line: 0,
-                column: 0,
-                index: 0
+                line: 5,
+                column: 8,
+                index: 61
               }
             }
           }
@@ -1055,6 +1437,6 @@ describe('Thrift TypeScript Validator', () => {
       ]
     }
 
-    assert.deepEqual(validatedAST, expected)
+    assert.deepEqual(validatedFile, expected)
   })
 })

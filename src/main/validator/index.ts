@@ -15,17 +15,13 @@ import {
 
 import {
   IResolvedFile,
-  IIdentifierType
+  IResolvedIdentifier,
 } from '../types'
 
 import {
   fieldTypeToString,
   constToTypeString
 } from './utils'
-
-export interface IValidator {
-  validate(): IResolvedFile
-}
 
 function emptyLocation(): TextLocation {
   return {
@@ -93,9 +89,9 @@ function typeMismatch(expected: FunctionType, actual: ConstValue, loc: TextLocat
  * }
  * ```
  *
- * @param resolvedAST
+ * @param resolvedFile
  */
-function createValidator(resolvedAST: IResolvedFile): IValidator {
+export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
 
   /**
    * The driver behind validating the AST is to loop through the statements of the body and find the pieces
@@ -107,20 +103,12 @@ function createValidator(resolvedAST: IResolvedFile): IValidator {
    * 3. defaultValues
    * 4. initializers
    */
-  function validate(): IResolvedFile {
-    const validatedBody: Array<ThriftStatement> = resolvedAST.body.map(validateStatement)
-    return {
-      namespaces: resolvedAST.namespaces,
-      includes: resolvedAST.includes,
-      identifiers: resolvedAST.identifiers,
-      body: validatedBody,
-    }
-  }
 
-  function getIdentifier(...names: Array<string>): IIdentifierType {
+
+  function getIdentifier(...names: Array<string>): IResolvedIdentifier {
     for (let name of names) {
-      if (resolvedAST.identifiers[name]) {
-        return resolvedAST.identifiers[name]
+      if (resolvedFile.identifiers[name]) {
+        return resolvedFile.identifiers[name]
       }
     }
 
@@ -195,7 +183,7 @@ function createValidator(resolvedAST: IResolvedFile): IValidator {
 
   function validateExtends(id: Identifier): Identifier {
     const [ baseName ] = id.value.split('.')
-    const resolvedID: IIdentifierType = getIdentifier(baseName)
+    const resolvedID: IResolvedIdentifier = getIdentifier(baseName)
     if (resolvedID.definition.type === SyntaxType.ServiceDefinition) {
       return id
     } else {
@@ -239,7 +227,7 @@ function createValidator(resolvedAST: IResolvedFile): IValidator {
        */
       case SyntaxType.Identifier:
         const [ baseName, accessName ] = constValue.value.split('.')
-        const resolvedConst: IIdentifierType = getIdentifier(baseName, constValue.value)
+        const resolvedConst: IResolvedIdentifier = getIdentifier(baseName, constValue.value)
         if (resolvedConst.resolvedName === enumName) {
           if (enumMembers(enumDef).indexOf(accessName) > -1) {
             return constValue
@@ -267,7 +255,7 @@ function createValidator(resolvedAST: IResolvedFile): IValidator {
     }
   }
 
-  function validateTypeForIdentifier(id: IIdentifierType, value: ConstValue): ConstValue {
+  function validateTypeForIdentifier(id: IResolvedIdentifier, value: ConstValue): ConstValue {
     switch (id.definition.type) {
       case SyntaxType.ServiceDefinition:
         throw new TypeError(`Service ${id.definition.name.value} is being used as a value`)
@@ -466,11 +454,11 @@ function createValidator(resolvedAST: IResolvedFile): IValidator {
   }
 
   return {
-    validate,
+    name: resolvedFile.name,
+    path: resolvedFile.path,
+    namespaces: resolvedFile.namespaces,
+    includes: resolvedFile.includes,
+    identifiers: resolvedFile.identifiers,
+    body: resolvedFile.body.map(validateStatement),
   }
-}
-
-export function validate(resolvedAST: IResolvedFile): IResolvedFile {
-  const validator: IValidator = createValidator(resolvedAST)
-  return validator.validate()
 }

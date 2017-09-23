@@ -7,12 +7,6 @@
       false
     ],
     "no-var-requires": false,
-    "no-shadowed-variable": [
-      true,
-      {
-        "function": false
-      }
-    ],
     "semicolon": [
       true,
       "never"
