@@ -51,13 +51,21 @@ describe('Thrift TypeScript Resolver', () => {
     const expected: IResolvedFile = {
       name: 'test',
       path: '',
-      namespaces: {},
+      namespace: {
+        scope: '',
+        name: '',
+        path: ''
+      },
       includes: {
         exception: {
           file: {
             name: 'exception',
             path: '',
-            namespaces: {},
+            namespace: {
+              scope: '',
+              name: '',
+              path: ''
+            },
             includes: {},
             identifiers: {
               MyException: {
@@ -701,13 +709,21 @@ describe('Thrift TypeScript Resolver', () => {
     const expected: IResolvedFile = {
       name: 'test',
       path: '',
-      namespaces: {},
+      namespace: {
+        scope: '',
+        name: '',
+        path: ''
+      },
       includes: {
         exception: {
           file: {
             name: 'exception',
             path: '',
-            namespaces: {},
+            namespace: {
+              scope: '',
+              name: '',
+              path: ''
+            },
             includes: {},
             identifiers: {
               Status: {

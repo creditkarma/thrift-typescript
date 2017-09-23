@@ -456,7 +456,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
   return {
     name: resolvedFile.name,
     path: resolvedFile.path,
-    namespaces: resolvedFile.namespaces,
+    namespace: resolvedFile.namespace,
     includes: resolvedFile.includes,
     identifiers: resolvedFile.identifiers,
     body: resolvedFile.body.map(validateStatement),

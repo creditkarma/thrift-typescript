@@ -14,8 +14,6 @@ import {
 import {
   createImportsForIncludes,
   createThriftImports,
-  genPathForNamespace,
-  getNamespace
 } from './utils'
 
 /**
@@ -30,12 +28,11 @@ import {
  * @param options
  */
 export function generateFile(rootDir: string, outDir: string, sourceDir: string, files: Array<IResolvedFile>): Array<IRenderedFile> {
-  function outPathForSourcePath(fileName: string, namespacePath: string): string {
-    const basename: string = path.basename(fileName, '.thrift')
-    const filename: string = `${basename}.ts`
+  function outPathForFile(resolvedFile: IResolvedFile): string {
+    const filename: string = `${resolvedFile.name}.ts`
     const outFile: string = path.resolve(
       outDir,
-      namespacePath,
+      resolvedFile.namespace.path,
       filename,
     )
 
@@ -54,9 +51,7 @@ export function generateFile(rootDir: string, outDir: string, sourceDir: string,
   function createRenderedFile(resolvedFile: IResolvedFile): IRenderedFile {
     const includes: IRenderedFileMap = createIncludes(resolvedFile.path, resolvedFile.includes)
     const identifiers: IIdentifierMap = resolvedFile.identifiers
-    const resolvedNamespace: string = getNamespace(resolvedFile.namespaces)
-    const namespacePath: string = genPathForNamespace(resolvedNamespace)
-    const outPath: string = outPathForSourcePath(resolvedFile.name, namespacePath)
+    const outPath: string = outPathForFile(resolvedFile)
     const statements: Array<ts.Statement> = [
       createThriftImports(),
       ...createImportsForIncludes(outPath, includes, resolvedFile.includes),
@@ -67,7 +62,7 @@ export function generateFile(rootDir: string, outDir: string, sourceDir: string,
       name: resolvedFile.name,
       path: resolvedFile.path,
       outPath,
-      namespace: resolvedNamespace,
+      namespace: resolvedFile.namespace,
       statements,
       includes,
       identifiers,

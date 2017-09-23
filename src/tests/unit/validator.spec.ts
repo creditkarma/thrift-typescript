@@ -391,7 +391,11 @@ describe('Thrift TypeScript Validator', () => {
     const expected: IResolvedFile = {
       name: 'test',
       path: '',
-      namespaces: {},
+      namespace: {
+        scope: '',
+        name: '',
+        path: ''
+      },
       includes: {},
       identifiers: {
         TestStruct: {
@@ -736,13 +740,21 @@ describe('Thrift TypeScript Validator', () => {
     const expected: IResolvedFile = {
       name: 'test',
       path: '',
-      namespaces: {},
+      namespace: {
+        scope: '',
+        name: '',
+        path: ''
+      },
       includes: {
         exception: {
           file: {
             name: 'exception',
             path: '',
-            namespaces: {},
+            namespace: {
+              scope: '',
+              name: '',
+              path: ''
+            },
             includes: {},
             identifiers: {
               Status: {

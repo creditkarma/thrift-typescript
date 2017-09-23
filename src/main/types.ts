@@ -49,7 +49,7 @@ export interface IParsedFile {
 export interface IResolvedFile {
   name: string
   path: string
-  namespaces: IResolvedNamespaceMap
+  namespace: IResolvedNamespace
   includes: IResolvedIncludeMap
   identifiers: IIdentifierMap
   body: Array<ThriftStatement>
@@ -59,7 +59,7 @@ export interface IRenderedFile {
   name: string
   path: string
   outPath: string
-  namespace: string
+  namespace: IResolvedNamespace
   includes: IRenderedFileMap
   identifiers: IIdentifierMap
   statements: Array<ts.Statement>
@@ -76,6 +76,7 @@ export interface IRenderedFileMap {
 export interface IResolvedNamespace {
   scope: string
   name: string
+  path: string
 }
 
 export interface IResolvedNamespaceMap {

@@ -24,30 +24,12 @@ import {
   IResolvedFileMap,
   IResolvedIdentifier,
   IResolvedIncludeMap,
-  IResolvedNamespaceMap,
-} from './types'
+  IResolvedNamespace,
+} from '../types'
 
-/**
- * Find all the namespaces defined in the given Thrift doc and create a map of the form:
- *
- * scope -> namespace
- *
- * @param thrift
- */
-function findNamespaces(thrift: ThriftDocument): IResolvedNamespaceMap {
-  const statements: Array<ThriftStatement> = thrift.body.filter((next: ThriftStatement): boolean => {
-    return next.type === SyntaxType.NamespaceDefinition
-  })
-
-  return statements.reduce((acc: IResolvedNamespaceMap, next: NamespaceDefinition) => {
-    const scope: string = next.scope.value
-    acc[scope] = {
-      scope,
-      name: next.name.value,
-    }
-    return acc
-  }, {})
-}
+import {
+  resolveNamespace
+} from './utils'
 
 /**
  * The job of the resolver is to traverse the AST and find all of the Identifiers. In order to
@@ -106,7 +88,7 @@ function findNamespaces(thrift: ThriftDocument): IResolvedNamespaceMap {
 export function resolveFile(parsedFile: IParsedFile): IResolvedFile {
   const identifiers: IIdentifierMap = {}
   const resolvedIncludes: IResolvedIncludeMap = {}
-  const namespaces: IResolvedNamespaceMap = findNamespaces(parsedFile.ast)
+  const namespace: IResolvedNamespace = resolveNamespace(parsedFile.ast)
   const includes: Array<IResolvedFile> = parsedFile.includes.map((next: IParsedFile): IResolvedFile => {
     return resolveFile(next)
   })
@@ -356,7 +338,7 @@ export function resolveFile(parsedFile: IParsedFile): IResolvedFile {
   return {
     name: parsedFile.name,
     path: parsedFile.path,
-    namespaces,
+    namespace,
     includes: resolvedIncludes,
     identifiers,
     body: parsedFile.ast.body.map(resolveStatement),
