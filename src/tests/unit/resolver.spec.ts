@@ -3,8 +3,7 @@ import { assert } from 'chai'
 import {
   ThriftDocument,
   parse,
-  SyntaxType,
-  ExceptionDefinition
+  SyntaxType
 } from '@creditkarma/thrift-parser'
 
 import { resolve } from '../../main/resolver'
@@ -760,6 +759,6 @@ describe('Thrift TypeScript Resolver', () => {
       ]
     }
 
-    assert.deepEqual(actual, actual)
+    assert.deepEqual(actual, expected)
   })
 })

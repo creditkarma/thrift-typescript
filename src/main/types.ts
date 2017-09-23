@@ -6,6 +6,7 @@ import {
   ExceptionDefinition,
   ServiceDefinition,
   StructDefinition,
+  ThriftDocument,
   ThriftStatement,
   TypedefDefinition,
   UnionDefinition,
@@ -30,6 +31,28 @@ export interface IMakeOptions {
 
   // list of files to generate code from
   files: Array<string>
+}
+
+export interface IThriftFile {
+  name: string
+  path: string
+  contents: string
+}
+
+export interface IParsedFile {
+  name: string
+  path: string
+  includes: Array<IParsedFile>
+  ast: ThriftDocument
+}
+
+export interface IRenderedFile {
+  sourcePath: string
+  outPath: string
+  namespace: string
+  includes: IIncludeMap
+  identifiers: IIdentifierMap
+  statements: Array<ts.Statement>
 }
 
 export interface IResolvedIdentifier {
@@ -77,13 +100,4 @@ export interface IIdentifierType {
 
 export interface IIdentifierMap {
   [name: string]: IIdentifierType
-}
-
-export interface IRenderedFile {
-  sourcePath: string
-  outPath: string
-  namespace: string
-  includes: IIncludeMap
-  identifiers: IIdentifierMap
-  statements: Array<ts.Statement>
 }

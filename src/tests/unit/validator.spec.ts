@@ -587,7 +587,7 @@ describe('Thrift TypeScript Validator', () => {
       ]
     }
 
-    assert.deepEqual(true, true)
+    assert.deepEqual(validatedAST, expected)
   })
 
   it('should validate types for includes', () => {

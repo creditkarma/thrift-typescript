@@ -1,11 +1,5 @@
-import * as fs from 'fs'
 import * as path from 'path'
 import * as ts from 'typescript'
-
-import {
-  parse,
-  ThriftDocument,
-} from '@creditkarma/thrift-parser'
 
 import { render } from '../render'
 import { resolve } from '../resolver'
@@ -13,15 +7,13 @@ import { validate } from '../validator'
 
 import {
   IIdentifierMap,
-  IIncludeData,
   IIncludeMap,
-  IMakeOptions,
   IRenderedFile,
   IResolvedFile,
+  IParsedFile,
 } from '../types'
 
 import {
-  collectIncludes,
   createImportsForIncludes,
   createThriftImports,
   genPathForNamespace,
@@ -39,13 +31,9 @@ import {
  *
  * @param options
  */
-export function compile(options: IMakeOptions): Array<IRenderedFile> {
-  const rootDir: string = path.resolve(process.cwd(), options.rootDir)
-  const outDir: string = path.resolve(rootDir, options.outDir)
-  const sourceDir: string = path.resolve(rootDir, options.sourceDir)
-
-  function outPathForSourcePath(sourcePath: string, namespacePath: string): string {
-    const basename: string = path.basename(sourcePath, '.thrift')
+export function compile(rootDir: string, outDir: string, sourceDir: string, files: Array<IParsedFile>): Array<IRenderedFile> {
+  function outPathForSourcePath(fileName: string, namespacePath: string): string {
+    const basename: string = path.basename(fileName, '.thrift')
     const filename: string = `${basename}.ts`
     const outFile: string = path.resolve(
       outDir,
@@ -56,47 +44,23 @@ export function compile(options: IMakeOptions): Array<IRenderedFile> {
     return outFile
   }
 
-  function compileFile(file: string): IRenderedFile {
-    const sourcePath: string = path.resolve(sourceDir, file)
-    const contents: string = fs.readFileSync(sourcePath, 'utf-8')
-    const codegen: IRenderedFile = createRenderedFile(sourcePath, contents)
-    return codegen
+  function createIncludes(currentPath: string, includes: Array<IParsedFile>): IIncludeMap {
+    return includes.reduce((acc: IIncludeMap, next: IParsedFile): IIncludeMap => {
+      const renderedFile: IRenderedFile = createRenderedFile(next)
+      const includeName: string = next.name.replace('.thrift', '')
+      acc[includeName] = renderedFile
+      return acc
+    }, {})
   }
 
-  function compileIncludes(currentPath: string, includes: Array<IIncludeData>): IIncludeMap {
-    const includeMap: IIncludeMap = {}
-    for (const include of includes) {
-      const localPath: string = path.resolve(
-        path.dirname(currentPath),
-        include.path,
-      )
-
-      if (fs.existsSync(localPath)) {
-        const renderedFile: IRenderedFile = compileFile(localPath)
-        includeMap[include.base] = renderedFile
-      } else {
-        const rootPath: string = path.resolve(sourceDir, include.path)
-        if (fs.existsSync(rootPath)) {
-          const renderedFile: IRenderedFile = compileFile(rootPath)
-          includeMap[include.base] = renderedFile
-        } else {
-          throw new Error(`Unable to locate file for include ${include.path}`)
-        }
-      }
-    }
-
-    return includeMap
-  }
-
-  function createRenderedFile(sourcePath: string, sourceContents: string): IRenderedFile {
-    const thriftAST: ThriftDocument = parse(sourceContents)
-    const includes: IIncludeMap = compileIncludes(sourcePath, collectIncludes(thriftAST))
-    const resolvedAST: IResolvedFile = resolve(thriftAST, includes)
+  function createRenderedFile(parsedFile: IParsedFile): IRenderedFile {
+    const includes: IIncludeMap = createIncludes(parsedFile.path, parsedFile.includes)
+    const resolvedAST: IResolvedFile = resolve(parsedFile.ast, includes)
     const validatedAST: IResolvedFile = validate(resolvedAST)
     const identifiers: IIdentifierMap = validatedAST.identifiers
     const resolvedNamespace: string = getNamespace(validatedAST.namespaces)
     const namespacePath: string = genPathForNamespace(resolvedNamespace)
-    const outPath: string = outPathForSourcePath(sourcePath, namespacePath)
+    const outPath: string = outPathForSourcePath(parsedFile.name, namespacePath)
     const statements: Array<ts.Statement> = [
       createThriftImports(),
       ...createImportsForIncludes(outPath, includes, validatedAST.includes),
@@ -104,7 +68,7 @@ export function compile(options: IMakeOptions): Array<IRenderedFile> {
     ]
 
     return {
-      sourcePath,
+      sourcePath: parsedFile.path,
       outPath,
       namespace: resolvedNamespace,
       statements,
@@ -113,5 +77,7 @@ export function compile(options: IMakeOptions): Array<IRenderedFile> {
     }
   }
 
-  return options.files.map(compileFile)
+  return files.map((next: IParsedFile): IRenderedFile => {
+    return createRenderedFile(next)
+  })
 }
