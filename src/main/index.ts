@@ -8,6 +8,7 @@ import {
   parse,
   SyntaxType,
   ThriftDocument,
+  ThriftErrors,
   ThriftStatement,
 } from '@creditkarma/thrift-parser'
 
@@ -118,8 +119,7 @@ function collectIncludes(thrift: ThriftDocument): Array<IIncludeData> {
 }
 
 function parseInclude(currentPath: string, sourceDir: string, include: IIncludeData): IParsedFile {
-  const thriftFile: IThriftFile = readThriftFile(include.path, [ currentPath, sourceDir ])
-  return parseFile(sourceDir, thriftFile)
+  return parseFile(sourceDir, readThriftFile(include.path, [ currentPath, sourceDir ]))
 }
 
 /**
@@ -134,7 +134,7 @@ function parseInclude(currentPath: string, sourceDir: string, include: IIncludeD
  * @param file
  */
 function parseFile(sourceDir: string, file: IThriftFile): IParsedFile {
-  const ast: ThriftDocument = parse(file.contents)
+  const ast: ThriftDocument = parseThriftString(file.contents)
   const includes: Array<IParsedFile> = collectIncludes(ast).map((next: IIncludeData): IParsedFile => {
     return parseInclude(file.path, sourceDir, next)
   })
@@ -152,7 +152,18 @@ function parseSource(source: string): IParsedFile {
     name: 'source',
     path: '',
     includes: [],
-    ast: parse(source),
+    ast: parseThriftString(source),
+  }
+}
+
+function parseThriftString(source: string): ThriftDocument {
+  const thrift: ThriftDocument | ThriftErrors = parse(source)
+  switch (thrift.type) {
+    case SyntaxType.ThriftDocument:
+      return thrift
+
+    default:
+      throw new Error('Unable to parse source')
   }
 }
 
@@ -171,18 +182,15 @@ export function generate(options: IMakeOptions): void {
   const rootDir: string = path.resolve(process.cwd(), options.rootDir)
   const outDir: string = path.resolve(rootDir, options.outDir)
   const sourceDir: string = path.resolve(rootDir, options.sourceDir)
-  const rawFiles: Array<IThriftFile> = options.files.map((next: string): IThriftFile => {
-    return readThriftFile(next, [ sourceDir ])
+
+  const renderedFiles: Array<IRenderedFile> = options.files.map((next: string): IRenderedFile => {
+    const thriftFile: IThriftFile = readThriftFile(next, [ sourceDir ])
+    const parsedFile: IParsedFile = parseFile(sourceDir, thriftFile)
+    const resolvedFile: IResolvedFile = resolveFile(parsedFile)
+    const validatedFile: IResolvedFile = validateFile(resolvedFile)
+    const renderedFile: IRenderedFile = generateFile(renderer, rootDir, outDir, sourceDir, validatedFile)
+    return renderedFile
   })
-  const parsedFiles: Array<IParsedFile> = rawFiles.map((next: IThriftFile): IParsedFile => {
-    return parseFile(sourceDir, next)
-  })
-  const resolvedFiles: Array<IResolvedFile> = parsedFiles.map((next: IParsedFile): IResolvedFile => {
-    return resolveFile(next)
-  })
-  const validatedFiles: Array<IResolvedFile> = resolvedFiles.map((next: IResolvedFile): IResolvedFile => {
-    return validateFile(next)
-  })
-  const renderedFiles: Array<IRenderedFile> = generateFile(renderer, rootDir, outDir, sourceDir, validatedFiles)
+
   saveFiles(rootDir, outDir, renderedFiles)
 }

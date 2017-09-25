@@ -10,7 +10,7 @@
     "clean": "rimraf coverage/ dist/ node_modules/",
     "build": "rimraf dist/; tsc",
     "build:watch": "tsc --watch",
-    "lint": "tslint --fix src/**/*",
+    "lint": "tslint --fix src/**/*.ts",
     "test": "npm run lint && npm run test:only --",
     "pretest:integration": "rimraf ./src/tests/integration/codegen",
     "test:integration": "ts-node ./src/tests/integration/index.ts",

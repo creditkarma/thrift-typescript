@@ -7,6 +7,7 @@ import {
   ServiceDefinition,
   StructDefinition,
   ThriftDocument,
+  ThriftErrors,
   ThriftStatement,
   TypedefDefinition,
   UnionDefinition,

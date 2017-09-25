@@ -93,18 +93,6 @@ function typeMismatch(expected: FunctionType, actual: ConstValue, loc: TextLocat
  */
 export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
 
-  /**
-   * The driver behind validating the AST is to loop through the statements of the body and find the pieces
-   * that need validation.
-   *
-   * These are:
-   * 1. fieldTypes
-   * 2. returnTypes
-   * 3. defaultValues
-   * 4. initializers
-   */
-
-
   function getIdentifier(...names: Array<string>): IResolvedIdentifier {
     for (let name of names) {
       if (resolvedFile.identifiers[name]) {
@@ -115,6 +103,16 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
     throw new TypeError(`Unabled to resolve type of Identifier ${names[0]}`)
   }
 
+  /**
+   * The driver behind validating the AST is to loop through the statements of the body and find the pieces
+   * that need validation.
+   *
+   * These are:
+   * 1. fieldTypes
+   * 2. returnTypes
+   * 3. defaultValues
+   * 4. initializers
+   */
   function validateStatement(statement: ThriftStatement): ThriftStatement {
     switch (statement.type) {
       case SyntaxType.NamespaceDefinition:

@@ -40,9 +40,9 @@ export function generateFile(
   rootDir: string,
   outDir: string,
   sourceDir: string,
-  files: Array<IResolvedFile>,
-): Array<IRenderedFile> {
-  function outPathForFile(resolvedFile: IResolvedFile): string {
+  resolvedFile: IResolvedFile,
+): IRenderedFile {
+  function outPathForFile(): string {
     const filename: string = `${resolvedFile.name}.ts`
     const outFile: string = path.resolve(
       outDir,
@@ -56,34 +56,28 @@ export function generateFile(
   function createIncludes(currentPath: string, includes: IResolvedIncludeMap): IRenderedFileMap {
     return Object.keys(includes).reduce((acc: IRenderedFileMap, next: string): IRenderedFileMap => {
       const include: IResolvedFile = includes[next].file
-      const renderedFile: IRenderedFile = createRenderedFile(include)
+      const renderedFile: IRenderedFile = generateFile(renderer, rootDir, outDir, sourceDir, include)
       acc[next] = renderedFile
       return acc
     }, {})
   }
 
-  function createRenderedFile(resolvedFile: IResolvedFile): IRenderedFile {
-    const includes: IRenderedFileMap = createIncludes(resolvedFile.path, resolvedFile.includes)
-    const identifiers: IIdentifierMap = resolvedFile.identifiers
-    const outPath: string = outPathForFile(resolvedFile)
-    const statements: Array<ts.Statement> = [
-      createThriftImports(),
-      ...createImportsForIncludes(outPath, includes, resolvedFile.includes),
-      ...processStatements(resolvedFile.body, identifiers, renderer),
-    ]
+  const includes: IRenderedFileMap = createIncludes(resolvedFile.path, resolvedFile.includes)
+  const identifiers: IIdentifierMap = resolvedFile.identifiers
+  const outPath: string = outPathForFile()
+  const statements: Array<ts.Statement> = [
+    createThriftImports(),
+    ...createImportsForIncludes(outPath, includes, resolvedFile.includes),
+    ...processStatements(resolvedFile.body, identifiers, renderer),
+  ]
 
-    return {
-      name: resolvedFile.name,
-      path: resolvedFile.path,
-      outPath,
-      namespace: resolvedFile.namespace,
-      statements,
-      includes,
-      identifiers,
-    }
+  return {
+    name: resolvedFile.name,
+    path: resolvedFile.path,
+    outPath,
+    namespace: resolvedFile.namespace,
+    statements,
+    includes,
+    identifiers,
   }
-
-  return files.map((next: IResolvedFile): IRenderedFile => {
-    return createRenderedFile(next)
-  })
 }
