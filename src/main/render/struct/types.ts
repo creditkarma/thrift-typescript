@@ -1,8 +1,4 @@
-import {
-  createTypeReferenceNode,
-  TypeLiteralNode,
-  createTypeLiteralNode
-} from 'typescript'
+import * as ts from 'typescript'
 
 import {
   createTypeProperty,
@@ -11,27 +7,27 @@ import {
 } from '../types'
 
 // { ktype: Thrift.Type; vtype: Thrift.Type; size: number; }
-export function mapMetadataType(): TypeLiteralNode {
-  return createTypeLiteralNode([
-    createTypeProperty('ktype', createTypeReferenceNode('Thrift.Type', undefined)),
-    createTypeProperty('vtype', createTypeReferenceNode('Thrift.Type', undefined)),
+export function mapMetadataType(): ts.TypeLiteralNode {
+  return ts.createTypeLiteralNode([
+    createTypeProperty('ktype', ts.createTypeReferenceNode('Thrift.Type', undefined)),
+    createTypeProperty('vtype', ts.createTypeReferenceNode('Thrift.Type', undefined)),
     createTypeProperty('size', createNumberType())
   ])
 }
 
 // { etype: Thrift.Type; size: number; }
-export function listMetadataType(): TypeLiteralNode {
-  return createTypeLiteralNode([
-    createTypeProperty('etype', createTypeReferenceNode('Thrift.Type', undefined)),
+export function listMetadataType(): ts.TypeLiteralNode {
+  return ts.createTypeLiteralNode([
+    createTypeProperty('etype', ts.createTypeReferenceNode('Thrift.Type', undefined)),
     createTypeProperty('size', createNumberType())
   ])
 }
 
 // { fname: string; ftype: Thrift.Type; fid: number; }
-export function fieldMetadataType(): TypeLiteralNode {
-  return createTypeLiteralNode([
+export function fieldMetadataType(): ts.TypeLiteralNode {
+  return ts.createTypeLiteralNode([
     createTypeProperty('fname', createStringType()),
-    createTypeProperty('ftype', createTypeReferenceNode('Thrift.Type', undefined)),
+    createTypeProperty('ftype', ts.createTypeReferenceNode('Thrift.Type', undefined)),
     createTypeProperty('fid', createNumberType())
   ])
 }

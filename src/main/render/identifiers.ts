@@ -1,27 +1,24 @@
-import {
-  createIdentifier,
-  Identifier,
-} from 'typescript'
+import * as ts from 'typescript'
 
 export interface IdentifierMap {
-  [name: string]: Identifier
+  [name: string]: ts.Identifier
 }
 
 export const COMMON_IDENTIFIERS: IdentifierMap = {
-  args: createIdentifier('args'),
-  undefined: createIdentifier('undefined'),
-  input: createIdentifier('input'),
-  output: createIdentifier('output'),
-  ftype: createIdentifier('ftype'),
-  fname: createIdentifier('fname'),
-  fid: createIdentifier('fid'),
-  Map: createIdentifier('Map'),
-  Array: createIdentifier('Array'),
-  Set: createIdentifier('Set'),
-  String: createIdentifier('String'),
-  Boolean: createIdentifier('Boolean'),
-  Number: createIdentifier('Number'),
-  void: createIdentifier('void'),
-  Thrift: createIdentifier('Thrift'),
-  Int64: createIdentifier('Int64'),
+  args: ts.createIdentifier('args'),
+  undefined: ts.createIdentifier('undefined'),
+  input: ts.createIdentifier('input'),
+  output: ts.createIdentifier('output'),
+  ftype: ts.createIdentifier('ftype'),
+  fname: ts.createIdentifier('fname'),
+  fid: ts.createIdentifier('fid'),
+  Map: ts.createIdentifier('Map'),
+  Array: ts.createIdentifier('Array'),
+  Set: ts.createIdentifier('Set'),
+  String: ts.createIdentifier('String'),
+  Boolean: ts.createIdentifier('Boolean'),
+  Number: ts.createIdentifier('Number'),
+  void: ts.createIdentifier('void'),
+  Thrift: ts.createIdentifier('Thrift'),
+  Int64: ts.createIdentifier('Int64'),
 }

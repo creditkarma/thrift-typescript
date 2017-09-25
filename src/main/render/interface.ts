@@ -1,10 +1,4 @@
-import {
-  createInterfaceDeclaration,
-  createPropertySignature,
-  createToken,
-  InterfaceDeclaration,
-  SyntaxKind,
-} from 'typescript'
+import * as ts from 'typescript'
 
 import {
   FieldDefinition,
@@ -41,9 +35,9 @@ export function interfaceNameForClass(statement: InterfaceWithFields): string {
  *   field1?: boolean
  * }
  */
-export function renderInterface(statement: InterfaceWithFields): InterfaceDeclaration {
+export function renderInterface(statement: InterfaceWithFields): ts.InterfaceDeclaration {
   const signatures = statement.fields.map((field: FieldDefinition) => {
-    return createPropertySignature(
+    return ts.createPropertySignature(
       undefined,
       field.name.value,
       renderOptional(field.requiredness),
@@ -52,9 +46,9 @@ export function renderInterface(statement: InterfaceWithFields): InterfaceDeclar
     )
   })
 
-  return createInterfaceDeclaration(
+  return ts.createInterfaceDeclaration(
     undefined,
-    [ createToken(SyntaxKind.ExportKeyword) ],
+    [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
     interfaceNameForClass(statement),
     [],
     [],
