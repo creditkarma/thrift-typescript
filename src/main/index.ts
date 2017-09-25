@@ -25,10 +25,6 @@ import {
 } from './printer'
 
 import {
-  render,
-} from './render'
-
-import {
   resolveFile,
 } from './resolver'
 
@@ -38,11 +34,16 @@ import {
 
 import {
   generateFile,
+  processStatements,
 } from './generator'
 
 import {
   mkdir,
 } from './sys'
+
+import {
+  renderer,
+} from './render'
 
 /**
  * This function is mostly for testing purposes. It does not support includes.
@@ -55,7 +56,7 @@ import {
 export function make(source: string): string {
   const parsedFile: IParsedFile = parseSource(source)
   const resolvedAST: IResolvedFile = resolveFile(parsedFile)
-  return print(render(resolvedAST.body, resolvedAST.identifiers))
+  return print(processStatements(resolvedAST.body, resolvedAST.identifiers, renderer))
 }
 
 /**
@@ -182,6 +183,6 @@ export function generate(options: IMakeOptions): void {
   const validatedFiles: Array<IResolvedFile> = resolvedFiles.map((next: IResolvedFile): IResolvedFile => {
     return validateFile(next)
   })
-  const renderedFiles: Array<IRenderedFile> = generateFile(rootDir, outDir, sourceDir, validatedFiles)
+  const renderedFiles: Array<IRenderedFile> = generateFile(renderer, rootDir, outDir, sourceDir, validatedFiles)
   saveFiles(rootDir, outDir, renderedFiles)
 }

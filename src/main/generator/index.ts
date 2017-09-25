@@ -1,20 +1,28 @@
 import * as path from 'path'
 import * as ts from 'typescript'
 
-import { render } from '../render'
-
 import {
   IIdentifierMap,
   IRenderedFileMap,
   IRenderedFile,
   IResolvedFile,
   IResolvedIncludeMap,
+  IRenderer,
 } from '../types'
 
 import {
   createImportsForIncludes,
   createThriftImports,
 } from './utils'
+
+import {
+  processStatements
+} from './iterator'
+
+/**
+ * Export this directly is useful for generating code without generating files
+ */
+export { processStatements } from './iterator'
 
 /**
  * The generator is the primary interface for generating TypeScript code from
@@ -27,7 +35,13 @@ import {
  *
  * @param options
  */
-export function generateFile(rootDir: string, outDir: string, sourceDir: string, files: Array<IResolvedFile>): Array<IRenderedFile> {
+export function generateFile(
+  renderer: IRenderer,
+  rootDir: string,
+  outDir: string,
+  sourceDir: string,
+  files: Array<IResolvedFile>,
+): Array<IRenderedFile> {
   function outPathForFile(resolvedFile: IResolvedFile): string {
     const filename: string = `${resolvedFile.name}.ts`
     const outFile: string = path.resolve(
@@ -55,7 +69,7 @@ export function generateFile(rootDir: string, outDir: string, sourceDir: string,
     const statements: Array<ts.Statement> = [
       createThriftImports(),
       ...createImportsForIncludes(outPath, includes, resolvedFile.includes),
-      ...render(resolvedFile.body, identifiers),
+      ...processStatements(resolvedFile.body, identifiers, renderer),
     ]
 
     return {

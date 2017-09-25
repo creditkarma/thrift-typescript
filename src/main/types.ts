@@ -33,6 +33,16 @@ export interface IMakeOptions {
   files: Array<string>
 }
 
+export interface IRenderer {
+  renderConst(statement: ConstDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
+  renderTypeDef(statement: TypedefDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
+  renderEnum(statement: EnumDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
+  renderStruct(statement: StructDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
+  renderException(statement: ExceptionDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
+  renderUnion(statement: UnionDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
+  renderService(statement: ServiceDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
+}
+
 export interface IThriftFile {
   name: string
   path: string

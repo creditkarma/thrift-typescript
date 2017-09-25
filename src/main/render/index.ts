@@ -1,13 +1,16 @@
-import {
-  Statement,
-} from 'typescript'
+import * as ts from 'typescript'
 
 import {
-  SyntaxType,
-  ThriftStatement,
+  ConstDefinition,
+  TypedefDefinition,
+  EnumDefinition,
+  StructDefinition,
+  ServiceDefinition,
+  ExceptionDefinition,
+  UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
-import { renderException } from './exception'
+import { renderException as _renderException } from './exception'
 
 import { renderInterface } from './interface'
 
@@ -19,68 +22,66 @@ import {
   renderHandlerInterface
 } from './service'
 
-import { renderStruct } from './struct'
-import { renderUnion } from './union'
-import { renderEnum } from './enum'
-import { renderTypeDef } from './typedef'
-import { renderConst } from './const'
+import { renderStruct as _renderStruct } from './struct'
+import { renderUnion as _renderUnion } from './union'
+import { renderEnum as _renderEnum } from './enum'
+import { renderTypeDef as _renderTypeDef } from './typedef'
+import { renderConst as _renderConst } from './const'
 
 import {
-  IIdentifierMap
+  IIdentifierMap,
+  IRenderer,
 } from '../types'
 
-/**
- * Given a Thrift declaration return the corresponding TypeScript statement
- *
- * @param statement
- */
-export function renderStatement(statement: ThriftStatement, identifiers: IIdentifierMap): Array<Statement> {
-  switch (statement.type) {
-    case SyntaxType.ConstDefinition:
-      return [ renderConst(statement) ]
-
-    case SyntaxType.EnumDefinition:
-      return [ renderEnum(statement) ]
-
-    case SyntaxType.TypedefDefinition:
-      return [ renderTypeDef(statement) ]
-
-    case SyntaxType.StructDefinition:
-      return [ renderInterface(statement), renderStruct(statement, identifiers) ]
-
-    case SyntaxType.UnionDefinition:
-      return [ renderInterface(statement), renderUnion(statement, identifiers) ]
-
-    case SyntaxType.ExceptionDefinition:
-      return [ renderInterface(statement), renderException(statement, identifiers) ]
-
-    case SyntaxType.ServiceDefinition:
-      return [
-        ...renderArgsStruct(statement, identifiers),
-        ...renderResultStruct(statement, identifiers),
-        renderClient(statement),
-        renderHandlerInterface(statement),
-        renderProcessor(statement),
-      ]
-
-    case SyntaxType.NamespaceDefinition:
-    case SyntaxType.CppIncludeDefinition:
-    case SyntaxType.IncludeDefinition:
-      return []
-
-    default:
-      const msg: never = statement
-      throw new Error(`Non-exhaustive match for statement: ${msg}`)
-  }
+export function renderConst(statement: ConstDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+  return [ _renderConst(statement) ]
 }
 
-/**
- *
- * @param ast
- */
-export function render(statements: Array<ThriftStatement>, identifiers: IIdentifierMap): Array<Statement> {
-  return statements.reduce((acc: Array<Statement>, next: ThriftStatement) => {
-    const newStatements: Array<Statement> = renderStatement(next, identifiers)
-    return [ ...acc, ...newStatements ]
-  }, [])
+export function renderTypeDef(statement: TypedefDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+  return [ _renderTypeDef(statement) ]
+}
+
+export function renderEnum(statement: EnumDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+  return [ _renderEnum(statement) ]
+}
+
+export function renderStruct(statement: StructDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+  return [
+    renderInterface(statement),
+    _renderStruct(statement, identifiers),
+  ]
+}
+
+export function renderException(statement: ExceptionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+  return [
+    renderInterface(statement),
+    _renderException(statement, identifiers),
+  ]
+}
+
+export function renderUnion(statement: UnionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+  return [
+    renderInterface(statement),
+    _renderUnion(statement, identifiers),
+  ]
+}
+
+export function renderService(statement: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+  return [
+    ...renderArgsStruct(statement, identifiers),
+    ...renderResultStruct(statement, identifiers),
+    renderClient(statement),
+    renderHandlerInterface(statement),
+    renderProcessor(statement),
+  ]
+}
+
+export const renderer: IRenderer = {
+  renderConst,
+  renderTypeDef,
+  renderEnum,
+  renderStruct,
+  renderException,
+  renderUnion,
+  renderService,
 }

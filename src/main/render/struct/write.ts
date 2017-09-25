@@ -27,7 +27,7 @@ import {
 
 import {
   createVoidType,
-  thriftPropertyAccessForFieldType,
+  thriftTypeForFieldType,
   typeNodeForFieldType
 } from '../types'
 
@@ -338,8 +338,8 @@ function writeMapBegin(
   identifiers: IIdentifierMap
 ): ts.CallExpression {
   return createMethodCall('output', 'writeMapBegin', [
-    thriftPropertyAccessForFieldType(fieldType.keyType, identifiers),
-    thriftPropertyAccessForFieldType(fieldType.valueType, identifiers),
+    thriftTypeForFieldType(fieldType.keyType, identifiers),
+    thriftTypeForFieldType(fieldType.valueType, identifiers),
     propertyAccessForIdentifier(fieldName, 'size')
   ])
 }
@@ -356,7 +356,7 @@ function writeListBegin(
   identifiers: IIdentifierMap
 ): ts.CallExpression {
   return createMethodCall('output', 'writeListBegin', [
-    thriftPropertyAccessForFieldType(fieldType.valueType, identifiers),
+    thriftTypeForFieldType(fieldType.valueType, identifiers),
     propertyAccessForIdentifier(fieldName, 'length')
   ])
 }
@@ -373,7 +373,7 @@ function writeSetBegin(
   identifiers: IIdentifierMap
 ): ts.CallExpression {
   return createMethodCall('output', 'writeSetBegin', [
-    thriftPropertyAccessForFieldType(fieldType.valueType, identifiers),
+    thriftTypeForFieldType(fieldType.valueType, identifiers),
     propertyAccessForIdentifier(fieldName, 'size')
   ])
 }
@@ -388,7 +388,7 @@ function writeFieldBegin(field: FieldDefinition, identifiers: IIdentifierMap): t
   if (field.fieldID !== null) {
     return createMethodCallStatement('output', 'writeFieldBegin', [
       ts.createLiteral(field.name.value),
-      thriftPropertyAccessForFieldType(field.fieldType, identifiers),
+      thriftTypeForFieldType(field.fieldType, identifiers),
       ts.createLiteral(field.fieldID.value)
     ])
   } else {

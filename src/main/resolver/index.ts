@@ -11,9 +11,7 @@ import {
   FieldType,
   FunctionDefinition,
   FunctionType,
-  NamespaceDefinition,
   SyntaxType,
-  ThriftDocument,
   ThriftStatement,
 } from '@creditkarma/thrift-parser'
 

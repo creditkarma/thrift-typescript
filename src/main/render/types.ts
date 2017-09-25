@@ -171,12 +171,22 @@ export type TApplicationException =
   'TApplicationExceptionType.INTERNAL_ERROR' | 'TApplicationExceptionType.PROTOCOL_ERROR' | 'TApplicationExceptionType.INVALID_TRANSFORM' |
   'TApplicationExceptionType.INVALID_PROTOCOL' | 'TApplicationExceptionType.UNSUPPORTED_CLIENT_TYPE'
 
-export type ThriftTypeAccess =
-  'Type.STRUCT' | 'Type.SET' | 'Type.MAP' | 'Type.LIST' | 'Type.STRING' |
-  'Type.BOOL' | 'Type.DOUBLE' | 'Type.BYTE' | 'Type.I16' | 'Type.I32' |
-  'Type.I64' | 'Type.VOID'
+const THRIFT_TYPES = {
+  'Thrift.Type.STRUCT': ts.createIdentifier('Thrift.Type.STRUCT'),
+  'Thrift.Type.SET': ts.createIdentifier('Thrift.Type.SET'),
+  'Thrift.Type.MAP': ts.createIdentifier('Thrift.Type.MAP'),
+  'Thrift.Type.LIST': ts.createIdentifier('Thrift.Type.LIST'),
+  'Thrift.Type.STRING': ts.createIdentifier('Thrift.Type.STRING'),
+  'Thrift.Type.BOOL': ts.createIdentifier('Thrift.Type.BOOL'),
+  'Thrift.Type.DOUBLE': ts.createIdentifier('Thrift.Type.DOUBLE'),
+  'Thrift.Type.BYTE': ts.createIdentifier('Thrift.Type.BYTE'),
+  'Thrift.Type.I16': ts.createIdentifier('Thrift.Type.I16'),
+  'Thrift.Type.I32': ts.createIdentifier('Thrift.Type.I32'),
+  'Thrift.Type.I64': ts.createIdentifier('Thrift.Type.I64'),
+  'Thrift.Type.VOID': ts.createIdentifier('Thrift.Type.VOID'),
+}
 
-function thriftAccessForIdentifier(id: IResolvedIdentifier, identifiers: IIdentifierMap): ThriftTypeAccess {
+function thriftTypeForIdentifier(id: IResolvedIdentifier, identifiers: IIdentifierMap): ts.Identifier {
   switch (id.definition.type) {
     case SyntaxType.ConstDefinition:
       throw new TypeError(`Identifier ${id.definition.name.value} is a value being used as a type`)
@@ -187,13 +197,13 @@ function thriftAccessForIdentifier(id: IResolvedIdentifier, identifiers: IIdenti
     case SyntaxType.StructDefinition:
     case SyntaxType.UnionDefinition:
     case SyntaxType.ExceptionDefinition:
-      return 'Type.STRUCT'
+      return THRIFT_TYPES['Thrift.Type.STRUCT']
 
     case SyntaxType.EnumDefinition:
-      return 'Type.I32'
+      return THRIFT_TYPES['Thrift.Type.I32']
 
     case SyntaxType.TypedefDefinition:
-      return thriftAccessForFieldType(
+      return thriftTypeForFieldType(
         id.definition.definitionType,
         identifiers
       )
@@ -216,67 +226,51 @@ function thriftAccessForIdentifier(id: IResolvedIdentifier, identifiers: IIdenti
  *
  * @param fieldType
  */
-function thriftAccessForFieldType(fieldType: FunctionType, identifiers: IIdentifierMap): ThriftTypeAccess {
+export function thriftTypeForFieldType(fieldType: FunctionType, identifiers: IIdentifierMap): ts.Identifier {
   switch (fieldType.type) {
     case SyntaxType.Identifier:
-      return thriftAccessForIdentifier(
+      return thriftTypeForIdentifier(
         identifiers[fieldType.value],
         identifiers
       )
 
     case SyntaxType.SetType:
-      return 'Type.SET'
+      return THRIFT_TYPES['Thrift.Type.SET']
 
     case SyntaxType.MapType:
-      return 'Type.MAP'
+      return THRIFT_TYPES['Thrift.Type.MAP']
 
     case SyntaxType.ListType:
-      return 'Type.LIST'
+      return THRIFT_TYPES['Thrift.Type.LIST']
 
     case SyntaxType.BinaryKeyword:
     case SyntaxType.StringKeyword:
-      return 'Type.STRING'
+      return THRIFT_TYPES['Thrift.Type.STRING']
 
     case SyntaxType.BoolKeyword:
-      return 'Type.BOOL'
+      return THRIFT_TYPES['Thrift.Type.BOOL']
 
     case SyntaxType.DoubleKeyword:
-      return 'Type.DOUBLE'
+      return THRIFT_TYPES['Thrift.Type.DOUBLE']
 
     case SyntaxType.I8Keyword:
     case SyntaxType.ByteKeyword:
-      return 'Type.BYTE'
+      return THRIFT_TYPES['Thrift.Type.BYTE']
 
     case SyntaxType.I16Keyword:
-      return 'Type.I16'
+      return THRIFT_TYPES['Thrift.Type.I16']
 
     case SyntaxType.I32Keyword:
-      return 'Type.I32'
+      return THRIFT_TYPES['Thrift.Type.I32']
 
     case SyntaxType.I64Keyword:
-      return 'Type.I64'
+      return THRIFT_TYPES['Thrift.Type.I64']
 
     case SyntaxType.VoidKeyword:
-      return 'Type.VOID'
+      return THRIFT_TYPES['Thrift.Type.VOID']
 
     default:
       const msg: never = fieldType
       throw new Error(`Non-exhaustive match for: ${msg}`)
   }
-}
-
-/**
- * For the given FieldType what is the corresponding enum defined in the Thrift library
- *
- * if (fieldType.type === SyntaxType.I16Keyword) {
- *   return 'Thrift.Type.I16'
- * }
- *
- * @param fieldType
- */
-export function thriftPropertyAccessForFieldType(fieldType: FunctionType, identifiers:IIdentifierMap): ts.PropertyAccessExpression {
-  return ts.createPropertyAccess(
-    COMMON_IDENTIFIERS['Thrift'],
-    thriftAccessForFieldType(fieldType, identifiers),
-  )
 }

@@ -24,7 +24,7 @@ import {
 import {
   createNumberType,
   createVoidType,
-  thriftPropertyAccessForFieldType,
+  thriftTypeForFieldType,
   typeNodeForFieldType,
 } from './types'
 
@@ -293,7 +293,7 @@ export function createCaseForField(field: FieldDefinition, identifiers: IIdentif
   const checkType: ts.IfStatement = ts.createIf(
     createEquals(
       COMMON_IDENTIFIERS['ftype'],
-      thriftPropertyAccessForFieldType(field.fieldType, identifiers)
+      thriftTypeForFieldType(field.fieldType, identifiers)
     ),
     ts.createBlock([
       incrementFieldsSet(),
