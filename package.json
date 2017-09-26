@@ -31,7 +31,7 @@
     "url": "https://github.com/creditkarma/thrift-typescript"
   },
   "dependencies": {
-    "@creditkarma/thrift-parser": "^0.0.1",
+    "@creditkarma/thrift-parser": "^0.0.8",
     "typescript": "^2.4.2"
   },
   "devDependencies": {
@@ -39,7 +39,7 @@
     "@types/express": "^4.0.37",
     "@types/mocha": "^2.2.32",
     "@types/node": "^7.0.22",
-    "@types/rimraf": "0.0.28",
+    "@types/rimraf": "^0.0.28",
     "chai": "^3.5.0",
     "express": "^4.15.4",
     "mocha": "^2.5.3",
