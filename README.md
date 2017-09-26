@@ -1,4 +1,4 @@
-# thrift-typescript
+# Thrift TypeScript
 
 Generate TypeScript from Thrift IDL files.
 

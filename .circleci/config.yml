@@ -1,9 +1,12 @@
+defaults: &defaults
+  working_directory: ~/thrift-typescript
+  docker:
+    - image: circleci/node:6.10.3
+
 version: 2
 jobs:
   build:
-    working_directory: ~/thrift-typescript
-    docker:
-      - image: circleci/node:6.10.3
+    <<: *defaults
     steps:
       - checkout
       - restore_cache:
@@ -11,31 +14,70 @@ jobs:
       - run:
           name: install-npm
           command: npm install
+      - run:
+          name: build
+          command: npm run build
+      - persist_to_workspace:
+          # Must be an absolute path, or relative path from working_directory
+          root: ./
+          # Must be relative path from root
+          paths:
+            - dist
+            - LICENSE
+            - package.json
+            - README.md
+
+  test:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: install-npm
+          command: npm install
+      - run:
+          name: npm-test
+          command: npm test
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
-  npm_token:
-    docker:
-      - image: circleci/node:6.10.3
-    steps:
-      - run:
-        command: 'echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc'
+
   publish:
-    docker:
-      - image: circleci/node:6.10.3
+    <<: *defaults
     steps:
+      - attach_workspace:
+          # Must be absolute path or relative path from working_directory
+          at: ./
+      - run:
+          name: npm-token
+          command: 'echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc'
       - run:
           name: publish-npm
-          command: npm publish
+          command: npm publish --access public
 
 workflows:
   version: 2
   build_publish:
       jobs:
+        - test:
+            filters:
+              tags:
+                only: /.*/
+        - build:
+            requires:
+              - test
+            filters:
+              tags:
+                only: /(v)?[0-9]+(\.[0-9]+)*/
+              branches:
+                ignore: /.*/
         - publish:
             requires:
               - build
-              - npm_token
             filters:
-              tag: /(v)?[0-9]+(\.[0-9]+)*/
+              tags:
+                only: /(v)?[0-9]+(\.[0-9]+)*/
+              branches:
+                ignore: /.*/

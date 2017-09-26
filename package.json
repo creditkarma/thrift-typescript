@@ -18,7 +18,11 @@
     "test:integration": "ts-node ./src/tests/integration/index.ts",
     "test:watch": "npm test -- -w",
     "test:only": "NODE_ENV=test mocha --opts mocha.opts",
-    "coverage": "NODE_ENV=test nyc mocha --opts mocha.cover.opts"
+    "coverage": "NODE_ENV=test nyc mocha --opts mocha.cover.opts",
+    "release:patch": "npm version patch && npm run release:publish",
+    "release:minor": "npm version minor && npm run release:publish",
+    "release:major": "npm version major && npm run release:publish",
+    "release:publish": "git push --follow-tags"
   },
   "keywords": [
     "Thrift",
@@ -31,7 +35,7 @@
     "url": "https://github.com/creditkarma/thrift-typescript"
   },
   "dependencies": {
-    "@creditkarma/thrift-parser": "^0.0.8",
+    "@creditkarma/thrift-parser": "^0.0.10",
     "typescript": "^2.4.2"
   },
   "devDependencies": {
