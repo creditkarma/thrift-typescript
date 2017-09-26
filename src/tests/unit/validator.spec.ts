@@ -1,54 +1,64 @@
 import { assert } from 'chai'
-
-import {
-  parse,
-  SyntaxType,
-} from '@creditkarma/thrift-parser'
+import { SyntaxType } from '@creditkarma/thrift-parser'
 
 import { resolveFile } from '../../main/resolver'
 import { validateFile } from '../../main/validator'
+import { parseSource, parseThriftString } from '../../main/utils'
 import {
   IResolvedFile,
   IParsedFile,
+  IThriftError,
+  ErrorType,
 } from '../../main/types'
 
 describe('Thrift TypeScript Validator', () => {
 
-  it('should throw if oneway keyword is not followed by void type', () => {
+  it('should return error if oneway keyword is not followed by void type', () => {
     const content: string = `
       service Test {
         oneway string test()
       }
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = [
+      {
+        type: ErrorType.ValidationError,
+        message: 'Oneway function must have return type of void, instead found string',
+        loc: {
+          start: {
+            line: 3,
+            column: 16,
+            index: 37
+          },
+          end: {
+            line: 3,
+            column: 29,
+            index: 50
+          }
+        }
+      }
+    ]
 
-    assert.throws(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should not throw if oneway keyword is followed by void type', () => {
+  it('should not return error if oneway keyword is followed by void type', () => {
     const content: string = `
       service Test {
         oneway void test()
       }
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = []
 
-    assert.doesNotThrow(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should throw if a service tries to extend a non-service', () => {
+  it('should return an error if a service tries to extend a non-service', () => {
     const content: string = `
       struct TestStruct {
         1: string field1;
@@ -58,18 +68,32 @@ describe('Thrift TypeScript Validator', () => {
         void ping()
       }
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = [
+      {
+        type: ErrorType.ValidationError,
+        message: 'Service type expected but found type StructDefinition',
+        loc: {
+          start: {
+            line: 6,
+            column: 26,
+            index: 87
+          },
+          end: {
+            line: 6,
+            column: 44,
+            index: 105
+          }
+        }
+      }
+    ]
 
-    assert.throws(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should not throw if a service extends a service', () => {
+  it('should not return an error if a service extends a service', () => {
     const content: string = `
       service ServiceOne {
         void sendMessage(1: string msg)
@@ -79,237 +103,328 @@ describe('Thrift TypeScript Validator', () => {
         void ping()
       }
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = []
 
-    assert.throws(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should throw if it finds incorrect list types', () => {
+  it('should return an error if it finds incorrect list types', () => {
     const content: string = `
       const list<string> TEST = [ 32, 41, 65 ]
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = [
+      {
+        type: ErrorType.ValidationError,
+        message: 'Expected type string but found type number',
+        loc: {
+          start: {
+            line: 2,
+            column: 35,
+            index: 35
+          },
+          end: {
+            line: 2,
+            column: 37,
+            index: 37
+          }
+        }
+      }
+    ]
 
-    assert.throws(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should not throw if it finds correct list types', () => {
+  it('should not return an error if it finds correct list types', () => {
     const content: string = `
       const list<i32> TEST = [ 32, 41, 65 ]
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = []
 
-    assert.doesNotThrow(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should throw if it finds incorrect nested list types', () => {
+  it('should return an error if it finds incorrect nested list types', () => {
     const content: string = `
       const list<list<string>> TEST = [ [ 32, 41, 65 ], [ 2, 3 ] ]
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = [
+      {
+        type: ErrorType.ValidationError,
+        message: 'Expected type string but found type number',
+        loc: {
+          start: {
+            line: 2,
+            column: 43,
+            index: 43
+          },
+          end: {
+            line: 2,
+            column: 45,
+            index: 45
+          }
+        }
+      }
+    ]
 
-    assert.throws(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should not throw if it finds correct nested list types', () => {
+  it('should not return an error if it finds correct nested list types', () => {
     const content: string = `
       const list<list<i32>> TEST = [ [ 32, 41, 65 ], [ 2, 3 ] ]
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = []
 
-    assert.doesNotThrow(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should throw if it finds incorrect set types', () => {
+  it('should return an error if it finds incorrect set types', () => {
     const content: string = `
       const set<string> TEST = [ 32, 41, 65 ]
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = [
+      {
+        type: ErrorType.ValidationError,
+        message: 'Expected type string but found type number',
+        loc: {
+          start: {
+            line: 2,
+            column: 34,
+            index: 34
+          },
+          end: {
+            line: 2,
+            column: 36,
+            index: 36
+          }
+        }
+      }
+    ]
 
-    assert.throws(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should not throw if it finds correct set types', () => {
+  it('should not return an error if it finds correct set types', () => {
     const content: string = `
       const set<i32> TEST = [ 32, 41, 65 ]
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = []
 
-    assert.doesNotThrow(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should throw if it finds incorrect map types', () => {
+  it('should return an error if it finds incorrect map types', () => {
     const content: string = `
       const map<string,string> TEST = { 'one': 1, 'two': 2 }
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = [
+      {
+        type: ErrorType.ValidationError,
+        message: 'Expected type string but found type number',
+        loc: {
+          start: {
+            line: 2,
+            column: 48,
+            index: 48
+          },
+          end: {
+            line: 2,
+            column: 49,
+            index: 49
+          }
+        }
+      }
+    ]
 
-    assert.throws(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should not throw if it finds correct map types', () => {
+  it('should not return an error if it finds correct map types', () => {
     const content: string = `
       const map<string,string> TEST = { 'one': 'value one', 'two': 'value two' }
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = []
 
-    assert.doesNotThrow(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should throw if it finds incorrect nested map types', () => {
+  it('should return an error if it finds incorrect nested map types', () => {
     const content: string = `
       const map<string,map<string,string>> TEST = { 'one': { 'a': 1 }, 'two': { 'b': 4 } }
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = [
+      {
+        type: ErrorType.ValidationError,
+        message: 'Expected type string but found type number',
+        loc: {
+          start: {
+            line: 2,
+            column: 67,
+            index: 67
+          },
+          end: {
+            line: 2,
+            column: 68,
+            index: 68
+          }
+        }
+      }
+    ]
 
-    assert.throws(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should not throw if it finds correct nested map types', () => {
+  it('should not return an error if it finds correct nested map types', () => {
     const content: string = `
       const map<string,map<string,string>> TEST = { 'one': { 'a': 'blah' }, 'two': { 'b': 'blam' } }
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = []
 
-    assert.doesNotThrow(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should throw if it finds duplicate field IDs', () => {
+  it('should return an error if it finds duplicate field IDs', () => {
     const content: string = `
       struct TestStruct {
         1: i32 field1
         1: string field2
       }
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = [
+      {
+        type: ErrorType.ValidationError,
+        message: 'Found duplicate usage of fieldID: 1',
+        loc: {
+          start: {
+            line: 4,
+            column: 9,
+            index: 57
+          },
+          end: {
+            line: 4,
+            column: 11,
+            index: 59
+          }
+        }
+      }
+    ]
 
-    assert.throws(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should throw if unable to resolve type of identifier', () => {
+  it('should return an error if unable to resolve type of identifier', () => {
     const content: string = `
       struct TestStruct {
         1: i32 test = status.Status.SUCCESS
       }
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = [
+      {
+        type: ErrorType.ValidationError,
+        message: 'Expected type number but found type status.Status.SUCCESS',
+        loc: {
+          start: {
+            line: 3,
+            column: 23,
+            index: 49
+          },
+          end: {
+            line: 3,
+            column: 44,
+            index: 70
+          }
+        }
+      }
+    ]
 
-    assert.throws(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should not throw if assigning an int to and int field', () => {
+  it('should not return an error if assigning an int to and int field', () => {
     const content: string = `
       struct TestStruct {
         1: i32 test = 45
       }
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = []
 
-    assert.doesNotThrow(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should throw if assigning a string to an int field', () => {
+  it('should return an error if assigning a string to an int field', () => {
     const content: string = `
       struct TestStruct {
         1: i32 test = 'whoa'
       }
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = [
+      {
+        type: ErrorType.ValidationError,
+        message: 'Expected type number but found type string',
+        loc: {
+          start: {
+            line: 3,
+            column: 23,
+            index: 49
+          },
+          end: {
+            line: 3,
+            column: 29,
+            index: 55
+          }
+        }
+      }
+    ]
 
-    assert.throws(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should throw when assigning an enum member to i32 field', () => {
+  it('should return an error when assigning an enum member to i32 field', () => {
     const content: string = `
       enum Status {
         SUCCESS,
@@ -320,18 +435,32 @@ describe('Thrift TypeScript Validator', () => {
         1: i32 test = Status.SUCCESS
       }
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = [
+      {
+        type: ErrorType.ValidationError,
+        message: 'Expected type number but found type Status.SUCCESS',
+        loc: {
+          start: {
+            line: 8,
+            column: 23,
+            index: 111
+          },
+          end: {
+            line: 8,
+            column: 37,
+            index: 125
+          }
+        }
+      }
+    ]
 
-    assert.throws(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should not throw if assigning valid int to enum type', () => {
+  it('should not return an error if assigning valid int to enum type', () => {
     const content: string = `
       enum TestEnum {
         ONE,
@@ -341,18 +470,15 @@ describe('Thrift TypeScript Validator', () => {
 
       const TestEnum test = 1
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = []
 
-    assert.doesNotThrow(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
-  it('should throw if assigning to enum out of range', () => {
+  it('should return an error if assigning to enum out of range', () => {
     const content: string = `
       enum TestEnum {
         ONE,
@@ -362,15 +488,29 @@ describe('Thrift TypeScript Validator', () => {
 
       const TestEnum test = 6
     `;
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = [
+      {
+        type: ErrorType.ValidationError,
+        message: 'The value 6 is not assignable to type TestEnum',
+        loc: {
+          start: {
+            line: 8,
+            column: 29,
+            index: 100
+          },
+          end: {
+            line: 8,
+            column: 30,
+            index: 101
+          }
+        }
+      }
+    ]
 
-    assert.throws(() => validateFile(resolvedAST))
+    assert.deepEqual(validatedAST.errors, expected)
   })
 
   it('should add missing field IDs', () => {
@@ -380,17 +520,13 @@ describe('Thrift TypeScript Validator', () => {
         required string message
       }
     `
-    const parsedFile: IParsedFile = {
-      name: 'test',
-      path: '',
-      includes: [],
-      ast: parse(content)
-    }
+    const parsedFile: IParsedFile = parseSource(content)
     const resolvedFile: IResolvedFile = resolveFile(parsedFile)
     const validatedFile: IResolvedFile = validateFile(resolvedFile)
     const expected: IResolvedFile = {
-      name: 'test',
+      name: 'source',
       path: '',
+      source: '\n      struct TestStruct {\n        i32 status\n        required string message\n      }\n    ',
       namespace: {
         scope: '',
         name: '',
@@ -702,7 +838,8 @@ describe('Thrift TypeScript Validator', () => {
             }
           }
         }
-      ]
+      ],
+      errors: []
     }
 
     assert.deepEqual(validatedFile, expected)
@@ -725,21 +862,30 @@ describe('Thrift TypeScript Validator', () => {
     const parsedFile: IParsedFile = {
       name: 'test',
       path: '',
+      source: `
+        include 'exception.thrift'
+
+        exception MyException {
+          1: exception.Status status = exception.Status.SUCCESS;
+        }
+      `,
       includes: [
         {
           name: 'exception',
           path: '',
+          source: '',
           includes: [],
-          ast: parse(mockIncludeContent)
+          ast: parseThriftString(mockIncludeContent)
         }
       ],
-      ast: parse(content)
+      ast: parseThriftString(content)
     }
     const resolvedFile: IResolvedFile = resolveFile(parsedFile)
     const validatedFile: IResolvedFile = validateFile(resolvedFile)
     const expected: IResolvedFile = {
       name: 'test',
       path: '',
+      source: "\n        include 'exception.thrift'\n\n        exception MyException {\n          1: exception.Status status = exception.Status.SUCCESS;\n        }\n      ",
       namespace: {
         scope: '',
         name: '',
@@ -750,6 +896,7 @@ describe('Thrift TypeScript Validator', () => {
           file: {
             name: 'exception',
             path: '',
+            source: '',
             namespace: {
               scope: '',
               name: '',
@@ -963,7 +1110,8 @@ describe('Thrift TypeScript Validator', () => {
                   }
                 }
               }
-            ]
+            ],
+            errors: []
           },
           identifiers: [
             {
@@ -1446,7 +1594,8 @@ describe('Thrift TypeScript Validator', () => {
             }
           }
         }
-      ]
+      ],
+      errors: []
     }
 
     assert.deepEqual(validatedFile, expected)

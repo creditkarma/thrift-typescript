@@ -29,6 +29,11 @@ import {
   resolveNamespace
 } from './utils'
 
+export interface IThriftResolver {
+  resolve(): IResolvedFile
+  synchronize(): void
+}
+
 /**
  * The job of the resolver is to traverse the AST and find all of the Identifiers. In order to
  * correctly generate code we need to know the types of all Identifiers. The type of an
@@ -202,6 +207,7 @@ export function resolveFile(parsedFile: IParsedFile): IResolvedFile {
       case SyntaxType.EnumDefinition:
       case SyntaxType.TypedefDefinition:
       case SyntaxType.ConstDefinition:
+      case SyntaxType.ServiceDefinition:
         identifiers[statement.name.value] = {
           name: statement.name.value,
           resolvedName: statement.name.value,
@@ -336,9 +342,11 @@ export function resolveFile(parsedFile: IParsedFile): IResolvedFile {
   return {
     name: parsedFile.name,
     path: parsedFile.path,
+    source: parsedFile.source,
     namespace,
     includes: resolvedIncludes,
     identifiers,
     body: parsedFile.ast.body.map(resolveStatement),
+    errors: [],
   }
 }

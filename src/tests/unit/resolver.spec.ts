@@ -1,11 +1,11 @@
 import { assert } from 'chai'
 
 import {
-  parse,
   SyntaxType
 } from '@creditkarma/thrift-parser'
 
 import { resolveFile } from '../../main/resolver'
+import { parseThriftString } from '../../main/utils'
 import {
   IResolvedFile,
   IParsedFile,
@@ -37,20 +37,23 @@ describe('Thrift TypeScript Resolver', () => {
     const mockParsedFile: IParsedFile = {
       name: 'test',
       path: '',
+      source: '',
       includes: [
         {
           name: 'exception',
           path: '',
+          source: '',
           includes: [],
-          ast: parse(mockIncludeContent)
+          ast: parseThriftString(mockIncludeContent)
         }
       ],
-      ast: parse(content)
+      ast: parseThriftString(content)
     }
     const actual: IResolvedFile = resolveFile(mockParsedFile)
     const expected: IResolvedFile = {
       name: 'test',
       path: '',
+      source: '',
       namespace: {
         scope: '',
         name: '',
@@ -61,6 +64,7 @@ describe('Thrift TypeScript Resolver', () => {
           file: {
             name: 'exception',
             path: '',
+            source: '',
             namespace: {
               scope: '',
               name: '',
@@ -272,7 +276,8 @@ describe('Thrift TypeScript Resolver', () => {
                   }
                 }
               }
-            ]
+            ],
+            errors: []
           },
           identifiers: [
             {
@@ -382,6 +387,163 @@ describe('Thrift TypeScript Resolver', () => {
         }
       },
       identifiers: {
+        MyService: {
+          name: 'MyService',
+          resolvedName: 'MyService',
+          definition: {
+            type: SyntaxType.ServiceDefinition,
+            name: {
+              type: SyntaxType.Identifier,
+              value: 'MyService',
+              loc: {
+                start: {
+                  line: 4,
+                  column: 15,
+                  index: 49
+                },
+                end: {
+                  line: 4,
+                  column: 24,
+                  index: 58
+                }
+              }
+            },
+            extends: null,
+            functions: [
+              {
+                type: SyntaxType.FunctionDefinition,
+                name: {
+                  type: SyntaxType.Identifier,
+                  value: 'ping',
+                  loc: {
+                    start: {
+                      line: 5,
+                      column: 14,
+                      index: 74
+                    },
+                    end: {
+                      line: 5,
+                      column: 18,
+                      index: 78
+                    }
+                  }
+                },
+                returnType: {
+                  type: SyntaxType.VoidKeyword,
+                  loc: {
+                    start: {
+                      line: 5,
+                      column: 9,
+                      index: 69
+                    },
+                    end: {
+                      line: 5,
+                      column: 13,
+                      index: 73
+                    }
+                  }
+                },
+                fields: [],
+                throws: [
+                  {
+                    type: SyntaxType.FieldDefinition,
+                    name: {
+                      type: SyntaxType.Identifier,
+                      value: 'exp',
+                      loc: {
+                        start: {
+                          line: 5,
+                          column: 54,
+                          index: 114
+                        },
+                        end: {
+                          line: 5,
+                          column: 57,
+                          index: 117
+                        }
+                      }
+                    },
+                    fieldID: {
+                      type: SyntaxType.FieldID,
+                      value: 1,
+                      loc: {
+                        start: {
+                          line: 5,
+                          column: 29,
+                          index: 89
+                        },
+                        end: {
+                          line: 5,
+                          column: 31,
+                          index: 91
+                        }
+                      }
+                    },
+                    fieldType: {
+                      type: SyntaxType.Identifier,
+                      value: 'exception.MyException',
+                      loc: {
+                        start: {
+                          line: 5,
+                          column: 32,
+                          index: 92
+                        },
+                        end: {
+                          line: 5,
+                          column: 53,
+                          index: 113
+                        }
+                      }
+                    },
+                    requiredness: null,
+                    defaultValue: null,
+                    comments: [],
+                    loc: {
+                      start: {
+                        line: 5,
+                        column: 29,
+                        index: 89
+                      },
+                      end: {
+                        line: 5,
+                        column: 57,
+                        index: 117
+                      }
+                    }
+                  }
+                ],
+                comments: [],
+                oneway: false,
+                modifiers: [],
+                loc: {
+                  start: {
+                    line: 5,
+                    column: 9,
+                    index: 69
+                  },
+                  end: {
+                    line: 5,
+                    column: 58,
+                    index: 118
+                  }
+                }
+              }
+            ],
+            comments: [],
+            loc: {
+              start: {
+                line: 4,
+                column: 7,
+                index: 41
+              },
+              end: {
+                line: 6,
+                column: 8,
+                index: 126
+              }
+            }
+          }
+        },
         exception$MyException: {
           name: 'MyException',
           resolvedName: 'exception$MyException',
@@ -672,7 +834,8 @@ describe('Thrift TypeScript Resolver', () => {
             }
           }
         }
-      ]
+      ],
+      errors: []
     }
 
     assert.deepEqual(actual, expected)
@@ -695,20 +858,23 @@ describe('Thrift TypeScript Resolver', () => {
     const mockParsedFile: IParsedFile = {
       name: 'test',
       path: '',
+      source: '',
       includes: [
         {
           name: 'exception',
           path: '',
+          source: '',
           includes: [],
-          ast: parse(mockIncludeContent)
+          ast: parseThriftString(mockIncludeContent)
         }
       ],
-      ast: parse(content)
+      ast: parseThriftString(content)
     }
     const actual: IResolvedFile = resolveFile(mockParsedFile)
     const expected: IResolvedFile = {
       name: 'test',
       path: '',
+      source: '',
       namespace: {
         scope: '',
         name: '',
@@ -719,6 +885,7 @@ describe('Thrift TypeScript Resolver', () => {
           file: {
             name: 'exception',
             path: '',
+            source: '',
             namespace: {
               scope: '',
               name: '',
@@ -932,7 +1099,8 @@ describe('Thrift TypeScript Resolver', () => {
                   }
                 }
               }
-            ]
+            ],
+            errors: []
           },
           identifiers: [
             {
@@ -1415,7 +1583,8 @@ describe('Thrift TypeScript Resolver', () => {
             }
           }
         }
-      ]
+      ],
+      errors: []
     }
 
     assert.deepEqual(actual, expected)

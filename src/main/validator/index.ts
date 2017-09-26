@@ -10,18 +10,43 @@ import {
   ConstValue,
   FunctionType,
   PropertyAssignment,
-  Identifier
+  Identifier,
 } from '@creditkarma/thrift-parser'
 
 import {
   IResolvedFile,
   IResolvedIdentifier,
+  ErrorType,
+  IThriftError,
 } from '../types'
 
 import {
   fieldTypeToString,
   constToTypeString
 } from './utils'
+
+/**
+ * Internal class that we will transform into an IThriftError object before passing to the reporter.
+ * We create this error class so that we can throw the error to unwind the call stack before
+ * handling the error gracefully.
+ */
+class ValidationError extends Error {
+  public message: string
+  public loc: TextLocation
+  constructor(msg: string, loc: TextLocation) {
+    super(msg)
+    this.message = msg
+    this.loc = loc
+  }
+}
+
+function createValidationError(message: string, loc: TextLocation): IThriftError {
+  return {
+    type: ErrorType.ValidationError,
+    message,
+    loc,
+  }
+}
 
 function emptyLocation(): TextLocation {
   return {
@@ -30,10 +55,10 @@ function emptyLocation(): TextLocation {
   }
 }
 
-function typeMismatch(expected: FunctionType, actual: ConstValue, loc: TextLocation): TypeError {
+function typeMismatch(expected: FunctionType, actual: ConstValue, loc: TextLocation): ValidationError {
   const expectedType: string = fieldTypeToString(expected)
   const actualType: string = constToTypeString(actual)
-  return new TypeError(`Expected type ${expectedType} but found type ${actualType} on line ${loc.start.line}`)
+  return new ValidationError(`Expected type ${expectedType} but found type ${actualType}`, loc)
 }
 
 /**
@@ -92,15 +117,38 @@ function typeMismatch(expected: FunctionType, actual: ConstValue, loc: TextLocat
  * @param resolvedFile
  */
 export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
+  const bodySize: number = resolvedFile.body.length
+  let currentIndex: number = 0
 
-  function getIdentifier(...names: Array<string>): IResolvedIdentifier {
+  const errors: Array<IThriftError> = []
+
+  function validateStatements(): Array<ThriftStatement> {
+    const newBody: Array<ThriftStatement> = []
+    while (!isAtEnd()) {
+      try {
+        newBody.push(validateStatement(resolvedFile.body[currentIndex]))
+      } catch(e) {
+        errors.push(createValidationError(e.message, e.loc))
+      }
+
+      currentIndex += 1
+    }
+
+    return newBody
+  }
+
+  function isAtEnd(): boolean {
+    return currentIndex >= bodySize
+  }
+
+  function getIdentifier(loc: TextLocation, ...names: Array<string>): IResolvedIdentifier {
     for (let name of names) {
       if (resolvedFile.identifiers[name]) {
         return resolvedFile.identifiers[name]
       }
     }
 
-    throw new TypeError(`Unabled to resolve type of Identifier ${names[0]}`)
+    throw new ValidationError(`Unable to resolve type of Identifier ${names[0]}`, loc)
   }
 
   /**
@@ -181,11 +229,11 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
 
   function validateExtends(id: Identifier): Identifier {
     const [ baseName ] = id.value.split('.')
-    const resolvedID: IResolvedIdentifier = getIdentifier(baseName)
+    const resolvedID: IResolvedIdentifier = getIdentifier(id.loc, baseName)
     if (resolvedID.definition.type === SyntaxType.ServiceDefinition) {
       return id
     } else {
-      throw new TypeError(`Service type expected but found type ${resolvedID.definition.type}`)
+      throw new ValidationError(`Service type expected but found type ${resolvedID.definition.type}`, id.loc)
     }
   }
 
@@ -225,15 +273,15 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
        */
       case SyntaxType.Identifier:
         const [ baseName, accessName ] = constValue.value.split('.')
-        const resolvedConst: IResolvedIdentifier = getIdentifier(baseName, constValue.value)
+        const resolvedConst: IResolvedIdentifier = getIdentifier(constValue.loc, baseName, constValue.value)
         if (resolvedConst.resolvedName === enumName) {
           if (enumMembers(enumDef).indexOf(accessName) > -1) {
             return constValue
           } else {
-            throw new TypeError(`The value ${accessName} is not a member of enum ${enumDef.name.value}`)
+            throw new ValidationError(`The value ${accessName} is not a member of enum ${enumDef.name.value}`, constValue.loc)
           }
         } else {
-          throw new TypeError(`The value ${resolvedConst.name} is not assignable to type ${enumDef.name.value}`)
+          throw new ValidationError(`The value ${resolvedConst.name} is not assignable to type ${enumDef.name.value}`, constValue.loc)
         }
 
       /**
@@ -245,18 +293,18 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
         if (acceptedValues.indexOf(constValue.value) > -1) {
           return constValue
         } else {
-          throw new TypeError(`The value ${constValue.value} is not assignable to type ${enumDef.name.value}`)
+          throw new ValidationError(`The value ${constValue.value} is not assignable to type ${enumDef.name.value}`, constValue.loc)
         }
 
       default:
-        throw new TypeError(`Value of type ${constToTypeString(constValue)} cannot be assigned to type ${enumDef.name.value}`)
+        throw new ValidationError(`Value of type ${constToTypeString(constValue)} cannot be assigned to type ${enumDef.name.value}`, constValue.loc)
     }
   }
 
   function validateTypeForIdentifier(id: IResolvedIdentifier, value: ConstValue): ConstValue {
     switch (id.definition.type) {
       case SyntaxType.ServiceDefinition:
-        throw new TypeError(`Service ${id.definition.name.value} is being used as a value`)
+        throw new ValidationError(`Service ${id.definition.name.value} is being used as a value`, value.loc)
 
       case SyntaxType.EnumDefinition:
         return validateEnum(id.resolvedName, id.definition, value)
@@ -270,7 +318,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
       case SyntaxType.StructDefinition:
       case SyntaxType.UnionDefinition:
       case SyntaxType.ExceptionDefinition:
-        throw new TypeError(`Cannot assign value to type ${id.definition.name.value}`)
+        throw new ValidationError(`Cannot assign value to type ${id.definition.name.value}`, value.loc)
 
       default:
         const msg: never = id.definition
@@ -281,11 +329,11 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
   function validateValue(expectedType: FunctionType, value: ConstValue): ConstValue {
     switch (expectedType.type) {
       case SyntaxType.VoidKeyword:
-        throw new TypeError(`Cannot assign value to type void`)
+        throw new ValidationError(`Cannot assign value to type void`, value.loc)
 
       case SyntaxType.Identifier:
         return validateTypeForIdentifier(
-          getIdentifier(expectedType.value),
+          getIdentifier(expectedType.loc, expectedType.value),
           value
         )
 
@@ -381,10 +429,10 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
   function validateFieldType(fieldType: FunctionType): FunctionType {
     switch (fieldType.type) {
       case SyntaxType.Identifier:
-        if (getIdentifier(fieldType.value) != null) {
+        if (getIdentifier(fieldType.loc, fieldType.value) != null) {
           return fieldType
         } else {
-          throw new TypeError(`Unable to resolve type of identifier ${fieldType.value}`)
+          throw new ValidationError(`Unable to resolve type of identifier ${fieldType.value}`, fieldType.loc)
         }
 
       default:
@@ -404,9 +452,9 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
           loc: emptyLocation()
         }
       } else if (fieldID.value < 0) {
-        throw new Error(`Field IDs should be positive integers, found ${fieldID.value}`)
+        throw new ValidationError(`Field IDs should be positive integers, found ${fieldID.value}`, fieldID.loc)
       } else if (usedFieldIDs.indexOf(fieldID.value) > -1) {
-        throw new Error(`Found duplicate usage of fieldID: ${fieldID.value}, on line: ${fieldID.loc.start.line}`)
+        throw new ValidationError(`Found duplicate usage of fieldID: ${fieldID.value}`, fieldID.loc)
       } else {
         usedFieldIDs.push(fieldID.value)
         return fieldID
@@ -434,7 +482,10 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
   function validateFunctions(funcs: Array<FunctionDefinition>): Array<FunctionDefinition> {
     return funcs.map((func: FunctionDefinition): FunctionDefinition => {
       if (func.oneway && func.returnType.type !== SyntaxType.VoidKeyword) {
-        throw new TypeError(`Oneway function must have return type of void, instead found ${fieldTypeToString(func.returnType)}`)
+        throw new ValidationError(
+          `Oneway function must have return type of void, instead found ${fieldTypeToString(func.returnType)}`,
+          func.loc
+        )
       }
 
       return {
@@ -454,9 +505,11 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
   return {
     name: resolvedFile.name,
     path: resolvedFile.path,
+    source: resolvedFile.source,
     namespace: resolvedFile.namespace,
     includes: resolvedFile.includes,
     identifiers: resolvedFile.identifiers,
-    body: resolvedFile.body.map(validateStatement),
+    body: validateStatements(),
+    errors: errors,
   }
 }

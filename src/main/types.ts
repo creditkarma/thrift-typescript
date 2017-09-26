@@ -6,8 +6,8 @@ import {
   ExceptionDefinition,
   ServiceDefinition,
   StructDefinition,
+  TextLocation,
   ThriftDocument,
-  ThriftErrors,
   ThriftStatement,
   TypedefDefinition,
   UnionDefinition,
@@ -47,12 +47,13 @@ export interface IRenderer {
 export interface IThriftFile {
   name: string
   path: string
-  contents: string
+  source: string
 }
 
 export interface IParsedFile {
   name: string
   path: string
+  source: string
   includes: Array<IParsedFile>
   ast: ThriftDocument
 }
@@ -60,10 +61,12 @@ export interface IParsedFile {
 export interface IResolvedFile {
   name: string
   path: string
+  source: string
   namespace: IResolvedNamespace
   includes: IResolvedIncludeMap
   identifiers: IIdentifierMap
   body: Array<ThriftStatement>
+  errors: Array<IThriftError>
 }
 
 export interface IRenderedFile {
@@ -120,4 +123,16 @@ export interface IResolvedIdentifier {
 
 export interface IIdentifierMap {
   [name: string]: IResolvedIdentifier
+}
+
+export const enum ErrorType {
+  ValidationError = 'ValidationError',
+  ResolutionError = 'ResolutionError',
+  GenerationError = 'GenerationError',
+}
+
+export interface IThriftError {
+  type: ErrorType
+  message: string
+  loc: TextLocation
 }
