@@ -144,7 +144,10 @@ function includeListForMap(includes: IResolvedIncludeMap): Array<IResolvedFile> 
   return includeList
 }
 
-export function collectInvalidFiles(resolvedFiles: Array<IResolvedFile>, errors: Array<IResolvedFile> = []): Array<IResolvedFile> {
+export function collectInvalidFiles(
+  resolvedFiles: Array<IResolvedFile>,
+  errors: Array<IResolvedFile> = [],
+): Array<IResolvedFile> {
   for (const file of resolvedFiles) {
     if (file.errors.length > 0) {
       errors.push(file)

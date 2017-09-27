@@ -2,7 +2,6 @@
   "extends": "tslint:recommended",
   "rules": {
     "object-literal-sort-keys": false,
-    "max-line-length": false,
     "no-console": [
       false
     ],
@@ -19,6 +18,13 @@
       true,
       "single",
       "avoid-escape"
+    ],
+    "trailing-comma": [
+      true,
+      {
+        "multiline": "always",
+        "singleline": "never"
+      }
     ]
   }
 }
