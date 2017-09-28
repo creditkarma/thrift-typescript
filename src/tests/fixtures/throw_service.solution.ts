@@ -164,7 +164,7 @@ export class MyServicePingResult {
 export class Client {
     private _seqid: number;
     private _reqs: {
-        [name: string]: (err: Error | object | undefined, val?: any) => void;
+        [name: number]: (err: Error | object | undefined, val?: any) => void;
     };
     public output: TTransport;
     public protocol: new (trans: TTransport) => TProtocol;

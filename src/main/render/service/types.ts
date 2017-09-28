@@ -44,7 +44,7 @@ export function createReqType(): ts.TypeLiteralNode {
         undefined,
         'name',
         undefined,
-        createStringType()
+        createNumberType()
       ) ],
       ts.createFunctionTypeNode(
         undefined,
