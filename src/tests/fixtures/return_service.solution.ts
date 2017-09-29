@@ -244,12 +244,12 @@ export namespace MyService {
             if (result.exp != null) {
                 return callback(result.exp);
             }
-            if (true) {
-                if (result.success != null) {
-                    return callback(undefined, result.success);
-                }
+            if (result.success != null) {
+                return callback(undefined, result.success);
             }
-            return callback(new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, "ping failed: unknown result"));
+            else {
+                return callback(new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, "ping failed: unknown result"));
+            }
         }
     }
     export interface IHandler<Context> {

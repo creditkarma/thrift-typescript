@@ -556,53 +556,62 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
         )
       }),
 
-      // {{^isVoid}}
-      // if (result.success != null) {
-      //     return callback(undefined, result.success)
-      // }
-      // {{/isVoid}}
-      ts.createIf(
-        (
-          (def.returnType.type === SyntaxType.VoidKeyword) ?
-          ts.createLiteral(false) :
-          ts.createLiteral(true)
-        ),
-        ts.createBlock([
-          ts.createIf(
-            createNotNull(
-              ts.createIdentifier('result.success')
-            ),
-            ts.createBlock([
-              ts.createReturn(
-                ts.createCall(
-                  ts.createIdentifier('callback'),
-                  undefined,
-                  [
-                    COMMON_IDENTIFIERS['undefined'],
-                    ts.createIdentifier('result.success')
-                  ]
-                )
-              )
-            ], true)
-          )
-        ], true)
-      ),
-
-      // return callback(new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, "{{name}} failed: unknown result"))
-      ts.createReturn(
-        ts.createCall(
-          ts.createIdentifier('callback'),
-          undefined,
-          [
-            createApplicationException(
-              'TApplicationExceptionType.UNKNOWN',
-              `${def.name.value} failed: unknown result`
-            )
-          ]
-        )
-      )
+      createResultHandler(def)
     ], true)
   )
+}
+
+function createResultHandler(def: FunctionDefinition): ts.Statement {
+
+  if (def.returnType.type === SyntaxType.VoidKeyword) {
+    return ts.createReturn(
+      ts.createCall(
+        ts.createIdentifier('callback'),
+        undefined,
+        [
+          COMMON_IDENTIFIERS['undefined']
+        ]
+      )
+    )
+  } else {
+    // {{^isVoid}}
+    // if (result.success != null) {
+    //     return callback(undefined, result.success)
+    // }
+    // {{/isVoid}}
+    return ts.createIf(
+      createNotNull(
+        ts.createIdentifier('result.success')
+      ),
+      ts.createBlock([
+        ts.createReturn(
+          ts.createCall(
+            ts.createIdentifier('callback'),
+            undefined,
+            [
+              COMMON_IDENTIFIERS['undefined'],
+              ts.createIdentifier('result.success')
+            ]
+          )
+        )
+      ], true),
+      ts.createBlock([
+        // return callback(new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, "{{name}} failed: unknown result"))
+        ts.createReturn(
+          ts.createCall(
+            ts.createIdentifier('callback'),
+            undefined,
+            [
+              createApplicationException(
+                'TApplicationExceptionType.UNKNOWN',
+                `${def.name.value} failed: unknown result`
+              )
+            ]
+          )
+        )
+      ], true)
+    )
+  }
 }
 
 function createParametersForField(field: FieldDefinition): ts.ParameterDeclaration {

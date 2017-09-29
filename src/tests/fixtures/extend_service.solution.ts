@@ -165,12 +165,12 @@ export namespace ParentService {
             const result = new PingResult();
             result.read(input);
             input.readMessageEnd();
-            if (true) {
-                if (result.success != null) {
-                    return callback(undefined, result.success);
-                }
+            if (result.success != null) {
+                return callback(undefined, result.success);
             }
-            return callback(new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, "ping failed: unknown result"));
+            else {
+                return callback(new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, "ping failed: unknown result"));
+            }
         }
     }
     export interface IHandler<Context> {
@@ -406,12 +406,12 @@ export namespace ChildService {
             const result = new PegResult();
             result.read(input);
             input.readMessageEnd();
-            if (true) {
-                if (result.success != null) {
-                    return callback(undefined, result.success);
-                }
+            if (result.success != null) {
+                return callback(undefined, result.success);
             }
-            return callback(new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, "peg failed: unknown result"));
+            else {
+                return callback(new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, "peg failed: unknown result"));
+            }
         }
     }
     export interface IHandler<Context> {

@@ -140,12 +140,7 @@ export namespace MyService {
             const result = new PingResult();
             result.read(input);
             input.readMessageEnd();
-            if (false) {
-                if (result.success != null) {
-                    return callback(undefined, result.success);
-                }
-            }
-            return callback(new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, "ping failed: unknown result"));
+            return callback(undefined);
         }
     }
     export interface IHandler<Context> {

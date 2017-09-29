@@ -23,6 +23,7 @@ jobs:
           # Must be relative path from root
           paths:
             - dist
+            - typings
             - LICENSE
             - package.json
             - README.md
