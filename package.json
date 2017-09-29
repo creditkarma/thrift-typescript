@@ -3,6 +3,7 @@
   "version": "0.0.2",
   "description": "Generate TypeScript from Thrift IDL files",
   "main": "./dist/main/index.js",
+  "types": "./dist/main/index.d.ts",
   "bin": {
     "thrift-typescript": "./dist/main/bin/index.js"
   },
@@ -54,7 +55,6 @@
     "ts-node": "^3.3.0",
     "tslint": "^5.3.2"
   },
-  "types": "dist/index.d.ts",
   "nyc": {
     "include": [
       "src/*.ts",
