@@ -119,9 +119,9 @@ export class Client {
         });
     }
     public send_ping(): void {
-        const output = new this.protocol(this.output);
+        const output: TProtocol = new this.protocol(this.output);
         output.writeMessageBegin("ping", Thrift.MessageType.CALL, this.seqid());
-        const args = new MyServicePingArgs({});
+        const args: MyServicePingArgs = new MyServicePingArgs({});
         args.write(output);
         output.writeMessageEnd();
         return this.output.flush();

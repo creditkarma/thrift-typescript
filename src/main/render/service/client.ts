@@ -287,7 +287,10 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
       // const output = new (this.protocol as any)(this.output)
       createConstStatement(
         COMMON_IDENTIFIERS['output'],
-        undefined,
+        ts.createTypeReferenceNode(
+          ts.createIdentifier('TProtocol'),
+          undefined
+        ),
         ts.createNew(
           ts.createIdentifier('this.protocol'),
           undefined,
@@ -312,7 +315,10 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
       // const args = new {{ServiceName}}{{nameTitleCase}}Args( { {{#args}}{{fieldName}}, {{/args}} } )
       createConstStatement(
         COMMON_IDENTIFIERS['args'],
-        undefined,
+        ts.createTypeReferenceNode(
+          ts.createIdentifier(createStructArgsName(service, def)),
+          undefined
+        ),
         ts.createNew(
           ts.createIdentifier(createStructArgsName(service, def)),
           undefined,
