@@ -17,7 +17,7 @@
     "removeComments": true,
     "paths": {
       "thrift": [
-        "node_modules/@ck/thrift-typings"
+        "./typings/thrift.d.ts"
       ]
     },
     "types": [

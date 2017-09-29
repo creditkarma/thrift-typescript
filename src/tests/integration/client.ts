@@ -1,6 +1,6 @@
 import {
-  Connection,
-  createClient,
+  HttpConnection,
+  createHttpClient,
   createHttpConnection,
   TBinaryProtocol,
   TBufferedTransport,
@@ -31,8 +31,8 @@ const options = {
   }
 }
 
-const connection: Connection = createHttpConnection(config.hostName, config.port, options)
-const thriftClient: Client = createClient(MyService, connection)
+const connection: HttpConnection = createHttpConnection(config.hostName, config.port, options)
+const thriftClient: Client = createHttpClient(MyService, connection)
 
 connection.on('error', (err: Error) => {
   console.log('err: ', err)
