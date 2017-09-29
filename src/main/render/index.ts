@@ -68,11 +68,19 @@ export function renderUnion(statement: UnionDefinition, identifiers: IIdentifier
 
 export function renderService(statement: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
   return [
-    ...renderArgsStruct(statement, identifiers),
-    ...renderResultStruct(statement, identifiers),
-    renderClient(statement),
-    renderHandlerInterface(statement),
-    renderProcessor(statement),
+    ts.createModuleDeclaration(
+      undefined,
+      [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+      ts.createIdentifier(statement.name.value),
+      ts.createModuleBlock([
+        ...renderArgsStruct(statement, identifiers),
+        ...renderResultStruct(statement, identifiers),
+        renderClient(statement),
+        renderHandlerInterface(statement),
+        renderProcessor(statement, identifiers),
+      ]),
+      ts.NodeFlags.Namespace
+    )
   ]
 }
 

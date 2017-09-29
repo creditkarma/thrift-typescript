@@ -29,7 +29,7 @@ import {
   createMethodCallStatement,
   createPublicProperty,
   createPrivateProperty,
-  createApplicationException
+  createApplicationException,
 } from '../utils'
 
 import {
@@ -45,13 +45,13 @@ import {
 
 export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
   // private _seqid: number;
-  const seqid: ts.PropertyDeclaration = createPrivateProperty(
+  const seqid: ts.PropertyDeclaration = createPublicProperty(
     '_seqid',
     createNumberType()
   )
 
   // public _reqs: { [key: string]: (e?: Error|object, r? any) => void }
-  const reqs: ts.PropertyDeclaration = createPrivateProperty(
+  const reqs: ts.PropertyDeclaration = createPublicProperty(
     '_reqs',
     createReqType()
   )
@@ -86,6 +86,20 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
       ),
     ], // parameters
     [
+      ...(
+        (node.extends !== null) ?
+          [
+            ts.createStatement(ts.createCall(
+              ts.createSuper(),
+              [],
+              [
+                ts.createIdentifier('output'),
+                ts.createIdentifier('protocol')
+              ]
+            ))
+          ] :
+          []
+      ),
       createAssignmentStatement(
         ts.createIdentifier('this._seqid'),
         ts.createLiteral(0)
@@ -149,13 +163,29 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
     return createRecvMethodForDefinition(node, next)
   })
 
+  const heritage: Array<ts.HeritageClause> = (
+    (node.extends !== null) ?
+      [
+        ts.createHeritageClause(
+          ts.SyntaxKind.ExtendsKeyword,
+          [
+            ts.createExpressionWithTypeArguments(
+              [],
+              ts.createIdentifier(`${node.extends.value}.Client`),
+            )
+          ]
+        )
+      ] :
+      []
+  )
+
   // export class <node.name> { ... }
   return ts.createClassDeclaration(
     undefined, // decorators
     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ], // modifiers
     'Client', // name
     [], // type parameters
-    [], // heritage
+    heritage, // heritage
     [
       seqid,
       reqs,
@@ -316,11 +346,11 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
       createConstStatement(
         COMMON_IDENTIFIERS['args'],
         ts.createTypeReferenceNode(
-          ts.createIdentifier(createStructArgsName(service, def)),
+          ts.createIdentifier(createStructArgsName(def)),
           undefined
         ),
         ts.createNew(
-          ts.createIdentifier(createStructArgsName(service, def)),
+          ts.createIdentifier(createStructArgsName(def)),
           undefined,
           [ ts.createObjectLiteral(
             def.fields.map((next: FieldDefinition) => {
@@ -489,7 +519,7 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
         ts.createIdentifier('result'),
         undefined,
         ts.createNew(
-          ts.createIdentifier(createStructResultName(service, def)),
+          ts.createIdentifier(createStructResultName(def)),
           undefined,
           []
         )

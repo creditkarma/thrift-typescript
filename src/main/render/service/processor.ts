@@ -3,7 +3,9 @@ import * as ts from 'typescript'
 import {
   ServiceDefinition,
   FunctionDefinition,
-  FieldDefinition
+  FieldDefinition,
+  ThriftStatement,
+  SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -15,7 +17,6 @@ import {
 import {
   createStructArgsName,
   createStructResultName,
-  createStructHandlerName
 } from './utils'
 
 import {
@@ -32,11 +33,15 @@ import {
 } from '../utils'
 
 import {
+  IIdentifierMap
+} from '../../types'
+
+import {
   createStringType,
   createNumberType,
   createVoidType,
   typeNodeForFieldType,
-  constructorNameForFieldType
+  constructorNameForFieldType,
 } from '../types'
 
 import {
@@ -84,7 +89,7 @@ export function renderHandlerInterface(service: ServiceDefinition): ts.Interface
   return ts.createInterfaceDeclaration(
     undefined,
     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-    createStructHandlerName(service),
+    ts.createIdentifier('IHandler'),
     [
       ts.createTypeParameterDeclaration(
         ts.createIdentifier('Context')
@@ -95,17 +100,52 @@ export function renderHandlerInterface(service: ServiceDefinition): ts.Interface
   )
 }
 
-export function renderProcessor(node: ServiceDefinition): ts.ClassDeclaration {
+function objectLiteralForServiceFunctions(node: ThriftStatement): ts.ObjectLiteralExpression {
+  switch (node.type) {
+    case SyntaxType.ServiceDefinition:
+      return ts.createObjectLiteral(
+        node.functions.map((next: FunctionDefinition): ts.PropertyAssignment => {
+          return ts.createPropertyAssignment(
+            ts.createIdentifier(next.name.value),
+            ts.createIdentifier(`handler.${next.name.value}`)
+          )
+        }),
+        true
+      )
+
+    default:
+      throw new TypeError(`A service can only extend another service. Found: ${node.type}`);
+  }
+}
+
+function handlerType(node: ServiceDefinition): ts.TypeNode {
+  if (node.extends !== null) {
+    return ts.createIntersectionTypeNode([
+      ts.createTypeReferenceNode(
+        ts.createIdentifier('IHandler'),
+        [ ts.createTypeReferenceNode('Context', undefined) ]
+      ),
+      ts.createTypeReferenceNode(
+        ts.createIdentifier(`${node.extends.value}.IHandler`),
+        [ ts.createTypeReferenceNode('Context', undefined) ]
+      )
+    ])
+  } else {
+    return ts.createTypeReferenceNode(
+      ts.createIdentifier('IHandler'),
+      [ ts.createTypeReferenceNode('Context', undefined) ]
+    )
+  }
+}
+
+export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
   // private _handler
   const handler: ts.PropertyDeclaration = ts.createProperty(
     undefined,
-    [ ts.createToken(ts.SyntaxKind.PrivateKeyword) ],
+    [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
     '_handler',
     undefined,
-    ts.createTypeReferenceNode(
-      createStructHandlerName(node),
-      [ ts.createTypeReferenceNode('Context', undefined) ]
-    ),
+    handlerType(node),
     undefined
   )
 
@@ -113,24 +153,52 @@ export function renderProcessor(node: ServiceDefinition): ts.ClassDeclaration {
     [
       createFunctionParameter(
         ts.createIdentifier('handler'),
-        ts.createTypeReferenceNode(
-          createStructHandlerName(node),
-          [ ts.createTypeReferenceNode('Context', undefined) ]
-        )
+        handlerType(node)
       )
     ],
     [
+      ...(
+        (node.extends !== null) ?
+          [
+            ts.createStatement(ts.createCall(
+              ts.createSuper(),
+              [],
+              [
+                objectLiteralForServiceFunctions(
+                  identifiers[node.extends.value].definition
+                )
+              ]
+            ))
+          ] :
+          []
+      ),
       createAssignmentStatement(
         ts.createIdentifier('this._handler'),
-        ts.createIdentifier('handler')
+        ts.createIdentifier('handler'),
       )
     ]
   )
 
-  const processMethod: ts.MethodDeclaration = createProcessMethod(node)
+  const processMethod: ts.MethodDeclaration = createProcessMethod(node, identifiers)
   const processFunctions: Array<ts.MethodDeclaration> = node.functions.map((next: FunctionDefinition) => {
     return createProcessFunctionMethod(node, next);
   });
+
+  const heritage: Array<ts.HeritageClause> = (
+    (node.extends !== null) ?
+      [
+        ts.createHeritageClause(
+          ts.SyntaxKind.ExtendsKeyword,
+          [
+            ts.createExpressionWithTypeArguments(
+              [ ts.createTypeReferenceNode(ts.createIdentifier('Context'), undefined) ],
+              ts.createIdentifier(`${node.extends.value}.Processor`),
+            )
+          ]
+        )
+      ] :
+      []
+  )
 
   // export class <node.name> { ... }
   return ts.createClassDeclaration(
@@ -138,7 +206,7 @@ export function renderProcessor(node: ServiceDefinition): ts.ClassDeclaration {
     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ], // modifiers
     'Processor', // name
     [ ts.createTypeParameterDeclaration('Context') ], // type parameters
-    [], // heritage
+    heritage, // heritage
     [
       handler,
       ctor,
@@ -201,7 +269,7 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
         COMMON_IDENTIFIERS['args'],
         undefined,
         ts.createNew(
-          ts.createIdentifier(createStructArgsName(service, funcDef)),
+          ts.createIdentifier(createStructArgsName(funcDef)),
           [],
           []
         )
@@ -282,7 +350,7 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                     ts.createIdentifier('result'),
                     undefined,
                     ts.createNew(
-                      ts.createIdentifier(createStructResultName(service, funcDef)),
+                      ts.createIdentifier(createStructResultName(funcDef)),
                       undefined,
                       [
                         ts.createObjectLiteral(
@@ -368,11 +436,11 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                           createConstStatement(
                             ts.createIdentifier('result'),
                             ts.createTypeReferenceNode(
-                              ts.createIdentifier(createStructResultName(service, funcDef)),
+                              ts.createIdentifier(createStructResultName(funcDef)),
                               undefined
                             ),
                             ts.createNew(
-                              ts.createIdentifier(createStructResultName(service, funcDef)),
+                              ts.createIdentifier(createStructResultName(funcDef)),
                               undefined,
                               [
                                 ts.createObjectLiteral(
@@ -528,7 +596,7 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
 //         ...skip logic
 //     }
 // }
-function createProcessMethod(service: ServiceDefinition): ts.MethodDeclaration {
+function createProcessMethod(service: ServiceDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
   return createPublicMethod(
     'process',
     [
@@ -566,7 +634,7 @@ function createProcessMethod(service: ServiceDefinition): ts.MethodDeclaration {
           COMMON_IDENTIFIERS['fname']
         )
       ),
-      createMethodCallForFname(service)
+      createMethodCallForFname(service, identifiers)
     ] // body
   )
 }
@@ -592,6 +660,28 @@ function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
       ], true)
     ]
   )
+}
+
+function functionsForService(node: ThriftStatement): Array<FunctionDefinition> {
+  switch (node.type) {
+    case SyntaxType.ServiceDefinition:
+      return node.functions
+
+    default:
+      throw new TypeError(`A service can only extend another service. Found: ${node.type}`);
+  }
+}
+
+function collectAllMethods(service: ServiceDefinition, identifiers: IIdentifierMap): Array<FunctionDefinition> {
+  if (service.extends !== null) {
+    const inheritedMethods: Array<FunctionDefinition> = functionsForService(identifiers[service.extends.value].definition)
+    return [
+      ...inheritedMethods,
+      ...service.functions,
+    ]
+  } else {
+    return service.functions
+  }
 }
 
 /**
@@ -620,11 +710,11 @@ function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
  *
  * @param service
  */
-function createMethodCallForFname(service: ServiceDefinition): ts.SwitchStatement {
+function createMethodCallForFname(service: ServiceDefinition, identifiers: IIdentifierMap): ts.SwitchStatement {
   return ts.createSwitch(
     ts.createIdentifier('methodName'),
     ts.createCaseBlock([
-      ...service.functions.map(createMethodCallForFunction),
+      ...collectAllMethods(service, identifiers).map(createMethodCallForFunction),
       ts.createDefaultClause([
         ts.createBlock([
           // input.skip(Thrift.Type.STRUCT)

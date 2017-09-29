@@ -4,6 +4,10 @@ namespace java com.creditkarma
 include "exception.thrift"
 include "core/status_type.thrift"
 
-service MyService {
+service OtherService {
+  string peg()
+}
+
+service MyService extends OtherService {
   string ping(1: status_type.StatusType status) throws (1: exception.MyException exp)
 }

@@ -256,7 +256,7 @@ describe('Thrift TypeScript Generator', () => {
   it('should correctly generate a service with functions that throw', () => {
     const content: string = `
       exception MyException {
-        1: string message
+          1: string message
       }
 
       service MyService {
@@ -272,7 +272,7 @@ describe('Thrift TypeScript Generator', () => {
   it('should correctly generate a service with functions that return', () => {
     const content: string = `
       exception MyException {
-        1: string message
+          1: string message
       }
 
       service MyService {
@@ -280,6 +280,22 @@ describe('Thrift TypeScript Generator', () => {
       }
     `;
     const expected: string = readFixture('return_service')
+    const actual: string = make(content)
+
+    assert.deepEqual(actual, expected)
+  })
+
+  it('should correctly generate a service that extends another service', () => {
+    const content: string = `
+      service ParentService {
+          string ping(1: i32 status);
+      }
+
+      service ChildService extends ParentService {
+          string peg(1: string name);
+      }
+    `;
+    const expected: string = readFixture('extend_service')
     const actual: string = make(content)
 
     assert.deepEqual(actual, expected)

@@ -8,10 +8,8 @@ import {
 
 import * as express from 'express'
 
-import * as MyService from './codegen/com/creditkarma/service'
-
 import {
-  Client
+  MyService
 } from './codegen/com/creditkarma/service'
 
 const config = {
@@ -32,16 +30,25 @@ const options = {
 }
 
 const connection: HttpConnection = createHttpConnection(config.hostName, config.port, options)
-const thriftClient: Client = createHttpClient(MyService, connection)
+const thriftClient: MyService.Client = createHttpClient(MyService.Client, connection)
 
 connection.on('error', (err: Error) => {
-  console.log('err: ', err)
   process.exit(1)
 })
 
-app.get('/', (req, res) => {
+app.get('/ping', (req, res) => {
   thriftClient.ping(1).then((val: string) => {
     res.send(val)
+  }, (err: any) => {
+    res.send('fail')
+  })
+});
+
+app.get('/peg', (req, res) => {
+  thriftClient.peg().then((val: string) => {
+    res.send(val)
+  }, (err: any) => {
+    res.send('fail')
   })
 });
 

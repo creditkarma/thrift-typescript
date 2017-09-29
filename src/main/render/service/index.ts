@@ -45,7 +45,7 @@ export function renderArgsStruct(service: ServiceDefinition, identifiers: IIdent
       type: SyntaxType.StructDefinition,
       name: {
         type: SyntaxType.Identifier,
-        value: createStructArgsName(service, func),
+        value: createStructArgsName(func),
         loc: emptyLocation()
       },
       fields: func.fields,
@@ -71,7 +71,7 @@ export function renderResultStruct(service: ServiceDefinition, identifiers: IIde
       type: SyntaxType.StructDefinition,
       name: {
         type: SyntaxType.Identifier,
-        value: createStructResultName(service, func),
+        value: createStructResultName(func),
         loc: emptyLocation()
       },
       fields: [

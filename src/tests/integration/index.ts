@@ -20,15 +20,17 @@ function exit(code: number) {
 }
 
 setTimeout(() => {
-  exec('curl http://localhost:8044', function(err, stout, sterr) {
+  exec('curl http://localhost:8044/ping', function(err, stout, sterr) {
     if (err != null) {
       console.error('Error running Thrift service: ', err)
       exit(1)
     }
 
-    if (stout === '1: goodbye') {
-      console.log('Successfully able to run Thrift service')
-      exit(0)
+    if (stout === 'status: 1') {
+      exec('curl http://localhost:8044/peg', function(err, stout, sterr) {
+        console.log('Successfully able to run Thrift service')
+        exit(0)
+      })
     } else {
       console.error(`Unexpected response from Thrift service: ${stout}`)
       exit(1)

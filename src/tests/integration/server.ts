@@ -4,12 +4,15 @@ import {
   TBufferedTransport,
 } from 'thrift'
 
-import * as MyService from './codegen/com/creditkarma/service'
+import { MyService } from './codegen/com/creditkarma/service'
 
 //ServiceHandler: Implement the hello service
 const myServiceHandler = {
   ping(status: number): string {
-    return `${status}: goodbye`
+    return `status: ${status}`
+  },
+  peg(): string {
+    return 'peg complete'
   }
 };
 
