@@ -238,7 +238,7 @@ export namespace MyService {
                 input.readMessageEnd();
                 return callback(x);
             }
-            const result = new PingResult();
+            const result: PingResult = new PingResult();
             result.read(input);
             input.readMessageEnd();
             if (result.exp != null) {
@@ -297,7 +297,7 @@ export namespace MyService {
                     reject(err);
                 }
             }).then((data: string): void => {
-                const result = new PingResult({ success: data });
+                const result: PingResult = new PingResult({ success: data });
                 output.writeMessageBegin("ping", Thrift.MessageType.REPLY, seqid);
                 result.write(output);
                 output.writeMessageEnd();

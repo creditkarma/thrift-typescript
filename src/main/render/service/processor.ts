@@ -348,7 +348,10 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                   // const result = new {{ServiceName}}{{nameTitleCase}}Result({success: data})
                   createConstStatement(
                     ts.createIdentifier('result'),
-                    undefined,
+                    ts.createTypeReferenceNode(
+                      ts.createIdentifier(createStructResultName(funcDef)),
+                      undefined
+                    ),
                     ts.createNew(
                       ts.createIdentifier(createStructResultName(funcDef)),
                       undefined,

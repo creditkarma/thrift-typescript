@@ -523,7 +523,10 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
 function createNewResultInstance(def: FunctionDefinition): ts.Statement {
   return createConstStatement(
     ts.createIdentifier('result'),
-    undefined,
+    ts.createTypeReferenceNode(
+      ts.createIdentifier(createStructResultName(def)),
+      undefined
+    ),
     ts.createNew(
       ts.createIdentifier(createStructResultName(def)),
       undefined,

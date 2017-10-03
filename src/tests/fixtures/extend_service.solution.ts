@@ -162,7 +162,7 @@ export namespace ParentService {
                 input.readMessageEnd();
                 return callback(x);
             }
-            const result = new PingResult();
+            const result: PingResult = new PingResult();
             result.read(input);
             input.readMessageEnd();
             if (result.success != null) {
@@ -218,7 +218,7 @@ export namespace ParentService {
                     reject(err);
                 }
             }).then((data: string): void => {
-                const result = new PingResult({ success: data });
+                const result: PingResult = new PingResult({ success: data });
                 output.writeMessageBegin("ping", Thrift.MessageType.REPLY, seqid);
                 result.write(output);
                 output.writeMessageEnd();
@@ -403,7 +403,7 @@ export namespace ChildService {
                 input.readMessageEnd();
                 return callback(x);
             }
-            const result = new PegResult();
+            const result: PegResult = new PegResult();
             result.read(input);
             input.readMessageEnd();
             if (result.success != null) {
@@ -465,7 +465,7 @@ export namespace ChildService {
                     reject(err);
                 }
             }).then((data: string): void => {
-                const result = new PegResult({ success: data });
+                const result: PegResult = new PegResult({ success: data });
                 output.writeMessageBegin("peg", Thrift.MessageType.REPLY, seqid);
                 result.write(output);
                 output.writeMessageEnd();
