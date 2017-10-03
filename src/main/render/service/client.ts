@@ -437,10 +437,10 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
     ], // parameters
     createVoidType(), // return type
     ts.createBlock([
+      // const noop = () => null
       createConstStatement(
         ts.createIdentifier('noop'),
         undefined,
-        // const noop = () => null
         ts.createArrowFunction(
           undefined,
           undefined,
@@ -479,51 +479,10 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
       //     input.readMessageEnd()
       //     return callback(x)
       // }
-      ts.createIf(
-        ts.createBinary(
-          ts.createIdentifier('mtype'),
-          ts.SyntaxKind.EqualsEqualsEqualsToken,
-          ts.createIdentifier('Thrift.MessageType.EXCEPTION')
-        ),
-        ts.createBlock([
-          createConstStatement(
-            ts.createIdentifier('x'),
-            ts.createTypeReferenceNode('Thrift.TApplicationException', undefined),
-            ts.createNew(
-              ts.createIdentifier('Thrift.TApplicationException'),
-              undefined,
-              []
-            )
-          ),
-          createMethodCallStatement(
-            ts.createIdentifier('x'),
-            'read',
-            [ COMMON_IDENTIFIERS['input'] ]
-          ),
-          createMethodCallStatement(
-            COMMON_IDENTIFIERS['input'],
-            'readMessageEnd'
-          ),
-          ts.createReturn(
-            ts.createCall(
-              ts.createIdentifier('callback'),
-              undefined,
-              [ ts.createIdentifier('x') ]
-            )
-          )
-        ], true)
-      ),
+      createExceptionHandler(),
 
       // const result = new {{ServiceName}}{{nameTitleCase}}Result()
-      createConstStatement(
-        ts.createIdentifier('result'),
-        undefined,
-        ts.createNew(
-          ts.createIdentifier(createStructResultName(def)),
-          undefined,
-          []
-        )
-      ),
+      createNewResultInstance(def),
 
       // result.read(input)
       createMethodCallStatement(
@@ -557,6 +516,55 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
       }),
 
       createResultHandler(def)
+    ], true)
+  )
+}
+
+function createNewResultInstance(def: FunctionDefinition): ts.Statement {
+  return createConstStatement(
+    ts.createIdentifier('result'),
+    undefined,
+    ts.createNew(
+      ts.createIdentifier(createStructResultName(def)),
+      undefined,
+      []
+    )
+  )
+}
+
+function createExceptionHandler(): ts.Statement {
+  return ts.createIf(
+    ts.createBinary(
+      ts.createIdentifier('mtype'),
+      ts.SyntaxKind.EqualsEqualsEqualsToken,
+      ts.createIdentifier('Thrift.MessageType.EXCEPTION')
+    ),
+    ts.createBlock([
+      createConstStatement(
+        ts.createIdentifier('x'),
+        ts.createTypeReferenceNode('Thrift.TApplicationException', undefined),
+        ts.createNew(
+          ts.createIdentifier('Thrift.TApplicationException'),
+          undefined,
+          []
+        )
+      ),
+      createMethodCallStatement(
+        ts.createIdentifier('x'),
+        'read',
+        [ COMMON_IDENTIFIERS['input'] ]
+      ),
+      createMethodCallStatement(
+        COMMON_IDENTIFIERS['input'],
+        'readMessageEnd'
+      ),
+      ts.createReturn(
+        ts.createCall(
+          ts.createIdentifier('callback'),
+          undefined,
+          [ ts.createIdentifier('x') ]
+        )
+      )
     ], true)
   )
 }

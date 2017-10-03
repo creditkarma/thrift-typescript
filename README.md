@@ -73,6 +73,31 @@ const rawThrift: string = readFileSync('./thrift/simple.thrift', 'utf-8')
 const generatedCode: string = make(rawThrift)
 ```
 
+### Apache Thrift
+
+The generated code works with the Apache Thrift nodejs library and the associated types. You will want to install these in your project.
+
+```sh
+npm install --save thrift
+npm install --save @types/thrift
+```
+
+### Notes
+
+The gererated code can be used with many of the more strict tsc compiler options.
+
+```json
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true
+  }
+}
+```
+
+However, the generated code may have unused local variables. Setting the "noUnusedLocals" flag to true may cause errors. This will be fixed soon.
+
 ## Development
 
 Install dependencies with

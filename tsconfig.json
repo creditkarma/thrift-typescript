@@ -7,7 +7,6 @@
     "declaration": true,
     "rootDir": "./src",
     "outDir": "./dist",
-    "baseUrl": "./",
     "noEmitOnError": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
@@ -15,15 +14,11 @@
     "allowSyntheticDefaultImports": true,
     "pretty": true,
     "removeComments": true,
-    "paths": {
-      "thrift": [
-        "./typings/thrift.d.ts"
-      ]
-    },
     "types": [
       "@types/node",
       "@types/mocha",
       "@types/express",
+      "@types/thrift",
       "@creditkarma/thrift-parser"
     ]
   },
