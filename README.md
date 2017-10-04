@@ -137,7 +137,7 @@ import {
 
 import { Calculator } from './codegen/calculator'
 
-// ServiceHandler: Implement the hello service
+// ServiceHandler: Implement the Calculator service
 const myServiceHandler = {
   add(left: number, right: number): number {
     return left + right;

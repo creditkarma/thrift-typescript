@@ -14,22 +14,30 @@ import {
   SharedStruct
 } from './codegen/shared/shared'
 
+function delay(val: number): Promise<number> {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(val)
+    }, 1000)
+  })
+}
+
 // ServiceHandler: Implement the hello service
 const myServiceHandler = {
   ping(): void {},
     add(a: number, b: number): number {
       return a + b;
     },
-    calculate(logId: number, work: Work): number {
+    calculate(logId: number, work: Work): Promise<number> {
       switch (work.op) {
         case Operation.ADD:
-          return work.num1 + work.num2;
+          return delay(work.num1 + work.num2)
         case Operation.SUBTRACT:
-          return work.num1 - work.num2;
+          return delay(work.num1 - work.num2)
         case Operation.DIVIDE:
-          return work.num1 / work.num2;
+          return delay(work.num1 / work.num2)
         case Operation.MULTIPLY:
-          return work.num1 * work.num2;
+          return delay(work.num1 * work.num2)
       }
     },
     zip(): void {},

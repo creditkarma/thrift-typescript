@@ -82,7 +82,13 @@ export function renderHandlerInterface(service: ServiceDefinition): ts.Interface
             ts.createTypeReferenceNode('Context', undefined)
           )
         ],
-        typeNodeForFieldType(func.returnType)
+        ts.createUnionTypeNode([
+          typeNodeForFieldType(func.returnType),
+          ts.createTypeReferenceNode(
+            ts.createIdentifier('Promise'),
+            [ typeNodeForFieldType(func.returnType) ]
+          )
+        ])
       ),
       undefined
     )

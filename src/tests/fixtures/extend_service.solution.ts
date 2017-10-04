@@ -171,7 +171,7 @@ export namespace ParentService {
         }
     }
     export interface IHandler<Context> {
-        ping: (status: number, context: Context) => string;
+        ping: (status: number, context: Context) => string | Promise<string>;
     }
     export class Processor<Context> {
         public _handler: IHandler<Context>;
@@ -405,7 +405,7 @@ export namespace ChildService {
         }
     }
     export interface IHandler<Context> {
-        peg: (name: string, context: Context) => string;
+        peg: (name: string, context: Context) => string | Promise<string>;
     }
     export class Processor<Context> extends ParentService.Processor<Context> {
         public _handler: IHandler<Context> & ParentService.IHandler<Context>;

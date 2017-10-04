@@ -220,7 +220,7 @@ export namespace MyService {
         }
     }
     export interface IHandler<Context> {
-        ping: (context: Context) => void;
+        ping: (context: Context) => void | Promise<void>;
     }
     export class Processor<Context> {
         public _handler: IHandler<Context>;
