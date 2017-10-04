@@ -35,13 +35,31 @@ export interface IMakeOptions {
 }
 
 export interface IRenderer {
-  renderConst(statement: ConstDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
-  renderTypeDef(statement: TypedefDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
-  renderEnum(statement: EnumDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
-  renderStruct(statement: StructDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
-  renderException(statement: ExceptionDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
-  renderUnion(statement: UnionDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
-  renderService(statement: ServiceDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
+  renderIncludes(
+    outPath: string,
+    includes: IRenderedFileMap,
+    resolvedIncludes: IResolvedIncludeMap): Array<ts.Statement>
+  renderConst(
+    statement: ConstDefinition,
+    identifiers?: IIdentifierMap): Array<ts.Statement>
+  renderTypeDef(
+    statement: TypedefDefinition,
+    identifiers?: IIdentifierMap): Array<ts.Statement>
+  renderEnum(
+    statement: EnumDefinition,
+    identifiers?: IIdentifierMap): Array<ts.Statement>
+  renderStruct(
+    statement: StructDefinition,
+    identifiers?: IIdentifierMap): Array<ts.Statement>
+  renderException(
+    statement: ExceptionDefinition,
+    identifiers?: IIdentifierMap): Array<ts.Statement>
+  renderUnion(
+    statement: UnionDefinition,
+    identifiers?: IIdentifierMap): Array<ts.Statement>
+  renderService(
+    statement: ServiceDefinition,
+    identifiers?: IIdentifierMap): Array<ts.Statement>
 }
 
 export interface IThriftFile {

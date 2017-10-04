@@ -27,11 +27,27 @@ import { renderUnion as _renderUnion } from './union'
 import { renderEnum as _renderEnum } from './enum'
 import { renderTypeDef as _renderTypeDef } from './typedef'
 import { renderConst as _renderConst } from './const'
+import {
+  renderIncludes as _renderIncludes,
+  renderThriftImports
+} from './includes'
 
 import {
   IIdentifierMap,
   IRenderer,
+  IRenderedFileMap,
+  IResolvedIncludeMap,
 } from '../types'
+
+export function renderIncludes(
+  outPath: string,
+  includes: IRenderedFileMap,
+  resolvedIncludes: IResolvedIncludeMap): Array<ts.Statement> {
+  return [
+    renderThriftImports(),
+    ..._renderIncludes(outPath, includes, resolvedIncludes),
+  ]
+}
 
 export function renderConst(statement: ConstDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
   return [ _renderConst(statement) ]
@@ -85,6 +101,7 @@ export function renderService(statement: ServiceDefinition, identifiers: IIdenti
 }
 
 export const renderer: IRenderer = {
+  renderIncludes,
   renderConst,
   renderTypeDef,
   renderEnum,

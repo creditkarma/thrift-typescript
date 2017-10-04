@@ -11,11 +11,6 @@ import {
 } from '../types'
 
 import {
-  createImportsForIncludes,
-  createThriftImports,
-} from './utils'
-
-import {
   processStatements
 } from './iterator'
 
@@ -66,8 +61,7 @@ export function generateFile(
   const identifiers: IIdentifierMap = resolvedFile.identifiers
   const outPath: string = outPathForFile()
   const statements: Array<ts.Statement> = [
-    createThriftImports(),
-    ...createImportsForIncludes(outPath, includes, resolvedFile.includes),
+    ...renderer.renderIncludes(outPath, includes, resolvedFile.includes),
     ...processStatements(resolvedFile.body, identifiers, renderer),
   ]
 
