@@ -1,5 +1,4 @@
 import {
-  ServiceDefinition,
   FunctionDefinition,
   FieldDefinition
 } from '@creditkarma/thrift-parser'

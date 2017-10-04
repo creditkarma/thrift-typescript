@@ -200,16 +200,14 @@ export namespace MyService {
             this.output = output;
             this.protocol = protocol;
         }
-        public seqid(): number {
-            return this._seqid;
-        }
-        public new_seqid(): number {
+        public incrementSeqId(): number {
             return this._seqid += 1;
         }
         public ping(status: number): Promise<string> {
-            this._seqid = this.new_seqid();
+            const requestId: number = this.incrementSeqId();
             return new Promise<string>((resolve, reject): void => {
-                this._reqs[this.seqid()] = (error, result) => {
+                this._reqs[requestId] = (error, result) => {
+                    delete this._reqs[requestId];
                     if (error != null) {
                         reject(error);
                     }
@@ -217,12 +215,12 @@ export namespace MyService {
                         resolve(result);
                     }
                 };
-                this.send_ping(status);
+                this.send_ping(status, requestId);
             });
         }
-        public send_ping(status: number): void {
+        public send_ping(status: number, requestId: number): void {
             const output: TProtocol = new this.protocol(this.output);
-            output.writeMessageBegin("ping", Thrift.MessageType.CALL, this.seqid());
+            output.writeMessageBegin("ping", Thrift.MessageType.CALL, requestId);
             const args: PingArgs = new PingArgs({ status });
             args.write(output);
             output.writeMessageEnd();
@@ -231,7 +229,6 @@ export namespace MyService {
         public recv_ping(input: TProtocol, mtype: Thrift.MessageType, rseqid: number): void {
             const noop = (): any => null;
             const callback = this._reqs[rseqid] || noop;
-            delete this._reqs[rseqid];
             if (mtype === Thrift.MessageType.EXCEPTION) {
                 const x: Thrift.TApplicationException = new Thrift.TApplicationException();
                 x.read(input);
@@ -303,23 +300,13 @@ export namespace MyService {
                 output.writeMessageEnd();
                 output.flush();
             }).catch((err: Error): void => {
-                if (1 > 0) {
-                    if (err instanceof MyException) {
-                        const result: PingResult = new PingResult({ exp: err });
-                        output.writeMessageBegin("ping", Thrift.MessageType.REPLY, seqid);
-                        result.write(output);
-                        output.writeMessageEnd();
-                        output.flush();
-                        return;
-                    }
-                    else {
-                        const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-                        output.writeMessageBegin("ping", Thrift.MessageType.EXCEPTION, seqid);
-                        result.write(output);
-                        output.writeMessageEnd();
-                        output.flush();
-                        return;
-                    }
+                if (err instanceof MyException) {
+                    const result: PingResult = new PingResult({ exp: err });
+                    output.writeMessageBegin("ping", Thrift.MessageType.REPLY, seqid);
+                    result.write(output);
+                    output.writeMessageEnd();
+                    output.flush();
+                    return;
                 }
                 else {
                     const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);

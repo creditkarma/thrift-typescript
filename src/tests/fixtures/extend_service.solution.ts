@@ -124,16 +124,14 @@ export namespace ParentService {
             this.output = output;
             this.protocol = protocol;
         }
-        public seqid(): number {
-            return this._seqid;
-        }
-        public new_seqid(): number {
+        public incrementSeqId(): number {
             return this._seqid += 1;
         }
         public ping(status: number): Promise<string> {
-            this._seqid = this.new_seqid();
+            const requestId: number = this.incrementSeqId();
             return new Promise<string>((resolve, reject): void => {
-                this._reqs[this.seqid()] = (error, result) => {
+                this._reqs[requestId] = (error, result) => {
+                    delete this._reqs[requestId];
                     if (error != null) {
                         reject(error);
                     }
@@ -141,12 +139,12 @@ export namespace ParentService {
                         resolve(result);
                     }
                 };
-                this.send_ping(status);
+                this.send_ping(status, requestId);
             });
         }
-        public send_ping(status: number): void {
+        public send_ping(status: number, requestId: number): void {
             const output: TProtocol = new this.protocol(this.output);
-            output.writeMessageBegin("ping", Thrift.MessageType.CALL, this.seqid());
+            output.writeMessageBegin("ping", Thrift.MessageType.CALL, requestId);
             const args: PingArgs = new PingArgs({ status });
             args.write(output);
             output.writeMessageEnd();
@@ -155,7 +153,6 @@ export namespace ParentService {
         public recv_ping(input: TProtocol, mtype: Thrift.MessageType, rseqid: number): void {
             const noop = (): any => null;
             const callback = this._reqs[rseqid] || noop;
-            delete this._reqs[rseqid];
             if (mtype === Thrift.MessageType.EXCEPTION) {
                 const x: Thrift.TApplicationException = new Thrift.TApplicationException();
                 x.read(input);
@@ -224,16 +221,12 @@ export namespace ParentService {
                 output.writeMessageEnd();
                 output.flush();
             }).catch((err: Error): void => {
-                if (0 > 0) {
-                }
-                else {
-                    const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-                    output.writeMessageBegin("ping", Thrift.MessageType.EXCEPTION, seqid);
-                    result.write(output);
-                    output.writeMessageEnd();
-                    output.flush();
-                    return;
-                }
+                const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+                output.writeMessageBegin("ping", Thrift.MessageType.EXCEPTION, seqid);
+                result.write(output);
+                output.writeMessageEnd();
+                output.flush();
+                return;
             });
         }
     }
@@ -365,16 +358,14 @@ export namespace ChildService {
             this.output = output;
             this.protocol = protocol;
         }
-        public seqid(): number {
-            return this._seqid;
-        }
-        public new_seqid(): number {
+        public incrementSeqId(): number {
             return this._seqid += 1;
         }
         public peg(name: string): Promise<string> {
-            this._seqid = this.new_seqid();
+            const requestId: number = this.incrementSeqId();
             return new Promise<string>((resolve, reject): void => {
-                this._reqs[this.seqid()] = (error, result) => {
+                this._reqs[requestId] = (error, result) => {
+                    delete this._reqs[requestId];
                     if (error != null) {
                         reject(error);
                     }
@@ -382,12 +373,12 @@ export namespace ChildService {
                         resolve(result);
                     }
                 };
-                this.send_peg(name);
+                this.send_peg(name, requestId);
             });
         }
-        public send_peg(name: string): void {
+        public send_peg(name: string, requestId: number): void {
             const output: TProtocol = new this.protocol(this.output);
-            output.writeMessageBegin("peg", Thrift.MessageType.CALL, this.seqid());
+            output.writeMessageBegin("peg", Thrift.MessageType.CALL, requestId);
             const args: PegArgs = new PegArgs({ name });
             args.write(output);
             output.writeMessageEnd();
@@ -396,7 +387,6 @@ export namespace ChildService {
         public recv_peg(input: TProtocol, mtype: Thrift.MessageType, rseqid: number): void {
             const noop = (): any => null;
             const callback = this._reqs[rseqid] || noop;
-            delete this._reqs[rseqid];
             if (mtype === Thrift.MessageType.EXCEPTION) {
                 const x: Thrift.TApplicationException = new Thrift.TApplicationException();
                 x.read(input);
@@ -471,16 +461,12 @@ export namespace ChildService {
                 output.writeMessageEnd();
                 output.flush();
             }).catch((err: Error): void => {
-                if (0 > 0) {
-                }
-                else {
-                    const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-                    output.writeMessageBegin("peg", Thrift.MessageType.EXCEPTION, seqid);
-                    result.write(output);
-                    output.writeMessageEnd();
-                    output.flush();
-                    return;
-                }
+                const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+                output.writeMessageBegin("peg", Thrift.MessageType.EXCEPTION, seqid);
+                result.write(output);
+                output.writeMessageEnd();
+                output.flush();
+                return;
             });
         }
     }

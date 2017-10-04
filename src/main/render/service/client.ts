@@ -28,7 +28,6 @@ import {
   createCallStatement,
   createMethodCallStatement,
   createPublicProperty,
-  createPrivateProperty,
   createApplicationException,
 } from '../utils'
 
@@ -44,7 +43,7 @@ import {
 } from '../identifiers'
 
 export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
-  // private _seqid: number;
+  // public _seqid: number;
   const seqid: ts.PropertyDeclaration = createPublicProperty(
     '_seqid',
     createNumberType()
@@ -119,27 +118,11 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
     ] // body
   )
 
-  const seqidGetMethod: ts.MethodDeclaration = ts.createMethod(
+  const incrementSeqIdMethod: ts.MethodDeclaration = ts.createMethod(
     undefined,
     [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
     undefined,
-    'seqid',
-    undefined,
-    undefined,
-    [],
-    createNumberType(),
-    ts.createBlock([
-      ts.createReturn(
-        ts.createIdentifier('this._seqid')
-      )
-    ], true)
-  )
-
-  const newSeqidMethod: ts.MethodDeclaration = ts.createMethod(
-    undefined,
-    [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
-    undefined,
-    'new_seqid',
+    'incrementSeqId',
     undefined,
     undefined,
     [],
@@ -192,8 +175,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
       output,
       protocol,
       ctor,
-      seqidGetMethod,
-      newSeqidMethod,
+      incrementSeqIdMethod,
       ...baseMethods,
       ...sendMethods,
       ...recvMethods
@@ -202,7 +184,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
 }
 
 // public {{name}}( {{#args}}{{fieldName}}: {{fieldType}}, {{/args}} ): Promise<{{typeName}}> {
-//     this._seqid = this.new_seqid()
+//     this._seqid = this.incrementSeqId()
 //     return new Promise<{{typeName}}>((resolve, reject) => {
 //         this._reqs[this.seqid()] = function(error, result) {
 //             if (error) {
@@ -228,10 +210,11 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
       [ typeNodeForFieldType(def.returnType) ]
     ), // return type
     ts.createBlock([
-      // this._seqid = this.new_seqid()
-      createAssignmentStatement(
-        ts.createIdentifier('this._seqid'),
-        ts.createCall(ts.createIdentifier('this.new_seqid'), undefined, [])
+      // this._seqid = this.incrementSeqId()
+      createConstStatement(
+        ts.createIdentifier('requestId'),
+        createNumberType(),
+        ts.createCall(ts.createIdentifier('this.incrementSeqId'), undefined, [])
       ),
       // return new Promise<type>((resolve, reject) => { ... })
       ts.createReturn(
@@ -242,7 +225,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
             createAssignmentStatement(
               ts.createElementAccess(
                 ts.createIdentifier('this._reqs'),
-                ts.createCall(ts.createIdentifier('this.seqid'), undefined, [])
+                ts.createIdentifier('requestId'),
               ),
               ts.createArrowFunction(
                 undefined,
@@ -254,6 +237,13 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                 undefined,
                 undefined,
                 ts.createBlock([
+                  // delete this._reqs[_seqid]
+                  ts.createStatement(ts.createDelete(
+                    ts.createElementAccess(
+                      ts.createIdentifier('this._reqs'),
+                      ts.createIdentifier('requestId')
+                    )
+                  )),
                   ts.createIf(
                     // if (error != null)
                     createNotNull('error'),
@@ -279,9 +269,12 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
             createMethodCallStatement(
               ts.createIdentifier('this'),
               `send_${def.name.value}`,
-              def.fields.map((next: FieldDefinition) => {
-                return ts.createIdentifier(next.name.value)
-              })
+              [
+                ...def.fields.map((next: FieldDefinition) => {
+                  return ts.createIdentifier(next.name.value)
+                }),
+                ts.createIdentifier('requestId')
+              ]
             )
           ]
         )
@@ -306,12 +299,18 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
     `send_${def.name.value}`, // name
     undefined, // question token
     undefined, // type params
-    def.fields.map((next: FieldDefinition) => {
-      return createFunctionParameter(
-        ts.createIdentifier(next.name.value),
-        typeNodeForFieldType(next.fieldType)
+    [
+      ...def.fields.map((next: FieldDefinition) => {
+        return createFunctionParameter(
+          ts.createIdentifier(next.name.value),
+          typeNodeForFieldType(next.fieldType)
+        )
+      }),
+      createFunctionParameter(
+        ts.createIdentifier('requestId'),
+        createNumberType()
       )
-    }), // parameters
+    ], // parameters
     createVoidType(), // return type
     ts.createBlock([
       // const output = new (this.protocol as any)(this.output)
@@ -334,11 +333,7 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
         [
           ts.createLiteral(def.name.value),
           ts.createIdentifier('Thrift.MessageType.CALL'),
-          createMethodCall(
-            ts.createIdentifier('this'),
-            'seqid',
-            []
-          )
+          ts.createIdentifier('requestId')
         ]
       ),
       // MortgageServiceGetMortgageOffersArgs
@@ -464,14 +459,6 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
           ts.createIdentifier('noop')
         )
       ),
-
-      // delete this._reqs[rseqid]
-      ts.createStatement(ts.createDelete(
-        ts.createElementAccess(
-          ts.createIdentifier('this._reqs'),
-          ts.createIdentifier('rseqid')
-        )
-      )),
 
       // if (mtype === Thrift.MessageType.EXCEPTION) {
       //     const x = new Thrift.TApplicationException()
