@@ -14,7 +14,7 @@ import {
   SharedStruct
 } from './codegen/shared/shared'
 
-//ServiceHandler: Implement the hello service
+// ServiceHandler: Implement the hello service
 const myServiceHandler = {
   ping(): void {},
     add(a: number, b: number): number {
@@ -38,7 +38,7 @@ const myServiceHandler = {
     }
 };
 
-//ServiceOptions: The I/O stack for the service
+// ServiceOptions: The I/O stack for the service
 const myServiceOpts = {
   handler: myServiceHandler,
   processor: Calculator,
@@ -46,14 +46,14 @@ const myServiceOpts = {
   transport: TBufferedTransport
 };
 
-//ServerOptions: Define server features
+// ServerOptions: Define server features
 const serverOpt = {
    services: {
       '/': myServiceOpts
    }
 }
 
-//Create and start the web server
+// Create and start the web server
 const port: number = 8045;
 createWebServer(serverOpt).listen(port, () => {
   console.log(`Thrift server listening on port ${port}`)
