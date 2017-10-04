@@ -9,17 +9,17 @@ export class MyStruct {
                 this.field1 = args.field1;
             }
             else {
-                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
             }
         }
     }
-    public write(output: TProtocol): void {
+    public write(output: thrift.TProtocol): void {
         output.writeStructBegin("MyStruct");
         if (this.field1 != null) {
-            output.writeFieldBegin("field1", Thrift.Type.SET, 1);
-            output.writeSetBegin(Thrift.Type.SET, this.field1.size);
+            output.writeFieldBegin("field1", thrift.Thrift.Type.SET, 1);
+            output.writeSetBegin(thrift.Thrift.Type.SET, this.field1.size);
             this.field1.forEach((value_1: Set<string>): void => {
-                output.writeSetBegin(Thrift.Type.STRING, value_1.size);
+                output.writeSetBegin(thrift.Thrift.Type.STRING, value_1.size);
                 value_1.forEach((value_2: string): void => {
                     output.writeString(value_2);
                 });
@@ -32,32 +32,32 @@ export class MyStruct {
         output.writeStructEnd();
         return;
     }
-    public read(input: TProtocol): void {
+    public read(input: thrift.TProtocol): void {
         input.readStructBegin();
         while (true) {
             const ret: {
                 fname: string;
-                ftype: Thrift.Type;
+                ftype: thrift.Thrift.Type;
                 fid: number;
             } = input.readFieldBegin();
-            const ftype: Thrift.Type = ret.ftype;
+            const ftype: thrift.Thrift.Type = ret.ftype;
             const fid: number = ret.fid;
-            if (ftype === Thrift.Type.STOP) {
+            if (ftype === thrift.Thrift.Type.STOP) {
                 break;
             }
             switch (fid) {
                 case 1:
-                    if (ftype === Thrift.Type.SET) {
+                    if (ftype === thrift.Thrift.Type.SET) {
                         const value_3: Set<Set<string>> = new Set<Set<string>>();
                         const metadata_1: {
-                            etype: Thrift.Type;
+                            etype: thrift.Thrift.Type;
                             size: number;
                         } = input.readSetBegin();
                         const size_1: number = metadata_1.size;
                         for (let i_1: number = 0; i_1 < size_1; i_1++) {
                             const value_4: Set<string> = new Set<string>();
                             const metadata_2: {
-                                etype: Thrift.Type;
+                                etype: thrift.Thrift.Type;
                                 size: number;
                             } = input.readSetBegin();
                             const size_2: number = metadata_2.size;

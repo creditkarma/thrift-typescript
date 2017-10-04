@@ -17,10 +17,10 @@ export class MyUnion {
                 this.field2 = args.field2;
             }
             if (fieldsSet > 1) {
-                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
             }
             else if (fieldsSet < 1) {
-                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
             }
         }
     }
@@ -30,18 +30,18 @@ export class MyUnion {
     public static fromField2(field2: Array<Array<string>>): MyUnion {
         return new MyUnion({ field2 });
     }
-    public write(output: TProtocol): void {
+    public write(output: thrift.TProtocol): void {
         output.writeStructBegin("MyUnion");
         if (this.field1 != null) {
-            output.writeFieldBegin("field1", Thrift.Type.STRING, 1);
+            output.writeFieldBegin("field1", thrift.Thrift.Type.STRING, 1);
             output.writeString(this.field1);
             output.writeFieldEnd();
         }
         if (this.field2 != null) {
-            output.writeFieldBegin("field2", Thrift.Type.LIST, 2);
-            output.writeListBegin(Thrift.Type.LIST, this.field2.length);
+            output.writeFieldBegin("field2", thrift.Thrift.Type.LIST, 2);
+            output.writeListBegin(thrift.Thrift.Type.LIST, this.field2.length);
             this.field2.forEach((value_1: Array<string>): void => {
-                output.writeListBegin(Thrift.Type.STRING, value_1.length);
+                output.writeListBegin(thrift.Thrift.Type.STRING, value_1.length);
                 value_1.forEach((value_2: string): void => {
                     output.writeString(value_2);
                 });
@@ -54,23 +54,23 @@ export class MyUnion {
         output.writeStructEnd();
         return;
     }
-    public read(input: TProtocol): void {
+    public read(input: thrift.TProtocol): void {
         let fieldsSet: number = 0;
         input.readStructBegin();
         while (true) {
             const ret: {
                 fname: string;
-                ftype: Thrift.Type;
+                ftype: thrift.Thrift.Type;
                 fid: number;
             } = input.readFieldBegin();
-            const ftype: Thrift.Type = ret.ftype;
+            const ftype: thrift.Thrift.Type = ret.ftype;
             const fid: number = ret.fid;
-            if (ftype === Thrift.Type.STOP) {
+            if (ftype === thrift.Thrift.Type.STOP) {
                 break;
             }
             switch (fid) {
                 case 1:
-                    if (ftype === Thrift.Type.STRING) {
+                    if (ftype === thrift.Thrift.Type.STRING) {
                         fieldsSet++;
                         const value_3: string = input.readString();
                         this.field1 = value_3;
@@ -80,18 +80,18 @@ export class MyUnion {
                     }
                     break;
                 case 2:
-                    if (ftype === Thrift.Type.LIST) {
+                    if (ftype === thrift.Thrift.Type.LIST) {
                         fieldsSet++;
                         const value_4: Array<Array<string>> = new Array<Array<string>>();
                         const metadata_1: {
-                            etype: Thrift.Type;
+                            etype: thrift.Thrift.Type;
                             size: number;
                         } = input.readListBegin();
                         const size_1: number = metadata_1.size;
                         for (let i_1: number = 0; i_1 < size_1; i_1++) {
                             const value_5: Array<string> = new Array<string>();
                             const metadata_2: {
-                                etype: Thrift.Type;
+                                etype: thrift.Thrift.Type;
                                 size: number;
                             } = input.readListBegin();
                             const size_2: number = metadata_2.size;
@@ -117,10 +117,10 @@ export class MyUnion {
         }
         input.readStructEnd();
         if (fieldsSet > 1) {
-            throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
+            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
         }
         else if (fieldsSet < 1) {
-            throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
+            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
         }
     }
 }

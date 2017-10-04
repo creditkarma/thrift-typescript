@@ -9,18 +9,18 @@ export class MyStruct {
                 this.field1 = args.field1;
             }
             else {
-                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
             }
         }
     }
-    public write(output: TProtocol): void {
+    public write(output: thrift.TProtocol): void {
         output.writeStructBegin("MyStruct");
         if (this.field1 != null) {
-            output.writeFieldBegin("field1", Thrift.Type.MAP, 1);
-            output.writeMapBegin(Thrift.Type.STRING, Thrift.Type.MAP, this.field1.size);
+            output.writeFieldBegin("field1", thrift.Thrift.Type.MAP, 1);
+            output.writeMapBegin(thrift.Thrift.Type.STRING, thrift.Thrift.Type.MAP, this.field1.size);
             this.field1.forEach((value_1: Map<string, number>, key_1: string): void => {
                 output.writeString(key_1);
-                output.writeMapBegin(Thrift.Type.STRING, Thrift.Type.I32, value_1.size);
+                output.writeMapBegin(thrift.Thrift.Type.STRING, thrift.Thrift.Type.I32, value_1.size);
                 value_1.forEach((value_2: number, key_2: string): void => {
                     output.writeString(key_2);
                     output.writeI32(value_2);
@@ -34,26 +34,26 @@ export class MyStruct {
         output.writeStructEnd();
         return;
     }
-    public read(input: TProtocol): void {
+    public read(input: thrift.TProtocol): void {
         input.readStructBegin();
         while (true) {
             const ret: {
                 fname: string;
-                ftype: Thrift.Type;
+                ftype: thrift.Thrift.Type;
                 fid: number;
             } = input.readFieldBegin();
-            const ftype: Thrift.Type = ret.ftype;
+            const ftype: thrift.Thrift.Type = ret.ftype;
             const fid: number = ret.fid;
-            if (ftype === Thrift.Type.STOP) {
+            if (ftype === thrift.Thrift.Type.STOP) {
                 break;
             }
             switch (fid) {
                 case 1:
-                    if (ftype === Thrift.Type.MAP) {
+                    if (ftype === thrift.Thrift.Type.MAP) {
                         const value_3: Map<string, Map<string, number>> = new Map<string, Map<string, number>>();
                         const metadata_1: {
-                            ktype: Thrift.Type;
-                            vtype: Thrift.Type;
+                            ktype: thrift.Thrift.Type;
+                            vtype: thrift.Thrift.Type;
                             size: number;
                         } = input.readMapBegin();
                         const size_1: number = metadata_1.size;
@@ -61,8 +61,8 @@ export class MyStruct {
                             const key_3: string = input.readString();
                             const value_4: Map<string, number> = new Map<string, number>();
                             const metadata_2: {
-                                ktype: Thrift.Type;
-                                vtype: Thrift.Type;
+                                ktype: thrift.Thrift.Type;
+                                vtype: thrift.Thrift.Type;
                                 size: number;
                             } = input.readMapBegin();
                             const size_2: number = metadata_2.size;

@@ -25,7 +25,7 @@ export function renderValue(fieldType: FunctionType, node: ConstValue): ts.Expre
     case SyntaxType.IntConstant:
       if (fieldType.type === SyntaxType.I64Keyword) {
         return ts.createNew(
-          ts.createIdentifier('Int64'),
+          COMMON_IDENTIFIERS.Int64,
           undefined,
           [ ts.createLiteral(node.value) ]
         )

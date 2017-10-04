@@ -19,6 +19,7 @@
     "test": "npm run lint && npm run test:only --",
     "test:cli": "ts-node ./src/main/bin/index.ts --rootDir . --sourceDir fixtures --outDir output errors.thrift",
     "posttest:cli": "rimraf ./output",
+    "pretest:integration": "rimraf ./src/tests/integration/codegen",
     "test:integration": "ts-node --project ./src/tests/integration ./src/tests/integration/index.ts",
     "test:watch": "npm test -- -w",
     "test:only": "NODE_ENV=test mocha --opts mocha.opts",

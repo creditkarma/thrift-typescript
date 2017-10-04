@@ -6,11 +6,15 @@ import {
   createNumberType
 } from '../types'
 
+import {
+  COMMON_IDENTIFIERS
+} from '../identifiers'
+
 // { ktype: Thrift.Type; vtype: Thrift.Type; size: number; }
 export function mapMetadataType(): ts.TypeLiteralNode {
   return ts.createTypeLiteralNode([
-    createTypeProperty('ktype', ts.createTypeReferenceNode('Thrift.Type', undefined)),
-    createTypeProperty('vtype', ts.createTypeReferenceNode('Thrift.Type', undefined)),
+    createTypeProperty('ktype', ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Thrift_Type, undefined)),
+    createTypeProperty('vtype', ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Thrift_Type, undefined)),
     createTypeProperty('size', createNumberType())
   ])
 }
@@ -18,7 +22,7 @@ export function mapMetadataType(): ts.TypeLiteralNode {
 // { etype: Thrift.Type; size: number; }
 export function listMetadataType(): ts.TypeLiteralNode {
   return ts.createTypeLiteralNode([
-    createTypeProperty('etype', ts.createTypeReferenceNode('Thrift.Type', undefined)),
+    createTypeProperty('etype', ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Thrift_Type, undefined)),
     createTypeProperty('size', createNumberType())
   ])
 }
@@ -27,7 +31,7 @@ export function listMetadataType(): ts.TypeLiteralNode {
 export function fieldMetadataType(): ts.TypeLiteralNode {
   return ts.createTypeLiteralNode([
     createTypeProperty('fname', createStringType()),
-    createTypeProperty('ftype', ts.createTypeReferenceNode('Thrift.Type', undefined)),
+    createTypeProperty('ftype', ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Thrift_Type, undefined)),
     createTypeProperty('fid', createNumberType())
   ])
 }

@@ -46,6 +46,7 @@ import {
 
 import {
   COMMON_IDENTIFIERS,
+  THRIFT_TYPES,
 } from './identifiers'
 
 const INCREMENTER: string = 'fieldsSet'
@@ -203,20 +204,32 @@ function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
 function createReadMethod(struct: UnionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
   const inputParameter: ts.ParameterDeclaration = createFunctionParameter(
     'input', // param name
-    ts.createTypeReferenceNode('TProtocol', undefined), // param type
+    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TProtocol, undefined), // param type
   )
 
   // let fieldsSet: number = 0;
   const fieldsSet: ts.VariableStatement = createFieldIncrementer()
 
-  /**
-   * cosnt ret: { fname: string; ftype: Thrift.Type; fid: number; } = input.readFieldBegin()
-   * const ftype: Thrift.Type = ret.ftype
-   * const fid: number = ret.fid
-   */
-  const ret: ts.VariableStatement = createConstStatement('ret', fieldMetadataType(), readFieldBegin())
-  const ftype: ts.VariableStatement = createConstStatement('ftype', ts.createTypeReferenceNode('Thrift.Type', undefined), propertyAccessForIdentifier('ret', 'ftype'))
-  const fid: ts.VariableStatement = createConstStatement('fid', createNumberType(), propertyAccessForIdentifier('ret', 'fid'))
+  // cosnt ret: { fname: string; ftype: Thrift.Type; fid: number; } = input.readFieldBegin()
+  const ret: ts.VariableStatement = createConstStatement(
+    'ret',
+    fieldMetadataType(),
+    readFieldBegin()
+  )
+
+  // const ftype: Thrift.Type = ret.ftype
+  const ftype: ts.VariableStatement = createConstStatement(
+    'ftype',
+    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Thrift_Type, undefined),
+    propertyAccessForIdentifier('ret', 'ftype')
+  )
+
+  //const fid: number = ret.fid
+  const fid: ts.VariableStatement = createConstStatement(
+    'fid',
+    createNumberType(),
+    propertyAccessForIdentifier('ret', 'fid')
+  )
 
   /**
    * if (ftype === Thrift.Type.STOP) {
@@ -224,7 +237,7 @@ function createReadMethod(struct: UnionDefinition, identifiers: IIdentifierMap):
    * }
    */
   const checkStop: ts.IfStatement = ts.createIf(
-    createEquals(COMMON_IDENTIFIERS.ftype, ts.createIdentifier('Thrift.Type.STOP')),
+    createEquals(COMMON_IDENTIFIERS.ftype, THRIFT_TYPES.STOP),
     ts.createBlock([
       ts.createBreak(),
     ], true),
@@ -292,7 +305,7 @@ export function createCaseForField(field: FieldDefinition, identifiers: IIdentif
   const fieldAlias: ts.Identifier = ts.createUniqueName('value')
   const checkType: ts.IfStatement = ts.createIf(
     createEquals(
-      COMMON_IDENTIFIERS['ftype'],
+      COMMON_IDENTIFIERS.ftype,
       thriftTypeForFieldType(field.fieldType, identifiers)
     ),
     ts.createBlock([
@@ -337,7 +350,7 @@ export function createFieldValidation(): ts.IfStatement {
     ),
     ts.createBlock([
       throwProtocolException(
-        'TProtocolExceptionType.INVALID_DATA',
+        'INVALID_DATA',
         'Cannot read a TUnion with more than one set value!',
       ),
     ], true),
@@ -349,7 +362,7 @@ export function createFieldValidation(): ts.IfStatement {
       ),
       ts.createBlock([
         throwProtocolException(
-          'TProtocolExceptionType.INVALID_DATA',
+          'INVALID_DATA',
           'Cannot read a TUnion with no set value!',
         ),
       ], true),

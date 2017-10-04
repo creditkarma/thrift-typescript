@@ -7,7 +7,7 @@ generate({
   rootDir: '.',
   outDir: 'codegen',
   sourceDir: 'thrift',
-  files: [ './test_service/service.thrift' ]
+  files: [ './tutorial.thrift' ]
 })
 
 const clientProc = fork('./client.ts')
@@ -20,15 +20,15 @@ function exit(code: number) {
 }
 
 setTimeout(() => {
-  exec('curl http://localhost:8044/ping', function(err, stout, sterr) {
+  exec('curl "http://localhost:8044/ping"', function(err, stout, sterr) {
     if (err != null) {
       console.error('Error running Thrift service: ', err)
       exit(1)
     }
 
-    if (stout === 'status: 1') {
-      exec('curl http://localhost:8044/peg', function(err, stout, sterr) {
-        if (stout === 'peg complete') {
+    if (stout === 'success') {
+      exec('curl "http://localhost:8044/calculate?left=3&op=add&right=5"', function(err, stout, sterr) {
+        if (stout === 'result: 8') {
           console.log('Successfully able to run Thrift service')
           exit(0)
         } else {

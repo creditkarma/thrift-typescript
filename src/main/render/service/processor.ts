@@ -45,7 +45,9 @@ import {
 } from '../types'
 
 import {
-  COMMON_IDENTIFIERS
+  COMMON_IDENTIFIERS,
+  MESSAGE_TYPE,
+  THRIFT_TYPES,
 } from '../identifiers'
 
 /**
@@ -266,7 +268,7 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
     createVoidType(), // return type
     [
       createConstStatement(
-        COMMON_IDENTIFIERS['args'],
+        COMMON_IDENTIFIERS.args,
         undefined,
         ts.createNew(
           ts.createIdentifier(createStructArgsName(funcDef)),
@@ -276,13 +278,13 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
       ),
       // args.read(input);
       createMethodCallStatement(
-        COMMON_IDENTIFIERS['args'],
+        COMMON_IDENTIFIERS.args,
         'read',
-        [ COMMON_IDENTIFIERS['input'] ]
+        [ COMMON_IDENTIFIERS.input ]
       ),
       // input.readMessageEnd();
       createMethodCallStatement(
-        COMMON_IDENTIFIERS['input'],
+        COMMON_IDENTIFIERS.input,
         'readMessageEnd'
       ),
       // new Promise<{{typeName}}>((resolve, reject) => {
@@ -369,11 +371,11 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                   ),
                   // output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
                   createMethodCallStatement(
-                    COMMON_IDENTIFIERS['output'],
+                    COMMON_IDENTIFIERS.output,
                     'writeMessageBegin',
                     [
                       ts.createLiteral(funcDef.name.value),
-                      ts.createIdentifier('Thrift.MessageType.REPLY'),
+                      MESSAGE_TYPE.REPLY,
                       ts.createIdentifier('seqid')
                     ]
                   ),
@@ -382,18 +384,18 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                     ts.createIdentifier('result'),
                     'write',
                     [
-                      COMMON_IDENTIFIERS['output']
+                      COMMON_IDENTIFIERS.output
                     ]
                   ),
                   // output.writeMessageEnd()
                   createMethodCallStatement(
-                    COMMON_IDENTIFIERS['output'],
+                    COMMON_IDENTIFIERS.output,
                     'writeMessageEnd',
                     []
                   ),
                   // output.flush()
                   createMethodCallStatement(
-                    COMMON_IDENTIFIERS['output'],
+                    COMMON_IDENTIFIERS.output,
                     'flush',
                     []
                   ),
@@ -464,11 +466,12 @@ function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statemen
           ),
           // output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
           createMethodCallStatement(
-            COMMON_IDENTIFIERS['output'],
+
+            COMMON_IDENTIFIERS.output,
             'writeMessageBegin',
             [
               ts.createLiteral(funcDef.name.value),
-              ts.createIdentifier('Thrift.MessageType.REPLY'),
+              MESSAGE_TYPE.REPLY,
               ts.createIdentifier('seqid')
             ]
           ),
@@ -477,17 +480,17 @@ function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statemen
             ts.createIdentifier('result'),
             'write',
             [
-              COMMON_IDENTIFIERS['output']
+              COMMON_IDENTIFIERS.output
             ]
           ),
           // output.writeMessageEnd()
           createMethodCallStatement(
-            COMMON_IDENTIFIERS['output'],
+            COMMON_IDENTIFIERS.output,
             'writeMessageEnd'
           ),
           // output.flush()
           createMethodCallStatement(
-            COMMON_IDENTIFIERS['output'],
+            COMMON_IDENTIFIERS.output,
             'flush'
           ),
           ts.createReturn()
@@ -497,21 +500,21 @@ function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statemen
           createConstStatement(
             ts.createIdentifier('result'),
             ts.createTypeReferenceNode(
-              ts.createIdentifier('Thrift.TApplicationException'),
+              COMMON_IDENTIFIERS.TApplicationException,
               undefined
             ),
             createApplicationException(
-              'TApplicationExceptionType.UNKNOWN',
+              'UNKNOWN',
               ts.createIdentifier('err.message')
             )
           ),
           // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
           createMethodCallStatement(
-            COMMON_IDENTIFIERS['output'],
+            COMMON_IDENTIFIERS.output,
             'writeMessageBegin',
             [
               ts.createLiteral(funcDef.name.value),
-              ts.createIdentifier('Thrift.MessageType.EXCEPTION'),
+              MESSAGE_TYPE.EXCEPTION,
               ts.createIdentifier('seqid')
             ]
           ),
@@ -520,17 +523,17 @@ function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statemen
             ts.createIdentifier('result'),
             'write',
             [
-              COMMON_IDENTIFIERS['output']
+              COMMON_IDENTIFIERS.output
             ]
           ),
           // output.writeMessageEnd()
           createMethodCallStatement(
-            COMMON_IDENTIFIERS['output'],
+            COMMON_IDENTIFIERS.output,
             'writeMessageEnd'
           ),
           // output.flush()
           createMethodCallStatement(
-            COMMON_IDENTIFIERS['output'],
+            COMMON_IDENTIFIERS.output,
             'flush'
           ),
           ts.createReturn()
@@ -543,21 +546,21 @@ function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statemen
       createConstStatement(
         ts.createIdentifier('result'),
         ts.createTypeReferenceNode(
-          ts.createIdentifier('Thrift.TApplicationException'),
+          COMMON_IDENTIFIERS.TApplicationException,
           undefined
         ),
         createApplicationException(
-          'TApplicationExceptionType.UNKNOWN',
+          'UNKNOWN',
           ts.createIdentifier('err.message')
         )
       ),
       // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
       createMethodCallStatement(
-        COMMON_IDENTIFIERS['output'],
+        COMMON_IDENTIFIERS.output,
         'writeMessageBegin',
         [
           ts.createLiteral(funcDef.name.value),
-          ts.createIdentifier('Thrift.MessageType.EXCEPTION'),
+          MESSAGE_TYPE.EXCEPTION,
           ts.createIdentifier('seqid')
         ]
       ),
@@ -566,17 +569,17 @@ function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statemen
         ts.createIdentifier('result'),
         'write',
         [
-          COMMON_IDENTIFIERS['output']
+          COMMON_IDENTIFIERS.output
         ]
       ),
       // output.writeMessageEnd()
       createMethodCallStatement(
-        COMMON_IDENTIFIERS['output'],
+        COMMON_IDENTIFIERS.output,
         'writeMessageEnd'
       ),
       // output.flush()
       createMethodCallStatement(
-        COMMON_IDENTIFIERS['output'],
+        COMMON_IDENTIFIERS.output,
         'flush'
       ),
       ts.createReturn()
@@ -611,7 +614,7 @@ function createProcessMethod(service: ServiceDefinition, identifiers: IIdentifie
         'metadata',
         createReadMessageType(),
         createMethodCall(
-          COMMON_IDENTIFIERS['input'],
+          COMMON_IDENTIFIERS.input,
           'readMessageBegin',
           []
         )
@@ -632,7 +635,7 @@ function createProcessMethod(service: ServiceDefinition, identifiers: IIdentifie
         ts.createBinary(
           ts.createLiteral('process_'),
           ts.SyntaxKind.PlusToken,
-          COMMON_IDENTIFIERS['fname']
+          COMMON_IDENTIFIERS.fname
         )
       ),
       createMethodCallForFname(service, identifiers)
@@ -652,8 +655,8 @@ function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
             processMethodName,
             [
               ts.createIdentifier('rseqid'),
-              COMMON_IDENTIFIERS['input'],
-              COMMON_IDENTIFIERS['output'],
+              COMMON_IDENTIFIERS.input,
+              COMMON_IDENTIFIERS.output,
               ts.createIdentifier('context'),
             ]
           )
@@ -720,13 +723,13 @@ function createMethodCallForFname(service: ServiceDefinition, identifiers: IIden
         ts.createBlock([
           // input.skip(Thrift.Type.STRUCT)
           createMethodCallStatement(
-            COMMON_IDENTIFIERS['input'],
+            COMMON_IDENTIFIERS.input,
             'skip',
-            [ ts.createIdentifier('Thrift.Type.STRUCT') ]
+            [ THRIFT_TYPES.STRUCT ]
           ),
           // input.readMessageEnd()
           createMethodCallStatement(
-            COMMON_IDENTIFIERS['input'],
+            COMMON_IDENTIFIERS.input,
             'readMessageEnd'
           ),
           // const err = `Unknown function ${fname}`
@@ -744,17 +747,17 @@ function createMethodCallForFname(service: ServiceDefinition, identifiers: IIden
             ts.createIdentifier('err'),
             undefined,
             createApplicationException(
-              'TApplicationExceptionType.UNKNOWN_METHOD',
+              'UNKNOWN_METHOD',
               ts.createIdentifier('errMessage')
             )
           ),
           // output.writeMessageBegin(fname, Thrift.MessageType.EXCEPTION, rseqid)
           createMethodCallStatement(
-            COMMON_IDENTIFIERS['output'],
+            COMMON_IDENTIFIERS.output,
             'writeMessageBegin',
             [
               ts.createIdentifier('fname'),
-              ts.createIdentifier('Thrift.MessageType.EXCEPTION'),
+              MESSAGE_TYPE.EXCEPTION,
               ts.createIdentifier('rseqid')
             ]
           ),
@@ -762,16 +765,16 @@ function createMethodCallForFname(service: ServiceDefinition, identifiers: IIden
           createMethodCallStatement(
             ts.createIdentifier('err'),
             'write',
-            [ COMMON_IDENTIFIERS['output'] ]
+            [ COMMON_IDENTIFIERS.output ]
           ),
           // output.writeMessageEnd()
           createMethodCallStatement(
-            COMMON_IDENTIFIERS['output'],
+            COMMON_IDENTIFIERS.output,
             'writeMessageEnd'
           ),
           // output.flush()
           createMethodCallStatement(
-            COMMON_IDENTIFIERS['output'],
+            COMMON_IDENTIFIERS.output,
             'flush'
           )
         ], true)

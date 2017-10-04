@@ -20,26 +20,15 @@ export function createThriftImports(): ts.ImportDeclaration {
     undefined,
     ts.createImportClause(
       undefined,
-      ts.createNamedImports(
-        [
-          ts.createImportSpecifier(
-            undefined,
-            ts.createIdentifier('Thrift'),
-          ),
-          ts.createImportSpecifier(
-            undefined,
-            ts.createIdentifier('TProtocol'),
-          ),
-          ts.createImportSpecifier(
-            undefined,
-            ts.createIdentifier('TTransport'),
-          ),
-          ts.createImportSpecifier(
-            undefined,
-            ts.createIdentifier('Int64'),
-          ),
-        ],
-      ),
+      ts.createNamespaceImport(ts.createIdentifier('thrift'))
+      // ts.createNamedImports(
+      //   [
+      //     ts.createImportSpecifier(
+      //       ts.createIdentifier('*'),
+      //       ts.createIdentifier('thrift'),
+      //     ),
+      //   ],
+      // ),
     ),
     ts.createLiteral('thrift'),
   )

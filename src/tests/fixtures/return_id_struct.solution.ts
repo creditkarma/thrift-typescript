@@ -9,14 +9,14 @@ export class OtherStruct {
                 this.name = args.name;
             }
             else {
-                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field name is unset!");
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field name is unset!");
             }
         }
     }
-    public write(output: TProtocol): void {
+    public write(output: thrift.TProtocol): void {
         output.writeStructBegin("OtherStruct");
         if (this.name != null) {
-            output.writeFieldBegin("name", Thrift.Type.STRING, 1);
+            output.writeFieldBegin("name", thrift.Thrift.Type.STRING, 1);
             output.writeString(this.name);
             output.writeFieldEnd();
         }
@@ -24,22 +24,22 @@ export class OtherStruct {
         output.writeStructEnd();
         return;
     }
-    public read(input: TProtocol): void {
+    public read(input: thrift.TProtocol): void {
         input.readStructBegin();
         while (true) {
             const ret: {
                 fname: string;
-                ftype: Thrift.Type;
+                ftype: thrift.Thrift.Type;
                 fid: number;
             } = input.readFieldBegin();
-            const ftype: Thrift.Type = ret.ftype;
+            const ftype: thrift.Thrift.Type = ret.ftype;
             const fid: number = ret.fid;
-            if (ftype === Thrift.Type.STOP) {
+            if (ftype === thrift.Thrift.Type.STOP) {
                 break;
             }
             switch (fid) {
                 case 1:
-                    if (ftype === Thrift.Type.STRING) {
+                    if (ftype === thrift.Thrift.Type.STRING) {
                         const value_1: string = input.readString();
                         this.name = value_1;
                     }
@@ -68,14 +68,14 @@ export class MyStruct {
                 this.field1 = args.field1;
             }
             else {
-                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
             }
         }
     }
-    public write(output: TProtocol): void {
+    public write(output: thrift.TProtocol): void {
         output.writeStructBegin("MyStruct");
         if (this.field1 != null) {
-            output.writeFieldBegin("field1", Thrift.Type.STRUCT, 1);
+            output.writeFieldBegin("field1", thrift.Thrift.Type.STRUCT, 1);
             this.field1.write(output);
             output.writeFieldEnd();
         }
@@ -83,22 +83,22 @@ export class MyStruct {
         output.writeStructEnd();
         return;
     }
-    public read(input: TProtocol): void {
+    public read(input: thrift.TProtocol): void {
         input.readStructBegin();
         while (true) {
             const ret: {
                 fname: string;
-                ftype: Thrift.Type;
+                ftype: thrift.Thrift.Type;
                 fid: number;
             } = input.readFieldBegin();
-            const ftype: Thrift.Type = ret.ftype;
+            const ftype: thrift.Thrift.Type = ret.ftype;
             const fid: number = ret.fid;
-            if (ftype === Thrift.Type.STOP) {
+            if (ftype === thrift.Thrift.Type.STOP) {
                 break;
             }
             switch (fid) {
                 case 1:
-                    if (ftype === Thrift.Type.STRUCT) {
+                    if (ftype === thrift.Thrift.Type.STRUCT) {
                         const value_2: OtherStruct = new OtherStruct();
                         value_2.read(input);
                         this.field1 = value_2;

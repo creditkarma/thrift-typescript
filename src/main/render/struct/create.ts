@@ -139,7 +139,7 @@ export function assignmentForField(field: FieldDefinition): ts.ExpressionStateme
 export function throwForField(field: FieldDefinition): ts.ThrowStatement | undefined {
   if (field.requiredness === 'required') {
     return throwProtocolException(
-      'TProtocolExceptionType.UNKNOWN',
+      'UNKNOWN',
       `Required field ${field.name.value} is unset!`
     )
   } else {

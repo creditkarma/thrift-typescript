@@ -11,7 +11,11 @@ import {
   createFunctionParameter
 } from '../utils'
 
-export const TProtocolType: ts.TypeNode = ts.createTypeReferenceNode('TProtocol', undefined)
+import {
+  COMMON_IDENTIFIERS
+} from '../identifiers'
+
+export const TProtocolType: ts.TypeNode = ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TProtocol, undefined)
 
 export const ContextType: ts.TypeNode = ts.createTypeReferenceNode('Context', undefined)
 
@@ -19,7 +23,7 @@ export const ContextType: ts.TypeNode = ts.createTypeReferenceNode('Context', un
 export function createReadMessageType(): ts.TypeLiteralNode {
   return ts.createTypeLiteralNode([
     createTypeProperty('fname', createStringType()),
-    createTypeProperty('mtype', ts.createTypeReferenceNode('Thrift.MessageType', undefined)),
+    createTypeProperty('mtype', ts.createTypeReferenceNode(COMMON_IDENTIFIERS.MessageType, undefined)),
     createTypeProperty('rseqid', createNumberType())
   ])
 }
@@ -27,7 +31,7 @@ export function createReadMessageType(): ts.TypeLiteralNode {
 export function createProtocolType(): ts.ConstructorTypeNode {
   return ts.createConstructorTypeNode(
     [],
-    [ createFunctionParameter('trans', ts.createTypeReferenceNode('TTransport', undefined)) ],
+    [ createFunctionParameter('trans', ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TTransport, undefined)) ],
     TProtocolType
   )
 }

@@ -33,7 +33,8 @@ import {
 } from '../utils'
 
 import {
-  COMMON_IDENTIFIERS
+  COMMON_IDENTIFIERS,
+  THRIFT_TYPES,
 } from '../identifiers'
 
 import {
@@ -87,9 +88,23 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
    * const ftype: Thrift.Type = ret.ftype
    * const fid: number = ret.fid
    */
-  const ret: ts.VariableStatement = createConstStatement('ret', fieldMetadataType(), readFieldBegin())
-  const ftype: ts.VariableStatement = createConstStatement('ftype', ts.createTypeReferenceNode('Thrift.Type', undefined), propertyAccessForIdentifier('ret', 'ftype'))
-  const fid: ts.VariableStatement = createConstStatement('fid', createNumberType(), propertyAccessForIdentifier('ret', 'fid'))
+  const ret: ts.VariableStatement = createConstStatement(
+    'ret',
+    fieldMetadataType(),
+    readFieldBegin()
+  )
+
+  const ftype: ts.VariableStatement = createConstStatement(
+    'ftype',
+    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Thrift_Type, undefined),
+    propertyAccessForIdentifier('ret', 'ftype')
+  )
+
+  const fid: ts.VariableStatement = createConstStatement(
+    'fid',
+    createNumberType(),
+    propertyAccessForIdentifier('ret', 'fid')
+  )
 
   /**
    * if (ftype === Thrift.Type.STOP) {
@@ -97,7 +112,7 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
    * }
    */
   const checkStop: ts.IfStatement = ts.createIf(
-    createEquals(COMMON_IDENTIFIERS['ftype'], ts.createIdentifier('Thrift.Type.STOP')),
+    createEquals(COMMON_IDENTIFIERS.ftype, THRIFT_TYPES.STOP),
     ts.createBlock([
       ts.createBreak()
     ], true)
@@ -111,7 +126,7 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
       fid,
       checkStop,
       ts.createSwitch(
-        COMMON_IDENTIFIERS['fid'], // what to switch on
+        COMMON_IDENTIFIERS.fid, // what to switch on
         ts.createCaseBlock([
           ...struct.fields.map((next: FieldDefinition) => {
             return createCaseForField(next, identifiers)
@@ -141,7 +156,7 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
 export function createInputParameter(): ts.ParameterDeclaration {
   return createFunctionParameter(
     'input', // param name
-    ts.createTypeReferenceNode('TProtocol', undefined) // param type
+    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TProtocol, undefined) // param type
   )
 }
 
@@ -164,7 +179,7 @@ export function createCaseForField(field: FieldDefinition, identifiers: IIdentif
   const fieldAlias: ts.Identifier = ts.createUniqueName('value')
   const checkType: ts.IfStatement = ts.createIf(
     createEquals(
-      COMMON_IDENTIFIERS['ftype'],
+      COMMON_IDENTIFIERS.ftype,
       thriftTypeForFieldType(field.fieldType, identifiers)
     ),
     ts.createBlock([
@@ -367,7 +382,7 @@ export function readValueForIdentifier(
           fieldName,
           'read',
           [
-            COMMON_IDENTIFIERS['input']
+            COMMON_IDENTIFIERS.input
           ]
         )
       ]
@@ -440,7 +455,7 @@ export function readValueForFieldType(
           fieldName,
           typeNodeForFieldType(fieldType),
           ts.createNew(
-            COMMON_IDENTIFIERS['Map'], // class name
+            COMMON_IDENTIFIERS.Map, // class name
             [ typeNodeForFieldType(fieldType.keyType), typeNodeForFieldType(fieldType.valueType) ],
             []
           )
@@ -454,7 +469,7 @@ export function readValueForFieldType(
           fieldName,
           typeNodeForFieldType(fieldType),
           ts.createNew(
-            COMMON_IDENTIFIERS['Array'], // class name
+            COMMON_IDENTIFIERS.Array, // class name
             [ typeNodeForFieldType(fieldType.valueType) ],
             []
           )
@@ -468,7 +483,7 @@ export function readValueForFieldType(
           fieldName,
           typeNodeForFieldType(fieldType),
           ts.createNew(
-            COMMON_IDENTIFIERS['Set'], // class name
+            COMMON_IDENTIFIERS.Set, // class name
             [ typeNodeForFieldType(fieldType.valueType) ],
             []
           )
@@ -479,7 +494,7 @@ export function readValueForFieldType(
     case SyntaxType.VoidKeyword:
       return [
         createMethodCallStatement('input', 'skip', [
-          COMMON_IDENTIFIERS['ftype']
+          COMMON_IDENTIFIERS.ftype
         ])
       ]
 
@@ -548,6 +563,6 @@ export function createSkipBlock(): ts.Block {
 
 function createSkipStatement(): ts.ExpressionStatement {
   return createMethodCallStatement('input', 'skip', [
-    COMMON_IDENTIFIERS['ftype']
+    COMMON_IDENTIFIERS.ftype
   ])
 }

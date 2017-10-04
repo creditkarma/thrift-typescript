@@ -11,7 +11,10 @@ import {
 } from '../types'
 
 import {
-  COMMON_IDENTIFIERS
+  COMMON_IDENTIFIERS,
+  THRIFT_TYPES,
+  PROTOCOL_EXCEPTION,
+  APPLICATION_EXCEPTION,
 } from './identifiers'
 
 export function createVoidType(): ts.TypeNode {
@@ -101,7 +104,7 @@ export function typeNodeForFieldType(fieldType: FunctionType): ts.TypeNode {
       return createBooleanType()
 
     case SyntaxType.I64Keyword:
-      return ts.createTypeReferenceNode(COMMON_IDENTIFIERS['Int64'], undefined)
+      return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Int64, undefined)
 
     case SyntaxType.DoubleKeyword:
     case SyntaxType.I8Keyword:
@@ -126,22 +129,22 @@ export function constructorNameForFieldType(fieldType: FunctionType): ts.Identif
       return ts.createIdentifier(fieldType.value)
 
     case SyntaxType.SetType:
-      return COMMON_IDENTIFIERS['Set']
+      return COMMON_IDENTIFIERS.Set
 
     case SyntaxType.MapType:
-      return COMMON_IDENTIFIERS['Map']
+      return COMMON_IDENTIFIERS.Map
 
     case SyntaxType.ListType:
-      return COMMON_IDENTIFIERS['Array']
+      return COMMON_IDENTIFIERS.Array
 
     case SyntaxType.StringKeyword:
-      return COMMON_IDENTIFIERS['String']
+      return COMMON_IDENTIFIERS.String
 
     case SyntaxType.BoolKeyword:
-      return COMMON_IDENTIFIERS['Boolean']
+      return COMMON_IDENTIFIERS.Boolean
 
     case SyntaxType.I64Keyword:
-      return COMMON_IDENTIFIERS['Int64']
+      return COMMON_IDENTIFIERS.Int64
 
     case SyntaxType.DoubleKeyword:
     case SyntaxType.I8Keyword:
@@ -149,10 +152,10 @@ export function constructorNameForFieldType(fieldType: FunctionType): ts.Identif
     case SyntaxType.I32Keyword:
     case SyntaxType.BinaryKeyword:
     case SyntaxType.ByteKeyword:
-      return COMMON_IDENTIFIERS['Number']
+      return COMMON_IDENTIFIERS.Number
 
     case SyntaxType.VoidKeyword:
-      return COMMON_IDENTIFIERS['void']
+      return COMMON_IDENTIFIERS.void
 
     default:
       const msg: never = fieldType
@@ -161,29 +164,66 @@ export function constructorNameForFieldType(fieldType: FunctionType): ts.Identif
 }
 
 export type TProtocolException =
-  'TProtocolExceptionType.UNKNOWN' | 'TProtocolExceptionType.INVALID_DATA' | 'TProtocolExceptionType.NEGATIVE_SIZE' |
-  'TProtocolExceptionType.SIZE_LIMIT' | 'TProtocolExceptionType.BAD_VERSION' | 'TProtocolExceptionType.NOT_IMPLEMENTED' |
-  'TProtocolExceptionType.DEPTH_LIMIT'
+  'UNKNOWN' | 'INVALID_DATA' | 'NEGATIVE_SIZE' |
+  'SIZE_LIMIT' | 'BAD_VERSION' | 'NOT_IMPLEMENTED' |
+  'DEPTH_LIMIT'
 
 export type TApplicationException =
-  'TApplicationExceptionType.UNKNOWN' | 'TApplicationExceptionType.UNKNOWN_METHOD' | 'TApplicationExceptionType.INVALID_MESSAGE_TYPE' |
-  'TApplicationExceptionType.WRONG_METHOD_NAME' | 'TApplicationExceptionType.BAD_SEQUENCE_ID' | 'TApplicationExceptionType.MISSING_RESULT' |
-  'TApplicationExceptionType.INTERNAL_ERROR' | 'TApplicationExceptionType.PROTOCOL_ERROR' | 'TApplicationExceptionType.INVALID_TRANSFORM' |
-  'TApplicationExceptionType.INVALID_PROTOCOL' | 'TApplicationExceptionType.UNSUPPORTED_CLIENT_TYPE'
+  'UNKNOWN' | 'UNKNOWN_METHOD' | 'INVALID_MESSAGE_TYPE' |
+  'WRONG_METHOD_NAME' | 'BAD_SEQUENCE_ID' | 'MISSING_RESULT' |
+  'INTERNAL_ERROR' | 'PROTOCOL_ERROR' | 'INVALID_TRANSFORM' |
+  'INVALID_PROTOCOL' | 'UNSUPPORTED_CLIENT_TYPE'
 
-const THRIFT_TYPES = {
-  'Thrift.Type.STRUCT': ts.createIdentifier('Thrift.Type.STRUCT'),
-  'Thrift.Type.SET': ts.createIdentifier('Thrift.Type.SET'),
-  'Thrift.Type.MAP': ts.createIdentifier('Thrift.Type.MAP'),
-  'Thrift.Type.LIST': ts.createIdentifier('Thrift.Type.LIST'),
-  'Thrift.Type.STRING': ts.createIdentifier('Thrift.Type.STRING'),
-  'Thrift.Type.BOOL': ts.createIdentifier('Thrift.Type.BOOL'),
-  'Thrift.Type.DOUBLE': ts.createIdentifier('Thrift.Type.DOUBLE'),
-  'Thrift.Type.BYTE': ts.createIdentifier('Thrift.Type.BYTE'),
-  'Thrift.Type.I16': ts.createIdentifier('Thrift.Type.I16'),
-  'Thrift.Type.I32': ts.createIdentifier('Thrift.Type.I32'),
-  'Thrift.Type.I64': ts.createIdentifier('Thrift.Type.I64'),
-  'Thrift.Type.VOID': ts.createIdentifier('Thrift.Type.VOID'),
+export function protocolException(exceptionType: TProtocolException): ts.Identifier {
+  switch (exceptionType) {
+    case 'UNKNOWN':
+      return PROTOCOL_EXCEPTION.UNKNOWN
+    case 'INVALID_DATA':
+      return PROTOCOL_EXCEPTION.INVALID_DATA
+    case 'NEGATIVE_SIZE':
+      return PROTOCOL_EXCEPTION.NEGATIVE_SIZE
+    case 'SIZE_LIMIT':
+      return PROTOCOL_EXCEPTION.SIZE_LIMIT
+    case 'BAD_VERSION':
+      return PROTOCOL_EXCEPTION.BAD_VERSION
+    case 'NOT_IMPLEMENTED':
+      return PROTOCOL_EXCEPTION.NOT_IMPLEMENTED
+    case 'DEPTH_LIMIT':
+      return PROTOCOL_EXCEPTION.DEPTH_LIMIT
+    default:
+      const msg: never = exceptionType
+      throw new Error(`Non-exhaustive match for: ${msg}`)
+  }
+}
+
+export function applicationException(exceptionType: TApplicationException): ts.Identifier {
+  switch (exceptionType) {
+    case 'UNKNOWN':
+      return APPLICATION_EXCEPTION.UNKNOWN
+    case 'UNKNOWN_METHOD':
+      return APPLICATION_EXCEPTION.UNKNOWN_METHOD
+    case 'INVALID_MESSAGE_TYPE':
+      return APPLICATION_EXCEPTION.INVALID_MESSAGE_TYPE
+    case 'WRONG_METHOD_NAME':
+      return APPLICATION_EXCEPTION.WRONG_METHOD_NAME
+    case 'BAD_SEQUENCE_ID':
+      return APPLICATION_EXCEPTION.BAD_SEQUENCE_ID
+    case 'MISSING_RESULT':
+      return APPLICATION_EXCEPTION.MISSING_RESULT
+    case 'INTERNAL_ERROR':
+      return APPLICATION_EXCEPTION.INTERNAL_ERROR
+    case 'PROTOCOL_ERROR':
+      return APPLICATION_EXCEPTION.PROTOCOL_ERROR
+    case 'INVALID_TRANSFORM':
+      return APPLICATION_EXCEPTION.INVALID_TRANSFORM
+    case 'INVALID_PROTOCOL':
+      return APPLICATION_EXCEPTION.INVALID_PROTOCOL
+    case 'UNSUPPORTED_CLIENT_TYPE':
+      return APPLICATION_EXCEPTION.UNSUPPORTED_CLIENT_TYPE
+    default:
+      const msg: never = exceptionType
+      throw new Error(`Non-exhaustive match for: ${msg}`)
+  }
 }
 
 function thriftTypeForIdentifier(id: IResolvedIdentifier, identifiers: IIdentifierMap): ts.Identifier {
@@ -197,10 +237,10 @@ function thriftTypeForIdentifier(id: IResolvedIdentifier, identifiers: IIdentifi
     case SyntaxType.StructDefinition:
     case SyntaxType.UnionDefinition:
     case SyntaxType.ExceptionDefinition:
-      return THRIFT_TYPES['Thrift.Type.STRUCT']
+      return THRIFT_TYPES.STRUCT
 
     case SyntaxType.EnumDefinition:
-      return THRIFT_TYPES['Thrift.Type.I32']
+      return THRIFT_TYPES.I32
 
     case SyntaxType.TypedefDefinition:
       return thriftTypeForFieldType(
@@ -235,39 +275,39 @@ export function thriftTypeForFieldType(fieldType: FunctionType, identifiers: IId
       )
 
     case SyntaxType.SetType:
-      return THRIFT_TYPES['Thrift.Type.SET']
+      return THRIFT_TYPES.SET
 
     case SyntaxType.MapType:
-      return THRIFT_TYPES['Thrift.Type.MAP']
+      return THRIFT_TYPES.MAP
 
     case SyntaxType.ListType:
-      return THRIFT_TYPES['Thrift.Type.LIST']
+      return THRIFT_TYPES.LIST
 
     case SyntaxType.BinaryKeyword:
     case SyntaxType.StringKeyword:
-      return THRIFT_TYPES['Thrift.Type.STRING']
+      return THRIFT_TYPES.STRING
 
     case SyntaxType.BoolKeyword:
-      return THRIFT_TYPES['Thrift.Type.BOOL']
+      return THRIFT_TYPES.BOOL
 
     case SyntaxType.DoubleKeyword:
-      return THRIFT_TYPES['Thrift.Type.DOUBLE']
+      return THRIFT_TYPES.DOUBLE
 
     case SyntaxType.I8Keyword:
     case SyntaxType.ByteKeyword:
-      return THRIFT_TYPES['Thrift.Type.BYTE']
+      return THRIFT_TYPES.BYTE
 
     case SyntaxType.I16Keyword:
-      return THRIFT_TYPES['Thrift.Type.I16']
+      return THRIFT_TYPES.I16
 
     case SyntaxType.I32Keyword:
-      return THRIFT_TYPES['Thrift.Type.I32']
+      return THRIFT_TYPES.I32
 
     case SyntaxType.I64Keyword:
-      return THRIFT_TYPES['Thrift.Type.I64']
+      return THRIFT_TYPES.I64
 
     case SyntaxType.VoidKeyword:
-      return THRIFT_TYPES['Thrift.Type.VOID']
+      return THRIFT_TYPES.VOID
 
     default:
       const msg: never = fieldType

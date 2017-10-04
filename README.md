@@ -91,12 +91,11 @@ The gererated code can be used with many of the more strict tsc compiler options
   "compilerOptions": {
     "noImplicitAny": true,
     "noImplicitThis": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "noUnusedLocals": true
   }
 }
 ```
-
-However, the generated code may have unused local variables. Setting the "noUnusedLocals" flag to true may cause errors. This will be fixed soon.
 
 ## Development
 

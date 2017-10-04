@@ -9,14 +9,14 @@ export class MyException {
                 this.message = args.message;
             }
             else {
-                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field message is unset!");
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field message is unset!");
             }
         }
     }
-    public write(output: TProtocol): void {
+    public write(output: thrift.TProtocol): void {
         output.writeStructBegin("MyException");
         if (this.message != null) {
-            output.writeFieldBegin("message", Thrift.Type.STRING, 1);
+            output.writeFieldBegin("message", thrift.Thrift.Type.STRING, 1);
             output.writeString(this.message);
             output.writeFieldEnd();
         }
@@ -24,22 +24,22 @@ export class MyException {
         output.writeStructEnd();
         return;
     }
-    public read(input: TProtocol): void {
+    public read(input: thrift.TProtocol): void {
         input.readStructBegin();
         while (true) {
             const ret: {
                 fname: string;
-                ftype: Thrift.Type;
+                ftype: thrift.Thrift.Type;
                 fid: number;
             } = input.readFieldBegin();
-            const ftype: Thrift.Type = ret.ftype;
+            const ftype: thrift.Thrift.Type = ret.ftype;
             const fid: number = ret.fid;
-            if (ftype === Thrift.Type.STOP) {
+            if (ftype === thrift.Thrift.Type.STOP) {
                 break;
             }
             switch (fid) {
                 case 1:
-                    if (ftype === Thrift.Type.STRING) {
+                    if (ftype === thrift.Thrift.Type.STRING) {
                         const value_1: string = input.readString();
                         this.message = value_1;
                     }

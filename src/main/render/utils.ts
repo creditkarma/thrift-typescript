@@ -19,6 +19,8 @@ import {
 
 import {
   COMMON_IDENTIFIERS,
+  PROTOCOL_EXCEPTION,
+  APPLICATION_EXCEPTION,
 } from './identifiers'
 
 export function nameForIdentifier(identifier: Identifier): string {
@@ -71,8 +73,8 @@ export function createProtocolException(
   type: TProtocolException,
   message: string,
 ): ts.NewExpression {
-  const errCtor = ts.createPropertyAccess(COMMON_IDENTIFIERS.Thrift, 'TProtocolException')
-  const errType = ts.createPropertyAccess(COMMON_IDENTIFIERS.Thrift, type)
+  const errCtor = COMMON_IDENTIFIERS.TProtocolException
+  const errType = PROTOCOL_EXCEPTION[type]
   const errArgs = [ errType, ts.createLiteral(message) ]
   return ts.createNew(errCtor, undefined, errArgs)
 }
@@ -88,8 +90,8 @@ export function createApplicationException(
   type: TApplicationException,
   message: string | ts.Expression,
 ): ts.NewExpression {
-  const errCtor = ts.createPropertyAccess(COMMON_IDENTIFIERS.Thrift, 'TApplicationException')
-  const errType = ts.createPropertyAccess(COMMON_IDENTIFIERS.Thrift, type)
+  const errCtor = COMMON_IDENTIFIERS.TApplicationException
+  const errType = APPLICATION_EXCEPTION[type]
   const errArgs = [
     errType,
     (typeof message === 'string' ? ts.createLiteral(message) : message),

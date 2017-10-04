@@ -9,7 +9,7 @@ import {
 
 import {
   createReqType,
-  createProtocolType
+  createProtocolType,
 } from './types'
 
 import {
@@ -35,11 +35,12 @@ import {
   createNumberType,
   createVoidType,
   createAnyType,
-  typeNodeForFieldType
+  typeNodeForFieldType,
 } from '../types'
 
 import {
-  COMMON_IDENTIFIERS
+  COMMON_IDENTIFIERS,
+  MESSAGE_TYPE,
 } from '../identifiers'
 
 export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
@@ -58,7 +59,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
   // public output: TTransport;
   const output: ts.PropertyDeclaration = createPublicProperty(
     'output',
-    ts.createTypeReferenceNode('TTransport', undefined)
+    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TTransport, undefined)
   )
 
   // public protocol: new (trans: TTransport) => TProtocol;
@@ -77,7 +78,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
     [
       createFunctionParameter(
         'output',
-        ts.createTypeReferenceNode('TTransport', undefined)
+        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TTransport, undefined)
       ),
       createFunctionParameter(
         'protocol',
@@ -109,7 +110,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
       ),
       createAssignmentStatement(
         ts.createIdentifier('this.output'),
-        COMMON_IDENTIFIERS['output']
+        COMMON_IDENTIFIERS.output
       ),
       createAssignmentStatement(
         ts.createIdentifier('this.protocol'),
@@ -315,9 +316,9 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
     ts.createBlock([
       // const output = new (this.protocol as any)(this.output)
       createConstStatement(
-        COMMON_IDENTIFIERS['output'],
+        COMMON_IDENTIFIERS.output,
         ts.createTypeReferenceNode(
-          ts.createIdentifier('TProtocol'),
+          COMMON_IDENTIFIERS.TProtocol,
           undefined
         ),
         ts.createNew(
@@ -328,18 +329,18 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
       ),
       // output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.seqid())
       createMethodCallStatement(
-        COMMON_IDENTIFIERS['output'],
+        COMMON_IDENTIFIERS.output,
         'writeMessageBegin',
         [
           ts.createLiteral(def.name.value),
-          ts.createIdentifier('Thrift.MessageType.CALL'),
+          MESSAGE_TYPE.CALL,
           ts.createIdentifier('requestId')
         ]
       ),
       // MortgageServiceGetMortgageOffersArgs
       // const args = new {{ServiceName}}{{nameTitleCase}}Args( { {{#args}}{{fieldName}}, {{/args}} } )
       createConstStatement(
-        COMMON_IDENTIFIERS['args'],
+        COMMON_IDENTIFIERS.args,
         ts.createTypeReferenceNode(
           ts.createIdentifier(createStructArgsName(def)),
           undefined
@@ -356,13 +357,13 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
       ),
       // args.write(output)
       createMethodCallStatement(
-        COMMON_IDENTIFIERS['args'],
+        COMMON_IDENTIFIERS.args,
         'write',
-        [ COMMON_IDENTIFIERS['output'] ]
+        [ COMMON_IDENTIFIERS.output ]
       ),
       // output.writeMessageEnd()
       createMethodCallStatement(
-        COMMON_IDENTIFIERS['output'],
+        COMMON_IDENTIFIERS.output,
         'writeMessageEnd'
       ),
       // return this.output.flush()
@@ -412,16 +413,16 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
     undefined, // type parameters
     [
       createFunctionParameter(
-        COMMON_IDENTIFIERS['input'],
+        COMMON_IDENTIFIERS.input,
         ts.createTypeReferenceNode(
-          ts.createIdentifier('TProtocol'),
+          COMMON_IDENTIFIERS.TProtocol,
           undefined
         )
       ),
       createFunctionParameter(
         ts.createIdentifier('mtype'),
         ts.createTypeReferenceNode(
-          ts.createIdentifier('Thrift.MessageType'),
+          COMMON_IDENTIFIERS.MessageType,
           undefined
         )
       ),
@@ -448,7 +449,7 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
 
       // const callback = this._reqs[rseqid] || noop
       createConstStatement(
-        ts.createIdentifier('callback'),
+        COMMON_IDENTIFIERS.callback,
         undefined,
         ts.createBinary(
           ts.createElementAccess(
@@ -475,12 +476,12 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
       createMethodCallStatement(
         ts.createIdentifier('result'),
         'read',
-        [ COMMON_IDENTIFIERS['input'] ]
+        [ COMMON_IDENTIFIERS.input ]
       ),
 
       // input.readMessageEnd()
       createMethodCallStatement(
-        COMMON_IDENTIFIERS['input'],
+        COMMON_IDENTIFIERS.input,
         'readMessageEnd'
       ),
 
@@ -493,7 +494,7 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
           ts.createBlock([
             ts.createReturn(
               ts.createCall(
-                ts.createIdentifier('callback'),
+                COMMON_IDENTIFIERS.callback,
                 undefined,
                 [ ts.createIdentifier(`result.${next.name.value}`) ]
               )
@@ -527,14 +528,14 @@ function createExceptionHandler(): ts.Statement {
     ts.createBinary(
       ts.createIdentifier('mtype'),
       ts.SyntaxKind.EqualsEqualsEqualsToken,
-      ts.createIdentifier('Thrift.MessageType.EXCEPTION')
+      MESSAGE_TYPE.EXCEPTION
     ),
     ts.createBlock([
       createConstStatement(
         ts.createIdentifier('x'),
-        ts.createTypeReferenceNode('Thrift.TApplicationException', undefined),
+        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TApplicationException, undefined),
         ts.createNew(
-          ts.createIdentifier('Thrift.TApplicationException'),
+          COMMON_IDENTIFIERS.TApplicationException,
           undefined,
           []
         )
@@ -542,15 +543,15 @@ function createExceptionHandler(): ts.Statement {
       createMethodCallStatement(
         ts.createIdentifier('x'),
         'read',
-        [ COMMON_IDENTIFIERS['input'] ]
+        [ COMMON_IDENTIFIERS.input ]
       ),
       createMethodCallStatement(
-        COMMON_IDENTIFIERS['input'],
+        COMMON_IDENTIFIERS.input,
         'readMessageEnd'
       ),
       ts.createReturn(
         ts.createCall(
-          ts.createIdentifier('callback'),
+          COMMON_IDENTIFIERS.callback,
           undefined,
           [ ts.createIdentifier('x') ]
         )
@@ -564,10 +565,10 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
   if (def.returnType.type === SyntaxType.VoidKeyword) {
     return ts.createReturn(
       ts.createCall(
-        ts.createIdentifier('callback'),
+        COMMON_IDENTIFIERS.callback,
         undefined,
         [
-          COMMON_IDENTIFIERS['undefined']
+          COMMON_IDENTIFIERS.undefined
         ]
       )
     )
@@ -584,10 +585,10 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
       ts.createBlock([
         ts.createReturn(
           ts.createCall(
-            ts.createIdentifier('callback'),
+            COMMON_IDENTIFIERS.callback,
             undefined,
             [
-              COMMON_IDENTIFIERS['undefined'],
+              COMMON_IDENTIFIERS.undefined,
               ts.createIdentifier('result.success')
             ]
           )
@@ -597,11 +598,11 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
         // return callback(new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, "{{name}} failed: unknown result"))
         ts.createReturn(
           ts.createCall(
-            ts.createIdentifier('callback'),
+            COMMON_IDENTIFIERS.callback,
             undefined,
             [
               createApplicationException(
-                'TApplicationExceptionType.UNKNOWN',
+                'UNKNOWN',
                 `${def.name.value} failed: unknown result`
               )
             ]

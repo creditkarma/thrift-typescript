@@ -9,15 +9,15 @@ export class MyStruct {
                 this.field1 = args.field1;
             }
             else {
-                throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
             }
         }
     }
-    public write(output: TProtocol): void {
+    public write(output: thrift.TProtocol): void {
         output.writeStructBegin("MyStruct");
         if (this.field1 != null) {
-            output.writeFieldBegin("field1", Thrift.Type.LIST, 1);
-            output.writeListBegin(Thrift.Type.STRING, this.field1.length);
+            output.writeFieldBegin("field1", thrift.Thrift.Type.LIST, 1);
+            output.writeListBegin(thrift.Thrift.Type.STRING, this.field1.length);
             this.field1.forEach((value_1: string): void => {
                 output.writeString(value_1);
             });
@@ -28,25 +28,25 @@ export class MyStruct {
         output.writeStructEnd();
         return;
     }
-    public read(input: TProtocol): void {
+    public read(input: thrift.TProtocol): void {
         input.readStructBegin();
         while (true) {
             const ret: {
                 fname: string;
-                ftype: Thrift.Type;
+                ftype: thrift.Thrift.Type;
                 fid: number;
             } = input.readFieldBegin();
-            const ftype: Thrift.Type = ret.ftype;
+            const ftype: thrift.Thrift.Type = ret.ftype;
             const fid: number = ret.fid;
-            if (ftype === Thrift.Type.STOP) {
+            if (ftype === thrift.Thrift.Type.STOP) {
                 break;
             }
             switch (fid) {
                 case 1:
-                    if (ftype === Thrift.Type.LIST) {
+                    if (ftype === thrift.Thrift.Type.LIST) {
                         const value_2: Array<string> = new Array<string>();
                         const metadata_1: {
-                            etype: Thrift.Type;
+                            etype: thrift.Thrift.Type;
                             size: number;
                         } = input.readListBegin();
                         const size_1: number = metadata_1.size;

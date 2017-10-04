@@ -4,22 +4,44 @@ import {
   TBufferedTransport,
 } from 'thrift'
 
-import { MyService } from './codegen/com/creditkarma/service'
+import {
+  Calculator,
+  Operation,
+  Work,
+} from './codegen/tutorial/tutorial'
+
+import {
+  SharedStruct
+} from './codegen/shared/shared'
 
 //ServiceHandler: Implement the hello service
 const myServiceHandler = {
-  ping(status: number): string {
-    return `status: ${status}`
-  },
-  peg(): string {
-    return 'peg complete'
-  }
+  ping(): void {},
+    add(a: number, b: number): number {
+      return a + b;
+    },
+    calculate(logId: number, work: Work): number {
+      switch (work.op) {
+        case Operation.ADD:
+          return work.num1 + work.num2;
+        case Operation.SUBTRACT:
+          return work.num1 - work.num2;
+        case Operation.DIVIDE:
+          return work.num1 / work.num2;
+        case Operation.MULTIPLY:
+          return work.num1 * work.num2;
+      }
+    },
+    zip(): void {},
+    getStruct(): SharedStruct {
+      return new SharedStruct();
+    }
 };
 
 //ServiceOptions: The I/O stack for the service
 const myServiceOpts = {
   handler: myServiceHandler,
-  processor: MyService,
+  processor: Calculator,
   protocol: TBinaryProtocol,
   transport: TBufferedTransport
 };

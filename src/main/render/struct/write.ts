@@ -61,7 +61,10 @@ export function createWriteMethod(struct: InterfaceWithFields, identifiers: IIde
   const fieldWrites: Array<ts.IfStatement> = struct.fields.filter(isNotVoid).map((field) => {
     return createWriteForField(struct, field, identifiers)
   })
-  const inputParameter: ts.ParameterDeclaration = createFunctionParameter('output', ts.createTypeReferenceNode('TProtocol', undefined))
+  const inputParameter: ts.ParameterDeclaration = createFunctionParameter(
+    'output',
+    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TProtocol, undefined)
+  )
 
   return createPublicMethod(
     'write', // Method name
@@ -156,7 +159,7 @@ function writeValueForIdentifier(
         createMethodCall(
           fieldName,
           'write',
-          [ COMMON_IDENTIFIERS['output'] ]
+          [ COMMON_IDENTIFIERS.output ]
         )
       ]
 
