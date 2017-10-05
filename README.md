@@ -39,7 +39,7 @@ The available options are:
 
 All other fields are assumed to be source files.
 
-If no explicit list of files is provided all files matching *.thrift in the sourceDir will be used.
+If no explicit list of files is provided all files ending in '.thrift' found in the sourceDir will be used.
 
 You can gen code from more than one Thrift file:
 
