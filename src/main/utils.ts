@@ -1,4 +1,5 @@
 import * as fs from 'fs'
+import * as glob from 'glob'
 import * as path from 'path'
 
 import {
@@ -12,6 +13,7 @@ import {
 
 import {
   IIncludeData,
+  IMakeOptions,
   IParsedFile,
   IRenderedFile,
   IResolvedFile,
@@ -26,6 +28,14 @@ import {
 import {
   mkdir,
 } from './sys'
+
+export function collectSourceFiles(sourceDir: string, options: IMakeOptions): Array<string> {
+  if (options.files && options.files.length > 0) {
+    return options.files
+  } else {
+    return glob.sync(`${sourceDir}/**/*.thrift`)
+  }
+}
 
 export function parseThriftString(source: string): ThriftDocument {
   const thrift: ThriftDocument | ThriftErrors = parse(source)
