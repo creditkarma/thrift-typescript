@@ -1,6 +1,7 @@
 export * from './types'
 
 import * as path from 'path'
+import * as glob from 'glob'
 
 import {
   IMakeOptions,
@@ -57,6 +58,15 @@ export function make(source: string): string {
   return print(processStatements(resolvedAST.body, resolvedAST.identifiers, renderer))
 }
 
+function collectFiles(sourceDir: string, options: IMakeOptions): Array<string> {
+  if (options.files && options.files.length > 0) {
+    return options.files
+  } else {
+    const files: Array<string> = glob.sync(`${sourceDir}/**/*.thrift`)
+    return files
+  }
+}
+
 /**
  * Generate TypeScript files from Thrift IDL files. The generated TS files will be saved
  * based on the options passed in.
@@ -73,7 +83,7 @@ export function generate(options: IMakeOptions): void {
   const outDir: string = path.resolve(rootDir, options.outDir)
   const sourceDir: string = path.resolve(rootDir, options.sourceDir)
 
-  const validatedFiles: Array<IResolvedFile> = options.files.map((next: string): IResolvedFile => {
+  const validatedFiles: Array<IResolvedFile> = collectFiles(sourceDir, options).map((next: string): IResolvedFile => {
     const thriftFile: IThriftFile = readThriftFile(next, [ sourceDir ])
     const parsedFile: IParsedFile = parseFile(sourceDir, thriftFile)
     const resolvedFile: IResolvedFile = resolveFile(parsedFile)

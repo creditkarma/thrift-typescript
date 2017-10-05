@@ -41,11 +41,13 @@
   },
   "dependencies": {
     "@creditkarma/thrift-parser": "^0.0.10",
+    "glob": "^7.1.2",
     "typescript": "^2.4.2"
   },
   "devDependencies": {
     "@types/chai": "^3.4.34",
     "@types/express": "^4.0.37",
+    "@types/glob": "^5.0.33",
     "@types/mocha": "^2.2.32",
     "@types/node": "^8.0.32",
     "@types/rimraf": "^0.0.28",
