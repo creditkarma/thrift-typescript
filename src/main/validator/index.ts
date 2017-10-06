@@ -11,6 +11,7 @@ import {
   FunctionType,
   PropertyAssignment,
   Identifier,
+  createBooleanLiteral,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -347,6 +348,8 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
       case SyntaxType.BoolKeyword:
         if (value.type === SyntaxType.BooleanLiteral) {
           return value
+        } else if (value.type === SyntaxType.IntConstant && (value.value === 0 || value.value === 1)) {
+          return createBooleanLiteral(value.value === 1, value.loc)
         } else {
           throw typeMismatch(expectedType, value, value.loc)
         }

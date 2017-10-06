@@ -1600,4 +1600,50 @@ describe('Thrift TypeScript Validator', () => {
 
     assert.deepEqual(validatedFile, expected)
   })
+
+  it('should not return an error if assigning an int with value 0 or 1 to a bool field', () => {
+    const content: string = `
+      struct TestStruct {
+        1: bool testFalse = 0
+        2: bool testTrue = 1
+      }
+    `;
+    const parsedFile: IParsedFile = parseSource(content)
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = []
+
+    assert.deepEqual(validatedAST.errors, expected)
+  })
+
+  it('should return an error if assigning an int with value not 0 or 1 to a bool field', () => {
+    const content: string = `
+      struct TestStruct {
+        1: bool test = 2
+      }
+    `;
+    const parsedFile: IParsedFile = parseSource(content)
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = [
+      {
+        type: ErrorType.ValidationError,
+        message: 'Expected type boolean but found type number',
+        loc: {
+          start: {
+            line: 3,
+            column: 24,
+            index: 50
+          },
+          end: {
+            line: 3,
+            column: 25,
+            index: 51
+          }
+        }
+      }
+    ]
+
+    assert.deepEqual(validatedAST.errors, expected)
+  })
 })
