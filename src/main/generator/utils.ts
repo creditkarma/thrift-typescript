@@ -21,14 +21,6 @@ export function createThriftImports(): ts.ImportDeclaration {
     ts.createImportClause(
       undefined,
       ts.createNamespaceImport(ts.createIdentifier('thrift'))
-      // ts.createNamedImports(
-      //   [
-      //     ts.createImportSpecifier(
-      //       ts.createIdentifier('*'),
-      //       ts.createIdentifier('thrift'),
-      //     ),
-      //   ],
-      // ),
     ),
     ts.createLiteral('thrift'),
   )
