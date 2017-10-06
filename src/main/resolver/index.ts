@@ -198,28 +198,6 @@ export function resolveFile(parsedFile: IParsedFile): IResolvedFile {
     }
   }
 
-  // Add types defined in this file to our Identifier map
-  function addIdentiferForStatement(statement: ThriftStatement): void {
-    switch (statement.type) {
-      case SyntaxType.StructDefinition:
-      case SyntaxType.UnionDefinition:
-      case SyntaxType.ExceptionDefinition:
-      case SyntaxType.EnumDefinition:
-      case SyntaxType.TypedefDefinition:
-      case SyntaxType.ConstDefinition:
-      case SyntaxType.ServiceDefinition:
-        identifiers[statement.name.value] = {
-          name: statement.name.value,
-          resolvedName: statement.name.value,
-          definition: statement,
-        }
-        return
-
-      default:
-        return
-    }
-  }
-
   function resolveStatement(statement: ThriftStatement): ThriftStatement {
     addIdentiferForStatement(statement)
 
@@ -302,6 +280,58 @@ export function resolveFile(parsedFile: IParsedFile): IResolvedFile {
       }
     }
     return false
+  }
+
+  // Add types defined in this file to our Identifier map
+  function addIdentiferForStatement(statement: ThriftStatement): void {
+    switch (statement.type) {
+      case SyntaxType.StructDefinition:
+      case SyntaxType.UnionDefinition:
+      case SyntaxType.ExceptionDefinition:
+      case SyntaxType.EnumDefinition:
+      case SyntaxType.ConstDefinition:
+      case SyntaxType.ServiceDefinition:
+        identifiers[statement.name.value] = {
+          name: statement.name.value,
+          resolvedName: statement.name.value,
+          definition: statement,
+        }
+        return
+
+      /**
+       * Most Thrift statements are terminal, they create a new type as well as the
+       * identifier for that type. A typedef is a special case. We are not creating a new
+       * type. We need to resolve where the original type was defined. This is particularly
+       * important for imported types to make sure we rewrite imported identifiers properly.:wq
+       */
+      case SyntaxType.TypedefDefinition:
+        switch (statement.definitionType.type) {
+          case SyntaxType.Identifier:
+            identifiers[statement.name.value] = {
+              name: statement.name.value,
+              resolvedName: statement.name.value,
+              definition: {
+                type: SyntaxType.TypedefDefinition,
+                name: statement.name,
+                definitionType: resolveFieldType(statement.definitionType),
+                comments: statement.comments,
+                loc: statement.loc,
+              },
+            }
+            return
+
+          default:
+            identifiers[statement.name.value] = {
+              name: statement.name.value,
+              resolvedName: statement.name.value,
+              definition: statement,
+            }
+            return
+        }
+
+      default:
+        return
+    }
   }
 
   function resolveName(name: string): string {

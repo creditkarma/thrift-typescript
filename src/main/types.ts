@@ -131,12 +131,15 @@ export interface IIncludeData {
   base: string
 }
 
+export type DefinitionType =
+  ConstDefinition | StructDefinition | UnionDefinition |
+  ExceptionDefinition | EnumDefinition | TypedefDefinition |
+  ServiceDefinition
+
 export interface IResolvedIdentifier {
   name: string
   resolvedName: string
-  definition: ConstDefinition | StructDefinition | UnionDefinition |
-              ExceptionDefinition | EnumDefinition | TypedefDefinition |
-              ServiceDefinition
+  definition: DefinitionType
 }
 
 export interface IIdentifierMap {
