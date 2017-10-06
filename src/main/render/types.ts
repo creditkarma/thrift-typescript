@@ -104,7 +104,10 @@ export function typeNodeForFieldType(fieldType: FunctionType): ts.TypeNode {
       return createBooleanType()
 
     case SyntaxType.I64Keyword:
-      return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Int64, undefined)
+      return ts.createUnionTypeNode([
+        createNumberType(),
+        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Int64, undefined),
+      ])
 
     case SyntaxType.DoubleKeyword:
     case SyntaxType.I8Keyword:
