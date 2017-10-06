@@ -1280,7 +1280,7 @@ describe('Thrift TypeScript Validator', () => {
                 },
                 fieldType: {
                   type: SyntaxType.Identifier,
-                  value: 'exception.Status',
+                  value: 'exception$Status',
                   loc: {
                     start: {
                       line: 5,
@@ -1297,7 +1297,7 @@ describe('Thrift TypeScript Validator', () => {
                 requiredness: null,
                 defaultValue: {
                   type: SyntaxType.Identifier,
-                  value: 'exception.Status.SUCCESS',
+                  value: 'exception$Status.SUCCESS',
                   loc: {
                     start: {
                       line: 5,

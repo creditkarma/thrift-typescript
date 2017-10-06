@@ -481,7 +481,7 @@ describe('Thrift TypeScript Resolver', () => {
                     },
                     fieldType: {
                       type: SyntaxType.Identifier,
-                      value: 'exception.MyException',
+                      value: 'exception$MyException',
                       loc: {
                         start: {
                           line: 5,
@@ -1269,7 +1269,7 @@ describe('Thrift TypeScript Resolver', () => {
                 },
                 fieldType: {
                   type: SyntaxType.Identifier,
-                  value: 'exception.Status',
+                  value: 'exception$Status',
                   loc: {
                     start: {
                       line: 5,
@@ -1286,7 +1286,7 @@ describe('Thrift TypeScript Resolver', () => {
                 requiredness: null,
                 defaultValue: {
                   type: SyntaxType.Identifier,
-                  value: 'exception.Status.SUCCESS',
+                  value: 'exception$Status.SUCCESS',
                   loc: {
                     start: {
                       line: 5,

@@ -199,8 +199,6 @@ export function resolveFile(parsedFile: IParsedFile): IResolvedFile {
   }
 
   function resolveStatement(statement: ThriftStatement): ThriftStatement {
-    addIdentiferForStatement(statement)
-
     switch (statement.type) {
       case SyntaxType.ConstDefinition:
         return {
@@ -290,6 +288,7 @@ export function resolveFile(parsedFile: IParsedFile): IResolvedFile {
       case SyntaxType.ExceptionDefinition:
       case SyntaxType.EnumDefinition:
       case SyntaxType.ConstDefinition:
+      case SyntaxType.TypedefDefinition:
       case SyntaxType.ServiceDefinition:
         identifiers[statement.name.value] = {
           name: statement.name.value,
@@ -297,37 +296,6 @@ export function resolveFile(parsedFile: IParsedFile): IResolvedFile {
           definition: statement,
         }
         return
-
-      /**
-       * Most Thrift statements are terminal, they create a new type as well as the
-       * identifier for that type. A typedef is a special case. We are not creating a new
-       * type. We need to resolve where the original type was defined. This is particularly
-       * important for imported types to make sure we rewrite imported identifiers properly.:wq
-       */
-      case SyntaxType.TypedefDefinition:
-        switch (statement.definitionType.type) {
-          case SyntaxType.Identifier:
-            identifiers[statement.name.value] = {
-              name: statement.name.value,
-              resolvedName: statement.name.value,
-              definition: {
-                type: SyntaxType.TypedefDefinition,
-                name: statement.name,
-                definitionType: resolveFieldType(statement.definitionType),
-                comments: statement.comments,
-                loc: statement.loc,
-              },
-            }
-            return
-
-          default:
-            identifiers[statement.name.value] = {
-              name: statement.name.value,
-              resolvedName: statement.name.value,
-              definition: statement,
-            }
-            return
-        }
 
       default:
         return
@@ -376,7 +344,11 @@ export function resolveFile(parsedFile: IParsedFile): IResolvedFile {
     namespace,
     includes: resolvedIncludes,
     identifiers,
-    body: parsedFile.ast.body.map(resolveStatement),
+    body: parsedFile.ast.body.map((statement: ThriftStatement) => {
+      const resolvedStatement: ThriftStatement = resolveStatement(statement)
+      addIdentiferForStatement(resolvedStatement)
+      return resolvedStatement
+    }),
     errors: [],
   }
 }
