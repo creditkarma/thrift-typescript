@@ -1,12 +1,12 @@
 export interface IMyStructArgs {
     id: number;
-    bigID: thrift.Int64;
+    bigID: number | thrift.Int64;
     word: string;
     field1?: number;
 }
 export class MyStruct {
     public id: number = 45;
-    public bigID: thrift.Int64 = new thrift.Int64(23948234);
+    public bigID: number | thrift.Int64 = new thrift.Int64("23948234");
     public word: string;
     public field1: number;
     constructor(args?: IMyStructArgs) {
@@ -85,7 +85,7 @@ export class MyStruct {
                     break;
                 case 2:
                     if (ftype === thrift.Thrift.Type.I64) {
-                        const value_2: thrift.Int64 = input.readI64();
+                        const value_2: number | thrift.Int64 = input.readI64();
                         this.bigID = value_2;
                     }
                     else {

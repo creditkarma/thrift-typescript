@@ -32,7 +32,7 @@ export function renderEnum(node: EnumDefinition): ts.Statement {
         field.name.value,
         (
           (field.initializer !== null) ?
-            ts.createLiteral(field.initializer.value) :
+            ts.createLiteral(parseInt(field.initializer.value)) :
             undefined
         ),
       )

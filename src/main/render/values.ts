@@ -30,7 +30,7 @@ export function renderValue(fieldType: FunctionType, node: ConstValue): ts.Expre
           [ ts.createLiteral(node.value) ]
         )
       } else {
-        return ts.createLiteral(node.value)
+        return ts.createLiteral(parseInt(node.value))
       }
 
     case SyntaxType.BooleanLiteral:
