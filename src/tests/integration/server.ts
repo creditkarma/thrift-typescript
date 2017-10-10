@@ -14,6 +14,10 @@ import {
   SharedStruct
 } from './codegen/shared/shared'
 
+import {
+  SERVER_CONFIG
+} from './config'
+
 function delay(val: number): Promise<number> {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -62,7 +66,6 @@ const serverOpt = {
 }
 
 // Create and start the web server
-const port: number = 8045;
-createWebServer(serverOpt).listen(port, () => {
-  console.log(`Thrift server listening on port ${port}`)
+createWebServer(serverOpt).listen(SERVER_CONFIG.port, () => {
+  console.log(`Thrift server listening on port ${SERVER_CONFIG.port}`)
 });

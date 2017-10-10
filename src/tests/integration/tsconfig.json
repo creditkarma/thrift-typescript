@@ -9,14 +9,7 @@
     "noImplicitThis": true,
     "strictNullChecks": true,
     "noUnusedLocals": true,
-    "allowSyntheticDefaultImports": true,
-    "types": [
-      "@types/node",
-      "@types/mocha",
-      "@types/express",
-      "@types/thrift",
-      "@creditkarma/thrift-parser"
-    ]
+    "allowSyntheticDefaultImports": true
   },
   "files": [
     "./src/main/index.ts",

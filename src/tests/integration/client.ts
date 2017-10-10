@@ -14,10 +14,10 @@ import {
   Work,
 } from './codegen/tutorial/tutorial'
 
-const config = {
-  hostName: 'localhost',
-  port: 8045
-}
+import {
+  CLIENT_CONFIG,
+  SERVER_CONFIG
+} from './config'
 
 const app = express();
 
@@ -26,11 +26,11 @@ const options = {
   protocol: TBinaryProtocol,
   https: false,
   headers: {
-    Host: config.hostName,
+    Host: SERVER_CONFIG.hostName,
   }
 }
 
-const connection: HttpConnection = createHttpConnection(config.hostName, config.port, options)
+const connection: HttpConnection = createHttpConnection(SERVER_CONFIG.hostName, SERVER_CONFIG.port, options)
 const thriftClient: Calculator.Client = createHttpClient(Calculator.Client, connection)
 
 connection.on('error', (err: Error) => {
@@ -73,9 +73,6 @@ app.get('/calculate', (req, res) => {
   })
 })
 
-const server = app.listen(8044, () => {
-  var host = server.address().address;
-  var port = server.address().port;
-
-  console.log('Web server listening at http://%s:%s', host, port);
+app.listen(CLIENT_CONFIG.port, () => {
+  console.log(`Web server listening at http://${CLIENT_CONFIG.hostName}:${CLIENT_CONFIG.port}`);
 })
