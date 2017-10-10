@@ -3,12 +3,14 @@ export interface IMyStructArgs {
     bigID: number | thrift.Int64;
     word: string;
     field1?: number;
+    blob?: Buffer;
 }
 export class MyStruct {
     public id: number = 45;
     public bigID: number | thrift.Int64 = new thrift.Int64(23948234);
     public word: string;
     public field1: number;
+    public blob: Buffer = new Buffer("binary");
     constructor(args?: IMyStructArgs) {
         if (args != null) {
             if (args.id != null) {
@@ -32,6 +34,9 @@ export class MyStruct {
             if (args.field1 != null) {
                 this.field1 = args.field1;
             }
+            if (args.blob != null) {
+                this.blob = args.blob;
+            }
         }
     }
     public write(output: thrift.TProtocol): void {
@@ -54,6 +59,11 @@ export class MyStruct {
         if (this.field1 != null) {
             output.writeFieldBegin("field1", thrift.Thrift.Type.DOUBLE, 4);
             output.writeDouble(this.field1);
+            output.writeFieldEnd();
+        }
+        if (this.blob != null) {
+            output.writeFieldBegin("blob", thrift.Thrift.Type.STRING, 5);
+            output.writeBinary(this.blob);
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -105,6 +115,15 @@ export class MyStruct {
                     if (ftype === thrift.Thrift.Type.DOUBLE) {
                         const value_4: number = input.readDouble();
                         this.field1 = value_4;
+                    }
+                    else {
+                        input.skip(ftype);
+                    }
+                    break;
+                case 5:
+                    if (ftype === thrift.Thrift.Type.STRING) {
+                        const value_5: Buffer = input.readBinary();
+                        this.blob = value_5;
                     }
                     else {
                         input.skip(ftype);

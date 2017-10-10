@@ -58,6 +58,7 @@ export function fieldTypeToString(fieldType: FunctionType): string {
       return `Array<${fieldTypeToString(fieldType.valueType)}>`
 
     case SyntaxType.StringKeyword:
+    case SyntaxType.BinaryKeyword:
       return 'string'
 
     case SyntaxType.BoolKeyword:
@@ -70,7 +71,6 @@ export function fieldTypeToString(fieldType: FunctionType): string {
     case SyntaxType.I8Keyword:
     case SyntaxType.I16Keyword:
     case SyntaxType.I32Keyword:
-    case SyntaxType.BinaryKeyword:
     case SyntaxType.ByteKeyword:
       return 'number'
 

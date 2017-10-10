@@ -11,6 +11,7 @@ import {
   MapType,
   IntConstant,
   DoubleConstant,
+  StringLiteral,
 } from '@creditkarma/thrift-parser'
 
 import { COMMON_IDENTIFIERS } from './identifiers'
@@ -31,8 +32,14 @@ export function renderValue(fieldType: FunctionType, node: ConstValue): ts.Expre
       return renderDoubleConstant(node)
 
     case SyntaxType.BooleanLiteral:
-    case SyntaxType.StringLiteral:
       return ts.createLiteral(node.value)
+
+    case SyntaxType.StringLiteral:
+      if (fieldType.type === SyntaxType.BinaryKeyword) {
+        return renderBuffer(node)
+      } else {
+        return ts.createLiteral(node.value)
+      }
 
     case SyntaxType.ConstList:
       if (fieldType.type === SyntaxType.ListType) {
@@ -138,4 +145,12 @@ function renderList(fieldType: ListType, node: ConstList): ts.ArrayLiteralExpres
   })
 
   return ts.createArrayLiteral(values)
+}
+
+function renderBuffer(node: StringLiteral): ts.NewExpression {
+  return ts.createNew(
+    COMMON_IDENTIFIERS.Buffer,
+    undefined,
+    [ ts.createLiteral(node.value) ],
+  )
 }

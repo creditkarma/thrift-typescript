@@ -13,6 +13,7 @@ export const COMMON_IDENTIFIERS = {
   Array: ts.createIdentifier('Array'),
   Set: ts.createIdentifier('Set'),
   String: ts.createIdentifier('String'),
+  Buffer: ts.createIdentifier('Buffer'),
   Boolean: ts.createIdentifier('Boolean'),
   Number: ts.createIdentifier('Number'),
   void: ts.createIdentifier('void'),
