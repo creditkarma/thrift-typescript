@@ -404,12 +404,13 @@ export namespace ChildService {
             }
         }
     }
-    export interface IHandler<Context> {
+    export interface ILocalHandler<Context> {
         peg: (name: string, context: Context) => string | Promise<string>;
     }
+    export type IHandler<Context> = ILocalHandler<Context> & ParentService.IHandler<Context>;
     export class Processor<Context> extends ParentService.Processor<Context> {
-        public _handler: IHandler<Context> & ParentService.IHandler<Context>;
-        constructor(handler: IHandler<Context> & ParentService.IHandler<Context>) {
+        public _handler: IHandler<Context>;
+        constructor(handler: IHandler<Context>) {
             super({
                 ping: handler.ping
             });

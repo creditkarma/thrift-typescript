@@ -92,7 +92,7 @@ export function renderService(statement: ServiceDefinition, identifiers: IIdenti
         ...renderArgsStruct(statement, identifiers),
         ...renderResultStruct(statement, identifiers),
         renderClient(statement),
-        renderHandlerInterface(statement),
+        ...renderHandlerInterface(statement),
         renderProcessor(statement, identifiers),
       ]),
       ts.NodeFlags.Namespace

@@ -62,7 +62,7 @@ import {
  * }
  * @param service
  */
-export function renderHandlerInterface(service: ServiceDefinition): ts.InterfaceDeclaration {
+export function renderHandlerInterface(service: ServiceDefinition): Array<ts.Statement> {
   const signatures = service.functions.map((func: FunctionDefinition) => {
     return ts.createPropertySignature(
       undefined,
@@ -94,18 +94,57 @@ export function renderHandlerInterface(service: ServiceDefinition): ts.Interface
     )
   })
 
-  return ts.createInterfaceDeclaration(
-    undefined,
-    [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-    ts.createIdentifier('IHandler'),
-    [
-      ts.createTypeParameterDeclaration(
-        ts.createIdentifier('Context')
+  if (service.extends !== null) {
+    return [
+      ts.createInterfaceDeclaration(
+        undefined,
+        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+        ts.createIdentifier('ILocalHandler'),
+        [
+          ts.createTypeParameterDeclaration(
+            ts.createIdentifier('Context')
+          )
+        ],
+        [],
+        signatures,
+      ),
+      ts.createTypeAliasDeclaration(
+        undefined,
+        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+        ts.createIdentifier('IHandler'),
+        [
+          ts.createTypeParameterDeclaration(
+            ts.createIdentifier('Context')
+          )
+        ],
+        ts.createIntersectionTypeNode([
+          ts.createTypeReferenceNode(
+            ts.createIdentifier('ILocalHandler'),
+            [ ts.createTypeReferenceNode('Context', undefined) ]
+          ),
+          ts.createTypeReferenceNode(
+            ts.createIdentifier(`${service.extends.value}.IHandler`),
+            [ ts.createTypeReferenceNode('Context', undefined) ]
+          )
+        ])
       )
-    ],
-    [],
-    signatures,
-  )
+    ]
+  } else {
+    return [
+      ts.createInterfaceDeclaration(
+        undefined,
+        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+        ts.createIdentifier('IHandler'),
+        [
+          ts.createTypeParameterDeclaration(
+            ts.createIdentifier('Context')
+          )
+        ],
+        [],
+        signatures,
+      )
+    ]
+  }
 }
 
 function objectLiteralForServiceFunctions(node: ThriftStatement): ts.ObjectLiteralExpression {
@@ -127,23 +166,10 @@ function objectLiteralForServiceFunctions(node: ThriftStatement): ts.ObjectLiter
 }
 
 function handlerType(node: ServiceDefinition): ts.TypeNode {
-  if (node.extends !== null) {
-    return ts.createIntersectionTypeNode([
-      ts.createTypeReferenceNode(
-        ts.createIdentifier('IHandler'),
-        [ ts.createTypeReferenceNode('Context', undefined) ]
-      ),
-      ts.createTypeReferenceNode(
-        ts.createIdentifier(`${node.extends.value}.IHandler`),
-        [ ts.createTypeReferenceNode('Context', undefined) ]
-      )
-    ])
-  } else {
-    return ts.createTypeReferenceNode(
-      ts.createIdentifier('IHandler'),
-      [ ts.createTypeReferenceNode('Context', undefined) ]
-    )
-  }
+  return ts.createTypeReferenceNode(
+    ts.createIdentifier('IHandler'),
+    [ ts.createTypeReferenceNode('Context', undefined) ]
+  )
 }
 
 export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
