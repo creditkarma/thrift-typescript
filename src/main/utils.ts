@@ -72,11 +72,11 @@ function collectAllFiles(files: Array<IRenderedFile>): Array<IRenderedFile> {
 export function saveFiles(rootDir: string, outDir: string, files: Array<IRenderedFile>): void {
   collectAllFiles(files).forEach((next: IRenderedFile) => {
     mkdir(path.dirname(next.outPath))
-    fs.writeFile(next.outPath, print(next.statements, true), (err: Error) => {
-      if (err != null) {
-        throw new Error(`Unable to save generated files to: ${next.outPath}`)
-      }
-    })
+    try {
+      fs.writeFileSync(next.outPath, print(next.statements, true))
+    } catch (err) {
+      throw new Error(`Unable to save generated files to: ${next.outPath}`)
+    }
   })
 }
 
