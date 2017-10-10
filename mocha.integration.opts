@@ -2,4 +2,5 @@
 --reporter spec
 --full-trace
 --watch-extensions ts
+--timeout 10000
 src/tests/integration/**/*.spec.ts

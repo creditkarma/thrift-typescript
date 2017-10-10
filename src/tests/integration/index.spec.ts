@@ -17,7 +17,7 @@ const serverProc = exec('../../../node_modules/.bin/ts-node ./server.ts')
 describe('Thrift TypeScript', () => {
 
   before((done) => {
-    setTimeout(done, 1500)
+    setTimeout(done, 5000)
   })
 
   it('should call an endpoint with no arguments', (done) => {
