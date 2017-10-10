@@ -67,6 +67,7 @@ describe('Thrift TypeScript Generator', () => {
           2: required i64 bigID = 23948234
           3: required string word
           4: optional double field1
+          5: optional binary blob = "binary"
       }
     `;
     const expected: string = readFixture('multi_field_struct')

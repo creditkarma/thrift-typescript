@@ -365,6 +365,12 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
         }
 
       case SyntaxType.BinaryKeyword:
+        if (value.type === SyntaxType.StringLiteral) {
+          return value
+        } else {
+          throw typeMismatch(expectedType, value, value.loc)
+        }
+
       case SyntaxType.ByteKeyword:
       case SyntaxType.I8Keyword:
       case SyntaxType.I16Keyword:

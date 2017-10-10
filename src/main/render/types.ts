@@ -109,11 +109,13 @@ export function typeNodeForFieldType(fieldType: FunctionType): ts.TypeNode {
         ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Int64, undefined),
       ])
 
+    case SyntaxType.BinaryKeyword:
+      return ts.createTypeReferenceNode('Buffer', undefined)
+
     case SyntaxType.DoubleKeyword:
     case SyntaxType.I8Keyword:
     case SyntaxType.I16Keyword:
     case SyntaxType.I32Keyword:
-    case SyntaxType.BinaryKeyword:
     case SyntaxType.ByteKeyword:
       return createNumberType()
 
@@ -149,11 +151,13 @@ export function constructorNameForFieldType(fieldType: FunctionType): ts.Identif
     case SyntaxType.I64Keyword:
       return COMMON_IDENTIFIERS.Int64
 
+    case SyntaxType.BinaryKeyword:
+      return COMMON_IDENTIFIERS.Buffer
+
     case SyntaxType.DoubleKeyword:
     case SyntaxType.I8Keyword:
     case SyntaxType.I16Keyword:
     case SyntaxType.I32Keyword:
-    case SyntaxType.BinaryKeyword:
     case SyntaxType.ByteKeyword:
       return COMMON_IDENTIFIERS.Number
 

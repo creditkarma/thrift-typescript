@@ -1646,4 +1646,49 @@ describe('Thrift TypeScript Validator', () => {
 
     assert.deepEqual(validatedAST.errors, expected)
   })
+
+  it('should not return an error if assigning a binary to a string', () => {
+    const content: string = `
+      struct TestStruct {
+        1: binary blob = "test"
+      }
+    `;
+    const parsedFile: IParsedFile = parseSource(content)
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = []
+
+    assert.deepEqual(validatedAST.errors, expected)
+  })
+
+  it('should return an error if assigning a binary to a number', () => {
+    const content: string = `
+      struct TestStruct {
+        1: binary blob = 1
+      }
+    `;
+    const parsedFile: IParsedFile = parseSource(content)
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validatedAST: IResolvedFile = validateFile(resolvedAST)
+    const expected: Array<IThriftError> = [
+      {
+        type: ErrorType.ValidationError,
+        message: 'Expected type string but found type number',
+        loc: {
+          start: {
+            line: 3,
+            column: 26,
+            index: 52
+          },
+          end: {
+            line: 3,
+            column: 27,
+            index: 53
+          }
+        }
+      }
+    ]
+
+    assert.deepEqual(validatedAST.errors, expected)
+  })
 })
