@@ -14,14 +14,7 @@
     "noUnusedLocals": true,
     "allowSyntheticDefaultImports": true,
     "pretty": true,
-    "removeComments": true,
-    "types": [
-      "@types/node",
-      "@types/mocha",
-      "@types/express",
-      "@types/thrift",
-      "@creditkarma/thrift-parser"
-    ]
+    "removeComments": true
   },
   "files": [
     "./src/main/index.ts",

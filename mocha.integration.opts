@@ -1,0 +1,5 @@
+--require ts-node/register
+--reporter spec
+--full-trace
+--watch-extensions ts
+src/tests/integration/**/*.spec.ts
