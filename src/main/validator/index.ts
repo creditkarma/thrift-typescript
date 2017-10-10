@@ -242,7 +242,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
     let previousValue: number = -1
     const values: Array<number | null> = enumDef.members.reduce((acc: Array<number | null>, next: EnumMember): Array<number | null> => {
       if (next.initializer !== null) {
-        return [ ...acc, parseInt(next.initializer.value) ]
+        return [ ...acc, parseInt(next.initializer.value.value) ]
       } else {
         return [ ...acc, null ]
       }
@@ -291,10 +291,11 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
        */
       case SyntaxType.IntConstant:
         const acceptedValues: Array<number> = valuesForEnum(enumDef)
-        if (acceptedValues.indexOf(parseInt(constValue.value)) > -1) {
+        const intValue: number = parseInt(constValue.value.value)
+        if (acceptedValues.indexOf(intValue) > -1) {
           return constValue
         } else {
-          throw new ValidationError(`The value ${constValue.value} is not assignable to type ${enumDef.name.value}`, constValue.loc)
+          throw new ValidationError(`The value ${constValue.value.value} is not assignable to type ${enumDef.name.value}`, constValue.loc)
         }
 
       default:
@@ -348,8 +349,10 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
       case SyntaxType.BoolKeyword:
         if (value.type === SyntaxType.BooleanLiteral) {
           return value
-        } else if (value.type === SyntaxType.IntConstant && (value.value === '0' || value.value === '1')) {
-          return createBooleanLiteral(value.value === '1', value.loc)
+
+        // Handle the case where the literal values 1 or 0 can be used to represent booleans
+        } else if (value.type === SyntaxType.IntConstant && (value.value.value === '0' || value.value.value === '1')) {
+          return createBooleanLiteral(value.value.value === '1', value.loc)
         } else {
           throw typeMismatch(expectedType, value, value.loc)
         }

@@ -5,6 +5,10 @@ import {
   EnumMember
 } from '@creditkarma/thrift-parser'
 
+import {
+  renderIntConstant
+} from './values'
+
 /**
  * EXAMPE
  *
@@ -32,7 +36,7 @@ export function renderEnum(node: EnumDefinition): ts.Statement {
         field.name.value,
         (
           (field.initializer !== null) ?
-            ts.createLiteral(parseInt(field.initializer.value)) :
+            renderIntConstant(field.initializer) :
             undefined
         ),
       )

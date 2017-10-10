@@ -8,7 +8,9 @@ import {
   SyntaxType,
   ListType,
   SetType,
-  MapType
+  MapType,
+  IntConstant,
+  DoubleConstant,
 } from '@creditkarma/thrift-parser'
 
 import { COMMON_IDENTIFIERS } from './identifiers'
@@ -23,19 +25,13 @@ export function renderValue(fieldType: FunctionType, node: ConstValue): ts.Expre
       return ts.createIdentifier(node.value)
 
     case SyntaxType.IntConstant:
-      if (fieldType.type === SyntaxType.I64Keyword) {
-        return ts.createNew(
-          COMMON_IDENTIFIERS.Int64,
-          undefined,
-          [ ts.createLiteral(node.value) ]
-        )
-      } else {
-        return ts.createLiteral(parseInt(node.value))
-      }
+      return renderIntConstant(node, fieldType)
+
+    case SyntaxType.DoubleConstant:
+      return renderDoubleConstant(node)
 
     case SyntaxType.BooleanLiteral:
     case SyntaxType.StringLiteral:
-    case SyntaxType.DoubleConstant:
       return ts.createLiteral(node.value)
 
     case SyntaxType.ConstList:
@@ -56,6 +52,55 @@ export function renderValue(fieldType: FunctionType, node: ConstValue): ts.Expre
 
     default:
       const msg: never = node
+      throw new Error(`Non-exhaustive match for ${msg}`)
+  }
+}
+
+export function renderIntConstant(node: IntConstant, fieldType?: FunctionType): ts.Expression {
+  switch (node.value.type) {
+    case SyntaxType.IntegerLiteral:
+      if (fieldType && fieldType.type === SyntaxType.I64Keyword) {
+        return ts.createNew(
+          COMMON_IDENTIFIERS.Int64,
+          undefined,
+          [
+            ts.createLiteral(parseInt(node.value.value))
+          ]
+        )
+      } else {
+        return ts.createLiteral(parseInt(node.value.value))
+      }
+
+    case SyntaxType.HexLiteral:
+      // The Int64 constructor accepts hex literals as strings
+      if (fieldType && fieldType.type === SyntaxType.I64Keyword) {
+        return ts.createNew(
+          COMMON_IDENTIFIERS.Int64,
+          undefined,
+          [
+            ts.createLiteral(node.value.value)
+          ]
+        )
+      } else {
+        return ts.createLiteral(parseInt(node.value.value))
+      }
+
+    default:
+      const msg: never = node.value
+      throw new Error(`Non-exhaustive match for ${msg}`)
+  }
+}
+
+export function renderDoubleConstant(node: DoubleConstant): ts.Expression {
+  switch (node.value.type) {
+    case SyntaxType.FloatLiteral:
+    case SyntaxType.ExponentialLiteral:
+      return ts.createLiteral(
+        parseFloat(node.value.value)
+      )
+
+    default:
+      const msg: never = node.value
       throw new Error(`Non-exhaustive match for ${msg}`)
   }
 }

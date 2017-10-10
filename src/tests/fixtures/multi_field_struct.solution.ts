@@ -6,7 +6,7 @@ export interface IMyStructArgs {
 }
 export class MyStruct {
     public id: number = 45;
-    public bigID: number | thrift.Int64 = new thrift.Int64("23948234");
+    public bigID: number | thrift.Int64 = new thrift.Int64(23948234);
     public word: string;
     public field1: number;
     constructor(args?: IMyStructArgs) {
