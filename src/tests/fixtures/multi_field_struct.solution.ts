@@ -10,7 +10,7 @@ export class MyStruct {
     public bigID: number | thrift.Int64 = new thrift.Int64(23948234);
     public word: string;
     public field1: number;
-    public blob: Buffer = new Buffer("binary");
+    public blob: Buffer = Buffer.from("binary");
     constructor(args?: IMyStructArgs) {
         if (args != null) {
             if (args.id != null) {

@@ -16,6 +16,8 @@ import {
 
 import { COMMON_IDENTIFIERS } from './identifiers'
 
+import { propertyAccessForIdentifier } from './utils'
+
 /**
  *
  * @param node
@@ -147,9 +149,9 @@ function renderList(fieldType: ListType, node: ConstList): ts.ArrayLiteralExpres
   return ts.createArrayLiteral(values)
 }
 
-function renderBuffer(node: StringLiteral): ts.NewExpression {
-  return ts.createNew(
-    COMMON_IDENTIFIERS.Buffer,
+function renderBuffer(node: StringLiteral): ts.CallExpression {
+  return ts.createCall(
+    propertyAccessForIdentifier('Buffer', 'from'),
     undefined,
     [ ts.createLiteral(node.value) ],
   )
