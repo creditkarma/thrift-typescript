@@ -141,14 +141,14 @@ export namespace MyService {
         }
     }
     export interface IHandler<Context> {
-        ping: (context: Context) => void | Promise<void>;
+        ping: (context?: Context) => void | Promise<void>;
     }
     export class Processor<Context> {
         public _handler: IHandler<Context>;
         constructor(handler: IHandler<Context>) {
             this._handler = handler;
         }
-        public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): void {
+        public process(input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
             const metadata: {
                 fname: string;
                 mtype: thrift.Thrift.MessageType;
@@ -173,7 +173,7 @@ export namespace MyService {
                 }
             }
         }
-        public process_ping(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): void {
+        public process_ping(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
             const args = new PingArgs();
             args.read(input);
             input.readMessageEnd();

@@ -79,7 +79,9 @@ export function renderHandlerInterface(service: ServiceDefinition): Array<ts.Sta
           }),
           createFunctionParameter(
             'context',
-            ts.createTypeReferenceNode('Context', undefined)
+            ts.createTypeReferenceNode('Context', undefined),
+            undefined,
+            true
           )
         ],
         ts.createUnionTypeNode([
@@ -120,11 +122,15 @@ export function renderHandlerInterface(service: ServiceDefinition): Array<ts.Sta
         ts.createIntersectionTypeNode([
           ts.createTypeReferenceNode(
             ts.createIdentifier('ILocalHandler'),
-            [ ts.createTypeReferenceNode('Context', undefined) ]
+            [
+              ts.createTypeReferenceNode('Context', undefined)
+            ]
           ),
           ts.createTypeReferenceNode(
             ts.createIdentifier(`${service.extends.value}.IHandler`),
-            [ ts.createTypeReferenceNode('Context', undefined) ]
+            [
+              ts.createTypeReferenceNode('Context', undefined)
+            ]
           )
         ])
       )
@@ -295,7 +301,7 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
       createFunctionParameter('seqid', createNumberType()),
       createFunctionParameter('input', TProtocolType),
       createFunctionParameter('output', TProtocolType),
-      createFunctionParameter('context', ContextType)
+      createFunctionParameter('context', ContextType, undefined, true)
     ], // parameters
     createVoidType(), // return type
     [
@@ -638,7 +644,7 @@ function createProcessMethod(service: ServiceDefinition, identifiers: IIdentifie
     [
       createFunctionParameter('input', TProtocolType),
       createFunctionParameter('output', TProtocolType),
-      createFunctionParameter('context', ContextType)
+      createFunctionParameter('context', ContextType, undefined, true)
     ], // parameters
     createVoidType(), // return type
     [

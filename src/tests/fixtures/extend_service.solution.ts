@@ -171,14 +171,14 @@ export namespace ParentService {
         }
     }
     export interface IHandler<Context> {
-        ping: (status: number, context: Context) => string | Promise<string>;
+        ping: (status: number, context?: Context) => string | Promise<string>;
     }
     export class Processor<Context> {
         public _handler: IHandler<Context>;
         constructor(handler: IHandler<Context>) {
             this._handler = handler;
         }
-        public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): void {
+        public process(input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
             const metadata: {
                 fname: string;
                 mtype: thrift.Thrift.MessageType;
@@ -203,7 +203,7 @@ export namespace ParentService {
                 }
             }
         }
-        public process_ping(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): void {
+        public process_ping(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
             const args = new PingArgs();
             args.read(input);
             input.readMessageEnd();
@@ -405,7 +405,7 @@ export namespace ChildService {
         }
     }
     export interface ILocalHandler<Context> {
-        peg: (name: string, context: Context) => string | Promise<string>;
+        peg: (name: string, context?: Context) => string | Promise<string>;
     }
     export type IHandler<Context> = ILocalHandler<Context> & ParentService.IHandler<Context>;
     export class Processor<Context> extends ParentService.Processor<Context> {
@@ -416,7 +416,7 @@ export namespace ChildService {
             });
             this._handler = handler;
         }
-        public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): void {
+        public process(input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
             const metadata: {
                 fname: string;
                 mtype: thrift.Thrift.MessageType;
@@ -444,7 +444,7 @@ export namespace ChildService {
                 }
             }
         }
-        public process_peg(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): void {
+        public process_peg(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
             const args = new PegArgs();
             args.read(input);
             input.readMessageEnd();
