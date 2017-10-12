@@ -60,7 +60,19 @@ app.get('/ping', (req, res) => {
   })
 })
 
+app.get('/add', (req, res) => {
+  console.log('add: ', req.query)
+  thriftClient.add(req.query.left, req.query.right).then((val: number) => {
+    console.log('res: ', val)
+    res.send(`result: ${val}`)
+  }, (err: any) => {
+    console.log('err: ', err)
+    res.status(500).send(err)
+  })
+})
+
 app.get('/calculate', (req, res) => {
+  console.log('calc: ', req.query)
   const work: Work = new Work({
     num1: req.query.left,
     num2: req.query.right,

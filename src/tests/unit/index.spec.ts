@@ -254,6 +254,18 @@ describe('Thrift TypeScript Generator', () => {
     assert.deepEqual(actual, expected)
   })
 
+  it('should correctly generate a service with i64 fields', () => {
+    const content: string = `
+      service MyService {
+          i64 add(1: i64 num1, 2: i64 num2);
+      }
+    `;
+    const expected: string = readFixture('i64_service')
+    const actual: string = make(content)
+
+    assert.deepEqual(actual, expected)
+  })
+
   it('should correctly generate a service with functions that throw', () => {
     const content: string = `
       exception MyException {

@@ -18,12 +18,20 @@ import {
 } from './utils'
 
 import {
+  COMMON_IDENTIFIERS
+} from '../identifiers'
+
+import {
   renderStruct
 } from '../struct'
 
 import {
   renderInterface
 } from '../interface'
+
+import {
+  createNumberType
+} from '../types'
 
 import {
   IIdentifierMap
@@ -34,6 +42,60 @@ function emptyLocation(): TextLocation {
     start: { line: 0, column: 0, index: 0 },
     end: { line: 0, column: 0, index: 0 }
   };
+}
+
+export function renderInt64Constructor(): ts.FunctionDeclaration {
+  return ts.createFunctionDeclaration(
+    [],
+    [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+    undefined,
+    ts.createIdentifier('wrapInt64Value'),
+    undefined,
+    [
+      ts.createParameter(
+        undefined,
+        undefined,
+        undefined,
+        ts.createIdentifier('num'),
+        undefined,
+        ts.createUnionTypeNode([
+          createNumberType(),
+          ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Int64, undefined),
+        ])
+      )
+    ],
+    ts.createTypeReferenceNode(
+      COMMON_IDENTIFIERS.Int64,
+      undefined
+    ), // return type
+    ts.createBlock([
+      ts.createIf(
+        ts.createBinary(
+          ts.createTypeOf(
+            ts.createIdentifier('num')
+          ),
+          ts.SyntaxKind.EqualsEqualsEqualsToken,
+          ts.createLiteral('number')
+        ),
+        ts.createBlock([
+          ts.createReturn(
+            ts.createNew(
+              COMMON_IDENTIFIERS.Int64,
+              undefined,
+              [
+                ts.createIdentifier('num')
+              ]
+            )
+          )
+        ], true),
+        ts.createBlock([
+          ts.createReturn(
+            ts.createIdentifier('num')
+          )
+        ], true)
+      )
+    ], true)
+  )
 }
 
 export function renderArgsStruct(service: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.InterfaceDeclaration | ts.ClassDeclaration> {

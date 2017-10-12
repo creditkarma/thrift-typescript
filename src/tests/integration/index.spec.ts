@@ -34,6 +34,13 @@ describe('Thrift TypeScript', () => {
     })
   })
 
+  it('should correctly call endpoint with i64 args', (done) => {
+    exec('curl "http://localhost:8044/add?left=5&right=6"', (err, stout, sterr) => {
+      assert.equal(stout, 'result: 11')
+      done()
+    })
+  })
+
   after((done) => {
     clientProc.kill()
     serverProc.kill()

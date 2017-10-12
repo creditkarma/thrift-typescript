@@ -16,6 +16,7 @@
     "build": "rimraf dist/; tsc",
     "build:watch": "tsc --watch",
     "lint": "tslint --fix src/**/*.ts",
+    "start": "ts-node --project ./src/tests/integration ./src/tests/integration/sample.ts",
     "test": "npm run lint && npm run test:only --",
     "test:cli": "ts-node ./src/main/bin/index.ts --rootDir . --sourceDir fixtures --outDir output errors.thrift",
     "posttest:cli": "rimraf ./output",

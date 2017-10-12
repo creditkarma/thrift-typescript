@@ -2,6 +2,7 @@ import {
   createWebServer,
   TBinaryProtocol,
   TBufferedTransport,
+  Int64,
 } from 'thrift'
 
 import {
@@ -29,8 +30,8 @@ function delay(val: number): Promise<number> {
 // ServiceHandler: Implement the hello service
 const myServiceHandler = {
   ping(): void {},
-  add(a: number, b: number): number {
-    return a + b;
+  add(a: Int64, b: Int64): Int64 {
+    return new Int64(a.toNumber() + b.toNumber())
   },
   calculate(logId: number, work: Work): Promise<number> {
     switch (work.op) {
@@ -46,7 +47,7 @@ const myServiceHandler = {
   },
   zip(): void {},
   getStruct(): SharedStruct {
-    return new SharedStruct();
+    return new SharedStruct()
   }
 };
 
