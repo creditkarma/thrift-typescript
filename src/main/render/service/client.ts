@@ -5,7 +5,6 @@ import {
   FunctionDefinition,
   FieldDefinition,
   SyntaxType,
-  FunctionType,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -36,43 +35,13 @@ import {
   createNumberType,
   createVoidType,
   createAnyType,
-  typeNodeForFieldType as _typeNodeForFieldType,
+  typeNodeForFieldType,
 } from '../types'
 
 import {
   COMMON_IDENTIFIERS,
   MESSAGE_TYPE,
 } from '../identifiers'
-
-function typeNodeForFieldType(fieldType: FunctionType): ts.TypeNode {
-  switch (fieldType.type) {
-    case SyntaxType.I64Keyword:
-      return ts.createUnionTypeNode([
-        createNumberType(),
-        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Int64, undefined),
-      ])
-
-    default:
-      return _typeNodeForFieldType(fieldType)
-  }
-}
-
-function createInt64Arg(field: FieldDefinition): ts.PropertyAssignment {
-  if (field.fieldType.type === SyntaxType.I64Keyword) {
-    return ts.createPropertyAssignment(
-      ts.createIdentifier(field.name.value),
-      ts.createCall(
-        ts.createIdentifier('wrapInt64Value'),
-        undefined,
-        [
-          ts.createIdentifier(field.name.value)
-        ]
-      )
-    )
-  } else {
-    throw new Error('')
-  }
-}
 
 export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
   // public _seqid: number;
@@ -381,13 +350,8 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
           undefined,
           [ ts.createObjectLiteral(
             def.fields.map((next: FieldDefinition) => {
-              if (next.fieldType.type === SyntaxType.I64Keyword) {
-                return createInt64Arg(next)
-              } else {
-                return ts.createShorthandPropertyAssignment(next.name.value)
-              }
-            }),
-            true
+              return ts.createShorthandPropertyAssignment(next.name.value)
+            })
           ) ]
         )
       ),

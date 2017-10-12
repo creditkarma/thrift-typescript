@@ -55,14 +55,6 @@ export class MyException {
     }
 }
 export namespace MyService {
-    export function wrapInt64Value(num: number | thrift.Int64): thrift.Int64 {
-        if (typeof num === "number") {
-            return new thrift.Int64(num);
-        }
-        else {
-            return num;
-        }
-    }
     export interface IPingArgsArgs {
     }
     export class PingArgs {

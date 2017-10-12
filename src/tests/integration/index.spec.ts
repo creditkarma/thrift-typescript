@@ -42,8 +42,8 @@ describe('Thrift TypeScript', () => {
   })
 
   after((done) => {
-    clientProc.kill()
-    serverProc.kill()
+    clientProc.kill('SIGINT')
+    serverProc.kill('SIGINT')
     setTimeout(done, 1000)
   })
 })

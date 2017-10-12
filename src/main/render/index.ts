@@ -20,7 +20,6 @@ import {
   renderProcessor,
   renderResultStruct,
   renderHandlerInterface,
-  renderInt64Constructor,
 } from './service'
 
 import { renderStruct as _renderStruct } from './struct'
@@ -90,7 +89,6 @@ export function renderService(statement: ServiceDefinition, identifiers: IIdenti
       [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
       ts.createIdentifier(statement.name.value),
       ts.createModuleBlock([
-        renderInt64Constructor(),
         ...renderArgsStruct(statement, identifiers),
         ...renderResultStruct(statement, identifiers),
         renderClient(statement),
