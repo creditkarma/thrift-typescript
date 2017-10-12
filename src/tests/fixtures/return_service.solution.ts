@@ -55,14 +55,6 @@ export class MyException {
     }
 }
 export namespace MyService {
-    export function wrapInt64Value(num: number | thrift.Int64): thrift.Int64 {
-        if (typeof num === "number") {
-            return new thrift.Int64(num);
-        }
-        else {
-            return num;
-        }
-    }
     export interface IPingArgsArgs {
         status: number;
     }
@@ -229,9 +221,7 @@ export namespace MyService {
         public send_ping(status: number, requestId: number): void {
             const output: thrift.TProtocol = new this.protocol(this.output);
             output.writeMessageBegin("ping", thrift.Thrift.MessageType.CALL, requestId);
-            const args: PingArgs = new PingArgs({
-                status
-            });
+            const args: PingArgs = new PingArgs({ status });
             args.write(output);
             output.writeMessageEnd();
             return this.output.flush();

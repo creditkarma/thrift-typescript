@@ -1,12 +1,4 @@
 export namespace MyService {
-    export function wrapInt64Value(num: number | thrift.Int64): thrift.Int64 {
-        if (typeof num === "number") {
-            return new thrift.Int64(num);
-        }
-        else {
-            return num;
-        }
-    }
     export interface IAddArgsArgs {
         num1: thrift.Int64;
         num2: thrift.Int64;
@@ -154,9 +146,9 @@ export namespace MyService {
         public incrementSeqId(): number {
             return this._seqid += 1;
         }
-        public add(num1: number | thrift.Int64, num2: number | thrift.Int64): Promise<number | thrift.Int64> {
+        public add(num1: thrift.Int64, num2: thrift.Int64): Promise<thrift.Int64> {
             const requestId: number = this.incrementSeqId();
-            return new Promise<number | thrift.Int64>((resolve, reject): void => {
+            return new Promise<thrift.Int64>((resolve, reject): void => {
                 this._reqs[requestId] = (error, result) => {
                     delete this._reqs[requestId];
                     if (error != null) {
@@ -169,13 +161,10 @@ export namespace MyService {
                 this.send_add(num1, num2, requestId);
             });
         }
-        public send_add(num1: number | thrift.Int64, num2: number | thrift.Int64, requestId: number): void {
+        public send_add(num1: thrift.Int64, num2: thrift.Int64, requestId: number): void {
             const output: thrift.TProtocol = new this.protocol(this.output);
             output.writeMessageBegin("add", thrift.Thrift.MessageType.CALL, requestId);
-            const args: AddArgs = new AddArgs({
-                num1: wrapInt64Value(num1),
-                num2: wrapInt64Value(num2)
-            });
+            const args: AddArgs = new AddArgs({ num1, num2 });
             args.write(output);
             output.writeMessageEnd();
             return this.output.flush();

@@ -1,12 +1,4 @@
 export namespace ParentService {
-    export function wrapInt64Value(num: number | thrift.Int64): thrift.Int64 {
-        if (typeof num === "number") {
-            return new thrift.Int64(num);
-        }
-        else {
-            return num;
-        }
-    }
     export interface IPingArgsArgs {
         status: number;
     }
@@ -153,9 +145,7 @@ export namespace ParentService {
         public send_ping(status: number, requestId: number): void {
             const output: thrift.TProtocol = new this.protocol(this.output);
             output.writeMessageBegin("ping", thrift.Thrift.MessageType.CALL, requestId);
-            const args: PingArgs = new PingArgs({
-                status
-            });
+            const args: PingArgs = new PingArgs({ status });
             args.write(output);
             output.writeMessageEnd();
             return this.output.flush();
@@ -242,14 +232,6 @@ export namespace ParentService {
     }
 }
 export namespace ChildService {
-    export function wrapInt64Value(num: number | thrift.Int64): thrift.Int64 {
-        if (typeof num === "number") {
-            return new thrift.Int64(num);
-        }
-        else {
-            return num;
-        }
-    }
     export interface IPegArgsArgs {
         name: string;
     }
@@ -397,9 +379,7 @@ export namespace ChildService {
         public send_peg(name: string, requestId: number): void {
             const output: thrift.TProtocol = new this.protocol(this.output);
             output.writeMessageBegin("peg", thrift.Thrift.MessageType.CALL, requestId);
-            const args: PegArgs = new PegArgs({
-                name
-            });
+            const args: PegArgs = new PegArgs({ name });
             args.write(output);
             output.writeMessageEnd();
             return this.output.flush();
