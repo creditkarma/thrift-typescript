@@ -52,7 +52,7 @@
     "@types/mocha": "^2.2.32",
     "@types/node": "^8.0.32",
     "@types/rimraf": "^0.0.28",
-    "@types/thrift": "^0.10.1",
+    "@types/thrift": "^0.10.3",
     "chai": "^3.5.0",
     "express": "^4.15.4",
     "mocha": "^2.5.3",

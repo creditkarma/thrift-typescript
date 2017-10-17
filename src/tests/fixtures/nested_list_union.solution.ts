@@ -2,7 +2,7 @@ export interface IMyUnionArgs {
     field1?: string;
     field2?: Array<Array<string>>;
 }
-export class MyUnion {
+export class MyUnion implements thrift.TStructLike {
     public field1: string;
     public field2: Array<Array<string>>;
     constructor(args?: IMyUnionArgs) {

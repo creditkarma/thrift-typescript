@@ -111,13 +111,23 @@ export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap):
   // Build the `write` method
   const writeMethod: ts.MethodDeclaration = createWriteMethod(node, identifiers)
 
+  const heritage: ts.HeritageClause = ts.createHeritageClause(
+    ts.SyntaxKind.ImplementsKeyword,
+    [
+      ts.createExpressionWithTypeArguments(
+        [],
+        COMMON_IDENTIFIERS.TStructLike,
+      )
+    ]
+  )
+
   // export class <node.name> { ... }
   return ts.createClassDeclaration(
     undefined, // decorators
     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ], // modifiers
     node.name.value, // name
     [], // type parameters
-    [], // heritage
+    [ heritage ], // heritage
     [
       ...fields,
       ctor,

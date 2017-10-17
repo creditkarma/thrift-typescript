@@ -1,7 +1,7 @@
 export interface IMyExceptionArgs {
     message: string;
 }
-export class MyException {
+export class MyException implements thrift.TStructLike {
     public message: string;
     constructor(args?: IMyExceptionArgs) {
         if (args != null) {

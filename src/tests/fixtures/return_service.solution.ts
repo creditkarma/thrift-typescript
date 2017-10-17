@@ -1,7 +1,7 @@
 export interface IMyExceptionArgs {
     message: string;
 }
-export class MyException {
+export class MyException implements thrift.TStructLike {
     public message: string;
     constructor(args?: IMyExceptionArgs) {
         if (args != null) {
@@ -58,7 +58,7 @@ export namespace MyService {
     export interface IPingArgsArgs {
         status: number;
     }
-    export class PingArgs {
+    export class PingArgs implements thrift.TStructLike {
         public status: number;
         constructor(args?: IPingArgsArgs) {
             if (args != null) {
@@ -115,7 +115,7 @@ export namespace MyService {
         success?: string;
         exp?: MyException;
     }
-    export class PingResult {
+    export class PingResult implements thrift.TStructLike {
         public success: string;
         public exp: MyException;
         constructor(args?: IPingResultArgs) {

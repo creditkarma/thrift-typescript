@@ -2,7 +2,7 @@ export namespace ParentService {
     export interface IPingArgsArgs {
         status: number;
     }
-    export class PingArgs {
+    export class PingArgs implements thrift.TStructLike {
         public status: number;
         constructor(args?: IPingArgsArgs) {
             if (args != null) {
@@ -58,7 +58,7 @@ export namespace ParentService {
     export interface IPingResultArgs {
         success?: string;
     }
-    export class PingResult {
+    export class PingResult implements thrift.TStructLike {
         public success: string;
         constructor(args?: IPingResultArgs) {
             if (args != null) {
@@ -235,7 +235,7 @@ export namespace ChildService {
     export interface IPegArgsArgs {
         name: string;
     }
-    export class PegArgs {
+    export class PegArgs implements thrift.TStructLike {
         public name: string;
         constructor(args?: IPegArgsArgs) {
             if (args != null) {
@@ -291,7 +291,7 @@ export namespace ChildService {
     export interface IPegResultArgs {
         success?: string;
     }
-    export class PegResult {
+    export class PegResult implements thrift.TStructLike {
         public success: string;
         constructor(args?: IPegResultArgs) {
             if (args != null) {

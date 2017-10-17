@@ -1,7 +1,7 @@
 export interface IMyStructArgs {
     field1: Set<Set<string>>;
 }
-export class MyStruct {
+export class MyStruct implements thrift.TStructLike {
     public field1: Set<Set<string>>;
     constructor(args?: IMyStructArgs) {
         if (args != null) {

@@ -1,7 +1,7 @@
 export interface IMyStructArgs {
     field1: Map<string, Map<string, number>>;
 }
-export class MyStruct {
+export class MyStruct implements thrift.TStructLike {
     public field1: Map<string, Map<string, number>>;
     constructor(args?: IMyStructArgs) {
         if (args != null) {

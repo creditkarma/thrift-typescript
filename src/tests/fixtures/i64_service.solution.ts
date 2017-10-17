@@ -3,7 +3,7 @@ export namespace MyService {
         num1: thrift.Int64;
         num2: thrift.Int64;
     }
-    export class AddArgs {
+    export class AddArgs implements thrift.TStructLike {
         public num1: thrift.Int64;
         public num2: thrift.Int64;
         constructor(args?: IAddArgsArgs) {
@@ -77,7 +77,7 @@ export namespace MyService {
     export interface IAddResultArgs {
         success?: thrift.Int64;
     }
-    export class AddResult {
+    export class AddResult implements thrift.TStructLike {
         public success: thrift.Int64;
         constructor(args?: IAddResultArgs) {
             if (args != null) {

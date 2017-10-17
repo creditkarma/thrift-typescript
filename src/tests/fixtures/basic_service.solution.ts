@@ -1,7 +1,7 @@
 export namespace MyService {
     export interface IPingArgsArgs {
     }
-    export class PingArgs {
+    export class PingArgs implements thrift.TStructLike {
         constructor(args?: IPingArgsArgs) {
             if (args != null) {
             }
@@ -39,7 +39,7 @@ export namespace MyService {
     export interface IPingResultArgs {
         success?: void;
     }
-    export class PingResult {
+    export class PingResult implements thrift.TStructLike {
         public success: void;
         constructor(args?: IPingResultArgs) {
             if (args != null) {

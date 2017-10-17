@@ -18,6 +18,10 @@ import {
 } from '../types'
 
 import {
+  COMMON_IDENTIFIERS
+} from '../identifiers'
+
+import {
   createFunctionParameter,
   createClassConstructor,
   createAssignmentStatement,
@@ -66,7 +70,7 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
   const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(node)
 
   // Build the constructor body
-  const ctor: ts.ConstructorDeclaration = createClassConstructor([ argsParameter ], [ argsCheckWithAssignments ])
+  const ctor: ts.ConstructorDeclaration = createClassConstructor([argsParameter], [argsCheckWithAssignments])
 
   // Build the `read` method
   const readMethod: ts.MethodDeclaration = createReadMethod(node, identifiers)
@@ -74,14 +78,24 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
   // Build the `write` method
   const writeMethod: ts.MethodDeclaration = createWriteMethod(node, identifiers)
 
+  const heritage: ts.HeritageClause = ts.createHeritageClause(
+    ts.SyntaxKind.ImplementsKeyword,
+    [
+      ts.createExpressionWithTypeArguments(
+        [],
+        COMMON_IDENTIFIERS.TStructLike,
+      )
+    ]
+  )
+
   // export class <node.name> { ... }
   return ts.createClassDeclaration(
     undefined,
-    [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+    [ts.createToken(ts.SyntaxKind.ExportKeyword)],
     node.name.value,
     [],
-    [],
-    [ ...fields, ctor, writeMethod, readMethod ]
+    [heritage], // heritage
+    [...fields, ctor, writeMethod, readMethod]
   )
 }
 
@@ -167,8 +181,8 @@ export function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
 
   return ts.createIf(
     comparison,
-    ts.createBlock([ thenAssign ], true),
-    (elseThrow !== undefined) ? ts.createBlock([ elseThrow ], true) : undefined
+    ts.createBlock([thenAssign], true),
+    (elseThrow !== undefined) ? ts.createBlock([elseThrow], true) : undefined
   )
 }
 
@@ -198,7 +212,7 @@ export function renderFieldDeclarations(field: FieldDefinition): ts.PropertyDecl
 
   return ts.createProperty(
     undefined,
-    [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
+    [ts.createToken(ts.SyntaxKind.PublicKeyword)],
     field.name.value,
     undefined,
     typeNodeForFieldType(field.fieldType),

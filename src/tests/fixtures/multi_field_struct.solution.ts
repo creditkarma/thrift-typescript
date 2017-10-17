@@ -5,7 +5,7 @@ export interface IMyStructArgs {
     field1?: number;
     blob?: Buffer;
 }
-export class MyStruct {
+export class MyStruct implements thrift.TStructLike {
     public id: number = 45;
     public bigID: thrift.Int64 = new thrift.Int64(23948234);
     public word: string;

@@ -1,7 +1,7 @@
 export interface IOtherStructArgs {
     name: string;
 }
-export class OtherStruct {
+export class OtherStruct implements thrift.TStructLike {
     public name: string;
     constructor(args?: IOtherStructArgs) {
         if (args != null) {
@@ -60,7 +60,7 @@ export class OtherStruct {
 export interface IMyStructArgs {
     field1: OtherStruct;
 }
-export class MyStruct {
+export class MyStruct implements thrift.TStructLike {
     public field1: OtherStruct;
     constructor(args?: IMyStructArgs) {
         if (args != null) {

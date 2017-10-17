@@ -1,7 +1,7 @@
 export interface IMyStructArgs {
     field1: Array<string>;
 }
-export class MyStruct {
+export class MyStruct implements thrift.TStructLike {
     public field1: Array<string>;
     constructor(args?: IMyStructArgs) {
         if (args != null) {
