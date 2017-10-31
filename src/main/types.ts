@@ -38,7 +38,7 @@ export interface IRenderer {
   renderIncludes(
     outPath: string,
     includes: IRenderedFileMap,
-    resolvedIncludes: IResolvedIncludeMap): Array<ts.Statement>
+    resolvedFile: IResolvedFile): Array<ts.Statement>
   renderConst(
     statement: ConstDefinition,
     identifiers?: IIdentifierMap): Array<ts.Statement>

@@ -29,24 +29,29 @@ import { renderTypeDef as _renderTypeDef } from './typedef'
 import { renderConst as _renderConst } from './const'
 import {
   renderIncludes as _renderIncludes,
-  renderThriftImports
+  renderThriftImports,
+  fileUsesThrift,
 } from './includes'
 
 import {
   IIdentifierMap,
   IRenderer,
   IRenderedFileMap,
-  IResolvedIncludeMap,
+  IResolvedFile,
 } from '../types'
 
 export function renderIncludes(
   outPath: string,
   includes: IRenderedFileMap,
-  resolvedIncludes: IResolvedIncludeMap): Array<ts.Statement> {
-  return [
-    renderThriftImports(),
-    ..._renderIncludes(outPath, includes, resolvedIncludes),
-  ]
+  resolvedFile: IResolvedFile): Array<ts.Statement> {
+  if (fileUsesThrift(resolvedFile)) {
+    return [
+      renderThriftImports(),
+      ..._renderIncludes(outPath, includes, resolvedFile.includes),
+    ]
+  } else {
+    return _renderIncludes(outPath, includes, resolvedFile.includes)
+  }
 }
 
 export function renderConst(statement: ConstDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
