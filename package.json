@@ -8,8 +8,7 @@
     "thrift-typescript": "./dist/main/bin/index.js"
   },
   "files": [
-    "dist/",
-    "typings/"
+    "dist/main"
   ],
   "scripts": {
     "clean": "rimraf coverage/ dist/ node_modules/",
@@ -17,13 +16,13 @@
     "build:watch": "tsc --watch",
     "lint": "tslint --fix src/**/*.ts",
     "start": "ts-node --project ./src/tests/integration ./src/tests/integration/sample.ts",
-    "test": "npm run lint && npm run test:only --",
-    "test:cli": "ts-node ./src/main/bin/index.ts --rootDir . --sourceDir fixtures --outDir output errors.thrift",
+    "test": "npm run lint && npm run test:unit && npm run test:integration",
     "posttest:cli": "rimraf ./output",
+    "test:cli": "ts-node ./src/main/bin/index.ts --rootDir . --sourceDir fixtures --outDir output errors.thrift",
+    "test:watch": "npm test -- -w",
+    "test:unit": "NODE_ENV=test mocha --opts mocha.opts",
     "pretest:integration": "rimraf ./src/tests/integration/codegen",
     "test:integration": "NODE_ENV=test mocha --opts mocha.integration.opts",
-    "test:watch": "npm test -- -w",
-    "test:only": "NODE_ENV=test mocha --opts mocha.opts",
     "coverage": "NODE_ENV=test nyc mocha --opts mocha.cover.opts",
     "release:patch": "npm version patch && npm run release:publish",
     "release:minor": "npm version minor && npm run release:publish",
@@ -43,7 +42,7 @@
   "dependencies": {
     "@creditkarma/thrift-parser": "^0.0.14",
     "glob": "^7.1.2",
-    "typescript": "^2.4.2"
+    "typescript": "^2.5.3"
   },
   "devDependencies": {
     "@types/chai": "^3.4.34",
@@ -52,7 +51,7 @@
     "@types/mocha": "^2.2.32",
     "@types/node": "^8.0.32",
     "@types/rimraf": "^0.0.28",
-    "@types/thrift": "^0.10.3",
+    "@types/thrift": "^0.10.4",
     "chai": "^3.5.0",
     "express": "^4.15.4",
     "mocha": "^2.5.3",

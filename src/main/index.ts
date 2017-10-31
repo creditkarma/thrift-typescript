@@ -88,9 +88,10 @@ export function generate(options: IMakeOptions): void {
     printErrors(invalidFiles)
     process.exitCode = 1
   } else {
-    const renderedFiles: Array<IRenderedFile> = validatedFiles.map((next: IResolvedFile): IRenderedFile => {
-      return generateFile(renderer, rootDir, outDir, sourceDir, next)
-    })
+    const renderedFiles: Array<IRenderedFile> =
+      validatedFiles.map((next: IResolvedFile): IRenderedFile => {
+        return generateFile(renderer, rootDir, outDir, sourceDir, next)
+      })
 
     saveFiles(rootDir, outDir, renderedFiles)
   }

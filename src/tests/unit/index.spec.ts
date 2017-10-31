@@ -4,7 +4,7 @@ import { assert } from 'chai'
 import { make } from '../../main/index'
 
 function readFixture(name: string): string {
-  return fs.readFileSync(path.join(__dirname, `../fixtures/${name}.solution.ts`), 'utf-8')
+  return fs.readFileSync(path.join(__dirname, `./fixtures/${name}.solution.ts`), 'utf-8')
 }
 
 describe('Thrift TypeScript Generator', () => {
@@ -27,6 +27,21 @@ describe('Thrift TypeScript Generator', () => {
       typedef string name
     `;
     const expected: string = readFixture('basic_typedef')
+    const actual: string = make(content)
+
+    assert.deepEqual(actual, expected)
+  })
+
+  it('should correctly generate a type alias for an identifier', () => {
+    const content: string = `
+      enum MyEnum {
+        ONE,
+        TWO
+      }
+
+      typedef MyEnum AnotherName
+    `;
+    const expected: string = readFixture('enum_typedef')
     const actual: string = make(content)
 
     assert.deepEqual(actual, expected)
