@@ -57,6 +57,7 @@
  * prefix. i.e. shared.SharedObject
  */
 include "shared.thrift"
+include "operation.thrift"
 
 /**
  * Thrift files can namespace, package, or prefix their output in various
@@ -77,23 +78,14 @@ namespace netcore tutorial
  */
 typedef i32 MyInteger
 
+typedef operation.Operation Operation
+
 /**
  * Thrift also lets you define constants for use across languages. Complex
  * types and structs are specified using JSON notation.
  */
 const i32 INT32CONSTANT = 9853
 const map<string,string> MAPCONSTANT = {'hello':'world', 'goodnight':'moon'}
-
-/**
- * You can define enums, which are just 32 bit integers. Values are optional
- * and start at 1 if not supplied, C style again.
- */
-enum Operation {
-  ADD = 1,
-  SUBTRACT = 2,
-  MULTIPLY = 3,
-  DIVIDE = 4
-}
 
 /**
  * Structs are the basic complex data structures. They are comprised of fields
@@ -107,7 +99,7 @@ enum Operation {
 struct Work {
   1: i32 num1 = 0,
   2: i32 num2,
-  3: Operation op,
+  3: operation.Operation op,
   4: optional string comment,
 }
 

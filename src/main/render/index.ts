@@ -54,7 +54,7 @@ export function renderConst(statement: ConstDefinition, identifiers: IIdentifier
 }
 
 export function renderTypeDef(statement: TypedefDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-  return [ _renderTypeDef(statement) ]
+  return [ _renderTypeDef(statement, identifiers) ]
 }
 
 export function renderEnum(statement: EnumDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
