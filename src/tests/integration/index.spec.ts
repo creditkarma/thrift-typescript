@@ -11,8 +11,8 @@ generate({
   files: []
 })
 
-import './client'
-import './server'
+const clientProc = exec('../../../node_modules/.bin/ts-node ./client.ts')
+const serverProc = exec('../../../node_modules/.bin/ts-node ./server.ts')
 
 describe('Thrift TypeScript', () => {
 
@@ -39,5 +39,11 @@ describe('Thrift TypeScript', () => {
       assert.equal(stout, 'result: 11')
       done()
     })
+  })
+
+  after((done) => {
+    clientProc.kill('SIGINT')
+    serverProc.kill('SIGINT')
+    setTimeout(done, 1000)
   })
 })
