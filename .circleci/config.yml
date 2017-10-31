@@ -40,9 +40,6 @@ jobs:
       - run:
           name: npm-test
           command: npm test
-      - run:
-          name: npm-test-integration
-          command: npm run test:integration
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
