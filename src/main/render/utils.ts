@@ -8,7 +8,6 @@ import * as ts from 'typescript'
 
 import {
   FieldRequired,
-  Identifier
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -22,10 +21,6 @@ import {
   PROTOCOL_EXCEPTION,
   APPLICATION_EXCEPTION,
 } from './identifiers'
-
-export function nameForIdentifier(identifier: Identifier): string {
-  return '';
-}
 
 export function createPrivateProperty(name: string | ts.Identifier, type?: ts.TypeNode, initializer?: ts.Expression): ts.PropertyDeclaration {
   return ts.createProperty(

@@ -12,6 +12,7 @@ describe('Thrift TypeScript Generator', () => {
   it('should correctly generate a const', () => {
     const content: string = `
       const bool FALSE_CONST = false
+      const i64 INT_64 = 64
       const set<string> SET_CONST = ['hello', 'world', 'foo', 'bar']
       const map<string,string> MAP_CONST = {'hello': 'world', 'foo': 'bar' }
       const list<string> LIST_CONST = ['hello', 'world', 'foo', 'bar']
