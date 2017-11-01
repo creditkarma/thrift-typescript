@@ -4,7 +4,7 @@ import {
   SyntaxType
 } from '@creditkarma/thrift-parser'
 
-import { resolveFile } from '../../main/resolver'
+import { resolveFile, IResolvedCache } from '../../main/resolver'
 import { parseThriftString } from '../../main/utils'
 import {
   IResolvedFile,
@@ -49,7 +49,8 @@ describe('Thrift TypeScript Resolver', () => {
       ],
       ast: parseThriftString(content)
     }
-    const actual: IResolvedFile = resolveFile(mockParsedFile)
+    const resolvedCache: IResolvedCache = {}
+    const actual: IResolvedFile = resolveFile(mockParsedFile, resolvedCache)
     const expected: IResolvedFile = {
       name: 'test',
       path: '',
@@ -870,7 +871,8 @@ describe('Thrift TypeScript Resolver', () => {
       ],
       ast: parseThriftString(content)
     }
-    const actual: IResolvedFile = resolveFile(mockParsedFile)
+    const resolvedCache: IResolvedCache = {}
+    const actual: IResolvedFile = resolveFile(mockParsedFile, resolvedCache)
     const expected: IResolvedFile = {
       name: 'test',
       path: '',

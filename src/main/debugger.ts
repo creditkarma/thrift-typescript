@@ -52,9 +52,10 @@ function errorType(type: ErrorType): string {
 
 function printErrorForFile(file: IResolvedFile): void {
   const sourceLines: Array<string> = file.source.split(os.EOL)
-  const formattedErrors: Array<IFormattedError> = file.errors.map((next: IThriftError): IFormattedError => {
-    return formatError(next)
-  })
+  const formattedErrors: Array<IFormattedError> =
+    file.errors.map((next: IThriftError): IFormattedError => {
+      return formatError(next)
+    })
 
   function getSourceLine(lineNumber: number): string {
     return sourceLines[(lineNumber - 1)]
