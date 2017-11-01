@@ -29,6 +29,10 @@ import {
   mkdir,
 } from './sys'
 
+export interface IIncludeCache {
+  [path: string]: IParsedFile
+}
+
 export function collectSourceFiles(sourceDir: string, options: IMakeOptions): Array<string> {
   if (options.files && options.files.length > 0) {
     return options.files
@@ -48,6 +52,16 @@ export function parseThriftString(source: string): ThriftDocument {
   }
 }
 
+function containsFile(haystack: Array<IRenderedFile>, needle: IRenderedFile): boolean {
+  for (const next of haystack) {
+    if (next.path === needle.path && next.name === needle.name) {
+      return true
+    }
+  }
+
+  return false
+}
+
 /**
  * This utility flattens files and their includes to make them easier to iterate through while
  * generating files.
@@ -56,16 +70,20 @@ export function parseThriftString(source: string): ThriftDocument {
  */
 function collectAllFiles(files: Array<IRenderedFile>): Array<IRenderedFile> {
   return files.reduce((acc: Array<IRenderedFile>, next: IRenderedFile) => {
-    const includes: Array<IRenderedFile> = []
-    for (const name of Object.keys(next.includes)) {
-      includes.push(next.includes[name])
-    }
+    if (!containsFile(acc, next)) {
+      const includes: Array<IRenderedFile> = []
+      for (const name of Object.keys(next.includes)) {
+        includes.push(next.includes[name])
+      }
 
-    return [
-      ...acc,
-      next,
-      ...collectAllFiles(includes),
-    ]
+      return [
+        ...acc,
+        next,
+        ...collectAllFiles(includes),
+      ]
+    } else {
+      return acc
+    }
   }, [])
 }
 
@@ -106,8 +124,17 @@ function collectIncludes(thrift: ThriftDocument): Array<IIncludeData> {
   }))
 }
 
-function parseInclude(currentPath: string, sourceDir: string, include: IIncludeData): IParsedFile {
-  return parseFile(sourceDir, readThriftFile(include.path, [ currentPath, sourceDir ]))
+function parseInclude(
+  currentPath: string,
+  sourceDir: string,
+  include: IIncludeData,
+  cache: IIncludeCache = {},
+): IParsedFile {
+  if (!cache[include.path]) {
+    cache[include.path] = parseFile(sourceDir, readThriftFile(include.path, [ currentPath, sourceDir ]))
+  }
+
+  return cache[include.path]
 }
 
 /**
@@ -121,10 +148,10 @@ function parseInclude(currentPath: string, sourceDir: string, include: IIncludeD
  * @param sourceDir
  * @param file
  */
-export function parseFile(sourceDir: string, file: IThriftFile): IParsedFile {
+export function parseFile(sourceDir: string, file: IThriftFile, cache: IIncludeCache = {}): IParsedFile {
   const ast: ThriftDocument = parseThriftString(file.source)
   const includes: Array<IParsedFile> = collectIncludes(ast).map((next: IIncludeData): IParsedFile => {
-    return parseInclude(file.path, sourceDir, next)
+    return parseInclude(file.path, sourceDir, next, cache)
   })
 
   return {
@@ -138,7 +165,7 @@ export function parseFile(sourceDir: string, file: IThriftFile): IParsedFile {
 
 export function parseSource(source: string): IParsedFile {
   return {
-    name: 'source',
+    name: '',
     path: '',
     source,
     includes: [],

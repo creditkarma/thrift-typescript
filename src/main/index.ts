@@ -15,6 +15,7 @@ import {
 } from './printer'
 
 import {
+  IResolvedCache,
   resolveFile,
 } from './resolver'
 
@@ -38,6 +39,7 @@ import {
 import {
   collectInvalidFiles,
   collectSourceFiles,
+  IIncludeCache,
   parseFile,
   parseSource,
   readThriftFile,
@@ -73,12 +75,14 @@ export function generate(options: IMakeOptions): void {
   const rootDir: string = path.resolve(process.cwd(), options.rootDir)
   const outDir: string = path.resolve(rootDir, options.outDir)
   const sourceDir: string = path.resolve(rootDir, options.sourceDir)
+  const includeCache: IIncludeCache = {}
+  const resolvedCache: IResolvedCache = {}
 
   const validatedFiles: Array<IResolvedFile> =
     collectSourceFiles(sourceDir, options).map((next: string): IResolvedFile => {
       const thriftFile: IThriftFile = readThriftFile(next, [ sourceDir ])
-      const parsedFile: IParsedFile = parseFile(sourceDir, thriftFile)
-      const resolvedFile: IResolvedFile = resolveFile(parsedFile)
+      const parsedFile: IParsedFile = parseFile(sourceDir, thriftFile, includeCache)
+      const resolvedFile: IResolvedFile = resolveFile(parsedFile, resolvedCache)
       return validateFile(resolvedFile)
     })
 

@@ -524,7 +524,7 @@ describe('Thrift TypeScript Validator', () => {
     const resolvedFile: IResolvedFile = resolveFile(parsedFile)
     const validatedFile: IResolvedFile = validateFile(resolvedFile)
     const expected: IResolvedFile = {
-      name: 'source',
+      name: '',
       path: '',
       source: '\n      struct TestStruct {\n        i32 status\n        required string message\n      }\n    ',
       namespace: {
@@ -860,7 +860,7 @@ describe('Thrift TypeScript Validator', () => {
       }
     `
     const parsedFile: IParsedFile = {
-      name: 'test',
+      name: '',
       path: '',
       source: `
         include 'exception.thrift'
@@ -883,7 +883,7 @@ describe('Thrift TypeScript Validator', () => {
     const resolvedFile: IResolvedFile = resolveFile(parsedFile)
     const validatedFile: IResolvedFile = validateFile(resolvedFile)
     const expected: IResolvedFile = {
-      name: 'test',
+      name: '',
       path: '',
       source: "\n        include 'exception.thrift'\n\n        exception MyException {\n          1: exception.Status status = exception.Status.SUCCESS;\n        }\n      ",
       namespace: {
