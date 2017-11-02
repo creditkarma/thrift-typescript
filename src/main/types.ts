@@ -157,3 +157,11 @@ export interface IThriftError {
   message: string
   loc: TextLocation
 }
+
+export interface IIncludeCache {
+  [path: string]: IParsedFile
+}
+
+export interface IResolvedCache {
+  [path: string]: IResolvedFile
+}
