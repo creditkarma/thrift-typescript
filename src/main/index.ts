@@ -6,6 +6,7 @@ import {
   IIncludeCache,
   IMakeOptions,
   IParsedFile,
+  IRenderedCache,
   IRenderedFile,
   IResolvedCache,
   IResolvedFile,
@@ -77,6 +78,7 @@ export function generate(options: IMakeOptions): void {
   const sourceDir: string = path.resolve(rootDir, options.sourceDir)
   const includeCache: IIncludeCache = {}
   const resolvedCache: IResolvedCache = {}
+  const renderedCache: IRenderedCache = {}
 
   const validatedFiles: Array<IResolvedFile> =
     collectSourceFiles(sourceDir, options).map((next: string): IResolvedFile => {
@@ -94,7 +96,14 @@ export function generate(options: IMakeOptions): void {
   } else {
     const renderedFiles: Array<IRenderedFile> =
       validatedFiles.map((next: IResolvedFile): IRenderedFile => {
-        return generateFile(renderer, rootDir, outDir, sourceDir, next)
+        return generateFile(
+          renderer,
+          rootDir,
+          outDir,
+          sourceDir,
+          next,
+          renderedCache,
+        )
       })
 
     saveFiles(rootDir, outDir, renderedFiles)

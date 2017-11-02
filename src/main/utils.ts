@@ -30,6 +30,12 @@ import {
   mkdir,
 } from './sys'
 
+interface IFileCache {
+  [path: string]: IThriftFile
+}
+
+const fileCache: IFileCache = {}
+
 export function collectSourceFiles(sourceDir: string, options: IMakeOptions): Array<string> {
   if (options.files && options.files.length > 0) {
     return options.files
@@ -49,43 +55,33 @@ export function parseThriftString(source: string): ThriftDocument {
   }
 }
 
-function containsFile(haystack: Array<IRenderedFile>, needle: IRenderedFile): boolean {
-  for (const next of haystack) {
-    if (next.path === needle.path && next.name === needle.name) {
-      return true
-    }
-  }
-
-  return false
-}
-
 /**
  * This utility flattens files and their includes to make them easier to iterate through while
  * generating files.
  *
  * @param files
  */
-function collectAllFiles(files: Array<IRenderedFile>): Array<IRenderedFile> {
-  return files.reduce((acc: Array<IRenderedFile>, next: IRenderedFile) => {
-    if (!containsFile(acc, next)) {
+function flattenFiles(files: Array<IRenderedFile>): Set<IRenderedFile> {
+  return files.reduce((acc: Set<IRenderedFile>, next: IRenderedFile) => {
+    if (!acc.has(next)) {
       const includes: Array<IRenderedFile> = []
       for (const name of Object.keys(next.includes)) {
         includes.push(next.includes[name])
       }
 
-      return [
+      return new Set([
         ...acc,
         next,
-        ...collectAllFiles(includes),
-      ]
+        ...flattenFiles(includes),
+      ])
     } else {
       return acc
     }
-  }, [])
+  }, new Set())
 }
 
 export function saveFiles(rootDir: string, outDir: string, files: Array<IRenderedFile>): void {
-  collectAllFiles(files).forEach((next: IRenderedFile) => {
+  flattenFiles(files).forEach((next: IRenderedFile) => {
     mkdir(path.dirname(next.outPath))
     try {
       fs.writeFileSync(next.outPath, print(next.statements, true))
@@ -98,12 +94,18 @@ export function saveFiles(rootDir: string, outDir: string, files: Array<IRendere
 export function readThriftFile(file: string, searchPaths: Array<string>): IThriftFile {
   for (const sourcePath of searchPaths) {
     const filePath: string = path.resolve(sourcePath, file)
+    if (fileCache[filePath] !== undefined) {
+      return fileCache[filePath]
+    }
+
     if (fs.existsSync(filePath)) {
-      return {
+      fileCache[filePath] = {
         name: path.basename(filePath, '.thrift'),
         path: path.dirname(filePath),
         source: fs.readFileSync(filePath, 'utf-8'),
       }
+
+      return fileCache[filePath]
     }
   }
 
