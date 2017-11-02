@@ -21,13 +21,6 @@ function renderTypeDefForIdentifier(id: IResolvedIdentifier, node: TypedefDefini
     case SyntaxType.ExceptionDefinition:
     case SyntaxType.UnionDefinition:
       return [
-        ts.createTypeAliasDeclaration(
-          undefined,
-          undefined,
-          node.name.value,
-          undefined,
-          typeNodeForFieldType(node.definitionType),
-        ),
         ts.createExportDeclaration(
           undefined,
           undefined,
