@@ -8,6 +8,7 @@ import {
   IResolvedFile,
   IResolvedIncludeMap,
   IRenderer,
+  IRenderedCache,
 } from '../types'
 
 import {
@@ -36,42 +37,56 @@ export function generateFile(
   outDir: string,
   sourceDir: string,
   resolvedFile: IResolvedFile,
+  cache: IRenderedCache = {},
 ): IRenderedFile {
-  function outPathForFile(): string {
-    const filename: string = `${resolvedFile.name}.ts`
-    const outFile: string = path.resolve(
-      outDir,
-      resolvedFile.namespace.path,
-      filename,
-    )
+  const cacheKey: string = `${resolvedFile.path}/${resolvedFile.name}`
 
-    return outFile
+  if (cacheKey === '/' || !cache[cacheKey]) {
+    function outPathForFile(): string {
+      const filename: string = `${resolvedFile.name}.ts`
+      const outFile: string = path.resolve(
+        outDir,
+        resolvedFile.namespace.path,
+        filename,
+      )
+
+      return outFile
+    }
+
+    function createIncludes(currentPath: string, includes: IResolvedIncludeMap): IRenderedFileMap {
+      return Object.keys(includes).reduce((acc: IRenderedFileMap, next: string): IRenderedFileMap => {
+        const include: IResolvedFile = includes[next].file
+        const renderedFile: IRenderedFile = generateFile(
+          renderer,
+          rootDir,
+          outDir,
+          sourceDir,
+          include,
+          cache
+        )
+        acc[next] = renderedFile
+        return acc
+      }, {})
+    }
+
+    const includes: IRenderedFileMap = createIncludes(resolvedFile.path, resolvedFile.includes)
+    const identifiers: IIdentifierMap = resolvedFile.identifiers
+    const outPath: string = outPathForFile()
+    const statements: Array<ts.Statement> = [
+      ...renderer.renderIncludes(outPath, includes, resolvedFile),
+      ...processStatements(resolvedFile.body, identifiers, renderer),
+    ]
+
+    cache[cacheKey] = {
+      name: resolvedFile.name,
+      path: resolvedFile.path,
+      outPath,
+      namespace: resolvedFile.namespace,
+      statements,
+      includes,
+      identifiers,
+    }
   }
 
-  function createIncludes(currentPath: string, includes: IResolvedIncludeMap): IRenderedFileMap {
-    return Object.keys(includes).reduce((acc: IRenderedFileMap, next: string): IRenderedFileMap => {
-      const include: IResolvedFile = includes[next].file
-      const renderedFile: IRenderedFile = generateFile(renderer, rootDir, outDir, sourceDir, include)
-      acc[next] = renderedFile
-      return acc
-    }, {})
-  }
-
-  const includes: IRenderedFileMap = createIncludes(resolvedFile.path, resolvedFile.includes)
-  const identifiers: IIdentifierMap = resolvedFile.identifiers
-  const outPath: string = outPathForFile()
-  const statements: Array<ts.Statement> = [
-    ...renderer.renderIncludes(outPath, includes, resolvedFile),
-    ...processStatements(resolvedFile.body, identifiers, renderer),
-  ]
-
-  return {
-    name: resolvedFile.name,
-    path: resolvedFile.path,
-    outPath,
-    namespace: resolvedFile.namespace,
-    statements,
-    includes,
-    identifiers,
-  }
+  return cache[cacheKey]
 }

@@ -165,3 +165,7 @@ export interface IIncludeCache {
 export interface IResolvedCache {
   [path: string]: IResolvedFile
 }
+
+export interface IRenderedCache {
+  [path: string]: IRenderedFile
+}
