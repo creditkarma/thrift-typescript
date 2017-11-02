@@ -3,9 +3,11 @@ export * from './types'
 import * as path from 'path'
 
 import {
+  IIncludeCache,
   IMakeOptions,
   IParsedFile,
   IRenderedFile,
+  IResolvedCache,
   IResolvedFile,
   IThriftFile,
 } from './types'
@@ -15,7 +17,6 @@ import {
 } from './printer'
 
 import {
-  IResolvedCache,
   resolveFile,
 } from './resolver'
 
@@ -39,7 +40,6 @@ import {
 import {
   collectInvalidFiles,
   collectSourceFiles,
-  IIncludeCache,
   parseFile,
   parseSource,
   readThriftFile,

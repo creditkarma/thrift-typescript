@@ -23,20 +23,12 @@ import {
   IResolvedIdentifier,
   IResolvedIncludeMap,
   IResolvedNamespace,
+  IResolvedCache,
 } from '../types'
 
 import {
   resolveNamespace
 } from './utils'
-
-export interface IResolvedCache {
-  [path: string]: IResolvedFile
-}
-
-export interface IThriftResolver {
-  resolve(): IResolvedFile
-  synchronize(): void
-}
 
 /**
  * The job of the resolver is to traverse the AST and find all of the Identifiers. In order to

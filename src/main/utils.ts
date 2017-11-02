@@ -12,6 +12,7 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
+  IIncludeCache,
   IIncludeData,
   IMakeOptions,
   IParsedFile,
@@ -28,10 +29,6 @@ import {
 import {
   mkdir,
 } from './sys'
-
-export interface IIncludeCache {
-  [path: string]: IParsedFile
-}
 
 export function collectSourceFiles(sourceDir: string, options: IMakeOptions): Array<string> {
   if (options.files && options.files.length > 0) {
