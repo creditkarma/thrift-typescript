@@ -68,5 +68,5 @@ const serverOpt = {
 
 // Create and start the web server
 createWebServer(serverOpt).listen(SERVER_CONFIG.port, () => {
-  console.log(`Thrift server listening on port ${SERVER_CONFIG.port}`)
+  console.log(`Thrift server listening at http://${SERVER_CONFIG.hostName}:${SERVER_CONFIG.port}`)
 });
