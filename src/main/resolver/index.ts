@@ -95,6 +95,7 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
       parsedFile.includes.map((next: IParsedFile): IResolvedFile => {
         return resolveFile(next)
       })
+
     const includeMap: IResolvedFileMap =
       includes.reduce((acc: IResolvedFileMap, next: IResolvedFile): IResolvedFileMap => {
         acc[next.name] = next
@@ -121,10 +122,15 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
     function resolveFieldType(fieldType: FieldType): FieldType {
       switch (fieldType.type) {
         case SyntaxType.Identifier:
-          return {
-            type: SyntaxType.Identifier,
-            value: resolveName(fieldType.value),
-            loc: fieldType.loc,
+          const id: IResolvedIdentifier = identifiers[fieldType.value]
+          if (id !== undefined && id.definition.type === SyntaxType.TypedefDefinition) {
+            return id.definition.definitionType
+          } else {
+            return {
+              type: SyntaxType.Identifier,
+              value: resolveName(fieldType.value),
+              loc: fieldType.loc,
+            }
           }
 
         case SyntaxType.ListType:
@@ -331,7 +337,34 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
               `${resolvedName}.${tail.join('.')}` :
               resolvedName
           )
+
+        /**
+         * This case handles assignment to values
+         *
+         * ```
+         * enum MyEnum {
+         *   ONE,
+         *   TWO
+         * }
+         *
+         * typedef OtherName = MyEnum
+         *
+         * const OtherName TEST = OtherName.ONE
+         * ```
+         *
+         * We need to resolve 'OtherName' in the value assignement
+         */
         } else {
+          const id = identifiers[pathname]
+
+          if (id !== undefined) {
+            if (id.definition.type === SyntaxType.TypedefDefinition) {
+              if (id.definition.definitionType.type === SyntaxType.Identifier) {
+                return [ id.definition.definitionType.value, base, ...tail ].join('.')
+              }
+            }
+          }
+
           return name
         }
       } else {

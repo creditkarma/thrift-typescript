@@ -48,6 +48,27 @@ describe('Thrift TypeScript Generator', () => {
     assert.deepEqual(actual, expected)
   })
 
+  it('should correctly generate a type alias for an identifier', () => {
+    const content: string = `
+      enum MyEnum {
+        ONE,
+        TWO
+      }
+
+      typedef i32 MyInt
+
+      typedef MyEnum AnotherName
+
+      const MyInt INT_32 = 32
+
+      const AnotherName WHAT = AnotherName.ONE
+    `;
+    const expected: string = readFixture('complex_typedef')
+    const actual: string = make(content)
+
+    assert.deepEqual(actual, expected)
+  })
+
   it('should correctly generate an enum', () => {
     const content: string = `
       enum MyEnum {
