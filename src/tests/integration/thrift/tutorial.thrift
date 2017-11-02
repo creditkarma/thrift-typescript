@@ -99,7 +99,7 @@ const map<string,string> MAPCONSTANT = {'hello':'world', 'goodnight':'moon'}
 struct Work {
   1: i32 num1 = 0,
   2: i32 num2,
-  3: operation.Operation op,
+  3: Operation op,
   4: optional string comment,
 }
 
