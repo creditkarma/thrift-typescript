@@ -121,6 +121,12 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
 
     function resolveFieldType(fieldType: FieldType): FieldType {
       switch (fieldType.type) {
+
+        /**
+         * An Identifier can refer to either a container type or an alias to another
+         * type. Here we check for the typedef case and resolve to the base type in that
+         * case.
+         */
         case SyntaxType.Identifier:
           const id: IResolvedIdentifier = identifiers[fieldType.value]
           if (id !== undefined && id.definition.type === SyntaxType.TypedefDefinition) {
@@ -314,6 +320,12 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
 
       if (parts.length > 1) {
         const [ pathname, base, ...tail ] = parts
+
+        /**
+         * In this case we are dealing with an Identifier that is defined in
+         * another file. The first part (pathname) is a reference to the file
+         * containing the type definition
+         */
         if (resolvedIncludes[pathname] !== undefined) {
           const resolvedName: string = `${pathname}$${base}`
           const baseIdentifier: IResolvedIdentifier = includeMap[pathname].identifiers[base]
@@ -332,6 +344,7 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
             }
             resolvedIncludes[pathname].identifiers.push(resolvedIdentifier)
           }
+
           return (
             (tail.length > 0) ?
               `${resolvedName}.${tail.join('.')}` :
@@ -355,7 +368,7 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
          * We need to resolve 'OtherName' in the value assignement
          */
         } else {
-          const id = identifiers[pathname]
+          const id: IResolvedIdentifier = identifiers[pathname]
 
           if (id !== undefined) {
             if (id.definition.type === SyntaxType.TypedefDefinition) {
