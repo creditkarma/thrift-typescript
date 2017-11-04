@@ -1,15 +1,5 @@
 import { assert } from 'chai'
 import { exec } from 'child_process'
-import { generate } from '../../main/'
-
-process.chdir(__dirname)
-
-generate({
-  rootDir: '.',
-  outDir: 'codegen',
-  sourceDir: 'thrift/',
-  files: []
-})
 
 import './client'
 import './server'

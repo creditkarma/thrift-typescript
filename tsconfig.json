@@ -8,9 +8,7 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "noEmitOnError": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
+    "strict": true,
     "noUnusedLocals": true,
     "allowSyntheticDefaultImports": true,
     "pretty": true,
@@ -18,7 +16,7 @@
   },
   "exclude": [
     "node_modules",
-    "src/tests",
+    "src/tests/unit/fixtures",
     "dist"
   ]
 }

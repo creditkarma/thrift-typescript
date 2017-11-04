@@ -113,9 +113,10 @@ export function readThriftFile(file: string, searchPaths: Array<string>): IThrif
 }
 
 function collectIncludes(thrift: ThriftDocument): Array<IIncludeData> {
-  const statements: Array<ThriftStatement> = thrift.body.filter((next: ThriftStatement): boolean => {
-    return next.type === SyntaxType.IncludeDefinition
-  })
+  const statements: Array<IncludeDefinition> =
+    thrift.body.filter((next: ThriftStatement): next is IncludeDefinition => {
+      return next.type === SyntaxType.IncludeDefinition
+    })
 
   return statements.map((next: IncludeDefinition): IIncludeData => ({
     path: next.path.value,

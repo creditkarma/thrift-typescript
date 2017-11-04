@@ -11,15 +11,17 @@
     "dist/main"
   ],
   "scripts": {
-    "clean": "rimraf coverage/ dist/ node_modules/",
+    "clean": "rimraf ./coverage ./dist ./**/codegen",
+    "codegen": "ts-node ./src/main/bin/index.ts --sourceDir ./src/tests/integration/thrift --outDir ./src/tests/integration/codegen",
+    "prebuild": "npm run codegen",
     "build": "rimraf dist/; tsc",
     "build:watch": "tsc --watch",
     "lint": "tslint --fix src/**/*.ts",
-    "start": "ts-node --project ./src/tests/integration ./src/tests/integration/sample.ts",
+    "start": "ts-node ./src/tests/integration/sample.ts",
     "test": "npm run lint && npm run test:unit && npm run test:integration",
     "posttest:cli": "rimraf ./output",
     "test:unit": "NODE_ENV=test mocha --opts mocha.opts",
-    "pretest:integration": "rimraf ./src/tests/integration/codegen",
+    "pretest:integration": "rimraf ./src/tests/integration/codegen && npm run codegen",
     "test:integration": "NODE_ENV=test mocha --opts mocha.integration.opts",
     "coverage": "NODE_ENV=test nyc mocha --opts mocha.cover.opts",
     "release:patch": "npm version patch && npm run release:publish",
@@ -40,7 +42,7 @@
   "dependencies": {
     "@creditkarma/thrift-parser": "^0.0.14",
     "glob": "^7.1.2",
-    "typescript": "^2.5.3"
+    "typescript": "^2.6.1"
   },
   "devDependencies": {
     "@types/chai": "^3.4.34",

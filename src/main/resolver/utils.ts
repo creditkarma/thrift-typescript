@@ -45,17 +45,19 @@ function getNamesapce(namespaces: IResolvedNamespaceMap): IResolvedNamespace {
  * @param thrift
  */
 export function resolveNamespace(thrift: ThriftDocument): IResolvedNamespace {
-  const statements: Array<ThriftStatement> = thrift.body.filter((next: ThriftStatement): boolean => {
-    return next.type === SyntaxType.NamespaceDefinition
-  })
+  const statements: Array<NamespaceDefinition> =
+    thrift.body.filter((next: ThriftStatement): next is NamespaceDefinition => {
+      return next.type === SyntaxType.NamespaceDefinition
+    })
+
+  const initalMap: IResolvedNamespaceMap = {}
 
   return getNamesapce(statements.reduce((acc: IResolvedNamespaceMap, next: NamespaceDefinition) => {
-    const scope: string = next.scope.value
-    acc[scope] = {
-      scope,
+    acc[next.scope.value] = {
+      scope: next.scope.value,
       name: next.name.value,
       path: createPathForNamespace(next.name.value)
     }
     return acc
-  }, {}))
+  }, initalMap))
 }
