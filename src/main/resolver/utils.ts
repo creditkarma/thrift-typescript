@@ -50,8 +50,6 @@ export function resolveNamespace(thrift: ThriftDocument): IResolvedNamespace {
       return next.type === SyntaxType.NamespaceDefinition
     })
 
-  const initalMap: IResolvedNamespaceMap = {}
-
   return getNamesapce(statements.reduce((acc: IResolvedNamespaceMap, next: NamespaceDefinition) => {
     acc[next.scope.value] = {
       scope: next.scope.value,
@@ -59,5 +57,5 @@ export function resolveNamespace(thrift: ThriftDocument): IResolvedNamespace {
       path: createPathForNamespace(next.name.value)
     }
     return acc
-  }, initalMap))
+  }, {} as IResolvedNamespaceMap))
 }

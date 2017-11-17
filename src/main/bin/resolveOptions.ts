@@ -16,6 +16,7 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
     rootDir: '.',
     outDir: './codegen',
     sourceDir: './thrift',
+    target: 'apache',
     files: []
   }
 
@@ -43,6 +44,16 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
 
       case '--outDir':
         options.outDir = args[(index + 1)]
+        index += 2
+        break
+
+      case '--target':
+        const option = args[(index + 1)]
+        if (option === 'apache' || option === 'thrift-server') {
+          options.target = option
+        } else {
+          throw new Error(`Unsupported target: ${option}`)
+        }
         index += 2
         break
 
