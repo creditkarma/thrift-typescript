@@ -3,11 +3,13 @@ export * from './types'
 import * as path from 'path'
 
 import {
+  CompileTarget,
   IIncludeCache,
   IMakeOptions,
   IParsedFile,
   IRenderedCache,
   IRenderedFile,
+  IRenderer,
   IResolvedCache,
   IResolvedFile,
   IThriftFile,
@@ -31,8 +33,12 @@ import {
 } from './generator'
 
 import {
-  renderer,
-} from './render'
+  renderer as ApacheRenderer,
+} from './render/apache'
+
+import {
+  renderer as ThriftRenderer,
+} from './render/thrift-server'
 
 import {
   printErrors,
@@ -47,6 +53,20 @@ import {
   saveFiles,
 } from './utils'
 
+function rendererForTarget(target: CompileTarget = 'apache'): IRenderer {
+  switch (target) {
+    case 'apache':
+      return ApacheRenderer
+
+    case 'thrift-server':
+      return ThriftRenderer
+
+    default:
+      const msg: never = target
+      throw new Error(`Non-exhaustive match for ${msg}`)
+  }
+}
+
 /**
  * This function is mostly for testing purposes. It does not support includes.
  * Given a string of Thrift IDL it will return a string of TypeScript. If the
@@ -55,10 +75,10 @@ import {
  *
  * @param source
  */
-export function make(source: string): string {
+export function make(source: string, target: CompileTarget = 'apache'): string {
   const parsedFile: IParsedFile = parseSource(source)
   const resolvedAST: IResolvedFile = resolveFile(parsedFile)
-  return print(processStatements(resolvedAST.body, resolvedAST.identifiers, renderer))
+  return print(processStatements(resolvedAST.body, resolvedAST.identifiers, rendererForTarget(target)))
 }
 
 /**
@@ -97,7 +117,7 @@ export function generate(options: IMakeOptions): void {
     const renderedFiles: Array<IRenderedFile> =
       validatedFiles.map((next: IResolvedFile): IRenderedFile => {
         return generateFile(
-          renderer,
+          rendererForTarget(options.target),
           rootDir,
           outDir,
           sourceDir,
