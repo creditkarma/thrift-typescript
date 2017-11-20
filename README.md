@@ -36,6 +36,7 @@ The available options are:
 * --rootDir: This is used to resolve out and source directories. Defaults to current directory.
 * --outDir: The directory to save generated files to. Will be created if it doesn't exist. Defaults to 'codegen'.
 * --sourceDir: The directory to search for source Thrift files. Defaults to 'thrift'.
+* --target: The core library to generate for, either 'apache' or 'thrift-server'. Defaults to 'apache'.
 
 All other fields are assumed to be source files.
 
@@ -57,6 +58,7 @@ generate({
   rootDir: '.',
   sourceDir: 'thirft',
   outDir: 'codegen',
+  target: 'apache',
   files: [
     'simple.thrift'
   ]
@@ -105,7 +107,7 @@ import {
 import { Calculator } from './codegen/calculator'
 
 // The location of the server endpoint
-const config = {
+const CONFIG = {
   hostName: 'localhost',
   port: 8045
 }
@@ -119,7 +121,7 @@ const options = {
   }
 }
 
-const connection: HttpConnection = createHttpConnection(config.hostName, config.port, options)
+const connection: HttpConnection = createHttpConnection(CONFIG.hostName, CONFIG.port, options)
 const thriftClient: Calculator.Client = createHttpClient(Calculator.Client, connection)
 
 // All client methods return a Promise of the expected result.
@@ -169,6 +171,91 @@ const port: number = 8045;
 createWebServer(serverOpt).listen(port, () => {
   console.log(`Thrift server listening on port ${port}`)
 });
+```
+
+### Thrift Server
+
+This can also generate code for @creditkarma/thrift-server. Thrift Server adds Thrift support to Express or Hapi with plugins or middleware. The other advantange of using the codegen with Thrift Server is the addition of context to service clients and service handlers. Context can be used to do things like auth or tracing in Thrift service methods.
+
+#### Client
+
+In this example we are using the Request library as our underlying connection instance. The options for request (CoreOptions) are our request context.
+
+```typescript
+import {
+  createClient,
+  fromAxios,
+  fromRequest,
+  HttpConnection,
+  RequestInstance,
+} from '@creditkarma/thrift-client'
+
+import * as request from 'request'
+import { CoreOptions } from 'request'
+
+import { Calculator } from './codegen/calculator'
+
+const CONFIG = {
+  hostName: 'localhost',
+  port: 8045
+}
+
+const requestClient: RequestInstance = request.defaults({})
+const connection: HttpConnection<Calculator.Client<CoreOptions>, CoreOptions> = fromRequest(requestClient, CONFIG)
+const client: Calculator.Client<CoreOptions> = createClient(Calculator.Client, connection)
+
+client.add(5, 7, { headers: { 'X-Trace-Id': 'xxxxxx' } })
+  .then((response: number) => {
+    expect(response).to.equal(12)
+    done()
+  })
+```
+
+#### Server
+
+In the server we can then inspect the headers we set in the client.
+
+```typescript
+import * as bodyParser from 'body-parser'
+import * as express from 'express'
+import { thriftExpress } from '../main'
+
+import {
+  SharedStruct,
+} from './generated/shared/shared'
+
+import {
+  Calculator,
+  Operation,
+  Work,
+} from './generated/calculator/calculator'
+
+const serviceHandlers: Calculator.IHandler<express.Request> = {
+  add(left: number, right: number, context?: express.Request): number {
+    if (context && context.headers['x-trace-id']) {
+      // You can trace this request, perform auth, or use additional middleware to handle that.
+    }
+    return left + right
+  },
+  subtract(left: number, right: number, context?: express.Request): number {
+    return left - right;
+  },
+}
+
+const PORT = 8090
+
+const app = express()
+
+app.use(
+  '/thrift',
+  bodyParser.raw(),
+  thriftExpress(Calculator.Processor, serviceHandlers),
+)
+
+app.listen(PORT, () => {
+  console.log(`Express server listening on port: ${PORT}`)
+})
+
 ```
 
 ### Notes
