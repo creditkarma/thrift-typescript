@@ -175,7 +175,7 @@ createWebServer(serverOpt).listen(port, () => {
 
 ### Thrift Server
 
-This can also generate code for @creditkarma/thrift-server. Thrift Server adds Thrift support to Express or Hapi with plugins or middleware. The other advantange of using the codegen with Thrift Server is the addition of context to service clients and service handlers. Context can be used to do things like auth or tracing in Thrift service methods.
+This can also generate code for @creditkarma/thrift-server. Thrift Server adds Thrift support to Express or Hapi with plugins or middleware. The other advantange of using the codegen with Thrift Server is the addition of context to service clients and service handlers. Context can be used to do things like auth or tracing in Thrift service methods. Context is an optional final parameter to all service handler methods and all service client methods.
 
 #### Client
 
@@ -218,17 +218,13 @@ In the server we can then inspect the headers we set in the client.
 ```typescript
 import * as bodyParser from 'body-parser'
 import * as express from 'express'
-import { thriftExpress } from '../main'
-
-import {
-  SharedStruct,
-} from './generated/shared/shared'
+import { thriftExpress } from '@creditkarma/thrift-server-express'
 
 import {
   Calculator,
   Operation,
   Work,
-} from './generated/calculator/calculator'
+} from './codegen/calculator'
 
 const serviceHandlers: Calculator.IHandler<express.Request> = {
   add(left: number, right: number, context?: express.Request): number {
