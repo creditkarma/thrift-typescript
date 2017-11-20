@@ -17,8 +17,6 @@ import {
 
 export const TProtocolType: ts.TypeNode = ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TProtocol, undefined)
 
-export const ContextType: ts.TypeNode = ts.createTypeReferenceNode('Context', undefined)
-
 // { fname: string; mtype: Thrift.MessageType; rseqid: number; }
 export function createReadMessageType(): ts.TypeLiteralNode {
   return ts.createTypeLiteralNode([

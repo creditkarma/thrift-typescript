@@ -249,15 +249,15 @@ export namespace MyService {
             }
         }
     }
-    export interface IHandler<Context = any> {
-        ping: (status: number, context?: Context) => string | Promise<string>;
+    export interface IHandler {
+        ping: (status: number) => string | Promise<string>;
     }
-    export class Processor<Context = any> {
-        public _handler: IHandler<Context>;
-        constructor(handler: IHandler<Context>) {
+    export class Processor {
+        public _handler: IHandler;
+        constructor(handler: IHandler) {
             this._handler = handler;
         }
-        public process(input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
+        public process(input: thrift.TProtocol, output: thrift.TProtocol): void {
             const metadata: {
                 fname: string;
                 mtype: thrift.Thrift.MessageType;
@@ -268,7 +268,7 @@ export namespace MyService {
             const methodName: string = "process_" + fname;
             switch (methodName) {
                 case "process_ping": {
-                    return this.process_ping(rseqid, input, output, context);
+                    return this.process_ping(rseqid, input, output);
                 }
                 default: {
                     input.skip(thrift.Thrift.Type.STRUCT);
@@ -282,13 +282,13 @@ export namespace MyService {
                 }
             }
         }
-        public process_ping(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
+        public process_ping(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
             const args = new PingArgs();
             args.read(input);
             input.readMessageEnd();
             new Promise<string>((resolve, reject): void => {
                 try {
-                    resolve(this._handler.ping(args.status, context));
+                    resolve(this._handler.ping(args.status));
                 }
                 catch (err) {
                     reject(err);

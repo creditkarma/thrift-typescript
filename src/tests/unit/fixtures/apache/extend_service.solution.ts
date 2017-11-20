@@ -170,15 +170,15 @@ export namespace ParentService {
             }
         }
     }
-    export interface IHandler<Context = any> {
-        ping: (status: number, context?: Context) => string | Promise<string>;
+    export interface IHandler {
+        ping: (status: number) => string | Promise<string>;
     }
-    export class Processor<Context = any> {
-        public _handler: IHandler<Context>;
-        constructor(handler: IHandler<Context>) {
+    export class Processor {
+        public _handler: IHandler;
+        constructor(handler: IHandler) {
             this._handler = handler;
         }
-        public process(input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
+        public process(input: thrift.TProtocol, output: thrift.TProtocol): void {
             const metadata: {
                 fname: string;
                 mtype: thrift.Thrift.MessageType;
@@ -189,7 +189,7 @@ export namespace ParentService {
             const methodName: string = "process_" + fname;
             switch (methodName) {
                 case "process_ping": {
-                    return this.process_ping(rseqid, input, output, context);
+                    return this.process_ping(rseqid, input, output);
                 }
                 default: {
                     input.skip(thrift.Thrift.Type.STRUCT);
@@ -203,13 +203,13 @@ export namespace ParentService {
                 }
             }
         }
-        public process_ping(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
+        public process_ping(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
             const args = new PingArgs();
             args.read(input);
             input.readMessageEnd();
             new Promise<string>((resolve, reject): void => {
                 try {
-                    resolve(this._handler.ping(args.status, context));
+                    resolve(this._handler.ping(args.status));
                 }
                 catch (err) {
                     reject(err);
@@ -404,19 +404,19 @@ export namespace ChildService {
             }
         }
     }
-    export interface ILocalHandler<Context = any> {
-        peg: (name: string, context?: Context) => string | Promise<string>;
+    export interface ILocalHandler {
+        peg: (name: string) => string | Promise<string>;
     }
-    export type IHandler<Context = any> = ILocalHandler<Context> & ParentService.IHandler<Context>;
-    export class Processor<Context = any> extends ParentService.Processor<Context> {
-        public _handler: IHandler<Context>;
-        constructor(handler: IHandler<Context>) {
+    export type IHandler = ILocalHandler & ParentService.IHandler;
+    export class Processor extends ParentService.Processor {
+        public _handler: IHandler;
+        constructor(handler: IHandler) {
             super({
                 ping: handler.ping
             });
             this._handler = handler;
         }
-        public process(input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
+        public process(input: thrift.TProtocol, output: thrift.TProtocol): void {
             const metadata: {
                 fname: string;
                 mtype: thrift.Thrift.MessageType;
@@ -427,10 +427,10 @@ export namespace ChildService {
             const methodName: string = "process_" + fname;
             switch (methodName) {
                 case "process_ping": {
-                    return this.process_ping(rseqid, input, output, context);
+                    return this.process_ping(rseqid, input, output);
                 }
                 case "process_peg": {
-                    return this.process_peg(rseqid, input, output, context);
+                    return this.process_peg(rseqid, input, output);
                 }
                 default: {
                     input.skip(thrift.Thrift.Type.STRUCT);
@@ -444,13 +444,13 @@ export namespace ChildService {
                 }
             }
         }
-        public process_peg(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
+        public process_peg(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
             const args = new PegArgs();
             args.read(input);
             input.readMessageEnd();
             new Promise<string>((resolve, reject): void => {
                 try {
-                    resolve(this._handler.peg(args.name, context));
+                    resolve(this._handler.peg(args.name));
                 }
                 catch (err) {
                     reject(err);

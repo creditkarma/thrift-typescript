@@ -189,15 +189,15 @@ export namespace MyService {
             }
         }
     }
-    export interface IHandler<Context = any> {
-        add: (num1: thrift.Int64, num2: thrift.Int64, context?: Context) => thrift.Int64 | Promise<thrift.Int64>;
+    export interface IHandler {
+        add: (num1: thrift.Int64, num2: thrift.Int64) => thrift.Int64 | Promise<thrift.Int64>;
     }
-    export class Processor<Context = any> {
-        public _handler: IHandler<Context>;
-        constructor(handler: IHandler<Context>) {
+    export class Processor {
+        public _handler: IHandler;
+        constructor(handler: IHandler) {
             this._handler = handler;
         }
-        public process(input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
+        public process(input: thrift.TProtocol, output: thrift.TProtocol): void {
             const metadata: {
                 fname: string;
                 mtype: thrift.Thrift.MessageType;
@@ -208,7 +208,7 @@ export namespace MyService {
             const methodName: string = "process_" + fname;
             switch (methodName) {
                 case "process_add": {
-                    return this.process_add(rseqid, input, output, context);
+                    return this.process_add(rseqid, input, output);
                 }
                 default: {
                     input.skip(thrift.Thrift.Type.STRUCT);
@@ -222,13 +222,13 @@ export namespace MyService {
                 }
             }
         }
-        public process_add(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
+        public process_add(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
             const args = new AddArgs();
             args.read(input);
             input.readMessageEnd();
             new Promise<thrift.Int64>((resolve, reject): void => {
                 try {
-                    resolve(this._handler.add(args.num1, args.num2, context));
+                    resolve(this._handler.add(args.num1, args.num2));
                 }
                 catch (err) {
                     reject(err);
