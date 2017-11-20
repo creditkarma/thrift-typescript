@@ -27,6 +27,26 @@ describe('Thrift TypeScript Generator', () => {
       assert.deepEqual(actual, expected)
     })
 
+    it('should correctly generate a struct that uses a struct as a field', () => {
+      const content: string = `
+        struct User {
+            1: required string name
+            2: optional i32 age
+        }
+
+        struct MyStruct {
+            1: required string name
+            2: required User user
+        }
+      `;
+      const expected: string = readFixture('nested_struct', 'thrift-server')
+      const actual: string = make(content, 'thrift-server')
+
+      console.log('actual: ', actual)
+
+      assert.deepEqual(actual, expected)
+    })
+
     it('should correctly generate a class for a union', () => {
       const content: string = `
         union MyUnion {
