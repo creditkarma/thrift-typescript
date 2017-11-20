@@ -9,7 +9,6 @@ import {
   IParsedFile,
   IRenderedCache,
   IRenderedFile,
-  IRenderer,
   IResolvedCache,
   IResolvedFile,
   IThriftFile,
@@ -33,12 +32,8 @@ import {
 } from './generator'
 
 import {
-  renderer as ApacheRenderer,
-} from './render/apache'
-
-import {
-  renderer as ThriftRenderer,
-} from './render/thrift-server'
+  rendererForTarget,
+} from './render'
 
 import {
   printErrors,
@@ -52,20 +47,6 @@ import {
   readThriftFile,
   saveFiles,
 } from './utils'
-
-function rendererForTarget(target: CompileTarget = 'apache'): IRenderer {
-  switch (target) {
-    case 'apache':
-      return ApacheRenderer
-
-    case 'thrift-server':
-      return ThriftRenderer
-
-    default:
-      const msg: never = target
-      throw new Error(`Non-exhaustive match for ${msg}`)
-  }
-}
 
 /**
  * This function is mostly for testing purposes. It does not support includes.

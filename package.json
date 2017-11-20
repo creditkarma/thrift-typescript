@@ -21,7 +21,7 @@
     "test": "npm run lint && npm run test:unit && npm run test:integration",
     "posttest:cli": "rimraf ./output",
     "test:unit": "NODE_ENV=test mocha --opts mocha.opts",
-    "pretest:integration": "npm run codegen",
+    "pretest:integration": "rimraf ./**/codegen && npm run codegen",
     "test:integration": "NODE_ENV=test mocha --opts mocha.integration.opts",
     "coverage": "NODE_ENV=test nyc mocha --opts mocha.cover.opts",
     "release:patch": "npm version patch && npm run release:publish",
