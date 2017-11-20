@@ -177,6 +177,24 @@ createWebServer(serverOpt).listen(port, () => {
 
 This can also generate code for @creditkarma/thrift-server. Thrift Server adds Thrift support to Express or Hapi with plugins or middleware. The other advantange of using the codegen with Thrift Server is the addition of context to service clients and service handlers. Context can be used to do things like auth or tracing in Thrift service methods. Context is an optional final parameter to all service handler methods and all service client methods.
 
+Install the Thrift Server implementation for your server of choice. For this example we will be using express middleware and the request http client library.
+
+```sh
+npm install --save @creditkarma/thrift-server-express
+npm install --save @creditkarma/thrift-client
+npm install --save express
+npm install --save request
+```
+
+Given this service let's build a client and server based on our generated code.
+
+```c
+service Caluculator {
+  i32 add(1: i32 left, 2: i32 right)
+  i32 subtract(1: i32 left, 2: i32 right)
+}
+```
+
 #### Client
 
 In this example we are using the Request library as our underlying connection instance. The options for request (CoreOptions) are our request context.
