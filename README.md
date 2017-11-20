@@ -5,7 +5,7 @@ Generate TypeScript from Thrift IDL files.
 ## Installation
 
 ```sh
-npm install --save @creditkarma/thrift-typescript
+$ npm install --save @creditkarma/thrift-typescript
 ```
 
 ## Usage
@@ -28,7 +28,7 @@ struct MyStruct {
 You can generate TypeScript via the command line:
 
 ```sh
-thrift-typescript --target apache --rootDir . --sourceDir thrift --outDir codegen simple.thrift
+$ thrift-typescript --target apache --rootDir . --sourceDir thrift --outDir codegen simple.thrift
 ```
 
 The available options are:
@@ -45,7 +45,7 @@ If no explicit list of files is provided all files ending in '.thrift' found in 
 You can gen code from more than one Thrift file:
 
 ```sh
-thrift-typescript one.thrift two.thrift three.thrift
+$ thrift-typescript one.thrift two.thrift three.thrift
 ```
 
 You can also generate files using the JavaScript API:
@@ -82,8 +82,8 @@ const generatedCode: string = make(rawThrift)
 The generated code works with the Apache Thrift nodejs library and the associated types. You will want to install these in your project.
 
 ```sh
-npm install --save thrift
-npm install --save @types/thrift
+$ npm install --save thrift
+$ npm install --save @types/thrift
 ```
 
 Given this service let's build a client and server based on our generated code.
@@ -93,6 +93,12 @@ service Caluculator {
   i32 add(1: i32 left, 2: i32 right)
   i32 subtract(1: i32 left, 2: i32 right)
 }
+```
+
+Run codegen for your Thrift service.
+
+```sh
+$ thrift-typescript --rootDir . --sourceDir thrift --outDir codegen
 ```
 
 #### Client
@@ -180,10 +186,10 @@ This can also generate code for @creditkarma/thrift-server. Thrift Server adds T
 Install the Thrift Server implementation for your server of choice. For this example we will be using express middleware and the request http client library.
 
 ```sh
-npm install --save @creditkarma/thrift-server-express
-npm install --save @creditkarma/thrift-client
-npm install --save express
-npm install --save request
+$ npm install --save @creditkarma/thrift-server-express
+$ npm install --save @creditkarma/thrift-client
+$ npm install --save express
+$ npm install --save request
 ```
 
 Given this service let's build a client and server based on our generated code.
@@ -193,6 +199,12 @@ service Caluculator {
   i32 add(1: i32 left, 2: i32 right)
   i32 subtract(1: i32 left, 2: i32 right)
 }
+```
+
+Run codegen for your Thrift service
+
+```sh
+$ thrift-typescript --target thrift-server --rootDir . --sourceDir thrift --outDir codegen
 ```
 
 #### Client
