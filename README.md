@@ -184,7 +184,6 @@ In this example we are using the Request library as our underlying connection in
 ```typescript
 import {
   createClient,
-  fromAxios,
   fromRequest,
   HttpConnection,
   RequestInstance,
@@ -264,6 +263,7 @@ The gererated code can be used with many of the more strict tsc compiler options
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
+    "strictFunctionTypes": true,
     "noUnusedLocals": true
   }
 }
