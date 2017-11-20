@@ -3,6 +3,7 @@ export * from './types'
 import * as path from 'path'
 
 import {
+  CompileTarget,
   IIncludeCache,
   IMakeOptions,
   IParsedFile,
@@ -31,7 +32,7 @@ import {
 } from './generator'
 
 import {
-  renderer,
+  rendererForTarget,
 } from './render'
 
 import {
@@ -55,10 +56,10 @@ import {
  *
  * @param source
  */
-export function make(source: string): string {
+export function make(source: string, target: CompileTarget = 'apache'): string {
   const parsedFile: IParsedFile = parseSource(source)
   const resolvedAST: IResolvedFile = resolveFile(parsedFile)
-  return print(processStatements(resolvedAST.body, resolvedAST.identifiers, renderer))
+  return print(processStatements(resolvedAST.body, resolvedAST.identifiers, rendererForTarget(target)))
 }
 
 /**
@@ -97,7 +98,7 @@ export function generate(options: IMakeOptions): void {
     const renderedFiles: Array<IRenderedFile> =
       validatedFiles.map((next: IResolvedFile): IRenderedFile => {
         return generateFile(
-          renderer,
+          rendererForTarget(options.target),
           rootDir,
           outDir,
           sourceDir,
