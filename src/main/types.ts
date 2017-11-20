@@ -13,6 +13,9 @@ import {
   UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
+export type CompileTarget =
+  'apache' | 'thrift-server'
+
 /**
  * The compiler options for our codegen. These can be provided to the generator
  * directly through the JS API, or via the command line.
@@ -32,6 +35,9 @@ export interface IMakeOptions {
 
   // list of files to generate code from
   files: Array<string>
+
+  // What core libs are you compiling for?
+  target: CompileTarget
 }
 
 export interface IRenderer {
