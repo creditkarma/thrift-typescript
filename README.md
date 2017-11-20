@@ -211,6 +211,8 @@ $ thrift-typescript --target thrift-server --rootDir . --sourceDir thrift --outD
 
 In this example we are using the Request library as our underlying connection instance. The options for request (CoreOptions) are our request context.
 
+Here, the type HttpConnection is a generic with two type parameters, the first type is the type of the Client (which is also a generic), the second is the type of the request context, in this case CoreOptions. The client also has a type parameter that represents the request context.
+
 ```typescript
 import {
   createClient,
@@ -255,6 +257,7 @@ import {
   Work,
 } from './codegen/calculator'
 
+// express.Request is the context for each of the service handlers
 const serviceHandlers: Calculator.IHandler<express.Request> = {
   add(left: number, right: number, context?: express.Request): number {
     if (context && context.headers['x-trace-id']) {
