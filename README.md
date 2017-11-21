@@ -209,15 +209,15 @@ $ thrift-typescript --target thrift-server --rootDir . --sourceDir thrift --outD
 
 #### Client
 
-In this example we are using the Request library as our underlying connection instance. The options for request (CoreOptions) are our request context.
+In this example we are using the Request library as our underlying connection instance. The options for Request (CoreOptions) are our request context.
 
-Here, the type HttpConnection is a generic with two type parameters, the first type is the type of the Client (which is also a generic), the second is the type of the request context, in this case CoreOptions. The client also has a type parameter that represents the request context.
+You'll notice that the Client class is a generic. The type parameter represents the type of the context. For Request this is CoreOptions, for Axios this is AxiosRequestConfig.
 
 ```typescript
 import {
   createClient,
   fromRequest,
-  HttpConnection,
+  RequestConnection,
   RequestInstance,
 } from '@creditkarma/thrift-client'
 
@@ -232,7 +232,7 @@ const CONFIG = {
 }
 
 const requestClient: RequestInstance = request.defaults({})
-const connection: HttpConnection<Calculator.Client<CoreOptions>, CoreOptions> = fromRequest(requestClient, CONFIG)
+const connection: RequestConnection<Calculator.Client<CoreOptions>> = fromRequest(requestClient, CONFIG)
 const client: Calculator.Client<CoreOptions> = createClient(Calculator.Client, connection)
 
 client.add(5, 7, { headers: { 'X-Trace-Id': 'xxxxxx' } })
