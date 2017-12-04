@@ -583,20 +583,15 @@ function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
         ts.createIdentifier(createStructResultName(def)),
         undefined
       ),
-      ts.createNew(
-        ts.createIdentifier(createStructResultName(def)),
+      ts.createCall(
+        ts.createPropertyAccess(
+          ts.createIdentifier(createStructResultName(def)),
+          ts.createIdentifier('read')
+        ),
         undefined,
-        [],
+        [ COMMON_IDENTIFIERS.input ],
       )
     ),
-    ts.createStatement(ts.createCall(
-      ts.createPropertyAccess(
-        ts.createIdentifier('result'),
-        ts.createIdentifier('read')
-      ),
-      undefined,
-      [ COMMON_IDENTIFIERS.input ]
-    )),
   ]
 }
 
@@ -611,16 +606,14 @@ function createExceptionHandler(): ts.Statement {
       createConstStatement(
         ts.createIdentifier('x'),
         ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TApplicationException, undefined),
-        ts.createNew(
-          COMMON_IDENTIFIERS.TApplicationException,
+        ts.createCall(
+          ts.createPropertyAccess(
+            COMMON_IDENTIFIERS.TApplicationException,
+            ts.createIdentifier('read')
+          ),
           undefined,
-          []
+          [ COMMON_IDENTIFIERS.input ],
         )
-      ),
-      createMethodCallStatement(
-        ts.createIdentifier('x'),
-        'read',
-        [ COMMON_IDENTIFIERS.input ]
       ),
       createMethodCallStatement(
         COMMON_IDENTIFIERS.input,
@@ -645,7 +638,8 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
         COMMON_IDENTIFIERS.callback,
         undefined,
         [
-          COMMON_IDENTIFIERS.undefined
+          COMMON_IDENTIFIERS.undefined,
+          ts.createIdentifier('result.success')
         ]
       )
     )

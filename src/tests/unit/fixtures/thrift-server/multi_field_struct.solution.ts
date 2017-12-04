@@ -5,13 +5,13 @@ export interface IMyStructArgs {
     field1?: number;
     blob?: Buffer;
 }
-export class MyStruct implements thrift.IStructLike {
+export class MyStruct implements thrift.StructLike {
     public id: number = 45;
     public bigID: thrift.Int64 = new thrift.Int64(23948234);
     public word: string;
     public field1: number;
     public blob: Buffer = Buffer.from("binary");
-    constructor(args?: IMyStructArgs) {
+    constructor(args: IMyStructArgs) {
         if (args != null) {
             if (args.id != null) {
                 this.id = args.id;
@@ -75,8 +75,9 @@ export class MyStruct implements thrift.IStructLike {
         output.writeStructEnd();
         return;
     }
-    public read(input: thrift.TProtocol): void {
+    public static read(input: thrift.TProtocol): MyStruct {
         input.readStructBegin();
+        let _args: any = {};
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
             const fieldType: thrift.TType = ret.fieldType;
@@ -88,7 +89,7 @@ export class MyStruct implements thrift.IStructLike {
                 case 1:
                     if (fieldType === thrift.TType.I32) {
                         const value_1: number = input.readI32();
-                        this.id = value_1;
+                        _args.id = value_1;
                     }
                     else {
                         input.skip(fieldType);
@@ -97,7 +98,7 @@ export class MyStruct implements thrift.IStructLike {
                 case 2:
                     if (fieldType === thrift.TType.I64) {
                         const value_2: thrift.Int64 = input.readI64();
-                        this.bigID = value_2;
+                        _args.bigID = value_2;
                     }
                     else {
                         input.skip(fieldType);
@@ -106,7 +107,7 @@ export class MyStruct implements thrift.IStructLike {
                 case 3:
                     if (fieldType === thrift.TType.STRING) {
                         const value_3: string = input.readString();
-                        this.word = value_3;
+                        _args.word = value_3;
                     }
                     else {
                         input.skip(fieldType);
@@ -115,7 +116,7 @@ export class MyStruct implements thrift.IStructLike {
                 case 4:
                     if (fieldType === thrift.TType.DOUBLE) {
                         const value_4: number = input.readDouble();
-                        this.field1 = value_4;
+                        _args.field1 = value_4;
                     }
                     else {
                         input.skip(fieldType);
@@ -124,7 +125,7 @@ export class MyStruct implements thrift.IStructLike {
                 case 5:
                     if (fieldType === thrift.TType.STRING) {
                         const value_5: Buffer = input.readBinary();
-                        this.blob = value_5;
+                        _args.blob = value_5;
                     }
                     else {
                         input.skip(fieldType);
@@ -137,6 +138,11 @@ export class MyStruct implements thrift.IStructLike {
             input.readFieldEnd();
         }
         input.readStructEnd();
-        return;
+        if (_args.id !== undefined && _args.bigID !== undefined && _args.word !== undefined) {
+            return new MyStruct(_args);
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read MyStruct from input");
+        }
     }
 }

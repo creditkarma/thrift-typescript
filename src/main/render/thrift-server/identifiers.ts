@@ -29,7 +29,7 @@ export const COMMON_IDENTIFIERS = {
   MessageType: ts.createIdentifier('thrift.MessageType'),
   TApplicationException: ts.createIdentifier('thrift.TApplicationException'),
   TProtocolException: ts.createIdentifier('thrift.TProtocolException'),
-  IStructLike: ts.createIdentifier('thrift.IStructLike'),
+  StructLike: ts.createIdentifier('thrift.StructLike'),
 }
 
 export const THRIFT_TYPES = {

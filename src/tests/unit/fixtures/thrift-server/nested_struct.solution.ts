@@ -2,10 +2,10 @@ export interface IUserArgs {
     name: string;
     age?: number;
 }
-export class User implements thrift.IStructLike {
+export class User implements thrift.StructLike {
     public name: string;
     public age: number;
-    constructor(args?: IUserArgs) {
+    constructor(args: IUserArgs) {
         if (args != null) {
             if (args.name != null) {
                 this.name = args.name;
@@ -34,8 +34,9 @@ export class User implements thrift.IStructLike {
         output.writeStructEnd();
         return;
     }
-    public read(input: thrift.TProtocol): void {
+    public static read(input: thrift.TProtocol): User {
         input.readStructBegin();
+        let _args: any = {};
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
             const fieldType: thrift.TType = ret.fieldType;
@@ -47,7 +48,7 @@ export class User implements thrift.IStructLike {
                 case 1:
                     if (fieldType === thrift.TType.STRING) {
                         const value_1: string = input.readString();
-                        this.name = value_1;
+                        _args.name = value_1;
                     }
                     else {
                         input.skip(fieldType);
@@ -56,7 +57,7 @@ export class User implements thrift.IStructLike {
                 case 2:
                     if (fieldType === thrift.TType.I32) {
                         const value_2: number = input.readI32();
-                        this.age = value_2;
+                        _args.age = value_2;
                     }
                     else {
                         input.skip(fieldType);
@@ -69,17 +70,22 @@ export class User implements thrift.IStructLike {
             input.readFieldEnd();
         }
         input.readStructEnd();
-        return;
+        if (_args.name !== undefined) {
+            return new User(_args);
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read User from input");
+        }
     }
 }
 export interface IMyStructArgs {
     name: string;
     user: User;
 }
-export class MyStruct implements thrift.IStructLike {
+export class MyStruct implements thrift.StructLike {
     public name: string;
     public user: User;
-    constructor(args?: IMyStructArgs) {
+    constructor(args: IMyStructArgs) {
         if (args != null) {
             if (args.name != null) {
                 this.name = args.name;
@@ -111,8 +117,9 @@ export class MyStruct implements thrift.IStructLike {
         output.writeStructEnd();
         return;
     }
-    public read(input: thrift.TProtocol): void {
+    public static read(input: thrift.TProtocol): MyStruct {
         input.readStructBegin();
+        let _args: any = {};
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
             const fieldType: thrift.TType = ret.fieldType;
@@ -124,7 +131,7 @@ export class MyStruct implements thrift.IStructLike {
                 case 1:
                     if (fieldType === thrift.TType.STRING) {
                         const value_3: string = input.readString();
-                        this.name = value_3;
+                        _args.name = value_3;
                     }
                     else {
                         input.skip(fieldType);
@@ -132,9 +139,8 @@ export class MyStruct implements thrift.IStructLike {
                     break;
                 case 2:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_4: User = new User();
-                        value_4.read(input);
-                        this.user = value_4;
+                        const value_4: User = User.read(input);
+                        _args.user = value_4;
                     }
                     else {
                         input.skip(fieldType);
@@ -147,6 +153,11 @@ export class MyStruct implements thrift.IStructLike {
             input.readFieldEnd();
         }
         input.readStructEnd();
-        return;
+        if (_args.name !== undefined && _args.user !== undefined) {
+            return new MyStruct(_args);
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read MyStruct from input");
+        }
     }
 }

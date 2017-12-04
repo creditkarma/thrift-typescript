@@ -14,7 +14,7 @@
     "clean": "rimraf ./coverage ./dist ./**/codegen",
     "codegen": "ts-node ./src/main/bin/index.ts --sourceDir ./src/tests/integration/thrift --outDir ./src/tests/integration/apache/codegen",
     "prebuild": "npm run clean && npm run codegen",
-    "build": "rimraf dist/; tsc",
+    "build": "rimraf dist/ && tsc",
     "build:watch": "tsc --watch",
     "lint": "tslint --fix src/**/*.ts",
     "start": "ts-node ./src/tests/integration/sample.ts",
