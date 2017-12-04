@@ -40,38 +40,32 @@ import {
   READ_METHODS
 } from './methods'
 
-import {
-  fieldMetadataType,
-  listMetadataType,
-  mapMetadataType
-} from './types'
-
 /**
  * public read(input: TProtocol): void {
  *     input.readStructBegin()
  *     while (true) {
  *         {{#has_fields}}
- *         const {ftype, fid} = input.readFieldBegin()
+ *         const {fieldType, fieldId} = input.readFieldBegin()
  *         {{/has_fields}}
  *         {{^has_fields}}
- *         const {ftype} = input.readFieldBegin()
+ *         const {fieldType} = input.readFieldBegin()
  *         {{/has_fields}}
- *         if (ftype === Thrift.Type.STOP) {
+ *         if (fieldType === Thrift.Type.STOP) {
  *             break
  *         }
  *         {{#has_fields}}
- *         switch (fid) {
+ *         switch (fieldId) {
  *             {{#fields}}
  *             case {{id}}:
  *                 {{>readField}}
  *                 break
  *             {{/fields}}
  *             default:
- *                 input.skip(ftype)
+ *                 input.skip(fieldType)
  *         }
  *         {{/has_fields}}
  *         {{^has_fields}}
- *         input.skip(ftype)
+ *         input.skip(fieldType)
  *         {{/has_fields}}
  *         input.readFieldEnd()
  *     }
@@ -83,35 +77,38 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
   const inputParameter: ts.ParameterDeclaration = createInputParameter();
 
   /**
-   * cosnt ret: { fname: string; ftype: Thrift.Type; fid: number; } = input.readFieldBegin()
-   * const ftype: Thrift.Type = ret.ftype
-   * const fid: number = ret.fid
+   * cosnt ret: { fieldName: string; fieldType: Thrift.Type; fieldId: number; } = input.readFieldBegin()
+   * const fieldType: Thrift.Type = ret.fieldType
+   * const fieldId: number = ret.fieldId
    */
   const ret: ts.VariableStatement = createConstStatement(
     'ret',
-    fieldMetadataType(),
+    ts.createTypeReferenceNode(
+      COMMON_IDENTIFIERS.IThriftField,
+      undefined
+    ),
     readFieldBegin()
   )
 
-  const ftype: ts.VariableStatement = createConstStatement(
-    'ftype',
+  const fieldType: ts.VariableStatement = createConstStatement(
+    'fieldType',
     ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Thrift_Type, undefined),
-    propertyAccessForIdentifier('ret', 'ftype')
+    propertyAccessForIdentifier('ret', 'fieldType')
   )
 
-  const fid: ts.VariableStatement = createConstStatement(
-    'fid',
+  const fieldId: ts.VariableStatement = createConstStatement(
+    'fieldId',
     createNumberType(),
-    propertyAccessForIdentifier('ret', 'fid')
+    propertyAccessForIdentifier('ret', 'fieldId')
   )
 
   /**
-   * if (ftype === Thrift.Type.STOP) {
+   * if (fieldType === Thrift.Type.STOP) {
    *     break;
    * }
    */
   const checkStop: ts.IfStatement = ts.createIf(
-    createEquals(COMMON_IDENTIFIERS.ftype, THRIFT_TYPES.STOP),
+    createEquals(COMMON_IDENTIFIERS.fieldType, THRIFT_TYPES.STOP),
     ts.createBlock([
       ts.createBreak()
     ], true)
@@ -121,11 +118,11 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
     ts.createLiteral(true),
     ts.createBlock([
       ret,
-      ftype,
-      fid,
+      fieldType,
+      fieldId,
       checkStop,
       ts.createSwitch(
-        COMMON_IDENTIFIERS.fid, // what to switch on
+        COMMON_IDENTIFIERS.fieldId, // what to switch on
         ts.createCaseBlock([
           ...struct.fields.map((next: FieldDefinition) => {
             return createCaseForField(next, identifiers)
@@ -170,11 +167,11 @@ export function createInputParameter(): ts.ParameterDeclaration {
  * EXAMPLE
  *
  * case 1: {
- *   if (ftype === Thrift.Type.I32) {
+ *   if (fieldType === Thrift.Type.I32) {
  *     this.id = input.readI32();
  *   }
  *   else {
- *     input.skip(ftype);
+ *     input.skip(fieldType);
  *   }
  *   break;
  * }
@@ -185,7 +182,7 @@ export function createCaseForField(field: FieldDefinition, identifiers: IIdentif
   const fieldAlias: ts.Identifier = ts.createUniqueName('value')
   const checkType: ts.IfStatement = ts.createIf(
     createEquals(
-      COMMON_IDENTIFIERS.ftype,
+      COMMON_IDENTIFIERS.fieldType,
       thriftTypeForFieldType(field.fieldType, identifiers)
     ),
     ts.createBlock([
@@ -227,14 +224,25 @@ export function endReadForField(fieldName: ts.Identifier, field: FieldDefinition
   }
 }
 
-export function metadataTypeForFieldType(fieldType: ContainerType): ts.TypeLiteralNode {
+export function metadataTypeForFieldType(fieldType: ContainerType): ts.TypeNode {
   switch (fieldType.type) {
     case SyntaxType.MapType:
-      return mapMetadataType()
+      return ts.createTypeReferenceNode(
+        COMMON_IDENTIFIERS.IThriftMap,
+        undefined,
+      )
 
     case SyntaxType.SetType:
+      return ts.createTypeReferenceNode(
+        COMMON_IDENTIFIERS.IThriftSet,
+        undefined,
+      )
+
     case SyntaxType.ListType:
-      return listMetadataType()
+      return ts.createTypeReferenceNode(
+        COMMON_IDENTIFIERS.IThriftList,
+        undefined,
+      )
 
     default:
       const msg: never = fieldType
@@ -306,7 +314,7 @@ function loopBody(fieldType: ContainerType, fieldName: ts.Identifier, identifier
 /**
  * EXAMPLE OF MAP FIELD
  *
- * if (ftype === Thrift.Type.MAP) {
+ * if (fieldType === Thrift.Type.MAP) {
  *   this.field1 = new Map<string, string>();
  *   const metadata_1: {
  *     ktype: Thrift.Type;
@@ -503,7 +511,7 @@ export function readValueForFieldType(
     case SyntaxType.VoidKeyword:
       return [
         createMethodCallStatement('input', 'skip', [
-          COMMON_IDENTIFIERS.ftype
+          COMMON_IDENTIFIERS.fieldType
         ])
       ]
 
@@ -563,7 +571,7 @@ export function readSetEnd(): ts.CallExpression {
   return createMethodCall('input', 'readSetEnd')
 }
 
-// input.skip(ftype)
+// input.skip(fieldType)
 export function createSkipBlock(): ts.Block {
   return ts.createBlock([
     createSkipStatement()
@@ -572,6 +580,6 @@ export function createSkipBlock(): ts.Block {
 
 function createSkipStatement(): ts.ExpressionStatement {
   return createMethodCallStatement('input', 'skip', [
-    COMMON_IDENTIFIERS.ftype
+    COMMON_IDENTIFIERS.fieldType
   ])
 }

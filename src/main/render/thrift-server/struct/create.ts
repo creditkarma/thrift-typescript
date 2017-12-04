@@ -3,6 +3,7 @@ import * as ts from 'typescript'
 import {
   InterfaceWithFields,
   FieldDefinition,
+  SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -83,7 +84,7 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
     [
       ts.createExpressionWithTypeArguments(
         [],
-        COMMON_IDENTIFIERS.TStructLike,
+        COMMON_IDENTIFIERS.IStructLike,
       )
     ]
   )
@@ -134,11 +135,39 @@ export function createArgsTypeForStruct(node: InterfaceWithFields): ts.TypeRefer
  *
  * @param field
  */
-export function assignmentForField(field: FieldDefinition): ts.ExpressionStatement {
-  return createAssignmentStatement(
-    propertyAccessForIdentifier('this', field.name.value),
-    propertyAccessForIdentifier('args', field.name.value)
-  )
+export function assignmentForField(field: FieldDefinition): ts.Statement {
+  if (field.fieldType.type === SyntaxType.I64Keyword) {
+    return ts.createIf(
+      ts.createBinary(
+        ts.createTypeOf(ts.createIdentifier(`args.${field.name.value}`)),
+        ts.SyntaxKind.EqualsEqualsEqualsToken,
+        ts.createLiteral('number')
+      ),
+      ts.createBlock([
+        createAssignmentStatement(
+          propertyAccessForIdentifier('this', field.name.value),
+          ts.createNew(
+            COMMON_IDENTIFIERS.Int64,
+            undefined,
+            [
+              ts.createIdentifier(`args.${field.name.value}`)
+            ]
+          )
+        )
+      ], true),
+      ts.createBlock([
+        createAssignmentStatement(
+          propertyAccessForIdentifier('this', field.name.value),
+          propertyAccessForIdentifier('args', field.name.value)
+        )
+      ], true)
+    )
+  } else {
+    return createAssignmentStatement(
+      propertyAccessForIdentifier('this', field.name.value),
+      propertyAccessForIdentifier('args', field.name.value)
+    )
+  }
 }
 
 /**
@@ -176,7 +205,7 @@ export function throwForField(field: FieldDefinition): ts.ThrowStatement | undef
  */
 export function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
   const comparison: ts.BinaryExpression = createNotNull(`args.${field.name.value}`)
-  const thenAssign: ts.ExpressionStatement = assignmentForField(field)
+  const thenAssign: ts.Statement = assignmentForField(field)
   const elseThrow: ts.ThrowStatement | undefined = throwForField(field)
 
   return ts.createIf(

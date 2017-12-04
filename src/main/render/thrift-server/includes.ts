@@ -74,7 +74,7 @@ export function renderThriftImports(): ts.ImportDeclaration {
       undefined,
       ts.createNamespaceImport(ts.createIdentifier('thrift'))
     ),
-    ts.createLiteral('thrift'),
+    ts.createLiteral('@creditkarma/thrift-server-core'),
   )
 }
 

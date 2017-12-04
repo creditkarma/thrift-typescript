@@ -49,7 +49,7 @@ describe('Thrift TypeScript Generator', () => {
       const content: string = `
         union MyUnion {
             1: string field1;
-            2: string field2;
+            2: i64 field2;
         }
       `;
       const expected: string = readFixture('basic_union', 'thrift-server')

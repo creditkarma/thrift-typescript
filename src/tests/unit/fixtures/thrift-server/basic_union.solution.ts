@@ -1,10 +1,10 @@
 export interface IMyUnionArgs {
     field1?: string;
-    field2?: string;
+    field2?: number | thrift.Int64;
 }
-export class MyUnion implements thrift.TStructLike {
+export class MyUnion implements thrift.IStructLike {
     public field1: string;
-    public field2: string;
+    public field2: thrift.Int64;
     constructor(args?: IMyUnionArgs) {
         let fieldsSet: number = 0;
         if (args != null) {
@@ -14,32 +14,37 @@ export class MyUnion implements thrift.TStructLike {
             }
             if (args.field2 != null) {
                 fieldsSet++;
-                this.field2 = args.field2;
+                if (typeof args.field2 === "number") {
+                    this.field2 = new thrift.Int64(args.field2);
+                }
+                else {
+                    this.field2 = args.field2;
+                }
             }
             if (fieldsSet > 1) {
-                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
+                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
             }
             else if (fieldsSet < 1) {
-                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
+                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
             }
         }
     }
     public static fromField1(field1: string): MyUnion {
         return new MyUnion({ field1 });
     }
-    public static fromField2(field2: string): MyUnion {
+    public static fromField2(field2: thrift.Int64): MyUnion {
         return new MyUnion({ field2 });
     }
     public write(output: thrift.TProtocol): void {
         output.writeStructBegin("MyUnion");
         if (this.field1 != null) {
-            output.writeFieldBegin("field1", thrift.Thrift.Type.STRING, 1);
+            output.writeFieldBegin("field1", thrift.TType.STRING, 1);
             output.writeString(this.field1);
             output.writeFieldEnd();
         }
         if (this.field2 != null) {
-            output.writeFieldBegin("field2", thrift.Thrift.Type.STRING, 2);
-            output.writeString(this.field2);
+            output.writeFieldBegin("field2", thrift.TType.I64, 2);
+            output.writeI64(this.field2);
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -50,49 +55,45 @@ export class MyUnion implements thrift.TStructLike {
         let fieldsSet: number = 0;
         input.readStructBegin();
         while (true) {
-            const ret: {
-                fname: string;
-                ftype: thrift.Thrift.Type;
-                fid: number;
-            } = input.readFieldBegin();
-            const ftype: thrift.Thrift.Type = ret.ftype;
-            const fid: number = ret.fid;
-            if (ftype === thrift.Thrift.Type.STOP) {
+            const ret: thrift.IThriftField = input.readFieldBegin();
+            const fieldType: thrift.TType = ret.fieldType;
+            const fieldId: number = ret.fieldId;
+            if (fieldType === thrift.TType.STOP) {
                 break;
             }
-            switch (fid) {
+            switch (fieldId) {
                 case 1:
-                    if (ftype === thrift.Thrift.Type.STRING) {
+                    if (fieldType === thrift.TType.STRING) {
                         fieldsSet++;
                         const value_1: string = input.readString();
                         this.field1 = value_1;
                     }
                     else {
-                        input.skip(ftype);
+                        input.skip(fieldType);
                     }
                     break;
                 case 2:
-                    if (ftype === thrift.Thrift.Type.STRING) {
+                    if (fieldType === thrift.TType.I64) {
                         fieldsSet++;
-                        const value_2: string = input.readString();
+                        const value_2: thrift.Int64 = input.readI64();
                         this.field2 = value_2;
                     }
                     else {
-                        input.skip(ftype);
+                        input.skip(fieldType);
                     }
                     break;
                 default: {
-                    input.skip(ftype);
+                    input.skip(fieldType);
                 }
             }
             input.readFieldEnd();
         }
         input.readStructEnd();
         if (fieldsSet > 1) {
-            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
         }
         else if (fieldsSet < 1) {
-            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
         }
     }
 }
