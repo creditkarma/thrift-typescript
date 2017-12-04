@@ -1,7 +1,7 @@
 export namespace MyService {
     export interface IPingArgsArgs {
     }
-    export class PingArgs implements thrift.IStructLike {
+    export class PingArgs implements thrift.StructLike {
         constructor(args?: IPingArgsArgs) {
             if (args != null) {
             }
@@ -12,8 +12,9 @@ export namespace MyService {
             output.writeStructEnd();
             return;
         }
-        public read(input: thrift.TProtocol): void {
+        public static read(input: thrift.TProtocol): PingArgs {
             input.readStructBegin();
+            let _args: any = {};
             while (true) {
                 const ret: thrift.IThriftField = input.readFieldBegin();
                 const fieldType: thrift.TType = ret.fieldType;
@@ -29,13 +30,13 @@ export namespace MyService {
                 input.readFieldEnd();
             }
             input.readStructEnd();
-            return;
+            return new PingArgs(_args);
         }
     }
     export interface IPingResultArgs {
         success?: void;
     }
-    export class PingResult implements thrift.IStructLike {
+    export class PingResult implements thrift.StructLike {
         public success: void;
         constructor(args?: IPingResultArgs) {
             if (args != null) {
@@ -50,8 +51,9 @@ export namespace MyService {
             output.writeStructEnd();
             return;
         }
-        public read(input: thrift.TProtocol): void {
+        public static read(input: thrift.TProtocol): PingResult {
             input.readStructBegin();
+            let _args: any = {};
             while (true) {
                 const ret: thrift.IThriftField = input.readFieldBegin();
                 const fieldType: thrift.TType = ret.fieldType;
@@ -75,7 +77,7 @@ export namespace MyService {
                 input.readFieldEnd();
             }
             input.readStructEnd();
-            return;
+            return new PingResult(_args);
         }
     }
     export class Client<Context = any> {
@@ -123,15 +125,13 @@ export namespace MyService {
             const noop = (): any => null;
             const callback = this._reqs[requestId] || noop;
             if (messageType === thrift.MessageType.EXCEPTION) {
-                const x: thrift.TApplicationException = new thrift.TApplicationException();
-                x.read(input);
+                const x: thrift.TApplicationException = thrift.TApplicationException.read(input);
                 input.readMessageEnd();
                 return callback(x);
             }
-            const result: PingResult = new PingResult();
-            result.read(input);
+            const result: PingResult = PingResult.read(input);
             input.readMessageEnd();
-            return callback(undefined);
+            return callback(undefined, result.success);
         }
     }
     export interface IHandler<Context = any> {
@@ -172,8 +172,6 @@ export namespace MyService {
         public process_ping(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): Promise<Buffer> {
             return new Promise<void>((resolve, reject): void => {
                 try {
-                    const args: PingArgs = new PingArgs();
-                    args.read(input);
                     input.readMessageEnd();
                     resolve(this._handler.ping(context));
                 }

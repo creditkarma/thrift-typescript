@@ -15,9 +15,9 @@ import {
 
 import {
   createNumberType,
+  createAnyType,
   thriftTypeForFieldType,
   typeNodeForFieldType,
-  createVoidType,
 } from '../types'
 
 import {
@@ -27,8 +27,10 @@ import {
   propertyAccessForIdentifier,
   createAssignmentStatement,
   createConstStatement,
+  createLetStatement,
   createLet,
-  createEquals
+  createEquals,
+  throwProtocolException,
 } from '../utils'
 
 import {
@@ -39,6 +41,10 @@ import {
 import {
   READ_METHODS
 } from './methods'
+
+import {
+  hasRequiredField
+} from './utils'
 
 /**
  * public read(input: TProtocol): void {
@@ -74,7 +80,12 @@ import {
  * }
  */
 export function createReadMethod(struct: InterfaceWithFields, identifiers: IIdentifierMap): ts.MethodDeclaration {
-  const inputParameter: ts.ParameterDeclaration = createInputParameter();
+  const inputParameter: ts.ParameterDeclaration = createInputParameter()
+  const tempVariable: ts.VariableStatement = createLetStatement(
+    ts.createIdentifier('_args'),
+    createAnyType(),
+    ts.createObjectLiteral(),
+  )
 
   /**
    * cosnt ret: { fieldName: string; fieldType: Thrift.Type; fieldId: number; } = input.readFieldBegin()
@@ -132,7 +143,7 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
           ])
         ])
       ),
-      ts.createStatement(readFieldEnd())
+      readFieldEnd(),
     ], true)
   )
 
@@ -140,20 +151,74 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
     undefined,
     [
       ts.createToken(ts.SyntaxKind.PublicKeyword),
+      ts.createToken(ts.SyntaxKind.StaticKeyword),
     ],
     undefined,
     ts.createIdentifier('read'),
     undefined,
     undefined,
     [ inputParameter ],
-    createVoidType(), // return type
+    ts.createTypeReferenceNode(
+      ts.createIdentifier(struct.name.value),
+      undefined,
+    ), // return type
     ts.createBlock([
       readStructBegin(),
+      tempVariable,
       whileLoop,
       readStructEnd(),
-      ts.createReturn(),
+      createReturnForStruct(struct),
     ], true),
   )
+}
+
+function createCheckForFields(fields: Array<FieldDefinition>): ts.BinaryExpression {
+  return fields.filter((next: FieldDefinition) => {
+    return next.requiredness !== 'optional'
+  }).map((next: FieldDefinition): ts.BinaryExpression => {
+    return ts.createBinary(
+      ts.createIdentifier(`_args.${next.name.value}`),
+      ts.SyntaxKind.ExclamationEqualsEqualsToken,
+      COMMON_IDENTIFIERS.undefined
+    )
+  }).reduce((acc: ts.BinaryExpression, next: ts.BinaryExpression) => {
+    return ts.createBinary(
+      acc,
+      ts.SyntaxKind.AmpersandAmpersandToken,
+      next
+    )
+  })
+}
+
+function createReturnForStruct(struct: InterfaceWithFields): ts.Statement {
+  if (hasRequiredField(struct)) {
+    return ts.createIf(
+      createCheckForFields(struct.fields),
+      ts.createBlock([
+        ts.createReturn(
+          ts.createNew(
+            ts.createIdentifier(struct.name.value),
+            undefined,
+            [ ts.createIdentifier('_args') ]
+          )
+        )
+      ], true),
+      ts.createBlock([
+        throwProtocolException(
+          'UNKNOWN',
+          `Unable to read ${struct.name.value} from input`
+        )
+      ], true)
+    )
+  } else {
+    return ts.createReturn(
+      ts.createNew(
+        ts.createIdentifier(struct.name.value),
+        undefined,
+        [ ts.createIdentifier('_args') ]
+      )
+    )
+  }
 }
 
 export function createInputParameter(): ts.ParameterDeclaration {
@@ -217,7 +282,7 @@ export function endReadForField(fieldName: ts.Identifier, field: FieldDefinition
     default:
       return [
         createAssignmentStatement(
-          ts.createIdentifier(`this.${field.name.value}`),
+          ts.createIdentifier(`_args.${field.name.value}`),
           fieldName
         )
       ]
@@ -370,7 +435,7 @@ export function readValueForIdentifier(
   id: IResolvedIdentifier,
   fieldType: FunctionType,
   fieldName: ts.Identifier,
-  identifiers: IIdentifierMap
+  identifiers: IIdentifierMap,
 ): Array<ts.Statement> {
   switch (id.definition.type) {
     case SyntaxType.ConstDefinition:
@@ -386,22 +451,17 @@ export function readValueForIdentifier(
         createConstStatement(
           fieldName,
           typeNodeForFieldType(fieldType),
-          ts.createNew(
-            ts.createIdentifier(id.resolvedName),
+          ts.createCall(
+            ts.createPropertyAccess(
+              ts.createIdentifier(id.definition.name.value),
+              ts.createIdentifier('read'),
+            ),
             undefined,
-            []
+            [
+              COMMON_IDENTIFIERS.input
+            ]
           )
         ),
-        ts.createStatement(ts.createCall(
-          ts.createPropertyAccess(
-            fieldName,
-            ts.createIdentifier('read'),
-          ),
-          undefined,
-          [
-            COMMON_IDENTIFIERS.input
-          ]
-        )),
       ]
 
     case SyntaxType.EnumDefinition:
@@ -537,8 +597,8 @@ export function readFieldBegin(): ts.CallExpression {
 }
 
 // input.readFieldEnd()
-export function readFieldEnd(): ts.CallExpression {
-  return createMethodCall('input', 'readFieldEnd')
+export function readFieldEnd(): ts.ExpressionStatement {
+  return createMethodCallStatement('input', 'readFieldEnd')
 }
 
 // input.readMapBegin()

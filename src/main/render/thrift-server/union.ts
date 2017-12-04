@@ -3,6 +3,7 @@ import * as ts from 'typescript'
 import {
   FieldDefinition,
   UnionDefinition,
+  SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -22,13 +23,13 @@ import {
 
 import {
   createNumberType,
-  createVoidType,
   thriftTypeForFieldType,
   typeNodeForFieldType,
 } from './types'
 
 import {
   assignmentForField,
+  createInputParameter,
   createArgsParameterForStruct,
   createFieldsForStruct,
   createSkipBlock,
@@ -38,7 +39,6 @@ import {
   readStructBegin,
   readStructEnd,
   readValueForFieldType,
-  endReadForField,
   throwForField,
 } from './struct'
 
@@ -47,7 +47,8 @@ import {
   THRIFT_TYPES,
 } from './identifiers'
 
-const INCREMENTER: string = 'fieldsSet'
+const INCREMENTER: string = '_fieldsSet'
+const RETURN_NAME: string = '_returnValue'
 
 /**
  * There is a lot of duplication here of code with renderStruct. Need to revisit and clean this up.
@@ -114,7 +115,7 @@ export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap):
     [
       ts.createExpressionWithTypeArguments(
         [],
-        COMMON_IDENTIFIERS.IStructLike,
+        COMMON_IDENTIFIERS.StructLike,
       )
     ]
   )
@@ -210,11 +211,18 @@ function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
 }
 
 function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
-  const inputParameter: ts.ParameterDeclaration =
-    createFunctionParameter(
-      'input', // param name
-      ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TProtocol, undefined), // param type
-    )
+  const inputParameter: ts.ParameterDeclaration = createInputParameter()
+  const returnVariable: ts.VariableStatement = createLetStatement(
+    ts.createIdentifier(RETURN_NAME),
+    ts.createUnionTypeNode([
+      ts.createTypeReferenceNode(
+        ts.createIdentifier(node.name.value),
+        undefined,
+      ),
+      ts.createNull(),
+    ]),
+    ts.createNull()
+  )
 
   // let fieldsSet: number = 0;
   const fieldsSet: ts.VariableStatement = createFieldIncrementer()
@@ -256,7 +264,7 @@ function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): t
   )
 
   const caseStatements: Array<ts.CaseClause> = node.fields.map((field: FieldDefinition) => {
-    return createCaseForField(field, identifiers)
+    return createCaseForField(node, field, identifiers)
   })
 
   /**
@@ -280,7 +288,7 @@ function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): t
     fieldId,
     checkStop,
     switchStatement,
-    ts.createStatement(readFieldEnd()),
+    readFieldEnd(),
   ], true)
   const whileLoop: ts.WhileStatement = ts.createWhile(ts.createLiteral(true), whileBlock)
 
@@ -288,19 +296,42 @@ function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): t
     undefined,
     [
       ts.createToken(ts.SyntaxKind.PublicKeyword),
+      ts.createToken(ts.SyntaxKind.StaticKeyword),
     ],
     undefined,
     ts.createIdentifier('read'),
     undefined,
     undefined,
     [ inputParameter ],
-    createVoidType(), // return type
+    ts.createTypeReferenceNode(
+      ts.createIdentifier(node.name.value),
+      undefined,
+    ), // return type
     ts.createBlock([
       fieldsSet,
+      returnVariable,
       readStructBegin(),
       whileLoop,
       readStructEnd(),
       createFieldValidation(node, true),
+      ts.createIf(
+        ts.createBinary(
+          ts.createIdentifier(RETURN_NAME),
+          ts.SyntaxKind.ExclamationEqualsEqualsToken,
+          ts.createNull()
+        ),
+        ts.createBlock([
+          ts.createReturn(
+            ts.createIdentifier(RETURN_NAME)
+          ),
+        ], true),
+        ts.createBlock([
+          throwProtocolException(
+            'UNKNOWN',
+            'Unable to read data for TUnion',
+          ),
+        ], true)
+      )
     ], true),
   )
 }
@@ -320,7 +351,7 @@ function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): t
  *
  * @param field
  */
-export function createCaseForField(field: FieldDefinition, identifiers: IIdentifierMap): ts.CaseClause {
+export function createCaseForField(node: UnionDefinition, field: FieldDefinition, identifiers: IIdentifierMap): ts.CaseClause {
   const fieldAlias: ts.Identifier = ts.createUniqueName('value')
   const checkType: ts.IfStatement = ts.createIf(
     createEquals(
@@ -334,7 +365,7 @@ export function createCaseForField(field: FieldDefinition, identifiers: IIdentif
         fieldAlias,
         identifiers
       ),
-      ...endReadForField(fieldAlias, field)
+      ...endReadForField(node, fieldAlias, field)
     ], true),
     createSkipBlock()
   )
@@ -349,6 +380,28 @@ export function createCaseForField(field: FieldDefinition, identifiers: IIdentif
     )
   } else {
     throw new Error(`FieldID on line ${field.loc.start.line} is null`)
+  }
+}
+
+function endReadForField(node: UnionDefinition, fieldName: ts.Identifier, field: FieldDefinition): Array<ts.Statement> {
+  switch (field.fieldType.type) {
+    case SyntaxType.VoidKeyword:
+      return []
+
+    default:
+      return [
+        ts.createStatement(ts.createAssignment(
+          ts.createIdentifier(RETURN_NAME),
+          ts.createCall(
+            ts.createPropertyAccess(
+              ts.createIdentifier(node.name.value),
+              createFactoryNameForField(field)
+            ),
+            undefined,
+            [ fieldName ],
+          )
+        ))
+      ]
   }
 }
 

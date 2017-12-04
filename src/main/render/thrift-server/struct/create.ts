@@ -34,6 +34,7 @@ import {
 import { interfaceNameForClass } from '../interface'
 import { createReadMethod } from './read'
 import { createWriteMethod } from './write'
+import { hasRequiredField } from './utils'
 
 export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifierMap): ts.ClassDeclaration {
   const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(node)
@@ -71,7 +72,7 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
   const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(node)
 
   // Build the constructor body
-  const ctor: ts.ConstructorDeclaration = createClassConstructor([argsParameter], [argsCheckWithAssignments])
+  const ctor: ts.ConstructorDeclaration = createClassConstructor([ argsParameter ], [ argsCheckWithAssignments ])
 
   // Build the `read` method
   const readMethod: ts.MethodDeclaration = createReadMethod(node, identifiers)
@@ -84,7 +85,7 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
     [
       ts.createExpressionWithTypeArguments(
         [],
-        COMMON_IDENTIFIERS.IStructLike,
+        COMMON_IDENTIFIERS.StructLike,
       )
     ]
   )
@@ -105,7 +106,7 @@ export function createArgsParameterForStruct(node: InterfaceWithFields): ts.Para
     'args', // param name
     createArgsTypeForStruct(node), // param type
     undefined, // initializer
-    true // optional?
+    !hasRequiredField(node) // optional?
   )
 }
 
@@ -242,7 +243,7 @@ export function renderFieldDeclarations(field: FieldDefinition): ts.PropertyDecl
   return ts.createProperty(
     undefined,
     [ts.createToken(ts.SyntaxKind.PublicKeyword)],
-    field.name.value,
+    ts.createIdentifier(field.name.value),
     undefined,
     typeNodeForFieldType(field.fieldType),
     defaultValue

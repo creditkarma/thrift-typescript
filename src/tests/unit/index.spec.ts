@@ -27,6 +27,16 @@ describe('Thrift TypeScript Generator', () => {
       assert.deepEqual(actual, expected)
     })
 
+    it('should correctly generate an empty struct', () => {
+      const content: string = `
+        struct MyStruct {}
+      `;
+      const expected: string = readFixture('empty_struct', 'thrift-server')
+      const actual: string = make(content, 'thrift-server')
+
+      assert.deepEqual(actual, expected)
+    })
+
     it('should correctly generate a struct that uses a struct as a field', () => {
       const content: string = `
         struct User {
@@ -53,6 +63,34 @@ describe('Thrift TypeScript Generator', () => {
         }
       `;
       const expected: string = readFixture('basic_union', 'thrift-server')
+      const actual: string = make(content, 'thrift-server')
+
+      assert.deepEqual(actual, expected)
+    })
+
+    it('should correctly generate a class for an empty union', () => {
+      const content: string = `
+        union MyUnion {}
+      `;
+      const expected: string = readFixture('empty_union', 'thrift-server')
+      const actual: string = make(content, 'thrift-server')
+
+      assert.deepEqual(actual, expected)
+    })
+
+    it('should correctly generate a union that uses a union as a field', () => {
+      const content: string = `
+        union Option {
+            1: string option1
+            2: string option2
+        }
+
+        union MyUnion {
+            1: string name;
+            2: Option option;
+        }
+      `;
+      const expected: string = readFixture('nested_union', 'thrift-server')
       const actual: string = make(content, 'thrift-server')
 
       assert.deepEqual(actual, expected)

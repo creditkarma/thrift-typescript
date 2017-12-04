@@ -1,9 +1,9 @@
 export interface IMyExceptionArgs {
     message: string;
 }
-export class MyException implements thrift.IStructLike {
+export class MyException implements thrift.StructLike {
     public message: string;
-    constructor(args?: IMyExceptionArgs) {
+    constructor(args: IMyExceptionArgs) {
         if (args != null) {
             if (args.message != null) {
                 this.message = args.message;
@@ -24,8 +24,9 @@ export class MyException implements thrift.IStructLike {
         output.writeStructEnd();
         return;
     }
-    public read(input: thrift.TProtocol): void {
+    public static read(input: thrift.TProtocol): MyException {
         input.readStructBegin();
+        let _args: any = {};
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
             const fieldType: thrift.TType = ret.fieldType;
@@ -37,7 +38,7 @@ export class MyException implements thrift.IStructLike {
                 case 1:
                     if (fieldType === thrift.TType.STRING) {
                         const value_1: string = input.readString();
-                        this.message = value_1;
+                        _args.message = value_1;
                     }
                     else {
                         input.skip(fieldType);
@@ -50,6 +51,11 @@ export class MyException implements thrift.IStructLike {
             input.readFieldEnd();
         }
         input.readStructEnd();
-        return;
+        if (_args.message !== undefined) {
+            return new MyException(_args);
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read MyException from input");
+        }
     }
 }
