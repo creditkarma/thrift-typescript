@@ -1,7 +1,7 @@
 export namespace MyService {
     export interface IAddArgsArgs {
-        num1: thrift.Int64;
-        num2: thrift.Int64;
+        num1: number | thrift.Int64;
+        num2: number | thrift.Int64;
     }
     export class AddArgs implements thrift.TStructLike {
         public num1: thrift.Int64;
@@ -9,10 +9,20 @@ export namespace MyService {
         constructor(args?: IAddArgsArgs) {
             if (args != null) {
                 if (args.num1 != null) {
-                    this.num1 = args.num1;
+                    if (typeof args.num1 === "number") {
+                        this.num1 = new thrift.Int64(args.num1);
+                    }
+                    else {
+                        this.num1 = args.num1;
+                    }
                 }
                 if (args.num2 != null) {
-                    this.num2 = args.num2;
+                    if (typeof args.num2 === "number") {
+                        this.num2 = new thrift.Int64(args.num2);
+                    }
+                    else {
+                        this.num2 = args.num2;
+                    }
                 }
             }
         }
@@ -75,14 +85,19 @@ export namespace MyService {
         }
     }
     export interface IAddResultArgs {
-        success?: thrift.Int64;
+        success?: number | thrift.Int64;
     }
     export class AddResult implements thrift.TStructLike {
         public success: thrift.Int64;
         constructor(args?: IAddResultArgs) {
             if (args != null) {
                 if (args.success != null) {
-                    this.success = args.success;
+                    if (typeof args.success === "number") {
+                        this.success = new thrift.Int64(args.success);
+                    }
+                    else {
+                        this.success = args.success;
+                    }
                 }
             }
         }

@@ -200,7 +200,7 @@ function createUnionFactories(node: UnionDefinition, identifiers: IIdentifierMap
  */
 function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
   const comparison: ts.BinaryExpression = createNotNull(`args.${field.name.value}`)
-  const thenAssign: ts.ExpressionStatement = assignmentForField(field)
+  const thenAssign: ts.Statement = assignmentForField(field)
   const incrementer: ts.ExpressionStatement = incrementFieldsSet()
   const elseThrow: ts.ThrowStatement | undefined = throwForField(field)
 

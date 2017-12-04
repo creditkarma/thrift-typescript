@@ -74,7 +74,7 @@ export function createTypeProperty(name: string, type: ts.TypeNode): ts.Property
  *
  * SyntaxType.VoidKeyword
  */
-export function typeNodeForFieldType(fieldType: FunctionType): ts.TypeNode {
+export function typeNodeForFieldType(fieldType: FunctionType, loose: boolean = false): ts.TypeNode {
   switch (fieldType.type) {
     case SyntaxType.Identifier:
       return ts.createTypeReferenceNode(fieldType.value, undefined)
@@ -104,7 +104,17 @@ export function typeNodeForFieldType(fieldType: FunctionType): ts.TypeNode {
       return createBooleanType()
 
     case SyntaxType.I64Keyword:
-      return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Int64, undefined)
+      if (loose === true) {
+        return ts.createUnionTypeNode([
+          createNumberType(),
+          ts.createTypeReferenceNode(
+            COMMON_IDENTIFIERS.Int64,
+            undefined
+          )
+        ])
+      } else {
+        return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Int64, undefined)
+      }
 
     case SyntaxType.BinaryKeyword:
       return ts.createTypeReferenceNode('Buffer', undefined)
