@@ -1,6 +1,6 @@
 export interface IMyStructArgs {
     id: number;
-    bigID: thrift.Int64;
+    bigID: number | thrift.Int64;
     word: string;
     field1?: number;
     blob?: Buffer;
@@ -20,7 +20,12 @@ export class MyStruct implements thrift.TStructLike {
                 throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field id is unset!");
             }
             if (args.bigID != null) {
-                this.bigID = args.bigID;
+                if (typeof args.bigID === "number") {
+                    this.bigID = new thrift.Int64(args.bigID);
+                }
+                else {
+                    this.bigID = args.bigID;
+                }
             }
             else {
                 throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field bigID is unset!");
