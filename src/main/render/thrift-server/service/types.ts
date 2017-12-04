@@ -19,12 +19,12 @@ export const TProtocolType: ts.TypeNode = ts.createTypeReferenceNode(COMMON_IDEN
 
 export const ContextType: ts.TypeNode = ts.createTypeReferenceNode('Context', undefined)
 
-// { fname: string; mtype: Thrift.MessageType; rseqid: number; }
+// { fieldName: string; messageType: Thrift.MessageType; requestId: number; }
 export function createReadMessageType(): ts.TypeLiteralNode {
   return ts.createTypeLiteralNode([
-    createTypeProperty('fname', createStringType()),
-    createTypeProperty('mtype', ts.createTypeReferenceNode(COMMON_IDENTIFIERS.MessageType, undefined)),
-    createTypeProperty('rseqid', createNumberType())
+    createTypeProperty('fieldName', createStringType()),
+    createTypeProperty('messageType', ts.createTypeReferenceNode(COMMON_IDENTIFIERS.MessageType, undefined)),
+    createTypeProperty('requestId', createNumberType())
   ])
 }
 

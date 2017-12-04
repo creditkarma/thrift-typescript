@@ -11,7 +11,6 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-  createVoidType,
   TApplicationException,
   TProtocolException,
 } from './types'
@@ -55,7 +54,11 @@ export function createPublicProperty(name: string | ts.Identifier, type?: ts.Typ
   )
 }
 
-export function createPromise(type: ts.TypeNode, body: Array<ts.Statement>): ts.NewExpression {
+export function createPromise(
+  type: ts.TypeNode,
+  returnType: ts.TypeNode,
+  body: Array<ts.Statement>
+): ts.NewExpression {
   return ts.createNew(
     ts.createIdentifier('Promise'),
     [ type ],
@@ -66,7 +69,7 @@ export function createPromise(type: ts.TypeNode, body: Array<ts.Statement>): ts.
         createFunctionParameter('resolve', undefined),
         createFunctionParameter('reject', undefined),
       ],
-      createVoidType(),
+      returnType,
       undefined,
       ts.createBlock([
         ...body,

@@ -41,7 +41,7 @@ export function renderInterface(statement: InterfaceWithFields): ts.InterfaceDec
       undefined,
       field.name.value,
       renderOptional(field.requiredness),
-      typeNodeForFieldType(field.fieldType),
+      typeNodeForFieldType(field.fieldType, true),
       undefined,
     )
   })

@@ -33,7 +33,6 @@ import {
   createFieldsForStruct,
   createSkipBlock,
   createWriteMethod,
-  fieldMetadataType,
   readFieldBegin,
   readFieldEnd,
   readStructBegin,
@@ -115,7 +114,7 @@ export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap):
     [
       ts.createExpressionWithTypeArguments(
         [],
-        COMMON_IDENTIFIERS.TStructLike,
+        COMMON_IDENTIFIERS.IStructLike,
       )
     ]
   )
@@ -199,7 +198,7 @@ function createUnionFactories(node: UnionDefinition, identifiers: IIdentifierMap
  */
 function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
   const comparison: ts.BinaryExpression = createNotNull(`args.${field.name.value}`)
-  const thenAssign: ts.ExpressionStatement = assignmentForField(field)
+  const thenAssign: ts.Statement = assignmentForField(field)
   const incrementer: ts.ExpressionStatement = incrementFieldsSet()
   const elseThrow: ts.ThrowStatement | undefined = throwForField(field)
 
@@ -220,34 +219,37 @@ function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): t
   // let fieldsSet: number = 0;
   const fieldsSet: ts.VariableStatement = createFieldIncrementer()
 
-  // cosnt ret: { fname: string; ftype: Thrift.Type; fid: number; } = input.readFieldBegin()
+  // cosnt ret: { fieldName: string; fieldType: Thrift.Type; fieldId: number; } = input.readFieldBegin()
   const ret: ts.VariableStatement = createConstStatement(
     'ret',
-    fieldMetadataType(),
+    ts.createTypeReferenceNode(
+      COMMON_IDENTIFIERS.IThriftField,
+      undefined,
+    ),
     readFieldBegin()
   )
 
-  // const ftype: Thrift.Type = ret.ftype
-  const ftype: ts.VariableStatement = createConstStatement(
-    'ftype',
+  // const fieldType: Thrift.Type = ret.fieldType
+  const fieldType: ts.VariableStatement = createConstStatement(
+    'fieldType',
     ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Thrift_Type, undefined),
-    propertyAccessForIdentifier('ret', 'ftype')
+    propertyAccessForIdentifier('ret', 'fieldType')
   )
 
-  //const fid: number = ret.fid
-  const fid: ts.VariableStatement = createConstStatement(
-    'fid',
+  //const fieldId: number = ret.fieldId
+  const fieldId: ts.VariableStatement = createConstStatement(
+    'fieldId',
     createNumberType(),
-    propertyAccessForIdentifier('ret', 'fid')
+    propertyAccessForIdentifier('ret', 'fieldId')
   )
 
   /**
-   * if (ftype === Thrift.Type.STOP) {
+   * if (fieldType === Thrift.Type.STOP) {
    *     break;
    * }
    */
   const checkStop: ts.IfStatement = ts.createIf(
-    createEquals(COMMON_IDENTIFIERS.ftype, THRIFT_TYPES.STOP),
+    createEquals(COMMON_IDENTIFIERS.fieldType, THRIFT_TYPES.STOP),
     ts.createBlock([
       ts.createBreak(),
     ], true),
@@ -258,12 +260,12 @@ function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): t
   })
 
   /**
-   * switch (fid) {
+   * switch (fieldId) {
    *   ...caseStatements
    * }
    */
   const switchStatement: ts.SwitchStatement = ts.createSwitch(
-    COMMON_IDENTIFIERS.fid, // what to switch on
+    COMMON_IDENTIFIERS.fieldId, // what to switch on
     ts.createCaseBlock([
       ...caseStatements,
       ts.createDefaultClause([
@@ -274,8 +276,8 @@ function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): t
 
   const whileBlock: ts.Block = ts.createBlock([
     ret,
-    ftype,
-    fid,
+    fieldType,
+    fieldId,
     checkStop,
     switchStatement,
     ts.createStatement(readFieldEnd()),
@@ -307,11 +309,11 @@ function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): t
  * EXAMPLE
  *
  * case 1: {
- *   if (ftype === Thrift.Type.I32) {
+ *   if (fieldType === Thrift.Type.I32) {
  *     this.id = input.readI32();
  *   }
  *   else {
- *     input.skip(ftype);
+ *     input.skip(fieldType);
  *   }
  *   break;
  * }
@@ -322,7 +324,7 @@ export function createCaseForField(field: FieldDefinition, identifiers: IIdentif
   const fieldAlias: ts.Identifier = ts.createUniqueName('value')
   const checkType: ts.IfStatement = ts.createIf(
     createEquals(
-      COMMON_IDENTIFIERS.ftype,
+      COMMON_IDENTIFIERS.fieldType,
       thriftTypeForFieldType(field.fieldType, identifiers)
     ),
     ts.createBlock([

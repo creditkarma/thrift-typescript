@@ -278,6 +278,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
       ts.createReturn(
         createPromise(
           typeNodeForFieldType(def.returnType),
+          createVoidType(),
           [
             // this._reqs[this.seqid()] = (error, result) =>
             createAssignmentStatement(
@@ -432,60 +433,29 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
         COMMON_IDENTIFIERS.output,
         'writeMessageEnd'
       ),
-      createAssignmentStatement(
-        ts.createPropertyAccess(
-          ts.createTypeAssertion(
-            createAnyType(),
-            ts.createIdentifier('this.output'),
-          ),
-          ts.createIdentifier('onFlush'),
-        ),
-        ts.createArrowFunction(
-          undefined,
-          undefined,
-          [
-            createFunctionParameter(
-              ts.createIdentifier('data'),
-              ts.createTypeReferenceNode('Buffer', undefined)
-            ),
-            createFunctionParameter(
-              ts.createIdentifier('seqid'),
-              createNumberType()
-            ),
-          ],
-          createVoidType(),
-          undefined,
-          ts.createBlock([
-            ts.createStatement(ts.createCall(
-              ts.createPropertyAccess(
-                ts.createIdentifier('this'),
-                ts.createIdentifier('onSend')
-              ),
-              undefined,
-              [
-                ts.createIdentifier('data'),
-                ts.createIdentifier('seqid'),
-                ts.createIdentifier('context'),
-              ],
-            ))
-          ], true)
-        )
-      ),
-      // return this.output.flush()
+      // this.onSend
       ts.createStatement(createMethodCall(
-        ts.createIdentifier('this.output'),
-        'flush',
-        []
+        ts.createIdentifier('this'),
+        'onSend',
+        [
+          createMethodCall(
+            ts.createIdentifier('this.output'),
+            'flush',
+            []
+          ),
+          ts.createIdentifier('requestId'),
+          ts.createIdentifier('context'),
+        ]
       ))
     ], true) // body
   )
 }
 
-// public recv_{{name}}(input: TProtocol, mtype: Thrift.MessageType, rseqid: number): void {
+// public recv_{{name}}(input: TProtocol, messageType: Thrift.MessageType, requestId: number): void {
 //     const noop = () => null
-//     let callback = this._reqs[rseqid] || noop
-//     delete this._reqs[rseqid]
-//     if (mtype === Thrift.MessageType.EXCEPTION) {
+//     let callback = this._reqs[requestId] || noop
+//     delete this._reqs[requestId]
+//     if (messageType === Thrift.MessageType.EXCEPTION) {
 //         const x = new Thrift.TApplicationException()
 //         x.read(input)
 //         input.readMessageEnd()
@@ -523,14 +493,14 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
         )
       ),
       createFunctionParameter(
-        ts.createIdentifier('mtype'),
+        ts.createIdentifier('messageType'),
         ts.createTypeReferenceNode(
           COMMON_IDENTIFIERS.MessageType,
           undefined
         )
       ),
       createFunctionParameter(
-        ts.createIdentifier('rseqid'),
+        ts.createIdentifier('requestId'),
         createNumberType()
       )
     ], // parameters
@@ -550,21 +520,21 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
         )
       ),
 
-      // const callback = this._reqs[rseqid] || noop
+      // const callback = this._reqs[requestId] || noop
       createConstStatement(
         COMMON_IDENTIFIERS.callback,
         undefined,
         ts.createBinary(
           ts.createElementAccess(
             ts.createIdentifier('this._reqs'),
-            ts.createIdentifier('rseqid')
+            ts.createIdentifier('requestId')
           ),
           ts.SyntaxKind.BarBarToken,
           ts.createIdentifier('noop')
         )
       ),
 
-      // if (mtype === Thrift.MessageType.EXCEPTION) {
+      // if (messageType === Thrift.MessageType.EXCEPTION) {
       //     const x = new Thrift.TApplicationException()
       //     x.read(input)
       //     input.readMessageEnd()
@@ -633,7 +603,7 @@ function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
 function createExceptionHandler(): ts.Statement {
   return ts.createIf(
     ts.createBinary(
-      ts.createIdentifier('mtype'),
+      ts.createIdentifier('messageType'),
       ts.SyntaxKind.EqualsEqualsEqualsToken,
       MESSAGE_TYPE.EXCEPTION
     ),
