@@ -82,13 +82,11 @@ export namespace MyService {
     }
     export class Client<Context = any> {
         public _seqid: number;
-        public _reqs: {
-            [name: number]: (err: Error | object | undefined, val?: any) => void;
-        };
+        public _reqs: thrift.IRequestCallbackMap;
         public output: thrift.TTransport;
-        public protocol: new (trans: thrift.TTransport) => thrift.TProtocol;
+        public protocol: thrift.IProtocolConstructor;
         protected onSend: (data: Buffer, seqid: number, context?: Context) => void;
-        constructor(output: thrift.TTransport, protocol: new (trans: thrift.TTransport) => thrift.TProtocol, callback: (data: Buffer, seqid: number, context?: Context) => void) {
+        constructor(output: thrift.TTransport, protocol: thrift.IProtocolConstructor, callback: (data: Buffer, seqid: number, context?: Context) => void) {
             this._seqid = 0;
             this._reqs = {};
             this.output = output;
@@ -144,11 +142,7 @@ export namespace MyService {
         }
         public process(input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): Promise<Buffer> {
             return new Promise<Buffer>((resolve, reject): void => {
-                const metadata: {
-                    fieldName: string;
-                    messageType: thrift.MessageType;
-                    requestId: number;
-                } = input.readMessageBegin();
+                const metadata: thrift.IThriftMessage = input.readMessageBegin();
                 const fieldName: string = metadata.fieldName;
                 const requestId: number = metadata.requestId;
                 const methodName: string = "process_" + fieldName;

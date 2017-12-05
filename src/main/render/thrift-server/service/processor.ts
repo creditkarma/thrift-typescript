@@ -11,7 +11,6 @@ import {
 import {
   TProtocolType,
   ContextType,
-  createReadMessageType
 } from './types'
 
 import {
@@ -708,7 +707,10 @@ function createProcessMethod(service: ServiceDefinition, identifiers: IIdentifie
           [
             createConstStatement(
               'metadata',
-              createReadMessageType(),
+              ts.createTypeReferenceNode(
+                COMMON_IDENTIFIERS.IThriftMessage,
+                undefined,
+              ),
               createMethodCall(
                 COMMON_IDENTIFIERS.input,
                 'readMessageBegin',
