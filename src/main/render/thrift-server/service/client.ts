@@ -8,8 +8,6 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-  createReqType,
-  createProtocolType,
   ContextType,
 } from './types'
 
@@ -55,7 +53,10 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
   // public _reqs: { [key: string]: (e?: Error|object, r? any) => void }
   const reqs: ts.PropertyDeclaration = createPublicProperty(
     '_reqs',
-    createReqType()
+    ts.createTypeReferenceNode(
+      COMMON_IDENTIFIERS.CallbackMap,
+      undefined,
+    )
   )
 
   // public output: TTransport;
@@ -67,7 +68,10 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
   // public protocol: new (trans: TTransport) => TProtocol;
   const protocol: ts.PropertyDeclaration = createPublicProperty(
     'protocol',
-    createProtocolType()
+    ts.createTypeReferenceNode(
+      COMMON_IDENTIFIERS.ProtocolConstructor,
+      undefined,
+    )
   )
 
   // private send: (data: Buffer, seqid: number, context: Context) => void;
@@ -90,7 +94,10 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
       ),
       createFunctionParameter(
         'protocol',
-        createProtocolType(),
+        ts.createTypeReferenceNode(
+          COMMON_IDENTIFIERS.ProtocolConstructor,
+          undefined,
+        ),
       ),
       createFunctionParameter(
         'callback',
