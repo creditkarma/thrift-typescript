@@ -177,7 +177,7 @@ describe('Thrift TypeScript Generator', () => {
       assert.deepEqual(actual, expected)
     })
 
-    it('should correctly generate a type alias for an identifier', () => {
+    it('should correctly generate a complex type alias for an identifier', () => {
       const content: string = `
         enum MyEnum {
           ONE,
