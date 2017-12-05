@@ -17,7 +17,6 @@
     "build": "rimraf dist/ && tsc",
     "build:watch": "tsc --watch",
     "lint": "tslint --fix src/**/*.ts",
-    "start": "ts-node ./src/tests/integration/sample.ts",
     "test": "npm run lint && npm run test:unit && npm run test:integration",
     "posttest:cli": "rimraf ./output",
     "test:unit": "NODE_ENV=test mocha --opts mocha.opts",
