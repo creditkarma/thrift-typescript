@@ -9,6 +9,9 @@ export namespace ParentService {
                 if (args.status != null) {
                     this.status = args.status;
                 }
+                else {
+                    throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field status is unset!");
+                }
             }
         }
         public write(output: thrift.TProtocol): void {
@@ -234,6 +237,9 @@ export namespace ChildService {
             if (args != null) {
                 if (args.name != null) {
                     this.name = args.name;
+                }
+                else {
+                    throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field name is unset!");
                 }
             }
         }
