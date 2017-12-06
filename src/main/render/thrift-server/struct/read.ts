@@ -453,7 +453,7 @@ export function readValueForIdentifier(
           typeNodeForFieldType(fieldType),
           ts.createCall(
             ts.createPropertyAccess(
-              ts.createIdentifier(id.definition.name.value),
+              ts.createIdentifier(id.resolvedName),
               ts.createIdentifier('read'),
             ),
             undefined,
