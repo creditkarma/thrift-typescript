@@ -115,37 +115,38 @@ export namespace ParentService {
     }
     export class Client<Context = any> {
         protected _requestId: number;
-        protected output: thrift.TTransport;
+        protected transport: thrift.ITransportConstructor;
         protected protocol: thrift.IProtocolConstructor;
         protected connection: thrift.IThriftConnection<Context>;
-        constructor(output: thrift.TTransport, protocol: thrift.IProtocolConstructor, connection: thrift.IThriftConnection<Context>) {
+        constructor(connection: thrift.IThriftConnection<Context>) {
             this._requestId = 0;
-            this.output = output;
-            this.protocol = protocol;
+            this.transport = connection.Transport;
+            this.protocol = connection.Protocol;
             this.connection = connection;
         }
         public incrementRequestId(): number {
             return this._requestId += 1;
         }
         public ping(status: number, context?: Context): Promise<string> {
-            const output: thrift.TProtocol = new this.protocol(this.output);
+            const writer: thrift.TTransport = new this.transport();
+            const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("ping", thrift.MessageType.CALL, this.incrementRequestId());
             const args: PingArgs = new PingArgs({ status });
             args.write(output);
             output.writeMessageEnd();
-            return this.connection.send(this.output.flush(), context).then((data: Buffer) => {
-                const reader: thrift.TTransport = this.connection.Transport.receiver(data);
-                const proto: thrift.TProtocol = new this.connection.Protocol(reader);
+            return this.connection.send(writer.flush(), context).then((data: Buffer) => {
+                const reader: thrift.TTransport = this.transport.receiver(data);
+                const input: thrift.TProtocol = new this.protocol(reader);
                 try {
-                    const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = proto.readMessageBegin();
+                    const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                     if (fieldName === "ping") {
                         if (messageType === thrift.MessageType.EXCEPTION) {
-                            const err: thrift.TApplicationException = thrift.TApplicationException.read(proto);
-                            proto.readMessageEnd();
+                            const err: thrift.TApplicationException = thrift.TApplicationException.read(input);
+                            input.readMessageEnd();
                             return Promise.reject(err);
                         }
-                        const result: PingResult = PingResult.read(proto);
-                        proto.readMessageEnd();
+                        const result: PingResult = PingResult.read(input);
+                        input.readMessageEnd();
                         if (result.success != null) {
                             return Promise.resolve(result.success);
                         }
@@ -337,38 +338,39 @@ export namespace ChildService {
     }
     export class Client<Context = any> extends ParentService.Client<Context> {
         protected _requestId: number;
-        protected output: thrift.TTransport;
+        protected transport: thrift.ITransportConstructor;
         protected protocol: thrift.IProtocolConstructor;
         protected connection: thrift.IThriftConnection<Context>;
-        constructor(output: thrift.TTransport, protocol: thrift.IProtocolConstructor, connection: thrift.IThriftConnection<Context>) {
-            super(output, protocol, connection);
+        constructor(connection: thrift.IThriftConnection<Context>) {
+            super(connection);
             this._requestId = 0;
-            this.output = output;
-            this.protocol = protocol;
+            this.transport = connection.Transport;
+            this.protocol = connection.Protocol;
             this.connection = connection;
         }
         public incrementRequestId(): number {
             return this._requestId += 1;
         }
         public peg(name: string, context?: Context): Promise<string> {
-            const output: thrift.TProtocol = new this.protocol(this.output);
+            const writer: thrift.TTransport = new this.transport();
+            const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("peg", thrift.MessageType.CALL, this.incrementRequestId());
             const args: PegArgs = new PegArgs({ name });
             args.write(output);
             output.writeMessageEnd();
-            return this.connection.send(this.output.flush(), context).then((data: Buffer) => {
-                const reader: thrift.TTransport = this.connection.Transport.receiver(data);
-                const proto: thrift.TProtocol = new this.connection.Protocol(reader);
+            return this.connection.send(writer.flush(), context).then((data: Buffer) => {
+                const reader: thrift.TTransport = this.transport.receiver(data);
+                const input: thrift.TProtocol = new this.protocol(reader);
                 try {
-                    const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = proto.readMessageBegin();
+                    const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                     if (fieldName === "peg") {
                         if (messageType === thrift.MessageType.EXCEPTION) {
-                            const err: thrift.TApplicationException = thrift.TApplicationException.read(proto);
-                            proto.readMessageEnd();
+                            const err: thrift.TApplicationException = thrift.TApplicationException.read(input);
+                            input.readMessageEnd();
                             return Promise.reject(err);
                         }
-                        const result: PegResult = PegResult.read(proto);
-                        proto.readMessageEnd();
+                        const result: PegResult = PegResult.read(input);
+                        input.readMessageEnd();
                         if (result.success != null) {
                             return Promise.resolve(result.success);
                         }
