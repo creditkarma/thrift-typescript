@@ -49,9 +49,9 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
 
   // public output: TTransport;
   const output: ts.PropertyDeclaration = createProtectedProperty(
-    'output',
+    'transport',
     ts.createTypeReferenceNode(
-      COMMON_IDENTIFIERS.TTransport,
+      COMMON_IDENTIFIERS.TransportConstructor,
       undefined
     )
   )
@@ -83,20 +83,6 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
   const ctor: ts.ConstructorDeclaration = createClassConstructor(
     [
       createFunctionParameter(
-        'output',
-        ts.createTypeReferenceNode(
-          COMMON_IDENTIFIERS.TTransport,
-          undefined
-        )
-      ),
-      createFunctionParameter(
-        'protocol',
-        ts.createTypeReferenceNode(
-          COMMON_IDENTIFIERS.ProtocolConstructor,
-          undefined,
-        ),
-      ),
-      createFunctionParameter(
         'connection',
         createConnectionType(),
       )
@@ -109,8 +95,6 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
               ts.createSuper(),
               [],
               [
-                COMMON_IDENTIFIERS.output,
-                COMMON_IDENTIFIERS.protocol,
                 COMMON_IDENTIFIERS.connection,
               ]
             ))
@@ -122,12 +106,12 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
         ts.createLiteral(0)
       ),
       createAssignmentStatement(
-        ts.createIdentifier('this.output'),
-        COMMON_IDENTIFIERS.output,
+        ts.createIdentifier('this.transport'),
+        ts.createIdentifier('connection.Transport'),
       ),
       createAssignmentStatement(
         ts.createIdentifier('this.protocol'),
-        COMMON_IDENTIFIERS.protocol,
+        ts.createIdentifier('connection.Protocol'),
       ),
       createAssignmentStatement(
         ts.createIdentifier('this.connection'),
@@ -240,6 +224,18 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
     ), // return type
     ts.createBlock([
       createConstStatement(
+        COMMON_IDENTIFIERS.writer,
+        ts.createTypeReferenceNode(
+          COMMON_IDENTIFIERS.TTransport,
+          undefined
+        ),
+        ts.createNew(
+          ts.createIdentifier('this.transport'),
+          undefined,
+          []
+        )
+      ),
+      createConstStatement(
         COMMON_IDENTIFIERS.output,
         ts.createTypeReferenceNode(
           COMMON_IDENTIFIERS.TProtocol,
@@ -248,7 +244,9 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
         ts.createNew(
           ts.createIdentifier('this.protocol'),
           undefined,
-          [ ts.createIdentifier('this.output') ]
+          [
+            COMMON_IDENTIFIERS.writer
+          ]
         )
       ),
       // output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.requestId())
@@ -319,13 +317,13 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
               undefined,
               ts.createBlock([
                 createConstStatement(
-                  ts.createIdentifier('reader'),
+                  COMMON_IDENTIFIERS.reader,
                   ts.createTypeReferenceNode(
                     COMMON_IDENTIFIERS.TTransport,
                     undefined,
                   ),
                   ts.createCall(
-                    ts.createIdentifier('this.connection.Transport.receiver'),
+                    ts.createIdentifier('this.transport.receiver'),
                     undefined,
                     [
                       COMMON_IDENTIFIERS.data,
@@ -333,16 +331,16 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                   )
                 ),
                 createConstStatement(
-                  COMMON_IDENTIFIERS.proto,
+                  COMMON_IDENTIFIERS.input,
                   ts.createTypeReferenceNode(
                     COMMON_IDENTIFIERS.TProtocol,
                     undefined,
                   ),
                   ts.createNew(
-                    ts.createIdentifier('this.connection.Protocol'),
+                    ts.createIdentifier('this.protocol'),
                     undefined,
                     [
-                      ts.createIdentifier('reader')
+                      COMMON_IDENTIFIERS.reader
                     ],
                   )
                 ),
@@ -369,7 +367,10 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                             undefined,
                           ),
                           ts.createCall(
-                            ts.createIdentifier('proto.readMessageBegin'),
+                            ts.createPropertyAccess(
+                              COMMON_IDENTIFIERS.input,
+                              'readMessageBegin'
+                            ),
                             undefined,
                             [],
                           )
@@ -396,7 +397,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
 
                         // proto.readMessageEnd()
                         createMethodCallStatement(
-                          COMMON_IDENTIFIERS.proto,
+                          COMMON_IDENTIFIERS.input,
                           'readMessageEnd'
                         ),
 
@@ -466,7 +467,10 @@ function createConnectionSend(): ts.CallExpression {
     undefined,
     [
       ts.createCall(
-        ts.createIdentifier('this.output.flush'),
+        ts.createPropertyAccess(
+          COMMON_IDENTIFIERS.writer,
+          'flush'
+        ),
         undefined,
         [],
       ),
@@ -491,7 +495,7 @@ function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
         ),
         undefined,
         [
-          COMMON_IDENTIFIERS.proto
+          COMMON_IDENTIFIERS.input
         ],
       )
     ),
@@ -516,12 +520,12 @@ function createExceptionHandler(): ts.Statement {
           ),
           undefined,
           [
-            COMMON_IDENTIFIERS.proto
+            COMMON_IDENTIFIERS.input
           ],
         )
       ),
       createMethodCallStatement(
-        COMMON_IDENTIFIERS.proto,
+        COMMON_IDENTIFIERS.input,
         'readMessageEnd'
       ),
       ts.createReturn(
