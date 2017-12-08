@@ -47,8 +47,8 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
     createNumberType()
   )
 
-  // public output: TTransport;
-  const output: ts.PropertyDeclaration = createProtectedProperty(
+  // public transport: TTransport;
+  const transport: ts.PropertyDeclaration = createProtectedProperty(
     'transport',
     ts.createTypeReferenceNode(
       COMMON_IDENTIFIERS.TransportConstructor,
@@ -72,11 +72,11 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
   )
 
   /**
-   * constructor(output: TTransport, protocol: ProtocolConstruct, connection: ThriftConnection) {
-   *   super(output, protocol, connection)
+   * constructor(connection: ThriftConnection) {
+   *   super(connection)
    *   this._requestId = 0;
-   *   this.output = output;
-   *   this.protocol = protocol;
+   *   this.transport = connection.Transport;
+   *   this.protocol = connection.Protocol;
    *   this.connection = connection;
    * }
    */
@@ -178,7 +178,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
     heritage, // heritage
     [
       requestId,
-      output,
+      transport,
       protocol,
       connection,
       ctor,
