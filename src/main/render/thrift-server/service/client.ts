@@ -9,6 +9,7 @@ import {
 
 import {
   ContextType,
+  createConnectionType,
 } from './types'
 
 import {
@@ -17,56 +18,46 @@ import {
 } from './utils'
 
 import {
-  createMethodCall,
   createClassConstructor,
   createFunctionParameter,
   createAssignmentStatement,
-  createPromise,
   createNotNull,
   createConstStatement,
-  createCallStatement,
   createMethodCallStatement,
-  createPublicProperty,
   createProtectedProperty,
   createApplicationException,
 } from '../utils'
 
 import {
-  createNumberType,
-  createVoidType,
   createAnyType,
+  createNumberType,
   typeNodeForFieldType,
 } from '../types'
 
 import {
+  APPLICATION_EXCEPTION,
   COMMON_IDENTIFIERS,
   MESSAGE_TYPE,
 } from '../identifiers'
 
 export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
-  // public _seqid: number;
-  const seqid: ts.PropertyDeclaration = createPublicProperty(
-    '_seqid',
+  // private _requestId: number;
+  const requestId: ts.PropertyDeclaration = createProtectedProperty(
+    '_requestId',
     createNumberType()
   )
 
-  // public _reqs: { [key: string]: (e?: Error|object, r? any) => void }
-  const reqs: ts.PropertyDeclaration = createPublicProperty(
-    '_reqs',
+  // public output: TTransport;
+  const output: ts.PropertyDeclaration = createProtectedProperty(
+    'output',
     ts.createTypeReferenceNode(
-      COMMON_IDENTIFIERS.CallbackMap,
-      undefined,
+      COMMON_IDENTIFIERS.TTransport,
+      undefined
     )
   )
 
-  // public output: TTransport;
-  const output: ts.PropertyDeclaration = createPublicProperty(
-    'output',
-    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TTransport, undefined)
-  )
-
   // public protocol: new (trans: TTransport) => TProtocol;
-  const protocol: ts.PropertyDeclaration = createPublicProperty(
+  const protocol: ts.PropertyDeclaration = createProtectedProperty(
     'protocol',
     ts.createTypeReferenceNode(
       COMMON_IDENTIFIERS.ProtocolConstructor,
@@ -74,23 +65,29 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
     )
   )
 
-  // private send: (data: Buffer, seqid: number, context: Context) => void;
-  const sendCallback: ts.PropertyDeclaration = createProtectedProperty(
-    'onSend',
-    createSendCallbackType()
+  // private send: (data: Buffer, requestId: number, context: Context) => void;
+  const connection: ts.PropertyDeclaration = createProtectedProperty(
+    'connection',
+    createConnectionType(),
   )
 
   /**
-   * constructor(output: TTransport, protocol: { new (trans: TTransport): TProtocol }) {
-   *   this._seqid = 0;
-   *   this._reqs = {};
+   * constructor(output: TTransport, protocol: ProtocolConstruct, connection: ThriftConnection) {
+   *   super(output, protocol, connection)
+   *   this._requestId = 0;
+   *   this.output = output;
+   *   this.protocol = protocol;
+   *   this.connection = connection;
    * }
    */
   const ctor: ts.ConstructorDeclaration = createClassConstructor(
     [
       createFunctionParameter(
         'output',
-        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TTransport, undefined)
+        ts.createTypeReferenceNode(
+          COMMON_IDENTIFIERS.TTransport,
+          undefined
+        )
       ),
       createFunctionParameter(
         'protocol',
@@ -100,8 +97,8 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
         ),
       ),
       createFunctionParameter(
-        'callback',
-        createSendCallbackType()
+        'connection',
+        createConnectionType(),
       )
     ], // parameters
     [
@@ -112,42 +109,38 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
               ts.createSuper(),
               [],
               [
-                ts.createIdentifier('output'),
-                ts.createIdentifier('protocol'),
-                ts.createIdentifier('callback'),
+                COMMON_IDENTIFIERS.output,
+                COMMON_IDENTIFIERS.protocol,
+                COMMON_IDENTIFIERS.connection,
               ]
             ))
           ] :
           []
       ),
       createAssignmentStatement(
-        ts.createIdentifier('this._seqid'),
+        ts.createIdentifier('this._requestId'),
         ts.createLiteral(0)
       ),
       createAssignmentStatement(
-        ts.createIdentifier('this._reqs'),
-        ts.createObjectLiteral()
-      ),
-      createAssignmentStatement(
         ts.createIdentifier('this.output'),
-        COMMON_IDENTIFIERS.output
+        COMMON_IDENTIFIERS.output,
       ),
       createAssignmentStatement(
         ts.createIdentifier('this.protocol'),
-        ts.createIdentifier('protocol')
+        COMMON_IDENTIFIERS.protocol,
       ),
       createAssignmentStatement(
-        ts.createIdentifier('this.onSend'),
-        ts.createIdentifier('callback'),
+        ts.createIdentifier('this.connection'),
+        COMMON_IDENTIFIERS.connection,
       )
     ] // body
   )
 
-  const incrementSeqIdMethod: ts.MethodDeclaration = ts.createMethod(
+  const incrementRequestIdMethod: ts.MethodDeclaration = ts.createMethod(
     undefined,
     [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
     undefined,
-    'incrementSeqId',
+    'incrementRequestId',
     undefined,
     undefined,
     [],
@@ -155,7 +148,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
     ts.createBlock([
       ts.createReturn(
         ts.createBinary(
-          ts.createIdentifier('this._seqid'),
+          ts.createIdentifier('this._requestId'),
           ts.SyntaxKind.PlusEqualsToken,
           ts.createLiteral(1)
         )
@@ -164,12 +157,6 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
   )
 
   const baseMethods: Array<ts.MethodDeclaration> = node.functions.map(createBaseMethodForDefinition)
-  const sendMethods: Array<ts.MethodDeclaration> = node.functions.map((next) => {
-    return createSendMethodForDefinition(node, next)
-  })
-  const recvMethods: Array<ts.MethodDeclaration> = node.functions.map((next) => {
-    return createRecvMethodForDefinition(node, next)
-  })
 
   const heritage: Array<ts.HeritageClause> = (
     (node.extends !== null) ?
@@ -179,7 +166,10 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
           [
             ts.createExpressionWithTypeArguments(
               [
-                ts.createTypeReferenceNode(ts.createIdentifier('Context'), undefined)
+                ts.createTypeReferenceNode(
+                  COMMON_IDENTIFIERS.Context,
+                  undefined
+                )
               ],
               ts.createIdentifier(`${node.extends.value}.Client`),
             )
@@ -196,54 +186,28 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
     'Client', // name
     [
       ts.createTypeParameterDeclaration(
-        ts.createIdentifier('Context'),
+        COMMON_IDENTIFIERS.Context,
         undefined,
         createAnyType()
       )
     ], // type parameters
     heritage, // heritage
     [
-      seqid,
-      reqs,
+      requestId,
       output,
       protocol,
-      sendCallback,
+      connection,
       ctor,
-      incrementSeqIdMethod,
+      incrementRequestIdMethod,
       ...baseMethods,
-      ...sendMethods,
-      ...recvMethods
     ] // body
   )
 }
 
-function createSendCallbackType(): ts.TypeNode {
-  return ts.createFunctionTypeNode(
-    undefined,
-    [
-      createFunctionParameter(
-        ts.createIdentifier('data'),
-        ts.createTypeReferenceNode('Buffer', undefined)
-      ),
-      createFunctionParameter(
-        ts.createIdentifier('seqid'),
-        createNumberType()
-      ),
-      createFunctionParameter(
-        ts.createIdentifier('context'),
-        ContextType,
-        undefined,
-        true,
-      )
-    ],
-    createVoidType()
-  )
-}
-
 // public {{name}}( {{#args}}{{fieldName}}: {{fieldType}}, {{/args}} ): Promise<{{typeName}}> {
-//     this._seqid = this.incrementSeqId()
+//     this._requestId = this.incrementSeqId()
 //     return new Promise<{{typeName}}>((resolve, reject) => {
-//         this._reqs[this.seqid()] = function(error, result) {
+//         this._reqs[this.requestId()] = function(error, result) {
 //             if (error) {
 //                 reject(error)
 //             } else {
@@ -264,7 +228,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
     [
       ...def.fields.map(createParametersForField),
       createFunctionParameter(
-        ts.createIdentifier('context'),
+        COMMON_IDENTIFIERS.context,
         ContextType,
         undefined,
         true,
@@ -275,118 +239,6 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
       [ typeNodeForFieldType(def.returnType) ]
     ), // return type
     ts.createBlock([
-      // this._seqid = this.incrementSeqId()
-      createConstStatement(
-        ts.createIdentifier('requestId'),
-        createNumberType(),
-        ts.createCall(ts.createIdentifier('this.incrementSeqId'), undefined, [])
-      ),
-      // return new Promise<type>((resolve, reject) => { ... })
-      ts.createReturn(
-        createPromise(
-          typeNodeForFieldType(def.returnType),
-          createVoidType(),
-          [
-            // this._reqs[this.seqid()] = (error, result) =>
-            createAssignmentStatement(
-              ts.createElementAccess(
-                ts.createIdentifier('this._reqs'),
-                ts.createIdentifier('requestId'),
-              ),
-              ts.createArrowFunction(
-                undefined,
-                undefined,
-                [
-                  createFunctionParameter('error', undefined, undefined),
-                  createFunctionParameter('result', undefined, undefined)
-                ],
-                undefined,
-                undefined,
-                ts.createBlock([
-                  // delete this._reqs[_seqid]
-                  ts.createStatement(ts.createDelete(
-                    ts.createElementAccess(
-                      ts.createIdentifier('this._reqs'),
-                      ts.createIdentifier('requestId')
-                    )
-                  )),
-                  ts.createIf(
-                    // if (error != null)
-                    createNotNull('error'),
-                    // reject(error)
-                    ts.createBlock([
-                      createCallStatement(
-                        ts.createIdentifier('reject'),
-                        [ ts.createIdentifier('error') ]
-                      )
-                    ], true),
-                    // resolve(result)
-                    ts.createBlock([
-                      createCallStatement(
-                        ts.createIdentifier('resolve'),
-                        [ ts.createIdentifier('result') ]
-                      )
-                    ], true)
-                  )
-                ], true)
-              )
-            ),
-            // this.send_{{name}}( {{#args}}{{fieldName}}, {{/args}} )
-            createMethodCallStatement(
-              ts.createIdentifier('this'),
-              `send_${def.name.value}`,
-              [
-                ...def.fields.map((next: FieldDefinition) => {
-                  return ts.createIdentifier(next.name.value)
-                }),
-                ts.createIdentifier('requestId'),
-                ts.createIdentifier('context')
-              ]
-            )
-          ]
-        )
-      )
-    ], true) // body
-  )
-}
-
-// public send_{{name}}({{#args}}{{fieldName}}: {{fieldType}}, {{/args}}): void {
-//     const output = new (this.protocol as any)(this.output)
-//     output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.seqid())
-//     const args = new {{ServiceName}}{{nameTitleCase}}Args()
-//     args.write(output)
-//     output.writeMessageEnd()
-//     return this.output.flush()
-// }
-function createSendMethodForDefinition(service: ServiceDefinition, def: FunctionDefinition): ts.MethodDeclaration {
-  return ts.createMethod(
-    undefined, // decorators
-    [ ts.createToken(ts.SyntaxKind.PublicKeyword) ], // modifiers
-    undefined, // asterisk token
-    `send_${def.name.value}`, // name
-    undefined, // question token
-    undefined, // type params
-    [
-      ...def.fields.map((next: FieldDefinition) => {
-        return createFunctionParameter(
-          ts.createIdentifier(next.name.value),
-          typeNodeForFieldType(next.fieldType)
-        )
-      }),
-      createFunctionParameter(
-        ts.createIdentifier('requestId'),
-        createNumberType()
-      ),
-      createFunctionParameter(
-        ts.createIdentifier('context'),
-        ContextType,
-        undefined,
-        true,
-      )
-    ], // parameters
-    createVoidType(), // return type
-    ts.createBlock([
-      // const output = new (this.protocol as any)(this.output)
       createConstStatement(
         COMMON_IDENTIFIERS.output,
         ts.createTypeReferenceNode(
@@ -399,17 +251,20 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
           [ ts.createIdentifier('this.output') ]
         )
       ),
-      // output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.seqid())
+      // output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.requestId())
       createMethodCallStatement(
         COMMON_IDENTIFIERS.output,
         'writeMessageBegin',
         [
           ts.createLiteral(def.name.value),
           MESSAGE_TYPE.CALL,
-          ts.createIdentifier('requestId')
+          ts.createCall(
+            ts.createIdentifier('this.incrementRequestId'),
+            undefined,
+            [],
+          )
         ]
       ),
-      // MortgageServiceGetMortgageOffersArgs
       // const args = new {{ServiceName}}{{nameTitleCase}}Args( { {{#args}}{{fieldName}}, {{/args}} } )
       createConstStatement(
         COMMON_IDENTIFIERS.args,
@@ -440,144 +295,183 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
         COMMON_IDENTIFIERS.output,
         'writeMessageEnd'
       ),
-      // this.onSend
-      ts.createStatement(createMethodCall(
-        ts.createIdentifier('this'),
-        'onSend',
-        [
-          createMethodCall(
-            ts.createIdentifier('this.output'),
-            'flush',
-            []
+      ts.createReturn(
+        ts.createCall(
+          ts.createPropertyAccess(
+            createConnectionSend(),
+            ts.createIdentifier('then'),
           ),
-          ts.createIdentifier('requestId'),
-          ts.createIdentifier('context'),
-        ]
-      ))
+          undefined,
+          [
+            ts.createArrowFunction(
+              undefined,
+              undefined,
+              [
+                createFunctionParameter(
+                  COMMON_IDENTIFIERS.data,
+                  ts.createTypeReferenceNode(
+                    COMMON_IDENTIFIERS.Buffer,
+                    undefined,
+                  )
+                )
+              ],
+              undefined,
+              undefined,
+              ts.createBlock([
+                createConstStatement(
+                  ts.createIdentifier('reader'),
+                  ts.createTypeReferenceNode(
+                    COMMON_IDENTIFIERS.TTransport,
+                    undefined,
+                  ),
+                  ts.createCall(
+                    ts.createIdentifier('this.connection.Transport.receiver'),
+                    undefined,
+                    [
+                      COMMON_IDENTIFIERS.data,
+                    ],
+                  )
+                ),
+                createConstStatement(
+                  COMMON_IDENTIFIERS.proto,
+                  ts.createTypeReferenceNode(
+                    COMMON_IDENTIFIERS.TProtocol,
+                    undefined,
+                  ),
+                  ts.createNew(
+                    ts.createIdentifier('this.connection.Protocol'),
+                    undefined,
+                    [
+                      ts.createIdentifier('reader')
+                    ],
+                  )
+                ),
+                ts.createTry(
+                  ts.createBlock([
+                    ts.createVariableStatement(
+                      undefined,
+                      ts.createVariableDeclarationList([
+                        ts.createVariableDeclaration(
+                          ts.createObjectBindingPattern([
+                            ts.createBindingElement(
+                              undefined,
+                              COMMON_IDENTIFIERS.fieldName,
+                              COMMON_IDENTIFIERS.fieldName,
+                            ),
+                            ts.createBindingElement(
+                              undefined,
+                              COMMON_IDENTIFIERS.messageType,
+                              COMMON_IDENTIFIERS.messageType,
+                            )
+                          ]),
+                          ts.createTypeReferenceNode(
+                            COMMON_IDENTIFIERS.IThriftMessage,
+                            undefined,
+                          ),
+                          ts.createCall(
+                            ts.createIdentifier('proto.readMessageBegin'),
+                            undefined,
+                            [],
+                          )
+                        )
+                      ], ts.NodeFlags.Const)
+                    ),
+                    ts.createIf(
+                      ts.createBinary(
+                        COMMON_IDENTIFIERS.fieldName,
+                        ts.SyntaxKind.EqualsEqualsEqualsToken,
+                        ts.createLiteral(def.name.value),
+                      ),
+                      ts.createBlock([
+                        // if (messageType === Thrift.MessageType.EXCEPTION) {
+                        //     const x = new Thrift.TApplicationException()
+                        //     x.read(proto)
+                        //     proto.readMessageEnd()
+                        //     return callback(x)
+                        // }
+                        createExceptionHandler(),
+
+                        // const result = new {{ServiceName}}{{nameTitleCase}}Result()
+                        ...createNewResultInstance(def),
+
+                        // proto.readMessageEnd()
+                        createMethodCallStatement(
+                          COMMON_IDENTIFIERS.proto,
+                          'readMessageEnd'
+                        ),
+
+                        // {{#throws}}if (result.{{throwName}} != null) {
+                        //     return callback(result.{{throwName}})
+                        // }
+                        ...def.throws.map((next: FieldDefinition): ts.IfStatement => {
+                          return ts.createIf(
+                            createNotNull(`result.${next.name.value}`),
+                            ts.createBlock([
+                              ts.createReturn(
+                                rejectPromiseWith(ts.createIdentifier(`result.${next.name.value}`))
+                              )
+                            ], true)
+                          )
+                        }),
+                        createResultHandler(def)
+                      ], true),
+                      ts.createBlock([
+                        ts.createReturn(
+                          rejectPromiseWith(
+                            ts.createNew(
+                              COMMON_IDENTIFIERS.TApplicationException,
+                              undefined,
+                              [
+                                APPLICATION_EXCEPTION.WRONG_METHOD_NAME,
+                                ts.createBinary(
+                                  ts.createLiteral(
+                                    "Received a response to an unknown RPC function: ",
+                                  ),
+                                  ts.SyntaxKind.PlusToken,
+                                  COMMON_IDENTIFIERS.fieldName
+                                )
+                              ]
+                            )
+                          )
+                        )
+                      ], true),
+                    )
+                  ], true),
+                  ts.createCatchClause(
+                    ts.createVariableDeclaration(
+                      COMMON_IDENTIFIERS.err,
+                    ),
+                    ts.createBlock([
+                      ts.createReturn(
+                        rejectPromiseWith(
+                          COMMON_IDENTIFIERS.err,
+                        )
+                      ),
+                    ], true),
+                  ),
+                  undefined,
+                )
+              ], true)
+            )
+          ],
+        )
+      ),
     ], true) // body
   )
 }
 
-// public recv_{{name}}(input: TProtocol, messageType: Thrift.MessageType, requestId: number): void {
-//     const noop = () => null
-//     let callback = this._reqs[requestId] || noop
-//     delete this._reqs[requestId]
-//     if (messageType === Thrift.MessageType.EXCEPTION) {
-//         const x = new Thrift.TApplicationException()
-//         x.read(input)
-//         input.readMessageEnd()
-//         return callback(x)
-//     }
-//     const result = new {{ServiceName}}{{nameTitleCase}}Result()
-//     result.read(input)
-//     input.readMessageEnd()
-//     // Dont check if
-//     {{#throws}}if (result.{{throwName}} != null) {
-//         return callback(result.{{throwName}})
-//     }
-//     {{/throws}}
-//     {{^isVoid}}
-//     if (result.success != null) {
-//         return callback(undefined, result.success)
-//     }
-//     {{/isVoid}}
-//     return callback(new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, "{{name}} failed: unknown result"))
-// }
-function createRecvMethodForDefinition(service: ServiceDefinition, def: FunctionDefinition): ts.MethodDeclaration {
-  return ts.createMethod(
-    undefined, // decorators
-    [ ts.createToken(ts.SyntaxKind.PublicKeyword) ], // modifiers
-    undefined, // asterisk token
-    `recv_${def.name.value}`, // method name
-    undefined, // question token
-    undefined, // type parameters
+function createConnectionSend(): ts.CallExpression {
+  return ts.createCall(
+    ts.createIdentifier('this.connection.send'),
+    undefined,
     [
-      createFunctionParameter(
-        COMMON_IDENTIFIERS.input,
-        ts.createTypeReferenceNode(
-          COMMON_IDENTIFIERS.TProtocol,
-          undefined
-        )
-      ),
-      createFunctionParameter(
-        ts.createIdentifier('messageType'),
-        ts.createTypeReferenceNode(
-          COMMON_IDENTIFIERS.MessageType,
-          undefined
-        )
-      ),
-      createFunctionParameter(
-        ts.createIdentifier('requestId'),
-        createNumberType()
-      )
-    ], // parameters
-    createVoidType(), // return type
-    ts.createBlock([
-      // const noop = () => null
-      createConstStatement(
-        ts.createIdentifier('noop'),
+      ts.createCall(
+        ts.createIdentifier('this.output.flush'),
         undefined,
-        ts.createArrowFunction(
-          undefined,
-          undefined,
-          [],
-          createAnyType(),
-          undefined,
-          ts.createIdentifier('null')
-        )
+        [],
       ),
-
-      // const callback = this._reqs[requestId] || noop
-      createConstStatement(
-        COMMON_IDENTIFIERS.callback,
-        undefined,
-        ts.createBinary(
-          ts.createElementAccess(
-            ts.createIdentifier('this._reqs'),
-            ts.createIdentifier('requestId')
-          ),
-          ts.SyntaxKind.BarBarToken,
-          ts.createIdentifier('noop')
-        )
-      ),
-
-      // if (messageType === Thrift.MessageType.EXCEPTION) {
-      //     const x = new Thrift.TApplicationException()
-      //     x.read(input)
-      //     input.readMessageEnd()
-      //     return callback(x)
-      // }
-      createExceptionHandler(),
-
-      // const result = new {{ServiceName}}{{nameTitleCase}}Result()
-      ...createNewResultInstance(def),
-
-      // input.readMessageEnd()
-      createMethodCallStatement(
-        COMMON_IDENTIFIERS.input,
-        'readMessageEnd'
-      ),
-
-      // {{#throws}}if (result.{{throwName}} != null) {
-      //     return callback(result.{{throwName}})
-      // }
-      ...def.throws.map((next: FieldDefinition): ts.IfStatement => {
-        return ts.createIf(
-          createNotNull(`result.${next.name.value}`),
-          ts.createBlock([
-            ts.createReturn(
-              ts.createCall(
-                COMMON_IDENTIFIERS.callback,
-                undefined,
-                [ ts.createIdentifier(`result.${next.name.value}`) ]
-              )
-            )
-          ], true)
-        )
-      }),
-
-      createResultHandler(def)
-    ], true)
+      COMMON_IDENTIFIERS.context,
+    ]
   )
 }
 
@@ -596,7 +490,9 @@ function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
           ts.createIdentifier('read')
         ),
         undefined,
-        [ COMMON_IDENTIFIERS.input ],
+        [
+          COMMON_IDENTIFIERS.proto
+        ],
       )
     ),
   ]
@@ -605,13 +501,13 @@ function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
 function createExceptionHandler(): ts.Statement {
   return ts.createIf(
     ts.createBinary(
-      ts.createIdentifier('messageType'),
+      COMMON_IDENTIFIERS.messageType,
       ts.SyntaxKind.EqualsEqualsEqualsToken,
       MESSAGE_TYPE.EXCEPTION
     ),
     ts.createBlock([
       createConstStatement(
-        ts.createIdentifier('x'),
+        COMMON_IDENTIFIERS.err,
         ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TApplicationException, undefined),
         ts.createCall(
           ts.createPropertyAccess(
@@ -619,21 +515,41 @@ function createExceptionHandler(): ts.Statement {
             ts.createIdentifier('read')
           ),
           undefined,
-          [ COMMON_IDENTIFIERS.input ],
+          [
+            COMMON_IDENTIFIERS.proto
+          ],
         )
       ),
       createMethodCallStatement(
-        COMMON_IDENTIFIERS.input,
+        COMMON_IDENTIFIERS.proto,
         'readMessageEnd'
       ),
       ts.createReturn(
-        ts.createCall(
-          COMMON_IDENTIFIERS.callback,
-          undefined,
-          [ ts.createIdentifier('x') ]
-        )
+        rejectPromiseWith(COMMON_IDENTIFIERS.err)
       )
     ], true)
+  )
+}
+
+function resolvePromiseWith(result: ts.Expression): ts.CallExpression {
+  return ts.createCall(
+    ts.createPropertyAccess(
+      COMMON_IDENTIFIERS.Promise,
+      'resolve',
+    ),
+    undefined,
+    [ result ]
+  )
+}
+
+function rejectPromiseWith(result: ts.Expression): ts.CallExpression {
+  return ts.createCall(
+    ts.createPropertyAccess(
+      COMMON_IDENTIFIERS.Promise,
+      'reject',
+    ),
+    undefined,
+    [ result ]
   )
 }
 
@@ -641,14 +557,7 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
 
   if (def.returnType.type === SyntaxType.VoidKeyword) {
     return ts.createReturn(
-      ts.createCall(
-        COMMON_IDENTIFIERS.callback,
-        undefined,
-        [
-          COMMON_IDENTIFIERS.undefined,
-          ts.createIdentifier('result.success')
-        ]
-      )
+      resolvePromiseWith(ts.createIdentifier('result.success'))
     )
   } else {
     // {{^isVoid}}
@@ -662,28 +571,17 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
       ),
       ts.createBlock([
         ts.createReturn(
-          ts.createCall(
-            COMMON_IDENTIFIERS.callback,
-            undefined,
-            [
-              COMMON_IDENTIFIERS.undefined,
-              ts.createIdentifier('result.success')
-            ]
-          )
+          resolvePromiseWith(ts.createIdentifier('result.success'))
         )
       ], true),
       ts.createBlock([
         // return callback(new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, "{{name}} failed: unknown result"))
         ts.createReturn(
-          ts.createCall(
-            COMMON_IDENTIFIERS.callback,
-            undefined,
-            [
-              createApplicationException(
-                'UNKNOWN',
-                `${def.name.value} failed: unknown result`
-              )
-            ]
+          rejectPromiseWith(
+            createApplicationException(
+              'UNKNOWN',
+              `${def.name.value} failed: unknown result`
+            )
           )
         )
       ], true)
