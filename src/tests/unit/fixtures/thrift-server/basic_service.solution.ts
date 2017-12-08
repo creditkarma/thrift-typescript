@@ -81,55 +81,48 @@ export namespace MyService {
         }
     }
     export class Client<Context = any> {
-        public _seqid: number;
-        public _reqs: thrift.IRequestCallbackMap;
-        public output: thrift.TTransport;
-        public protocol: thrift.IProtocolConstructor;
-        protected onSend: (data: Buffer, seqid: number, context?: Context) => void;
-        constructor(output: thrift.TTransport, protocol: thrift.IProtocolConstructor, callback: (data: Buffer, seqid: number, context?: Context) => void) {
-            this._seqid = 0;
-            this._reqs = {};
+        protected _requestId: number;
+        protected output: thrift.TTransport;
+        protected protocol: thrift.IProtocolConstructor;
+        protected connection: thrift.IThriftConnection<Context>;
+        constructor(output: thrift.TTransport, protocol: thrift.IProtocolConstructor, connection: thrift.IThriftConnection<Context>) {
+            this._requestId = 0;
             this.output = output;
             this.protocol = protocol;
-            this.onSend = callback;
+            this.connection = connection;
         }
-        public incrementSeqId(): number {
-            return this._seqid += 1;
+        public incrementRequestId(): number {
+            return this._requestId += 1;
         }
         public ping(context?: Context): Promise<void> {
-            const requestId: number = this.incrementSeqId();
-            return new Promise<void>((resolve, reject): void => {
-                this._reqs[requestId] = (error, result) => {
-                    delete this._reqs[requestId];
-                    if (error != null) {
-                        reject(error);
-                    }
-                    else {
-                        resolve(result);
-                    }
-                };
-                this.send_ping(requestId, context);
-            });
-        }
-        public send_ping(requestId: number, context?: Context): void {
             const output: thrift.TProtocol = new this.protocol(this.output);
-            output.writeMessageBegin("ping", thrift.MessageType.CALL, requestId);
+            output.writeMessageBegin("ping", thrift.MessageType.CALL, this.incrementRequestId());
             const args: PingArgs = new PingArgs({});
             args.write(output);
             output.writeMessageEnd();
-            this.onSend(this.output.flush(), requestId, context);
-        }
-        public recv_ping(input: thrift.TProtocol, messageType: thrift.MessageType, requestId: number): void {
-            const noop = (): any => null;
-            const callback = this._reqs[requestId] || noop;
-            if (messageType === thrift.MessageType.EXCEPTION) {
-                const x: thrift.TApplicationException = thrift.TApplicationException.read(input);
-                input.readMessageEnd();
-                return callback(x);
-            }
-            const result: PingResult = PingResult.read(input);
-            input.readMessageEnd();
-            return callback(undefined, result.success);
+            return this.connection.send(this.output.flush(), context).then((data: Buffer) => {
+                const reader: thrift.TTransport = this.connection.Transport.receiver(data);
+                const proto: thrift.TProtocol = new this.connection.Protocol(reader);
+                try {
+                    const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = proto.readMessageBegin();
+                    if (fieldName === "ping") {
+                        if (messageType === thrift.MessageType.EXCEPTION) {
+                            const err: thrift.TApplicationException = thrift.TApplicationException.read(proto);
+                            proto.readMessageEnd();
+                            return Promise.reject(err);
+                        }
+                        const result: PingResult = PingResult.read(proto);
+                        proto.readMessageEnd();
+                        return Promise.resolve(result.success);
+                    }
+                    else {
+                        return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.WRONG_METHOD_NAME, "Received a response to an unknown RPC function: " + fieldName));
+                    }
+                }
+                catch (err) {
+                    return Promise.reject(err);
+                }
+            });
         }
     }
     export interface IHandler<Context = any> {
@@ -163,7 +156,7 @@ export namespace MyService {
                 }
             });
         }
-        public process_ping(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): Promise<Buffer> {
+        public process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): Promise<Buffer> {
             return new Promise<void>((resolve, reject): void => {
                 try {
                     input.readMessageEnd();
@@ -174,13 +167,13 @@ export namespace MyService {
                 }
             }).then((data: void): Buffer => {
                 const result: PingResult = new PingResult({ success: data });
-                output.writeMessageBegin("ping", thrift.MessageType.REPLY, seqid);
+                output.writeMessageBegin("ping", thrift.MessageType.REPLY, requestId);
                 result.write(output);
                 output.writeMessageEnd();
                 return output.flush();
             }).catch((err: Error): Buffer => {
                 const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
-                output.writeMessageBegin("ping", thrift.MessageType.EXCEPTION, seqid);
+                output.writeMessageBegin("ping", thrift.MessageType.EXCEPTION, requestId);
                 result.write(output);
                 output.writeMessageEnd();
                 return output.flush();

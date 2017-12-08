@@ -1,14 +1,22 @@
 import * as ts from 'typescript'
 
 export const COMMON_IDENTIFIERS = {
-  callback: ts.createIdentifier('callback'),
+  err: ts.createIdentifier('err'),
   args: ts.createIdentifier('args'),
   undefined: ts.createIdentifier('undefined'),
   input: ts.createIdentifier('input'),
+  data: ts.createIdentifier('data'),
+  proto: ts.createIdentifier('proto'),
   output: ts.createIdentifier('output'),
+  protocol: ts.createIdentifier('protocol'),
+  connection: ts.createIdentifier('connection'),
+  messageType: ts.createIdentifier('messageType'),
   fieldType: ts.createIdentifier('fieldType'),
   fieldName: ts.createIdentifier('fieldName'),
   fieldId: ts.createIdentifier('fieldId'),
+  context: ts.createIdentifier('context'),
+  Context: ts.createIdentifier('Context'),
+  Client: ts.createIdentifier('Client'),
   Map: ts.createIdentifier('Map'),
   Array: ts.createIdentifier('Array'),
   Set: ts.createIdentifier('Set'),
@@ -18,6 +26,7 @@ export const COMMON_IDENTIFIERS = {
   Promise: ts.createIdentifier('Promise'),
   Number: ts.createIdentifier('Number'),
   void: ts.createIdentifier('void'),
+  IThriftConnection: ts.createIdentifier('thrift.IThriftConnection'),
   ProtocolConstructor: ts.createIdentifier('thrift.IProtocolConstructor'),
   IThriftMessage: ts.createIdentifier('thrift.IThriftMessage'),
   IThriftField: ts.createIdentifier('thrift.IThriftField'),
@@ -32,6 +41,7 @@ export const COMMON_IDENTIFIERS = {
   MessageType: ts.createIdentifier('thrift.MessageType'),
   TApplicationException: ts.createIdentifier('thrift.TApplicationException'),
   TProtocolException: ts.createIdentifier('thrift.TProtocolException'),
+  InputBufferUnderrunError: ts.createIdentifier('thrift.InputBufferUnderrunError'),
   StructLike: ts.createIdentifier('thrift.StructLike'),
 }
 
