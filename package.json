@@ -39,7 +39,7 @@
     "url": "https://github.com/creditkarma/thrift-typescript"
   },
   "dependencies": {
-    "@creditkarma/thrift-parser": "^1.0.1",
+    "@creditkarma/thrift-parser": "^1.0.2",
     "glob": "^7.1.2",
     "typescript": "^2.6.1"
   },

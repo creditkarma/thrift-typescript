@@ -200,7 +200,7 @@ $ npm install --save @types/thrift
 Given this service let's build a client and server based on our generated code.
 
 ```c
-service Caluculator {
+service Calculator {
   i32 add(1: i32 left, 2: i32 right)
   i32 subtract(1: i32 left, 2: i32 right)
 }
