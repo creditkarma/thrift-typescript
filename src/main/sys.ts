@@ -21,8 +21,16 @@ function createPath(parts: Array<string>, soFar: string): void {
   }
 }
 
+function splitPath(dirPath: string): Array<string> {
+  if (os.platform() === 'win32') {
+    return dirPath.split(path.sep).filter((val: string) => val !== '').slice(1)
+  } else {
+    return dirPath.split(path.sep).filter((val: string) => val !== '')
+  }
+}
+
 export function mkdir(dirPath: string): void {
-  const parts: Array<string> = dirPath.split(path.sep).filter((val: string) => val !== '')
+  const parts: Array<string> = splitPath(dirPath)
 
   // Check for absolute path
   if (parts.length > 0 && path.isAbsolute(dirPath)) {
