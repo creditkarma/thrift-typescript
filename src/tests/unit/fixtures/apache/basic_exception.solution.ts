@@ -1,16 +1,14 @@
 export interface IMyExceptionArgs {
     message: string;
 }
-export class MyException implements thrift.TStructLike {
+export class MyException {
     public message: string;
-    constructor(args?: IMyExceptionArgs) {
-        if (args != null) {
-            if (args.message != null) {
-                this.message = args.message;
-            }
-            else {
-                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field message is unset!");
-            }
+    constructor(args: IMyExceptionArgs) {
+        if (args != null && args.message != null) {
+            this.message = args.message;
+        }
+        else {
+            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field message is unset!");
         }
     }
     public write(output: thrift.TProtocol): void {
@@ -24,36 +22,38 @@ export class MyException implements thrift.TStructLike {
         output.writeStructEnd();
         return;
     }
-    public read(input: thrift.TProtocol): void {
+    public static read(input: thrift.TProtocol): MyException {
         input.readStructBegin();
+        let _args: any = {};
         while (true) {
-            const ret: {
-                fname: string;
-                ftype: thrift.Thrift.Type;
-                fid: number;
-            } = input.readFieldBegin();
-            const ftype: thrift.Thrift.Type = ret.ftype;
-            const fid: number = ret.fid;
-            if (ftype === thrift.Thrift.Type.STOP) {
+            const ret: thrift.TField = input.readFieldBegin();
+            const fieldType: thrift.Thrift.Type = ret.ftype;
+            const fieldId: number = ret.fid;
+            if (fieldType === thrift.Thrift.Type.STOP) {
                 break;
             }
-            switch (fid) {
+            switch (fieldId) {
                 case 1:
-                    if (ftype === thrift.Thrift.Type.STRING) {
+                    if (fieldType === thrift.Thrift.Type.STRING) {
                         const value_1: string = input.readString();
-                        this.message = value_1;
+                        _args.message = value_1;
                     }
                     else {
-                        input.skip(ftype);
+                        input.skip(fieldType);
                     }
                     break;
                 default: {
-                    input.skip(ftype);
+                    input.skip(fieldType);
                 }
             }
             input.readFieldEnd();
         }
         input.readStructEnd();
-        return;
+        if (_args.message !== undefined) {
+            return new MyException(_args);
+        }
+        else {
+            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Unable to read MyException from input");
+        }
     }
 }

@@ -5,43 +5,41 @@ export interface IMyStructArgs {
     field1?: number;
     blob?: Buffer;
 }
-export class MyStruct implements thrift.TStructLike {
+export class MyStruct {
     public id: number = 45;
     public bigID: thrift.Int64 = new thrift.Int64(23948234);
     public word: string;
-    public field1: number;
-    public blob: Buffer = Buffer.from("binary");
-    constructor(args?: IMyStructArgs) {
-        if (args != null) {
-            if (args.id != null) {
-                this.id = args.id;
+    public field1?: number;
+    public blob?: Buffer = Buffer.from("binary");
+    constructor(args: IMyStructArgs) {
+        if (args != null && args.id != null) {
+            this.id = args.id;
+        }
+        else {
+            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field id is unset!");
+        }
+        if (args != null && args.bigID != null) {
+            if (typeof args.bigID === "number") {
+                this.bigID = new thrift.Int64(args.bigID);
             }
             else {
-                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field id is unset!");
+                this.bigID = args.bigID;
             }
-            if (args.bigID != null) {
-                if (typeof args.bigID === "number") {
-                    this.bigID = new thrift.Int64(args.bigID);
-                }
-                else {
-                    this.bigID = args.bigID;
-                }
-            }
-            else {
-                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field bigID is unset!");
-            }
-            if (args.word != null) {
-                this.word = args.word;
-            }
-            else {
-                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field word is unset!");
-            }
-            if (args.field1 != null) {
-                this.field1 = args.field1;
-            }
-            if (args.blob != null) {
-                this.blob = args.blob;
-            }
+        }
+        else {
+            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field bigID is unset!");
+        }
+        if (args != null && args.word != null) {
+            this.word = args.word;
+        }
+        else {
+            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field word is unset!");
+        }
+        if (args != null && args.field1 != null) {
+            this.field1 = args.field1;
+        }
+        if (args != null && args.blob != null) {
+            this.blob = args.blob;
         }
     }
     public write(output: thrift.TProtocol): void {
@@ -75,72 +73,74 @@ export class MyStruct implements thrift.TStructLike {
         output.writeStructEnd();
         return;
     }
-    public read(input: thrift.TProtocol): void {
+    public static read(input: thrift.TProtocol): MyStruct {
         input.readStructBegin();
+        let _args: any = {};
         while (true) {
-            const ret: {
-                fname: string;
-                ftype: thrift.Thrift.Type;
-                fid: number;
-            } = input.readFieldBegin();
-            const ftype: thrift.Thrift.Type = ret.ftype;
-            const fid: number = ret.fid;
-            if (ftype === thrift.Thrift.Type.STOP) {
+            const ret: thrift.TField = input.readFieldBegin();
+            const fieldType: thrift.Thrift.Type = ret.ftype;
+            const fieldId: number = ret.fid;
+            if (fieldType === thrift.Thrift.Type.STOP) {
                 break;
             }
-            switch (fid) {
+            switch (fieldId) {
                 case 1:
-                    if (ftype === thrift.Thrift.Type.I32) {
+                    if (fieldType === thrift.Thrift.Type.I32) {
                         const value_1: number = input.readI32();
-                        this.id = value_1;
+                        _args.id = value_1;
                     }
                     else {
-                        input.skip(ftype);
+                        input.skip(fieldType);
                     }
                     break;
                 case 2:
-                    if (ftype === thrift.Thrift.Type.I64) {
+                    if (fieldType === thrift.Thrift.Type.I64) {
                         const value_2: thrift.Int64 = input.readI64();
-                        this.bigID = value_2;
+                        _args.bigID = value_2;
                     }
                     else {
-                        input.skip(ftype);
+                        input.skip(fieldType);
                     }
                     break;
                 case 3:
-                    if (ftype === thrift.Thrift.Type.STRING) {
+                    if (fieldType === thrift.Thrift.Type.STRING) {
                         const value_3: string = input.readString();
-                        this.word = value_3;
+                        _args.word = value_3;
                     }
                     else {
-                        input.skip(ftype);
+                        input.skip(fieldType);
                     }
                     break;
                 case 4:
-                    if (ftype === thrift.Thrift.Type.DOUBLE) {
+                    if (fieldType === thrift.Thrift.Type.DOUBLE) {
                         const value_4: number = input.readDouble();
-                        this.field1 = value_4;
+                        _args.field1 = value_4;
                     }
                     else {
-                        input.skip(ftype);
+                        input.skip(fieldType);
                     }
                     break;
                 case 5:
-                    if (ftype === thrift.Thrift.Type.STRING) {
+                    if (fieldType === thrift.Thrift.Type.STRING) {
                         const value_5: Buffer = input.readBinary();
-                        this.blob = value_5;
+                        _args.blob = value_5;
                     }
                     else {
-                        input.skip(ftype);
+                        input.skip(fieldType);
                     }
                     break;
                 default: {
-                    input.skip(ftype);
+                    input.skip(fieldType);
                 }
             }
             input.readFieldEnd();
         }
         input.readStructEnd();
-        return;
+        if (_args.id !== undefined && _args.bigID !== undefined && _args.word !== undefined) {
+            return new MyStruct(_args);
+        }
+        else {
+            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Unable to read MyStruct from input");
+        }
     }
 }

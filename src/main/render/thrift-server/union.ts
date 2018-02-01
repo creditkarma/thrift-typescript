@@ -16,7 +16,7 @@ import {
   createEquals,
   createFunctionParameter,
   createLetStatement,
-  createNotNull,
+  createNotNullCheck,
   propertyAccessForIdentifier,
   throwProtocolException,
 } from './utils'
@@ -81,7 +81,7 @@ export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap):
    *   ...fieldAssignments
    * }
    */
-  const isArgsNull: ts.BinaryExpression = createNotNull('args')
+  const isArgsNull: ts.BinaryExpression = createNotNullCheck('args')
   const argsCheckWithAssignments: ts.IfStatement = ts.createIf(
     isArgsNull, // condition
     ts.createBlock([
@@ -198,7 +198,7 @@ function createUnionFactories(node: UnionDefinition, identifiers: IIdentifierMap
  * }
  */
 function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
-  const comparison: ts.BinaryExpression = createNotNull(`args.${field.name.value}`)
+  const comparison: ts.BinaryExpression = createNotNullCheck(`args.${field.name.value}`)
   const thenAssign: ts.Statement = assignmentForField(field)
   const incrementer: ts.ExpressionStatement = incrementFieldsSet()
   const elseThrow: ts.ThrowStatement | undefined = throwForField(field)

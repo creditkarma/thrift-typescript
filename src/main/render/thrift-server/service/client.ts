@@ -21,7 +21,7 @@ import {
   createClassConstructor,
   createFunctionParameter,
   createAssignmentStatement,
-  createNotNull,
+  createNotNullCheck,
   createConstStatement,
   createMethodCallStatement,
   createProtectedProperty,
@@ -406,7 +406,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                         // }
                         ...def.throws.map((next: FieldDefinition): ts.IfStatement => {
                           return ts.createIf(
-                            createNotNull(`result.${next.name.value}`),
+                            createNotNullCheck(`result.${next.name.value}`),
                             ts.createBlock([
                               ts.createReturn(
                                 rejectPromiseWith(ts.createIdentifier(`result.${next.name.value}`))
@@ -570,7 +570,7 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
     // }
     // {{/isVoid}}
     return ts.createIf(
-      createNotNull(
+      createNotNullCheck(
         ts.createIdentifier('result.success')
       ),
       ts.createBlock([

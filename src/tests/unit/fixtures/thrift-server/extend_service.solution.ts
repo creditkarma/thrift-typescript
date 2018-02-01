@@ -5,13 +5,11 @@ export namespace ParentService {
     export class PingArgs implements thrift.StructLike {
         public status: number;
         constructor(args: IPingArgsArgs) {
-            if (args != null) {
-                if (args.status != null) {
-                    this.status = args.status;
-                }
-                else {
-                    throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field status is unset!");
-                }
+            if (args != null && args.status != null) {
+                this.status = args.status;
+            }
+            else {
+                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field status is unset!");
             }
         }
         public write(output: thrift.TProtocol): void {
@@ -64,12 +62,10 @@ export namespace ParentService {
         success?: string;
     }
     export class PingResult implements thrift.StructLike {
-        public success: string;
+        public success?: string;
         constructor(args?: IPingResultArgs) {
-            if (args != null) {
-                if (args.success != null) {
-                    this.success = args.success;
-                }
+            if (args != null && args.success != null) {
+                this.success = args.success;
             }
         }
         public write(output: thrift.TProtocol): void {
@@ -228,13 +224,11 @@ export namespace ChildService {
     export class PegArgs implements thrift.StructLike {
         public name: string;
         constructor(args: IPegArgsArgs) {
-            if (args != null) {
-                if (args.name != null) {
-                    this.name = args.name;
-                }
-                else {
-                    throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field name is unset!");
-                }
+            if (args != null && args.name != null) {
+                this.name = args.name;
+            }
+            else {
+                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field name is unset!");
             }
         }
         public write(output: thrift.TProtocol): void {
@@ -287,12 +281,10 @@ export namespace ChildService {
         success?: string;
     }
     export class PegResult implements thrift.StructLike {
-        public success: string;
+        public success?: string;
         constructor(args?: IPegResultArgs) {
-            if (args != null) {
-                if (args.success != null) {
-                    this.success = args.success;
-                }
+            if (args != null && args.success != null) {
+                this.success = args.success;
             }
         }
         public write(output: thrift.TProtocol): void {

@@ -27,8 +27,9 @@ import {
   createClassConstructor,
   createAssignmentStatement,
   propertyAccessForIdentifier,
-  createNotNull,
-  throwProtocolException
+  createNotNullCheck,
+  throwProtocolException,
+  renderOptional,
 } from '../utils'
 
 import { interfaceNameForClass } from '../interface'
@@ -54,25 +55,13 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
    */
   const fieldAssignments: Array<ts.IfStatement> = node.fields.map(createFieldAssignment)
 
-  /**
-   * Field assignments rely on there being an args argument passed in. We need to wrap
-   * field assignments in a conditional to check for the existance of args
-   *
-   * if (args != null) {
-   *   ...fieldAssignments
-   * }
-   */
-  const isArgsNull: ts.BinaryExpression = createNotNull('args')
-  const argsCheckWithAssignments: ts.IfStatement = ts.createIf(
-    isArgsNull, // condition
-    ts.createBlock(fieldAssignments, true), // then
-    undefined // else
-  )
-
   const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(node)
 
   // Build the constructor body
-  const ctor: ts.ConstructorDeclaration = createClassConstructor([ argsParameter ], [ argsCheckWithAssignments ])
+  const ctor: ts.ConstructorDeclaration = createClassConstructor(
+    [ argsParameter ],
+    [ ...fieldAssignments ]
+  )
 
   // Build the `read` method
   const readMethod: ts.MethodDeclaration = createReadMethod(node, identifiers)
@@ -93,11 +82,11 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
   // export class <node.name> { ... }
   return ts.createClassDeclaration(
     undefined,
-    [ts.createToken(ts.SyntaxKind.ExportKeyword)],
+    [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
     node.name.value,
     [],
-    [heritage], // heritage
-    [...fields, ctor, writeMethod, readMethod]
+    [ heritage ], // heritage
+    [ ...fields, ctor, writeMethod, readMethod ]
   )
 }
 
@@ -181,7 +170,7 @@ export function assignmentForField(field: FieldDefinition): ts.Statement {
  * @param field
  */
 export function throwForField(field: FieldDefinition): ts.ThrowStatement | undefined {
-  if (field.requiredness !== 'optional') {
+  if (field.requiredness === 'required') {
     return throwProtocolException(
       'UNKNOWN',
       `Required field ${field.name.value} is unset!`
@@ -205,14 +194,20 @@ export function throwForField(field: FieldDefinition): ts.ThrowStatement | undef
  * }
  */
 export function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
-  const comparison: ts.BinaryExpression = createNotNull(`args.${field.name.value}`)
+  const isArgsNull: ts.BinaryExpression = createNotNullCheck('args')
+  const isValue: ts.BinaryExpression = createNotNullCheck(`args.${field.name.value}`)
+  const comparison: ts.BinaryExpression = ts.createBinary(
+    isArgsNull,
+    ts.SyntaxKind.AmpersandAmpersandToken,
+    isValue,
+  )
   const thenAssign: ts.Statement = assignmentForField(field)
-  const elseThrow: ts.ThrowStatement | undefined = throwForField(field)
+  const elseThrow: ts.Statement | undefined = throwForField(field)
 
   return ts.createIf(
     comparison,
     ts.createBlock([thenAssign], true),
-    (elseThrow !== undefined) ? ts.createBlock([elseThrow], true) : undefined
+    (elseThrow === undefined) ? undefined : ts.createBlock([elseThrow], true),
   )
 }
 
@@ -244,7 +239,7 @@ export function renderFieldDeclarations(field: FieldDefinition): ts.PropertyDecl
     undefined,
     [ts.createToken(ts.SyntaxKind.PublicKeyword)],
     ts.createIdentifier(field.name.value),
-    undefined,
+    renderOptional(field.requiredness),
     typeNodeForFieldType(field.fieldType),
     defaultValue
   )

@@ -3,8 +3,6 @@ export namespace MyService {
     }
     export class PingArgs implements thrift.StructLike {
         constructor(args?: IPingArgsArgs) {
-            if (args != null) {
-            }
         }
         public write(output: thrift.TProtocol): void {
             output.writeStructBegin("PingArgs");
@@ -37,12 +35,10 @@ export namespace MyService {
         success?: void;
     }
     export class PingResult implements thrift.StructLike {
-        public success: void;
+        public success?: void;
         constructor(args?: IPingResultArgs) {
-            if (args != null) {
-                if (args.success != null) {
-                    this.success = args.success;
-                }
+            if (args != null && args.success != null) {
+                this.success = args.success;
             }
         }
         public write(output: thrift.TProtocol): void {

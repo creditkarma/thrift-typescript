@@ -27,9 +27,14 @@ import {
   createClassConstructor,
   createAssignmentStatement,
   propertyAccessForIdentifier,
-  createNotNull,
-  throwProtocolException
+  createNotNullCheck,
+  throwProtocolException,
+  renderOptional,
 } from '../utils'
+
+import {
+    hasRequiredField
+} from './utils'
 
 import { interfaceNameForClass } from '../interface'
 import { createReadMethod } from './read'
@@ -53,25 +58,13 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
    */
   const fieldAssignments: Array<ts.IfStatement> = node.fields.map(createFieldAssignment)
 
-  /**
-   * Field assignments rely on there being an args argument passed in. We need to wrap
-   * field assignments in a conditional to check for the existance of args
-   *
-   * if (args != null) {
-   *   ...fieldAssignments
-   * }
-   */
-  const isArgsNull: ts.BinaryExpression = createNotNull('args')
-  const argsCheckWithAssignments: ts.IfStatement = ts.createIf(
-    isArgsNull, // condition
-    ts.createBlock(fieldAssignments, true), // then
-    undefined // else
-  )
-
   const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(node)
 
   // Build the constructor body
-  const ctor: ts.ConstructorDeclaration = createClassConstructor([argsParameter], [argsCheckWithAssignments])
+  const ctor: ts.ConstructorDeclaration = createClassConstructor(
+    [ argsParameter ],
+    [ ...fieldAssignments ]
+  )
 
   // Build the `read` method
   const readMethod: ts.MethodDeclaration = createReadMethod(node, identifiers)
@@ -79,24 +72,19 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
   // Build the `write` method
   const writeMethod: ts.MethodDeclaration = createWriteMethod(node, identifiers)
 
-  const heritage: ts.HeritageClause = ts.createHeritageClause(
-    ts.SyntaxKind.ImplementsKeyword,
-    [
-      ts.createExpressionWithTypeArguments(
-        [],
-        COMMON_IDENTIFIERS.TStructLike,
-      )
-    ]
-  )
-
   // export class <node.name> { ... }
   return ts.createClassDeclaration(
     undefined,
     [ts.createToken(ts.SyntaxKind.ExportKeyword)],
     node.name.value,
     [],
-    [heritage], // heritage
-    [...fields, ctor, writeMethod, readMethod]
+    [], // heritage
+    [
+      ...fields,
+      ctor,
+      writeMethod,
+      readMethod
+    ]
   )
 }
 
@@ -105,7 +93,7 @@ export function createArgsParameterForStruct(node: InterfaceWithFields): ts.Para
     'args', // param name
     createArgsTypeForStruct(node), // param type
     undefined, // initializer
-    true // optional?
+    !hasRequiredField(node) // optional?
   )
 }
 
@@ -204,16 +192,22 @@ export function throwForField(field: FieldDefinition): ts.ThrowStatement | undef
  * }
  */
 export function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
-  const comparison: ts.BinaryExpression = createNotNull(`args.${field.name.value}`)
-  const thenAssign: ts.Statement = assignmentForField(field)
-  const elseThrow: ts.ThrowStatement | undefined = throwForField(field)
+    const isArgsNull: ts.BinaryExpression = createNotNullCheck('args')
+    const isValue: ts.BinaryExpression = createNotNullCheck(`args.${field.name.value}`)
+    const comparison: ts.BinaryExpression = ts.createBinary(
+      isArgsNull,
+      ts.SyntaxKind.AmpersandAmpersandToken,
+      isValue,
+    )
+    const thenAssign: ts.Statement = assignmentForField(field)
+    const elseThrow: ts.Statement | undefined = throwForField(field)
 
-  return ts.createIf(
-    comparison,
-    ts.createBlock([thenAssign], true),
-    (elseThrow !== undefined) ? ts.createBlock([elseThrow], true) : undefined
-  )
-}
+    return ts.createIf(
+      comparison,
+      ts.createBlock([thenAssign], true),
+      (elseThrow === undefined) ? undefined : ts.createBlock([elseThrow], true),
+    )
+  }
 
 /**
  * Render properties for struct class based on values thrift file
@@ -243,7 +237,7 @@ export function renderFieldDeclarations(field: FieldDefinition): ts.PropertyDecl
     undefined,
     [ts.createToken(ts.SyntaxKind.PublicKeyword)],
     field.name.value,
-    undefined,
+    renderOptional(field.requiredness),
     typeNodeForFieldType(field.fieldType),
     defaultValue
   )

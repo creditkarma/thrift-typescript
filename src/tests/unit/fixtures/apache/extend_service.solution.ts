@@ -2,13 +2,14 @@ export namespace ParentService {
     export interface IPingArgsArgs {
         status: number;
     }
-    export class PingArgs implements thrift.TStructLike {
+    export class PingArgs {
         public status: number;
-        constructor(args?: IPingArgsArgs) {
-            if (args != null) {
-                if (args.status != null) {
-                    this.status = args.status;
-                }
+        constructor(args: IPingArgsArgs) {
+            if (args != null && args.status != null) {
+                this.status = args.status;
+            }
+            else {
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field status is unset!");
             }
         }
         public write(output: thrift.TProtocol): void {
@@ -22,49 +23,49 @@ export namespace ParentService {
             output.writeStructEnd();
             return;
         }
-        public read(input: thrift.TProtocol): void {
+        public static read(input: thrift.TProtocol): PingArgs {
             input.readStructBegin();
+            let _args: any = {};
             while (true) {
-                const ret: {
-                    fname: string;
-                    ftype: thrift.Thrift.Type;
-                    fid: number;
-                } = input.readFieldBegin();
-                const ftype: thrift.Thrift.Type = ret.ftype;
-                const fid: number = ret.fid;
-                if (ftype === thrift.Thrift.Type.STOP) {
+                const ret: thrift.TField = input.readFieldBegin();
+                const fieldType: thrift.Thrift.Type = ret.ftype;
+                const fieldId: number = ret.fid;
+                if (fieldType === thrift.Thrift.Type.STOP) {
                     break;
                 }
-                switch (fid) {
+                switch (fieldId) {
                     case 1:
-                        if (ftype === thrift.Thrift.Type.I32) {
+                        if (fieldType === thrift.Thrift.Type.I32) {
                             const value_1: number = input.readI32();
-                            this.status = value_1;
+                            _args.status = value_1;
                         }
                         else {
-                            input.skip(ftype);
+                            input.skip(fieldType);
                         }
                         break;
                     default: {
-                        input.skip(ftype);
+                        input.skip(fieldType);
                     }
                 }
                 input.readFieldEnd();
             }
             input.readStructEnd();
-            return;
+            if (_args.status !== undefined) {
+                return new PingArgs(_args);
+            }
+            else {
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Unable to read PingArgs from input");
+            }
         }
     }
     export interface IPingResultArgs {
         success?: string;
     }
-    export class PingResult implements thrift.TStructLike {
-        public success: string;
+    export class PingResult {
+        public success?: string;
         constructor(args?: IPingResultArgs) {
-            if (args != null) {
-                if (args.success != null) {
-                    this.success = args.success;
-                }
+            if (args != null && args.success != null) {
+                this.success = args.success;
             }
         }
         public write(output: thrift.TProtocol): void {
@@ -78,37 +79,34 @@ export namespace ParentService {
             output.writeStructEnd();
             return;
         }
-        public read(input: thrift.TProtocol): void {
+        public static read(input: thrift.TProtocol): PingResult {
             input.readStructBegin();
+            let _args: any = {};
             while (true) {
-                const ret: {
-                    fname: string;
-                    ftype: thrift.Thrift.Type;
-                    fid: number;
-                } = input.readFieldBegin();
-                const ftype: thrift.Thrift.Type = ret.ftype;
-                const fid: number = ret.fid;
-                if (ftype === thrift.Thrift.Type.STOP) {
+                const ret: thrift.TField = input.readFieldBegin();
+                const fieldType: thrift.Thrift.Type = ret.ftype;
+                const fieldId: number = ret.fid;
+                if (fieldType === thrift.Thrift.Type.STOP) {
                     break;
                 }
-                switch (fid) {
+                switch (fieldId) {
                     case 0:
-                        if (ftype === thrift.Thrift.Type.STRING) {
+                        if (fieldType === thrift.Thrift.Type.STRING) {
                             const value_2: string = input.readString();
-                            this.success = value_2;
+                            _args.success = value_2;
                         }
                         else {
-                            input.skip(ftype);
+                            input.skip(fieldType);
                         }
                         break;
                     default: {
-                        input.skip(ftype);
+                        input.skip(fieldType);
                     }
                 }
                 input.readFieldEnd();
             }
             input.readStructEnd();
-            return;
+            return new PingResult(_args);
         }
     }
     export class Client {
@@ -148,19 +146,19 @@ export namespace ParentService {
             const args: PingArgs = new PingArgs({ status });
             args.write(output);
             output.writeMessageEnd();
-            return this.output.flush();
+            this.output.flush();
+            return;
         }
-        public recv_ping(input: thrift.TProtocol, mtype: thrift.Thrift.MessageType, rseqid: number): void {
+        public recv_ping(input: thrift.TProtocol, mtype: thrift.Thrift.MessageType, requestId: number): void {
             const noop = (): any => null;
-            const callback = this._reqs[rseqid] || noop;
+            const callback = this._reqs[requestId] || noop;
             if (mtype === thrift.Thrift.MessageType.EXCEPTION) {
                 const x: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException();
                 x.read(input);
                 input.readMessageEnd();
                 return callback(x);
             }
-            const result: PingResult = new PingResult();
-            result.read(input);
+            const result: PingResult = PingResult.read(input);
             input.readMessageEnd();
             if (result.success != null) {
                 return callback(undefined, result.success);
@@ -185,30 +183,31 @@ export namespace ParentService {
                 rseqid: number;
             } = input.readMessageBegin();
             const fname: string = metadata.fname;
-            const rseqid: number = metadata.rseqid;
+            const requestId: number = metadata.rseqid;
             const methodName: string = "process_" + fname;
             switch (methodName) {
                 case "process_ping": {
-                    return this.process_ping(rseqid, input, output, context);
+                    this.process_ping(requestId, input, output, context);
+                    return;
                 }
                 default: {
                     input.skip(thrift.Thrift.Type.STRUCT);
                     input.readMessageEnd();
                     const errMessage = "Unknown function " + fname;
                     const err = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN_METHOD, errMessage);
-                    output.writeMessageBegin(fname, thrift.Thrift.MessageType.EXCEPTION, rseqid);
+                    output.writeMessageBegin(fname, thrift.Thrift.MessageType.EXCEPTION, requestId);
                     err.write(output);
                     output.writeMessageEnd();
                     output.flush();
+                    return;
                 }
             }
         }
-        public process_ping(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
-            const args = new PingArgs();
-            args.read(input);
-            input.readMessageEnd();
+        public process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
             new Promise<string>((resolve, reject): void => {
                 try {
+                    const args: PingArgs = PingArgs.read(input);
+                    input.readMessageEnd();
                     resolve(this._handler.ping(args.status, context));
                 }
                 catch (err) {
@@ -216,13 +215,14 @@ export namespace ParentService {
                 }
             }).then((data: string): void => {
                 const result: PingResult = new PingResult({ success: data });
-                output.writeMessageBegin("ping", thrift.Thrift.MessageType.REPLY, seqid);
+                output.writeMessageBegin("ping", thrift.Thrift.MessageType.REPLY, requestId);
                 result.write(output);
                 output.writeMessageEnd();
                 output.flush();
+                return;
             }).catch((err: Error): void => {
                 const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-                output.writeMessageBegin("ping", thrift.Thrift.MessageType.EXCEPTION, seqid);
+                output.writeMessageBegin("ping", thrift.Thrift.MessageType.EXCEPTION, requestId);
                 result.write(output);
                 output.writeMessageEnd();
                 output.flush();
@@ -235,13 +235,14 @@ export namespace ChildService {
     export interface IPegArgsArgs {
         name: string;
     }
-    export class PegArgs implements thrift.TStructLike {
+    export class PegArgs {
         public name: string;
-        constructor(args?: IPegArgsArgs) {
-            if (args != null) {
-                if (args.name != null) {
-                    this.name = args.name;
-                }
+        constructor(args: IPegArgsArgs) {
+            if (args != null && args.name != null) {
+                this.name = args.name;
+            }
+            else {
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field name is unset!");
             }
         }
         public write(output: thrift.TProtocol): void {
@@ -255,49 +256,49 @@ export namespace ChildService {
             output.writeStructEnd();
             return;
         }
-        public read(input: thrift.TProtocol): void {
+        public static read(input: thrift.TProtocol): PegArgs {
             input.readStructBegin();
+            let _args: any = {};
             while (true) {
-                const ret: {
-                    fname: string;
-                    ftype: thrift.Thrift.Type;
-                    fid: number;
-                } = input.readFieldBegin();
-                const ftype: thrift.Thrift.Type = ret.ftype;
-                const fid: number = ret.fid;
-                if (ftype === thrift.Thrift.Type.STOP) {
+                const ret: thrift.TField = input.readFieldBegin();
+                const fieldType: thrift.Thrift.Type = ret.ftype;
+                const fieldId: number = ret.fid;
+                if (fieldType === thrift.Thrift.Type.STOP) {
                     break;
                 }
-                switch (fid) {
+                switch (fieldId) {
                     case 1:
-                        if (ftype === thrift.Thrift.Type.STRING) {
+                        if (fieldType === thrift.Thrift.Type.STRING) {
                             const value_3: string = input.readString();
-                            this.name = value_3;
+                            _args.name = value_3;
                         }
                         else {
-                            input.skip(ftype);
+                            input.skip(fieldType);
                         }
                         break;
                     default: {
-                        input.skip(ftype);
+                        input.skip(fieldType);
                     }
                 }
                 input.readFieldEnd();
             }
             input.readStructEnd();
-            return;
+            if (_args.name !== undefined) {
+                return new PegArgs(_args);
+            }
+            else {
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Unable to read PegArgs from input");
+            }
         }
     }
     export interface IPegResultArgs {
         success?: string;
     }
-    export class PegResult implements thrift.TStructLike {
-        public success: string;
+    export class PegResult {
+        public success?: string;
         constructor(args?: IPegResultArgs) {
-            if (args != null) {
-                if (args.success != null) {
-                    this.success = args.success;
-                }
+            if (args != null && args.success != null) {
+                this.success = args.success;
             }
         }
         public write(output: thrift.TProtocol): void {
@@ -311,37 +312,34 @@ export namespace ChildService {
             output.writeStructEnd();
             return;
         }
-        public read(input: thrift.TProtocol): void {
+        public static read(input: thrift.TProtocol): PegResult {
             input.readStructBegin();
+            let _args: any = {};
             while (true) {
-                const ret: {
-                    fname: string;
-                    ftype: thrift.Thrift.Type;
-                    fid: number;
-                } = input.readFieldBegin();
-                const ftype: thrift.Thrift.Type = ret.ftype;
-                const fid: number = ret.fid;
-                if (ftype === thrift.Thrift.Type.STOP) {
+                const ret: thrift.TField = input.readFieldBegin();
+                const fieldType: thrift.Thrift.Type = ret.ftype;
+                const fieldId: number = ret.fid;
+                if (fieldType === thrift.Thrift.Type.STOP) {
                     break;
                 }
-                switch (fid) {
+                switch (fieldId) {
                     case 0:
-                        if (ftype === thrift.Thrift.Type.STRING) {
+                        if (fieldType === thrift.Thrift.Type.STRING) {
                             const value_4: string = input.readString();
-                            this.success = value_4;
+                            _args.success = value_4;
                         }
                         else {
-                            input.skip(ftype);
+                            input.skip(fieldType);
                         }
                         break;
                     default: {
-                        input.skip(ftype);
+                        input.skip(fieldType);
                     }
                 }
                 input.readFieldEnd();
             }
             input.readStructEnd();
-            return;
+            return new PegResult(_args);
         }
     }
     export class Client extends ParentService.Client {
@@ -382,19 +380,19 @@ export namespace ChildService {
             const args: PegArgs = new PegArgs({ name });
             args.write(output);
             output.writeMessageEnd();
-            return this.output.flush();
+            this.output.flush();
+            return;
         }
-        public recv_peg(input: thrift.TProtocol, mtype: thrift.Thrift.MessageType, rseqid: number): void {
+        public recv_peg(input: thrift.TProtocol, mtype: thrift.Thrift.MessageType, requestId: number): void {
             const noop = (): any => null;
-            const callback = this._reqs[rseqid] || noop;
+            const callback = this._reqs[requestId] || noop;
             if (mtype === thrift.Thrift.MessageType.EXCEPTION) {
                 const x: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException();
                 x.read(input);
                 input.readMessageEnd();
                 return callback(x);
             }
-            const result: PegResult = new PegResult();
-            result.read(input);
+            const result: PegResult = PegResult.read(input);
             input.readMessageEnd();
             if (result.success != null) {
                 return callback(undefined, result.success);
@@ -423,33 +421,35 @@ export namespace ChildService {
                 rseqid: number;
             } = input.readMessageBegin();
             const fname: string = metadata.fname;
-            const rseqid: number = metadata.rseqid;
+            const requestId: number = metadata.rseqid;
             const methodName: string = "process_" + fname;
             switch (methodName) {
                 case "process_ping": {
-                    return this.process_ping(rseqid, input, output, context);
+                    this.process_ping(requestId, input, output, context);
+                    return;
                 }
                 case "process_peg": {
-                    return this.process_peg(rseqid, input, output, context);
+                    this.process_peg(requestId, input, output, context);
+                    return;
                 }
                 default: {
                     input.skip(thrift.Thrift.Type.STRUCT);
                     input.readMessageEnd();
                     const errMessage = "Unknown function " + fname;
                     const err = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN_METHOD, errMessage);
-                    output.writeMessageBegin(fname, thrift.Thrift.MessageType.EXCEPTION, rseqid);
+                    output.writeMessageBegin(fname, thrift.Thrift.MessageType.EXCEPTION, requestId);
                     err.write(output);
                     output.writeMessageEnd();
                     output.flush();
+                    return;
                 }
             }
         }
-        public process_peg(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
-            const args = new PegArgs();
-            args.read(input);
-            input.readMessageEnd();
+        public process_peg(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
             new Promise<string>((resolve, reject): void => {
                 try {
+                    const args: PegArgs = PegArgs.read(input);
+                    input.readMessageEnd();
                     resolve(this._handler.peg(args.name, context));
                 }
                 catch (err) {
@@ -457,13 +457,14 @@ export namespace ChildService {
                 }
             }).then((data: string): void => {
                 const result: PegResult = new PegResult({ success: data });
-                output.writeMessageBegin("peg", thrift.Thrift.MessageType.REPLY, seqid);
+                output.writeMessageBegin("peg", thrift.Thrift.MessageType.REPLY, requestId);
                 result.write(output);
                 output.writeMessageEnd();
                 output.flush();
+                return;
             }).catch((err: Error): void => {
                 const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-                output.writeMessageBegin("peg", thrift.Thrift.MessageType.EXCEPTION, seqid);
+                output.writeMessageBegin("peg", thrift.Thrift.MessageType.EXCEPTION, requestId);
                 result.write(output);
                 output.writeMessageEnd();
                 output.flush();
