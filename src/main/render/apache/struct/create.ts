@@ -195,17 +195,17 @@ export function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
     const isArgsNull: ts.BinaryExpression = createNotNullCheck('args')
     const isValue: ts.BinaryExpression = createNotNullCheck(`args.${field.name.value}`)
     const comparison: ts.BinaryExpression = ts.createBinary(
-      isArgsNull,
-      ts.SyntaxKind.AmpersandAmpersandToken,
-      isValue,
+        isArgsNull,
+        ts.SyntaxKind.AmpersandAmpersandToken,
+        isValue,
     )
     const thenAssign: ts.Statement = assignmentForField(field)
     const elseThrow: ts.Statement | undefined = throwForField(field)
 
     return ts.createIf(
-      comparison,
-      ts.createBlock([thenAssign], true),
-      (elseThrow === undefined) ? undefined : ts.createBlock([elseThrow], true),
+        comparison,
+        ts.createBlock([thenAssign], true),
+        (elseThrow === undefined) ? undefined : ts.createBlock([elseThrow], true),
     )
   }
 

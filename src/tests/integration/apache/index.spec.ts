@@ -18,6 +18,10 @@ import {
     LastName,
 } from './codegen/calculator/calculator'
 
+import {
+    SharedStruct,
+} from './codegen/shared/shared'
+
 import './server'
 
 import {
@@ -92,6 +96,12 @@ describe('Thrift TypeScript', () => {
 
         return thriftClient.add(left, right).then((val: Int64) => {
             assert.equal(val.toNumber(), 8)
+        })
+    })
+
+    it('should correctly call endpoint that returns struct', async () => {
+        return thriftClient.getStruct(5).then((val: SharedStruct) => {
+            assert.deepEqual(val, new SharedStruct({ key: 5, value: 'test' }))
         })
     })
 })

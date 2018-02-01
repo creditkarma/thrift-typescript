@@ -49,8 +49,8 @@ const myServiceHandler: Calculator.IHandler = {
         }
     },
     zip(): void {},
-    getStruct(): SharedStruct {
-        return new SharedStruct()
+    getStruct(key: number): SharedStruct {
+        return new SharedStruct({ key, value: 'test' })
     },
     checkName(choice: Choice): string {
         if (choice.firstName !== undefined) {
