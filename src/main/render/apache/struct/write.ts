@@ -21,7 +21,7 @@ import {
   createMethodCallStatement,
   propertyAccessForIdentifier,
   createFunctionParameter,
-  createNotNull,
+  createNotNullCheck,
   createPublicMethod
 } from '../utils'
 
@@ -102,7 +102,7 @@ export function createWriteMethod(struct: InterfaceWithFields, identifiers: IIde
  */
 export function createWriteForField(struct: InterfaceWithFields, field: FieldDefinition, identifiers: IIdentifierMap): ts.IfStatement {
   return ts.createIf(
-    createNotNull(`this.${field.name.value}`), // Condition
+    createNotNullCheck(`this.${field.name.value}`), // Condition
     createWriteForFieldType(
       struct,
       field,

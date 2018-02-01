@@ -59,7 +59,8 @@ import {
 export function make(source: string, target: CompileTarget = 'apache'): string {
   const parsedFile: IParsedFile = parseSource(source)
   const resolvedAST: IResolvedFile = resolveFile(parsedFile)
-  return print(processStatements(resolvedAST.body, resolvedAST.identifiers, rendererForTarget(target)))
+  const validAST: IResolvedFile = validateFile(resolvedAST)
+  return print(processStatements(validAST.body, validAST.identifiers, rendererForTarget(target)))
 }
 
 /**

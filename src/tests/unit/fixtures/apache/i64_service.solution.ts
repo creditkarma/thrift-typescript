@@ -3,27 +3,31 @@ export namespace MyService {
         num1: number | thrift.Int64;
         num2: number | thrift.Int64;
     }
-    export class AddArgs implements thrift.TStructLike {
+    export class AddArgs {
         public num1: thrift.Int64;
         public num2: thrift.Int64;
-        constructor(args?: IAddArgsArgs) {
-            if (args != null) {
-                if (args.num1 != null) {
-                    if (typeof args.num1 === "number") {
-                        this.num1 = new thrift.Int64(args.num1);
-                    }
-                    else {
-                        this.num1 = args.num1;
-                    }
+        constructor(args: IAddArgsArgs) {
+            if (args != null && args.num1 != null) {
+                if (typeof args.num1 === "number") {
+                    this.num1 = new thrift.Int64(args.num1);
                 }
-                if (args.num2 != null) {
-                    if (typeof args.num2 === "number") {
-                        this.num2 = new thrift.Int64(args.num2);
-                    }
-                    else {
-                        this.num2 = args.num2;
-                    }
+                else {
+                    this.num1 = args.num1;
                 }
+            }
+            else {
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field num1 is unset!");
+            }
+            if (args != null && args.num2 != null) {
+                if (typeof args.num2 === "number") {
+                    this.num2 = new thrift.Int64(args.num2);
+                }
+                else {
+                    this.num2 = args.num2;
+                }
+            }
+            else {
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field num2 is unset!");
             }
         }
         public write(output: thrift.TProtocol): void {
@@ -42,62 +46,62 @@ export namespace MyService {
             output.writeStructEnd();
             return;
         }
-        public read(input: thrift.TProtocol): void {
+        public static read(input: thrift.TProtocol): AddArgs {
             input.readStructBegin();
+            let _args: any = {};
             while (true) {
-                const ret: {
-                    fname: string;
-                    ftype: thrift.Thrift.Type;
-                    fid: number;
-                } = input.readFieldBegin();
-                const ftype: thrift.Thrift.Type = ret.ftype;
-                const fid: number = ret.fid;
-                if (ftype === thrift.Thrift.Type.STOP) {
+                const ret: thrift.TField = input.readFieldBegin();
+                const fieldType: thrift.Thrift.Type = ret.ftype;
+                const fieldId: number = ret.fid;
+                if (fieldType === thrift.Thrift.Type.STOP) {
                     break;
                 }
-                switch (fid) {
+                switch (fieldId) {
                     case 1:
-                        if (ftype === thrift.Thrift.Type.I64) {
+                        if (fieldType === thrift.Thrift.Type.I64) {
                             const value_1: thrift.Int64 = input.readI64();
-                            this.num1 = value_1;
+                            _args.num1 = value_1;
                         }
                         else {
-                            input.skip(ftype);
+                            input.skip(fieldType);
                         }
                         break;
                     case 2:
-                        if (ftype === thrift.Thrift.Type.I64) {
+                        if (fieldType === thrift.Thrift.Type.I64) {
                             const value_2: thrift.Int64 = input.readI64();
-                            this.num2 = value_2;
+                            _args.num2 = value_2;
                         }
                         else {
-                            input.skip(ftype);
+                            input.skip(fieldType);
                         }
                         break;
                     default: {
-                        input.skip(ftype);
+                        input.skip(fieldType);
                     }
                 }
                 input.readFieldEnd();
             }
             input.readStructEnd();
-            return;
+            if (_args.num1 !== undefined && _args.num2 !== undefined) {
+                return new AddArgs(_args);
+            }
+            else {
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Unable to read AddArgs from input");
+            }
         }
     }
     export interface IAddResultArgs {
         success?: number | thrift.Int64;
     }
-    export class AddResult implements thrift.TStructLike {
-        public success: thrift.Int64;
+    export class AddResult {
+        public success?: thrift.Int64;
         constructor(args?: IAddResultArgs) {
-            if (args != null) {
-                if (args.success != null) {
-                    if (typeof args.success === "number") {
-                        this.success = new thrift.Int64(args.success);
-                    }
-                    else {
-                        this.success = args.success;
-                    }
+            if (args != null && args.success != null) {
+                if (typeof args.success === "number") {
+                    this.success = new thrift.Int64(args.success);
+                }
+                else {
+                    this.success = args.success;
                 }
             }
         }
@@ -112,37 +116,34 @@ export namespace MyService {
             output.writeStructEnd();
             return;
         }
-        public read(input: thrift.TProtocol): void {
+        public static read(input: thrift.TProtocol): AddResult {
             input.readStructBegin();
+            let _args: any = {};
             while (true) {
-                const ret: {
-                    fname: string;
-                    ftype: thrift.Thrift.Type;
-                    fid: number;
-                } = input.readFieldBegin();
-                const ftype: thrift.Thrift.Type = ret.ftype;
-                const fid: number = ret.fid;
-                if (ftype === thrift.Thrift.Type.STOP) {
+                const ret: thrift.TField = input.readFieldBegin();
+                const fieldType: thrift.Thrift.Type = ret.ftype;
+                const fieldId: number = ret.fid;
+                if (fieldType === thrift.Thrift.Type.STOP) {
                     break;
                 }
-                switch (fid) {
+                switch (fieldId) {
                     case 0:
-                        if (ftype === thrift.Thrift.Type.I64) {
+                        if (fieldType === thrift.Thrift.Type.I64) {
                             const value_3: thrift.Int64 = input.readI64();
-                            this.success = value_3;
+                            _args.success = value_3;
                         }
                         else {
-                            input.skip(ftype);
+                            input.skip(fieldType);
                         }
                         break;
                     default: {
-                        input.skip(ftype);
+                        input.skip(fieldType);
                     }
                 }
                 input.readFieldEnd();
             }
             input.readStructEnd();
-            return;
+            return new AddResult(_args);
         }
     }
     export class Client {
@@ -182,19 +183,19 @@ export namespace MyService {
             const args: AddArgs = new AddArgs({ num1, num2 });
             args.write(output);
             output.writeMessageEnd();
-            return this.output.flush();
+            this.output.flush();
+            return;
         }
-        public recv_add(input: thrift.TProtocol, mtype: thrift.Thrift.MessageType, rseqid: number): void {
+        public recv_add(input: thrift.TProtocol, mtype: thrift.Thrift.MessageType, requestId: number): void {
             const noop = (): any => null;
-            const callback = this._reqs[rseqid] || noop;
+            const callback = this._reqs[requestId] || noop;
             if (mtype === thrift.Thrift.MessageType.EXCEPTION) {
                 const x: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException();
                 x.read(input);
                 input.readMessageEnd();
                 return callback(x);
             }
-            const result: AddResult = new AddResult();
-            result.read(input);
+            const result: AddResult = AddResult.read(input);
             input.readMessageEnd();
             if (result.success != null) {
                 return callback(undefined, result.success);
@@ -219,30 +220,31 @@ export namespace MyService {
                 rseqid: number;
             } = input.readMessageBegin();
             const fname: string = metadata.fname;
-            const rseqid: number = metadata.rseqid;
+            const requestId: number = metadata.rseqid;
             const methodName: string = "process_" + fname;
             switch (methodName) {
                 case "process_add": {
-                    return this.process_add(rseqid, input, output, context);
+                    this.process_add(requestId, input, output, context);
+                    return;
                 }
                 default: {
                     input.skip(thrift.Thrift.Type.STRUCT);
                     input.readMessageEnd();
                     const errMessage = "Unknown function " + fname;
                     const err = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN_METHOD, errMessage);
-                    output.writeMessageBegin(fname, thrift.Thrift.MessageType.EXCEPTION, rseqid);
+                    output.writeMessageBegin(fname, thrift.Thrift.MessageType.EXCEPTION, requestId);
                     err.write(output);
                     output.writeMessageEnd();
                     output.flush();
+                    return;
                 }
             }
         }
-        public process_add(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
-            const args = new AddArgs();
-            args.read(input);
-            input.readMessageEnd();
+        public process_add(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
             new Promise<thrift.Int64>((resolve, reject): void => {
                 try {
+                    const args: AddArgs = AddArgs.read(input);
+                    input.readMessageEnd();
                     resolve(this._handler.add(args.num1, args.num2, context));
                 }
                 catch (err) {
@@ -250,13 +252,14 @@ export namespace MyService {
                 }
             }).then((data: thrift.Int64): void => {
                 const result: AddResult = new AddResult({ success: data });
-                output.writeMessageBegin("add", thrift.Thrift.MessageType.REPLY, seqid);
+                output.writeMessageBegin("add", thrift.Thrift.MessageType.REPLY, requestId);
                 result.write(output);
                 output.writeMessageEnd();
                 output.flush();
+                return;
             }).catch((err: Error): void => {
                 const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-                output.writeMessageBegin("add", thrift.Thrift.MessageType.EXCEPTION, seqid);
+                output.writeMessageBegin("add", thrift.Thrift.MessageType.EXCEPTION, requestId);
                 result.write(output);
                 output.writeMessageEnd();
                 output.flush();

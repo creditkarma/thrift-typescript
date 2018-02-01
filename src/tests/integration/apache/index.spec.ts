@@ -1,90 +1,97 @@
 import { assert } from 'chai'
 
 import {
-  HttpConnection,
-  createHttpClient,
-  createHttpConnection,
-  TBufferedTransport,
-  TBinaryProtocol,
-  Int64,
+    HttpConnection,
+    createHttpClient,
+    createHttpConnection,
+    TBufferedTransport,
+    TBinaryProtocol,
+    Int64,
 } from 'thrift'
 
 import {
-  Calculator,
-  Operation,
-  Work,
+    Calculator,
+    Operation,
+    Work,
+    Choice,
+    FirstName,
+    LastName,
 } from './codegen/calculator/calculator'
 
 import './server'
 
 import {
-  SERVER_CONFIG
+    SERVER_CONFIG
 } from './config'
 
 describe('Thrift TypeScript', () => {
-  const options = {
-    transport: TBufferedTransport,
-    protocol: TBinaryProtocol,
-    https: false,
-    headers: {
-      Host: SERVER_CONFIG.hostName,
+    const options = {
+        transport: TBufferedTransport,
+        protocol: TBinaryProtocol,
+        https: false,
+        headers: {
+            Host: SERVER_CONFIG.hostName,
+        }
     }
-  }
-  const connection: HttpConnection = createHttpConnection(SERVER_CONFIG.hostName, SERVER_CONFIG.port, options)
-  const thriftClient: Calculator.Client = createHttpClient(Calculator.Client, connection)
+    const connection: HttpConnection = createHttpConnection(SERVER_CONFIG.hostName, SERVER_CONFIG.port, options)
+    const thriftClient: Calculator.Client = createHttpClient(Calculator.Client, connection)
 
-  connection.on('error', (err: Error) => {
-    process.exit(1)
-  })
-
-  // Allow servers to spin up
-  before((done) => {
-    setTimeout(done, 5000)
-  })
-
-  it('should call an endpoint with no arguments', (done) => {
-    thriftClient.ping().then((val: any) => {
-      assert.equal(val, undefined)
-      done()
-    }, (err: any) => {
-      done(err)
-    })
-  })
-
-  it('should correctly call endpoint with arguments', (done) => {
-    const add: Work = new Work({
-      num1: 4,
-      num2: 8,
-      op: Operation.ADD
+    connection.on('error', (err: Error) => {
+        process.exit(1)
     })
 
-    const subtract: Work = new Work({
-      num1: 67,
-      num2: 13,
-      op: Operation.SUBTRACT
+    // Allow servers to spin up
+    before((done) => {
+        setTimeout(done, 5000)
     })
 
-    Promise.all([
-      thriftClient.calculate(1, add),
-      thriftClient.calculate(1, subtract)
-    ]).then((val: Array<number>) => {
-      assert.equal(val[0], 12)
-      assert.equal(val[1], 54)
-      done()
-    }, (err: any) => {
-      done(err)
+    it('should call an endpoint with no arguments', async () => {
+        return thriftClient.ping().then((val: any) => {
+            assert.equal(val, undefined)
+        })
     })
-  })
 
-  it('should correctly call endpoint with i64 args', (done) => {
-    const left: Int64 = new Int64(5)
-    const right: Int64 = new Int64(3)
+    it('should correctly call endpoint with arguments', async () => {
+        const add: Work = new Work({
+            num1: 4,
+            num2: 8,
+            op: Operation.ADD
+        })
 
-    thriftClient.add(left, right).then((val: Int64) => {
-      assert.equal(val.toNumber(), 8)
-      done()
-    }, (err: any) => {
-      done(err)
+        const subtract: Work = new Work({
+            num1: 67,
+            num2: 13,
+            op: Operation.SUBTRACT
+        })
+
+        return Promise.all([
+            thriftClient.calculate(1, add),
+            thriftClient.calculate(1, subtract)
+        ]).then((val: Array<number>) => {
+            assert.equal(val[0], 12)
+            assert.equal(val[1], 54)
+        })
     })
-  })
+
+    it('should call an endpoint with union arguments', async () => {
+        const firstName: Choice = new Choice({ firstName: new FirstName({ name: 'Louis' })})
+        const lastName: Choice = new Choice({ lastName: new LastName({ name: 'Smith' })})
+
+        return Promise.all([
+            thriftClient.checkName(firstName),
+            thriftClient.checkName(lastName),
+        ]).then((val: Array<string>) => {
+            assert.equal(val[0], 'FirstName: Louis')
+            assert.equal(val[1], 'LastName: Smith')
+        })
+    })
+
+    it('should correctly call endpoint with i64 args', async () => {
+        const left: Int64 = new Int64(5)
+        const right: Int64 = new Int64(3)
+
+        return thriftClient.add(left, right).then((val: Int64) => {
+            assert.equal(val.toNumber(), 8)
+        })
+    })
 })

@@ -3,8 +3,8 @@ export interface IMyUnionArgs {
     field2?: number | thrift.Int64;
 }
 export class MyUnion implements thrift.StructLike {
-    public field1: string;
-    public field2: thrift.Int64;
+    public field1?: string;
+    public field2?: thrift.Int64;
     constructor(args?: IMyUnionArgs) {
         let _fieldsSet: number = 0;
         if (args != null) {

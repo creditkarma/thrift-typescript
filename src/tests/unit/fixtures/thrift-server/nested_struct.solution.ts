@@ -4,18 +4,16 @@ export interface IUserArgs {
 }
 export class User implements thrift.StructLike {
     public name: string;
-    public age: number;
+    public age?: number;
     constructor(args: IUserArgs) {
-        if (args != null) {
-            if (args.name != null) {
-                this.name = args.name;
-            }
-            else {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field name is unset!");
-            }
-            if (args.age != null) {
-                this.age = args.age;
-            }
+        if (args != null && args.name != null) {
+            this.name = args.name;
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field name is unset!");
+        }
+        if (args != null && args.age != null) {
+            this.age = args.age;
         }
     }
     public write(output: thrift.TProtocol): void {
@@ -86,19 +84,17 @@ export class MyStruct implements thrift.StructLike {
     public name: string;
     public user: User;
     constructor(args: IMyStructArgs) {
-        if (args != null) {
-            if (args.name != null) {
-                this.name = args.name;
-            }
-            else {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field name is unset!");
-            }
-            if (args.user != null) {
-                this.user = args.user;
-            }
-            else {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field user is unset!");
-            }
+        if (args != null && args.name != null) {
+            this.name = args.name;
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field name is unset!");
+        }
+        if (args != null && args.user != null) {
+            this.user = args.user;
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field user is unset!");
         }
     }
     public write(output: thrift.TProtocol): void {

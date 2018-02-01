@@ -3,8 +3,8 @@ export interface IOptionArgs {
     option2?: string;
 }
 export class Option implements thrift.StructLike {
-    public option1: string;
-    public option2: string;
+    public option1?: string;
+    public option2?: string;
     constructor(args?: IOptionArgs) {
         let _fieldsSet: number = 0;
         if (args != null) {
@@ -104,8 +104,8 @@ export interface IMyUnionArgs {
     option?: Option;
 }
 export class MyUnion implements thrift.StructLike {
-    public name: string;
-    public option: Option;
+    public name?: string;
+    public option?: Option;
     constructor(args?: IMyUnionArgs) {
         let _fieldsSet: number = 0;
         if (args != null) {

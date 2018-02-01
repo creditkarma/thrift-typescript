@@ -3,6 +3,7 @@ import * as ts from 'typescript'
 import {
   FieldDefinition,
   UnionDefinition,
+  SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -15,32 +16,29 @@ import {
   createEquals,
   createFunctionParameter,
   createLetStatement,
-  createNotNull,
-  createPublicMethod,
+  createNotNullCheck,
   propertyAccessForIdentifier,
   throwProtocolException,
 } from './utils'
 
 import {
   createNumberType,
-  createVoidType,
   thriftTypeForFieldType,
   typeNodeForFieldType,
 } from './types'
 
 import {
   assignmentForField,
+  createInputParameter,
   createArgsParameterForStruct,
   createFieldsForStruct,
   createSkipBlock,
   createWriteMethod,
-  fieldMetadataType,
   readFieldBegin,
   readFieldEnd,
   readStructBegin,
   readStructEnd,
   readValueForFieldType,
-  endReadForField,
   throwForField,
 } from './struct'
 
@@ -49,7 +47,8 @@ import {
   THRIFT_TYPES,
 } from './identifiers'
 
-const INCREMENTER: string = 'fieldsSet'
+const INCREMENTER: string = '_fieldsSet'
+const RETURN_NAME: string = '_returnValue'
 
 /**
  * There is a lot of duplication here of code with renderStruct. Need to revisit and clean this up.
@@ -82,12 +81,12 @@ export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap):
    *   ...fieldAssignments
    * }
    */
-  const isArgsNull: ts.BinaryExpression = createNotNull('args')
+  const isArgsNull: ts.BinaryExpression = createNotNullCheck('args')
   const argsCheckWithAssignments: ts.IfStatement = ts.createIf(
     isArgsNull, // condition
     ts.createBlock([
       ...fieldAssignments,
-      createFieldValidation(),
+      createFieldValidation(node),
     ], true), // then
     undefined, // else
   )
@@ -111,23 +110,13 @@ export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap):
   // Build the `write` method
   const writeMethod: ts.MethodDeclaration = createWriteMethod(node, identifiers)
 
-  const heritage: ts.HeritageClause = ts.createHeritageClause(
-    ts.SyntaxKind.ImplementsKeyword,
-    [
-      ts.createExpressionWithTypeArguments(
-        [],
-        COMMON_IDENTIFIERS.TStructLike,
-      )
-    ]
-  )
-
   // export class <node.name> { ... }
   return ts.createClassDeclaration(
     undefined, // decorators
     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ], // modifiers
     node.name.value, // name
     [], // type parameters
-    [ heritage ], // heritage
+    [], // heritage
     [
       ...fields,
       ctor,
@@ -199,7 +188,7 @@ function createUnionFactories(node: UnionDefinition, identifiers: IIdentifierMap
  * }
  */
 function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
-  const comparison: ts.BinaryExpression = createNotNull(`args.${field.name.value}`)
+  const comparison: ts.BinaryExpression = createNotNullCheck(`args.${field.name.value}`)
   const thenAssign: ts.Statement = assignmentForField(field)
   const incrementer: ts.ExpressionStatement = incrementFieldsSet()
   const elseThrow: ts.ThrowStatement | undefined = throwForField(field)
@@ -211,59 +200,70 @@ function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
   )
 }
 
-function createReadMethod(struct: UnionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
-  const inputParameter: ts.ParameterDeclaration = createFunctionParameter(
-    'input', // param name
-    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TProtocol, undefined), // param type
+function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
+  const inputParameter: ts.ParameterDeclaration = createInputParameter()
+  const returnVariable: ts.VariableStatement = createLetStatement(
+    ts.createIdentifier(RETURN_NAME),
+    ts.createUnionTypeNode([
+      ts.createTypeReferenceNode(
+        ts.createIdentifier(node.name.value),
+        undefined,
+      ),
+      ts.createNull(),
+    ]),
+    ts.createNull()
   )
 
   // let fieldsSet: number = 0;
   const fieldsSet: ts.VariableStatement = createFieldIncrementer()
 
-  // cosnt ret: { fname: string; ftype: Thrift.Type; fid: number; } = input.readFieldBegin()
+  // cosnt ret: { fieldName: string; fieldType: Thrift.Type; fieldId: number; } = input.readFieldBegin()
   const ret: ts.VariableStatement = createConstStatement(
     'ret',
-    fieldMetadataType(),
+    ts.createTypeReferenceNode(
+      COMMON_IDENTIFIERS.TField,
+      undefined,
+    ),
     readFieldBegin()
   )
 
-  // const ftype: Thrift.Type = ret.ftype
-  const ftype: ts.VariableStatement = createConstStatement(
-    'ftype',
+  // const fieldType: Thrift.Type = ret.fieldType
+  const fieldType: ts.VariableStatement = createConstStatement(
+    'fieldType',
     ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Thrift_Type, undefined),
     propertyAccessForIdentifier('ret', 'ftype')
   )
 
-  //const fid: number = ret.fid
-  const fid: ts.VariableStatement = createConstStatement(
-    'fid',
+  //const fieldId: number = ret.fieldId
+  const fieldId: ts.VariableStatement = createConstStatement(
+    'fieldId',
     createNumberType(),
     propertyAccessForIdentifier('ret', 'fid')
   )
 
   /**
-   * if (ftype === Thrift.Type.STOP) {
+   * if (fieldType === Thrift.Type.STOP) {
    *     break;
    * }
    */
   const checkStop: ts.IfStatement = ts.createIf(
-    createEquals(COMMON_IDENTIFIERS.ftype, THRIFT_TYPES.STOP),
+    createEquals(COMMON_IDENTIFIERS.fieldType, THRIFT_TYPES.STOP),
     ts.createBlock([
       ts.createBreak(),
     ], true),
   )
 
-  const caseStatements: Array<ts.CaseClause> = struct.fields.map((field: FieldDefinition) => {
-    return createCaseForField(field, identifiers)
+  const caseStatements: Array<ts.CaseClause> = node.fields.map((field: FieldDefinition) => {
+    return createCaseForField(node, field, identifiers)
   })
 
   /**
-   * switch (fid) {
+   * switch (fieldId) {
    *   ...caseStatements
    * }
    */
   const switchStatement: ts.SwitchStatement = ts.createSwitch(
-    COMMON_IDENTIFIERS.fid, // what to switch on
+    COMMON_IDENTIFIERS.fieldId, // what to switch on
     ts.createCaseBlock([
       ...caseStatements,
       ts.createDefaultClause([
@@ -274,25 +274,55 @@ function createReadMethod(struct: UnionDefinition, identifiers: IIdentifierMap):
 
   const whileBlock: ts.Block = ts.createBlock([
     ret,
-    ftype,
-    fid,
+    fieldType,
+    fieldId,
     checkStop,
     switchStatement,
-    ts.createStatement(readFieldEnd()),
+    readFieldEnd(),
   ], true)
   const whileLoop: ts.WhileStatement = ts.createWhile(ts.createLiteral(true), whileBlock)
 
-  return createPublicMethod(
-    'read', // Method name
-    [ inputParameter ], // Method parameters
-    createVoidType(), // Method return type
+  return ts.createMethod(
+    undefined,
     [
+      ts.createToken(ts.SyntaxKind.PublicKeyword),
+      ts.createToken(ts.SyntaxKind.StaticKeyword),
+    ],
+    undefined,
+    ts.createIdentifier('read'),
+    undefined,
+    undefined,
+    [ inputParameter ],
+    ts.createTypeReferenceNode(
+      ts.createIdentifier(node.name.value),
+      undefined,
+    ), // return type
+    ts.createBlock([
       fieldsSet,
+      returnVariable,
       readStructBegin(),
       whileLoop,
       readStructEnd(),
-      createFieldValidation(),
-    ], // Method body statements
+      createFieldValidation(node, true),
+      ts.createIf(
+        ts.createBinary(
+          ts.createIdentifier(RETURN_NAME),
+          ts.SyntaxKind.ExclamationEqualsEqualsToken,
+          ts.createNull()
+        ),
+        ts.createBlock([
+          ts.createReturn(
+            ts.createIdentifier(RETURN_NAME)
+          ),
+        ], true),
+        ts.createBlock([
+          throwProtocolException(
+            'UNKNOWN',
+            'Unable to read data for TUnion',
+          ),
+        ], true)
+      )
+    ], true),
   )
 }
 
@@ -300,22 +330,22 @@ function createReadMethod(struct: UnionDefinition, identifiers: IIdentifierMap):
  * EXAMPLE
  *
  * case 1: {
- *   if (ftype === Thrift.Type.I32) {
+ *   if (fieldType === Thrift.Type.I32) {
  *     this.id = input.readI32();
  *   }
  *   else {
- *     input.skip(ftype);
+ *     input.skip(fieldType);
  *   }
  *   break;
  * }
  *
  * @param field
  */
-export function createCaseForField(field: FieldDefinition, identifiers: IIdentifierMap): ts.CaseClause {
+export function createCaseForField(node: UnionDefinition, field: FieldDefinition, identifiers: IIdentifierMap): ts.CaseClause {
   const fieldAlias: ts.Identifier = ts.createUniqueName('value')
   const checkType: ts.IfStatement = ts.createIf(
     createEquals(
-      COMMON_IDENTIFIERS.ftype,
+      COMMON_IDENTIFIERS.fieldType,
       thriftTypeForFieldType(field.fieldType, identifiers)
     ),
     ts.createBlock([
@@ -325,7 +355,7 @@ export function createCaseForField(field: FieldDefinition, identifiers: IIdentif
         fieldAlias,
         identifiers
       ),
-      ...endReadForField(fieldAlias, field)
+      ...endReadForField(node, fieldAlias, field)
     ], true),
     createSkipBlock()
   )
@@ -343,6 +373,28 @@ export function createCaseForField(field: FieldDefinition, identifiers: IIdentif
   }
 }
 
+function endReadForField(node: UnionDefinition, fieldName: ts.Identifier, field: FieldDefinition): Array<ts.Statement> {
+  switch (field.fieldType.type) {
+    case SyntaxType.VoidKeyword:
+      return []
+
+    default:
+      return [
+        ts.createStatement(ts.createAssignment(
+          ts.createIdentifier(RETURN_NAME),
+          ts.createCall(
+            ts.createPropertyAccess(
+              ts.createIdentifier(node.name.value),
+              createFactoryNameForField(field)
+            ),
+            undefined,
+            [ fieldName ],
+          )
+        ))
+      ]
+  }
+}
+
 /**
  * if (fieldsSet > 1) {
  *   throw new Thrift.TProtocolException(TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
@@ -351,7 +403,7 @@ export function createCaseForField(field: FieldDefinition, identifiers: IIdentif
  *   throw new Thrift.TProtocolException(TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
  * }
  */
-export function createFieldValidation(): ts.IfStatement {
+export function createFieldValidation(node: UnionDefinition, withElse: boolean = false): ts.IfStatement {
   return ts.createIf(
     ts.createBinary(
       ts.createIdentifier(INCREMENTER),

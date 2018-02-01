@@ -505,8 +505,14 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
         name: func.name,
         oneway: func.oneway,
         returnType: validateFieldType(func.returnType),
-        fields: validateFields(func.fields),
-        throws: validateFields(func.throws),
+        fields: validateFields(func.fields.map((next: FieldDefinition) => {
+          next.requiredness = (next.requiredness === 'optional') ? 'optional' : 'required'
+          return next
+        })),
+        throws: validateFields(func.throws.map((next: FieldDefinition) => {
+          next.requiredness = (next.requiredness === 'optional') ? 'optional' : 'required'
+          return next
+        })),
         modifiers: func.modifiers,
         comments: func.comments,
         loc: func.loc

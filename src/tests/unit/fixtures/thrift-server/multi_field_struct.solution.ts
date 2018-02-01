@@ -9,39 +9,37 @@ export class MyStruct implements thrift.StructLike {
     public id: number = 45;
     public bigID: thrift.Int64 = new thrift.Int64(23948234);
     public word: string;
-    public field1: number;
-    public blob: Buffer = Buffer.from("binary");
+    public field1?: number;
+    public blob?: Buffer = Buffer.from("binary");
     constructor(args: IMyStructArgs) {
-        if (args != null) {
-            if (args.id != null) {
-                this.id = args.id;
+        if (args != null && args.id != null) {
+            this.id = args.id;
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field id is unset!");
+        }
+        if (args != null && args.bigID != null) {
+            if (typeof args.bigID === "number") {
+                this.bigID = new thrift.Int64(args.bigID);
             }
             else {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field id is unset!");
+                this.bigID = args.bigID;
             }
-            if (args.bigID != null) {
-                if (typeof args.bigID === "number") {
-                    this.bigID = new thrift.Int64(args.bigID);
-                }
-                else {
-                    this.bigID = args.bigID;
-                }
-            }
-            else {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field bigID is unset!");
-            }
-            if (args.word != null) {
-                this.word = args.word;
-            }
-            else {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field word is unset!");
-            }
-            if (args.field1 != null) {
-                this.field1 = args.field1;
-            }
-            if (args.blob != null) {
-                this.blob = args.blob;
-            }
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field bigID is unset!");
+        }
+        if (args != null && args.word != null) {
+            this.word = args.word;
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field word is unset!");
+        }
+        if (args != null && args.field1 != null) {
+            this.field1 = args.field1;
+        }
+        if (args != null && args.blob != null) {
+            this.blob = args.blob;
         }
     }
     public write(output: thrift.TProtocol): void {

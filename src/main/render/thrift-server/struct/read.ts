@@ -174,7 +174,7 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
 
 function createCheckForFields(fields: Array<FieldDefinition>): ts.BinaryExpression {
   return fields.filter((next: FieldDefinition) => {
-    return next.requiredness !== 'optional'
+    return next.requiredness === 'required'
   }).map((next: FieldDefinition): ts.BinaryExpression => {
     return ts.createBinary(
       ts.createIdentifier(`_args.${next.name.value}`),

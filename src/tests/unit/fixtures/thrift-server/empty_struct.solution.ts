@@ -2,8 +2,6 @@ export interface IMyStructArgs {
 }
 export class MyStruct implements thrift.StructLike {
     constructor(args?: IMyStructArgs) {
-        if (args != null) {
-        }
     }
     public write(output: thrift.TProtocol): void {
         output.writeStructBegin("MyStruct");

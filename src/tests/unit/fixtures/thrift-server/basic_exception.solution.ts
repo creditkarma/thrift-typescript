@@ -4,13 +4,11 @@ export interface IMyExceptionArgs {
 export class MyException implements thrift.StructLike {
     public message: string;
     constructor(args: IMyExceptionArgs) {
-        if (args != null) {
-            if (args.message != null) {
-                this.message = args.message;
-            }
-            else {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field message is unset!");
-            }
+        if (args != null && args.message != null) {
+            this.message = args.message;
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field message is unset!");
         }
     }
     public write(output: thrift.TProtocol): void {

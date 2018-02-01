@@ -11,7 +11,6 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-  createVoidType,
   TApplicationException,
   TProtocolException,
 } from './types'
@@ -44,7 +43,11 @@ export function createPublicProperty(name: string | ts.Identifier, type?: ts.Typ
   )
 }
 
-export function createPromise(type: ts.TypeNode, body: Array<ts.Statement>): ts.NewExpression {
+export function createPromise(
+  type: ts.TypeNode,
+  returnType: ts.TypeNode,
+  body: Array<ts.Statement>
+): ts.NewExpression {
   return ts.createNew(
     ts.createIdentifier('Promise'),
     [ type ],
@@ -55,7 +58,7 @@ export function createPromise(type: ts.TypeNode, body: Array<ts.Statement>): ts.
         createFunctionParameter('resolve', undefined),
         createFunctionParameter('reject', undefined),
       ],
-      createVoidType(),
+      returnType,
       undefined,
       ts.createBlock([
         ...body,
@@ -243,12 +246,12 @@ export function createEquals(left: ts.Expression, right: ts.Expression): ts.Bina
  *
  * EXAMPLE
  *
- * createNotNull(obj, prop) => 'obj && (obj.prop != null)'
+ * createNotNullCheck(obj, prop) => 'obj && (obj.prop != null)'
  *
  * @param obj
  * @param prop
  */
-export function createNotNull(obj: string | ts.Expression ): ts.BinaryExpression {
+export function createNotNullCheck(obj: string | ts.Expression ): ts.BinaryExpression {
   return ts.createBinary(
     ((typeof obj === 'string') ? ts.createIdentifier(obj) : obj),
     ts.SyntaxKind.ExclamationEqualsToken,
@@ -256,8 +259,16 @@ export function createNotNull(obj: string | ts.Expression ): ts.BinaryExpression
   )
 }
 
+export function createNullCheck(obj: string | ts.Expression ): ts.BinaryExpression {
+  return ts.createBinary(
+    ((typeof obj === 'string') ? ts.createIdentifier(obj) : obj),
+    ts.SyntaxKind.EqualsEqualsEqualsToken,
+    ts.createIdentifier('undefined'),
+  )
+}
+
 export function renderOptional(value: FieldRequired | null): ts.Token<ts.SyntaxKind.QuestionToken> | undefined {
-  if (value === 'optional') {
+  if (value !== 'required') {
     return ts.createToken(ts.SyntaxKind.QuestionToken)
   } else {
     return undefined

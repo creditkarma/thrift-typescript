@@ -23,7 +23,7 @@ import {
   createFunctionParameter,
   createAssignmentStatement,
   createPromise,
-  createNotNull,
+  createNotNullCheck,
   createConstStatement,
   createCallStatement,
   createMethodCallStatement,
@@ -213,7 +213,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
     ts.createBlock([
       // this._seqid = this.incrementSeqId()
       createConstStatement(
-        ts.createIdentifier('requestId'),
+        COMMON_IDENTIFIERS.requestId,
         createNumberType(),
         ts.createCall(ts.createIdentifier('this.incrementSeqId'), undefined, [])
       ),
@@ -221,12 +221,13 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
       ts.createReturn(
         createPromise(
           typeNodeForFieldType(def.returnType),
+          createVoidType(),
           [
             // this._reqs[this.seqid()] = (error, result) =>
             createAssignmentStatement(
               ts.createElementAccess(
                 ts.createIdentifier('this._reqs'),
-                ts.createIdentifier('requestId'),
+                COMMON_IDENTIFIERS.requestId,
               ),
               ts.createArrowFunction(
                 undefined,
@@ -242,12 +243,12 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                   ts.createStatement(ts.createDelete(
                     ts.createElementAccess(
                       ts.createIdentifier('this._reqs'),
-                      ts.createIdentifier('requestId')
+                      COMMON_IDENTIFIERS.requestId
                     )
                   )),
                   ts.createIf(
                     // if (error != null)
-                    createNotNull('error'),
+                    createNotNullCheck('error'),
                     // reject(error)
                     ts.createBlock([
                       createCallStatement(
@@ -274,7 +275,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                 ...def.fields.map((next: FieldDefinition) => {
                   return ts.createIdentifier(next.name.value)
                 }),
-                ts.createIdentifier('requestId')
+                COMMON_IDENTIFIERS.requestId
               ]
             )
           ]
@@ -308,7 +309,7 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
         )
       }),
       createFunctionParameter(
-        ts.createIdentifier('requestId'),
+        COMMON_IDENTIFIERS.requestId,
         createNumberType()
       )
     ], // parameters
@@ -334,7 +335,7 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
         [
           ts.createLiteral(def.name.value),
           MESSAGE_TYPE.CALL,
-          ts.createIdentifier('requestId')
+          COMMON_IDENTIFIERS.requestId
         ]
       ),
       // MortgageServiceGetMortgageOffersArgs
@@ -367,13 +368,12 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
         'writeMessageEnd'
       ),
       // return this.output.flush()
-      ts.createReturn(
-        createMethodCall(
-          ts.createIdentifier('this.output'),
-          'flush',
-          []
-        )
-      )
+      ts.createStatement(createMethodCall(
+        ts.createIdentifier('this.output'),
+        'flush',
+        []
+      )),
+      ts.createReturn()
     ], true) // body
   )
 }
@@ -427,7 +427,7 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
         )
       ),
       createFunctionParameter(
-        ts.createIdentifier('rseqid'),
+        COMMON_IDENTIFIERS.requestId,
         createNumberType()
       )
     ], // parameters
@@ -454,7 +454,7 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
         ts.createBinary(
           ts.createElementAccess(
             ts.createIdentifier('this._reqs'),
-            ts.createIdentifier('rseqid')
+            COMMON_IDENTIFIERS.requestId,
           ),
           ts.SyntaxKind.BarBarToken,
           ts.createIdentifier('noop')
@@ -467,17 +467,10 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
       //     input.readMessageEnd()
       //     return callback(x)
       // }
-      createExceptionHandler(),
+      ...createExceptionHandler(def),
 
       // const result = new {{ServiceName}}{{nameTitleCase}}Result()
-      createNewResultInstance(def),
-
-      // result.read(input)
-      createMethodCallStatement(
-        ts.createIdentifier('result'),
-        'read',
-        [ COMMON_IDENTIFIERS.input ]
-      ),
+      ...createNewResultInstance(def),
 
       // input.readMessageEnd()
       createMethodCallStatement(
@@ -490,7 +483,7 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
       // }
       ...def.throws.map((next: FieldDefinition): ts.IfStatement => {
         return ts.createIf(
-          createNotNull(`result.${next.name.value}`),
+          createNotNullCheck(`result.${next.name.value}`),
           ts.createBlock([
             ts.createReturn(
               ts.createCall(
@@ -508,56 +501,68 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
   )
 }
 
-function createNewResultInstance(def: FunctionDefinition): ts.Statement {
-  return createConstStatement(
-    ts.createIdentifier('result'),
-    ts.createTypeReferenceNode(
-      ts.createIdentifier(createStructResultName(def)),
-      undefined
-    ),
-    ts.createNew(
-      ts.createIdentifier(createStructResultName(def)),
-      undefined,
-      []
-    )
-  )
+function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
+    if (def.returnType.type === SyntaxType.VoidKeyword) {
+        return []
+    } else {
+        return [
+            createConstStatement(
+                ts.createIdentifier('result'),
+                ts.createTypeReferenceNode(
+                ts.createIdentifier(createStructResultName(def)),
+                undefined
+                ),
+                ts.createCall(
+                ts.createPropertyAccess(
+                    ts.createIdentifier(createStructResultName(def)),
+                    ts.createIdentifier('read')
+                ),
+                undefined,
+                [
+                    COMMON_IDENTIFIERS.input
+                ],
+                )
+            ),
+        ]
+    }
 }
 
-function createExceptionHandler(): ts.Statement {
-  return ts.createIf(
-    ts.createBinary(
-      ts.createIdentifier('mtype'),
-      ts.SyntaxKind.EqualsEqualsEqualsToken,
-      MESSAGE_TYPE.EXCEPTION
-    ),
-    ts.createBlock([
-      createConstStatement(
-        ts.createIdentifier('x'),
-        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TApplicationException, undefined),
-        ts.createNew(
-          COMMON_IDENTIFIERS.TApplicationException,
-          undefined,
-          []
-        )
-      ),
-      createMethodCallStatement(
-        ts.createIdentifier('x'),
-        'read',
-        [ COMMON_IDENTIFIERS.input ]
-      ),
-      createMethodCallStatement(
-        COMMON_IDENTIFIERS.input,
-        'readMessageEnd'
-      ),
-      ts.createReturn(
-        ts.createCall(
-          COMMON_IDENTIFIERS.callback,
-          undefined,
-          [ ts.createIdentifier('x') ]
-        )
-      )
-    ], true)
-  )
+
+function createExceptionHandler(def: FunctionDefinition): Array<ts.Statement> {
+    return [ts.createIf(
+        ts.createBinary(
+            ts.createIdentifier('mtype'),
+            ts.SyntaxKind.EqualsEqualsEqualsToken,
+            MESSAGE_TYPE.EXCEPTION
+        ),
+        ts.createBlock([
+            createConstStatement(
+                ts.createIdentifier('x'),
+                ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TApplicationException, undefined),
+                ts.createNew(
+                    COMMON_IDENTIFIERS.TApplicationException,
+                    undefined,
+                    []
+                )
+            ),
+            createMethodCallStatement(
+                ts.createIdentifier('x'),
+                'read',
+                [ COMMON_IDENTIFIERS.input ]
+            ),
+            createMethodCallStatement(
+                COMMON_IDENTIFIERS.input,
+                'readMessageEnd'
+            ),
+            ts.createReturn(
+                ts.createCall(
+                    COMMON_IDENTIFIERS.callback,
+                    undefined,
+                    [ ts.createIdentifier('x') ]
+                )
+            )
+        ], true)
+    )]
 }
 
 function createResultHandler(def: FunctionDefinition): ts.Statement {
@@ -579,7 +584,7 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
     // }
     // {{/isVoid}}
     return ts.createIf(
-      createNotNull(
+      createNotNullCheck(
         ts.createIdentifier('result.success')
       ),
       ts.createBlock([

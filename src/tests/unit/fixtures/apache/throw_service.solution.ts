@@ -1,13 +1,11 @@
 export interface IMyExceptionArgs {
-    message: string;
+    message?: string;
 }
-export class MyException implements thrift.TStructLike {
-    public message: string;
+export class MyException {
+    public message?: string;
     constructor(args?: IMyExceptionArgs) {
-        if (args != null) {
-            if (args.message != null) {
-                this.message = args.message;
-            }
+        if (args != null && args.message != null) {
+            this.message = args.message;
         }
     }
     public write(output: thrift.TProtocol): void {
@@ -21,46 +19,41 @@ export class MyException implements thrift.TStructLike {
         output.writeStructEnd();
         return;
     }
-    public read(input: thrift.TProtocol): void {
+    public static read(input: thrift.TProtocol): MyException {
         input.readStructBegin();
+        let _args: any = {};
         while (true) {
-            const ret: {
-                fname: string;
-                ftype: thrift.Thrift.Type;
-                fid: number;
-            } = input.readFieldBegin();
-            const ftype: thrift.Thrift.Type = ret.ftype;
-            const fid: number = ret.fid;
-            if (ftype === thrift.Thrift.Type.STOP) {
+            const ret: thrift.TField = input.readFieldBegin();
+            const fieldType: thrift.Thrift.Type = ret.ftype;
+            const fieldId: number = ret.fid;
+            if (fieldType === thrift.Thrift.Type.STOP) {
                 break;
             }
-            switch (fid) {
+            switch (fieldId) {
                 case 1:
-                    if (ftype === thrift.Thrift.Type.STRING) {
+                    if (fieldType === thrift.Thrift.Type.STRING) {
                         const value_1: string = input.readString();
-                        this.message = value_1;
+                        _args.message = value_1;
                     }
                     else {
-                        input.skip(ftype);
+                        input.skip(fieldType);
                     }
                     break;
                 default: {
-                    input.skip(ftype);
+                    input.skip(fieldType);
                 }
             }
             input.readFieldEnd();
         }
         input.readStructEnd();
-        return;
+        return new MyException(_args);
     }
 }
 export namespace MyService {
     export interface IPingArgsArgs {
     }
-    export class PingArgs implements thrift.TStructLike {
+    export class PingArgs {
         constructor(args?: IPingArgsArgs) {
-            if (args != null) {
-            }
         }
         public write(output: thrift.TProtocol): void {
             output.writeStructBegin("PingArgs");
@@ -68,45 +61,40 @@ export namespace MyService {
             output.writeStructEnd();
             return;
         }
-        public read(input: thrift.TProtocol): void {
+        public static read(input: thrift.TProtocol): PingArgs {
             input.readStructBegin();
+            let _args: any = {};
             while (true) {
-                const ret: {
-                    fname: string;
-                    ftype: thrift.Thrift.Type;
-                    fid: number;
-                } = input.readFieldBegin();
-                const ftype: thrift.Thrift.Type = ret.ftype;
-                const fid: number = ret.fid;
-                if (ftype === thrift.Thrift.Type.STOP) {
+                const ret: thrift.TField = input.readFieldBegin();
+                const fieldType: thrift.Thrift.Type = ret.ftype;
+                const fieldId: number = ret.fid;
+                if (fieldType === thrift.Thrift.Type.STOP) {
                     break;
                 }
-                switch (fid) {
+                switch (fieldId) {
                     default: {
-                        input.skip(ftype);
+                        input.skip(fieldType);
                     }
                 }
                 input.readFieldEnd();
             }
             input.readStructEnd();
-            return;
+            return new PingArgs(_args);
         }
     }
     export interface IPingResultArgs {
         success?: void;
         exp?: MyException;
     }
-    export class PingResult implements thrift.TStructLike {
-        public success: void;
-        public exp: MyException;
+    export class PingResult {
+        public success?: void;
+        public exp?: MyException;
         constructor(args?: IPingResultArgs) {
-            if (args != null) {
-                if (args.success != null) {
-                    this.success = args.success;
-                }
-                if (args.exp != null) {
-                    this.exp = args.exp;
-                }
+            if (args != null && args.success != null) {
+                this.success = args.success;
+            }
+            if (args != null && args.exp != null) {
+                this.exp = args.exp;
             }
         }
         public write(output: thrift.TProtocol): void {
@@ -120,46 +108,42 @@ export namespace MyService {
             output.writeStructEnd();
             return;
         }
-        public read(input: thrift.TProtocol): void {
+        public static read(input: thrift.TProtocol): PingResult {
             input.readStructBegin();
+            let _args: any = {};
             while (true) {
-                const ret: {
-                    fname: string;
-                    ftype: thrift.Thrift.Type;
-                    fid: number;
-                } = input.readFieldBegin();
-                const ftype: thrift.Thrift.Type = ret.ftype;
-                const fid: number = ret.fid;
-                if (ftype === thrift.Thrift.Type.STOP) {
+                const ret: thrift.TField = input.readFieldBegin();
+                const fieldType: thrift.Thrift.Type = ret.ftype;
+                const fieldId: number = ret.fid;
+                if (fieldType === thrift.Thrift.Type.STOP) {
                     break;
                 }
-                switch (fid) {
+                switch (fieldId) {
                     case 0:
-                        if (ftype === thrift.Thrift.Type.VOID) {
-                            input.skip(ftype);
+                        if (fieldType === thrift.Thrift.Type.VOID) {
+                            input.skip(fieldType);
                         }
                         else {
-                            input.skip(ftype);
+                            input.skip(fieldType);
                         }
                         break;
                     case 1:
-                        if (ftype === thrift.Thrift.Type.STRUCT) {
-                            const value_2: MyException = new MyException();
-                            value_2.read(input);
-                            this.exp = value_2;
+                        if (fieldType === thrift.Thrift.Type.STRUCT) {
+                            const value_2: MyException = MyException.read(input);
+                            _args.exp = value_2;
                         }
                         else {
-                            input.skip(ftype);
+                            input.skip(fieldType);
                         }
                         break;
                     default: {
-                        input.skip(ftype);
+                        input.skip(fieldType);
                     }
                 }
                 input.readFieldEnd();
             }
             input.readStructEnd();
-            return;
+            return new PingResult(_args);
         }
     }
     export class Client {
@@ -199,19 +183,18 @@ export namespace MyService {
             const args: PingArgs = new PingArgs({});
             args.write(output);
             output.writeMessageEnd();
-            return this.output.flush();
+            this.output.flush();
+            return;
         }
-        public recv_ping(input: thrift.TProtocol, mtype: thrift.Thrift.MessageType, rseqid: number): void {
+        public recv_ping(input: thrift.TProtocol, mtype: thrift.Thrift.MessageType, requestId: number): void {
             const noop = (): any => null;
-            const callback = this._reqs[rseqid] || noop;
+            const callback = this._reqs[requestId] || noop;
             if (mtype === thrift.Thrift.MessageType.EXCEPTION) {
                 const x: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException();
                 x.read(input);
                 input.readMessageEnd();
                 return callback(x);
             }
-            const result: PingResult = new PingResult();
-            result.read(input);
             input.readMessageEnd();
             if (result.exp != null) {
                 return callback(result.exp);
@@ -234,30 +217,30 @@ export namespace MyService {
                 rseqid: number;
             } = input.readMessageBegin();
             const fname: string = metadata.fname;
-            const rseqid: number = metadata.rseqid;
+            const requestId: number = metadata.rseqid;
             const methodName: string = "process_" + fname;
             switch (methodName) {
                 case "process_ping": {
-                    return this.process_ping(rseqid, input, output, context);
+                    this.process_ping(requestId, input, output, context);
+                    return;
                 }
                 default: {
                     input.skip(thrift.Thrift.Type.STRUCT);
                     input.readMessageEnd();
                     const errMessage = "Unknown function " + fname;
                     const err = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN_METHOD, errMessage);
-                    output.writeMessageBegin(fname, thrift.Thrift.MessageType.EXCEPTION, rseqid);
+                    output.writeMessageBegin(fname, thrift.Thrift.MessageType.EXCEPTION, requestId);
                     err.write(output);
                     output.writeMessageEnd();
                     output.flush();
+                    return;
                 }
             }
         }
-        public process_ping(seqid: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
-            const args = new PingArgs();
-            args.read(input);
-            input.readMessageEnd();
+        public process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
             new Promise<void>((resolve, reject): void => {
                 try {
+                    input.readMessageEnd();
                     resolve(this._handler.ping(context));
                 }
                 catch (err) {
@@ -265,14 +248,15 @@ export namespace MyService {
                 }
             }).then((data: void): void => {
                 const result: PingResult = new PingResult({ success: data });
-                output.writeMessageBegin("ping", thrift.Thrift.MessageType.REPLY, seqid);
+                output.writeMessageBegin("ping", thrift.Thrift.MessageType.REPLY, requestId);
                 result.write(output);
                 output.writeMessageEnd();
                 output.flush();
+                return;
             }).catch((err: Error): void => {
                 if (err instanceof MyException) {
                     const result: PingResult = new PingResult({ exp: err });
-                    output.writeMessageBegin("ping", thrift.Thrift.MessageType.REPLY, seqid);
+                    output.writeMessageBegin("ping", thrift.Thrift.MessageType.REPLY, requestId);
                     result.write(output);
                     output.writeMessageEnd();
                     output.flush();
@@ -280,7 +264,7 @@ export namespace MyService {
                 }
                 else {
                     const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-                    output.writeMessageBegin("ping", thrift.Thrift.MessageType.EXCEPTION, seqid);
+                    output.writeMessageBegin("ping", thrift.Thrift.MessageType.EXCEPTION, requestId);
                     result.write(output);
                     output.writeMessageEnd();
                     output.flush();

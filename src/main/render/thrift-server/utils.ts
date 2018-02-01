@@ -262,7 +262,7 @@ export function createEquals(left: ts.Expression, right: ts.Expression): ts.Bina
  * @param obj
  * @param prop
  */
-export function createNotNull(obj: string | ts.Expression ): ts.BinaryExpression {
+export function createNotNullCheck(obj: string | ts.Expression ): ts.BinaryExpression {
   return ts.createBinary(
     ((typeof obj === 'string') ? ts.createIdentifier(obj) : obj),
     ts.SyntaxKind.ExclamationEqualsToken,
@@ -271,7 +271,7 @@ export function createNotNull(obj: string | ts.Expression ): ts.BinaryExpression
 }
 
 export function renderOptional(value: FieldRequired | null): ts.Token<ts.SyntaxKind.QuestionToken> | undefined {
-  if (value === 'optional') {
+  if (value !== 'required') {
     return ts.createToken(ts.SyntaxKind.QuestionToken)
   } else {
     return undefined
