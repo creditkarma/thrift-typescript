@@ -188,16 +188,16 @@ function createUnionFactories(node: UnionDefinition, identifiers: IIdentifierMap
  * }
  */
 function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
-  const comparison: ts.BinaryExpression = createNotNullCheck(`args.${field.name.value}`)
-  const thenAssign: ts.Statement = assignmentForField(field)
-  const incrementer: ts.ExpressionStatement = incrementFieldsSet()
-  const elseThrow: ts.ThrowStatement | undefined = throwForField(field)
+    const comparison: ts.BinaryExpression = createNotNullCheck(`args.${field.name.value}`)
+    const thenAssign: ts.Statement = assignmentForField(field)
+    const incrementer: ts.ExpressionStatement = incrementFieldsSet()
+    const elseThrow: ts.ThrowStatement | undefined = throwForField(field)
 
-  return ts.createIf(
-    comparison,
-    ts.createBlock([ incrementer, thenAssign ], true),
-    (elseThrow !== undefined) ? ts.createBlock([ elseThrow ], true) : undefined,
-  )
+    return ts.createIf(
+        comparison,
+        ts.createBlock([ incrementer, thenAssign ], true),
+        (elseThrow !== undefined) ? ts.createBlock([ elseThrow ], true) : undefined,
+    )
 }
 
 function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {

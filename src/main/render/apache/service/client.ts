@@ -513,14 +513,14 @@ function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
                 undefined
                 ),
                 ts.createCall(
-                ts.createPropertyAccess(
-                    ts.createIdentifier(createStructResultName(def)),
-                    ts.createIdentifier('read')
-                ),
-                undefined,
-                [
-                    COMMON_IDENTIFIERS.input
-                ],
+                    ts.createPropertyAccess(
+                        ts.createIdentifier(createStructResultName(def)),
+                        ts.createIdentifier('read')
+                    ),
+                    undefined,
+                    [
+                        COMMON_IDENTIFIERS.input
+                    ],
                 )
             ),
         ]
@@ -529,44 +529,45 @@ function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
 
 
 function createExceptionHandler(def: FunctionDefinition): Array<ts.Statement> {
-    return [ts.createIf(
-        ts.createBinary(
-            ts.createIdentifier('mtype'),
-            ts.SyntaxKind.EqualsEqualsEqualsToken,
-            MESSAGE_TYPE.EXCEPTION
-        ),
-        ts.createBlock([
-            createConstStatement(
-                ts.createIdentifier('x'),
-                ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TApplicationException, undefined),
-                ts.createNew(
-                    COMMON_IDENTIFIERS.TApplicationException,
-                    undefined,
-                    []
+    return [
+        ts.createIf(
+            ts.createBinary(
+                ts.createIdentifier('mtype'),
+                ts.SyntaxKind.EqualsEqualsEqualsToken,
+                MESSAGE_TYPE.EXCEPTION
+            ),
+            ts.createBlock([
+                createConstStatement(
+                    ts.createIdentifier('x'),
+                    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TApplicationException, undefined),
+                    ts.createNew(
+                        COMMON_IDENTIFIERS.TApplicationException,
+                        undefined,
+                        []
+                    )
+                ),
+                createMethodCallStatement(
+                    ts.createIdentifier('x'),
+                    'read',
+                    [ COMMON_IDENTIFIERS.input ]
+                ),
+                createMethodCallStatement(
+                    COMMON_IDENTIFIERS.input,
+                    'readMessageEnd'
+                ),
+                ts.createReturn(
+                    ts.createCall(
+                        COMMON_IDENTIFIERS.callback,
+                        undefined,
+                        [ ts.createIdentifier('x') ]
+                    )
                 )
-            ),
-            createMethodCallStatement(
-                ts.createIdentifier('x'),
-                'read',
-                [ COMMON_IDENTIFIERS.input ]
-            ),
-            createMethodCallStatement(
-                COMMON_IDENTIFIERS.input,
-                'readMessageEnd'
-            ),
-            ts.createReturn(
-                ts.createCall(
-                    COMMON_IDENTIFIERS.callback,
-                    undefined,
-                    [ ts.createIdentifier('x') ]
-                )
-            )
-        ], true)
-    )]
+            ], true)
+        )
+    ]
 }
 
 function createResultHandler(def: FunctionDefinition): ts.Statement {
-
   if (def.returnType.type === SyntaxType.VoidKeyword) {
     return ts.createReturn(
       ts.createCall(
