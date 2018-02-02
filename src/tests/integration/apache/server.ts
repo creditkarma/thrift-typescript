@@ -13,7 +13,8 @@ import {
 } from './codegen/calculator/calculator'
 
 import {
-    SharedStruct
+    SharedStruct,
+    SharedUnion,
 } from './codegen/shared/shared'
 
 import {
@@ -52,6 +53,19 @@ const myServiceHandler: Calculator.IHandler = {
     getStruct(key: number): SharedStruct {
         return new SharedStruct({ key, value: 'test' })
     },
+    getUnion(index: number): SharedUnion {
+        if (index === 1) {
+            return SharedUnion.fromOption1('foo')
+        } else {
+            return SharedUnion.fromOption2('bar')
+        }
+    },
+    echoBinary(word: Buffer): string {
+        return word.toString('utf-8')
+    },
+    echoString(word: string): string {
+        return word
+    },
     checkName(choice: Choice): string {
         if (choice.firstName !== undefined) {
             return `FirstName: ${choice.firstName.name}`
@@ -67,6 +81,9 @@ const myServiceHandler: Calculator.IHandler = {
         } else {
             return type
         }
+    },
+    mapOneList(list: Array<number>): Array<number> {
+        return list.map((next: number) => next + 1)
     }
 };
 

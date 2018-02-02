@@ -105,6 +105,23 @@ describe('Thrift TypeScript', () => {
         })
     })
 
+    it('should corrently call endpoint with binary data', async () => {
+        const word: string = 'test_binary'
+        const data: Buffer = Buffer.from(word, 'utf-8')
+        return thriftClient.echoBinary(data)
+            .then((response: string) => {
+                assert.equal(response, word)
+            })
+    })
+
+    it('should corrently call endpoint that string data', async () => {
+        const word: string = 'test_string'
+        return thriftClient.echoString(word)
+            .then((response: string) => {
+                assert.equal(response, word)
+            })
+    })
+
     it('should correctly call endpoint with optional parameters', async () => {
         return Promise.all([
             thriftClient.checkOptional('test_first'),
@@ -112,6 +129,12 @@ describe('Thrift TypeScript', () => {
         ]).then((val: Array<string>) => {
             assert.equal(val[0], 'test_first')
             assert.equal(val[1], 'undefined')
+        })
+    })
+
+    it('should correctly call endpoint with containers as parameters', async () => {
+        return thriftClient.mapOneList([1,2,3,4]).then((val: Array<number>) => {
+            assert.deepEqual(val, [2,3,4,5])
         })
     })
 })

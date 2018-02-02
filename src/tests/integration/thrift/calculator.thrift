@@ -143,9 +143,15 @@ service Calculator extends shared.SharedService {
 
    i32 calculate(1:i32 logid, 2:Work w) throws (1:InvalidOperation ouch),
 
-   string checkName(1: Choice choice),
+   string echoBinary(1: binary word)
+
+   string echoString(1: string word)
+
+   string checkName(1: Choice choice)
 
    string checkOptional(1: optional string type)
+
+   list<i32> mapOneList(1: list<i32> arg)
 
    /**
     * This method has a oneway modifier. That means the client only makes
