@@ -32,10 +32,16 @@ namespace haxe shared
 namespace netcore shared
 
 struct SharedStruct {
-  1: i32 key
-  2: string value
+  1: required i32 key
+  2: required string value
+}
+
+union SharedUnion {
+  1: string option1
+  2: string option2
 }
 
 service SharedService {
   SharedStruct getStruct(1: i32 key)
+  SharedUnion getUnion(1: i32 index)
 }
