@@ -84,7 +84,16 @@ const myServiceHandler: Calculator.IHandler = {
     },
     mapOneList(list: Array<number>): Array<number> {
         return list.map((next: number) => next + 1)
-    }
+    },
+    mapValues(map: Map<string, number>): number[] {
+        return Array.from(map.values())
+    },
+    listToMap(list: Array<Array<string>>): Map<string,string> {
+        return list.reduce((acc: Map<string,string>, next: Array<string>) => {
+            acc.set(next[0], next[1])
+            return acc
+        }, new Map())
+    },
 };
 
 // ServiceOptions: The I/O stack for the service

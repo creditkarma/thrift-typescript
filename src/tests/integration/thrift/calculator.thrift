@@ -153,6 +153,10 @@ service Calculator extends shared.SharedService {
 
    list<i32> mapOneList(1: list<i32> arg)
 
+   list<i32> mapValues(1: map<string,i32> arg)
+
+   map<string,string> listToMap(1: list<list<string>> arg)
+
    /**
     * This method has a oneway modifier. That means the client only makes
     * a request and does not listen for any response at all. Oneway methods

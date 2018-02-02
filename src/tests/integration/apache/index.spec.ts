@@ -132,9 +132,21 @@ describe('Thrift TypeScript', () => {
         })
     })
 
-    it('should correctly call endpoint with containers as parameters', async () => {
+    it('should correctly call endpoint with lists as parameters', async () => {
         return thriftClient.mapOneList([1,2,3,4]).then((val: Array<number>) => {
             assert.deepEqual(val, [2,3,4,5])
+        })
+    })
+
+    it('should correctly call endpoint with maps as parameters', async () => {
+        return thriftClient.mapValues(new Map([['key1', 6], ['key2', 5]])).then((response: number[]) => {
+            assert.deepEqual(response, [6, 5])
+        })
+    })
+
+    it('should correctly call endpoint that returns a map', async () => {
+        return thriftClient.listToMap([['key_1','value_1'], ['key_2','value_2']]).then((response: Map<string,string>) => {
+            assert.deepEqual(response, new Map([['key_1','value_1'], ['key_2','value_2']]))
         })
     })
 })
