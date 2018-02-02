@@ -12,10 +12,10 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
       - run:
-          name: install-npm
+          name: Install NPM Dependencies
           command: npm install
       - run:
-          name: build
+          name: Build Assets
           command: npm run build
       - persist_to_workspace:
           # Must be an absolute path, or relative path from working_directory
@@ -35,10 +35,10 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
       - run:
-          name: install-npm
+          name: Install NPM Dependencies
           command: npm install
       - run:
-          name: npm-test
+          name: Run Test Suite
           command: npm test
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
@@ -52,10 +52,10 @@ jobs:
           # Must be absolute path or relative path from working_directory
           at: ./
       - run:
-          name: npm-token
+          name: Generate .npmrc File
           command: 'echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc'
       - run:
-          name: publish-npm
+          name: Publish to NPM
           command: npm publish --access public
 
 workflows:
