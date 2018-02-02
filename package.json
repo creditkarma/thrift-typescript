@@ -38,10 +38,12 @@
     "type": "git",
     "url": "https://github.com/creditkarma/thrift-typescript"
   },
+  "peerDependencies": {
+    "typescript": "^2.4.2"
+  },
   "dependencies": {
     "@creditkarma/thrift-parser": "^1.0.2",
-    "glob": "^7.1.2",
-    "typescript": "2.7.x"
+    "glob": "^7.1.2"
   },
   "devDependencies": {
     "@types/chai": "^3.4.34",
@@ -57,7 +59,8 @@
     "source-map-support": "^0.4.0",
     "thrift": "^0.10.0",
     "ts-node": "^3.3.0",
-    "tslint": "^5.3.2"
+    "tslint": "^5.3.2",
+    "typescript": "^2.7.1"
   },
   "nyc": {
     "include": [
