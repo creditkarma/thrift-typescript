@@ -277,6 +277,57 @@ export namespace ChildService {
             }
         }
     }
+    export interface IPongArgsArgs {
+        name?: string;
+    }
+    export class PongArgs implements thrift.StructLike {
+        public name?: string;
+        constructor(args?: IPongArgsArgs) {
+            if (args != null && args.name != null) {
+                this.name = args.name;
+            }
+        }
+        public write(output: thrift.TProtocol): void {
+            output.writeStructBegin("PongArgs");
+            if (this.name != null) {
+                output.writeFieldBegin("name", thrift.TType.STRING, 1);
+                output.writeString(this.name);
+                output.writeFieldEnd();
+            }
+            output.writeFieldStop();
+            output.writeStructEnd();
+            return;
+        }
+        public static read(input: thrift.TProtocol): PongArgs {
+            input.readStructBegin();
+            let _args: any = {};
+            while (true) {
+                const ret: thrift.IThriftField = input.readFieldBegin();
+                const fieldType: thrift.TType = ret.fieldType;
+                const fieldId: number = ret.fieldId;
+                if (fieldType === thrift.TType.STOP) {
+                    break;
+                }
+                switch (fieldId) {
+                    case 1:
+                        if (fieldType === thrift.TType.STRING) {
+                            const value_4: string = input.readString();
+                            _args.name = value_4;
+                        }
+                        else {
+                            input.skip(fieldType);
+                        }
+                        break;
+                    default: {
+                        input.skip(fieldType);
+                    }
+                }
+                input.readFieldEnd();
+            }
+            input.readStructEnd();
+            return new PongArgs(_args);
+        }
+    }
     export interface IPegResultArgs {
         success?: string;
     }
@@ -311,8 +362,8 @@ export namespace ChildService {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.STRING) {
-                            const value_4: string = input.readString();
-                            _args.success = value_4;
+                            const value_5: string = input.readString();
+                            _args.success = value_5;
                         }
                         else {
                             input.skip(fieldType);
@@ -326,6 +377,57 @@ export namespace ChildService {
             }
             input.readStructEnd();
             return new PegResult(_args);
+        }
+    }
+    export interface IPongResultArgs {
+        success?: string;
+    }
+    export class PongResult implements thrift.StructLike {
+        public success?: string;
+        constructor(args?: IPongResultArgs) {
+            if (args != null && args.success != null) {
+                this.success = args.success;
+            }
+        }
+        public write(output: thrift.TProtocol): void {
+            output.writeStructBegin("PongResult");
+            if (this.success != null) {
+                output.writeFieldBegin("success", thrift.TType.STRING, 0);
+                output.writeString(this.success);
+                output.writeFieldEnd();
+            }
+            output.writeFieldStop();
+            output.writeStructEnd();
+            return;
+        }
+        public static read(input: thrift.TProtocol): PongResult {
+            input.readStructBegin();
+            let _args: any = {};
+            while (true) {
+                const ret: thrift.IThriftField = input.readFieldBegin();
+                const fieldType: thrift.TType = ret.fieldType;
+                const fieldId: number = ret.fieldId;
+                if (fieldType === thrift.TType.STOP) {
+                    break;
+                }
+                switch (fieldId) {
+                    case 0:
+                        if (fieldType === thrift.TType.STRING) {
+                            const value_6: string = input.readString();
+                            _args.success = value_6;
+                        }
+                        else {
+                            input.skip(fieldType);
+                        }
+                        break;
+                    default: {
+                        input.skip(fieldType);
+                    }
+                }
+                input.readFieldEnd();
+            }
+            input.readStructEnd();
+            return new PongResult(_args);
         }
     }
     export class Client<Context = any> extends ParentService.Client<Context> {
@@ -379,9 +481,46 @@ export namespace ChildService {
                 }
             });
         }
+        public pong(name?: string, context?: Context): Promise<string> {
+            const writer: thrift.TTransport = new this.transport();
+            const output: thrift.TProtocol = new this.protocol(writer);
+            output.writeMessageBegin("pong", thrift.MessageType.CALL, this.incrementRequestId());
+            const args: PongArgs = new PongArgs({ name });
+            args.write(output);
+            output.writeMessageEnd();
+            return this.connection.send(writer.flush(), context).then((data: Buffer) => {
+                const reader: thrift.TTransport = this.transport.receiver(data);
+                const input: thrift.TProtocol = new this.protocol(reader);
+                try {
+                    const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
+                    if (fieldName === "pong") {
+                        if (messageType === thrift.MessageType.EXCEPTION) {
+                            const err: thrift.TApplicationException = thrift.TApplicationException.read(input);
+                            input.readMessageEnd();
+                            return Promise.reject(err);
+                        }
+                        const result: PongResult = PongResult.read(input);
+                        input.readMessageEnd();
+                        if (result.success != null) {
+                            return Promise.resolve(result.success);
+                        }
+                        else {
+                            return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "pong failed: unknown result"));
+                        }
+                    }
+                    else {
+                        return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.WRONG_METHOD_NAME, "Received a response to an unknown RPC function: " + fieldName));
+                    }
+                }
+                catch (err) {
+                    return Promise.reject(err);
+                }
+            });
+        }
     }
     export interface ILocalHandler<Context = any> {
         peg: (name: string, context?: Context) => string | Promise<string>;
+        pong: (name?: string, context?: Context) => string | Promise<string>;
     }
     export type IHandler<Context = any> = ILocalHandler<Context> & ParentService.IHandler<Context>;
     export class Processor<Context = any> extends ParentService.Processor<Context> {
@@ -404,6 +543,9 @@ export namespace ChildService {
                     }
                     case "process_peg": {
                         resolve(this.process_peg(requestId, input, output, context));
+                    }
+                    case "process_pong": {
+                        resolve(this.process_pong(requestId, input, output, context));
                     }
                     default: {
                         input.skip(thrift.TType.STRUCT);
@@ -437,6 +579,30 @@ export namespace ChildService {
             }).catch((err: Error): Buffer => {
                 const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
                 output.writeMessageBegin("peg", thrift.MessageType.EXCEPTION, requestId);
+                result.write(output);
+                output.writeMessageEnd();
+                return output.flush();
+            });
+        }
+        public process_pong(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): Promise<Buffer> {
+            return new Promise<string>((resolve, reject): void => {
+                try {
+                    const args: PongArgs = PongArgs.read(input);
+                    input.readMessageEnd();
+                    resolve(this._handler.pong(args.name, context));
+                }
+                catch (err) {
+                    reject(err);
+                }
+            }).then((data: string): Buffer => {
+                const result: PongResult = new PongResult({ success: data });
+                output.writeMessageBegin("pong", thrift.MessageType.REPLY, requestId);
+                result.write(output);
+                output.writeMessageEnd();
+                return output.flush();
+            }).catch((err: Error): Buffer => {
+                const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+                output.writeMessageBegin("pong", thrift.MessageType.EXCEPTION, requestId);
                 result.write(output);
                 output.writeMessageEnd();
                 return output.flush();

@@ -18,6 +18,10 @@ import {
 } from './utils'
 
 import {
+    renderValue
+} from '../values'
+
+import {
   createMethodCall,
   createClassConstructor,
   createFunctionParameter,
@@ -294,88 +298,100 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
 //     return this.output.flush()
 // }
 function createSendMethodForDefinition(service: ServiceDefinition, def: FunctionDefinition): ts.MethodDeclaration {
-  return ts.createMethod(
-    undefined, // decorators
-    [ ts.createToken(ts.SyntaxKind.PublicKeyword) ], // modifiers
-    undefined, // asterisk token
-    `send_${def.name.value}`, // name
-    undefined, // question token
-    undefined, // type params
-    [
-      ...def.fields.map((next: FieldDefinition) => {
-        return createFunctionParameter(
-          ts.createIdentifier(next.name.value),
-          typeNodeForFieldType(next.fieldType)
-        )
-      }),
-      createFunctionParameter(
-        COMMON_IDENTIFIERS.requestId,
-        createNumberType()
-      )
-    ], // parameters
-    createVoidType(), // return type
-    ts.createBlock([
-      // const output = new (this.protocol as any)(this.output)
-      createConstStatement(
-        COMMON_IDENTIFIERS.output,
-        ts.createTypeReferenceNode(
-          COMMON_IDENTIFIERS.TProtocol,
-          undefined
-        ),
-        ts.createNew(
-          ts.createIdentifier('this.protocol'),
-          undefined,
-          [ ts.createIdentifier('this.output') ]
-        )
-      ),
-      // output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.seqid())
-      createMethodCallStatement(
-        COMMON_IDENTIFIERS.output,
-        'writeMessageBegin',
+    return ts.createMethod(
+        undefined, // decorators
+        [ ts.createToken(ts.SyntaxKind.PublicKeyword) ], // modifiers
+        undefined, // asterisk token
+        `send_${def.name.value}`, // name
+        undefined, // question token
+        undefined, // type params
         [
-          ts.createLiteral(def.name.value),
-          MESSAGE_TYPE.CALL,
-          COMMON_IDENTIFIERS.requestId
-        ]
-      ),
-      // MortgageServiceGetMortgageOffersArgs
-      // const args = new {{ServiceName}}{{nameTitleCase}}Args( { {{#args}}{{fieldName}}, {{/args}} } )
-      createConstStatement(
-        COMMON_IDENTIFIERS.args,
-        ts.createTypeReferenceNode(
-          ts.createIdentifier(createStructArgsName(def)),
-          undefined
-        ),
-        ts.createNew(
-          ts.createIdentifier(createStructArgsName(def)),
-          undefined,
-          [ ts.createObjectLiteral(
-            def.fields.map((next: FieldDefinition) => {
-              return ts.createShorthandPropertyAssignment(next.name.value)
-            })
-          ) ]
-        )
-      ),
-      // args.write(output)
-      createMethodCallStatement(
-        COMMON_IDENTIFIERS.args,
-        'write',
-        [ COMMON_IDENTIFIERS.output ]
-      ),
-      // output.writeMessageEnd()
-      createMethodCallStatement(
-        COMMON_IDENTIFIERS.output,
-        'writeMessageEnd'
-      ),
-      // return this.output.flush()
-      ts.createStatement(createMethodCall(
-        ts.createIdentifier('this.output'),
-        'flush',
-        []
-      )),
-      ts.createReturn()
-    ], true) // body
-  )
+            ...def.fields.map((field: FieldDefinition) => {
+                const returnType: ts.TypeNode = (
+                    (field.requiredness === 'optional') ?
+                        ts.createUnionTypeNode([
+                            typeNodeForFieldType(field.fieldType),
+                            ts.createTypeReferenceNode(
+                                ts.createIdentifier('undefined'),
+                                undefined,
+                            )
+                        ]) :
+                        typeNodeForFieldType(field.fieldType)
+                )
+
+                return createFunctionParameter(
+                    ts.createIdentifier(field.name.value),
+                    returnType,
+                )
+            }),
+            createFunctionParameter(
+                COMMON_IDENTIFIERS.requestId,
+                createNumberType()
+            )
+        ], // parameters
+        createVoidType(), // return type
+        ts.createBlock([
+            // const output = new (this.protocol as any)(this.output)
+            createConstStatement(
+                COMMON_IDENTIFIERS.output,
+                ts.createTypeReferenceNode(
+                    COMMON_IDENTIFIERS.TProtocol,
+                    undefined
+                ),
+                ts.createNew(
+                    ts.createIdentifier('this.protocol'),
+                    undefined,
+                    [ ts.createIdentifier('this.output') ]
+                )
+            ),
+            // output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.seqid())
+            createMethodCallStatement(
+                COMMON_IDENTIFIERS.output,
+                'writeMessageBegin',
+                [
+                    ts.createLiteral(def.name.value),
+                    MESSAGE_TYPE.CALL,
+                    COMMON_IDENTIFIERS.requestId
+                ]
+            ),
+            // MortgageServiceGetMortgageOffersArgs
+            // const args = new {{ServiceName}}{{nameTitleCase}}Args( { {{#args}}{{fieldName}}, {{/args}} } )
+            createConstStatement(
+                COMMON_IDENTIFIERS.args,
+                ts.createTypeReferenceNode(
+                    ts.createIdentifier(createStructArgsName(def)),
+                    undefined
+                ),
+                ts.createNew(
+                    ts.createIdentifier(createStructArgsName(def)),
+                    undefined,
+                    [ ts.createObjectLiteral(
+                        def.fields.map((next: FieldDefinition) => {
+                            return ts.createShorthandPropertyAssignment(next.name.value)
+                        })
+                    ) ]
+                )
+            ),
+            // args.write(output)
+            createMethodCallStatement(
+                COMMON_IDENTIFIERS.args,
+                'write',
+                [ COMMON_IDENTIFIERS.output ]
+            ),
+            // output.writeMessageEnd()
+            createMethodCallStatement(
+                COMMON_IDENTIFIERS.output,
+                'writeMessageEnd'
+            ),
+            // return this.output.flush()
+            ts.createStatement(createMethodCall(
+                ts.createIdentifier('this.output'),
+                'flush',
+                []
+            )),
+            ts.createReturn()
+        ], true) // body
+    )
 }
 
 // public recv_{{name}}(input: TProtocol, mtype: Thrift.MessageType, rseqid: number): void {
@@ -620,8 +636,14 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
 }
 
 function createParametersForField(field: FieldDefinition): ts.ParameterDeclaration {
-  return createFunctionParameter(
-    field.name.value,
-    typeNodeForFieldType(field.fieldType)
-  )
+    const defaultValue = (field.defaultValue !== null) ?
+        renderValue(field.fieldType, field.defaultValue) :
+        undefined
+
+    return createFunctionParameter(
+        field.name.value,
+        typeNodeForFieldType(field.fieldType),
+        defaultValue,
+        (field.requiredness === 'optional'),
+    )
 }

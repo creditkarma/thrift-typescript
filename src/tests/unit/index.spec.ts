@@ -128,6 +128,7 @@ describe('Thrift TypeScript Generator', () => {
 
                 service ChildService extends ParentService {
                     string peg(1: string name);
+                    string pong(1: optional string name);
                 }
             `;
             const expected: string = readFixture('extend_service', 'thrift-server')

@@ -104,4 +104,14 @@ describe('Thrift TypeScript', () => {
             assert.deepEqual(val, new SharedStruct({ key: 5, value: 'test' }))
         })
     })
+
+    it('should correctly call endpoint with optional parameters', async () => {
+        return Promise.all([
+            thriftClient.checkOptional('test_first'),
+            thriftClient.checkOptional(),
+        ]).then((val: Array<string>) => {
+            assert.equal(val[0], 'test_first')
+            assert.equal(val[1], 'undefined')
+        })
+    })
 })

@@ -145,6 +145,8 @@ service Calculator extends shared.SharedService {
 
    string checkName(1: Choice choice),
 
+   string checkOptional(1: optional string type)
+
    /**
     * This method has a oneway modifier. That means the client only makes
     * a request and does not listen for any response at all. Oneway methods

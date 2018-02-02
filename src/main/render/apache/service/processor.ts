@@ -75,7 +75,9 @@ export function renderHandlerInterface(service: ServiceDefinition): Array<ts.Sta
           ...func.fields.map((field: FieldDefinition) => {
             return createFunctionParameter(
               field.name.value,
-              typeNodeForFieldType(field.fieldType)
+              typeNodeForFieldType(field.fieldType),
+              undefined,
+              (field.requiredness === 'optional'),
             )
           }),
           createFunctionParameter(

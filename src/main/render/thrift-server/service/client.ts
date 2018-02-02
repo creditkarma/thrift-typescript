@@ -13,6 +13,10 @@ import {
 } from './types'
 
 import {
+    renderValue
+  } from '../values'
+
+import {
   createStructArgsName,
   createStructResultName
 } from './utils'
@@ -202,263 +206,263 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
 //     })
 // }
 function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclaration {
-  return ts.createMethod(
-    undefined, // decorators
-    [ ts.createToken(ts.SyntaxKind.PublicKeyword) ], // modifiers
-    undefined, // asterisk token
-    def.name.value, // name
-    undefined, // question token
-    undefined, // type parameters
-    [
-      ...def.fields.map(createParametersForField),
-      createFunctionParameter(
-        COMMON_IDENTIFIERS.context,
-        ContextType,
-        undefined,
-        true,
-      )
-    ], // parameters
-    ts.createTypeReferenceNode(
-      'Promise',
-      [ typeNodeForFieldType(def.returnType) ]
-    ), // return type
-    ts.createBlock([
-      createConstStatement(
-        COMMON_IDENTIFIERS.writer,
-        ts.createTypeReferenceNode(
-          COMMON_IDENTIFIERS.TTransport,
-          undefined
-        ),
-        ts.createNew(
-          ts.createIdentifier('this.transport'),
-          undefined,
-          []
-        )
-      ),
-      createConstStatement(
-        COMMON_IDENTIFIERS.output,
-        ts.createTypeReferenceNode(
-          COMMON_IDENTIFIERS.TProtocol,
-          undefined
-        ),
-        ts.createNew(
-          ts.createIdentifier('this.protocol'),
-          undefined,
-          [
-            COMMON_IDENTIFIERS.writer
-          ]
-        )
-      ),
-      // output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.requestId())
-      createMethodCallStatement(
-        COMMON_IDENTIFIERS.output,
-        'writeMessageBegin',
+    return ts.createMethod(
+        undefined, // decorators
+        [ ts.createToken(ts.SyntaxKind.PublicKeyword) ], // modifiers
+        undefined, // asterisk token
+        def.name.value, // name
+        undefined, // question token
+        undefined, // type parameters
         [
-          ts.createLiteral(def.name.value),
-          MESSAGE_TYPE.CALL,
-          ts.createCall(
-            ts.createIdentifier('this.incrementRequestId'),
-            undefined,
-            [],
-          )
-        ]
-      ),
-      // const args = new {{ServiceName}}{{nameTitleCase}}Args( { {{#args}}{{fieldName}}, {{/args}} } )
-      createConstStatement(
-        COMMON_IDENTIFIERS.args,
-        ts.createTypeReferenceNode(
-          ts.createIdentifier(createStructArgsName(def)),
-          undefined
-        ),
-        ts.createNew(
-          ts.createIdentifier(createStructArgsName(def)),
-          undefined,
-          [
-            ts.createObjectLiteral(
-              def.fields.map((next: FieldDefinition) => {
-                return ts.createShorthandPropertyAssignment(next.name.value)
-              })
+            ...def.fields.map(createParametersForField),
+            createFunctionParameter(
+                COMMON_IDENTIFIERS.context,
+                ContextType,
+                undefined,
+                true,
             )
-          ]
-        )
-      ),
-      // args.write(output)
-      createMethodCallStatement(
-        COMMON_IDENTIFIERS.args,
-        'write',
-        [ COMMON_IDENTIFIERS.output ]
-      ),
-      // output.writeMessageEnd()
-      createMethodCallStatement(
-        COMMON_IDENTIFIERS.output,
-        'writeMessageEnd'
-      ),
-      ts.createReturn(
-        ts.createCall(
-          ts.createPropertyAccess(
-            createConnectionSend(),
-            ts.createIdentifier('then'),
-          ),
-          undefined,
-          [
-            ts.createArrowFunction(
+        ], // parameters
+        ts.createTypeReferenceNode(
+          'Promise',
+          [ typeNodeForFieldType(def.returnType) ]
+        ), // return type
+        ts.createBlock([
+          createConstStatement(
+            COMMON_IDENTIFIERS.writer,
+            ts.createTypeReferenceNode(
+              COMMON_IDENTIFIERS.TTransport,
+              undefined
+            ),
+            ts.createNew(
+              ts.createIdentifier('this.transport'),
               undefined,
+              []
+            )
+          ),
+          createConstStatement(
+            COMMON_IDENTIFIERS.output,
+            ts.createTypeReferenceNode(
+              COMMON_IDENTIFIERS.TProtocol,
+              undefined
+            ),
+            ts.createNew(
+              ts.createIdentifier('this.protocol'),
               undefined,
               [
-                createFunctionParameter(
-                  COMMON_IDENTIFIERS.data,
-                  ts.createTypeReferenceNode(
-                    COMMON_IDENTIFIERS.Buffer,
-                    undefined,
-                  )
+                COMMON_IDENTIFIERS.writer
+              ]
+            )
+          ),
+          // output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.requestId())
+          createMethodCallStatement(
+            COMMON_IDENTIFIERS.output,
+            'writeMessageBegin',
+            [
+              ts.createLiteral(def.name.value),
+              MESSAGE_TYPE.CALL,
+              ts.createCall(
+                ts.createIdentifier('this.incrementRequestId'),
+                undefined,
+                [],
+              )
+            ]
+          ),
+          // const args = new {{ServiceName}}{{nameTitleCase}}Args( { {{#args}}{{fieldName}}, {{/args}} } )
+          createConstStatement(
+            COMMON_IDENTIFIERS.args,
+            ts.createTypeReferenceNode(
+              ts.createIdentifier(createStructArgsName(def)),
+              undefined
+            ),
+            ts.createNew(
+              ts.createIdentifier(createStructArgsName(def)),
+              undefined,
+              [
+                ts.createObjectLiteral(
+                  def.fields.map((next: FieldDefinition) => {
+                    return ts.createShorthandPropertyAssignment(next.name.value)
+                  })
+                )
+              ]
+            )
+          ),
+          // args.write(output)
+          createMethodCallStatement(
+            COMMON_IDENTIFIERS.args,
+            'write',
+            [ COMMON_IDENTIFIERS.output ]
+          ),
+          // output.writeMessageEnd()
+          createMethodCallStatement(
+            COMMON_IDENTIFIERS.output,
+            'writeMessageEnd'
+          ),
+          ts.createReturn(
+            ts.createCall(
+              ts.createPropertyAccess(
+                createConnectionSend(),
+                ts.createIdentifier('then'),
+              ),
+              undefined,
+              [
+                ts.createArrowFunction(
+                  undefined,
+                  undefined,
+                  [
+                    createFunctionParameter(
+                      COMMON_IDENTIFIERS.data,
+                      ts.createTypeReferenceNode(
+                        COMMON_IDENTIFIERS.Buffer,
+                        undefined,
+                      )
+                    )
+                  ],
+                  undefined,
+                  undefined,
+                  ts.createBlock([
+                    createConstStatement(
+                      COMMON_IDENTIFIERS.reader,
+                      ts.createTypeReferenceNode(
+                        COMMON_IDENTIFIERS.TTransport,
+                        undefined,
+                      ),
+                      ts.createCall(
+                        ts.createIdentifier('this.transport.receiver'),
+                        undefined,
+                        [
+                          COMMON_IDENTIFIERS.data,
+                        ],
+                      )
+                    ),
+                    createConstStatement(
+                      COMMON_IDENTIFIERS.input,
+                      ts.createTypeReferenceNode(
+                        COMMON_IDENTIFIERS.TProtocol,
+                        undefined,
+                      ),
+                      ts.createNew(
+                        ts.createIdentifier('this.protocol'),
+                        undefined,
+                        [
+                          COMMON_IDENTIFIERS.reader
+                        ],
+                      )
+                    ),
+                    ts.createTry(
+                      ts.createBlock([
+                        ts.createVariableStatement(
+                          undefined,
+                          ts.createVariableDeclarationList([
+                            ts.createVariableDeclaration(
+                              ts.createObjectBindingPattern([
+                                ts.createBindingElement(
+                                  undefined,
+                                  COMMON_IDENTIFIERS.fieldName,
+                                  COMMON_IDENTIFIERS.fieldName,
+                                ),
+                                ts.createBindingElement(
+                                  undefined,
+                                  COMMON_IDENTIFIERS.messageType,
+                                  COMMON_IDENTIFIERS.messageType,
+                                )
+                              ]),
+                              ts.createTypeReferenceNode(
+                                COMMON_IDENTIFIERS.IThriftMessage,
+                                undefined,
+                              ),
+                              ts.createCall(
+                                ts.createPropertyAccess(
+                                  COMMON_IDENTIFIERS.input,
+                                  'readMessageBegin'
+                                ),
+                                undefined,
+                                [],
+                              )
+                            )
+                          ], ts.NodeFlags.Const)
+                        ),
+                        ts.createIf(
+                          ts.createBinary(
+                            COMMON_IDENTIFIERS.fieldName,
+                            ts.SyntaxKind.EqualsEqualsEqualsToken,
+                            ts.createLiteral(def.name.value),
+                          ),
+                          ts.createBlock([
+                            // if (messageType === Thrift.MessageType.EXCEPTION) {
+                            //     const x = new Thrift.TApplicationException()
+                            //     x.read(proto)
+                            //     proto.readMessageEnd()
+                            //     return callback(x)
+                            // }
+                            createExceptionHandler(),
+
+                            // const result = new {{ServiceName}}{{nameTitleCase}}Result()
+                            ...createNewResultInstance(def),
+
+                            // proto.readMessageEnd()
+                            createMethodCallStatement(
+                              COMMON_IDENTIFIERS.input,
+                              'readMessageEnd'
+                            ),
+
+                            // {{#throws}}if (result.{{throwName}} != null) {
+                            //     return callback(result.{{throwName}})
+                            // }
+                            ...def.throws.map((next: FieldDefinition): ts.IfStatement => {
+                              return ts.createIf(
+                                createNotNullCheck(`result.${next.name.value}`),
+                                ts.createBlock([
+                                  ts.createReturn(
+                                    rejectPromiseWith(ts.createIdentifier(`result.${next.name.value}`))
+                                  )
+                                ], true)
+                              )
+                            }),
+                            createResultHandler(def)
+                          ], true),
+                          ts.createBlock([
+                            ts.createReturn(
+                              rejectPromiseWith(
+                                ts.createNew(
+                                  COMMON_IDENTIFIERS.TApplicationException,
+                                  undefined,
+                                  [
+                                    APPLICATION_EXCEPTION.WRONG_METHOD_NAME,
+                                    ts.createBinary(
+                                      ts.createLiteral(
+                                        "Received a response to an unknown RPC function: ",
+                                      ),
+                                      ts.SyntaxKind.PlusToken,
+                                      COMMON_IDENTIFIERS.fieldName
+                                    )
+                                  ]
+                                )
+                              )
+                            )
+                          ], true),
+                        )
+                      ], true),
+                      ts.createCatchClause(
+                        ts.createVariableDeclaration(
+                          COMMON_IDENTIFIERS.err,
+                        ),
+                        ts.createBlock([
+                          ts.createReturn(
+                            rejectPromiseWith(
+                              COMMON_IDENTIFIERS.err,
+                            )
+                          ),
+                        ], true),
+                      ),
+                      undefined,
+                    )
+                  ], true)
                 )
               ],
-              undefined,
-              undefined,
-              ts.createBlock([
-                createConstStatement(
-                  COMMON_IDENTIFIERS.reader,
-                  ts.createTypeReferenceNode(
-                    COMMON_IDENTIFIERS.TTransport,
-                    undefined,
-                  ),
-                  ts.createCall(
-                    ts.createIdentifier('this.transport.receiver'),
-                    undefined,
-                    [
-                      COMMON_IDENTIFIERS.data,
-                    ],
-                  )
-                ),
-                createConstStatement(
-                  COMMON_IDENTIFIERS.input,
-                  ts.createTypeReferenceNode(
-                    COMMON_IDENTIFIERS.TProtocol,
-                    undefined,
-                  ),
-                  ts.createNew(
-                    ts.createIdentifier('this.protocol'),
-                    undefined,
-                    [
-                      COMMON_IDENTIFIERS.reader
-                    ],
-                  )
-                ),
-                ts.createTry(
-                  ts.createBlock([
-                    ts.createVariableStatement(
-                      undefined,
-                      ts.createVariableDeclarationList([
-                        ts.createVariableDeclaration(
-                          ts.createObjectBindingPattern([
-                            ts.createBindingElement(
-                              undefined,
-                              COMMON_IDENTIFIERS.fieldName,
-                              COMMON_IDENTIFIERS.fieldName,
-                            ),
-                            ts.createBindingElement(
-                              undefined,
-                              COMMON_IDENTIFIERS.messageType,
-                              COMMON_IDENTIFIERS.messageType,
-                            )
-                          ]),
-                          ts.createTypeReferenceNode(
-                            COMMON_IDENTIFIERS.IThriftMessage,
-                            undefined,
-                          ),
-                          ts.createCall(
-                            ts.createPropertyAccess(
-                              COMMON_IDENTIFIERS.input,
-                              'readMessageBegin'
-                            ),
-                            undefined,
-                            [],
-                          )
-                        )
-                      ], ts.NodeFlags.Const)
-                    ),
-                    ts.createIf(
-                      ts.createBinary(
-                        COMMON_IDENTIFIERS.fieldName,
-                        ts.SyntaxKind.EqualsEqualsEqualsToken,
-                        ts.createLiteral(def.name.value),
-                      ),
-                      ts.createBlock([
-                        // if (messageType === Thrift.MessageType.EXCEPTION) {
-                        //     const x = new Thrift.TApplicationException()
-                        //     x.read(proto)
-                        //     proto.readMessageEnd()
-                        //     return callback(x)
-                        // }
-                        createExceptionHandler(),
-
-                        // const result = new {{ServiceName}}{{nameTitleCase}}Result()
-                        ...createNewResultInstance(def),
-
-                        // proto.readMessageEnd()
-                        createMethodCallStatement(
-                          COMMON_IDENTIFIERS.input,
-                          'readMessageEnd'
-                        ),
-
-                        // {{#throws}}if (result.{{throwName}} != null) {
-                        //     return callback(result.{{throwName}})
-                        // }
-                        ...def.throws.map((next: FieldDefinition): ts.IfStatement => {
-                          return ts.createIf(
-                            createNotNullCheck(`result.${next.name.value}`),
-                            ts.createBlock([
-                              ts.createReturn(
-                                rejectPromiseWith(ts.createIdentifier(`result.${next.name.value}`))
-                              )
-                            ], true)
-                          )
-                        }),
-                        createResultHandler(def)
-                      ], true),
-                      ts.createBlock([
-                        ts.createReturn(
-                          rejectPromiseWith(
-                            ts.createNew(
-                              COMMON_IDENTIFIERS.TApplicationException,
-                              undefined,
-                              [
-                                APPLICATION_EXCEPTION.WRONG_METHOD_NAME,
-                                ts.createBinary(
-                                  ts.createLiteral(
-                                    "Received a response to an unknown RPC function: ",
-                                  ),
-                                  ts.SyntaxKind.PlusToken,
-                                  COMMON_IDENTIFIERS.fieldName
-                                )
-                              ]
-                            )
-                          )
-                        )
-                      ], true),
-                    )
-                  ], true),
-                  ts.createCatchClause(
-                    ts.createVariableDeclaration(
-                      COMMON_IDENTIFIERS.err,
-                    ),
-                    ts.createBlock([
-                      ts.createReturn(
-                        rejectPromiseWith(
-                          COMMON_IDENTIFIERS.err,
-                        )
-                      ),
-                    ], true),
-                  ),
-                  undefined,
-                )
-              ], true)
             )
-          ],
-        )
-      ),
-    ], true) // body
-  )
+          ),
+        ], true) // body
+    )
 }
 
 function createConnectionSend(): ts.CallExpression {
@@ -594,8 +598,14 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
 }
 
 function createParametersForField(field: FieldDefinition): ts.ParameterDeclaration {
-  return createFunctionParameter(
-    field.name.value,
-    typeNodeForFieldType(field.fieldType)
-  )
+    const defaultValue = (field.defaultValue !== null) ?
+        renderValue(field.fieldType, field.defaultValue) :
+        undefined
+
+    return createFunctionParameter(
+        field.name.value,
+        typeNodeForFieldType(field.fieldType),
+        defaultValue,
+        (field.requiredness === 'optional'),
+    )
 }
