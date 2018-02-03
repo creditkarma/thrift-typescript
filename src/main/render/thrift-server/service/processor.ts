@@ -1,34 +1,25 @@
 import * as ts from 'typescript'
 
 import {
-  ServiceDefinition,
-  FunctionDefinition,
-  FieldDefinition,
-  ThriftStatement,
-  SyntaxType,
+    ServiceDefinition,
+    FunctionDefinition,
+    FieldDefinition,
+    ThriftStatement,
+    SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
-  TProtocolType,
-  ContextType,
+    TProtocolType,
+    ContextType,
 } from './types'
 
 import {
-  createStructArgsName,
-  createStructResultName,
+    createStructArgsName,
+    createStructResultName,
 } from './utils'
 
 import {
-  createPublicMethod,
-  createClassConstructor,
-  createFunctionParameter,
-  createAssignmentStatement,
-  createConstStatement,
-  createMethodCall,
-  createMethodCallStatement,
-  createApplicationException,
-  createPromise,
-  createCallStatement
+    createApplicationException,
 } from '../utils'
 
 import {
@@ -36,19 +27,31 @@ import {
 } from '../../../types'
 
 import {
-  createVoidType,
-  createStringType,
-  createNumberType,
-  createAnyType,
-  typeNodeForFieldType,
-  constructorNameForFieldType,
-} from '../types'
-
-import {
   COMMON_IDENTIFIERS,
   MESSAGE_TYPE,
   THRIFT_TYPES,
 } from '../identifiers'
+
+import {
+    createFunctionParameter,
+    createPublicMethod,
+    createClassConstructor,
+    createAssignmentStatement,
+    createConstStatement,
+    createMethodCall,
+    createMethodCallStatement,
+    createPromise,
+    createCallStatement,
+} from '../../shared/utils'
+
+import {
+    createVoidType,
+    createStringType,
+    createNumberType,
+    createAnyType,
+    typeNodeForFieldType,
+    constructorNameForFieldType,
+} from '../../shared/types'
 
 /**
  * // thrift

@@ -8,41 +8,44 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-  ContextType,
-  createConnectionType,
+    ContextType,
+    createConnectionType,
 } from './types'
 
 import {
-    renderValue
-  } from '../values'
-
-import {
-  createStructArgsName,
-  createStructResultName
+    createStructArgsName,
+    createStructResultName
 } from './utils'
 
 import {
-  createClassConstructor,
-  createFunctionParameter,
-  createAssignmentStatement,
-  createNotNullCheck,
-  createConstStatement,
-  createMethodCallStatement,
-  createProtectedProperty,
-  createApplicationException,
+    createApplicationException,
 } from '../utils'
 
 import {
-  createAnyType,
-  createNumberType,
-  typeNodeForFieldType,
-} from '../types'
+    APPLICATION_EXCEPTION,
+    COMMON_IDENTIFIERS,
+    MESSAGE_TYPE,
+} from '../identifiers'
 
 import {
-  APPLICATION_EXCEPTION,
-  COMMON_IDENTIFIERS,
-  MESSAGE_TYPE,
-} from '../identifiers'
+    createFunctionParameter,
+    createClassConstructor,
+    createAssignmentStatement,
+    createNotNullCheck,
+    createConstStatement,
+    createMethodCallStatement,
+    createProtectedProperty,
+} from '../../shared/utils'
+
+import {
+    createAnyType,
+    createNumberType,
+    typeNodeForFieldType,
+} from '../../shared/types'
+
+import {
+    renderValue
+} from '../../shared/values'
 
 export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
   // private _requestId: number;

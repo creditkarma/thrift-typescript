@@ -1,35 +1,38 @@
 import * as ts from 'typescript'
 
 import {
-  FunctionType,
-  ContainerType,
-  SetType,
-  ListType,
-  MapType,
-  InterfaceWithFields,
-  FieldDefinition,
-  SyntaxType
+    FunctionType,
+    ContainerType,
+    SetType,
+    ListType,
+    MapType,
+    InterfaceWithFields,
+    FieldDefinition,
+    SyntaxType
 } from '@creditkarma/thrift-parser'
 
 import {
-  IIdentifierMap,
-  IResolvedIdentifier
+    IIdentifierMap,
+    IResolvedIdentifier
 } from '../../../types'
 
 import {
-  createMethodCall,
-  createMethodCallStatement,
-  propertyAccessForIdentifier,
-  createFunctionParameter,
-  createNotNullCheck,
-  createPublicMethod
-} from '../utils'
+    thriftTypeForFieldType,
+} from '../types'
 
 import {
-  createVoidType,
-  thriftTypeForFieldType,
-  typeNodeForFieldType
-} from '../types'
+    createFunctionParameter,
+    createMethodCall,
+    createMethodCallStatement,
+    propertyAccessForIdentifier,
+    createNotNullCheck,
+    createPublicMethod,
+} from '../../shared/utils'
+
+import {
+    createVoidType,
+    typeNodeForFieldType,
+} from '../../shared/types'
 
 import {
   COMMON_IDENTIFIERS

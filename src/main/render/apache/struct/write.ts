@@ -1,47 +1,50 @@
 import * as ts from 'typescript'
 
 import {
-  FunctionType,
-  ContainerType,
-  SetType,
-  ListType,
-  MapType,
-  InterfaceWithFields,
-  FieldDefinition,
-  SyntaxType
+    FunctionType,
+    ContainerType,
+    SetType,
+    ListType,
+    MapType,
+    InterfaceWithFields,
+    FieldDefinition,
+    SyntaxType
 } from '@creditkarma/thrift-parser'
 
 import {
-  IIdentifierMap,
-  IResolvedIdentifier
+    IIdentifierMap,
+    IResolvedIdentifier
 } from '../../../types'
 
 import {
-  createMethodCall,
-  createMethodCallStatement,
-  propertyAccessForIdentifier,
-  createFunctionParameter,
-  createNotNullCheck,
-  createPublicMethod
-} from '../utils'
+    createFunctionParameter,
+    createMethodCall,
+    createMethodCallStatement,
+    propertyAccessForIdentifier,
+    createNotNullCheck,
+    createPublicMethod,
+} from '../../shared/utils'
 
 import {
-  createVoidType,
-  thriftTypeForFieldType,
-  typeNodeForFieldType
+    createVoidType,
+    typeNodeForFieldType,
+} from '../../shared/types'
+
+import {
+    thriftTypeForFieldType,
 } from '../types'
 
 import {
-  COMMON_IDENTIFIERS
+    COMMON_IDENTIFIERS
 } from '../identifiers'
 
 import {
-  WRITE_METHODS,
-  WriteMethodName
+    WRITE_METHODS,
+    WriteMethodName
 } from './methods'
 
 function isNotVoid(field: FieldDefinition): boolean {
-  return field.fieldType.type !== SyntaxType.VoidKeyword;
+    return field.fieldType.type !== SyntaxType.VoidKeyword;
 }
 
 /**

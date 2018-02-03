@@ -3,49 +3,49 @@ export * from './types'
 import * as path from 'path'
 
 import {
-  CompileTarget,
-  IIncludeCache,
-  IMakeOptions,
-  IParsedFile,
-  IRenderedCache,
-  IRenderedFile,
-  IResolvedCache,
-  IResolvedFile,
-  IThriftFile,
+    CompileTarget,
+    IIncludeCache,
+    IMakeOptions,
+    IParsedFile,
+    IRenderedCache,
+    IRenderedFile,
+    IResolvedCache,
+    IResolvedFile,
+    IThriftFile,
 } from './types'
 
 import {
-  print,
+    print,
 } from './printer'
 
 import {
-  resolveFile,
+    resolveFile,
 } from './resolver'
 
 import {
-  validateFile,
+    validateFile,
 } from './validator'
 
 import {
-  generateFile,
-  processStatements,
+    generateFile,
+    processStatements,
 } from './generator'
 
 import {
-  rendererForTarget,
+    rendererForTarget,
 } from './render'
 
 import {
-  printErrors,
+    printErrors,
 } from './debugger'
 
 import {
-  collectInvalidFiles,
-  collectSourceFiles,
-  parseFile,
-  parseSource,
-  readThriftFile,
-  saveFiles,
+    collectInvalidFiles,
+    collectSourceFiles,
+    parseFile,
+    parseSource,
+    readThriftFile,
+    saveFiles,
 } from './utils'
 
 /**
@@ -57,10 +57,10 @@ import {
  * @param source
  */
 export function make(source: string, target: CompileTarget = 'apache'): string {
-  const parsedFile: IParsedFile = parseSource(source)
-  const resolvedAST: IResolvedFile = resolveFile(parsedFile)
-  const validAST: IResolvedFile = validateFile(resolvedAST)
-  return print(processStatements(validAST.body, validAST.identifiers, rendererForTarget(target)))
+    const parsedFile: IParsedFile = parseSource(source)
+    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const validAST: IResolvedFile = validateFile(resolvedAST)
+    return print(processStatements(validAST.body, validAST.identifiers, rendererForTarget(target)))
 }
 
 /**
@@ -75,39 +75,39 @@ export function make(source: string, target: CompileTarget = 'apache'): string {
  * @param options
  */
 export function generate(options: IMakeOptions): void {
-  const rootDir: string = path.resolve(process.cwd(), options.rootDir)
-  const outDir: string = path.resolve(rootDir, options.outDir)
-  const sourceDir: string = path.resolve(rootDir, options.sourceDir)
-  const includeCache: IIncludeCache = {}
-  const resolvedCache: IResolvedCache = {}
-  const renderedCache: IRenderedCache = {}
+    const rootDir: string = path.resolve(process.cwd(), options.rootDir)
+    const outDir: string = path.resolve(rootDir, options.outDir)
+    const sourceDir: string = path.resolve(rootDir, options.sourceDir)
+    const includeCache: IIncludeCache = {}
+    const resolvedCache: IResolvedCache = {}
+    const renderedCache: IRenderedCache = {}
 
-  const validatedFiles: Array<IResolvedFile> =
-    collectSourceFiles(sourceDir, options).map((next: string): IResolvedFile => {
-      const thriftFile: IThriftFile = readThriftFile(next, [ sourceDir ])
-      const parsedFile: IParsedFile = parseFile(sourceDir, thriftFile, includeCache)
-      const resolvedFile: IResolvedFile = resolveFile(parsedFile, resolvedCache)
-      return validateFile(resolvedFile)
-    })
+    const validatedFiles: Array<IResolvedFile> =
+        collectSourceFiles(sourceDir, options).map((next: string): IResolvedFile => {
+            const thriftFile: IThriftFile = readThriftFile(next, [ sourceDir ])
+            const parsedFile: IParsedFile = parseFile(sourceDir, thriftFile, includeCache)
+            const resolvedFile: IResolvedFile = resolveFile(parsedFile, resolvedCache)
+            return validateFile(resolvedFile)
+        })
 
-  const invalidFiles: Array<IResolvedFile> = collectInvalidFiles(validatedFiles)
+    const invalidFiles: Array<IResolvedFile> = collectInvalidFiles(validatedFiles)
 
-  if (invalidFiles.length > 0) {
-    printErrors(invalidFiles)
-    process.exitCode = 1
-  } else {
-    const renderedFiles: Array<IRenderedFile> =
-      validatedFiles.map((next: IResolvedFile): IRenderedFile => {
-        return generateFile(
-          rendererForTarget(options.target),
-          rootDir,
-          outDir,
-          sourceDir,
-          next,
-          renderedCache,
-        )
-      })
+    if (invalidFiles.length > 0) {
+        printErrors(invalidFiles)
+        process.exitCode = 1
+    } else {
+        const renderedFiles: Array<IRenderedFile> =
+            validatedFiles.map((next: IResolvedFile): IRenderedFile => {
+                return generateFile(
+                rendererForTarget(options.target),
+                rootDir,
+                outDir,
+                sourceDir,
+                next,
+                renderedCache,
+                )
+            })
 
-    saveFiles(rootDir, outDir, renderedFiles)
-  }
+        saveFiles(rootDir, outDir, renderedFiles)
+    }
 }
