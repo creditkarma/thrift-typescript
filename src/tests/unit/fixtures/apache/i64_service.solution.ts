@@ -214,11 +214,7 @@ export namespace MyService {
             this._handler = handler;
         }
         public process(input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
-            const metadata: {
-                fname: string;
-                mtype: thrift.Thrift.MessageType;
-                rseqid: number;
-            } = input.readMessageBegin();
+            const metadata: thrift.TMessage = input.readMessageBegin();
             const fname: string = metadata.fname;
             const requestId: number = metadata.rseqid;
             const methodName: string = "process_" + fname;

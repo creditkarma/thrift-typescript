@@ -1,50 +1,59 @@
 import * as ts from 'typescript'
 
 import {
-  FieldDefinition,
-  UnionDefinition,
-  SyntaxType,
+    FieldDefinition,
+    UnionDefinition,
+    SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
-  IIdentifierMap
+    IIdentifierMap
 } from '../../types'
 
 import {
-  createClassConstructor,
-  createConstStatement,
-  createEquals,
-  createFunctionParameter,
-  createLetStatement,
-  createNotNullCheck,
-  propertyAccessForIdentifier,
-  throwProtocolException,
+    throwProtocolException,
 } from './utils'
 
 import {
-  createNumberType,
-  thriftTypeForFieldType,
-  typeNodeForFieldType,
+    thriftTypeForFieldType,
 } from './types'
 
 import {
-  assignmentForField,
-  createInputParameter,
-  createArgsParameterForStruct,
-  createFieldsForStruct,
-  createSkipBlock,
-  createWriteMethod,
-  readFieldBegin,
-  readFieldEnd,
-  readStructBegin,
-  readStructEnd,
-  readValueForFieldType,
-  throwForField,
+    createFunctionParameter,
+    createClassConstructor,
+    createConstStatement,
+    createEquals,
+    createLetStatement,
+    createNotNullCheck,
+    propertyAccessForIdentifier,
+} from '../shared/utils'
+
+import {
+    createNumberType,
+    typeNodeForFieldType,
+} from '../shared/types'
+
+import {
+    createArgsParameterForStruct,
+} from '../shared/struct'
+
+import {
+    assignmentForField,
+    createInputParameter,
+    createFieldsForStruct,
+    createSkipBlock,
+    createWriteMethod,
+    readFieldBegin,
+    readFieldEnd,
+    readStructBegin,
+    readStructEnd,
+    readValueForFieldType,
+    throwForField,
 } from './struct'
 
 import {
-  COMMON_IDENTIFIERS,
-  THRIFT_TYPES,
+    COMMON_IDENTIFIERS,
+    THRIFT_TYPES,
 } from './identifiers'
 
 const INCREMENTER: string = '_fieldsSet'

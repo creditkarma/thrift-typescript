@@ -1,57 +1,59 @@
 import * as ts from 'typescript'
 
 import {
-  ConstDefinition,
-  TypedefDefinition,
-  EnumDefinition,
-  StructDefinition,
-  ServiceDefinition,
-  ExceptionDefinition,
-  UnionDefinition,
+    ConstDefinition,
+    TypedefDefinition,
+    EnumDefinition,
+    StructDefinition,
+    ServiceDefinition,
+    ExceptionDefinition,
+    UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
 import { renderException as _renderException } from './exception'
 
-import { renderInterface } from './interface'
+import {
+    renderInterface
+} from '../shared/interface'
 
 import {
-  renderArgsStruct,
-  renderClient,
-  renderProcessor,
-  renderResultStruct,
-  renderHandlerInterface,
+    renderArgsStruct,
+    renderClient,
+    renderProcessor,
+    renderResultStruct,
+    renderHandlerInterface,
 } from './service'
 
 import { renderStruct as _renderStruct } from './struct'
 import { renderUnion as _renderUnion } from './union'
-import { renderEnum as _renderEnum } from './enum'
-import { renderTypeDef as _renderTypeDef } from './typedef'
-import { renderConst as _renderConst } from './const'
+import { renderEnum as _renderEnum } from '../shared/enum'
+import { renderTypeDef as _renderTypeDef } from '../shared/typedef'
+import { renderConst as _renderConst } from '../shared/const'
 import {
-  renderIncludes as _renderIncludes,
-  renderThriftImports,
-  fileUsesThrift,
+    renderIncludes as _renderIncludes,
+    renderThriftImports,
+    fileUsesThrift,
 } from './includes'
 
 import {
-  IIdentifierMap,
-  IRenderer,
-  IRenderedFileMap,
-  IResolvedFile,
+    IIdentifierMap,
+    IRenderer,
+    IRenderedFileMap,
+    IResolvedFile,
 } from '../../types'
 
 export function renderIncludes(
-  outPath: string,
-  includes: IRenderedFileMap,
-  resolvedFile: IResolvedFile): Array<ts.Statement> {
-  if (fileUsesThrift(resolvedFile)) {
-    return [
-      renderThriftImports(),
-      ..._renderIncludes(outPath, includes, resolvedFile.includes),
-    ]
-  } else {
-    return _renderIncludes(outPath, includes, resolvedFile.includes)
-  }
+    outPath: string,
+    includes: IRenderedFileMap,
+    resolvedFile: IResolvedFile): Array<ts.Statement> {
+    if (fileUsesThrift(resolvedFile)) {
+        return [
+            renderThriftImports(),
+            ..._renderIncludes(outPath, includes, resolvedFile.includes),
+        ]
+    } else {
+        return _renderIncludes(outPath, includes, resolvedFile.includes)
+    }
 }
 
 export function renderConst(statement: ConstDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {

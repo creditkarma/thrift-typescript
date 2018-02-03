@@ -1,54 +1,56 @@
 import * as ts from 'typescript'
 
 import {
-  ServiceDefinition,
-  FunctionDefinition,
-  FieldDefinition,
-  ThriftStatement,
-  SyntaxType,
+    ServiceDefinition,
+    FunctionDefinition,
+    FieldDefinition,
+    ThriftStatement,
+    SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
-  TProtocolType,
-  ContextType,
-  createReadMessageType
+    TProtocolType,
+    ContextType,
 } from './types'
 
 import {
-  createStructArgsName,
-  createStructResultName,
+    createStructArgsName,
+    createStructResultName,
 } from './utils'
 
 import {
-  createPublicMethod,
-  createClassConstructor,
-  createFunctionParameter,
-  createAssignmentStatement,
-  createConstStatement,
-  createMethodCall,
-  createMethodCallStatement,
-  createApplicationException,
-  createPromise,
-  createCallStatement
+    createApplicationException,
 } from '../utils'
 
 import {
-  IIdentifierMap
+    createFunctionParameter,
+    createPromise,
+    createPublicMethod,
+    createClassConstructor,
+    createAssignmentStatement,
+    createConstStatement,
+    createMethodCall,
+    createMethodCallStatement,
+    createCallStatement,
+} from '../../shared/utils'
+
+import {
+    IIdentifierMap
 } from '../../../types'
 
 import {
-  createStringType,
-  createNumberType,
-  createVoidType,
-  createAnyType,
-  typeNodeForFieldType,
-  constructorNameForFieldType,
-} from '../types'
+    createStringType,
+    createNumberType,
+    createVoidType,
+    createAnyType,
+    typeNodeForFieldType,
+    constructorNameForFieldType,
+} from '../../shared/types'
 
 import {
-  COMMON_IDENTIFIERS,
-  MESSAGE_TYPE,
-  THRIFT_TYPES,
+    COMMON_IDENTIFIERS,
+    MESSAGE_TYPE,
+    THRIFT_TYPES,
 } from '../identifiers'
 
 /**
@@ -681,7 +683,10 @@ function createProcessMethod(service: ServiceDefinition, identifiers: IIdentifie
     [
       createConstStatement(
         'metadata',
-        createReadMessageType(),
+        ts.createTypeReferenceNode(
+            COMMON_IDENTIFIERS.TMessage,
+            undefined
+        ),
         createMethodCall(
           COMMON_IDENTIFIERS.input,
           'readMessageBegin',

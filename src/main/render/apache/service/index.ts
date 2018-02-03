@@ -4,36 +4,36 @@ export * from './processor';
 import * as ts from 'typescript'
 
 import {
-  SyntaxType,
-  StructDefinition,
-  ServiceDefinition,
-  FunctionDefinition,
-  FieldDefinition,
-  TextLocation
+    SyntaxType,
+    StructDefinition,
+    ServiceDefinition,
+    FunctionDefinition,
+    FieldDefinition,
+    TextLocation
 } from '@creditkarma/thrift-parser'
 
 import {
-  createStructArgsName,
-  createStructResultName
+    createStructArgsName,
+    createStructResultName
 } from './utils'
 
 import {
-  renderStruct
+    renderStruct
 } from '../struct'
 
 import {
-  renderInterface
-} from '../interface'
+    renderInterface,
+} from '../../shared/interface'
 
 import {
-  IIdentifierMap
+    IIdentifierMap,
 } from '../../../types'
 
 function emptyLocation(): TextLocation {
-  return {
-    start: { line: 0, column: 0, index: 0 },
-    end: { line: 0, column: 0, index: 0 }
-  };
+    return {
+        start: { line: 0, column: 0, index: 0 },
+        end: { line: 0, column: 0, index: 0 }
+    };
 }
 
 

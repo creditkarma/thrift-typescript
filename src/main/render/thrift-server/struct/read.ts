@@ -1,50 +1,53 @@
 import * as ts from 'typescript'
 
 import {
-  FunctionType,
-  SyntaxType,
-  ContainerType,
-  InterfaceWithFields,
-  FieldDefinition,
+    FunctionType,
+    SyntaxType,
+    ContainerType,
+    InterfaceWithFields,
+    FieldDefinition,
 } from '@creditkarma/thrift-parser'
 
 import {
-  IIdentifierMap,
-  IResolvedIdentifier
+    IIdentifierMap,
+    IResolvedIdentifier
 } from '../../../types'
 
 import {
-  createNumberType,
-  createAnyType,
-  thriftTypeForFieldType,
-  typeNodeForFieldType,
+    thriftTypeForFieldType,
 } from '../types'
 
 import {
-  createMethodCallStatement,
-  createMethodCall,
-  createFunctionParameter,
-  propertyAccessForIdentifier,
-  createAssignmentStatement,
-  createConstStatement,
-  createLetStatement,
-  createLet,
-  createEquals,
-  throwProtocolException,
+    throwProtocolException,
 } from '../utils'
 
 import {
-  COMMON_IDENTIFIERS,
-  THRIFT_TYPES,
+    createMethodCallStatement,
+    createMethodCall,
+    propertyAccessForIdentifier,
+    createAssignmentStatement,
+    createConstStatement,
+    createLetStatement,
+    createLet,
+    createEquals,
+    createFunctionParameter,
+    hasRequiredField,
+  } from '../../shared/utils'
+
+import {
+    createNumberType,
+    createAnyType,
+    typeNodeForFieldType,
+} from '../../shared/types'
+
+import {
+    COMMON_IDENTIFIERS,
+    THRIFT_TYPES,
 } from '../identifiers'
 
 import {
-  READ_METHODS
+    READ_METHODS
 } from './methods'
-
-import {
-  hasRequiredField
-} from './utils'
 
 /**
  * public read(input: TProtocol): void {
@@ -80,152 +83,152 @@ import {
  * }
  */
 export function createReadMethod(struct: InterfaceWithFields, identifiers: IIdentifierMap): ts.MethodDeclaration {
-  const inputParameter: ts.ParameterDeclaration = createInputParameter()
-  const tempVariable: ts.VariableStatement = createLetStatement(
-    ts.createIdentifier('_args'),
-    createAnyType(),
-    ts.createObjectLiteral(),
-  )
+    const inputParameter: ts.ParameterDeclaration = createInputParameter()
+    const tempVariable: ts.VariableStatement = createLetStatement(
+        ts.createIdentifier('_args'),
+        createAnyType(),
+        ts.createObjectLiteral(),
+    )
 
-  /**
-   * cosnt ret: { fieldName: string; fieldType: Thrift.Type; fieldId: number; } = input.readFieldBegin()
-   * const fieldType: Thrift.Type = ret.fieldType
-   * const fieldId: number = ret.fieldId
-   */
-  const ret: ts.VariableStatement = createConstStatement(
-    'ret',
-    ts.createTypeReferenceNode(
-      COMMON_IDENTIFIERS.IThriftField,
-      undefined
-    ),
-    readFieldBegin()
-  )
+    /**
+     * cosnt ret: { fieldName: string; fieldType: Thrift.Type; fieldId: number; } = input.readFieldBegin()
+     * const fieldType: Thrift.Type = ret.fieldType
+     * const fieldId: number = ret.fieldId
+     */
+    const ret: ts.VariableStatement = createConstStatement(
+        'ret',
+        ts.createTypeReferenceNode(
+            COMMON_IDENTIFIERS.IThriftField,
+            undefined
+        ),
+        readFieldBegin()
+    )
 
-  const fieldType: ts.VariableStatement = createConstStatement(
-    'fieldType',
-    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Thrift_Type, undefined),
-    propertyAccessForIdentifier('ret', 'fieldType')
-  )
+    const fieldType: ts.VariableStatement = createConstStatement(
+        'fieldType',
+        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Thrift_Type, undefined),
+        propertyAccessForIdentifier('ret', 'fieldType')
+    )
 
-  const fieldId: ts.VariableStatement = createConstStatement(
-    'fieldId',
-    createNumberType(),
-    propertyAccessForIdentifier('ret', 'fieldId')
-  )
+    const fieldId: ts.VariableStatement = createConstStatement(
+        'fieldId',
+        createNumberType(),
+        propertyAccessForIdentifier('ret', 'fieldId')
+    )
 
-  /**
-   * if (fieldType === Thrift.Type.STOP) {
-   *     break;
-   * }
-   */
-  const checkStop: ts.IfStatement = ts.createIf(
-    createEquals(COMMON_IDENTIFIERS.fieldType, THRIFT_TYPES.STOP),
-    ts.createBlock([
-      ts.createBreak()
-    ], true)
-  )
+    /**
+     * if (fieldType === Thrift.Type.STOP) {
+     *     break;
+     * }
+     */
+    const checkStop: ts.IfStatement = ts.createIf(
+        createEquals(COMMON_IDENTIFIERS.fieldType, THRIFT_TYPES.STOP),
+        ts.createBlock([
+            ts.createBreak()
+        ], true)
+    )
 
-  const whileLoop: ts.WhileStatement = ts.createWhile(
-    ts.createLiteral(true),
-    ts.createBlock([
-      ret,
-      fieldType,
-      fieldId,
-      checkStop,
-      ts.createSwitch(
-        COMMON_IDENTIFIERS.fieldId, // what to switch on
-        ts.createCaseBlock([
-          ...struct.fields.map((next: FieldDefinition) => {
-            return createCaseForField(next, identifiers)
-          }),
-          ts.createDefaultClause([
-            createSkipBlock()
-          ])
-        ])
-      ),
-      readFieldEnd(),
-    ], true)
-  )
+    const whileLoop: ts.WhileStatement = ts.createWhile(
+        ts.createLiteral(true),
+        ts.createBlock([
+            ret,
+            fieldType,
+            fieldId,
+            checkStop,
+            ts.createSwitch(
+                COMMON_IDENTIFIERS.fieldId, // what to switch on
+                ts.createCaseBlock([
+                    ...struct.fields.map((next: FieldDefinition) => {
+                        return createCaseForField(next, identifiers)
+                    }),
+                    ts.createDefaultClause([
+                        createSkipBlock()
+                    ])
+                ])
+            ),
+            readFieldEnd(),
+        ], true)
+    )
 
-  return ts.createMethod(
-    undefined,
-    [
-      ts.createToken(ts.SyntaxKind.PublicKeyword),
-      ts.createToken(ts.SyntaxKind.StaticKeyword),
-    ],
-    undefined,
-    ts.createIdentifier('read'),
-    undefined,
-    undefined,
-    [ inputParameter ],
-    ts.createTypeReferenceNode(
-      ts.createIdentifier(struct.name.value),
-      undefined,
-    ), // return type
-    ts.createBlock([
-      readStructBegin(),
-      tempVariable,
-      whileLoop,
-      readStructEnd(),
-      createReturnForStruct(struct),
-    ], true),
-  )
+    return ts.createMethod(
+        undefined,
+        [
+            ts.createToken(ts.SyntaxKind.PublicKeyword),
+            ts.createToken(ts.SyntaxKind.StaticKeyword),
+        ],
+        undefined,
+        ts.createIdentifier('read'),
+        undefined,
+        undefined,
+        [ inputParameter ],
+        ts.createTypeReferenceNode(
+            ts.createIdentifier(struct.name.value),
+            undefined,
+        ), // return type
+        ts.createBlock([
+            readStructBegin(),
+            tempVariable,
+            whileLoop,
+            readStructEnd(),
+            createReturnForStruct(struct),
+        ], true),
+    )
 }
 
 function createCheckForFields(fields: Array<FieldDefinition>): ts.BinaryExpression {
-  return fields.filter((next: FieldDefinition) => {
-    return next.requiredness === 'required'
-  }).map((next: FieldDefinition): ts.BinaryExpression => {
-    return ts.createBinary(
-      ts.createIdentifier(`_args.${next.name.value}`),
-      ts.SyntaxKind.ExclamationEqualsEqualsToken,
-      COMMON_IDENTIFIERS.undefined
-    )
-  }).reduce((acc: ts.BinaryExpression, next: ts.BinaryExpression) => {
-    return ts.createBinary(
-      acc,
-      ts.SyntaxKind.AmpersandAmpersandToken,
-      next
-    )
-  })
+    return fields.filter((next: FieldDefinition) => {
+        return next.requiredness === 'required'
+    }).map((next: FieldDefinition): ts.BinaryExpression => {
+        return ts.createBinary(
+            ts.createIdentifier(`_args.${next.name.value}`),
+            ts.SyntaxKind.ExclamationEqualsEqualsToken,
+            COMMON_IDENTIFIERS.undefined
+        )
+    }).reduce((acc: ts.BinaryExpression, next: ts.BinaryExpression) => {
+        return ts.createBinary(
+            acc,
+            ts.SyntaxKind.AmpersandAmpersandToken,
+            next
+        )
+    })
 }
 
 function createReturnForStruct(struct: InterfaceWithFields): ts.Statement {
-  if (hasRequiredField(struct)) {
-    return ts.createIf(
-      createCheckForFields(struct.fields),
-      ts.createBlock([
-        ts.createReturn(
-          ts.createNew(
-            ts.createIdentifier(struct.name.value),
-            undefined,
-            [ ts.createIdentifier('_args') ]
-          )
+    if (hasRequiredField(struct)) {
+        return ts.createIf(
+            createCheckForFields(struct.fields),
+            ts.createBlock([
+                ts.createReturn(
+                    ts.createNew(
+                        ts.createIdentifier(struct.name.value),
+                        undefined,
+                        [ ts.createIdentifier('_args') ]
+                    )
+                )
+            ], true),
+            ts.createBlock([
+                throwProtocolException(
+                    'UNKNOWN',
+                    `Unable to read ${struct.name.value} from input`
+                )
+            ], true)
         )
-      ], true),
-      ts.createBlock([
-        throwProtocolException(
-          'UNKNOWN',
-          `Unable to read ${struct.name.value} from input`
+    } else {
+        return ts.createReturn(
+            ts.createNew(
+                ts.createIdentifier(struct.name.value),
+                undefined,
+                [ ts.createIdentifier('_args') ]
+            )
         )
-      ], true)
-    )
-  } else {
-    return ts.createReturn(
-      ts.createNew(
-        ts.createIdentifier(struct.name.value),
-        undefined,
-        [ ts.createIdentifier('_args') ]
-      )
-    )
-  }
+    }
 }
 
 export function createInputParameter(): ts.ParameterDeclaration {
-  return createFunctionParameter(
-    'input', // param name
-    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TProtocol, undefined) // param type
-  )
+    return createFunctionParameter(
+        'input', // param name
+        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TProtocol, undefined) // param type
+    )
 }
 
 /**
@@ -244,135 +247,135 @@ export function createInputParameter(): ts.ParameterDeclaration {
  * @param field
  */
 export function createCaseForField(field: FieldDefinition, identifiers: IIdentifierMap): ts.CaseClause {
-  const fieldAlias: ts.Identifier = ts.createUniqueName('value')
-  const checkType: ts.IfStatement = ts.createIf(
-    createEquals(
-      COMMON_IDENTIFIERS.fieldType,
-      thriftTypeForFieldType(field.fieldType, identifiers)
-    ),
-    ts.createBlock([
-      ...readValueForFieldType(
-        field.fieldType,
-        fieldAlias,
-        identifiers
-      ),
-      ...endReadForField(fieldAlias, field)
-    ], true),
-    createSkipBlock()
-  )
-
-  if (field.fieldID !== null) {
-    return ts.createCaseClause(
-      ts.createLiteral(field.fieldID.value),
-      [
-        checkType,
-        ts.createBreak()
-      ]
+    const fieldAlias: ts.Identifier = ts.createUniqueName('value')
+    const checkType: ts.IfStatement = ts.createIf(
+        createEquals(
+            COMMON_IDENTIFIERS.fieldType,
+            thriftTypeForFieldType(field.fieldType, identifiers)
+        ),
+        ts.createBlock([
+            ...readValueForFieldType(
+                field.fieldType,
+                fieldAlias,
+                identifiers
+            ),
+            ...endReadForField(fieldAlias, field)
+        ], true),
+        createSkipBlock()
     )
-  } else {
-    throw new Error(`FieldID on line ${field.loc.start.line} is null`)
-  }
+
+    if (field.fieldID !== null) {
+        return ts.createCaseClause(
+            ts.createLiteral(field.fieldID.value),
+            [
+                checkType,
+                ts.createBreak()
+            ]
+        )
+    } else {
+        throw new Error(`FieldID on line ${field.loc.start.line} is null`)
+    }
 }
 
 export function endReadForField(fieldName: ts.Identifier, field: FieldDefinition): Array<ts.Statement> {
-  switch (field.fieldType.type) {
-    case SyntaxType.VoidKeyword:
-      return []
+    switch (field.fieldType.type) {
+        case SyntaxType.VoidKeyword:
+            return []
 
-    default:
-      return [
-        createAssignmentStatement(
-          ts.createIdentifier(`_args.${field.name.value}`),
-          fieldName
-        )
-      ]
-  }
+        default:
+            return [
+                createAssignmentStatement(
+                    ts.createIdentifier(`_args.${field.name.value}`),
+                    fieldName
+                )
+            ]
+    }
 }
 
 export function metadataTypeForFieldType(fieldType: ContainerType): ts.TypeNode {
-  switch (fieldType.type) {
-    case SyntaxType.MapType:
-      return ts.createTypeReferenceNode(
-        COMMON_IDENTIFIERS.IThriftMap,
-        undefined,
-      )
+    switch (fieldType.type) {
+        case SyntaxType.MapType:
+            return ts.createTypeReferenceNode(
+                COMMON_IDENTIFIERS.IThriftMap,
+                undefined,
+            )
 
-    case SyntaxType.SetType:
-      return ts.createTypeReferenceNode(
-        COMMON_IDENTIFIERS.IThriftSet,
-        undefined,
-      )
+        case SyntaxType.SetType:
+            return ts.createTypeReferenceNode(
+                COMMON_IDENTIFIERS.IThriftSet,
+                undefined,
+            )
 
-    case SyntaxType.ListType:
-      return ts.createTypeReferenceNode(
-        COMMON_IDENTIFIERS.IThriftList,
-        undefined,
-      )
+        case SyntaxType.ListType:
+            return ts.createTypeReferenceNode(
+                COMMON_IDENTIFIERS.IThriftList,
+                undefined,
+            )
 
-    default:
-      const msg: never = fieldType
-      throw new Error(`Non-exhaustive match for: ${msg}`)
-  }
+        default:
+            const msg: never = fieldType
+            throw new Error(`Non-exhaustive match for: ${msg}`)
+    }
 }
 
 function readBeginForFieldType(fieldType: ContainerType): ts.CallExpression {
-  switch (fieldType.type) {
-    case SyntaxType.MapType:
-      return readMapBegin()
+    switch (fieldType.type) {
+        case SyntaxType.MapType:
+            return readMapBegin()
 
-    case SyntaxType.SetType:
-      return readSetBegin()
+        case SyntaxType.SetType:
+            return readSetBegin()
 
-    case SyntaxType.ListType:
-      return readListBegin()
+        case SyntaxType.ListType:
+            return readListBegin()
 
-    default:
-      const msg: never = fieldType
-      throw new Error(`Non-exhaustive match for: ${msg}`)
-  }
+        default:
+            const msg: never = fieldType
+            throw new Error(`Non-exhaustive match for: ${msg}`)
+    }
 }
 
 function readEndForFieldType(fieldType: ContainerType): ts.CallExpression {
-  switch (fieldType.type) {
-    case SyntaxType.MapType:
-      return readMapEnd()
+    switch (fieldType.type) {
+        case SyntaxType.MapType:
+            return readMapEnd()
 
-    case SyntaxType.SetType:
-      return readSetEnd()
+        case SyntaxType.SetType:
+            return readSetEnd()
 
-    case SyntaxType.ListType:
-      return readListEnd()
+        case SyntaxType.ListType:
+            return readListEnd()
 
-    default:
-      const msg: never = fieldType
-      throw new Error(`Non-exhaustive match for: ${msg}`)
-  }
+        default:
+            const msg: never = fieldType
+            throw new Error(`Non-exhaustive match for: ${msg}`)
+    }
 }
 
 function loopBody(fieldType: ContainerType, fieldName: ts.Identifier, identifiers: IIdentifierMap): Array<ts.Statement> {
-  const value: ts.Identifier = ts.createUniqueName('value')
+    const value: ts.Identifier = ts.createUniqueName('value')
 
-  switch (fieldType.type) {
-    case SyntaxType.MapType:
-      const key: ts.Identifier = ts.createUniqueName('key')
-      return [
-        ...readValueForFieldType(fieldType.keyType, key, identifiers),
-        ...readValueForFieldType(fieldType.valueType, value, identifiers),
-        createMethodCallStatement(fieldName, 'set', [ key, value ])
-      ]
+    switch (fieldType.type) {
+        case SyntaxType.MapType:
+            const key: ts.Identifier = ts.createUniqueName('key')
+            return [
+                ...readValueForFieldType(fieldType.keyType, key, identifiers),
+                ...readValueForFieldType(fieldType.valueType, value, identifiers),
+                createMethodCallStatement(fieldName, 'set', [ key, value ])
+            ]
 
-    case SyntaxType.ListType:
-      return [
-        ...readValueForFieldType(fieldType.valueType, value, identifiers),
-        createMethodCallStatement(fieldName, 'push', [ value ])
-      ]
+        case SyntaxType.ListType:
+            return [
+                ...readValueForFieldType(fieldType.valueType, value, identifiers),
+                createMethodCallStatement(fieldName, 'push', [ value ])
+            ]
 
-    case SyntaxType.SetType:
-      return [
-        ...readValueForFieldType(fieldType.valueType, value, identifiers),
-        createMethodCallStatement(fieldName, 'add', [ value ])
-      ]
-  }
+        case SyntaxType.SetType:
+            return [
+                ...readValueForFieldType(fieldType.valueType, value, identifiers),
+                createMethodCallStatement(fieldName, 'add', [ value ])
+            ]
+    }
 }
 
 

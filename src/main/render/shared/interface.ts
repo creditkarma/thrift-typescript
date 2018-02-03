@@ -1,11 +1,12 @@
 import * as ts from 'typescript'
 
 import {
-  FieldDefinition,
-  InterfaceWithFields,
+    FieldDefinition,
+    InterfaceWithFields,
 } from '@creditkarma/thrift-parser'
 
 import { typeNodeForFieldType } from './types'
+
 import { renderOptional } from './utils'
 
 /**
@@ -14,7 +15,7 @@ import { renderOptional } from './utils'
  * @param statement
  */
 export function interfaceNameForClass(statement: InterfaceWithFields): string {
-  return `I${statement.name.value}Args`
+    return `I${statement.name.value}Args`
 }
 
 /**
@@ -36,22 +37,22 @@ export function interfaceNameForClass(statement: InterfaceWithFields): string {
  * }
  */
 export function renderInterface(statement: InterfaceWithFields): ts.InterfaceDeclaration {
-  const signatures = statement.fields.map((field: FieldDefinition) => {
-    return ts.createPropertySignature(
-      undefined,
-      field.name.value,
-      renderOptional(field.requiredness),
-      typeNodeForFieldType(field.fieldType, true),
-      undefined,
-    )
-  })
+    const signatures = statement.fields.map((field: FieldDefinition) => {
+        return ts.createPropertySignature(
+            undefined,
+            field.name.value,
+            renderOptional(field.requiredness),
+            typeNodeForFieldType(field.fieldType, true),
+            undefined,
+        )
+    })
 
-  return ts.createInterfaceDeclaration(
-    undefined,
-    [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-    interfaceNameForClass(statement),
-    [],
-    [],
-    signatures,
-  )
+    return ts.createInterfaceDeclaration(
+        undefined,
+        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+        interfaceNameForClass(statement),
+        [],
+        [],
+        signatures,
+    )
 }

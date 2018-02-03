@@ -1,50 +1,53 @@
 import * as ts from 'typescript'
 
 import {
-  ServiceDefinition,
-  FunctionDefinition,
-  FieldDefinition,
-  SyntaxType,
+    ServiceDefinition,
+    FunctionDefinition,
+    FieldDefinition,
+    SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
-  createReqType,
-  createProtocolType,
+    createReqType,
+    createProtocolType,
 } from './types'
 
 import {
-  createStructArgsName,
-  createStructResultName
+    createStructArgsName,
+    createStructResultName
 } from './utils'
 
 import {
-    renderValue
-} from '../values'
-
-import {
-  createMethodCall,
-  createClassConstructor,
-  createFunctionParameter,
-  createAssignmentStatement,
-  createPromise,
-  createNotNullCheck,
-  createConstStatement,
-  createCallStatement,
-  createMethodCallStatement,
-  createPublicProperty,
-  createApplicationException,
+    createApplicationException,
 } from '../utils'
 
 import {
-  createNumberType,
-  createVoidType,
-  createAnyType,
-  typeNodeForFieldType,
-} from '../types'
+    renderValue
+} from '../../shared/values'
 
 import {
-  COMMON_IDENTIFIERS,
-  MESSAGE_TYPE,
+    createFunctionParameter,
+    createPromise,
+    createMethodCall,
+    createClassConstructor,
+    createAssignmentStatement,
+    createNotNullCheck,
+    createConstStatement,
+    createCallStatement,
+    createMethodCallStatement,
+    createPublicProperty,
+} from '../../shared/utils'
+
+import {
+    createNumberType,
+    createVoidType,
+    createAnyType,
+    typeNodeForFieldType,
+} from '../../shared/types'
+
+import {
+    COMMON_IDENTIFIERS,
+    MESSAGE_TYPE,
 } from '../identifiers'
 
 export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
