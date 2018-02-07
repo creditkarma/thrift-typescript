@@ -65,6 +65,9 @@ export function generate(options: IMakeOptions): void {
     const rootDir: string = path.resolve(process.cwd(), options.rootDir)
     const outDir: string = path.resolve(rootDir, options.outDir)
     const sourceDir: string = path.resolve(rootDir, options.sourceDir)
+    // const renderState = {
+
+    // }
     const includeCache: IIncludeCache = {}
     const resolvedCache: IResolvedCache = {}
     const renderedCache: IRenderedCache = {}
