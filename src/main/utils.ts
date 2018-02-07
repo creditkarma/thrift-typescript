@@ -124,7 +124,10 @@ function parseInclude(
     cache: IIncludeCache = {},
 ): IParsedFile {
     if (!cache[include.path]) {
-        cache[include.path] = parseFile(sourceDir, readThriftFile(include.path, [currentPath, sourceDir]))
+        cache[include.path] = parseFile(
+            sourceDir,
+            readThriftFile(include.path, [ currentPath, sourceDir ]),
+        )
     }
 
     return cache[include.path]

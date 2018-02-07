@@ -43,15 +43,44 @@ export interface IRenderer {
     renderIncludes(
         outPath: string,
         includes: IRenderedFileMap,
-        resolvedFile: IResolvedFile,
-    ): Array<ts.Statement>
-    renderConst(statement: ConstDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
-    renderTypeDef(statement: TypedefDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
-    renderEnum(statement: EnumDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
-    renderStruct(statement: StructDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
-    renderException(statement: ExceptionDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
-    renderUnion(statement: UnionDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
-    renderService(statement: ServiceDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
+        resolvedFile: IResolvedFile): Array<ts.Statement>
+    renderConst(
+        statement: ConstDefinition,
+        identifiers?: IIdentifierMap): Array<ts.Statement>
+    renderTypeDef(
+        statement: TypedefDefinition,
+        identifiers?: IIdentifierMap): Array<ts.Statement>
+    renderEnum(
+        statement: EnumDefinition,
+        identifiers?: IIdentifierMap): Array<ts.Statement>
+    renderStruct(
+        statement: StructDefinition,
+        identifiers?: IIdentifierMap): Array<ts.Statement>
+    renderException(
+        statement: ExceptionDefinition,
+        identifiers?: IIdentifierMap): Array<ts.Statement>
+    renderUnion(
+        statement: UnionDefinition,
+        identifiers?: IIdentifierMap): Array<ts.Statement>
+    renderService(
+        statement: ServiceDefinition,
+        identifiers?: IIdentifierMap): Array<ts.Statement>
+}
+
+/**
+ *
+ * INamespace {
+ *   namespace: string
+ *   path: string
+ * }
+ *
+ *
+ */
+
+export interface IRenderState {
+    includeCache: IIncludeCache
+    resolvedCache: IResolvedCache
+    renderedCache: IRenderedCache
 }
 
 export interface IThriftFile {

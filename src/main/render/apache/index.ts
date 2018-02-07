@@ -14,7 +14,7 @@ import { renderException as _renderException } from './exception'
 
 import {
     renderInterface
-} from '../shared/interface'
+} from './interface'
 
 import {
     renderArgsStruct,
@@ -29,10 +29,10 @@ import { renderUnion as _renderUnion } from './union'
 import { renderEnum as _renderEnum } from '../shared/enum'
 import { renderTypeDef as _renderTypeDef } from '../shared/typedef'
 import { renderConst as _renderConst } from '../shared/const'
+import { fileUsesThrift } from '../shared/includes'
 import {
     renderIncludes as _renderIncludes,
     renderThriftImports,
-    fileUsesThrift,
 } from './includes'
 
 import {
@@ -41,6 +41,7 @@ import {
     IRenderedFileMap,
     IResolvedFile,
 } from '../../types'
+import { typeNodeForFieldType } from './types';
 
 export function renderIncludes(
     outPath: string,
@@ -48,8 +49,8 @@ export function renderIncludes(
     resolvedFile: IResolvedFile): Array<ts.Statement> {
     if (fileUsesThrift(resolvedFile)) {
         return [
-        renderThriftImports(),
-        ..._renderIncludes(outPath, includes, resolvedFile.includes),
+            renderThriftImports(),
+            ..._renderIncludes(outPath, includes, resolvedFile.includes),
         ]
     } else {
         return _renderIncludes(outPath, includes, resolvedFile.includes)
@@ -57,11 +58,11 @@ export function renderIncludes(
 }
 
 export function renderConst(statement: ConstDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return [ _renderConst(statement) ]
+    return [ _renderConst(statement, typeNodeForFieldType) ]
 }
 
 export function renderTypeDef(statement: TypedefDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return _renderTypeDef(statement, identifiers)
+    return _renderTypeDef(statement, typeNodeForFieldType, identifiers)
 }
 
 export function renderEnum(statement: EnumDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {

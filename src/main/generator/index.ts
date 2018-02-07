@@ -39,7 +39,7 @@ export function generateFile(
 ): IRenderedFile {
     const cacheKey: string = `${resolvedFile.path}/${resolvedFile.name}`
 
-    if (cacheKey === '/' || !cache[cacheKey]) {
+    if (cacheKey === '/' || cache[cacheKey] === undefined) {
         function outPathForFile(): string {
             const filename: string = `${resolvedFile.name}.ts`
             const outFile: string = path.resolve(outDir, resolvedFile.namespace.path, filename)

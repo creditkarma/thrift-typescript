@@ -8,7 +8,7 @@ export class MyException {
             this.message = args.message;
         }
         else {
-            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field message is unset!");
+            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field[message] is unset!");
         }
     }
     public write(output: thrift.TProtocol): void {

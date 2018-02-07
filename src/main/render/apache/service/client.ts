@@ -18,16 +18,14 @@ import {
 } from './utils'
 
 import {
-    createApplicationException,
-} from '../utils'
-
-import {
     renderValue
 } from '../../shared/values'
 
 import {
+    THRIFT_IDENTIFIERS,
+    MESSAGE_TYPE,
     COMMON_IDENTIFIERS,
-} from '../../shared/identifiers'
+} from '../identifiers'
 
 import {
     createFunctionParameter,
@@ -40,19 +38,15 @@ import {
     createCallStatement,
     createMethodCallStatement,
     createPublicProperty,
-} from '../../shared/utils'
+    createApplicationException,
+} from '../utils'
 
 import {
     createNumberType,
     createVoidType,
     createAnyType,
     typeNodeForFieldType,
-} from '../../shared/types'
-
-import {
-    THRIFT_IDENTIFIERS,
-    MESSAGE_TYPE,
-} from '../identifiers'
+} from '../types'
 
 export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
     // public _seqid: number;
@@ -97,20 +91,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
             ),
         ], // parameters
         [
-            ...(
-                (node.extends !== null) ?
-                [
-                    ts.createStatement(ts.createCall(
-                        ts.createSuper(),
-                        [],
-                        [
-                            ts.createIdentifier('output'),
-                            ts.createIdentifier('protocol')
-                        ]
-                    ))
-                ] :
-                []
-            ),
+            ...createSuperCall(node),
             createAssignmentStatement(
                 ts.createIdentifier('this._seqid'),
                 ts.createLiteral(0)
@@ -193,6 +174,23 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
             ...recvMethods
         ] // body
     )
+}
+
+function createSuperCall(node: ServiceDefinition): Array<ts.Statement> {
+    if (node.extends !== null) {
+        return [
+            ts.createStatement(ts.createCall(
+                ts.createSuper(),
+                [],
+                [
+                    ts.createIdentifier('output'),
+                    ts.createIdentifier('protocol')
+                ]
+            ))
+        ]
+    } else {
+        return []
+    }
 }
 
 // public {{name}}( {{#args}}{{fieldName}}: {{fieldType}}, {{/args}} ): Promise<{{typeName}}> {

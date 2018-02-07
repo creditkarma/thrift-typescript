@@ -15,6 +15,7 @@ import {
 
 import {
     thriftTypeForFieldType,
+    typeNodeForFieldType,
 } from '../types'
 
 import {
@@ -31,7 +32,7 @@ import {
     createConstStatement,
     createLetStatement,
     createLet,
-    createEquals,
+    createEqualsCheck,
 } from '../../shared/utils'
 
 import {
@@ -41,8 +42,7 @@ import {
 import {
     createNumberType,
     createAnyType,
-    typeNodeForFieldType,
-} from '../../shared/types'
+} from '../types'
 
 import {
     THRIFT_IDENTIFIERS,
@@ -126,7 +126,10 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
      * }
      */
     const checkStop: ts.IfStatement = ts.createIf(
-        createEquals(COMMON_IDENTIFIERS.fieldType, THRIFT_TYPES.STOP),
+        createEqualsCheck(
+            COMMON_IDENTIFIERS.fieldType,
+            THRIFT_TYPES.STOP
+        ),
         ts.createBlock([
             ts.createBreak()
         ], true)
@@ -202,13 +205,7 @@ function createReturnForStruct(struct: InterfaceWithFields): ts.Statement {
         return ts.createIf(
             createCheckForFields(struct.fields),
             ts.createBlock([
-                ts.createReturn(
-                    ts.createNew(
-                        ts.createIdentifier(struct.name.value),
-                        undefined,
-                        [ ts.createIdentifier('_args') ]
-                    )
-                )
+                createReturnValue(struct)
             ], true),
             ts.createBlock([
                 throwProtocolException(
@@ -218,14 +215,18 @@ function createReturnForStruct(struct: InterfaceWithFields): ts.Statement {
             ], true)
         )
     } else {
-        return ts.createReturn(
-            ts.createNew(
-                ts.createIdentifier(struct.name.value),
-                undefined,
-                [ ts.createIdentifier('_args') ]
-            )
-        )
+        return createReturnValue(struct)
     }
+}
+
+function createReturnValue(struct: InterfaceWithFields): ts.ReturnStatement {
+    return ts.createReturn(
+        ts.createNew(
+            ts.createIdentifier(struct.name.value),
+            undefined,
+            [ ts.createIdentifier('_args') ]
+        )
+    )
 }
 
 export function createInputParameter(): ts.ParameterDeclaration {
@@ -247,13 +248,11 @@ export function createInputParameter(): ts.ParameterDeclaration {
  *   }
  *   break;
  * }
- *
- * @param field
  */
 export function createCaseForField(field: FieldDefinition, identifiers: IIdentifierMap): ts.CaseClause {
     const fieldAlias: ts.Identifier = ts.createUniqueName('value')
     const checkType: ts.IfStatement = ts.createIf(
-        createEquals(
+        createEqualsCheck(
             COMMON_IDENTIFIERS.fieldType,
             thriftTypeForFieldType(field.fieldType, identifiers)
         ),

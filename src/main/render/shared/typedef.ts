@@ -6,7 +6,7 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-    typeNodeForFieldType,
+    TypeMapping,
 } from './types'
 
 import {
@@ -14,7 +14,11 @@ import {
     IIdentifierMap,
 } from '../../types'
 
-function renderTypeDefForIdentifier(id: IResolvedIdentifier, node: TypedefDefinition): Array<ts.Statement> {
+function renderTypeDefForIdentifier(
+    id: IResolvedIdentifier,
+    node: TypedefDefinition,
+    typeMapping: TypeMapping
+): Array<ts.Statement> {
     switch (id.definition.type) {
         case SyntaxType.EnumDefinition:
         case SyntaxType.StructDefinition:
@@ -26,8 +30,8 @@ function renderTypeDefForIdentifier(id: IResolvedIdentifier, node: TypedefDefini
                 undefined,
                 ts.createNamedExports([
                     ts.createExportSpecifier(
-                    id.resolvedName,
-                    node.name.value,
+                        id.resolvedName,
+                        node.name.value,
                     )
                 ])
             )
@@ -39,15 +43,19 @@ function renderTypeDefForIdentifier(id: IResolvedIdentifier, node: TypedefDefini
                 [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
                 node.name.value,
                 undefined,
-                typeNodeForFieldType(node.definitionType),
+                typeMapping(node.definitionType),
             ) ]
     }
 }
 
-export function renderTypeDef(node: TypedefDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function renderTypeDef(
+    node: TypedefDefinition,
+    typeMapping: TypeMapping,
+    identifiers: IIdentifierMap
+): Array<ts.Statement> {
     switch (node.definitionType.type) {
         case SyntaxType.Identifier:
-            return renderTypeDefForIdentifier(identifiers[node.definitionType.value], node)
+            return renderTypeDefForIdentifier(identifiers[node.definitionType.value], node, typeMapping)
 
         default:
             return [ ts.createTypeAliasDeclaration(
@@ -55,7 +63,7 @@ export function renderTypeDef(node: TypedefDefinition, identifiers: IIdentifierM
                 [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
                 node.name.value,
                 undefined,
-                typeNodeForFieldType(node.definitionType),
+                typeMapping(node.definitionType),
             ) ]
     }
 }

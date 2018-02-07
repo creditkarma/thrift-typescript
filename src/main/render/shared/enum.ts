@@ -23,8 +23,6 @@ import {
  *   ONE,
  *   TWO
  * }
- *
- * @param node
  */
 export function renderEnum(node: EnumDefinition): ts.Statement {
     return ts.createEnumDeclaration(

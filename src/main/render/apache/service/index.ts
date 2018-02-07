@@ -23,7 +23,7 @@ import {
 
 import {
     renderInterface,
-} from '../../shared/interface'
+} from '../interface'
 
 import {
     IIdentifierMap,

@@ -19,9 +19,6 @@ import {
 
 import {
     createApplicationException,
-} from '../utils'
-
-import {
     createFunctionParameter,
     createPromise,
     createPublicMethod,
@@ -31,7 +28,7 @@ import {
     createMethodCall,
     createMethodCallStatement,
     createCallStatement,
-} from '../../shared/utils'
+} from '../utils'
 
 import {
     IIdentifierMap
@@ -41,15 +38,12 @@ import {
     createStringType,
     createNumberType,
     createVoidType,
-    typeNodeForFieldType,
     constructorNameForFieldType,
-} from '../../shared/types'
+    typeNodeForFieldType,
+} from '../types'
 
 import {
     COMMON_IDENTIFIERS,
-} from '../../shared/identifiers'
-
-import {
     THRIFT_IDENTIFIERS,
     MESSAGE_TYPE,
     THRIFT_TYPES,
@@ -92,7 +86,6 @@ function funcToMethodReducer(acc: Array<ts.MethodSignature>, func: FunctionDefin
  * interface IMyServiceHandler {
  *   add(a: number, b: number): number
  * }
- * @param service
  */
 export function renderHandlerInterface(service: ServiceDefinition): Array<ts.Statement> {
     const signatures: Array<ts.MethodSignature> = service.functions.reduce(funcToMethodReducer, [])
@@ -164,84 +157,88 @@ function handlerType(node: ServiceDefinition): ts.TypeNode {
     )
 }
 
-export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
-  // private _handler
-  const handler: ts.PropertyDeclaration = ts.createProperty(
-    undefined,
-    [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
-    '_handler',
-    undefined,
-    handlerType(node),
-    undefined
-  )
-
-  const ctor: ts.ConstructorDeclaration = createClassConstructor(
-    [
-      createFunctionParameter(
-        ts.createIdentifier('handler'),
-        handlerType(node)
-      )
-    ],
-    [
-      ...(
-        (node.extends !== null) ?
-          [
+function createSuperCall(node: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+    if (node.extends !== null) {
+        return [
             ts.createStatement(ts.createCall(
-              ts.createSuper(),
-              [],
-              [
-                objectLiteralForServiceFunctions(
-                  identifiers[node.extends.value].definition
-                )
-              ]
+                ts.createSuper(),
+                [],
+                [
+                    objectLiteralForServiceFunctions(
+                        identifiers[node.extends.value].definition
+                    )
+                ]
             ))
-          ] :
-          []
-      ),
-      createAssignmentStatement(
-        ts.createIdentifier('this._handler'),
-        ts.createIdentifier('handler'),
-      )
-    ]
-  )
+        ]
+    } else {
+        return []
+    }
+}
 
-  const processMethod: ts.MethodDeclaration = createProcessMethod(node, identifiers)
-  const processFunctions: Array<ts.MethodDeclaration> = node.functions.map((next: FunctionDefinition) => {
-    return createProcessFunctionMethod(node, next);
-  });
+export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
+    // private _handler
+    const handler: ts.PropertyDeclaration = ts.createProperty(
+        undefined,
+        [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
+        '_handler',
+        undefined,
+        handlerType(node),
+        undefined
+    )
 
-  const heritage: Array<ts.HeritageClause> = (
-    (node.extends !== null) ?
-      [
-        ts.createHeritageClause(
-          ts.SyntaxKind.ExtendsKeyword,
-          [
-            ts.createExpressionWithTypeArguments(
-              [],
-              ts.createIdentifier(`${node.extends.value}.Processor`),
+    const ctor: ts.ConstructorDeclaration = createClassConstructor(
+        [
+            createFunctionParameter(
+                ts.createIdentifier('handler'),
+                handlerType(node)
             )
-          ]
-        )
-      ] :
-      []
-  )
+        ],
+        [
+            ...createSuperCall(node, identifiers),
+            createAssignmentStatement(
+                ts.createIdentifier('this._handler'),
+                ts.createIdentifier('handler'),
+            )
+        ]
+    )
 
-  // export class <node.name> { ... }
-  return ts.createClassDeclaration(
-    undefined, // decorators
-    [
-      ts.createToken(ts.SyntaxKind.ExportKeyword)
-    ], // modifiers
-    'Processor', // name
-    undefined, // type parameters
-    heritage, // heritage
-    [
-      handler,
-      ctor,
-      processMethod,
-      ...processFunctions
-    ] // body
-  )
+    const processMethod: ts.MethodDeclaration = createProcessMethod(node, identifiers)
+    const processFunctions: Array<ts.MethodDeclaration> = node.functions.map((next: FunctionDefinition) => {
+        return createProcessFunctionMethod(node, next);
+    });
+
+    const heritage: Array<ts.HeritageClause> = (
+        (node.extends !== null) ?
+            [
+                ts.createHeritageClause(
+                    ts.SyntaxKind.ExtendsKeyword,
+                    [
+                        ts.createExpressionWithTypeArguments(
+                            [],
+                            ts.createIdentifier(`${node.extends.value}.Processor`),
+                        )
+                    ]
+                )
+            ] :
+            []
+    )
+
+    // export class <node.name> { ... }
+    return ts.createClassDeclaration(
+        undefined, // decorators
+        [
+            ts.createToken(ts.SyntaxKind.ExportKeyword)
+        ], // modifiers
+        'Processor', // name
+        undefined, // type parameters
+        heritage, // heritage
+        [
+            handler,
+            ctor,
+            processMethod,
+            ...processFunctions
+        ] // body
+    )
 }
 
 // public process_{{name}}(seqid: number, input: TProtocol, output: TProtocol) {
@@ -283,339 +280,344 @@ export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifie
 //     })
 // }
 function createProcessFunctionMethod(service: ServiceDefinition, funcDef: FunctionDefinition): ts.MethodDeclaration {
-  return createPublicMethod(
-    `process_${funcDef.name.value}`,
-    [
-      createFunctionParameter('requestId', createNumberType()),
-      createFunctionParameter('input', TProtocolType),
-      createFunctionParameter('output', TProtocolType),
-    ], // parameters
-    createVoidType(), // return type
-    [
-        // new Promise<{{typeName}}>((resolve, reject) => {
-        ts.createStatement(
-            createMethodCall(
+    return createPublicMethod(
+        `process_${funcDef.name.value}`,
+        [
+            createFunctionParameter('requestId', createNumberType()),
+            createFunctionParameter('input', TProtocolType),
+            createFunctionParameter('output', TProtocolType),
+        ], // parameters
+        createVoidType(), // return type
+        [
+            // new Promise<{{typeName}}>((resolve, reject) => {
+            ts.createStatement(
                 createMethodCall(
-                createPromise(
-                    typeNodeForFieldType(funcDef.returnType),
-                    createVoidType(),
-                    [
-                    // try {
-                    //     resolve(
-                    //         this._handler.{{name}}({{#args}}args.{{fieldName}}, {{/args}})
-                    //     )
-                    // } catch (e) {
-                    //     reject(e)
-                    // }
-                    ts.createTry(
-                        ts.createBlock([
-                        ...(funcDef.fields.length > 0) ?
-                            [ createConstStatement(
-                            COMMON_IDENTIFIERS.args,
-                            ts.createTypeReferenceNode(
-                                ts.createIdentifier(createStructArgsName(funcDef)),
-                                undefined
-                            ),
-                            ts.createCall(
-                                ts.createPropertyAccess(
-                                ts.createIdentifier(createStructArgsName(funcDef)),
-                                ts.createIdentifier('read')
-                                ),
-                                undefined,
-                                [ COMMON_IDENTIFIERS.input ]
-                            )
-                            ) ] :
-                            [],
-                        // input.readMessageEnd();
-                        createMethodCallStatement(
-                            COMMON_IDENTIFIERS.input,
-                            'readMessageEnd'
-                        ),
-                        createCallStatement(
-                            ts.createIdentifier('resolve'),
+                    createMethodCall(
+                        createPromise(
+                            typeNodeForFieldType(funcDef.returnType),
+                            createVoidType(),
                             [
-                            createMethodCall(
-                                ts.createIdentifier('this._handler'),
-                                funcDef.name.value,
-                                funcDef.fields.map((next: FieldDefinition) => {
-                                    return ts.createIdentifier(`args.${next.name.value}`)
-                                }),
-                            )
-                            ]
-                        )
-                        ], true),
-                        ts.createCatchClause(
-                        ts.createVariableDeclaration('err'),
-                        ts.createBlock([
-                            createCallStatement(
-                            ts.createIdentifier('reject'),
-                            [ COMMON_IDENTIFIERS.err ]
-                            )
-                        ], true)
-                        ),
-                        undefined
-                    )
-                    ]
-                ),
-                'then',
-                [
-                    // }).then((data: {{typeName}}) => {
-                    ts.createArrowFunction(
-                        undefined,
-                        undefined,
-                        [
-                            createFunctionParameter(
-                                ts.createIdentifier('data'),
-                                typeNodeForFieldType(funcDef.returnType)
-                            )
-                        ],
-                        createVoidType(),
-                        undefined,
-                        ts.createBlock([
-                            // const result = new {{ServiceName}}{{nameTitleCase}}Result({success: data})
-                            createConstStatement(
-                                ts.createIdentifier('result'),
-                                ts.createTypeReferenceNode(
-                                    ts.createIdentifier(createStructResultName(funcDef)),
-                                    undefined
-                                ),
-                                ts.createNew(
-                                    ts.createIdentifier(createStructResultName(funcDef)),
-                                    undefined,
-                                    [
-                                        ts.createObjectLiteral(
+                                // try {
+                                //     resolve(
+                                //         this._handler.{{name}}({{#args}}args.{{fieldName}}, {{/args}})
+                                //     )
+                                // } catch (e) {
+                                //     reject(e)
+                                // }
+                                ts.createTry(
+                                    ts.createBlock([
+                                        ...createArgsVariable(funcDef),
+                                        // input.readMessageEnd();
+                                        createMethodCallStatement(
+                                            COMMON_IDENTIFIERS.input,
+                                            'readMessageEnd'
+                                        ),
+                                        createCallStatement(
+                                            ts.createIdentifier('resolve'),
                                             [
-                                                ts.createPropertyAssignment(
-                                                    ts.createIdentifier('success'),
-                                                    ts.createIdentifier('data')
+                                                createMethodCall(
+                                                    ts.createIdentifier('this._handler'),
+                                                    funcDef.name.value,
+                                                    funcDef.fields.map((next: FieldDefinition) => {
+                                                        return ts.createIdentifier(`args.${next.name.value}`)
+                                                    }),
                                                 )
                                             ]
                                         )
-                                    ]
+                                    ], true),
+                                    ts.createCatchClause(
+                                        ts.createVariableDeclaration('err'),
+                                        ts.createBlock([
+                                            createCallStatement(
+                                                ts.createIdentifier('reject'),
+                                                [ COMMON_IDENTIFIERS.err ]
+                                            )
+                                        ], true)
+                                    ),
+                                    undefined
                                 )
-                            ),
-                            // output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, requestId)
-                            createMethodCallStatement(
-                                COMMON_IDENTIFIERS.output,
-                                'writeMessageBegin',
+                            ]
+                        ),
+                        'then',
+                        [
+                            // }).then((data: {{typeName}}) => {
+                            ts.createArrowFunction(
+                                undefined,
+                                undefined,
                                 [
-                                    ts.createLiteral(funcDef.name.value),
-                                    MESSAGE_TYPE.REPLY,
-                                    ts.createIdentifier('requestId')
-                                ]
-                            ),
-                        // result.write(output)
-                        createMethodCallStatement(
+                                    createFunctionParameter(
+                                        ts.createIdentifier('data'),
+                                        typeNodeForFieldType(funcDef.returnType)
+                                    )
+                                ],
+                                createVoidType(),
+                                undefined,
+                                ts.createBlock([
+                                    // const result = new {{ServiceName}}{{nameTitleCase}}Result({success: data})
+                                    createConstStatement(
+                                        ts.createIdentifier('result'),
+                                        ts.createTypeReferenceNode(
+                                            ts.createIdentifier(createStructResultName(funcDef)),
+                                            undefined
+                                        ),
+                                        ts.createNew(
+                                            ts.createIdentifier(createStructResultName(funcDef)),
+                                            undefined,
+                                            [
+                                                ts.createObjectLiteral(
+                                                    [
+                                                        ts.createPropertyAssignment(
+                                                            ts.createIdentifier('success'),
+                                                            ts.createIdentifier('data')
+                                                        )
+                                                    ]
+                                                )
+                                            ]
+                                        )
+                                    ),
+                                    // output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, requestId)
+                                    createMethodCallStatement(
+                                        COMMON_IDENTIFIERS.output,
+                                        'writeMessageBegin',
+                                        [
+                                            ts.createLiteral(funcDef.name.value),
+                                            MESSAGE_TYPE.REPLY,
+                                            ts.createIdentifier('requestId')
+                                        ]
+                                    ),
+                                    // result.write(output)
+                                    createMethodCallStatement(
+                                        ts.createIdentifier('result'),
+                                        'write',
+                                        [
+                                            COMMON_IDENTIFIERS.output
+                                        ]
+                                    ),
+                                    // output.writeMessageEnd()
+                                    createMethodCallStatement(
+                                        COMMON_IDENTIFIERS.output,
+                                        'writeMessageEnd',
+                                        []
+                                    ),
+                                    // return output.flush()
+                                    ts.createStatement(
+                                        ts.createCall(
+                                            ts.createPropertyAccess(
+                                            COMMON_IDENTIFIERS.output,
+                                            'flush'
+                                            ),
+                                            undefined,
+                                            []
+                                        )
+                                    ),
+                                    ts.createReturn(),
+                                ], true)
+                            )
+                        ]
+                    ),
+                    'catch',
+                    [
+                        ts.createArrowFunction(
+                            undefined,
+                            undefined,
+                            [
+                                createFunctionParameter(
+                                    COMMON_IDENTIFIERS.err,
+                                    ts.createTypeReferenceNode(
+                                        ts.createIdentifier('Error'),
+                                        undefined
+                                    )
+                                )
+                            ],
+                            createVoidType(),
+                            undefined,
+                            ts.createBlock([
+                                // if (def.throws.length > 0)
+                                ...createExceptionHandlers(funcDef)
+                            ], true)
+                        )
+                    ]
+                )
+            )
+        ] // body
+    )
+}
+
+function createArgsVariable(funcDef: FunctionDefinition): Array<ts.Statement> {
+    if (funcDef.fields.length > 0) {
+        return [
+            createConstStatement(
+                COMMON_IDENTIFIERS.args,
+                ts.createTypeReferenceNode(
+                    ts.createIdentifier(createStructArgsName(funcDef)),
+                    undefined
+                ),
+                ts.createCall(
+                    ts.createPropertyAccess(
+                        ts.createIdentifier(createStructArgsName(funcDef)),
+                        ts.createIdentifier('read')
+                    ),
+                    undefined,
+                    [ COMMON_IDENTIFIERS.input ]
+                )
+            )
+        ]
+    } else {
+        return []
+    }
+}
+
+function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statement> {
+    if (funcDef.throws.length > 0) {
+        return funcDef.throws.map((throwDef: FieldDefinition): ts.IfStatement => {
+            // if (err instanceof {{throwType}}) {
+            return ts.createIf(
+                ts.createBinary(
+                    ts.createIdentifier('err'),
+                    ts.SyntaxKind.InstanceOfKeyword,
+                    constructorNameForFieldType(throwDef.fieldType)
+                ),
+                ts.createBlock([
+                    // const result: {{throwType}} = new {{ServiceName}}{{nameTitleCase}}Result({{{throwName}}: err as {{throwType}}});
+                    createConstStatement(
+                        ts.createIdentifier('result'),
+                        ts.createTypeReferenceNode(
+                            ts.createIdentifier(createStructResultName(funcDef)),
+                            undefined
+                        ),
+                        ts.createNew(
+                            ts.createIdentifier(createStructResultName(funcDef)),
+                            undefined,
+                            [
+                                ts.createObjectLiteral([
+                                    ts.createPropertyAssignment(
+                                        ts.createIdentifier(throwDef.name.value),
+                                        ts.createIdentifier('err')
+                                    )
+                                ])
+                            ]
+                        )
+                    ),
+                    // output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
+                    createMethodCallStatement(
+                        COMMON_IDENTIFIERS.output,
+                        'writeMessageBegin',
+                        [
+                            ts.createLiteral(funcDef.name.value),
+                            MESSAGE_TYPE.REPLY,
+                            ts.createIdentifier('requestId')
+                        ]
+                    ),
+                    // result.write(output)
+                    createMethodCallStatement(
                         ts.createIdentifier('result'),
                         'write',
                         [
                             COMMON_IDENTIFIERS.output
                         ]
-                        ),
-                        // output.writeMessageEnd()
-                        createMethodCallStatement(
+                    ),
+                    // output.writeMessageEnd()
+                    createMethodCallStatement(
                         COMMON_IDENTIFIERS.output,
-                        'writeMessageEnd',
-                        []
-                        ),
-                        // return output.flush()
-                        ts.createStatement(
-                            ts.createCall(
-                                ts.createPropertyAccess(
-                                COMMON_IDENTIFIERS.output,
-                                'flush'
-                                ),
-                                undefined,
-                                []
-                            )
-                        ),
-                        ts.createReturn(),
-                    ], true)
-                    )
-                ]
-                ),
-                'catch',
-                [
-                ts.createArrowFunction(
-                    undefined,
-                    undefined,
-                    [
-                    createFunctionParameter(
-                        COMMON_IDENTIFIERS.err,
+                        'writeMessageEnd'
+                    ),
+                    // output.flush()
+                    createMethodCallStatement(
+                        COMMON_IDENTIFIERS.output,
+                        'flush'
+                    ),
+                    ts.createReturn()
+                ], true),
+                ts.createBlock([
+                    // const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
+                    createConstStatement(
+                        ts.createIdentifier('result'),
                         ts.createTypeReferenceNode(
-                        ts.createIdentifier('Error'),
-                        undefined
+                            THRIFT_IDENTIFIERS.TApplicationException,
+                            undefined
+                        ),
+                        createApplicationException(
+                            'UNKNOWN',
+                            ts.createIdentifier('err.message')
                         )
-                    )
-                    ],
-                    createVoidType(),
-                    undefined,
-                    ts.createBlock([
-                    // if (def.throws.length > 0)
-                    ...createExceptionHandlers(funcDef)
-                    ], true)
+                    ),
+                    // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
+                    createMethodCallStatement(
+                        COMMON_IDENTIFIERS.output,
+                        'writeMessageBegin',
+                        [
+                            ts.createLiteral(funcDef.name.value),
+                            MESSAGE_TYPE.EXCEPTION,
+                            ts.createIdentifier('requestId')
+                        ]
+                    ),
+                    // result.write(output)
+                    createMethodCallStatement(
+                        ts.createIdentifier('result'),
+                        'write',
+                        [
+                            COMMON_IDENTIFIERS.output
+                        ]
+                    ),
+                    // output.writeMessageEnd()
+                    createMethodCallStatement(
+                        COMMON_IDENTIFIERS.output,
+                        'writeMessageEnd'
+                    ),
+                    // output.flush()
+                    createMethodCallStatement(
+                        COMMON_IDENTIFIERS.output,
+                        'flush'
+                    ),
+                    ts.createReturn()
+                ], true)
+            )
+        })
+    } else {
+        return [
+            // const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
+            createConstStatement(
+                ts.createIdentifier('result'),
+                ts.createTypeReferenceNode(
+                    THRIFT_IDENTIFIERS.TApplicationException,
+                    undefined
+                ),
+                createApplicationException(
+                    'UNKNOWN',
+                    ts.createIdentifier('err.message')
                 )
+            ),
+            // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
+            createMethodCallStatement(
+                COMMON_IDENTIFIERS.output,
+                'writeMessageBegin',
+                [
+                    ts.createLiteral(funcDef.name.value),
+                    MESSAGE_TYPE.EXCEPTION,
+                    ts.createIdentifier('requestId')
                 ]
-            )
-        )
-    ] // body
-  )
-}
-
-function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statement> {
-  if (funcDef.throws.length > 0) {
-    return funcDef.throws.map((throwDef: FieldDefinition): ts.IfStatement => {
-      // if (err instanceof {{throwType}}) {
-      return ts.createIf(
-        ts.createBinary(
-          ts.createIdentifier('err'),
-          ts.SyntaxKind.InstanceOfKeyword,
-          constructorNameForFieldType(throwDef.fieldType)
-        ),
-        ts.createBlock([
-          // const result: {{throwType}} = new {{ServiceName}}{{nameTitleCase}}Result({{{throwName}}: err as {{throwType}}});
-          createConstStatement(
-            ts.createIdentifier('result'),
-            ts.createTypeReferenceNode(
-              ts.createIdentifier(createStructResultName(funcDef)),
-              undefined
             ),
-            ts.createNew(
-              ts.createIdentifier(createStructResultName(funcDef)),
-              undefined,
-              [
-                ts.createObjectLiteral(
-                  [
-                    ts.createPropertyAssignment(
-                      ts.createIdentifier(throwDef.name.value),
-                      ts.createIdentifier('err')
-                    )
-                  ]
-                )
-              ]
-            )
-          ),
-          // output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
-          createMethodCallStatement(
-
-            COMMON_IDENTIFIERS.output,
-            'writeMessageBegin',
-            [
-              ts.createLiteral(funcDef.name.value),
-              MESSAGE_TYPE.REPLY,
-              ts.createIdentifier('requestId')
-            ]
-          ),
-          // result.write(output)
-          createMethodCallStatement(
-            ts.createIdentifier('result'),
-            'write',
-            [
-              COMMON_IDENTIFIERS.output
-            ]
-          ),
-          // output.writeMessageEnd()
-          createMethodCallStatement(
-            COMMON_IDENTIFIERS.output,
-            'writeMessageEnd'
-          ),
-          // output.flush()
-          createMethodCallStatement(
-            COMMON_IDENTIFIERS.output,
-            'flush'
-          ),
-          ts.createReturn()
-        ], true),
-        ts.createBlock([
-          // const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
-          createConstStatement(
-            ts.createIdentifier('result'),
-            ts.createTypeReferenceNode(
-              THRIFT_IDENTIFIERS.TApplicationException,
-              undefined
+            // result.write(output)
+            createMethodCallStatement(
+                ts.createIdentifier('result'),
+                'write',
+                [
+                    COMMON_IDENTIFIERS.output
+                ]
             ),
-            createApplicationException(
-              'UNKNOWN',
-              ts.createIdentifier('err.message')
-            )
-          ),
-          // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
-          createMethodCallStatement(
-            COMMON_IDENTIFIERS.output,
-            'writeMessageBegin',
-            [
-              ts.createLiteral(funcDef.name.value),
-              MESSAGE_TYPE.EXCEPTION,
-              ts.createIdentifier('requestId')
-            ]
-          ),
-          // result.write(output)
-          createMethodCallStatement(
-            ts.createIdentifier('result'),
-            'write',
-            [
-              COMMON_IDENTIFIERS.output
-            ]
-          ),
-          // output.writeMessageEnd()
-          createMethodCallStatement(
-            COMMON_IDENTIFIERS.output,
-            'writeMessageEnd'
-          ),
-          // output.flush()
-          createMethodCallStatement(
-            COMMON_IDENTIFIERS.output,
-            'flush'
-          ),
-          ts.createReturn()
-        ], true)
-      )
-    })
-  } else {
-    return [
-      // const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
-      createConstStatement(
-        ts.createIdentifier('result'),
-        ts.createTypeReferenceNode(
-          THRIFT_IDENTIFIERS.TApplicationException,
-          undefined
-        ),
-        createApplicationException(
-          'UNKNOWN',
-          ts.createIdentifier('err.message')
-        )
-      ),
-      // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
-      createMethodCallStatement(
-        COMMON_IDENTIFIERS.output,
-        'writeMessageBegin',
-        [
-          ts.createLiteral(funcDef.name.value),
-          MESSAGE_TYPE.EXCEPTION,
-          ts.createIdentifier('requestId')
+            // output.writeMessageEnd()
+            createMethodCallStatement(
+                COMMON_IDENTIFIERS.output,
+                'writeMessageEnd'
+            ),
+            // output.flush()
+            createMethodCallStatement(
+                COMMON_IDENTIFIERS.output,
+                'flush'
+            ),
+            ts.createReturn()
         ]
-      ),
-      // result.write(output)
-      createMethodCallStatement(
-        ts.createIdentifier('result'),
-        'write',
-        [
-          COMMON_IDENTIFIERS.output
-        ]
-      ),
-      // output.writeMessageEnd()
-      createMethodCallStatement(
-        COMMON_IDENTIFIERS.output,
-        'writeMessageEnd'
-      ),
-      // output.flush()
-      createMethodCallStatement(
-        COMMON_IDENTIFIERS.output,
-        'flush'
-      ),
-      ts.createReturn()
-    ]
-  }
+    }
 }
 
 // public process(input: TProtocol, output: TProtocol) {
@@ -632,93 +634,93 @@ function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statemen
 //     }
 // }
 function createProcessMethod(service: ServiceDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
-  return createPublicMethod(
-    'process',
-    [
-      createFunctionParameter('input', TProtocolType),
-      createFunctionParameter('output', TProtocolType),
-    ], // parameters
-    createVoidType(), // return type
-    [
-      createConstStatement(
-        'metadata',
-        ts.createTypeReferenceNode(
-            THRIFT_IDENTIFIERS.TMessage,
-            undefined
-        ),
-        createMethodCall(
-          COMMON_IDENTIFIERS.input,
-          'readMessageBegin',
-          []
-        )
-      ),
-      createConstStatement(
-        'fname',
-        createStringType(),
-        ts.createIdentifier('metadata.fname')
-      ),
-      createConstStatement(
-        COMMON_IDENTIFIERS.requestId,
-        createNumberType(),
-        ts.createIdentifier('metadata.rseqid')
-      ),
-      createConstStatement(
-        ts.createIdentifier('methodName'),
-        createStringType(),
-        ts.createBinary(
-          ts.createLiteral('process_'),
-          ts.SyntaxKind.PlusToken,
-          COMMON_IDENTIFIERS.fname
-        )
-      ),
-      createMethodCallForFname(service, identifiers)
-    ] // body
-  )
+    return createPublicMethod(
+        'process',
+        [
+            createFunctionParameter('input', TProtocolType),
+            createFunctionParameter('output', TProtocolType),
+        ], // parameters
+        createVoidType(), // return type
+        [
+            createConstStatement(
+                'metadata',
+                ts.createTypeReferenceNode(
+                    THRIFT_IDENTIFIERS.TMessage,
+                    undefined
+                ),
+                createMethodCall(
+                    COMMON_IDENTIFIERS.input,
+                    'readMessageBegin',
+                    []
+                )
+            ),
+            createConstStatement(
+                'fname',
+                createStringType(),
+                ts.createIdentifier('metadata.fname')
+            ),
+            createConstStatement(
+                COMMON_IDENTIFIERS.requestId,
+                createNumberType(),
+                ts.createIdentifier('metadata.rseqid')
+            ),
+            createConstStatement(
+                ts.createIdentifier('methodName'),
+                createStringType(),
+                ts.createBinary(
+                    ts.createLiteral('process_'),
+                    ts.SyntaxKind.PlusToken,
+                    COMMON_IDENTIFIERS.fname
+                )
+            ),
+            createMethodCallForFname(service, identifiers)
+        ] // body
+    )
 }
 
 function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
-  const processMethodName: string = `process_${func.name.value}`
-  return ts.createCaseClause(
-    ts.createLiteral(processMethodName),
-    [
-      ts.createBlock([
-        ts.createStatement(
-          createMethodCall(
-            ts.createIdentifier('this'),
-            processMethodName,
-            [
-              ts.createIdentifier('requestId'),
-              COMMON_IDENTIFIERS.input,
-              COMMON_IDENTIFIERS.output,
-            ]
-          )
-        ),
-        ts.createReturn(),
-      ], true)
-    ]
-  )
+    const processMethodName: string = `process_${func.name.value}`
+    return ts.createCaseClause(
+        ts.createLiteral(processMethodName),
+        [
+            ts.createBlock([
+                ts.createStatement(
+                    createMethodCall(
+                        ts.createIdentifier('this'),
+                        processMethodName,
+                        [
+                            ts.createIdentifier('requestId'),
+                            COMMON_IDENTIFIERS.input,
+                            COMMON_IDENTIFIERS.output,
+                        ]
+                    )
+                ),
+                ts.createReturn(),
+            ], true)
+        ]
+    )
 }
 
 function functionsForService(node: ThriftStatement): Array<FunctionDefinition> {
-  switch (node.type) {
-    case SyntaxType.ServiceDefinition:
-      return node.functions
+    switch (node.type) {
+        case SyntaxType.ServiceDefinition:
+            return node.functions
 
-    default:
-      throw new TypeError(`A service can only extend another service. Found: ${node.type}`);
-  }
+        default:
+            throw new TypeError(`A service can only extend another service. Found: ${node.type}`);
+    }
 }
 
 function collectAllMethods(service: ServiceDefinition, identifiers: IIdentifierMap): Array<FunctionDefinition> {
-  if (service.extends !== null) {
-    const inheritedMethods: Array<FunctionDefinition> = functionsForService(identifiers[service.extends.value].definition)
-    return [
-      ...inheritedMethods,
-      ...service.functions,
-    ]
-  } else {
-    return service.functions
-  }
+    if (service.extends !== null) {
+        const inheritedMethods: Array<FunctionDefinition> = functionsForService(identifiers[service.extends.value].definition)
+        return [
+            ...inheritedMethods,
+            ...service.functions,
+        ]
+    } else {
+        return service.functions
+    }
 }
 
 /**
@@ -744,76 +746,74 @@ function collectAllMethods(service: ServiceDefinition, identifiers: IIdentifierM
  *   default:
  *     ...skip logic
  * }
- *
- * @param service
  */
 function createMethodCallForFname(service: ServiceDefinition, identifiers: IIdentifierMap): ts.SwitchStatement {
-  return ts.createSwitch(
-    ts.createIdentifier('methodName'),
-    ts.createCaseBlock([
-      ...collectAllMethods(service, identifiers).map(createMethodCallForFunction),
-      ts.createDefaultClause([
-        ts.createBlock([
-          // input.skip(Thrift.Type.STRUCT)
-          createMethodCallStatement(
-            COMMON_IDENTIFIERS.input,
-            'skip',
-            [ THRIFT_TYPES.STRUCT ]
-          ),
-          // input.readMessageEnd()
-          createMethodCallStatement(
-            COMMON_IDENTIFIERS.input,
-            'readMessageEnd'
-          ),
-          // const err = `Unknown function ${fname}`
-          createConstStatement(
-            ts.createIdentifier('errMessage'),
-            undefined,
-            ts.createBinary(
-              ts.createLiteral('Unknown function '),
-              ts.SyntaxKind.PlusToken,
-              ts.createIdentifier('fname')
-            )
-          ),
-          // const x = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN_METHOD, err)
-          createConstStatement(
-            ts.createIdentifier('err'),
-            undefined,
-            createApplicationException(
-              'UNKNOWN_METHOD',
-              ts.createIdentifier('errMessage')
-            )
-          ),
-          // output.writeMessageBegin(fname, Thrift.MessageType.EXCEPTION, rseqid)
-          createMethodCallStatement(
-            COMMON_IDENTIFIERS.output,
-            'writeMessageBegin',
-            [
-              ts.createIdentifier('fname'),
-              MESSAGE_TYPE.EXCEPTION,
-              ts.createIdentifier('requestId')
-            ]
-          ),
-          // err.write(output)
-          createMethodCallStatement(
-            ts.createIdentifier('err'),
-            'write',
-            [ COMMON_IDENTIFIERS.output ]
-          ),
-          // output.writeMessageEnd()
-          createMethodCallStatement(
-            COMMON_IDENTIFIERS.output,
-            'writeMessageEnd'
-          ),
-          // output.flush()
-          createMethodCallStatement(
-            COMMON_IDENTIFIERS.output,
-            'flush'
-          ),
-          // return;
-          ts.createReturn(),
-        ], true)
-      ])
-    ])
-  )
+    return ts.createSwitch(
+        ts.createIdentifier('methodName'),
+        ts.createCaseBlock([
+            ...collectAllMethods(service, identifiers).map(createMethodCallForFunction),
+            ts.createDefaultClause([
+                ts.createBlock([
+                    // input.skip(Thrift.Type.STRUCT)
+                    createMethodCallStatement(
+                        COMMON_IDENTIFIERS.input,
+                        'skip',
+                        [ THRIFT_TYPES.STRUCT ]
+                    ),
+                    // input.readMessageEnd()
+                    createMethodCallStatement(
+                        COMMON_IDENTIFIERS.input,
+                        'readMessageEnd'
+                    ),
+                    // const err = `Unknown function ${fname}`
+                    createConstStatement(
+                        ts.createIdentifier('errMessage'),
+                        undefined,
+                        ts.createBinary(
+                            ts.createLiteral('Unknown function '),
+                            ts.SyntaxKind.PlusToken,
+                            ts.createIdentifier('fname')
+                        )
+                    ),
+                    // const x = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN_METHOD, err)
+                    createConstStatement(
+                        ts.createIdentifier('err'),
+                        undefined,
+                        createApplicationException(
+                            'UNKNOWN_METHOD',
+                            ts.createIdentifier('errMessage')
+                        )
+                    ),
+                    // output.writeMessageBegin(fname, Thrift.MessageType.EXCEPTION, rseqid)
+                    createMethodCallStatement(
+                        COMMON_IDENTIFIERS.output,
+                        'writeMessageBegin',
+                        [
+                            ts.createIdentifier('fname'),
+                            MESSAGE_TYPE.EXCEPTION,
+                            ts.createIdentifier('requestId')
+                        ]
+                    ),
+                    // err.write(output)
+                    createMethodCallStatement(
+                        ts.createIdentifier('err'),
+                        'write',
+                        [ COMMON_IDENTIFIERS.output ]
+                    ),
+                    // output.writeMessageEnd()
+                    createMethodCallStatement(
+                        COMMON_IDENTIFIERS.output,
+                        'writeMessageEnd'
+                    ),
+                    // output.flush()
+                    createMethodCallStatement(
+                        COMMON_IDENTIFIERS.output,
+                        'flush'
+                    ),
+                    // return;
+                    ts.createReturn(),
+                ], true)
+            ])
+        ])
+    )
 }
