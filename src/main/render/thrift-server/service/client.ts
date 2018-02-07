@@ -103,11 +103,11 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
                 (node.extends !== null) ?
                 [
                     ts.createStatement(ts.createCall(
-                        ts.createSuper(),
-                        [],
-                        [
-                            COMMON_IDENTIFIERS.connection,
-                        ]
+                    ts.createSuper(),
+                    [],
+                    [
+                        COMMON_IDENTIFIERS.connection,
+                    ]
                     ))
                 ] :
                 []
@@ -160,13 +160,13 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
                 ts.SyntaxKind.ExtendsKeyword,
                 [
                     ts.createExpressionWithTypeArguments(
-                        [
-                            ts.createTypeReferenceNode(
-                                COMMON_IDENTIFIERS.Context,
-                                undefined
-                            )
-                        ],
-                        ts.createIdentifier(`${node.extends.value}.Client`),
+                    [
+                        ts.createTypeReferenceNode(
+                            COMMON_IDENTIFIERS.Context,
+                            undefined
+                        )
+                    ],
+                    ts.createIdentifier(`${node.extends.value}.Client`),
                     )
                 ]
             )
@@ -230,8 +230,8 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
             )
         ], // parameters
         ts.createTypeReferenceNode(
-          'Promise',
-          [ typeNodeForFieldType(def.returnType) ]
+            'Promise',
+            [ typeNodeForFieldType(def.returnType) ]
         ), // return type
         ts.createBlock([
             createConstStatement(
@@ -281,23 +281,17 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                     ts.createIdentifier(createStructArgsName(def)),
                     undefined
                 ),
-                ts.createNew(
-                    ts.createIdentifier(createStructArgsName(def)),
-                    undefined,
-                    [
-                        ts.createObjectLiteral(
-                            def.fields.map((next: FieldDefinition) => {
-                                return ts.createShorthandPropertyAssignment(next.name.value)
-                            })
-                        )
-                    ]
-                )
+                ts.createObjectLiteral(
+                    def.fields.map((next: FieldDefinition) => {
+                        return ts.createShorthandPropertyAssignment(next.name.value)
+                    })
+                ),
             ),
             // args.write(output)
             createMethodCallStatement(
-                COMMON_IDENTIFIERS.args,
-                'write',
-                [ COMMON_IDENTIFIERS.output ]
+                ts.createIdentifier(`${createStructArgsName(def)}Codec`),
+                'encode',
+                [ COMMON_IDENTIFIERS.args, COMMON_IDENTIFIERS.output ]
             ),
             // output.writeMessageEnd()
             createMethodCallStatement(
@@ -416,16 +410,16 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                                                 //     return callback(result.{{throwName}})
                                                 // }
                                                 ...def.throws.map((next: FieldDefinition): ts.IfStatement => {
-                                                return ts.createIf(
-                                                    createNotNullCheck(`result.${next.name.value}`),
-                                                    ts.createBlock([
-                                                        ts.createReturn(
-                                                            rejectPromiseWith(
-                                                                ts.createIdentifier(`result.${next.name.value}`)
+                                                    return ts.createIf(
+                                                        createNotNullCheck(`result.${next.name.value}`),
+                                                        ts.createBlock([
+                                                            ts.createReturn(
+                                                                rejectPromiseWith(
+                                                                    ts.createIdentifier(`result.${next.name.value}`)
+                                                                )
                                                             )
-                                                        )
-                                                    ], true)
-                                                )
+                                                        ], true)
+                                                    )
                                                 }),
                                                 createResultHandler(def)
                                             ], true),
@@ -492,7 +486,7 @@ function createConnectionSend(): ts.CallExpression {
     )
 }
 
-// const result = new {{ServiceName}}{{nameTitleCase}}Result()
+// const result: GetUserResult = GetUserResultCodec.decode(input);
 function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
     return [
         createConstStatement(
@@ -503,8 +497,8 @@ function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
             ),
             ts.createCall(
                 ts.createPropertyAccess(
-                    ts.createIdentifier(createStructResultName(def)),
-                    ts.createIdentifier('read')
+                    ts.createIdentifier(`${createStructResultName(def)}Codec`),
+                    ts.createIdentifier('decode')
                 ),
                 undefined,
                 [

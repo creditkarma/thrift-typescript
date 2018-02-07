@@ -16,7 +16,7 @@ export class MyStruct {
             this.id = args.id;
         }
         else {
-            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field id is unset!");
+            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field[id] is unset!");
         }
         if (args != null && args.bigID != null) {
             if (typeof args.bigID === "number") {
@@ -27,13 +27,13 @@ export class MyStruct {
             }
         }
         else {
-            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field bigID is unset!");
+            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field[bigID] is unset!");
         }
         if (args != null && args.word != null) {
             this.word = args.word;
         }
         else {
-            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field word is unset!");
+            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field[word] is unset!");
         }
         if (args != null && args.field1 != null) {
             this.field1 = args.field1;

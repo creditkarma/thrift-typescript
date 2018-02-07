@@ -1,48 +1,35 @@
 import * as ts from 'typescript'
 
 import {
-    FunctionType,
-    SyntaxType,
-    ContainerType,
     InterfaceWithFields,
     FieldDefinition,
+    SyntaxType,
+    FunctionType,
+    ContainerType,
 } from '@creditkarma/thrift-parser'
-
-import {
-    IIdentifierMap,
-    IResolvedIdentifier
-} from '../../../types'
-
-import {
-    thriftTypeForFieldType,
-} from '../types'
-
-import {
-    throwProtocolException,
-} from '../utils'
-
-import {
-    createFunctionParameter,
-    hasRequiredField,
-    createMethodCallStatement,
-    createMethodCall,
-    propertyAccessForIdentifier,
-    createAssignmentStatement,
-    createConstStatement,
-    createLetStatement,
-    createLet,
-    createEqualsCheck,
-} from '../../shared/utils'
 
 import {
     COMMON_IDENTIFIERS,
 } from '../../shared/identifiers'
 
 import {
-    createNumberType,
     createAnyType,
+    createNumberType,
     typeNodeForFieldType,
 } from '../../shared/types'
+
+import {
+    createLetStatement,
+    createConstStatement,
+    propertyAccessForIdentifier,
+    createEqualsCheck,
+    hasRequiredField,
+    createMethodCall,
+    createMethodCallStatement,
+    createFunctionParameter,
+    createAssignmentStatement,
+    createLet,
+} from '../../shared/utils'
 
 import {
     THRIFT_IDENTIFIERS,
@@ -50,49 +37,38 @@ import {
 } from '../identifiers'
 
 import {
-    READ_METHODS
+    IIdentifierMap,
+    IResolvedIdentifier,
+} from '../../../types'
+
+import {
+    throwProtocolException,
+    getInitializerForField,
+} from '../utils'
+
+import {
+    thriftTypeForFieldType,
+} from '../types'
+
+import {
+    READ_METHODS,
 } from './methods'
 
-/**
- * public read(input: TProtocol): void {
- *     input.readStructBegin()
- *     while (true) {
- *         {{#has_fields}}
- *         const {fieldType, fieldId} = input.readFieldBegin()
- *         {{/has_fields}}
- *         {{^has_fields}}
- *         const {fieldType} = input.readFieldBegin()
- *         {{/has_fields}}
- *         if (fieldType === Thrift.Type.STOP) {
- *             break
- *         }
- *         {{#has_fields}}
- *         switch (fieldId) {
- *             {{#fields}}
- *             case {{id}}:
- *                 {{>readField}}
- *                 break
- *             {{/fields}}
- *             default:
- *                 input.skip(fieldType)
- *         }
- *         {{/has_fields}}
- *         {{^has_fields}}
- *         input.skip(fieldType)
- *         {{/has_fields}}
- *         input.readFieldEnd()
- *     }
- *     input.readStructEnd()
- *     return
- * }
- */
-export function createReadMethod(struct: InterfaceWithFields, identifiers: IIdentifierMap): ts.MethodDeclaration {
+export function createTempVariables(struct: InterfaceWithFields): Array<ts.VariableStatement> {
+    if (struct.fields.length > 0) {
+        return [ createLetStatement(
+            ts.createIdentifier('_args'),
+            createAnyType(),
+            ts.createObjectLiteral(),
+        ) ]
+    } else {
+        return []
+    }
+}
+
+export function createDecodeMethod(struct: InterfaceWithFields, identifiers: IIdentifierMap): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
-    const tempVariable: ts.VariableStatement = createLetStatement(
-        ts.createIdentifier('_args'),
-        createAnyType(),
-        ts.createObjectLiteral(),
-    )
+    const tempVariables: Array<ts.VariableStatement> = createTempVariables(struct)
 
     /**
      * cosnt ret: { fieldName: string; fieldType: Thrift.Type; fieldId: number; } = input.readFieldBegin()
@@ -102,7 +78,7 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
     const ret: ts.VariableStatement = createConstStatement(
         'ret',
         ts.createTypeReferenceNode(
-            THRIFT_IDENTIFIERS.TField,
+            THRIFT_IDENTIFIERS.IThriftField,
             undefined
         ),
         readFieldBegin()
@@ -111,13 +87,13 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
     const fieldType: ts.VariableStatement = createConstStatement(
         'fieldType',
         ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.Thrift_Type, undefined),
-        propertyAccessForIdentifier('ret', 'ftype')
+        propertyAccessForIdentifier('ret', 'fieldType')
     )
 
     const fieldId: ts.VariableStatement = createConstStatement(
         'fieldId',
         createNumberType(),
-        propertyAccessForIdentifier('ret', 'fid')
+        propertyAccessForIdentifier('ret', 'fieldId')
     )
 
     /**
@@ -159,12 +135,9 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
 
     return ts.createMethod(
         undefined,
-        [
-            ts.createToken(ts.SyntaxKind.PublicKeyword),
-            ts.createToken(ts.SyntaxKind.StaticKeyword),
-        ],
         undefined,
-        ts.createIdentifier('read'),
+        undefined,
+        ts.createIdentifier('decode'),
         undefined,
         undefined,
         [ inputParameter ],
@@ -173,59 +146,12 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
             undefined,
         ), // return type
         ts.createBlock([
+            ...tempVariables,
             readStructBegin(),
-            tempVariable,
             whileLoop,
             readStructEnd(),
             createReturnForStruct(struct),
         ], true),
-    )
-}
-
-function createCheckForFields(fields: Array<FieldDefinition>): ts.BinaryExpression {
-    return fields.filter((next: FieldDefinition) => {
-        return next.requiredness === 'required'
-    }).map((next: FieldDefinition): ts.BinaryExpression => {
-        return ts.createBinary(
-            ts.createIdentifier(`_args.${next.name.value}`),
-            ts.SyntaxKind.ExclamationEqualsEqualsToken,
-            COMMON_IDENTIFIERS.undefined
-        )
-    }).reduce((acc: ts.BinaryExpression, next: ts.BinaryExpression) => {
-        return ts.createBinary(
-            acc,
-            ts.SyntaxKind.AmpersandAmpersandToken,
-            next
-        )
-    })
-}
-
-function createReturnForStruct(struct: InterfaceWithFields): ts.Statement {
-    if (hasRequiredField(struct)) {
-        return ts.createIf(
-            createCheckForFields(struct.fields),
-            ts.createBlock([
-                createReturnValue(struct)
-            ], true),
-            ts.createBlock([
-                throwProtocolException(
-                'UNKNOWN',
-                `Unable to read ${struct.name.value} from input`
-                )
-            ], true)
-        )
-    } else {
-        return createReturnValue(struct)
-    }
-}
-
-function createReturnValue(struct: InterfaceWithFields): ts.ReturnStatement {
-    return ts.createReturn(
-        ts.createNew(
-            ts.createIdentifier(struct.name.value),
-            undefined,
-            [ ts.createIdentifier('_args') ]
-        )
     )
 }
 
@@ -234,6 +160,26 @@ export function createInputParameter(): ts.ParameterDeclaration {
         'input', // param name
         ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined) // param type
     )
+}
+
+export function createCheckForFields(fields: Array<FieldDefinition>): ts.BinaryExpression {
+    return fields.filter((next: FieldDefinition) => {
+        return next.requiredness === 'required'
+
+    }).map((next: FieldDefinition): ts.BinaryExpression => {
+        return ts.createBinary(
+            ts.createIdentifier(`_args.${next.name.value}`),
+            ts.SyntaxKind.ExclamationEqualsEqualsToken,
+            COMMON_IDENTIFIERS.undefined
+        )
+
+    }).reduce((acc: ts.BinaryExpression, next: ts.BinaryExpression) => {
+        return ts.createBinary(
+            acc,
+            ts.SyntaxKind.AmpersandAmpersandToken,
+            next
+        )
+    })
 }
 
 /**
@@ -290,157 +236,44 @@ export function endReadForField(fieldName: ts.Identifier, field: FieldDefinition
         default:
             return [
                 createAssignmentStatement(
-                ts.createIdentifier(`_args.${field.name.value}`),
-                fieldName
+                    ts.createIdentifier(`_args.${field.name.value}`),
+                    fieldName
                 )
             ]
     }
 }
 
-export function metadataTypeForFieldType(fieldType: ContainerType): ts.TypeNode {
-    switch (fieldType.type) {
-        case SyntaxType.MapType:
-            return ts.createTypeReferenceNode(
-                THRIFT_IDENTIFIERS.TMap,
-                undefined,
-            )
-
-        case SyntaxType.SetType:
-            return ts.createTypeReferenceNode(
-                THRIFT_IDENTIFIERS.TSet,
-                undefined,
-            )
-
-        case SyntaxType.ListType:
-            return ts.createTypeReferenceNode(
-                THRIFT_IDENTIFIERS.TList,
-                undefined,
-            )
-
-        default:
-            const msg: never = fieldType
-            throw new Error(`Non-exhaustive match for: ${msg}`)
+export function createReturnForStruct(struct: InterfaceWithFields): ts.Statement {
+    if (hasRequiredField(struct)) {
+        return ts.createIf(
+            createCheckForFields(struct.fields),
+            ts.createBlock([
+                createReturnValue(struct),
+            ], true),
+            ts.createBlock([
+                throwProtocolException(
+                    'UNKNOWN',
+                    `Unable to read ${struct.name.value} from input`
+                )
+            ], true)
+        )
+    } else {
+        return createReturnValue(struct)
     }
 }
 
-function readBeginForFieldType(fieldType: ContainerType): ts.CallExpression {
-    switch (fieldType.type) {
-        case SyntaxType.MapType:
-            return readMapBegin()
-
-        case SyntaxType.SetType:
-            return readSetBegin()
-
-        case SyntaxType.ListType:
-            return readListBegin()
-
-        default:
-            const msg: never = fieldType
-            throw new Error(`Non-exhaustive match for: ${msg}`)
-    }
-}
-
-function readEndForFieldType(fieldType: ContainerType): ts.CallExpression {
-    switch (fieldType.type) {
-        case SyntaxType.MapType:
-            return readMapEnd()
-
-        case SyntaxType.SetType:
-            return readSetEnd()
-
-        case SyntaxType.ListType:
-            return readListEnd()
-
-        default:
-            const msg: never = fieldType
-            throw new Error(`Non-exhaustive match for: ${msg}`)
-    }
-}
-
-function loopBody(fieldType: ContainerType, fieldName: ts.Identifier, identifiers: IIdentifierMap): Array<ts.Statement> {
-    const value: ts.Identifier = ts.createUniqueName('value')
-
-    switch (fieldType.type) {
-        case SyntaxType.MapType:
-            const key: ts.Identifier = ts.createUniqueName('key')
-            return [
-                ...readValueForFieldType(fieldType.keyType, key, identifiers),
-                ...readValueForFieldType(fieldType.valueType, value, identifiers),
-                createMethodCallStatement(fieldName, 'set', [ key, value ])
-            ]
-
-        case SyntaxType.ListType:
-            return [
-                ...readValueForFieldType(fieldType.valueType, value, identifiers),
-                createMethodCallStatement(fieldName, 'push', [ value ])
-            ]
-
-        case SyntaxType.SetType:
-            return [
-                ...readValueForFieldType(fieldType.valueType, value, identifiers),
-                createMethodCallStatement(fieldName, 'add', [ value ])
-            ]
-    }
-}
-
-
-/**
- * EXAMPLE OF MAP FIELD
- *
- * if (fieldType === Thrift.Type.MAP) {
- *   this.field1 = new Map<string, string>();
- *   const metadata_1: {
- *     ktype: Thrift.Type;
- *     vtype: Thrift.Type;
- *     size: number;
- *   } = input.readMapBegin();
- *   const size_1: number = metadata_1.size;
- *   for (let i_1: number = 0; i_1 < size_1; i_1++) {
- *     const key_2: string = input.readString();
- *     const value_2: string = input.readString();
- *     this.field1.set(key_2, value_2);
- *   }
- *   input.readMapEnd();
- * }
- */
-function loopOverContainer(
-    fieldType: ContainerType,
-    fieldName: ts.Identifier,
-    identifiers: IIdentifierMap
-): Array<ts.Statement> {
-    const incrementer: ts.Identifier = ts.createUniqueName('i')
-    const metadata: ts.Identifier = ts.createUniqueName('metadata')
-    const size: ts.Identifier = ts.createUniqueName('size')
-
-    return [
-        // const metadata: { ktype: Thrift.Type; vtype: Thrift.Type; size: number; } = input.readMapBegin()
-        createConstStatement(
-            metadata,
-            metadataTypeForFieldType(fieldType),
-            readBeginForFieldType(fieldType)
-        ),
-        // cosnt size: number = metadata.size
-        createConstStatement(
-            size,
-            createNumberType(),
-            propertyAccessForIdentifier(metadata, 'size')
-        ),
-        // for (let i = 0, i < size; i++) { .. }
-        ts.createFor(
-            createLet(
-                incrementer,
-                createNumberType(),
-                ts.createLiteral(0)
-            ),
-            ts.createLessThan(incrementer, size),
-            ts.createPostfixIncrement(incrementer),
-            ts.createBlock(
-                loopBody(fieldType, fieldName, identifiers),
-                true
-            )
-        ),
-        ts.createStatement(readEndForFieldType(fieldType))
-    ]
+function createReturnValue(struct: InterfaceWithFields): ts.ReturnStatement {
+    return ts.createReturn(
+        ts.createObjectLiteral(
+            struct.fields.map((next: FieldDefinition): ts.ObjectLiteralElementLike => {
+                return ts.createPropertyAssignment(
+                    next.name.value,
+                    getInitializerForField('_args', next),
+                )
+            }),
+            true // multiline
+        )
+    )
 }
 
 export function readValueForIdentifier(
@@ -460,17 +293,18 @@ export function readValueForIdentifier(
         case SyntaxType.UnionDefinition:
         case SyntaxType.ExceptionDefinition:
             return [
+                // const field: type =
                 createConstStatement(
                     fieldName,
                     typeNodeForFieldType(fieldType),
                     ts.createCall(
                         ts.createPropertyAccess(
-                        ts.createIdentifier(id.resolvedName),
-                        ts.createIdentifier('read'),
+                            ts.createIdentifier(`${id.resolvedName}Codec`),
+                            ts.createIdentifier('decode'),
                         ),
                         undefined,
                         [
-                        COMMON_IDENTIFIERS.input
+                            COMMON_IDENTIFIERS.input
                         ]
                     )
                 ),
@@ -583,9 +417,150 @@ export function readValueForFieldType(
         case SyntaxType.VoidKeyword:
             return [
                 createMethodCallStatement('input', 'skip', [
-                COMMON_IDENTIFIERS.fieldType
+                    COMMON_IDENTIFIERS.fieldType
                 ])
             ]
+
+        default:
+            const msg: never = fieldType
+            throw new Error(`Non-exhaustive match for: ${msg}`)
+    }
+}
+
+/**
+ * EXAMPLE OF MAP FIELD
+ *
+ * if (fieldType === Thrift.Type.MAP) {
+ *   this.field1 = new Map<string, string>();
+ *   const metadata_1: {
+ *     ktype: Thrift.Type;
+ *     vtype: Thrift.Type;
+ *     size: number;
+ *   } = input.readMapBegin();
+ *   const size_1: number = metadata_1.size;
+ *   for (let i_1: number = 0; i_1 < size_1; i_1++) {
+ *     const key_2: string = input.readString();
+ *     const value_2: string = input.readString();
+ *     this.field1.set(key_2, value_2);
+ *   }
+ *   input.readMapEnd();
+ * }
+ */
+function loopOverContainer(fieldType: ContainerType, fieldName: ts.Identifier, identifiers: IIdentifierMap): Array<ts.Statement> {
+    const incrementer: ts.Identifier = ts.createUniqueName('i')
+    const metadata: ts.Identifier = ts.createUniqueName('metadata')
+    const size: ts.Identifier = ts.createUniqueName('size')
+
+    return [
+        // const metadata: { ktype: Thrift.Type; vtype: Thrift.Type; size: number; } = input.readMapBegin()
+        createConstStatement(
+            metadata,
+            metadataTypeForFieldType(fieldType),
+            readBeginForFieldType(fieldType)
+        ),
+        // cosnt size: number = metadata.size
+        createConstStatement(
+            size,
+            createNumberType(),
+            propertyAccessForIdentifier(metadata, 'size')
+        ),
+        // for (let i = 0, i < size; i++) { .. }
+        ts.createFor(
+            createLet(
+                incrementer,
+                createNumberType(),
+                ts.createLiteral(0)
+            ),
+            ts.createLessThan(incrementer, size),
+            ts.createPostfixIncrement(incrementer),
+            ts.createBlock(
+                loopBody(fieldType, fieldName, identifiers),
+                true
+            )
+        ),
+        ts.createStatement(readEndForFieldType(fieldType))
+    ]
+}
+
+export function metadataTypeForFieldType(fieldType: ContainerType): ts.TypeNode {
+    switch (fieldType.type) {
+        case SyntaxType.MapType:
+            return ts.createTypeReferenceNode(
+                THRIFT_IDENTIFIERS.IThriftMap,
+                undefined,
+            )
+
+        case SyntaxType.SetType:
+            return ts.createTypeReferenceNode(
+                THRIFT_IDENTIFIERS.IThriftSet,
+                undefined,
+            )
+
+        case SyntaxType.ListType:
+            return ts.createTypeReferenceNode(
+                THRIFT_IDENTIFIERS.IThriftList,
+                undefined,
+            )
+
+        default:
+            const msg: never = fieldType
+            throw new Error(`Non-exhaustive match for: ${msg}`)
+    }
+}
+
+function loopBody(fieldType: ContainerType, fieldName: ts.Identifier, identifiers: IIdentifierMap): Array<ts.Statement> {
+    const value: ts.Identifier = ts.createUniqueName('value')
+
+    switch (fieldType.type) {
+        case SyntaxType.MapType:
+            const key: ts.Identifier = ts.createUniqueName('key')
+            return [
+                ...readValueForFieldType(fieldType.keyType, key, identifiers),
+                ...readValueForFieldType(fieldType.valueType, value, identifiers),
+                createMethodCallStatement(fieldName, 'set', [ key, value ])
+            ]
+
+        case SyntaxType.ListType:
+            return [
+                ...readValueForFieldType(fieldType.valueType, value, identifiers),
+                createMethodCallStatement(fieldName, 'push', [ value ])
+            ]
+
+        case SyntaxType.SetType:
+            return [
+                ...readValueForFieldType(fieldType.valueType, value, identifiers),
+                createMethodCallStatement(fieldName, 'add', [ value ])
+            ]
+    }
+}
+
+function readBeginForFieldType(fieldType: ContainerType): ts.CallExpression {
+    switch (fieldType.type) {
+        case SyntaxType.MapType:
+            return readMapBegin()
+
+        case SyntaxType.SetType:
+            return readSetBegin()
+
+        case SyntaxType.ListType:
+            return readListBegin()
+
+        default:
+            const msg: never = fieldType
+            throw new Error(`Non-exhaustive match for: ${msg}`)
+    }
+}
+
+function readEndForFieldType(fieldType: ContainerType): ts.CallExpression {
+    switch (fieldType.type) {
+        case SyntaxType.MapType:
+            return readMapEnd()
+
+        case SyntaxType.SetType:
+            return readSetEnd()
+
+        case SyntaxType.ListType:
+            return readListEnd()
 
         default:
             const msg: never = fieldType

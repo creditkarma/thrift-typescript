@@ -118,9 +118,6 @@ You'll notice that the Client class is a generic. The type parameter represents 
 ```typescript
 import {
   createClient,
-  fromRequest,
-  RequestConnection,
-  RequestInstance,
 } from '@creditkarma/thrift-client'
 
 import * as request from 'request'
@@ -133,9 +130,7 @@ const CONFIG = {
   port: 8045
 }
 
-const requestClient: RequestInstance = request.defaults({})
-const connection: RequestConnection = fromRequest(requestClient, CONFIG)
-const client: Calculator.Client<CoreOptions> = new Calculator.Client(connection)
+const client: Calculator.Client<CoreOptions> = createClient(Calculator.Client, CONFIG)
 
 client.add(5, 7, { headers: { 'X-Trace-Id': 'xxxxxx' } })
   .then((response: number) => {

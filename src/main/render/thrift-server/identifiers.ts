@@ -1,6 +1,7 @@
 import * as ts from 'typescript'
 
 export const THRIFT_IDENTIFIERS = {
+    IStructCodec: ts.createIdentifier('thrift.IStructCodec'),
     IThriftConnection: ts.createIdentifier('thrift.IThriftConnection'),
     ProtocolConstructor: ts.createIdentifier('thrift.IProtocolConstructor'),
     TransportConstructor: ts.createIdentifier('thrift.ITransportConstructor'),

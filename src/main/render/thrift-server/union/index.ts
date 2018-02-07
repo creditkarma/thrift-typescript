@@ -1,7 +1,7 @@
 import * as ts from 'typescript'
 
 import {
-    InterfaceWithFields,
+    UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -16,7 +16,7 @@ import {
     renderCodec,
 } from './codec'
 
-export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
     return [
         renderInterface(node),
         renderCodec(node, identifiers),

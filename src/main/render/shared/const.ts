@@ -6,7 +6,7 @@ import {
 
 import {
     typeNodeForFieldType
-} from '../shared/types'
+} from './types'
 
 import {
     renderValue

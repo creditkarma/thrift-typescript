@@ -1,7 +1,7 @@
 import {
-  FunctionType,
-  SyntaxType,
-  ConstValue
+    FunctionType,
+    SyntaxType,
+    ConstValue
 } from '@creditkarma/thrift-parser'
 
 /**
@@ -11,30 +11,30 @@ import {
  * @param constValue
  */
 export function constToTypeString(constValue: ConstValue): string {
-  switch (constValue.type) {
-    case SyntaxType.Identifier:
-      return constValue.value
+    switch (constValue.type) {
+        case SyntaxType.Identifier:
+            return constValue.value
 
-    case SyntaxType.StringLiteral:
-      return 'string'
+        case SyntaxType.StringLiteral:
+            return 'string'
 
-    case SyntaxType.IntConstant:
-    case SyntaxType.DoubleConstant:
-      return 'number'
+        case SyntaxType.IntConstant:
+        case SyntaxType.DoubleConstant:
+            return 'number'
 
-    case SyntaxType.BooleanLiteral:
-      return 'boolean'
+        case SyntaxType.BooleanLiteral:
+            return 'boolean'
 
-    case SyntaxType.ConstList:
-      return `Array<${constToTypeString(constValue.elements[0])}>`
+        case SyntaxType.ConstList:
+            return `Array<${constToTypeString(constValue.elements[0])}>`
 
-    case SyntaxType.ConstMap:
-      return `Map<${constToTypeString(constValue.properties[0].name)},${constToTypeString(constValue.properties[0].initializer)}>`
+        case SyntaxType.ConstMap:
+            return `Map<${constToTypeString(constValue.properties[0].name)},${constToTypeString(constValue.properties[0].initializer)}>`
 
-    default:
-      const msg: never = constValue
-      throw new Error(`Non-exhaustive match for ${msg}`)
-  }
+        default:
+            const msg: never = constValue
+            throw new Error(`Non-exhaustive match for ${msg}`)
+    }
 }
 
 /**
@@ -44,41 +44,41 @@ export function constToTypeString(constValue: ConstValue): string {
  * @param fieldType
  */
 export function fieldTypeToString(fieldType: FunctionType): string {
-  switch (fieldType.type) {
-    case SyntaxType.Identifier:
-      return fieldType.value
+    switch (fieldType.type) {
+        case SyntaxType.Identifier:
+            return fieldType.value
 
-    case SyntaxType.SetType:
-      return `Set<${fieldTypeToString(fieldType.valueType)}>`
+        case SyntaxType.SetType:
+            return `Set<${fieldTypeToString(fieldType.valueType)}>`
 
-    case SyntaxType.MapType:
-      return `Map<${fieldTypeToString(fieldType.keyType)},${fieldTypeToString(fieldType.valueType)}>`
+        case SyntaxType.MapType:
+            return `Map<${fieldTypeToString(fieldType.keyType)},${fieldTypeToString(fieldType.valueType)}>`
 
-    case SyntaxType.ListType:
-      return `Array<${fieldTypeToString(fieldType.valueType)}>`
+        case SyntaxType.ListType:
+            return `Array<${fieldTypeToString(fieldType.valueType)}>`
 
-    case SyntaxType.StringKeyword:
-    case SyntaxType.BinaryKeyword:
-      return 'string'
+        case SyntaxType.StringKeyword:
+        case SyntaxType.BinaryKeyword:
+            return 'string'
 
-    case SyntaxType.BoolKeyword:
-      return 'boolean'
+        case SyntaxType.BoolKeyword:
+            return 'boolean'
 
-    case SyntaxType.I64Keyword:
-      return 'Int64'
+        case SyntaxType.I64Keyword:
+            return 'Int64'
 
-    case SyntaxType.DoubleKeyword:
-    case SyntaxType.I8Keyword:
-    case SyntaxType.I16Keyword:
-    case SyntaxType.I32Keyword:
-    case SyntaxType.ByteKeyword:
-      return 'number'
+        case SyntaxType.DoubleKeyword:
+        case SyntaxType.I8Keyword:
+        case SyntaxType.I16Keyword:
+        case SyntaxType.I32Keyword:
+        case SyntaxType.ByteKeyword:
+            return 'number'
 
-    case SyntaxType.VoidKeyword:
-      return 'void'
+        case SyntaxType.VoidKeyword:
+            return 'void'
 
-    default:
-      const msg: never = fieldType
-      throw new Error(`Non-exhaustive match for: ${msg}`)
-  }
+        default:
+            const msg: never = fieldType
+            throw new Error(`Non-exhaustive match for: ${msg}`)
+    }
 }

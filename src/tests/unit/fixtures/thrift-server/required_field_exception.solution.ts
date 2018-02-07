@@ -1,13 +1,16 @@
 export class MyException extends Error {
-    public message: string = "";
-    public code?: number = 200;
-    constructor(args?: {
-        message?: string;
+    public message: string;
+    public code?: number;
+    constructor(args: {
+        message: string;
         code?: number;
     }) {
         super();
         if (args != null && args.message != null) {
             this.message = args.message;
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[message] is unset!");
         }
         if (args != null && args.code != null) {
             this.code = args.code;
@@ -18,13 +21,16 @@ export const MyExceptionCodec: thrift.IStructCodec<MyException> = {
     encode(val: MyException, output: thrift.TProtocol): void {
         const obj = {
             message: val.message,
-            code: val.code != null ? val.code : 200
+            code: val.code
         };
         output.writeStructBegin("MyException");
         if (obj.message != null) {
             output.writeFieldBegin("message", thrift.TType.STRING, 1);
             output.writeString(obj.message);
             output.writeFieldEnd();
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[message] is unset!");
         }
         if (obj.code != null) {
             output.writeFieldBegin("code", thrift.TType.I32, 2);
@@ -71,9 +77,14 @@ export const MyExceptionCodec: thrift.IStructCodec<MyException> = {
             input.readFieldEnd();
         }
         input.readStructEnd();
-        return new MyException({
-            message: _args.message,
-            code: _args.code != null ? _args.code : 200
-        });
+        if (_args.message !== undefined) {
+            return new MyException({
+                message: _args.message,
+                code: _args.code
+            });
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read MyException from input");
+        }
     }
 };

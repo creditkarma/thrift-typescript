@@ -2,6 +2,7 @@ import * as ts from 'typescript'
 
 import {
     InterfaceWithFields,
+    ExceptionDefinition,
     FieldDefinition,
     SyntaxType,
 } from '@creditkarma/thrift-parser'
@@ -11,34 +12,44 @@ import {
 } from '../../../types'
 
 import {
-    throwProtocolException,
-} from '../utils'
-
-import {
-    createClassConstructor,
-    createAssignmentStatement,
-    propertyAccessForIdentifier,
-    createNotNullCheck,
-} from '../../shared/utils'
+    renderCodec,
+} from './codec'
 
 import {
     COMMON_IDENTIFIERS,
-} from '../../shared/identifiers';
+} from '../../shared/identifiers'
 
 import {
-    createArgsParameterForStruct,
-    renderFieldDeclarations,
-} from '../../shared/struct'
+    typeNodeForFieldType,
+} from '../../shared/types'
 
 import {
-    interfaceNameForClass
-} from '../../shared/interface'
+    renderValue,
+} from '../../shared/values'
 
-import { createReadMethod } from './read'
-import { createWriteMethod } from './write'
+import {
+    createClassConstructor,
+    createNotNullCheck,
+    createAssignmentStatement,
+    propertyAccessForIdentifier,
+    hasRequiredField,
+    createFunctionParameter,
+    renderOptional,
+} from '../../shared/utils'
 
-export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifierMap): ts.ClassDeclaration {
-    const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(node)
+import {
+    throwProtocolException,
+} from '../utils'
+
+export function renderException(exp: ExceptionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+    return [
+        renderClass(exp, identifiers),
+        renderCodec(exp, identifiers),
+    ]
+}
+
+export function renderClass(exp: ExceptionDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
+    const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(exp)
 
     /**
      * After creating the properties on our class for the struct fields we must create
@@ -53,34 +64,45 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
      * If a required argument is not on the passed 'args' argument we need to throw on error.
      * Optional fields we must allow to be null or undefined.
      */
-    const fieldAssignments: Array<ts.IfStatement> = node.fields.map(createFieldAssignment)
+    const fieldAssignments: Array<ts.IfStatement> = exp.fields.map(createFieldAssignment)
 
-    const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(node)
+    const argsParameter: ts.ParameterDeclaration = createArgsParameterForException(exp)
 
     // Build the constructor body
     const ctor: ts.ConstructorDeclaration = createClassConstructor(
         [ argsParameter ],
-        [ ...fieldAssignments ]
+        [
+            ts.createStatement(
+                ts.createCall(
+                    ts.createIdentifier('super'),
+                    undefined,
+                    [],
+                )
+            ),
+            ...fieldAssignments
+        ]
     )
 
-    // Build the `read` method
-    const readMethod: ts.MethodDeclaration = createReadMethod(node, identifiers)
-
-    // Build the `write` method
-    const writeMethod: ts.MethodDeclaration = createWriteMethod(node, identifiers)
+    const heritage: ts.HeritageClause = ts.createHeritageClause(
+        ts.SyntaxKind.ExtendsKeyword,
+        [
+            ts.createExpressionWithTypeArguments(
+                [],
+                COMMON_IDENTIFIERS.Error,
+            )
+        ]
+    )
 
     // export class <node.name> { ... }
     return ts.createClassDeclaration(
         undefined,
-        [ts.createToken(ts.SyntaxKind.ExportKeyword)],
-        node.name.value,
+        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+        exp.name.value,
         [],
-        [], // heritage
+        [ heritage ], // heritage
         [
             ...fields,
-            ctor,
-            writeMethod,
-            readMethod
+            ctor
         ]
     )
 }
@@ -89,8 +111,48 @@ export function createFieldsForStruct(node: InterfaceWithFields): Array<ts.Prope
     return node.fields.map(renderFieldDeclarations)
 }
 
-export function createArgsTypeForStruct(node: InterfaceWithFields): ts.TypeReferenceNode {
-    return ts.createTypeReferenceNode(interfaceNameForClass(node), undefined)
+/**
+ * Render properties for struct class based on values thrift file
+ *
+ * EXAMPLE:
+ *
+ * // thrift
+ * stuct MyStruct {
+ *   1: required i32 id,
+ *   2: optional bool field1,
+ * }
+ *
+ * // typescript
+ * export class MyStruct {
+ *   public id: number = null;
+ *   public field1?: boolean = null;
+ *
+ *   ...
+ * }
+ */
+function renderFieldDeclarations(field: FieldDefinition): ts.PropertyDeclaration {
+    let defaultValue: ts.Expression | undefined = (
+        (field.defaultValue !== null) ?
+            renderValue(field.fieldType, field.defaultValue) :
+            undefined
+    )
+
+    if (field.requiredness !== 'required' && field.name.value === 'message' && defaultValue === undefined) {
+        defaultValue = ts.createLiteral('');
+    }
+
+    return ts.createProperty(
+        undefined,
+        [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
+        ts.createIdentifier(field.name.value),
+        (
+            (field.requiredness === 'required' || field.name.value === 'message') ?
+                undefined :
+                ts.createToken(ts.SyntaxKind.QuestionToken)
+        ),
+        typeNodeForFieldType(field.fieldType),
+        defaultValue
+    )
 }
 
 /**
@@ -126,7 +188,7 @@ export function assignmentForField(field: FieldDefinition): ts.Statement {
                         COMMON_IDENTIFIERS.Int64,
                         undefined,
                         [
-                        ts.createIdentifier(`args.${field.name.value}`)
+                            ts.createIdentifier(`args.${field.name.value}`)
                         ]
                     )
                 )
@@ -151,7 +213,7 @@ export function assignmentForField(field: FieldDefinition): ts.Statement {
  *
  * EXAMPLE
  *
- * throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
+ * throw new thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
  *
  * @param field
  */
@@ -194,5 +256,28 @@ export function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
         comparison,
         ts.createBlock([thenAssign], true),
         (elseThrow === undefined) ? undefined : ts.createBlock([elseThrow], true),
+    )
+}
+
+function createArgsParameterForException(exp: ExceptionDefinition): ts.ParameterDeclaration {
+    return createFunctionParameter(
+        'args', // param name
+        createArgsTypeForException(exp), // param type
+        undefined, // initializer
+        !hasRequiredField(exp) // optional?
+    )
+}
+
+function createArgsTypeForException(exp: ExceptionDefinition): ts.TypeNode {
+    return ts.createTypeLiteralNode(
+        exp.fields.map((field: FieldDefinition): ts.TypeElement => {
+            return ts.createPropertySignature(
+                undefined,
+                field.name.value,
+                renderOptional(field.requiredness),
+                typeNodeForFieldType(field.fieldType, true),
+                undefined,
+            )
+        })
     )
 }

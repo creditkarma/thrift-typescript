@@ -18,7 +18,9 @@ import {
     COMMON_IDENTIFIERS,
 } from './identifiers'
 
-import { propertyAccessForIdentifier } from './utils'
+import {
+    propertyAccessForIdentifier
+} from './utils'
 
 /**
  *
@@ -41,6 +43,7 @@ export function renderValue(fieldType: FunctionType, node: ConstValue): ts.Expre
         case SyntaxType.StringLiteral:
             if (fieldType.type === SyntaxType.BinaryKeyword) {
                 return renderBuffer(node)
+
             } else {
                 return ts.createLiteral(node.value)
             }
@@ -48,8 +51,10 @@ export function renderValue(fieldType: FunctionType, node: ConstValue): ts.Expre
         case SyntaxType.ConstList:
             if (fieldType.type === SyntaxType.ListType) {
                 return renderList(fieldType, node)
+
             } else if (fieldType.type === SyntaxType.SetType) {
                 return renderSet(fieldType, node)
+
             } else {
                 throw new TypeError(`Type list | set expected`)
             }
@@ -57,6 +62,7 @@ export function renderValue(fieldType: FunctionType, node: ConstValue): ts.Expre
         case SyntaxType.ConstMap:
             if (fieldType.type === SyntaxType.MapType) {
                 return renderMap(fieldType, node)
+
             } else {
                 throw new TypeError(`Type map expected`)
             }

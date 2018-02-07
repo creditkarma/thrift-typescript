@@ -577,7 +577,7 @@ function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statemen
       createConstStatement(
         ts.createIdentifier('result'),
         ts.createTypeReferenceNode(
-          THRIFT_IDENTIFIERS.TApplicationException,
+            THRIFT_IDENTIFIERS.TApplicationException,
           undefined
         ),
         createApplicationException(

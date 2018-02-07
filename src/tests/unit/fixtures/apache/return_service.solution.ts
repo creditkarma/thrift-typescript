@@ -60,7 +60,7 @@ export namespace MyService {
                 this.status = args.status;
             }
             else {
-                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field status is unset!");
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field[status] is unset!");
             }
         }
         public write(output: thrift.TProtocol): void {
