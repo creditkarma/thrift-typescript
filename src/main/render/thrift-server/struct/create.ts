@@ -11,7 +11,7 @@ import {
 } from '../../../types'
 
 import {
-    COMMON_IDENTIFIERS
+    THRIFT_IDENTIFIERS
 } from '../identifiers'
 
 import {
@@ -20,6 +20,10 @@ import {
 
 import { createReadMethod } from './read'
 import { createWriteMethod } from './write'
+
+import {
+    COMMON_IDENTIFIERS,
+} from '../../shared/identifiers'
 
 import {
     createClassConstructor,
@@ -70,7 +74,7 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
         [
             ts.createExpressionWithTypeArguments(
                 [],
-                COMMON_IDENTIFIERS.StructLike,
+                THRIFT_IDENTIFIERS.StructLike,
             )
         ]
     )

@@ -42,6 +42,10 @@ import {
 
 import {
     COMMON_IDENTIFIERS,
+} from '../../shared/identifiers'
+
+import {
+    THRIFT_IDENTIFIERS,
     THRIFT_TYPES,
 } from '../identifiers'
 
@@ -98,7 +102,7 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
     const ret: ts.VariableStatement = createConstStatement(
         'ret',
         ts.createTypeReferenceNode(
-            COMMON_IDENTIFIERS.IThriftField,
+            THRIFT_IDENTIFIERS.IThriftField,
             undefined
         ),
         readFieldBegin()
@@ -106,7 +110,7 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
 
     const fieldType: ts.VariableStatement = createConstStatement(
         'fieldType',
-        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Thrift_Type, undefined),
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.Thrift_Type, undefined),
         propertyAccessForIdentifier('ret', 'fieldType')
     )
 
@@ -227,7 +231,7 @@ function createReturnForStruct(struct: InterfaceWithFields): ts.Statement {
 export function createInputParameter(): ts.ParameterDeclaration {
     return createFunctionParameter(
         'input', // param name
-        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TProtocol, undefined) // param type
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined) // param type
     )
 }
 
@@ -296,19 +300,19 @@ export function metadataTypeForFieldType(fieldType: ContainerType): ts.TypeNode 
     switch (fieldType.type) {
         case SyntaxType.MapType:
             return ts.createTypeReferenceNode(
-                COMMON_IDENTIFIERS.IThriftMap,
+                THRIFT_IDENTIFIERS.IThriftMap,
                 undefined,
             )
 
         case SyntaxType.SetType:
             return ts.createTypeReferenceNode(
-                COMMON_IDENTIFIERS.IThriftSet,
+                THRIFT_IDENTIFIERS.IThriftSet,
                 undefined,
             )
 
         case SyntaxType.ListType:
             return ts.createTypeReferenceNode(
-                COMMON_IDENTIFIERS.IThriftList,
+                THRIFT_IDENTIFIERS.IThriftList,
                 undefined,
             )
 

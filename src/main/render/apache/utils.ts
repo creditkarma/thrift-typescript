@@ -12,7 +12,7 @@ import {
 } from './types'
 
 import {
-    COMMON_IDENTIFIERS,
+    THRIFT_IDENTIFIERS,
     PROTOCOL_EXCEPTION,
     APPLICATION_EXCEPTION,
 } from './identifiers'
@@ -21,7 +21,7 @@ export function createProtocolException(
     type: TProtocolException,
     message: string,
 ): ts.NewExpression {
-    const errCtor = COMMON_IDENTIFIERS.TProtocolException
+    const errCtor = THRIFT_IDENTIFIERS.TProtocolException
     const errType = PROTOCOL_EXCEPTION[type]
     const errArgs = [ errType, ts.createLiteral(message) ]
     return ts.createNew(errCtor, undefined, errArgs)
@@ -38,7 +38,7 @@ export function createApplicationException(
      type: TApplicationException,
     message: string | ts.Expression,
 ): ts.NewExpression {
-    const errCtor = COMMON_IDENTIFIERS.TApplicationException
+    const errCtor = THRIFT_IDENTIFIERS.TApplicationException
     const errType = APPLICATION_EXCEPTION[type]
     const errArgs = [
         errType,

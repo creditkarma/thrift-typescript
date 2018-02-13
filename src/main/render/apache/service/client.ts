@@ -26,6 +26,10 @@ import {
 } from '../../shared/values'
 
 import {
+    COMMON_IDENTIFIERS,
+} from '../../shared/identifiers'
+
+import {
     createFunctionParameter,
     createPromise,
     createMethodCall,
@@ -46,7 +50,7 @@ import {
 } from '../../shared/types'
 
 import {
-    COMMON_IDENTIFIERS,
+    THRIFT_IDENTIFIERS,
     MESSAGE_TYPE,
 } from '../identifiers'
 
@@ -66,7 +70,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
   // public output: TTransport;
   const output: ts.PropertyDeclaration = createPublicProperty(
     'output',
-    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TTransport, undefined)
+    ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TTransport, undefined)
   )
 
   // public protocol: new (trans: TTransport) => TProtocol;
@@ -85,7 +89,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
     [
       createFunctionParameter(
         'output',
-        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TTransport, undefined)
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TTransport, undefined)
       ),
       createFunctionParameter(
         'protocol',
@@ -338,7 +342,7 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
             createConstStatement(
                 COMMON_IDENTIFIERS.output,
                 ts.createTypeReferenceNode(
-                    COMMON_IDENTIFIERS.TProtocol,
+                    THRIFT_IDENTIFIERS.TProtocol,
                     undefined
                 ),
                 ts.createNew(
@@ -434,14 +438,14 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
       createFunctionParameter(
         COMMON_IDENTIFIERS.input,
         ts.createTypeReferenceNode(
-          COMMON_IDENTIFIERS.TProtocol,
+            THRIFT_IDENTIFIERS.TProtocol,
           undefined
         )
       ),
       createFunctionParameter(
         ts.createIdentifier('mtype'),
         ts.createTypeReferenceNode(
-          COMMON_IDENTIFIERS.MessageType,
+            THRIFT_IDENTIFIERS.MessageType,
           undefined
         )
       ),
@@ -558,9 +562,9 @@ function createExceptionHandler(def: FunctionDefinition): Array<ts.Statement> {
             ts.createBlock([
                 createConstStatement(
                     ts.createIdentifier('x'),
-                    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TApplicationException, undefined),
+                    ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TApplicationException, undefined),
                     ts.createNew(
-                        COMMON_IDENTIFIERS.TApplicationException,
+                        THRIFT_IDENTIFIERS.TApplicationException,
                         undefined,
                         []
                     )

@@ -33,9 +33,13 @@ import {
 } from './struct'
 
 import {
-    COMMON_IDENTIFIERS,
+    THRIFT_IDENTIFIERS,
     THRIFT_TYPES,
 } from './identifiers'
+
+import {
+    COMMON_IDENTIFIERS,
+} from '../shared/identifiers'
 
 import {
     createFunctionParameter,
@@ -124,7 +128,7 @@ export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap):
         [
             ts.createExpressionWithTypeArguments(
                 [],
-                COMMON_IDENTIFIERS.StructLike,
+                THRIFT_IDENTIFIERS.StructLike,
             )
         ]
     )
@@ -240,7 +244,7 @@ function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): t
     const ret: ts.VariableStatement = createConstStatement(
         'ret',
         ts.createTypeReferenceNode(
-            COMMON_IDENTIFIERS.IThriftField,
+            THRIFT_IDENTIFIERS.IThriftField,
             undefined,
         ),
         readFieldBegin()
@@ -249,7 +253,7 @@ function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): t
     // const fieldType: Thrift.Type = ret.fieldType
     const fieldType: ts.VariableStatement = createConstStatement(
         'fieldType',
-        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Thrift_Type, undefined),
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.Thrift_Type, undefined),
         propertyAccessForIdentifier('ret', 'fieldType')
     )
 

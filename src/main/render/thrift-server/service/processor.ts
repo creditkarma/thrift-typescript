@@ -27,10 +27,14 @@ import {
 } from '../../../types'
 
 import {
-  COMMON_IDENTIFIERS,
-  MESSAGE_TYPE,
-  THRIFT_TYPES,
+    THRIFT_IDENTIFIERS,
+    MESSAGE_TYPE,
+    THRIFT_TYPES,
 } from '../identifiers'
+
+import {
+    COMMON_IDENTIFIERS,
+} from '../../shared/identifiers'
 
 import {
     createFunctionParameter,
@@ -53,140 +57,29 @@ import {
     constructorNameForFieldType,
 } from '../../shared/types'
 
-/**
- * // thrift
- * service MyService {
- *   i32 add(1: i32 a, 2: i32 b)
- * }
- *
- * // typescript
- * interface IMyServiceHandler<Context> {
- *   add(a: number, b: number, context: Context): number
- * }
- * @param service
- */
-export function renderHandlerInterface(service: ServiceDefinition): Array<ts.Statement> {
-  const signatures = service.functions.map((func: FunctionDefinition) => {
-    return ts.createPropertySignature(
-      undefined,
-      func.name.value,
-      undefined,
-      ts.createFunctionTypeNode(
-        undefined,
-        [
-          ...func.fields.map((field: FieldDefinition) => {
-            return createFunctionParameter(
-              field.name.value,
-              typeNodeForFieldType(field.fieldType),
-              undefined,
-              (field.requiredness === 'optional'),
-            )
-          }),
-          createFunctionParameter(
-            'context',
-            ts.createTypeReferenceNode('Context', undefined),
-            undefined,
-            true
-          )
-        ],
-        ts.createUnionTypeNode([
-          typeNodeForFieldType(func.returnType),
-          ts.createTypeReferenceNode(
-            COMMON_IDENTIFIERS.Promise,
-            [ typeNodeForFieldType(func.returnType) ]
-          )
-        ])
-      ),
-      undefined
-    )
-  })
-
-  if (service.extends !== null) {
-    return [
-      ts.createInterfaceDeclaration(
-        undefined,
-        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-        ts.createIdentifier('ILocalHandler'),
-        [
-          ts.createTypeParameterDeclaration(
-            COMMON_IDENTIFIERS.Context,
-            undefined,
-            createAnyType(),
-          )
-        ],
-        [],
-        signatures,
-      ),
-      ts.createTypeAliasDeclaration(
-        undefined,
-        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-        ts.createIdentifier('IHandler'),
-        [
-          ts.createTypeParameterDeclaration(
-            COMMON_IDENTIFIERS.Context,
-            undefined,
-            createAnyType()
-          )
-        ],
-        ts.createIntersectionTypeNode([
-          ts.createTypeReferenceNode(
-            ts.createIdentifier('ILocalHandler'),
-            [
-              ts.createTypeReferenceNode('Context', undefined)
-            ]
-          ),
-          ts.createTypeReferenceNode(
-            ts.createIdentifier(`${service.extends.value}.IHandler`),
-            [
-              ts.createTypeReferenceNode('Context', undefined)
-            ]
-          )
-        ])
-      )
-    ]
-  } else {
-    return [
-      ts.createInterfaceDeclaration(
-        undefined,
-        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-        ts.createIdentifier('IHandler'),
-        [
-          ts.createTypeParameterDeclaration(
-            COMMON_IDENTIFIERS.Context,
-            undefined,
-            createAnyType()
-          )
-        ],
-        [],
-        signatures,
-      )
-    ]
-  }
-}
-
 function objectLiteralForServiceFunctions(node: ThriftStatement): ts.ObjectLiteralExpression {
-  switch (node.type) {
-    case SyntaxType.ServiceDefinition:
-      return ts.createObjectLiteral(
-        node.functions.map((next: FunctionDefinition): ts.PropertyAssignment => {
-          return ts.createPropertyAssignment(
-            ts.createIdentifier(next.name.value),
-            ts.createIdentifier(`handler.${next.name.value}`)
-          )
-        }),
-        true
-      )
+    switch (node.type) {
+        case SyntaxType.ServiceDefinition:
+            return ts.createObjectLiteral(
+                node.functions.map((next: FunctionDefinition): ts.PropertyAssignment => {
+                return ts.createPropertyAssignment(
+                    ts.createIdentifier(next.name.value),
+                    ts.createIdentifier(`handler.${next.name.value}`)
+                )
+                }),
+                true
+            )
 
-    default:
-      throw new TypeError(`A service can only extend another service. Found: ${node.type}`);
-  }
+        default:
+            throw new TypeError(`A service can only extend another service. Found: ${node.type}`);
+    }
 }
 
 function handlerType(node: ServiceDefinition): ts.TypeNode {
-  return ts.createTypeReferenceNode(
-    ts.createIdentifier('IHandler'),
-    [ ts.createTypeReferenceNode('Context', undefined) ]
-  )
+    return ts.createTypeReferenceNode(
+        ts.createIdentifier('IHandler'),
+        [ ts.createTypeReferenceNode('Context', undefined) ]
+    )
 }
 
 export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
@@ -320,7 +213,7 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
       createFunctionParameter('requestId', createNumberType()),
       createFunctionParameter('input', TProtocolType),
       createFunctionParameter('output', TProtocolType),
-      createFunctionParameter('context', ContextType, undefined, true)
+      createFunctionParameter('context', ContextType, undefined)
     ], // parameters
     ts.createTypeReferenceNode(
       ts.createIdentifier('Promise<Buffer>'),
@@ -579,7 +472,7 @@ function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statemen
           createConstStatement(
             ts.createIdentifier('result'),
             ts.createTypeReferenceNode(
-              COMMON_IDENTIFIERS.TApplicationException,
+              THRIFT_IDENTIFIERS.TApplicationException,
               undefined
             ),
             createApplicationException(
@@ -630,7 +523,7 @@ function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statemen
       createConstStatement(
         ts.createIdentifier('result'),
         ts.createTypeReferenceNode(
-          COMMON_IDENTIFIERS.TApplicationException,
+            THRIFT_IDENTIFIERS.TApplicationException,
           undefined
         ),
         createApplicationException(
@@ -695,7 +588,7 @@ function createProcessMethod(service: ServiceDefinition, identifiers: IIdentifie
     [
       createFunctionParameter('input', TProtocolType),
       createFunctionParameter('output', TProtocolType),
-      createFunctionParameter('context', ContextType, undefined, true)
+      createFunctionParameter('context', ContextType, undefined)
     ], // parameters
     ts.createTypeReferenceNode(
       ts.createIdentifier('Promise<Buffer>'),
@@ -713,7 +606,7 @@ function createProcessMethod(service: ServiceDefinition, identifiers: IIdentifie
             createConstStatement(
               'metadata',
               ts.createTypeReferenceNode(
-                COMMON_IDENTIFIERS.IThriftMessage,
+                THRIFT_IDENTIFIERS.IThriftMessage,
                 undefined,
               ),
               createMethodCall(

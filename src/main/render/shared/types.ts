@@ -6,7 +6,7 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-    SHARED_IDENTIFIERS,
+    COMMON_IDENTIFIERS,
 } from './identifiers'
 
 export function createVoidType(): ts.TypeNode {
@@ -100,12 +100,12 @@ export function typeNodeForFieldType(fieldType: FunctionType, loose: boolean = f
                 return ts.createUnionTypeNode([
                     createNumberType(),
                     ts.createTypeReferenceNode(
-                        SHARED_IDENTIFIERS.Int64,
+                        COMMON_IDENTIFIERS.Int64,
                         undefined
                     )
                 ])
             } else {
-                return ts.createTypeReferenceNode(SHARED_IDENTIFIERS.Int64, undefined)
+                return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Int64, undefined)
             }
 
         case SyntaxType.BinaryKeyword:
@@ -133,35 +133,35 @@ export function constructorNameForFieldType(fieldType: FunctionType): ts.Identif
             return ts.createIdentifier(fieldType.value)
 
         case SyntaxType.SetType:
-            return SHARED_IDENTIFIERS.Set
+            return COMMON_IDENTIFIERS.Set
 
         case SyntaxType.MapType:
-            return SHARED_IDENTIFIERS.Map
+            return COMMON_IDENTIFIERS.Map
 
         case SyntaxType.ListType:
-            return SHARED_IDENTIFIERS.Array
+            return COMMON_IDENTIFIERS.Array
 
         case SyntaxType.StringKeyword:
-            return SHARED_IDENTIFIERS.String
+            return COMMON_IDENTIFIERS.String
 
         case SyntaxType.BoolKeyword:
-            return SHARED_IDENTIFIERS.Boolean
+            return COMMON_IDENTIFIERS.Boolean
 
         case SyntaxType.I64Keyword:
-            return SHARED_IDENTIFIERS.Int64
+            return COMMON_IDENTIFIERS.Int64
 
         case SyntaxType.BinaryKeyword:
-            return SHARED_IDENTIFIERS.Buffer
+            return COMMON_IDENTIFIERS.Buffer
 
         case SyntaxType.DoubleKeyword:
         case SyntaxType.I8Keyword:
         case SyntaxType.I16Keyword:
         case SyntaxType.I32Keyword:
         case SyntaxType.ByteKeyword:
-            return SHARED_IDENTIFIERS.Number
+            return COMMON_IDENTIFIERS.Number
 
         case SyntaxType.VoidKeyword:
-            return SHARED_IDENTIFIERS.void
+            return COMMON_IDENTIFIERS.void
 
         default:
             const msg: never = fieldType
