@@ -129,22 +129,22 @@ export namespace MyService {
             return callback(undefined);
         }
     }
-    export interface IHandler<Context = any> {
-        ping: (context?: Context) => void | Promise<void>;
+    export interface IHandler {
+        ping(): void | Promise<void>;
     }
-    export class Processor<Context = any> {
-        public _handler: IHandler<Context>;
-        constructor(handler: IHandler<Context>) {
+    export class Processor {
+        public _handler: IHandler;
+        constructor(handler: IHandler) {
             this._handler = handler;
         }
-        public process(input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
+        public process(input: thrift.TProtocol, output: thrift.TProtocol): void {
             const metadata: thrift.TMessage = input.readMessageBegin();
             const fname: string = metadata.fname;
             const requestId: number = metadata.rseqid;
             const methodName: string = "process_" + fname;
             switch (methodName) {
                 case "process_ping": {
-                    this.process_ping(requestId, input, output, context);
+                    this.process_ping(requestId, input, output);
                     return;
                 }
                 default: {
@@ -160,11 +160,11 @@ export namespace MyService {
                 }
             }
         }
-        public process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
+        public process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
             new Promise<void>((resolve, reject): void => {
                 try {
                     input.readMessageEnd();
-                    resolve(this._handler.ping(context));
+                    resolve(this._handler.ping());
                 }
                 catch (err) {
                     reject(err);

@@ -21,8 +21,9 @@ import {
     renderClient,
     renderProcessor,
     renderResultStruct,
-    renderHandlerInterface,
 } from './service'
+
+import { renderHandlerInterface } from '../shared/service'
 
 import { renderStruct as _renderStruct } from './struct'
 import { renderUnion as _renderUnion } from './union'

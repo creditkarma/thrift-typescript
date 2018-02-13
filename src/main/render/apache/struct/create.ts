@@ -22,7 +22,7 @@ import {
 } from '../../shared/utils'
 
 import {
-    SHARED_IDENTIFIERS
+    COMMON_IDENTIFIERS,
 } from '../../shared/identifiers';
 
 import {
@@ -123,7 +123,7 @@ export function assignmentForField(field: FieldDefinition): ts.Statement {
                 createAssignmentStatement(
                     propertyAccessForIdentifier('this', field.name.value),
                     ts.createNew(
-                        SHARED_IDENTIFIERS.Int64,
+                        COMMON_IDENTIFIERS.Int64,
                         undefined,
                         [
                         ts.createIdentifier(`args.${field.name.value}`)

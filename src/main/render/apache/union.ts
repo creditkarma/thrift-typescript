@@ -38,6 +38,10 @@ import {
 } from '../shared/struct'
 
 import {
+    COMMON_IDENTIFIERS,
+} from '../shared/identifiers'
+
+import {
     assignmentForField,
     createInputParameter,
     createFieldsForStruct,
@@ -52,7 +56,7 @@ import {
 } from './struct'
 
 import {
-    COMMON_IDENTIFIERS,
+    THRIFT_IDENTIFIERS,
     THRIFT_TYPES,
 } from './identifiers'
 
@@ -230,7 +234,7 @@ function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): t
   const ret: ts.VariableStatement = createConstStatement(
     'ret',
     ts.createTypeReferenceNode(
-      COMMON_IDENTIFIERS.TField,
+      THRIFT_IDENTIFIERS.TField,
       undefined,
     ),
     readFieldBegin()
@@ -239,7 +243,7 @@ function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): t
   // const fieldType: Thrift.Type = ret.fieldType
   const fieldType: ts.VariableStatement = createConstStatement(
     'fieldType',
-    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Thrift_Type, undefined),
+    ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.Thrift_Type, undefined),
     propertyAccessForIdentifier('ret', 'ftype')
   )
 

@@ -35,7 +35,7 @@ import {
 } from '../../shared/utils'
 
 import {
-    SHARED_IDENTIFIERS,
+    COMMON_IDENTIFIERS,
 } from '../../shared/identifiers'
 
 import {
@@ -45,7 +45,7 @@ import {
 } from '../../shared/types'
 
 import {
-    COMMON_IDENTIFIERS,
+    THRIFT_IDENTIFIERS,
     THRIFT_TYPES,
 } from '../identifiers'
 
@@ -102,7 +102,7 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
     const ret: ts.VariableStatement = createConstStatement(
         'ret',
         ts.createTypeReferenceNode(
-            COMMON_IDENTIFIERS.TField,
+            THRIFT_IDENTIFIERS.TField,
             undefined
         ),
         readFieldBegin()
@@ -110,7 +110,7 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
 
     const fieldType: ts.VariableStatement = createConstStatement(
         'fieldType',
-        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Thrift_Type, undefined),
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.Thrift_Type, undefined),
         propertyAccessForIdentifier('ret', 'ftype')
     )
 
@@ -231,7 +231,7 @@ function createReturnForStruct(struct: InterfaceWithFields): ts.Statement {
 export function createInputParameter(): ts.ParameterDeclaration {
     return createFunctionParameter(
         'input', // param name
-        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TProtocol, undefined) // param type
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined) // param type
     )
 }
 
@@ -300,19 +300,19 @@ export function metadataTypeForFieldType(fieldType: ContainerType): ts.TypeNode 
     switch (fieldType.type) {
         case SyntaxType.MapType:
             return ts.createTypeReferenceNode(
-                COMMON_IDENTIFIERS.TMap,
+                THRIFT_IDENTIFIERS.TMap,
                 undefined,
             )
 
         case SyntaxType.SetType:
             return ts.createTypeReferenceNode(
-                COMMON_IDENTIFIERS.TSet,
+                THRIFT_IDENTIFIERS.TSet,
                 undefined,
             )
 
         case SyntaxType.ListType:
             return ts.createTypeReferenceNode(
-                COMMON_IDENTIFIERS.TList,
+                THRIFT_IDENTIFIERS.TList,
                 undefined,
             )
 
@@ -543,7 +543,7 @@ export function readValueForFieldType(
                     fieldName,
                     typeNodeForFieldType(fieldType),
                     ts.createNew(
-                        SHARED_IDENTIFIERS.Map, // class name
+                        COMMON_IDENTIFIERS.Map, // class name
                         [ typeNodeForFieldType(fieldType.keyType), typeNodeForFieldType(fieldType.valueType) ],
                         []
                     )
@@ -557,7 +557,7 @@ export function readValueForFieldType(
                     fieldName,
                     typeNodeForFieldType(fieldType),
                     ts.createNew(
-                        SHARED_IDENTIFIERS.Array, // class name
+                        COMMON_IDENTIFIERS.Array, // class name
                         [ typeNodeForFieldType(fieldType.valueType) ],
                         []
                     )
@@ -571,7 +571,7 @@ export function readValueForFieldType(
                     fieldName,
                     typeNodeForFieldType(fieldType),
                     ts.createNew(
-                        SHARED_IDENTIFIERS.Set, // class name
+                        COMMON_IDENTIFIERS.Set, // class name
                         [ typeNodeForFieldType(fieldType.valueType) ],
                         []
                     )

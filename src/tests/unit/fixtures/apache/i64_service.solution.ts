@@ -205,22 +205,22 @@ export namespace MyService {
             }
         }
     }
-    export interface IHandler<Context = any> {
-        add: (num1: thrift.Int64, num2: thrift.Int64, context?: Context) => thrift.Int64 | Promise<thrift.Int64>;
+    export interface IHandler {
+        add(num1: thrift.Int64, num2: thrift.Int64): thrift.Int64 | Promise<thrift.Int64>;
     }
-    export class Processor<Context = any> {
-        public _handler: IHandler<Context>;
-        constructor(handler: IHandler<Context>) {
+    export class Processor {
+        public _handler: IHandler;
+        constructor(handler: IHandler) {
             this._handler = handler;
         }
-        public process(input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
+        public process(input: thrift.TProtocol, output: thrift.TProtocol): void {
             const metadata: thrift.TMessage = input.readMessageBegin();
             const fname: string = metadata.fname;
             const requestId: number = metadata.rseqid;
             const methodName: string = "process_" + fname;
             switch (methodName) {
                 case "process_add": {
-                    this.process_add(requestId, input, output, context);
+                    this.process_add(requestId, input, output);
                     return;
                 }
                 default: {
@@ -236,12 +236,12 @@ export namespace MyService {
                 }
             }
         }
-        public process_add(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): void {
+        public process_add(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
             new Promise<thrift.Int64>((resolve, reject): void => {
                 try {
                     const args: AddArgs = AddArgs.read(input);
                     input.readMessageEnd();
-                    resolve(this._handler.add(args.num1, args.num2, context));
+                    resolve(this._handler.add(args.num1, args.num2));
                 }
                 catch (err) {
                     reject(err);

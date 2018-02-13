@@ -15,8 +15,8 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-    SHARED_IDENTIFIERS,
-} from '../shared/identifiers'
+    COMMON_IDENTIFIERS,
+} from './identifiers'
 
 import { propertyAccessForIdentifier } from './utils'
 
@@ -72,7 +72,7 @@ export function renderIntConstant(node: IntConstant, fieldType?: FunctionType): 
         case SyntaxType.IntegerLiteral:
             if (fieldType && fieldType.type === SyntaxType.I64Keyword) {
                 return ts.createNew(
-                    SHARED_IDENTIFIERS.Int64,
+                    COMMON_IDENTIFIERS.Int64,
                     undefined,
                     [
                         ts.createLiteral(parseInt(node.value.value))
@@ -86,7 +86,7 @@ export function renderIntConstant(node: IntConstant, fieldType?: FunctionType): 
             // The Int64 constructor accepts hex literals as strings
             if (fieldType && fieldType.type === SyntaxType.I64Keyword) {
                 return ts.createNew(
-                    SHARED_IDENTIFIERS.Int64,
+                    COMMON_IDENTIFIERS.Int64,
                     undefined,
                     [
                         ts.createLiteral(node.value.value)
@@ -125,7 +125,7 @@ function renderMap(fieldType: MapType, node: ConstMap): ts.NewExpression {
     })
 
     return ts.createNew(
-        SHARED_IDENTIFIERS.Map,
+        COMMON_IDENTIFIERS.Map,
         undefined,
         [ ts.createArrayLiteral(values) ],
     )
@@ -137,7 +137,7 @@ function renderSet(fieldType: SetType, node: ConstList): ts.NewExpression {
     })
 
     return ts.createNew(
-        SHARED_IDENTIFIERS.Set,
+        COMMON_IDENTIFIERS.Set,
         undefined,
         [ ts.createArrayLiteral(values) ]
     )

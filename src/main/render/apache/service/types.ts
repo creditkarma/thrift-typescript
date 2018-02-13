@@ -10,12 +10,10 @@ import {
 } from '../../shared/utils'
 
 import {
-  COMMON_IDENTIFIERS
+    THRIFT_IDENTIFIERS,
 } from '../identifiers'
 
-export const TProtocolType: ts.TypeNode = ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TProtocol, undefined)
-
-export const ContextType: ts.TypeNode = ts.createTypeReferenceNode('Context', undefined)
+export const TProtocolType: ts.TypeNode = ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined)
 
 export function createProtocolType(): ts.ConstructorTypeNode {
     return ts.createConstructorTypeNode(
@@ -23,7 +21,7 @@ export function createProtocolType(): ts.ConstructorTypeNode {
         [
             createFunctionParameter(
                 'trans',
-                ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TTransport, undefined)
+                ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TTransport, undefined)
             )
         ],
         TProtocolType

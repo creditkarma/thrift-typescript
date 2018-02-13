@@ -17,6 +17,10 @@ import {
 } from '../../../types'
 
 import {
+    COMMON_IDENTIFIERS,
+} from '../../shared/identifiers'
+
+import {
     createFunctionParameter,
     createMethodCall,
     createMethodCallStatement,
@@ -35,7 +39,7 @@ import {
 } from '../types'
 
 import {
-    COMMON_IDENTIFIERS
+    THRIFT_IDENTIFIERS,
 } from '../identifiers'
 
 import {
@@ -66,7 +70,7 @@ export function createWriteMethod(struct: InterfaceWithFields, identifiers: IIde
   })
   const inputParameter: ts.ParameterDeclaration = createFunctionParameter(
     'output',
-    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TProtocol, undefined)
+    ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined)
   )
 
   return createPublicMethod(

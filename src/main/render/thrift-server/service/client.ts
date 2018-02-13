@@ -23,9 +23,13 @@ import {
 
 import {
     APPLICATION_EXCEPTION,
-    COMMON_IDENTIFIERS,
+    THRIFT_IDENTIFIERS,
     MESSAGE_TYPE,
 } from '../identifiers'
+
+import {
+    COMMON_IDENTIFIERS,
+} from '../../shared/identifiers'
 
 import {
     createFunctionParameter,
@@ -58,7 +62,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
   const transport: ts.PropertyDeclaration = createProtectedProperty(
     'transport',
     ts.createTypeReferenceNode(
-      COMMON_IDENTIFIERS.TransportConstructor,
+      THRIFT_IDENTIFIERS.TransportConstructor,
       undefined
     )
   )
@@ -67,7 +71,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
   const protocol: ts.PropertyDeclaration = createProtectedProperty(
     'protocol',
     ts.createTypeReferenceNode(
-      COMMON_IDENTIFIERS.ProtocolConstructor,
+      THRIFT_IDENTIFIERS.ProtocolConstructor,
       undefined,
     )
   )
@@ -233,7 +237,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
           createConstStatement(
             COMMON_IDENTIFIERS.writer,
             ts.createTypeReferenceNode(
-              COMMON_IDENTIFIERS.TTransport,
+              THRIFT_IDENTIFIERS.TTransport,
               undefined
             ),
             ts.createNew(
@@ -245,7 +249,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
           createConstStatement(
             COMMON_IDENTIFIERS.output,
             ts.createTypeReferenceNode(
-              COMMON_IDENTIFIERS.TProtocol,
+              THRIFT_IDENTIFIERS.TProtocol,
               undefined
             ),
             ts.createNew(
@@ -326,7 +330,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                     createConstStatement(
                       COMMON_IDENTIFIERS.reader,
                       ts.createTypeReferenceNode(
-                        COMMON_IDENTIFIERS.TTransport,
+                        THRIFT_IDENTIFIERS.TTransport,
                         undefined,
                       ),
                       ts.createCall(
@@ -340,7 +344,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                     createConstStatement(
                       COMMON_IDENTIFIERS.input,
                       ts.createTypeReferenceNode(
-                        COMMON_IDENTIFIERS.TProtocol,
+                        THRIFT_IDENTIFIERS.TProtocol,
                         undefined,
                       ),
                       ts.createNew(
@@ -370,7 +374,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                                 )
                               ]),
                               ts.createTypeReferenceNode(
-                                COMMON_IDENTIFIERS.IThriftMessage,
+                                THRIFT_IDENTIFIERS.IThriftMessage,
                                 undefined,
                               ),
                               ts.createCall(
@@ -427,7 +431,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                             ts.createReturn(
                               rejectPromiseWith(
                                 ts.createNew(
-                                  COMMON_IDENTIFIERS.TApplicationException,
+                                  THRIFT_IDENTIFIERS.TApplicationException,
                                   undefined,
                                   [
                                     APPLICATION_EXCEPTION.WRONG_METHOD_NAME,
@@ -519,10 +523,10 @@ function createExceptionHandler(): ts.Statement {
     ts.createBlock([
       createConstStatement(
         COMMON_IDENTIFIERS.err,
-        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TApplicationException, undefined),
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TApplicationException, undefined),
         ts.createCall(
           ts.createPropertyAccess(
-            COMMON_IDENTIFIERS.TApplicationException,
+            THRIFT_IDENTIFIERS.TApplicationException,
             ts.createIdentifier('read')
           ),
           undefined,

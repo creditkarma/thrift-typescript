@@ -161,14 +161,15 @@ export namespace ParentService {
         }
     }
     export interface IHandler<Context = any> {
-        ping: (status: number, context?: Context) => string | Promise<string>;
+        ping(status: number): string | Promise<string>;
+        ping(status: number, context: Context): string | Promise<string>;
     }
     export class Processor<Context = any> {
         public _handler: IHandler<Context>;
         constructor(handler: IHandler<Context>) {
             this._handler = handler;
         }
-        public process(input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): Promise<Buffer> {
+        public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
             return new Promise<Buffer>((resolve, reject): void => {
                 const metadata: thrift.IThriftMessage = input.readMessageBegin();
                 const fieldName: string = metadata.fieldName;
@@ -191,7 +192,7 @@ export namespace ParentService {
                 }
             });
         }
-        public process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): Promise<Buffer> {
+        public process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
             return new Promise<string>((resolve, reject): void => {
                 try {
                     const args: PingArgs = PingArgs.read(input);
@@ -519,8 +520,10 @@ export namespace ChildService {
         }
     }
     export interface ILocalHandler<Context = any> {
-        peg: (name: string, context?: Context) => string | Promise<string>;
-        pong: (name?: string, context?: Context) => string | Promise<string>;
+        peg(name: string): string | Promise<string>;
+        peg(name: string, context: Context): string | Promise<string>;
+        pong(name?: string): string | Promise<string>;
+        pong(name: string | undefined, context: Context): string | Promise<string>;
     }
     export type IHandler<Context = any> = ILocalHandler<Context> & ParentService.IHandler<Context>;
     export class Processor<Context = any> extends ParentService.Processor<Context> {
@@ -531,7 +534,7 @@ export namespace ChildService {
             });
             this._handler = handler;
         }
-        public process(input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): Promise<Buffer> {
+        public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
             return new Promise<Buffer>((resolve, reject): void => {
                 const metadata: thrift.IThriftMessage = input.readMessageBegin();
                 const fieldName: string = metadata.fieldName;
@@ -560,7 +563,7 @@ export namespace ChildService {
                 }
             });
         }
-        public process_peg(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): Promise<Buffer> {
+        public process_peg(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
             return new Promise<string>((resolve, reject): void => {
                 try {
                     const args: PegArgs = PegArgs.read(input);
@@ -584,7 +587,7 @@ export namespace ChildService {
                 return output.flush();
             });
         }
-        public process_pong(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context?: Context): Promise<Buffer> {
+        public process_pong(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
             return new Promise<string>((resolve, reject): void => {
                 try {
                     const args: PongArgs = PongArgs.read(input);

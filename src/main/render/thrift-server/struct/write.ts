@@ -35,7 +35,11 @@ import {
 } from '../../shared/types'
 
 import {
-  COMMON_IDENTIFIERS
+    COMMON_IDENTIFIERS,
+} from '../../shared/identifiers'
+
+import {
+  THRIFT_IDENTIFIERS
 } from '../identifiers'
 
 import {
@@ -61,26 +65,27 @@ function isNotVoid(field: FieldDefinition): boolean {
  * }
  */
 export function createWriteMethod(struct: InterfaceWithFields, identifiers: IIdentifierMap): ts.MethodDeclaration {
-  const fieldWrites: Array<ts.IfStatement> = struct.fields.filter(isNotVoid).map((field) => {
-    return createWriteForField(struct, field, identifiers)
-  })
-  const inputParameter: ts.ParameterDeclaration = createFunctionParameter(
-    'output',
-    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.TProtocol, undefined)
-  )
+    const fieldWrites: Array<ts.IfStatement> = struct.fields.filter(isNotVoid).map((field) => {
+        return createWriteForField(struct, field, identifiers)
+    })
 
-  return createPublicMethod(
-    'write', // Method name
-    [ inputParameter ], // Method parameters
-    createVoidType(), // Method return type
-    [
-      writeStructBegin(struct.name.value),
-      ...fieldWrites,
-      writeFieldStop(),
-      writeStructEnd(),
-      ts.createReturn()
-    ] // Method body statements
-  )
+    const inputParameter: ts.ParameterDeclaration = createFunctionParameter(
+        'output',
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined)
+    )
+
+    return createPublicMethod(
+        'write', // Method name
+        [ inputParameter ], // Method parameters
+        createVoidType(), // Method return type
+        [
+            writeStructBegin(struct.name.value),
+            ...fieldWrites,
+            writeFieldStop(),
+            writeStructEnd(),
+            ts.createReturn()
+        ] // Method body statements
+    )
 }
 
 /**
@@ -104,16 +109,16 @@ export function createWriteMethod(struct: InterfaceWithFields, identifiers: IIde
  * }
  */
 export function createWriteForField(struct: InterfaceWithFields, field: FieldDefinition, identifiers: IIdentifierMap): ts.IfStatement {
-  return ts.createIf(
-    createNotNullCheck(`this.${field.name.value}`), // Condition
-    createWriteForFieldType(
-      struct,
-      field,
-      ts.createIdentifier(`this.${field.name.value}`),
-      identifiers
-    ), // Then block
-    undefined // Else block
-  )
+    return ts.createIf(
+        createNotNullCheck(`this.${field.name.value}`), // Condition
+        createWriteForFieldType(
+            struct,
+            field,
+            ts.createIdentifier(`this.${field.name.value}`),
+            identifiers
+        ), // Then block
+        undefined // Else block
+    )
 }
 
 /**
