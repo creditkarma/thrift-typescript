@@ -17,53 +17,24 @@ import {
     createFunctionParameter,
 } from '../utils'
 
-function parameterTypeForField(field: FieldDefinition): ts.TypeNode {
-    if (field.requiredness === 'optional') {
-        return ts.createUnionTypeNode([
-            typeNodeForFieldType(field.fieldType),
-            ts.createTypeReferenceNode('undefined', undefined)
-        ])
-    } else {
-        return typeNodeForFieldType(field.fieldType)
-    }
-}
-
 function funcToMethodReducer(acc: Array<ts.MethodSignature>, func: FunctionDefinition): Array<ts.MethodSignature> {
     return acc.concat([
-        ts.createMethodSignature(
-            undefined,
-            func.fields.map((field: FieldDefinition) => {
-                return createFunctionParameter(
-                    field.name.value,
-                    typeNodeForFieldType(field.fieldType),
-                    undefined,
-                    (field.requiredness === 'optional'),
-                )
-            }),
-            ts.createUnionTypeNode([
-                typeNodeForFieldType(func.returnType),
-                ts.createTypeReferenceNode(
-                    COMMON_IDENTIFIERS.Promise,
-                    [ typeNodeForFieldType(func.returnType) ]
-                )
-            ]),
-            func.name.value,
-            undefined,
-        ),
         ts.createMethodSignature(
             undefined,
             [
                 ...func.fields.map((field: FieldDefinition) => {
                     return createFunctionParameter(
                         field.name.value,
-                        parameterTypeForField(field),
+                        typeNodeForFieldType(field.fieldType),
                         undefined,
+                        (field.requiredness === 'optional'),
                     )
                 }),
                 createFunctionParameter(
                     'context',
                     ts.createTypeReferenceNode('Context', undefined),
                     undefined,
+                    true,
                 )
             ],
             ts.createUnionTypeNode([

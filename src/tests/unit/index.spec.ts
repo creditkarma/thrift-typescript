@@ -111,11 +111,14 @@ describe('Thrift TypeScript Generator', () => {
         it('should correctly generate a service', () => {
             const content: string = `
                 service MyService {
-                    void ping();
+                    i64 send(1: i64 code);
+                    void ping(1: string status);
                 }
             `;
             const expected: string = readFixture('basic_service', 'thrift-server')
             const actual: string = make(content, 'thrift-server')
+
+            console.log('actual: ', actual)
 
             assert.deepEqual(actual, expected)
         })
