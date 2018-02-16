@@ -118,6 +118,8 @@ describe('Thrift TypeScript Generator', () => {
             const expected: string = readFixture('basic_service', 'thrift-server')
             const actual: string = make(content, 'thrift-server')
 
+            console.log('actual: ', actual)
+
             assert.deepEqual(actual, expected)
         })
 
