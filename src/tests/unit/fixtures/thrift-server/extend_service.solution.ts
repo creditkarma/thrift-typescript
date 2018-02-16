@@ -161,8 +161,7 @@ export namespace ParentService {
         }
     }
     export interface IHandler<Context = any> {
-        ping(status: number): string | Promise<string>;
-        ping(status: number, context: Context): string | Promise<string>;
+        ping(status: number, context?: Context): string | Promise<string>;
     }
     export class Processor<Context = any> {
         public _handler: IHandler<Context>;
@@ -520,10 +519,8 @@ export namespace ChildService {
         }
     }
     export interface ILocalHandler<Context = any> {
-        peg(name: string): string | Promise<string>;
-        peg(name: string, context: Context): string | Promise<string>;
-        pong(name?: string): string | Promise<string>;
-        pong(name: string | undefined, context: Context): string | Promise<string>;
+        peg(name: string, context?: Context): string | Promise<string>;
+        pong(name?: string, context?: Context): string | Promise<string>;
     }
     export type IHandler<Context = any> = ILocalHandler<Context> & ParentService.IHandler<Context>;
     export class Processor<Context = any> extends ParentService.Processor<Context> {
