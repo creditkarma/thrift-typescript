@@ -412,20 +412,14 @@ function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statemen
                             ts.createIdentifier(createStructResultName(funcDef)),
                             undefined
                         ),
-                        ts.createNew(
-                            ts.createIdentifier(createStructResultName(funcDef)),
-                            undefined,
+                        ts.createObjectLiteral(
                             [
-                                ts.createObjectLiteral(
-                                    [
-                                        ts.createPropertyAssignment(
-                                            ts.createIdentifier(throwDef.name.value),
-                                            COMMON_IDENTIFIERS.err
-                                        )
-                                    ]
+                                ts.createPropertyAssignment(
+                                    ts.createIdentifier(throwDef.name.value),
+                                    COMMON_IDENTIFIERS.err
                                 )
                             ]
-                        )
+                        ),
                     ),
                     // output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, requestId)
                     createMethodCallStatement(
@@ -488,7 +482,7 @@ function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statemen
                     ),
                     // thrift.TApplicationExceptionCodec.encode(result, output)
                     createMethodCallStatement(
-                        ts.createIdentifier(`thrift.TApplicationExceptionCodec`),
+                        THRIFT_IDENTIFIERS.TApplicationExceptionCodec,
                         'encode',
                         [
                             COMMON_IDENTIFIERS.result,
@@ -540,7 +534,7 @@ function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statemen
             ),
             // thrift.TApplicationExceptionCodec.encode(result, output)
             createMethodCallStatement(
-                ts.createIdentifier(`thrift.TApplicationExceptionCodec`),
+                THRIFT_IDENTIFIERS.TApplicationExceptionCodec,
                 'encode',
                 [
                     COMMON_IDENTIFIERS.result,
@@ -764,7 +758,7 @@ function createMethodCallForFname(service: ServiceDefinition, identifiers: IIden
                     ),
                     // thrift.TApplicationExceptionCodec.encode(err, output)
                     createMethodCallStatement(
-                        ts.createIdentifier(`thrift.TApplicationExceptionCodec`),
+                        THRIFT_IDENTIFIERS.TApplicationExceptionCodec,
                         'encode',
                         [
                             COMMON_IDENTIFIERS.err,

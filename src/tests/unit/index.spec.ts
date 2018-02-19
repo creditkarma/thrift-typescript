@@ -173,6 +173,25 @@ describe('Thrift TypeScript Generator', () => {
 
             assert.deepEqual(actual, expected)
         })
+
+        it('should correctly generate a service that throws', () => {
+            const content: string = `
+                exception ServiceException {
+                    1: string message;
+                }
+
+                service ChildService {
+                    string peg(1: string name) throws (1: ServiceException exp);
+                    string pong(1: optional string name);
+                }
+            `;
+            const expected: string = readFixture('throws_service', 'thrift-server')
+            const actual: string = make(content, 'thrift-server')
+
+            console.log('actual: ', actual)
+
+            assert.deepEqual(actual, expected)
+        })
     })
 
     describe('Apache', () => {

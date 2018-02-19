@@ -57,7 +57,10 @@ import {
 } from '../types'
 
 export function createTempVariables(struct: InterfaceWithFields): Array<ts.VariableStatement> {
-    if (struct.fields.length > 0) {
+    const structFields: Array<FieldDefinition> = struct.fields.filter((next: FieldDefinition): boolean => {
+        return next.fieldType.type !== SyntaxType.VoidKeyword
+    })
+    if (structFields.length > 0) {
         return [ createConstStatement(
             COMMON_IDENTIFIERS.obj,
             undefined,

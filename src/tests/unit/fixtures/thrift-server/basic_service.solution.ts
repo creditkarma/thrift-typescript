@@ -219,9 +219,6 @@ export namespace MyService {
     }
     export const PingResultCodec: thrift.IStructCodec<PingResult> = {
         encode(val: PingResult, output: thrift.TProtocol): void {
-            const obj = {
-                success: val.success
-            };
             output.writeStructBegin("PingResult");
             output.writeFieldStop();
             output.writeStructEnd();
@@ -286,7 +283,7 @@ export namespace MyService {
                     const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                     if (fieldName === "getUser") {
                         if (messageType === thrift.MessageType.EXCEPTION) {
-                            const err: thrift.TApplicationException = thrift.TApplicationException.read(input);
+                            const err: thrift.TApplicationException = thrift.TApplicationExceptionCodec.decode(input);
                             input.readMessageEnd();
                             return Promise.reject(err);
                         }
@@ -322,7 +319,7 @@ export namespace MyService {
                     const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                     if (fieldName === "ping") {
                         if (messageType === thrift.MessageType.EXCEPTION) {
-                            const err: thrift.TApplicationException = thrift.TApplicationException.read(input);
+                            const err: thrift.TApplicationException = thrift.TApplicationExceptionCodec.decode(input);
                             input.readMessageEnd();
                             return Promise.reject(err);
                         }

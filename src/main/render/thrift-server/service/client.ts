@@ -525,8 +525,8 @@ function createExceptionHandler(): ts.Statement {
                 ),
                 ts.createCall(
                     ts.createPropertyAccess(
-                        THRIFT_IDENTIFIERS.TApplicationException,
-                        ts.createIdentifier('read')
+                        THRIFT_IDENTIFIERS.TApplicationExceptionCodec,
+                        ts.createIdentifier('decode')
                     ),
                     undefined,
                     [
