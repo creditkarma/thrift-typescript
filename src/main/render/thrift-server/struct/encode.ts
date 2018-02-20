@@ -115,7 +115,7 @@ export function createEncodeMethod(struct: InterfaceWithFields, identifiers: IId
             }),
             writeFieldStop(),
             writeStructEnd(),
-            ts.createReturn()
+            ts.createReturn(),
         ], true)
     )
 }
@@ -133,7 +133,7 @@ export function createWriteForField(struct: InterfaceWithFields, field: FieldDef
         struct,
         field,
         ts.createIdentifier(`obj.${field.name.value}`),
-        identifiers
+        identifiers,
     )
     const elseThrow: ts.Statement | undefined = throwForField(field)
 
@@ -157,7 +157,7 @@ export function createWriteForFieldType(
     struct: InterfaceWithFields,
     field: FieldDefinition,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap
+    identifiers: IIdentifierMap,
 ): ts.Block {
     return ts.createBlock([
         writeFieldBegin(field, identifiers),
@@ -171,7 +171,7 @@ export function writeValueForIdentifier(
     struct: InterfaceWithFields,
     fieldType: FunctionType,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap
+    identifiers: IIdentifierMap,
 ): Array<ts.Expression> {
     switch (id.definition.type) {
         case SyntaxType.ConstDefinition:
@@ -183,12 +183,11 @@ export function writeValueForIdentifier(
         case SyntaxType.StructDefinition:
         case SyntaxType.UnionDefinition:
         case SyntaxType.ExceptionDefinition:
-            const structName: string = identifiers[id.definition.name.value].resolvedName
             return [
                 createMethodCall(
-                    ts.createIdentifier(`${structName}Codec`),
+                    ts.createIdentifier(`${id.resolvedName}Codec`),
                     'encode',
-                    [ fieldName, COMMON_IDENTIFIERS.output ]
+                    [ fieldName, COMMON_IDENTIFIERS.output ],
                 )
             ]
 
@@ -200,7 +199,7 @@ export function writeValueForIdentifier(
                 struct,
                 id.definition.definitionType,
                 fieldName,
-                identifiers
+                identifiers,
             )
 
         default:
@@ -222,7 +221,7 @@ export function writeValueForType(
                 struct,
                 fieldType,
                 fieldName,
-                identifiers
+                identifiers,
             )
 
         /**
@@ -234,21 +233,21 @@ export function writeValueForType(
             return  [
                 writeSetBegin(fieldType, fieldName, identifiers),
                 forEach(struct, fieldType, fieldName, identifiers),
-                writeSetEnd()
+                writeSetEnd(),
             ]
 
         case SyntaxType.MapType:
             return [
                 writeMapBegin(fieldType, fieldName, identifiers),
                 forEach(struct, fieldType, fieldName, identifiers),
-                writeMapEnd()
+                writeMapEnd(),
             ]
 
         case SyntaxType.ListType:
             return  [
                 writeListBegin(fieldType, fieldName, identifiers),
                 forEach(struct, fieldType, fieldName, identifiers),
-                writeListEnd()
+                writeListEnd(),
             ]
 
         /**
@@ -286,7 +285,7 @@ function writeValueForField(
     struct: InterfaceWithFields,
     fieldType: FunctionType,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap
+    identifiers: IIdentifierMap,
 ): Array<ts.ExpressionStatement> {
     return writeValueForType(struct, fieldType, fieldName, identifiers).map(ts.createStatement)
 }
