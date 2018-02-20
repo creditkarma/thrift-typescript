@@ -150,8 +150,6 @@ import { thriftExpress } from '@creditkarma/thrift-server-express'
 
 import {
   Calculator,
-  Operation,
-  Work,
 } from './codegen/calculator'
 
 // express.Request is the context for each of the service handlers
@@ -182,6 +180,213 @@ app.listen(PORT, () => {
 })
 
 ```
+
+#### Generated Data Types
+
+When generating TypeScript from Thrift source what data types are generated?
+
+##### Simple Types
+
+These are: booleans, strings, numbers, sets, maps, lists, enums and typedefs. All of these translate almost directly to TypeScript.
+
+Given Thrift:
+
+```c
+const bool FALSE_CONST = false
+const i32 INT_32 = 32
+const i64 INT_64 = 64
+const list<string> LIST_CONST = ['hello', 'world', 'foo', 'bar']
+const set<string> SET_CONST = ['hello', 'world', 'foo', 'bar']
+const map<string,string> MAP_CONST = { 'hello': 'world', 'foo': 'bar' }
+
+enum Colors {
+    RED,
+    GREEN,
+    BLUE,
+}
+
+typedef string name
+```
+
+Generated TypeScript:
+
+```typescript
+export const FALSE_CONST: boolean = false;
+export const INT_32: number = 32;
+export const INT_64: thrift.Int64 = new thrift.Int64(64);
+export const LIST_CONST: Array<string> = ["hello", "world", "foo", "bar"];
+export const SET_CONST: Set<string> = new Set(["hello", "world", "foo", "bar"]);
+export const MAP_CONST: Map<string, string> = new Map([["hello", "world"], ["foo", "bar"]]);
+
+export enum Colors {
+    RED,
+    GREEN,
+    BLUE
+}
+
+export type name = string;
+```
+
+The only interesting thing here is the handling of `i64`. JavaScript doesn't support a full 64-bits of integer percision, so we wrap the value in an `Int64` object. The object is exported from `@creditkarma/thrift-server-core` and extends [node-int64](https://github.com/broofa/node-int64).
+
+##### Struct
+
+A struct seems analogous to an interface.
+
+Given Thrift:
+
+```c
+struct User {
+    1: required string name
+    2: string email
+    3: required i32 id
+}
+```
+
+Generated TypeScript:
+
+```typescript
+export interface User {
+    name: string
+    email?: string
+    id: number
+}
+```
+
+Only fields that are explicitly required loose the `?`.
+
+##### Union
+
+Unions in Thrift are very similar to structs. The difference is they only allow one field to be set. They also require that one field is set. To get compile-time guarantees for this property by generating a union of interfaces.
+
+Given Thrift:
+
+```c
+union MyUnion {
+    1: string option1
+    2: i32 option2
+}
+```
+
+Generated TypeScript:
+
+```typescript
+export type MyUnion = {
+    option1: string
+    option2?: undefined
+} | {
+    option1?: undefined
+    option2: number
+}
+```
+
+By creating a union we are prevented from incorrectly constructing our Thrift union by compile-time checks.
+
+In this set, only `try3` won't throw a type-checking error:
+
+```typescript
+const try1: MyUnion = {
+    option1: 'foo',
+    option2: 42,
+}
+
+const try2: MyUnion = {
+    option1: undefined,
+    option2: undefined,
+}
+
+const try3: MyUnion = {
+    option1: 'foo',
+}
+```
+
+##### Exception
+
+Exceptions are errors that can be thrown by service methods. It is more natural in JS/TS to create and throw new errors. So our defined exceptions will become JS classes that extend `Error`.
+
+Given Thrift:
+
+```c
+exception MyException {
+    1: string message
+    2: i32 code
+}
+```
+
+Generated TypeScript:
+
+```typescript
+export class MyException extends Error {
+    public message: string
+    public code?: number
+    constructor(args?: { message?: string, code?: number }) {
+        // ...
+    }
+}
+```
+
+Then in your service client you could just throw the exception as you would any JS error `throw new MyException({ message: 'whoops', code: 500 });`
+
+##### Service
+
+Services are a little more complex. There are two parts to a service. There is the `Client` for sending service requests and the `Processor` for handling serving requests. The service `Client` and the service `Processor` are each generated classes. They are wrapped in a `namespace` that has the name of your service.
+
+Given Thrift:
+
+```c
+service MyService {
+    User getUser(1: i32 id) throws (1: MyException exp);
+}
+```
+
+Generated TypeScript:
+
+```typescript
+export namespace MyService {
+    export class Client<Context> {
+        constructor(connection: thrift.IThriftConnection<Context>) {
+            // ...
+        }
+        getUser(id: number): Promise<User> {
+            // ...
+        }
+    }
+    export interface IHandler<Context> {
+        getUser(id: number, context?: Context): User | Promise<User>
+    }
+    export class Processor {
+        constructor(handler: IHandler<Context>) {
+            // ...
+        }
+        public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+            // ...
+        }
+    }
+}
+```
+
+The `Client` is pretty straight forward. You create a `Client` instance and you can call service methods on it. The inner-workings of the `Processor` aren't something consumers need to concern themselves with. The more interesting bit is `IHandler`. This is the interface that service teams need to implement in order to meet the promises of their service contract. Create an object that satisfies `<service-name>.IHander` and pass it to `<service-name>.Processor` and everything else is handled for you.
+
+##### Sending Data Over the Wire
+
+When it comes to struct-like data types (struct, union and exception) usually you don't need to know much more than what data types are generated. However, in addition to the generated interface/union/class the code generator also creates a companion object that knows how to send the given object over the wire.
+
+Looking back at the `User` object from our struct example, in addition to the interface, the codegenerator creates a codec object like this:
+
+```typescript
+export const UserCodec: thrift.IStructCodec<User> {
+    encode(obj: User, output: thrift.TProtocol): void {
+        // ...
+    },
+    decode(input: thrift.TProtocol): User {
+        // ...
+    }
+}
+```
+
+It's just an object that knows how to read the given object from a Thrift Protocol or write the given object to a Thrift Protocol.
+
+The codec will always follow this naming convention, just appending 'Codec' onto the end of your struct name.
 
 ### Apache Thrift
 
