@@ -192,8 +192,6 @@ export function createDecodeMethod(union: UnionDefinition, identifiers: IIdentif
  *   }
  *   break;
  * }
- *
- * @param field
  */
 export function createCaseForField(node: UnionDefinition, field: FieldDefinition, identifiers: IIdentifierMap): ts.CaseClause {
     const fieldAlias: ts.Identifier = ts.createUniqueName('value')

@@ -60,6 +60,7 @@ export function createTempVariables(struct: InterfaceWithFields): Array<ts.Varia
     const structFields: Array<FieldDefinition> = struct.fields.filter((next: FieldDefinition): boolean => {
         return next.fieldType.type !== SyntaxType.VoidKeyword
     })
+
     if (structFields.length > 0) {
         return [ createConstStatement(
             COMMON_IDENTIFIERS.obj,
@@ -151,9 +152,6 @@ export function createWriteForField(struct: InterfaceWithFields, field: FieldDef
  * output.writeFieldBegin("id", Thrift.Type.I32, 1);
  * output.writeI32(obj.id);
  * output.writeFieldEnd();
- *
- * @param struct
- * @param field
  */
 export function createWriteForFieldType(
     struct: InterfaceWithFields,
@@ -307,10 +305,6 @@ function writeValueForField(
  * obj.field1.forEach((value_1: string): void => {
  *   output.writeString(value_1);
  * });
- *
- * @param struct
- * @param fieldType
- * @param fieldName
  */
 function forEach(
     struct: InterfaceWithFields,
@@ -359,8 +353,6 @@ function forEach(
  * EXAMPLE
  *
  * throw new thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
- *
- * @param field
  */
 export function throwForField(field: FieldDefinition): ts.ThrowStatement | undefined {
     if (field.requiredness === 'required') {

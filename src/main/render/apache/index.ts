@@ -48,8 +48,8 @@ export function renderIncludes(
     resolvedFile: IResolvedFile): Array<ts.Statement> {
     if (fileUsesThrift(resolvedFile)) {
         return [
-        renderThriftImports(),
-        ..._renderIncludes(outPath, includes, resolvedFile.includes),
+            renderThriftImports(),
+            ..._renderIncludes(outPath, includes, resolvedFile.includes),
         ]
     } else {
         return _renderIncludes(outPath, includes, resolvedFile.includes)

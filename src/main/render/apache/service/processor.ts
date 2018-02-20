@@ -92,7 +92,6 @@ function funcToMethodReducer(acc: Array<ts.MethodSignature>, func: FunctionDefin
  * interface IMyServiceHandler {
  *   add(a: number, b: number): number
  * }
- * @param service
  */
 export function renderHandlerInterface(service: ServiceDefinition): Array<ts.Statement> {
     const signatures: Array<ts.MethodSignature> = service.functions.reduce(funcToMethodReducer, [])
@@ -164,6 +163,24 @@ function handlerType(node: ServiceDefinition): ts.TypeNode {
     )
 }
 
+function createSuperCall(node: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+    if (node.extends !== null) {
+        return [
+            ts.createStatement(ts.createCall(
+                ts.createSuper(),
+                [],
+                [
+                    objectLiteralForServiceFunctions(
+                        identifiers[node.extends.value].definition
+                    )
+                ]
+            ))
+        ]
+    } else {
+        return []
+    }
+}
+
 export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
     // private _handler
     const handler: ts.PropertyDeclaration = ts.createProperty(
@@ -183,21 +200,7 @@ export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifie
             )
         ],
         [
-            ...(
-                (node.extends !== null) ?
-                    [
-                        ts.createStatement(ts.createCall(
-                            ts.createSuper(),
-                            [],
-                            [
-                                objectLiteralForServiceFunctions(
-                                identifiers[node.extends.value].definition
-                                )
-                            ]
-                        ))
-                    ] :
-                    []
-            ),
+            ...createSuperCall(node, identifiers),
             createAssignmentStatement(
                 ts.createIdentifier('this._handler'),
                 ts.createIdentifier('handler'),
@@ -309,23 +312,7 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                                 // }
                                 ts.createTry(
                                     ts.createBlock([
-                                        ...(funcDef.fields.length > 0) ?
-                                            [ createConstStatement(
-                                                COMMON_IDENTIFIERS.args,
-                                                ts.createTypeReferenceNode(
-                                                    ts.createIdentifier(createStructArgsName(funcDef)),
-                                                    undefined
-                                                ),
-                                                ts.createCall(
-                                                    ts.createPropertyAccess(
-                                                        ts.createIdentifier(createStructArgsName(funcDef)),
-                                                        ts.createIdentifier('read')
-                                                    ),
-                                                    undefined,
-                                                    [ COMMON_IDENTIFIERS.input ]
-                                                )
-                                                ) ] :
-                                                [],
+                                        ...createArgsVariable(funcDef),
                                         // input.readMessageEnd();
                                         createMethodCallStatement(
                                             COMMON_IDENTIFIERS.input,
@@ -460,6 +447,30 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
             )
         ] // body
     )
+}
+
+function createArgsVariable(funcDef: FunctionDefinition): Array<ts.Statement> {
+    if (funcDef.fields.length > 0) {
+        return [
+            createConstStatement(
+                COMMON_IDENTIFIERS.args,
+                ts.createTypeReferenceNode(
+                    ts.createIdentifier(createStructArgsName(funcDef)),
+                    undefined
+                ),
+                ts.createCall(
+                    ts.createPropertyAccess(
+                        ts.createIdentifier(createStructArgsName(funcDef)),
+                        ts.createIdentifier('read')
+                    ),
+                    undefined,
+                    [ COMMON_IDENTIFIERS.input ]
+                )
+            )
+        ]
+    } else {
+        return []
+    }
 }
 
 function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statement> {
@@ -741,8 +752,6 @@ function collectAllMethods(service: ServiceDefinition, identifiers: IIdentifierM
  *   default:
  *     ...skip logic
  * }
- *
- * @param service
  */
 function createMethodCallForFname(service: ServiceDefinition, identifiers: IIdentifierMap): ts.SwitchStatement {
     return ts.createSwitch(

@@ -248,8 +248,6 @@ export function createInputParameter(): ts.ParameterDeclaration {
  *   }
  *   break;
  * }
- *
- * @param field
  */
 export function createCaseForField(field: FieldDefinition, identifiers: IIdentifierMap): ts.CaseClause {
     const fieldAlias: ts.Identifier = ts.createUniqueName('value')

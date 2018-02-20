@@ -22,10 +22,6 @@ import {
     propertyAccessForIdentifier
 } from './utils'
 
-/**
- *
- * @param node
- */
 export function renderValue(fieldType: FunctionType, node: ConstValue): ts.Expression {
     switch (node.type) {
         case SyntaxType.Identifier:

@@ -143,9 +143,6 @@ export function createWriteForField(struct: InterfaceWithFields, field: FieldDef
  * output.writeFieldBegin("id", Thrift.Type.I32, 1);
  * output.writeI32(obj.id);
  * output.writeFieldEnd();
- *
- * @param struct
- * @param field
  */
 export function createWriteForFieldType(
     struct: InterfaceWithFields,
@@ -256,10 +253,6 @@ function writeValueForField(
  * obj.field1.forEach((value_1: string): void => {
  *   output.writeString(value_1);
  * });
- *
- * @param struct
- * @param fieldType
- * @param fieldName
  */
 function forEach(
     struct: InterfaceWithFields,

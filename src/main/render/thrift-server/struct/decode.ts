@@ -56,11 +56,13 @@ import {
 
 export function createTempVariables(struct: InterfaceWithFields): Array<ts.VariableStatement> {
     if (struct.fields.length > 0) {
-        return [ createLetStatement(
-            ts.createIdentifier('_args'),
-            createAnyType(),
-            ts.createObjectLiteral(),
-        ) ]
+        return [
+            createLetStatement(
+                ts.createIdentifier('_args'),
+                createAnyType(),
+                ts.createObjectLiteral(),
+            )
+        ]
     } else {
         return []
     }
@@ -194,8 +196,6 @@ export function createCheckForFields(fields: Array<FieldDefinition>): ts.BinaryE
  *   }
  *   break;
  * }
- *
- * @param field
  */
 export function createCaseForField(field: FieldDefinition, identifiers: IIdentifierMap): ts.CaseClause {
     const fieldAlias: ts.Identifier = ts.createUniqueName('value')

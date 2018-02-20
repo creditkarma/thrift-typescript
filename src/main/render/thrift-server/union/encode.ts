@@ -247,10 +247,6 @@ function writeValueForField(
  * obj.field1.forEach((value_1: string): void => {
  *   output.writeString(value_1);
  * });
- *
- * @param struct
- * @param fieldType
- * @param fieldName
  */
 function forEach(
     union: UnionDefinition,

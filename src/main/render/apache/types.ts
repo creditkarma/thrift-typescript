@@ -116,8 +116,6 @@ function thriftTypeForIdentifier(id: IResolvedIdentifier, identifiers: IIdentifi
  *
  * @todo Clean up so that we can use the strictNullChecks compiler flag which
  * would allow us to use a map and get the same safety as the switch.
- *
- * @param fieldType
  */
 export function thriftTypeForFieldType(fieldType: FunctionType, identifiers: IIdentifierMap): ts.Identifier {
     switch (fieldType.type) {

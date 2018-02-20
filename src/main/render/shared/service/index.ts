@@ -61,7 +61,6 @@ function funcToMethodReducer(acc: Array<ts.MethodSignature>, func: FunctionDefin
  *   add(a: number, b: number): number
  *   add(a: number, b: number, context: Context): number
  * }
- * @param service
  */
 export function renderHandlerInterface(service: ServiceDefinition): Array<ts.Statement> {
     const signatures: Array<ts.MethodSignature> = service.functions.reduce(funcToMethodReducer, [])

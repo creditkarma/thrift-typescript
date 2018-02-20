@@ -12,9 +12,6 @@ import {
  * EXAMPLE
  *
  * createNotNull(obj, prop) => 'obj && (obj.prop != null)'
- *
- * @param obj
- * @param prop
  */
 export function createNotNullCheck(obj: string | ts.Expression ): ts.BinaryExpression {
     return ts.createBinary(
@@ -38,9 +35,6 @@ export function createNullCheck(obj: string | ts.Expression ): ts.BinaryExpressi
  * EXAMPLE
  *
  * createNotEquals(left, right) => 'left !== right'
- *
- * @param left
- * @param right
  */
 export function createNotEqualsCheck(left: ts.Expression, right: ts.Expression): ts.BinaryExpression {
     return ts.createBinary(left, ts.SyntaxKind.ExclamationEqualsEqualsToken, right)
@@ -52,9 +46,6 @@ export function createNotEqualsCheck(left: ts.Expression, right: ts.Expression):
  * EXAMPLE
  *
  * createEquals(left, right) => 'left === right'
- *
- * @param left
- * @param right
  */
 export function createEqualsCheck(left: ts.Expression, right: ts.Expression): ts.BinaryExpression {
     return ts.createBinary(left, ts.SyntaxKind.EqualsEqualsEqualsToken, right)
@@ -93,9 +84,6 @@ export function createPublicMethod(
 
 /**
  * Create assignment of one ts.Expression to another
- *
- * @param left
- * @param right
  */
 export function createAssignmentStatement(left: ts.Expression, right: ts.Expression): ts.ExpressionStatement {
     return ts.createStatement(ts.createAssignment(left, right))
@@ -216,9 +204,6 @@ export function createMethodCall(
  * EXAMPLE
  *
  * propertyAccessForIdentifier('test', 'this') => 'test.this'
- *
- * @param obj
- * @param field
  */
 export function propertyAccessForIdentifier(obj: string | ts.Expression, prop: string): ts.PropertyAccessExpression {
     switch (obj) {

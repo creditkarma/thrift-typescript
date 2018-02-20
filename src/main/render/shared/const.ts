@@ -24,8 +24,6 @@ import {
  *
  * // typescript
  * const myConst: number = 45
- *
- * @param node
  */
 export function renderConst(node: ConstDefinition): ts.Statement {
     return ts.createVariableStatement(

@@ -99,19 +99,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
             )
         ], // parameters
         [
-            ...(
-                (node.extends !== null) ?
-                [
-                    ts.createStatement(ts.createCall(
-                    ts.createSuper(),
-                    [],
-                    [
-                        COMMON_IDENTIFIERS.connection,
-                    ]
-                    ))
-                ] :
-                []
-            ),
+            ...createSuperCall(node),
             createAssignmentStatement(
                 ts.createIdentifier('this._requestId'),
                 ts.createLiteral(0)
@@ -197,6 +185,22 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
             ...baseMethods,
         ] // body
     )
+}
+
+function createSuperCall(node: ServiceDefinition): Array<ts.Statement> {
+    if (node.extends !== null) {
+        return [
+            ts.createStatement(ts.createCall(
+                ts.createSuper(),
+                [],
+                [
+                    COMMON_IDENTIFIERS.connection,
+                ]
+            ))
+        ]
+    } else {
+        return []
+    }
 }
 
 // public {{name}}( {{#args}}{{fieldName}}: {{fieldType}}, {{/args}} ): Promise<{{typeName}}> {

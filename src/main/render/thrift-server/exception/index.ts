@@ -170,8 +170,6 @@ function renderFieldDeclarations(field: FieldDefinition): ts.PropertyDeclaration
  * }
  *
  * This function creates the 'this.id = args.id' bit.
- *
- * @param field
  */
 export function assignmentForField(field: FieldDefinition): ts.Statement {
     if (field.fieldType.type === SyntaxType.I64Keyword) {
@@ -214,8 +212,6 @@ export function assignmentForField(field: FieldDefinition): ts.Statement {
  * EXAMPLE
  *
  * throw new thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
- *
- * @param field
  */
 export function throwForField(field: FieldDefinition): ts.ThrowStatement | undefined {
     if (field.requiredness === 'required') {
