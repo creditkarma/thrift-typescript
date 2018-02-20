@@ -9,8 +9,6 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
       - run:
           name: Install NPM Dependencies
           command: npm install
@@ -25,6 +23,7 @@ jobs:
   publish:
     <<: *defaults
     steps:
+      - checkout
       - run:
           name: Generate .npmrc File
           command: 'echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc'
@@ -41,6 +40,7 @@ jobs:
   prerelease:
     <<: *defaults
     steps:
+      - checkout
       - run:
           name: Generate .npmrc File
           command: 'echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc'
