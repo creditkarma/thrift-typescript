@@ -227,11 +227,11 @@ export enum Colors {
 export type name = string;
 ```
 
-The only interesting thing here is the handling of `i64`. JavaScript doesn't support a full 64-bits of integer percision, so we wrap the value in an `Int64` object. The object is exported from `@creditkarma/thrift-server-core` and extends [node-int64](https://github.com/broofa/node-int64).
+The only interesting thing here is the handling of `i64`. JavaScript doesn't support a full 64-bits of integer percision, so we wrap the value in an `Int64` object. You will notice that this doesn't really help in cases where you define a constant or default value in your Thrift file, but it does allow 64-bit integers received from outside of JS to be handled correctly. The object is exported from `@creditkarma/thrift-server-core` and extends [node-int64](https://github.com/broofa/node-int64).
 
 #### Struct
 
-A struct seems analogous to an interface.
+A struct is intuitively analogous to an interface.
 
 Given Thrift:
 
@@ -280,9 +280,9 @@ export type MyUnion = {
 }
 ```
 
-By creating a union we are prevented from incorrectly constructing our Thrift union by compile-time checks.
+By creating a TypeScript union type we are prevented from incorrectly constructing our Thrift union by compile-time checks.
 
-In this set, only the last two `try3` and `try4` won't throw a type-checking error:
+In the following set, only the last two, `try3` and `try4`, won't throw a type-checking error:
 
 ```typescript
 // This won't work
@@ -338,7 +338,7 @@ Then in your service client you could just throw the exception as you would any 
 
 #### Service
 
-Services are a little more complex. There are two parts to a service. There is the `Client` for sending service requests and the `Processor` for handling serving requests. The service `Client` and the service `Processor` are each generated classes. They are wrapped, along with some other internal objects, in a `namespace` that has the name of your service.
+Services are a little more complex. There are two parts to a service. There is the `Client` for sending service requests and the `Processor` for handling service requests. The service `Client` and the service `Processor` are each generated classes. They are wrapped, along with some other internal objects, in a `namespace` that has the name of your service.
 
 Given Thrift:
 
