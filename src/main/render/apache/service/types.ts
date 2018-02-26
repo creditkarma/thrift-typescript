@@ -1,12 +1,12 @@
 import * as ts from 'typescript'
 
 import {
-  createNumberType,
-  createVoidType,
+    createNumberType,
+    createVoidType,
 } from '../../shared/types'
 
 import {
-  createFunctionParameter
+    createFunctionParameter
 } from '../../shared/utils'
 
 import {

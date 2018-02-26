@@ -59,8 +59,8 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
 
     // Build the constructor body
     const ctor: ts.ConstructorDeclaration = createClassConstructor(
-        [ argsParameter ],
-        [ ...fieldAssignments ]
+        [argsParameter],
+        [...fieldAssignments]
     )
 
     // Build the `read` method
@@ -126,7 +126,7 @@ export function assignmentForField(field: FieldDefinition): ts.Statement {
                         COMMON_IDENTIFIERS.Int64,
                         undefined,
                         [
-                        ts.createIdentifier(`args.${field.name.value}`)
+                            ts.createIdentifier(`args.${field.name.value}`)
                         ]
                     )
                 )

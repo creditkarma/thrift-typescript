@@ -74,19 +74,19 @@ export function typeNodeForFieldType(fieldType: FunctionType, loose: boolean = f
         case SyntaxType.SetType:
             return ts.createTypeReferenceNode(
                 'Set',
-                [ typeNodeForFieldType(fieldType.valueType) ],
+                [typeNodeForFieldType(fieldType.valueType)],
             )
 
         case SyntaxType.MapType:
             return ts.createTypeReferenceNode(
                 'Map',
-                [ typeNodeForFieldType(fieldType.keyType), typeNodeForFieldType(fieldType.valueType) ],
+                [typeNodeForFieldType(fieldType.keyType), typeNodeForFieldType(fieldType.valueType)],
             )
 
         case SyntaxType.ListType:
             return ts.createTypeReferenceNode(
                 'Array',
-                [ typeNodeForFieldType(fieldType.valueType) ],
+                [typeNodeForFieldType(fieldType.valueType)],
             )
 
         case SyntaxType.StringKeyword:
