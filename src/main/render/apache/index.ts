@@ -48,8 +48,8 @@ export function renderIncludes(
     resolvedFile: IResolvedFile): Array<ts.Statement> {
     if (fileUsesThrift(resolvedFile)) {
         return [
-        renderThriftImports(),
-        ..._renderIncludes(outPath, includes, resolvedFile.includes),
+            renderThriftImports(),
+            ..._renderIncludes(outPath, includes, resolvedFile.includes),
         ]
     } else {
         return _renderIncludes(outPath, includes, resolvedFile.includes)
@@ -57,7 +57,7 @@ export function renderIncludes(
 }
 
 export function renderConst(statement: ConstDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return [ _renderConst(statement) ]
+    return [_renderConst(statement)]
 }
 
 export function renderTypeDef(statement: TypedefDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
@@ -65,7 +65,7 @@ export function renderTypeDef(statement: TypedefDefinition, identifiers: IIdenti
 }
 
 export function renderEnum(statement: EnumDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return [ _renderEnum(statement) ]
+    return [_renderEnum(statement)]
 }
 
 export function renderStruct(statement: StructDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
@@ -93,7 +93,7 @@ export function renderService(statement: ServiceDefinition, identifiers: IIdenti
     return [
         ts.createModuleDeclaration(
             undefined,
-            [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+            [ts.createToken(ts.SyntaxKind.ExportKeyword)],
             ts.createIdentifier(statement.name.value),
             ts.createModuleBlock([
                 ...renderArgsStruct(statement, identifiers),

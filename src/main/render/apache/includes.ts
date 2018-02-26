@@ -16,6 +16,14 @@ import {
     IResolvedFile,
 } from '../../types'
 
+import { renderThriftImports as _renderThriftImports } from '../shared/includes'
+
+const THRIFT_LIBRARY_NAME: string = 'thrift'
+
+export function renderThriftImports(): ts.ImportDeclaration {
+    return _renderThriftImports(THRIFT_LIBRARY_NAME)
+}
+
 function constUsesThrift(statement: ConstDefinition): boolean {
     return statement.fieldType.type === SyntaxType.I64Keyword
 }
@@ -58,24 +66,6 @@ export function fileUsesThrift(resolvedFile: IResolvedFile): boolean {
     }
 
     return false
-}
-
-/**
- * import { Thrift, TProtocol, TTransport, Int64 } from 'thrift';
- *
- * I would really like this to only import what is being used by the file we're
- * generating. We'll need to keep track of what each files uses.
- */
-export function renderThriftImports(): ts.ImportDeclaration {
-    return ts.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.createImportClause(
-            undefined,
-            ts.createNamespaceImport(ts.createIdentifier('thrift'))
-        ),
-        ts.createLiteral('thrift'),
-    )
 }
 
 /**

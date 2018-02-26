@@ -9,31 +9,35 @@ const prefaceComment: string = `
 `
 
 function generatePreface(req: ts.Statement): void {
-  ts.addSyntheticLeadingComment(req,
-    ts.SyntaxKind.MultiLineCommentTrivia,
-    tslintDisable,
-    true,
-  )
+    ts.addSyntheticLeadingComment(
+        req,
+        ts.SyntaxKind.MultiLineCommentTrivia,
+        tslintDisable,
+        true,
+    )
 
-  ts.addSyntheticLeadingComment(req,
-    ts.SyntaxKind.MultiLineCommentTrivia,
-    prefaceComment,
-    true,
-  )
+    ts.addSyntheticLeadingComment(
+        req,
+        ts.SyntaxKind.MultiLineCommentTrivia,
+        prefaceComment,
+        true,
+    )
 }
 
 export function print(statements: Array<ts.Statement>, includePreface: boolean = false): string {
-  const printer: ts.Printer = ts.createPrinter()
-  const rawSourceFile: ts.SourceFile = ts.createSourceFile(
-    'thrift.ts',
-    '',
-    ts.ScriptTarget.ES2015,
-    false,
-    ts.ScriptKind.TS,
-  )
-  const bodyFile: ts.SourceFile = ts.updateSourceFileNode(rawSourceFile, statements)
-  if (includePreface) {
-    generatePreface(statements[0])
-  }
-  return printer.printBundle(ts.createBundle([ bodyFile ]))
+    const printer: ts.Printer = ts.createPrinter()
+    const rawSourceFile: ts.SourceFile = ts.createSourceFile(
+        'thrift.ts',
+        '',
+        ts.ScriptTarget.ES2015,
+        false,
+        ts.ScriptKind.TS,
+    )
+    const bodyFile: ts.SourceFile = ts.updateSourceFileNode(rawSourceFile, statements)
+
+    if (includePreface) {
+        generatePreface(statements[0])
+    }
+
+    return printer.printBundle(ts.createBundle([ bodyFile ]))
 }

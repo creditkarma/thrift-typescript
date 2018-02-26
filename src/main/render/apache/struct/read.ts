@@ -164,7 +164,7 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
         ts.createIdentifier('read'),
         undefined,
         undefined,
-        [ inputParameter ],
+        [inputParameter],
         ts.createTypeReferenceNode(
             ts.createIdentifier(struct.name.value),
             undefined,
@@ -206,14 +206,14 @@ function createReturnForStruct(struct: InterfaceWithFields): ts.Statement {
                     ts.createNew(
                         ts.createIdentifier(struct.name.value),
                         undefined,
-                        [ ts.createIdentifier('_args') ]
+                        [ts.createIdentifier('_args')]
                     )
                 )
             ], true),
             ts.createBlock([
                 throwProtocolException(
-                'UNKNOWN',
-                `Unable to read ${struct.name.value} from input`
+                    'UNKNOWN',
+                    `Unable to read ${struct.name.value} from input`
                 )
             ], true)
         )
@@ -222,7 +222,7 @@ function createReturnForStruct(struct: InterfaceWithFields): ts.Statement {
             ts.createNew(
                 ts.createIdentifier(struct.name.value),
                 undefined,
-                [ ts.createIdentifier('_args') ]
+                [ts.createIdentifier('_args')]
             )
         )
     }
@@ -289,8 +289,8 @@ export function endReadForField(fieldName: ts.Identifier, field: FieldDefinition
         default:
             return [
                 createAssignmentStatement(
-                ts.createIdentifier(`_args.${field.name.value}`),
-                fieldName
+                    ts.createIdentifier(`_args.${field.name.value}`),
+                    fieldName
                 )
             ]
     }
@@ -365,19 +365,19 @@ function loopBody(fieldType: ContainerType, fieldName: ts.Identifier, identifier
             return [
                 ...readValueForFieldType(fieldType.keyType, key, identifiers),
                 ...readValueForFieldType(fieldType.valueType, value, identifiers),
-                createMethodCallStatement(fieldName, 'set', [ key, value ])
+                createMethodCallStatement(fieldName, 'set', [key, value])
             ]
 
         case SyntaxType.ListType:
             return [
                 ...readValueForFieldType(fieldType.valueType, value, identifiers),
-                createMethodCallStatement(fieldName, 'push', [ value ])
+                createMethodCallStatement(fieldName, 'push', [value])
             ]
 
         case SyntaxType.SetType:
             return [
                 ...readValueForFieldType(fieldType.valueType, value, identifiers),
-                createMethodCallStatement(fieldName, 'add', [ value ])
+                createMethodCallStatement(fieldName, 'add', [value])
             ]
     }
 }
@@ -464,12 +464,12 @@ export function readValueForIdentifier(
                     typeNodeForFieldType(fieldType),
                     ts.createCall(
                         ts.createPropertyAccess(
-                        ts.createIdentifier(id.resolvedName),
-                        ts.createIdentifier('read'),
+                            ts.createIdentifier(id.resolvedName),
+                            ts.createIdentifier('read'),
                         ),
                         undefined,
                         [
-                        COMMON_IDENTIFIERS.input
+                            COMMON_IDENTIFIERS.input
                         ]
                     )
                 ),
@@ -544,7 +544,7 @@ export function readValueForFieldType(
                     typeNodeForFieldType(fieldType),
                     ts.createNew(
                         COMMON_IDENTIFIERS.Map, // class name
-                        [ typeNodeForFieldType(fieldType.keyType), typeNodeForFieldType(fieldType.valueType) ],
+                        [typeNodeForFieldType(fieldType.keyType), typeNodeForFieldType(fieldType.valueType)],
                         []
                     )
                 ),
@@ -558,7 +558,7 @@ export function readValueForFieldType(
                     typeNodeForFieldType(fieldType),
                     ts.createNew(
                         COMMON_IDENTIFIERS.Array, // class name
-                        [ typeNodeForFieldType(fieldType.valueType) ],
+                        [typeNodeForFieldType(fieldType.valueType)],
                         []
                     )
                 ),
@@ -572,7 +572,7 @@ export function readValueForFieldType(
                     typeNodeForFieldType(fieldType),
                     ts.createNew(
                         COMMON_IDENTIFIERS.Set, // class name
-                        [ typeNodeForFieldType(fieldType.valueType) ],
+                        [typeNodeForFieldType(fieldType.valueType)],
                         []
                     )
                 ),
@@ -582,7 +582,7 @@ export function readValueForFieldType(
         case SyntaxType.VoidKeyword:
             return [
                 createMethodCallStatement('input', 'skip', [
-                COMMON_IDENTIFIERS.fieldType
+                    COMMON_IDENTIFIERS.fieldType
                 ])
             ]
 

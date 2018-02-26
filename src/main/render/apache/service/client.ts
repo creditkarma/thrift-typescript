@@ -99,17 +99,17 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
         [
             ...(
                 (node.extends !== null) ?
-                [
-                    ts.createStatement(ts.createCall(
-                        ts.createSuper(),
-                        [],
-                        [
-                            ts.createIdentifier('output'),
-                            ts.createIdentifier('protocol')
-                        ]
-                    ))
-                ] :
-                []
+                    [
+                        ts.createStatement(ts.createCall(
+                            ts.createSuper(),
+                            [],
+                            [
+                                ts.createIdentifier('output'),
+                                ts.createIdentifier('protocol')
+                            ]
+                        ))
+                    ] :
+                    []
             ),
             createAssignmentStatement(
                 ts.createIdentifier('this._seqid'),
@@ -132,7 +132,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
 
     const incrementSeqIdMethod: ts.MethodDeclaration = ts.createMethod(
         undefined,
-        [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
+        [ts.createToken(ts.SyntaxKind.PublicKeyword)],
         undefined,
         'incrementSeqId',
         undefined,
@@ -142,9 +142,9 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
         ts.createBlock([
             ts.createReturn(
                 ts.createBinary(
-                ts.createIdentifier('this._seqid'),
-                ts.SyntaxKind.PlusEqualsToken,
-                ts.createLiteral(1)
+                    ts.createIdentifier('this._seqid'),
+                    ts.SyntaxKind.PlusEqualsToken,
+                    ts.createLiteral(1)
                 )
             )
         ], true)
@@ -160,24 +160,24 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
 
     const heritage: Array<ts.HeritageClause> = (
         (node.extends !== null) ?
-        [
-            ts.createHeritageClause(
-                ts.SyntaxKind.ExtendsKeyword,
-                [
-                    ts.createExpressionWithTypeArguments(
-                        [],
-                        ts.createIdentifier(`${node.extends.value}.Client`),
-                    )
-                ]
-            )
-        ] :
-        []
+            [
+                ts.createHeritageClause(
+                    ts.SyntaxKind.ExtendsKeyword,
+                    [
+                        ts.createExpressionWithTypeArguments(
+                            [],
+                            ts.createIdentifier(`${node.extends.value}.Client`),
+                        )
+                    ]
+                )
+            ] :
+            []
     )
 
     // export class <node.name> { ... }
     return ts.createClassDeclaration(
         undefined, // decorators
-        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ], // modifiers
+        [ts.createToken(ts.SyntaxKind.ExportKeyword)], // modifiers
         'Client', // name
         [], // type parameters
         heritage, // heritage
@@ -211,7 +211,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
 function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclaration {
     return ts.createMethod(
         undefined, // decorators
-        [ ts.createToken(ts.SyntaxKind.PublicKeyword) ], // modifiers
+        [ts.createToken(ts.SyntaxKind.PublicKeyword)], // modifiers
         undefined, // asterisk token
         def.name.value, // name
         undefined, // question token
@@ -219,8 +219,8 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
         def.fields.map(createParametersForField), // parameters
         ts.createTypeReferenceNode(
             'Promise',
-            [ typeNodeForFieldType(def.returnType) ]
-            ), // return type
+            [typeNodeForFieldType(def.returnType)]
+        ), // return type
         ts.createBlock([
             // this._seqid = this.incrementSeqId()
             createConstStatement(
@@ -264,14 +264,14 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                                         ts.createBlock([
                                             createCallStatement(
                                                 ts.createIdentifier('reject'),
-                                                [ ts.createIdentifier('error') ]
+                                                [ts.createIdentifier('error')]
                                             )
                                         ], true),
                                         // resolve(result)
                                         ts.createBlock([
                                             createCallStatement(
                                                 ts.createIdentifier('resolve'),
-                                                [ ts.createIdentifier('result') ]
+                                                [ts.createIdentifier('result')]
                                             )
                                         ], true)
                                     )
@@ -307,7 +307,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
 function createSendMethodForDefinition(service: ServiceDefinition, def: FunctionDefinition): ts.MethodDeclaration {
     return ts.createMethod(
         undefined, // decorators
-        [ ts.createToken(ts.SyntaxKind.PublicKeyword) ], // modifiers
+        [ts.createToken(ts.SyntaxKind.PublicKeyword)], // modifiers
         undefined, // asterisk token
         `send_${def.name.value}`, // name
         undefined, // question token
@@ -348,7 +348,7 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
                 ts.createNew(
                     ts.createIdentifier('this.protocol'),
                     undefined,
-                    [ ts.createIdentifier('this.output') ]
+                    [ts.createIdentifier('this.output')]
                 )
             ),
             // output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.seqid())
@@ -372,18 +372,18 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
                 ts.createNew(
                     ts.createIdentifier(createStructArgsName(def)),
                     undefined,
-                    [ ts.createObjectLiteral(
+                    [ts.createObjectLiteral(
                         def.fields.map((next: FieldDefinition) => {
                             return ts.createShorthandPropertyAssignment(next.name.value)
                         })
-                    ) ]
+                    )]
                 )
             ),
             // args.write(output)
             createMethodCallStatement(
                 COMMON_IDENTIFIERS.args,
                 'write',
-                [ COMMON_IDENTIFIERS.output ]
+                [COMMON_IDENTIFIERS.output]
             ),
             // output.writeMessageEnd()
             createMethodCallStatement(
@@ -429,7 +429,7 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
 function createRecvMethodForDefinition(service: ServiceDefinition, def: FunctionDefinition): ts.MethodDeclaration {
     return ts.createMethod(
         undefined, // decorators
-        [ ts.createToken(ts.SyntaxKind.PublicKeyword) ], // modifiers
+        [ts.createToken(ts.SyntaxKind.PublicKeyword)], // modifiers
         undefined, // asterisk token
         `recv_${def.name.value}`, // method name
         undefined, // question token
@@ -509,11 +509,11 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
                     createNotNullCheck(`result.${next.name.value}`),
                     ts.createBlock([
                         ts.createReturn(
-                        ts.createCall(
-                            COMMON_IDENTIFIERS.callback,
-                            undefined,
-                            [ ts.createIdentifier(`result.${next.name.value}`) ]
-                        )
+                            ts.createCall(
+                                COMMON_IDENTIFIERS.callback,
+                                undefined,
+                                [ts.createIdentifier(`result.${next.name.value}`)]
+                            )
                         )
                     ], true)
                 )
@@ -532,8 +532,8 @@ function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
             createConstStatement(
                 ts.createIdentifier('result'),
                 ts.createTypeReferenceNode(
-                ts.createIdentifier(createStructResultName(def)),
-                undefined
+                    ts.createIdentifier(createStructResultName(def)),
+                    undefined
                 ),
                 ts.createCall(
                     ts.createPropertyAccess(
@@ -572,7 +572,7 @@ function createExceptionHandler(def: FunctionDefinition): Array<ts.Statement> {
                 createMethodCallStatement(
                     ts.createIdentifier('x'),
                     'read',
-                    [ COMMON_IDENTIFIERS.input ]
+                    [COMMON_IDENTIFIERS.input]
                 ),
                 createMethodCallStatement(
                     COMMON_IDENTIFIERS.input,
@@ -582,7 +582,7 @@ function createExceptionHandler(def: FunctionDefinition): Array<ts.Statement> {
                     ts.createCall(
                         COMMON_IDENTIFIERS.callback,
                         undefined,
-                        [ ts.createIdentifier('x') ]
+                        [ts.createIdentifier('x')]
                     )
                 )
             ], true)

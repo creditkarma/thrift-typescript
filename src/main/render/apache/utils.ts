@@ -23,7 +23,7 @@ export function createProtocolException(
 ): ts.NewExpression {
     const errCtor = THRIFT_IDENTIFIERS.TProtocolException
     const errType = PROTOCOL_EXCEPTION[type]
-    const errArgs = [ errType, ts.createLiteral(message) ]
+    const errArgs = [errType, ts.createLiteral(message)]
     return ts.createNew(errCtor, undefined, errArgs)
 }
 
@@ -35,7 +35,7 @@ export function throwProtocolException(
 }
 
 export function createApplicationException(
-     type: TApplicationException,
+    type: TApplicationException,
     message: string | ts.Expression,
 ): ts.NewExpression {
     const errCtor = THRIFT_IDENTIFIERS.TApplicationException

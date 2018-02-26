@@ -99,12 +99,12 @@ export function generate(options: IMakeOptions): void {
         const renderedFiles: Array<IRenderedFile> =
             validatedFiles.map((next: IResolvedFile): IRenderedFile => {
                 return generateFile(
-                rendererForTarget(options.target),
-                rootDir,
-                outDir,
-                sourceDir,
-                next,
-                renderedCache,
+                    rendererForTarget(options.target),
+                    rootDir,
+                    outDir,
+                    sourceDir,
+                    next,
+                    renderedCache,
                 )
             })
 
