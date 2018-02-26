@@ -5,7 +5,7 @@ import { make } from '../../main/index'
 import { CompileTarget } from '../../main/types'
 
 function readFixture(name: string, target: CompileTarget = 'apache'): string {
-  return fs.readFileSync(path.join(__dirname, `./fixtures/${target}/${name}.solution.ts`), 'utf-8')
+    return fs.readFileSync(path.join(__dirname, `./fixtures/${target}/${name}.solution.ts`), 'utf-8')
 }
 
 describe('Thrift TypeScript Generator', () => {
@@ -117,8 +117,6 @@ describe('Thrift TypeScript Generator', () => {
             `;
             const expected: string = readFixture('basic_service', 'thrift-server')
             const actual: string = make(content, 'thrift-server')
-
-            console.log('actual: ', actual)
 
             assert.deepEqual(actual, expected)
         })
