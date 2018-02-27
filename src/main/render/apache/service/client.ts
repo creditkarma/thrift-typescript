@@ -97,20 +97,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
             ),
         ], // parameters
         [
-            ...(
-                (node.extends !== null) ?
-                [
-                    ts.createStatement(ts.createCall(
-                        ts.createSuper(),
-                        [],
-                        [
-                            ts.createIdentifier('output'),
-                            ts.createIdentifier('protocol')
-                        ]
-                    ))
-                ] :
-                []
-            ),
+            ...createSuperCall(node),
             createAssignmentStatement(
                 ts.createIdentifier('this._seqid'),
                 ts.createLiteral(0)
@@ -193,6 +180,23 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
             ...recvMethods
         ] // body
     )
+}
+
+function createSuperCall(node: ServiceDefinition): Array<ts.Statement> {
+    if (node.extends !== null) {
+        return [
+            ts.createStatement(ts.createCall(
+                ts.createSuper(),
+                [],
+                [
+                    ts.createIdentifier('output'),
+                    ts.createIdentifier('protocol')
+                ]
+            ))
+        ]
+    } else {
+        return []
+    }
 }
 
 // public {{name}}( {{#args}}{{fieldName}}: {{fieldType}}, {{/args}} ): Promise<{{typeName}}> {

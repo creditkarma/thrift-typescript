@@ -29,10 +29,10 @@ import { renderUnion as _renderUnion } from './union'
 import { renderEnum as _renderEnum } from '../shared/enum'
 import { renderTypeDef as _renderTypeDef } from '../shared/typedef'
 import { renderConst as _renderConst } from '../shared/const'
+import { fileUsesThrift } from '../shared/includes'
 import {
     renderIncludes as _renderIncludes,
     renderThriftImports,
-    fileUsesThrift,
 } from './includes'
 
 import {
@@ -48,8 +48,8 @@ export function renderIncludes(
     resolvedFile: IResolvedFile): Array<ts.Statement> {
     if (fileUsesThrift(resolvedFile)) {
         return [
-        renderThriftImports(),
-        ..._renderIncludes(outPath, includes, resolvedFile.includes),
+            renderThriftImports(),
+            ..._renderIncludes(outPath, includes, resolvedFile.includes),
         ]
     } else {
         return _renderIncludes(outPath, includes, resolvedFile.includes)

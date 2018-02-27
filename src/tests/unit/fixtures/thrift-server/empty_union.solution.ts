@@ -1,24 +1,20 @@
-export interface IMyUnionArgs {
-}
-export class MyUnion implements thrift.StructLike {
-    constructor(args?: IMyUnionArgs) {
+export type MyUnion = {
+};
+export const MyUnionCodec: thrift.IStructCodec<MyUnion> = {
+    encode(val: MyUnion, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
-        if (args != null) {
-            if (_fieldsSet > 1) {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
-            }
-            else if (_fieldsSet < 1) {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
-            }
-        }
-    }
-    public write(output: thrift.TProtocol): void {
         output.writeStructBegin("MyUnion");
         output.writeFieldStop();
         output.writeStructEnd();
+        if (_fieldsSet > 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
+        }
+        else if (_fieldsSet < 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
+        }
         return;
-    }
-    public static read(input: thrift.TProtocol): MyUnion {
+    },
+    decode(input: thrift.TProtocol): MyUnion {
         let _fieldsSet: number = 0;
         let _returnValue: MyUnion | null = null;
         input.readStructBegin();
@@ -38,10 +34,10 @@ export class MyUnion implements thrift.StructLike {
         }
         input.readStructEnd();
         if (_fieldsSet > 1) {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
         }
         else if (_fieldsSet < 1) {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
             return _returnValue;
@@ -50,4 +46,4 @@ export class MyUnion implements thrift.StructLike {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read data for TUnion");
         }
     }
-}
+};

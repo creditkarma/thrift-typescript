@@ -7,15 +7,46 @@
 import * as ts from 'typescript'
 
 import {
+    FieldDefinition,
+    SyntaxType,
+} from '@creditkarma/thrift-parser'
+
+import {
     TApplicationException,
     TProtocolException,
 } from './types'
+
+import {
+    renderValue,
+} from '../shared/values'
+
+import {
+    createNotNullCheck,
+} from '../shared/utils'
 
 import {
     THRIFT_IDENTIFIERS,
     PROTOCOL_EXCEPTION,
     APPLICATION_EXCEPTION,
 } from './identifiers'
+
+export function getInitializerForField(objName: string, field: FieldDefinition): ts.Expression {
+    if (field.defaultValue !== null && field.defaultValue !== undefined) {
+        return ts.createConditional(
+            createNotNullCheck(
+                ts.createIdentifier(`${objName}.${field.name.value}`)
+            ),
+            ts.createIdentifier(`${objName}.${field.name.value}`),
+            renderValue(field.fieldType, field.defaultValue),
+        )
+    } else {
+        return ts.createIdentifier(`${objName}.${field.name.value}`)
+    }
+}
+
+export function isNotVoid(field: FieldDefinition): boolean {
+    return field.fieldType.type !== SyntaxType.VoidKeyword;
+}
 
 export function createProtocolException(
     type: TProtocolException,

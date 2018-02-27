@@ -10,7 +10,7 @@ function readFixture(name: string, target: CompileTarget = 'apache'): string {
 
 describe('Thrift TypeScript Generator', () => {
 
-    describe('Thrift Server', () => {
+    describe('Thrift Server v2', () => {
         it('should correctly generate a struct', () => {
             const content: string = `
                 struct MyStruct {
@@ -55,11 +55,11 @@ describe('Thrift TypeScript Generator', () => {
             assert.deepEqual(actual, expected)
         })
 
-        it('should correctly generate a class for a union', () => {
+        it('should correctly generate a union', () => {
             const content: string = `
                 union MyUnion {
-                    1: string field1;
-                    2: i64 field2;
+                    1: i32 field1
+                    2: i64 field2
                 }
             `;
             const expected: string = readFixture('basic_union', 'thrift-server')
@@ -68,7 +68,7 @@ describe('Thrift TypeScript Generator', () => {
             assert.deepEqual(actual, expected)
         })
 
-        it('should correctly generate a class for an empty union', () => {
+        it('should correctly generate an empty union', () => {
             const content: string = `
                 union MyUnion {}
             `;
@@ -96,10 +96,11 @@ describe('Thrift TypeScript Generator', () => {
             assert.deepEqual(actual, expected)
         })
 
-        it('should correctly generate a class for an exception', () => {
+        it('should correctly generate an exception', () => {
             const content: string = `
                 exception MyException {
-                    1: required string message;
+                    1: string message
+                    2: i32 code = 200
                 }
             `;
             const expected: string = readFixture('basic_exception', 'thrift-server')
@@ -108,11 +109,46 @@ describe('Thrift TypeScript Generator', () => {
             assert.deepEqual(actual, expected)
         })
 
-        it('should correctly generate a service', () => {
+        it('should correctly generate an exception with required fields', () => {
             const content: string = `
+                exception MyException {
+                    1: required string message
+                    2: i32 code
+                }
+            `;
+            const expected: string = readFixture('required_field_exception', 'thrift-server')
+            const actual: string = make(content, 'thrift-server')
+
+            assert.deepEqual(actual, expected)
+        })
+
+        it('should correctly generate an exception with struct fields', () => {
+            const content: string = `
+                struct Code {
+                    1: i32 status = 200
+                }
+
+                exception MyException {
+                    1: string message
+                    2: Code code
+                }
+            `;
+            const expected: string = readFixture('nested_exception', 'thrift-server')
+            const actual: string = make(content, 'thrift-server')
+
+            assert.deepEqual(actual, expected)
+        })
+
+        it('should correctly generate a basic service', () => {
+            const content: string = `
+                struct User {
+                    1: required string name
+                    2: required i32 id
+                }
+
                 service MyService {
-                    i64 send(1: i64 code);
-                    void ping(1: string status);
+                    User getUser(1: i32 id);
+                    void ping();
                 }
             `;
             const expected: string = readFixture('basic_service', 'thrift-server')
@@ -133,6 +169,23 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `;
             const expected: string = readFixture('extend_service', 'thrift-server')
+            const actual: string = make(content, 'thrift-server')
+
+            assert.deepEqual(actual, expected)
+        })
+
+        it('should correctly generate a service that throws', () => {
+            const content: string = `
+                exception ServiceException {
+                    1: string message;
+                }
+
+                service ChildService {
+                    string peg(1: string name) throws (1: ServiceException exp);
+                    string pong(1: optional string name);
+                }
+            `;
+            const expected: string = readFixture('throws_service', 'thrift-server')
             const actual: string = make(content, 'thrift-server')
 
             assert.deepEqual(actual, expected)
@@ -167,8 +220,8 @@ describe('Thrift TypeScript Generator', () => {
         it('should correctly generate a type alias for an identifier', () => {
             const content: string = `
                 enum MyEnum {
-                ONE,
-                TWO
+                    ONE,
+                    TWO
                 }
 
                 typedef MyEnum AnotherName
@@ -182,8 +235,8 @@ describe('Thrift TypeScript Generator', () => {
         it('should correctly generate a complex type alias for an identifier', () => {
             const content: string = `
                 enum MyEnum {
-                ONE,
-                TWO
+                    ONE,
+                    TWO
                 }
 
                 typedef i32 MyInt
@@ -203,9 +256,9 @@ describe('Thrift TypeScript Generator', () => {
         it('should correctly generate an enum', () => {
             const content: string = `
                 enum MyEnum {
-                ONE,
-                TWO,
-                THREE
+                    ONE,
+                    TWO,
+                    THREE
                 }
             `;
             const expected: string = readFixture('basic_enum')
@@ -217,9 +270,9 @@ describe('Thrift TypeScript Generator', () => {
         it('should correctly generate an enum with member initializer', () => {
             const content: string = `
                 enum MyEnum {
-                ONE = 5,
-                TWO = 3,
-                THREE = 6
+                    ONE = 5,
+                    TWO = 3,
+                    THREE = 6
                 }
             `;
             const expected: string = readFixture('field_initialized_enum')

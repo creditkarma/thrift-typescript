@@ -1,6 +1,7 @@
 import * as ts from 'typescript'
 
 export const THRIFT_IDENTIFIERS = {
+    IStructCodec: ts.createIdentifier('thrift.IStructCodec'),
     IThriftConnection: ts.createIdentifier('thrift.IThriftConnection'),
     ProtocolConstructor: ts.createIdentifier('thrift.IProtocolConstructor'),
     TransportConstructor: ts.createIdentifier('thrift.ITransportConstructor'),
@@ -16,6 +17,7 @@ export const THRIFT_IDENTIFIERS = {
     Int64: ts.createIdentifier('thrift.Int64'),
     MessageType: ts.createIdentifier('thrift.MessageType'),
     TApplicationException: ts.createIdentifier('thrift.TApplicationException'),
+    TApplicationExceptionCodec: ts.createIdentifier('thrift.TApplicationExceptionCodec'),
     TProtocolException: ts.createIdentifier('thrift.TProtocolException'),
     InputBufferUnderrunError: ts.createIdentifier('thrift.InputBufferUnderrunError'),
     StructLike: ts.createIdentifier('thrift.StructLike'),
