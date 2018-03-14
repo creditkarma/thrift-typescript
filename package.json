@@ -1,75 +1,64 @@
 {
-  "name": "@creditkarma/thrift-typescript",
-  "version": "1.1.4",
-  "description": "Generate TypeScript from Thrift IDL files",
-  "main": "./dist/main/index.js",
-  "types": "./dist/main/index.d.ts",
-  "bin": {
-    "thrift-typescript": "./dist/main/bin/index.js"
-  },
-  "files": [
-    "dist/main"
-  ],
-  "scripts": {
-    "clean": "rimraf ./coverage ./dist ./**/codegen",
-    "codegen": "ts-node ./src/main/bin/index.ts --sourceDir ./src/tests/integration/thrift --outDir ./src/tests/integration/apache/codegen",
-    "prebuild": "npm run clean && npm run codegen",
-    "build": "npm run lint && tsc",
-    "build:watch": "tsc --watch",
-    "lint": "tslint --fix src/**/*.ts",
-    "test": "npm run lint && npm run test:unit && npm run test:integration",
-    "posttest:cli": "rimraf ./output",
-    "test:unit": "NODE_ENV=test mocha --opts mocha.opts",
-    "pretest:integration": "rimraf ./**/codegen && npm run codegen",
-    "test:integration": "NODE_ENV=test mocha --opts mocha.integration.opts",
-    "coverage": "NODE_ENV=test nyc mocha --opts mocha.cover.opts",
-    "release:patch": "npm version patch && npm run release:publish",
-    "release:minor": "npm version minor && npm run release:publish",
-    "release:major": "npm version major && npm run release:publish",
-    "release:publish": "git push --follow-tags"
-  },
-  "keywords": [
-    "Thrift",
-    "TypeScript"
-  ],
-  "author": "Credit Karma",
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/creditkarma/thrift-typescript"
-  },
-  "dependencies": {
-    "@creditkarma/thrift-parser": "^1.0.2",
-    "glob": "^7.1.2",
-    "typescript": "~2.7.1"
-  },
-  "devDependencies": {
-    "@types/chai": "^3.4.34",
-    "@types/glob": "^5.0.33",
-    "@types/mocha": "^2.2.32",
-    "@types/node": "^8.0.32",
-    "@types/rimraf": "^0.0.28",
-    "@types/thrift": "^0.10.5",
-    "chai": "^3.5.0",
-    "mocha": "^2.5.3",
-    "nyc": "^11.1.0",
-    "rimraf": "^2.5.4",
-    "source-map-support": "^0.4.0",
-    "thrift": "^0.10.0",
-    "ts-node": "^3.3.0",
-    "tslint": "^5.3.2"
-  },
-  "nyc": {
-    "include": [
-      "src/*.ts",
-      "src/**/*.ts"
-    ],
-    "exclude": [
-      "src/tests/**"
-    ],
-    "extension": [
-      ".ts"
-    ],
-    "all": true
-  }
+    "name": "@creditkarma/thrift-typescript",
+    "version": "1.1.4",
+    "description": "Generate TypeScript from Thrift IDL files",
+    "main": "./dist/main/index.js",
+    "types": "./dist/main/index.d.ts",
+    "bin": {
+        "thrift-typescript": "./dist/main/bin/index.js"
+    },
+    "files": ["dist/main"],
+    "scripts": {
+        "clean": "rimraf ./coverage ./dist ./**/codegen",
+        "codegen":
+            "ts-node ./src/main/bin/index.ts --sourceDir ./src/tests/integration/thrift --outDir ./src/tests/integration/apache/codegen",
+        "prebuild": "npm run clean && npm run codegen",
+        "build": "npm run lint && tsc",
+        "build:watch": "tsc --watch",
+        "lint": "tslint --fix src/**/*.ts",
+        "test": "npm run lint && npm run test:unit && npm run test:integration",
+        "posttest:cli": "rimraf ./output",
+        "test:unit": "NODE_ENV=test mocha --opts mocha.opts",
+        "pretest:integration": "rimraf ./**/codegen && npm run codegen",
+        "test:integration": "NODE_ENV=test mocha --opts mocha.integration.opts",
+        "coverage": "NODE_ENV=test nyc mocha --opts mocha.cover.opts",
+        "release:patch": "npm version patch && npm run release:publish",
+        "release:minor": "npm version minor && npm run release:publish",
+        "release:major": "npm version major && npm run release:publish",
+        "release:publish": "git push --follow-tags"
+    },
+    "keywords": ["Thrift", "TypeScript"],
+    "author": "Credit Karma",
+    "license": "Apache-2.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/creditkarma/thrift-typescript"
+    },
+    "dependencies": {
+        "@creditkarma/thrift-parser": "^1.0.4",
+        "glob": "^7.1.2",
+        "typescript": "~2.7.1"
+    },
+    "devDependencies": {
+        "@types/chai": "^3.4.34",
+        "@types/glob": "^5.0.33",
+        "@types/mocha": "^2.2.32",
+        "@types/node": "^8.0.32",
+        "@types/rimraf": "^0.0.28",
+        "@types/thrift": "^0.10.5",
+        "chai": "^3.5.0",
+        "mocha": "^2.5.3",
+        "nyc": "^11.1.0",
+        "rimraf": "^2.5.4",
+        "source-map-support": "^0.4.0",
+        "thrift": "^0.10.0",
+        "ts-node": "^3.3.0",
+        "tslint": "^5.3.2"
+    },
+    "nyc": {
+        "include": ["src/*.ts", "src/**/*.ts"],
+        "exclude": ["src/tests/**"],
+        "extension": [".ts"],
+        "all": true
+    }
 }

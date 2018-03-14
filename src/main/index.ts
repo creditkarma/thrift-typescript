@@ -14,30 +14,17 @@ import {
     IThriftFile,
 } from './types'
 
-import {
-    print,
-} from './printer'
+import { print } from './printer'
 
-import {
-    resolveFile,
-} from './resolver'
+import { resolveFile } from './resolver'
 
-import {
-    validateFile,
-} from './validator'
+import { validateFile } from './validator'
 
-import {
-    generateFile,
-    processStatements,
-} from './generator'
+import { generateFile, processStatements } from './generator'
 
-import {
-    rendererForTarget,
-} from './render'
+import { rendererForTarget } from './render'
 
-import {
-    printErrors,
-} from './debugger'
+import { printErrors } from './debugger'
 
 import {
     collectInvalidFiles,
@@ -82,13 +69,14 @@ export function generate(options: IMakeOptions): void {
     const resolvedCache: IResolvedCache = {}
     const renderedCache: IRenderedCache = {}
 
-    const validatedFiles: Array<IResolvedFile> =
-        collectSourceFiles(sourceDir, options).map((next: string): IResolvedFile => {
-            const thriftFile: IThriftFile = readThriftFile(next, [ sourceDir ])
+    const validatedFiles: Array<IResolvedFile> = collectSourceFiles(sourceDir, options).map(
+        (next: string): IResolvedFile => {
+            const thriftFile: IThriftFile = readThriftFile(next, [sourceDir])
             const parsedFile: IParsedFile = parseFile(sourceDir, thriftFile, includeCache)
             const resolvedFile: IResolvedFile = resolveFile(parsedFile, resolvedCache)
             return validateFile(resolvedFile)
-        })
+        },
+    )
 
     const invalidFiles: Array<IResolvedFile> = collectInvalidFiles(validatedFiles)
 
@@ -96,17 +84,18 @@ export function generate(options: IMakeOptions): void {
         printErrors(invalidFiles)
         process.exitCode = 1
     } else {
-        const renderedFiles: Array<IRenderedFile> =
-            validatedFiles.map((next: IResolvedFile): IRenderedFile => {
+        const renderedFiles: Array<IRenderedFile> = validatedFiles.map(
+            (next: IResolvedFile): IRenderedFile => {
                 return generateFile(
-                rendererForTarget(options.target),
-                rootDir,
-                outDir,
-                sourceDir,
-                next,
-                renderedCache,
+                    rendererForTarget(options.target),
+                    rootDir,
+                    outDir,
+                    sourceDir,
+                    next,
+                    renderedCache,
                 )
-            })
+            },
+        )
 
         saveFiles(rootDir, outDir, renderedFiles)
     }
