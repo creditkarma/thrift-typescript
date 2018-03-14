@@ -1,17 +1,18 @@
 {
     "name": "@creditkarma/thrift-typescript",
-    "version": "1.1.4",
+    "version": "1.1.5-0",
     "description": "Generate TypeScript from Thrift IDL files",
     "main": "./dist/main/index.js",
     "types": "./dist/main/index.d.ts",
     "bin": {
         "thrift-typescript": "./dist/main/bin/index.js"
     },
-    "files": ["dist/main"],
+    "files": [
+        "dist/main"
+    ],
     "scripts": {
         "clean": "rimraf ./coverage ./dist ./**/codegen",
-        "codegen":
-            "ts-node ./src/main/bin/index.ts --sourceDir ./src/tests/integration/thrift --outDir ./src/tests/integration/apache/codegen",
+        "codegen": "ts-node ./src/main/bin/index.ts --sourceDir ./src/tests/integration/thrift --outDir ./src/tests/integration/apache/codegen",
         "prebuild": "npm run clean && npm run codegen",
         "build": "npm run lint && tsc",
         "build:watch": "tsc --watch",
@@ -27,7 +28,10 @@
         "release:major": "npm version major && npm run release:publish",
         "release:publish": "git push --follow-tags"
     },
-    "keywords": ["Thrift", "TypeScript"],
+    "keywords": [
+        "Thrift",
+        "TypeScript"
+    ],
     "author": "Credit Karma",
     "license": "Apache-2.0",
     "repository": {
@@ -56,9 +60,16 @@
         "tslint": "^5.3.2"
     },
     "nyc": {
-        "include": ["src/*.ts", "src/**/*.ts"],
-        "exclude": ["src/tests/**"],
-        "extension": [".ts"],
+        "include": [
+            "src/*.ts",
+            "src/**/*.ts"
+        ],
+        "exclude": [
+            "src/tests/**"
+        ],
+        "extension": [
+            ".ts"
+        ],
         "all": true
     }
 }
