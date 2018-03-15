@@ -55,13 +55,13 @@ import { generate } from '@creditkarma/thrift-typescript'
 
 // Generates TypeScript and saves to given outDir
 generate({
-  rootDir: '.',
-  sourceDir: 'thirft',
-  outDir: 'codegen',
-  target: 'apache',
-  files: [
-    'simple.thrift'
-  ]
+    rootDir: '.',
+    sourceDir: 'thirft',
+    outDir: 'codegen',
+    target: 'apache',
+    files: [
+        'simple.thrift'
+    ]
 })
 ```
 
@@ -86,6 +86,7 @@ Thrift Server adds Thrift support to Express or Hapi with plugins or middleware.
 Install the Thrift Server implementation for your server of choice. For this example we will be using express middleware and the request http client library.
 
 ```sh
+$ npm install --save @creditkarma/thrift-server-core
 $ npm install --save @creditkarma/thrift-server-express
 $ npm install --save @creditkarma/thrift-client
 $ npm install --save express
@@ -98,8 +99,8 @@ Given this service let's build a client and server based on our generated code.
 
 ```c
 service Caluculator {
-  i32 add(1: i32 left, 2: i32 right)
-  i32 subtract(1: i32 left, 2: i32 right)
+    i32 add(1: i32 left, 2: i32 right)
+    i32 subtract(1: i32 left, 2: i32 right)
 }
 ```
 
@@ -117,10 +118,8 @@ You'll notice that the Client class is a generic. The type parameter represents 
 
 ```typescript
 import {
-  createClient,
-  fromRequest,
-  RequestConnection,
-  RequestInstance,
+    createHttpClient,
+    HttpConnection,
 } from '@creditkarma/thrift-client'
 
 import * as request from 'request'
@@ -129,19 +128,17 @@ import { CoreOptions } from 'request'
 import { Calculator } from './codegen/calculator'
 
 const CONFIG = {
-  hostName: 'localhost',
-  port: 8045
+    hostName: 'localhost',
+    port: 8045
 }
 
-const requestClient: RequestInstance = request.defaults({})
-const connection: RequestConnection = fromRequest(requestClient, CONFIG)
-const client: Calculator.Client<CoreOptions> = new Calculator.Client(connection)
+const thriftClient: Calculator.Client<CoreOptions> = createHttpClient(Calculator.Client, CONFIG)
 
-client.add(5, 7, { headers: { 'X-Trace-Id': 'xxxxxx' } })
-  .then((response: number) => {
-    expect(response).to.equal(12)
-    done()
-  })
+thriftClient.add(5, 7, { headers: { 'X-Trace-Id': 'xxxxxx' } })
+    .then((response: number) => {
+        expect(response).to.equal(12)
+        done()
+    })
 ```
 
 #### Server
@@ -151,25 +148,25 @@ In the server we can then inspect the headers we set in the client.
 ```typescript
 import * as bodyParser from 'body-parser'
 import * as express from 'express'
-import { thriftExpress } from '@creditkarma/thrift-server-express'
+import { ThriftServerExpress } from '@creditkarma/thrift-server-express'
 
 import {
-  Calculator,
-  Operation,
-  Work,
+    Calculator,
+    Operation,
+    Work,
 } from './codegen/calculator'
 
 // express.Request is the context for each of the service handlers
 const serviceHandlers: Calculator.IHandler<express.Request> = {
-  add(left: number, right: number, context?: express.Request): number {
-    if (context && context.headers['x-trace-id']) {
-      // You can trace this request, perform auth, or use additional middleware to handle that.
-    }
-    return left + right
-  },
-  subtract(left: number, right: number, context?: express.Request): number {
-    return left - right;
-  },
+    add(left: number, right: number, context?: express.Request): number {
+        if (context && context.headers['x-trace-id']) {
+            // You can trace this request, perform auth, or use additional middleware to handle that.
+        }
+        return left + right
+    },
+    subtract(left: number, right: number, context?: express.Request): number {
+        return left - right;
+    },
 }
 
 const PORT = 8090
@@ -177,13 +174,13 @@ const PORT = 8090
 const app = express()
 
 app.use(
-  '/thrift',
-  bodyParser.raw(),
-  thriftExpress(Calculator.Processor, serviceHandlers),
+    '/thrift',
+    bodyParser.raw(),
+    ThriftServerExpress(Calculator.Processor, serviceHandlers),
 )
 
 app.listen(PORT, () => {
-  console.log(`Express server listening on port: ${PORT}`)
+    console.log(`Express server listening on port: ${PORT}`)
 })
 
 ```
@@ -201,8 +198,8 @@ Given this service let's build a client and server based on our generated code.
 
 ```c
 service Calculator {
-  i32 add(1: i32 left, 2: i32 right)
-  i32 subtract(1: i32 left, 2: i32 right)
+    i32 add(1: i32 left, 2: i32 right)
+    i32 subtract(1: i32 left, 2: i32 right)
 }
 ```
 
@@ -216,26 +213,26 @@ $ thrift-typescript --rootDir . --sourceDir thrift --outDir codegen
 
 ```typescript
 import {
-  createHttpConnection,
-  createHttpClient,
-  HttpConnection,
+    createHttpConnection,
+    createHttpClient,
+    HttpConnection,
 } from 'thrift'
 
 import { Calculator } from './codegen/calculator'
 
 // The location of the server endpoint
 const CONFIG = {
-  hostName: 'localhost',
-  port: 8045
+    hostName: 'localhost',
+    port: 8045
 }
 
 const options = {
-  transport: TBufferedTransport,
-  protocol: TBinaryProtocol,
-  https: false,
-  headers: {
-    Host: config.hostName,
-  }
+    transport: TBufferedTransport,
+    protocol: TBinaryProtocol,
+    https: false,
+    headers: {
+        Host: config.hostName,
+    }
 }
 
 const connection: HttpConnection = createHttpConnection(CONFIG.hostName, CONFIG.port, options)
@@ -243,7 +240,7 @@ const thriftClient: Calculator.Client = createHttpClient(Calculator.Client, conn
 
 // All client methods return a Promise of the expected result.
 thriftClient.add(5, 6).then((result: number) =>{
-  console.log(`result: ${result}`)
+    console.log(`result: ${result}`)
 })
 ```
 
@@ -251,43 +248,43 @@ thriftClient.add(5, 6).then((result: number) =>{
 
 ```typescript
 import {
-  createWebServer,
-  TBinaryProtocol,
-  TBufferedTransport,
+    createWebServer,
+    TBinaryProtocol,
+    TBufferedTransport,
 } from 'thrift'
 
 import { Calculator } from './codegen/calculator'
 
 // ServiceHandler: Implement the Calculator service
 const myServiceHandler = {
-  add(left: number, right: number): number {
-    return left + right;
-  },
-  subtract(left: number, right: number): number {
-    return left - right;
-  },
-};
+    add(left: number, right: number): number {
+        return left + right
+    },
+    subtract(left: number, right: number): number {
+        return left - right
+    },
+}
 
 // ServiceOptions: The I/O stack for the service
 const myServiceOpts = {
-  handler: myServiceHandler,
-  processor: Calculator,
-  protocol: TBinaryProtocol,
-  transport: TBufferedTransport
-};
+    handler: myServiceHandler,
+    processor: Calculator,
+    protocol: TBinaryProtocol,
+    transport: TBufferedTransport
+}
 
 // ServerOptions: Define server features
 const serverOpt = {
-   services: {
-      '/': myServiceOpts
-   }
+    services: {
+        '/': myServiceOpts
+    }
 }
 
 // Create and start the web server
 const port: number = 8045;
 createWebServer(serverOpt).listen(port, () => {
-  console.log(`Thrift server listening on port ${port}`)
-});
+    console.log(`Thrift server listening on port ${port}`)
+})
 ```
 
 ### Notes
@@ -296,13 +293,13 @@ The gererated code can be used with many of the more strict tsc compiler options
 
 ```json
 {
-  "compilerOptions": {
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "noUnusedLocals": true
-  }
+    "compilerOptions": {
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "noUnusedLocals": true
+    }
 }
 ```
 
