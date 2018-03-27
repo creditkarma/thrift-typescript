@@ -37,13 +37,16 @@ export interface IMakeOptions {
 
     // What core libs are you compiling for?
     target: CompileTarget
+
+    // Strict mode
+    strict: boolean
 }
 
 export interface IRenderer {
     renderIncludes(
         outPath: string,
-        includes: IRenderedFileMap,
-        resolvedFile: IResolvedFile): Array<ts.Statement>
+        currentPath: string,
+        resolvedFile: INamespaceFile): Array<ts.Statement>
     renderConst(
         statement: ConstDefinition,
         identifiers?: IIdentifierMap): Array<ts.Statement>
@@ -101,19 +104,24 @@ export interface IResolvedFile {
     name: string
     path: string
     source: string
-    namespace: IResolvedNamespace
+    namespace: INamespace
     includes: IResolvedIncludeMap
     identifiers: IIdentifierMap
     body: Array<ThriftStatement>
     errors: Array<IThriftError>
 }
 
+export interface INamespaceFile {
+    namespace: INamespace
+    includes: IResolvedIncludeMap
+    identifiers: IIdentifierMap
+    body: Array<ThriftStatement>
+}
+
 export interface IRenderedFile {
-    name: string
-    path: string
     outPath: string
-    namespace: IResolvedNamespace
-    includes: IRenderedFileMap
+    namespace: INamespace
+    // includes: IRenderedFileMap
     identifiers: IIdentifierMap
     statements: Array<ts.Statement>
 }
@@ -126,14 +134,18 @@ export interface IRenderedFileMap {
     [name: string]: IRenderedFile
 }
 
-export interface IResolvedNamespace {
+export interface INamespacedResolvedFiles {
+    [name: string]: Array<IResolvedFile>
+}
+
+export interface INamespace {
     scope: string
     name: string
     path: string
 }
 
-export interface IResolvedNamespaceMap {
-    [name: string]: IResolvedNamespace
+export interface INamespaceMap {
+    [name: string]: INamespace
 }
 
 export interface IResolvedInclude {

@@ -18,7 +18,7 @@ export const MyExceptionCodec: thrift.IStructCodec<MyException> = {
     encode(val: MyException, output: thrift.TProtocol): void {
         const obj = {
             message: val.message,
-            code: val.code != null ? val.code : 200
+            code: (val.code != null ? val.code : 200)
         };
         output.writeStructBegin("MyException");
         if (obj.message != null) {
@@ -73,7 +73,7 @@ export const MyExceptionCodec: thrift.IStructCodec<MyException> = {
         input.readStructEnd();
         return new MyException({
             message: _args.message,
-            code: _args.code != null ? _args.code : 200
+            code: (_args.code != null ? _args.code : 200)
         });
     }
 };

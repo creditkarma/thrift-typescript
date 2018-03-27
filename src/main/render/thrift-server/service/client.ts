@@ -45,7 +45,11 @@ import {
     renderValue
 } from '../../shared/values'
 
-export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
+import {
+    IIdentifierMap
+} from '../../../types'
+
+export function renderClient(node: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
     // private _requestId: number;
     const requestId: ts.PropertyDeclaration = createProtectedProperty(
         '_requestId',
@@ -133,7 +137,9 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
         ], true)
     )
 
-    const baseMethods: Array<ts.MethodDeclaration> = node.functions.map(createBaseMethodForDefinition)
+    const baseMethods: Array<ts.MethodDeclaration> = node.functions.map((func: FunctionDefinition) => {
+        return createBaseMethodForDefinition(func, identifiers)
+    })
 
     const heritage: Array<ts.HeritageClause> = (
         (node.extends !== null) ?
@@ -210,7 +216,7 @@ function createSuperCall(node: ServiceDefinition): Array<ts.Statement> {
 //         this.send_{{name}}( {{#args}}{{fieldName}}, {{/args}} )
 //     })
 // }
-function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclaration {
+function createBaseMethodForDefinition(def: FunctionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
     return ts.createMethod(
         undefined, // decorators
         [ ts.createToken(ts.SyntaxKind.PublicKeyword) ], // modifiers
@@ -219,7 +225,9 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
         undefined, // question token
         undefined, // type parameters
         [
-            ...def.fields.map(createParametersForField),
+            ...def.fields.map((field: FieldDefinition) => {
+                return createParametersForField(field, identifiers)
+            }),
             createFunctionParameter(
                 COMMON_IDENTIFIERS.context,
                 ContextType,
@@ -229,7 +237,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
         ], // parameters
         ts.createTypeReferenceNode(
             'Promise',
-            [ typeNodeForFieldType(def.returnType) ]
+            [ typeNodeForFieldType(def.returnType, identifiers) ]
         ), // return type
         ts.createBlock([
             createConstStatement(
@@ -600,14 +608,14 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
     }
 }
 
-function createParametersForField(field: FieldDefinition): ts.ParameterDeclaration {
+function createParametersForField(field: FieldDefinition, identifiers: IIdentifierMap): ts.ParameterDeclaration {
     const defaultValue = (field.defaultValue !== null) ?
         renderValue(field.fieldType, field.defaultValue) :
         undefined
 
     return createFunctionParameter(
         field.name.value,
-        typeNodeForFieldType(field.fieldType),
+        typeNodeForFieldType(field.fieldType, identifiers),
         defaultValue,
         (field.requiredness === 'optional'),
     )

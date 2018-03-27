@@ -122,7 +122,7 @@ export function createWriteForField(struct: InterfaceWithFields, field: FieldDef
     return ts.createIf(
         isFieldNull,
         thenWrite, // Then block
-        (elseThrow === undefined) ? undefined : ts.createBlock([elseThrow], true),
+        (elseThrow === undefined) ? undefined : ts.createBlock([ elseThrow ], true),
     )
 }
 
@@ -255,7 +255,7 @@ function forEach(
     const forEachParameters: Array<ts.ParameterDeclaration> = [
         createFunctionParameter(
             value,
-            typeNodeForFieldType(fieldType.valueType)
+            typeNodeForFieldType(fieldType.valueType, identifiers)
         )
     ]
 
@@ -268,7 +268,7 @@ function forEach(
         const key: ts.Identifier = ts.createUniqueName('key')
         forEachParameters.push(createFunctionParameter(
             key,
-            typeNodeForFieldType(fieldType.keyType)
+            typeNodeForFieldType(fieldType.keyType, identifiers)
         ))
 
         forEachStatements.unshift(...writeValueForField(struct, fieldType.keyType, key, identifiers))

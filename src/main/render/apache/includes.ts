@@ -2,10 +2,9 @@ import * as ts from 'typescript'
 import * as path from 'path'
 
 import {
-    IRenderedFileMap,
     IResolvedIncludeMap,
     IResolvedIdentifier,
-    IRenderedFile,
+    IResolvedFile,
 } from '../../types'
 
 /**
@@ -35,17 +34,18 @@ export function renderThriftImports(): ts.ImportDeclaration {
  * @param resolved A hash of include name to a list of ids used from this include
  */
 export function renderIncludes(
+    outPath: string,
     currentPath: string,
-    includes: IRenderedFileMap,
     resolved: IResolvedIncludeMap,
 ): Array<ts.ImportDeclaration> {
     const imports: Array<ts.ImportDeclaration> = []
 
     for (const name of Object.keys(resolved)) {
         const resolvedIncludes: Array<IResolvedIdentifier> = resolved[name].identifiers
-        const includeFile: IRenderedFile = includes[name]
+        const includeFile: IResolvedFile = resolved[name].file
 
         if (resolvedIncludes != null && includeFile != null) {
+            const includePath: string = path.resolve(outPath, includeFile.namespace.path, includeFile.namespace.name)
             imports.push(ts.createImportDeclaration(
                 undefined,
                 undefined,
@@ -64,9 +64,8 @@ export function renderIncludes(
                     `./${path.join(
                         path.relative(
                             path.dirname(currentPath),
-                            path.dirname(includeFile.outPath),
+                            path.dirname(includePath),
                         ),
-                        path.basename(includeFile.outPath, '.ts'),
                     )}`,
                 ),
             ))

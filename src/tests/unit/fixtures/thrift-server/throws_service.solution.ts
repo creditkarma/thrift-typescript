@@ -56,7 +56,7 @@ export const ServiceExceptionCodec: thrift.IStructCodec<ServiceException> = {
         });
     }
 };
-export namespace ChildService {
+export namespace MyService {
     export interface PegArgs {
         name: string;
     }
@@ -65,7 +65,7 @@ export namespace ChildService {
     }
     export const PegArgsCodec: thrift.IStructCodec<PegArgs> = {
         encode(val: PegArgs_Loose, output: thrift.TProtocol): void {
-            const obj: PegArgs = {
+            const obj = {
                 name: val.name
             };
             output.writeStructBegin("PegArgs");
@@ -126,7 +126,7 @@ export namespace ChildService {
     }
     export const PongArgsCodec: thrift.IStructCodec<PongArgs> = {
         encode(val: PongArgs_Loose, output: thrift.TProtocol): void {
-            const obj: PongArgs = {
+            const obj = {
                 name: val.name
             };
             output.writeStructBegin("PongArgs");
@@ -181,7 +181,7 @@ export namespace ChildService {
     }
     export const PegResultCodec: thrift.IStructCodec<PegResult> = {
         encode(val: PegResult_Loose, output: thrift.TProtocol): void {
-            const obj: PegResult = {
+            const obj = {
                 success: val.success,
                 exp: val.exp
             };
@@ -250,7 +250,7 @@ export namespace ChildService {
     }
     export const PongResultCodec: thrift.IStructCodec<PongResult> = {
         encode(val: PongResult_Loose, output: thrift.TProtocol): void {
-            const obj: PongResult = {
+            const obj = {
                 success: val.success
             };
             output.writeStructBegin("PongResult");

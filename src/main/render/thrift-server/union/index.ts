@@ -10,7 +10,7 @@ import {
 
 import {
     renderInterface,
-} from './interface'
+} from '../struct/interface'
 
 import {
     renderCodec,
@@ -18,7 +18,7 @@ import {
 
 export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
     return [
-        renderInterface(node),
+        ...renderInterface(node, identifiers),
         renderCodec(node, identifiers),
     ]
 }

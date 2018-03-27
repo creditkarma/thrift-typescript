@@ -1,16 +1,16 @@
 export interface User {
     name: string;
-    age?: number;
+    age?: thrift.Int64;
 }
 export interface User_Loose {
     name: string;
-    age?: number;
+    age?: number | thrift.Int64;
 }
 export const UserCodec: thrift.IStructCodec<User> = {
     encode(val: User_Loose, output: thrift.TProtocol): void {
-        const obj: User = {
+        const obj = {
             name: val.name,
-            age: val.age
+            age: (val.age != null ? (typeof val.age === "number" ? new thrift.Int64(val.age) : val.age) : new thrift.Int64(45))
         };
         output.writeStructBegin("User");
         if (obj.name != null) {
@@ -22,8 +22,8 @@ export const UserCodec: thrift.IStructCodec<User> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
         }
         if (obj.age != null) {
-            output.writeFieldBegin("age", thrift.TType.I32, 2);
-            output.writeI32(obj.age);
+            output.writeFieldBegin("age", thrift.TType.I64, 2);
+            output.writeI64(obj.age);
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -51,8 +51,8 @@ export const UserCodec: thrift.IStructCodec<User> = {
                     }
                     break;
                 case 2:
-                    if (fieldType === thrift.TType.I32) {
-                        const value_2: number = input.readI32();
+                    if (fieldType === thrift.TType.I64) {
+                        const value_2: thrift.Int64 = input.readI64();
                         _args.age = value_2;
                     }
                     else {
@@ -69,7 +69,7 @@ export const UserCodec: thrift.IStructCodec<User> = {
         if (_args.name !== undefined) {
             return {
                 name: _args.name,
-                age: _args.age
+                age: (_args.age != null ? _args.age : new thrift.Int64(45))
             };
         }
         else {

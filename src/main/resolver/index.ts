@@ -22,7 +22,7 @@ import {
     IResolvedFileMap,
     IResolvedIdentifier,
     IResolvedIncludeMap,
-    IResolvedNamespace,
+    INamespace,
     IResolvedCache,
 } from '../types'
 
@@ -90,7 +90,7 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
     if (cacheKey === '/' || !cache[cacheKey]) {
         const identifiers: IIdentifierMap = {}
         const resolvedIncludes: IResolvedIncludeMap = {}
-        const namespace: IResolvedNamespace = resolveNamespace(parsedFile.ast)
+        const namespace: INamespace = resolveNamespace(parsedFile.ast)
         const includes: Array<IResolvedFile> =
             parsedFile.includes.map((next: IParsedFile): IResolvedFile => {
                 return resolveFile(next)

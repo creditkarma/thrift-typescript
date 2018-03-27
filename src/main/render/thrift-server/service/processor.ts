@@ -105,7 +105,7 @@ export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifie
 
     const processMethod: ts.MethodDeclaration = createProcessMethod(node, identifiers)
     const processFunctions: Array<ts.MethodDeclaration> = node.functions.map((next: FunctionDefinition) => {
-        return createProcessFunctionMethod(node, next);
+        return createProcessFunctionMethod(node, next, identifiers);
     });
 
     const heritage: Array<ts.HeritageClause> = (
@@ -204,7 +204,11 @@ function createSuperCall(node: ServiceDefinition, identifiers: IIdentifierMap): 
 //         return output.flush()
 //     })
 // }
-function createProcessFunctionMethod(service: ServiceDefinition, funcDef: FunctionDefinition): ts.MethodDeclaration {
+function createProcessFunctionMethod(
+    service: ServiceDefinition,
+    funcDef: FunctionDefinition,
+    identifiers: IIdentifierMap
+): ts.MethodDeclaration {
     return createPublicMethod(
         `process_${funcDef.name.value}`,
         [
@@ -223,7 +227,7 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                 createMethodCall(
                     createMethodCall(
                         createPromise(
-                            typeNodeForFieldType(funcDef.returnType),
+                            typeNodeForFieldType(funcDef.returnType, identifiers),
                             createVoidType(),
                             [
                                 // try {
@@ -279,7 +283,7 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                                 [
                                     createFunctionParameter(
                                         ts.createIdentifier('data'),
-                                        typeNodeForFieldType(funcDef.returnType)
+                                        typeNodeForFieldType(funcDef.returnType, identifiers)
                                     )
                                 ],
                                 ts.createTypeReferenceNode(

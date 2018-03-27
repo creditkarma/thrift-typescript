@@ -17,11 +17,11 @@ import {
     Choice,
     FirstName,
     LastName,
-} from './codegen/calculator/calculator'
+} from './codegen/calculator'
 
 import {
     SharedStruct,
-} from './codegen/shared/shared'
+} from './codegen/shared'
 
 import { createServer } from './server'
 

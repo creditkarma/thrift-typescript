@@ -6,6 +6,7 @@ import {
     CompileTarget,
     IIncludeCache,
     IMakeOptions,
+    INamespaceFile,
     IParsedFile,
     IRenderedCache,
     IRenderedFile,
@@ -29,6 +30,9 @@ import { printErrors } from './debugger'
 import {
     collectInvalidFiles,
     collectSourceFiles,
+    dedupResolvedFiles,
+    flattenResolvedFile,
+    organizeByNamespace,
     parseFile,
     parseSource,
     readThriftFile,
@@ -72,23 +76,27 @@ export function generate(options: IMakeOptions): void {
     const resolvedCache: IResolvedCache = {}
     const renderedCache: IRenderedCache = {}
 
-    const validatedFiles: Array<IResolvedFile> = collectSourceFiles(sourceDir, options).map(
-        (next: string): IResolvedFile => {
+    const validatedFiles: Array<IResolvedFile> = collectSourceFiles(sourceDir, options).reduce(
+        (acc: Array<IResolvedFile>, next: string): Array<IResolvedFile> => {
             const thriftFile: IThriftFile = readThriftFile(next, [sourceDir])
             const parsedFile: IParsedFile = parseFile(sourceDir, thriftFile, includeCache)
             const resolvedFile: IResolvedFile = resolveFile(parsedFile, resolvedCache)
-            return validateFile(resolvedFile)
+            return acc.concat(flattenResolvedFile(resolvedFile).map(validateFile))
         },
+        [],
     )
 
-    const invalidFiles: Array<IResolvedFile> = collectInvalidFiles(validatedFiles)
+    const dedupedFiles: Array<IResolvedFile> = dedupResolvedFiles(validatedFiles)
+    const invalidFiles: Array<IResolvedFile> = collectInvalidFiles(dedupedFiles)
 
     if (invalidFiles.length > 0) {
         printErrors(invalidFiles)
         process.exitCode = 1
+
     } else {
-        const renderedFiles: Array<IRenderedFile> = validatedFiles.map(
-            (next: IResolvedFile): IRenderedFile => {
+        const namespaces: Array<INamespaceFile> = organizeByNamespace(outDir, dedupedFiles)
+        const renderedFiles: Array<IRenderedFile> = namespaces.map(
+            (next: INamespaceFile): IRenderedFile => {
                 return generateFile(
                     rendererForTarget(options.target),
                     rootDir,

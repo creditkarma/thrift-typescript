@@ -1,16 +1,17 @@
-export type MyUnion = {
-    field1: number;
-    field2?: undefined;
-} | {
-    field1?: undefined;
-    field2: number | thrift.Int64;
-};
+export interface MyUnion {
+    field1?: number;
+    field2?: thrift.Int64;
+}
+export interface MyUnion_Loose {
+    field1?: number;
+    field2?: number | thrift.Int64;
+}
 export const MyUnionCodec: thrift.IStructCodec<MyUnion> = {
-    encode(val: MyUnion, output: thrift.TProtocol): void {
+    encode(val: MyUnion_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
             field1: val.field1,
-            field2: val.field2
+            field2: (typeof val.field2 === "number" ? new thrift.Int64(val.field2) : val.field2)
         };
         output.writeStructBegin("MyUnion");
         if (obj.field1 != null) {
