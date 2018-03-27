@@ -1,7 +1,9 @@
-export type MyUnion = {
-};
+export interface MyUnion {
+}
+export interface MyUnion_Loose {
+}
 export const MyUnionCodec: thrift.IStructCodec<MyUnion> = {
-    encode(val: MyUnion, output: thrift.TProtocol): void {
+    encode(val: MyUnion_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         output.writeStructBegin("MyUnion");
         output.writeFieldStop();

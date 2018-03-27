@@ -84,8 +84,11 @@ export namespace MyService {
     export interface GetUserArgs {
         id: number;
     }
+    export interface GetUserArgs_Loose {
+        id: number;
+    }
     export const GetUserArgsCodec: thrift.IStructCodec<GetUserArgs> = {
-        encode(val: GetUserArgs, output: thrift.TProtocol): void {
+        encode(val: GetUserArgs_Loose, output: thrift.TProtocol): void {
             const obj = {
                 id: val.id
             };
@@ -141,8 +144,10 @@ export namespace MyService {
     };
     export interface PingArgs {
     }
+    export interface PingArgs_Loose {
+    }
     export const PingArgsCodec: thrift.IStructCodec<PingArgs> = {
-        encode(val: PingArgs, output: thrift.TProtocol): void {
+        encode(val: PingArgs_Loose, output: thrift.TProtocol): void {
             output.writeStructBegin("PingArgs");
             output.writeFieldStop();
             output.writeStructEnd();
@@ -171,8 +176,11 @@ export namespace MyService {
     export interface GetUserResult {
         success?: User;
     }
+    export interface GetUserResult_Loose {
+        success?: User_Loose;
+    }
     export const GetUserResultCodec: thrift.IStructCodec<GetUserResult> = {
-        encode(val: GetUserResult, output: thrift.TProtocol): void {
+        encode(val: GetUserResult_Loose, output: thrift.TProtocol): void {
             const obj = {
                 success: val.success
             };
@@ -221,8 +229,11 @@ export namespace MyService {
     export interface PingResult {
         success?: void;
     }
+    export interface PingResult_Loose {
+        success?: void;
+    }
     export const PingResultCodec: thrift.IStructCodec<PingResult> = {
-        encode(val: PingResult, output: thrift.TProtocol): void {
+        encode(val: PingResult_Loose, output: thrift.TProtocol): void {
             output.writeStructBegin("PingResult");
             output.writeFieldStop();
             output.writeStructEnd();

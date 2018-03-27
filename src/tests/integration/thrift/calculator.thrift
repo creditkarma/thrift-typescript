@@ -1,4 +1,4 @@
-include "shared.thrift"
+include "common/shared.thrift"
 include "operation.thrift"
 
 namespace cpp calculator

@@ -1,28 +1,29 @@
-export type Option = {
-    option1: string;
-    option2?: undefined;
-} | {
-    option1?: undefined;
-    option2: string;
-};
+export interface Option {
+    option1?: Buffer;
+    option2?: thrift.Int64;
+}
+export interface Option_Loose {
+    option1?: string | Buffer;
+    option2?: number | thrift.Int64;
+}
 export const OptionCodec: thrift.IStructCodec<Option> = {
-    encode(val: Option, output: thrift.TProtocol): void {
+    encode(val: Option_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
-            option1: val.option1,
-            option2: val.option2
+            option1: (typeof val.option1 === "string" ? Buffer.from(val.option1) : val.option1),
+            option2: (typeof val.option2 === "number" ? new thrift.Int64(val.option2) : val.option2)
         };
         output.writeStructBegin("Option");
         if (obj.option1 != null) {
             _fieldsSet++;
             output.writeFieldBegin("option1", thrift.TType.STRING, 1);
-            output.writeString(obj.option1);
+            output.writeBinary(obj.option1);
             output.writeFieldEnd();
         }
         if (obj.option2 != null) {
             _fieldsSet++;
-            output.writeFieldBegin("option2", thrift.TType.STRING, 2);
-            output.writeString(obj.option2);
+            output.writeFieldBegin("option2", thrift.TType.I64, 2);
+            output.writeI64(obj.option2);
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -50,7 +51,7 @@ export const OptionCodec: thrift.IStructCodec<Option> = {
                 case 1:
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
-                        const value_1: string = input.readString();
+                        const value_1: Buffer = input.readBinary();
                         _returnValue = { option1: value_1 };
                     }
                     else {
@@ -58,9 +59,9 @@ export const OptionCodec: thrift.IStructCodec<Option> = {
                     }
                     break;
                 case 2:
-                    if (fieldType === thrift.TType.STRING) {
+                    if (fieldType === thrift.TType.I64) {
                         _fieldsSet++;
-                        const value_2: string = input.readString();
+                        const value_2: thrift.Int64 = input.readI64();
                         _returnValue = { option2: value_2 };
                     }
                     else {
@@ -88,15 +89,16 @@ export const OptionCodec: thrift.IStructCodec<Option> = {
         }
     }
 };
-export type MyUnion = {
-    name: string;
-    option?: undefined;
-} | {
-    name?: undefined;
-    option: Option;
-};
+export interface MyUnion {
+    name?: string;
+    option?: Option;
+}
+export interface MyUnion_Loose {
+    name?: string;
+    option?: Option;
+}
 export const MyUnionCodec: thrift.IStructCodec<MyUnion> = {
-    encode(val: MyUnion, output: thrift.TProtocol): void {
+    encode(val: MyUnion_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
             name: val.name,

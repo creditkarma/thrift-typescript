@@ -37,10 +37,6 @@ import {
 } from '../utils'
 
 import {
-
-} from '../identifiers'
-
-import {
     IIdentifierMap,
     IResolvedIdentifier,
 } from '../../../types'
@@ -291,7 +287,7 @@ export function readValueForIdentifier(
                 // const field: type =
                 createConstStatement(
                     fieldName,
-                    typeNodeForFieldType(fieldType),
+                    typeNodeForFieldType(fieldType, identifiers),
                     ts.createCall(
                         ts.createPropertyAccess(
                             ts.createIdentifier(`${id.resolvedName}Codec`),
@@ -309,7 +305,7 @@ export function readValueForIdentifier(
             return [
                 createConstStatement(
                     fieldName,
-                    typeNodeForFieldType(fieldType),
+                    typeNodeForFieldType(fieldType, identifiers),
                     createMethodCall('input', READ_METHODS[SyntaxType.I32Keyword])
                 )
             ]
@@ -357,7 +353,7 @@ export function readValueForFieldType(
             return [
                 createConstStatement(
                     fieldName,
-                    typeNodeForFieldType(fieldType),
+                    typeNodeForFieldType(fieldType, identifiers),
                     createMethodCall('input', READ_METHODS[fieldType.type])
                 )
             ]
@@ -371,10 +367,13 @@ export function readValueForFieldType(
             return [
                 createConstStatement(
                     fieldName,
-                    typeNodeForFieldType(fieldType),
+                    typeNodeForFieldType(fieldType, identifiers),
                     ts.createNew(
                         COMMON_IDENTIFIERS.Map, // class name
-                        [ typeNodeForFieldType(fieldType.keyType), typeNodeForFieldType(fieldType.valueType) ],
+                        [
+                            typeNodeForFieldType(fieldType.keyType, identifiers),
+                            typeNodeForFieldType(fieldType.valueType, identifiers)
+                        ],
                         []
                     )
                 ),
@@ -385,10 +384,10 @@ export function readValueForFieldType(
             return [
                 createConstStatement(
                     fieldName,
-                    typeNodeForFieldType(fieldType),
+                    typeNodeForFieldType(fieldType, identifiers),
                     ts.createNew(
                         COMMON_IDENTIFIERS.Array, // class name
-                        [ typeNodeForFieldType(fieldType.valueType) ],
+                        [ typeNodeForFieldType(fieldType.valueType, identifiers) ],
                         []
                     )
                 ),
@@ -399,10 +398,10 @@ export function readValueForFieldType(
             return [
                 createConstStatement(
                     fieldName,
-                    typeNodeForFieldType(fieldType),
+                    typeNodeForFieldType(fieldType, identifiers),
                     ts.createNew(
                         COMMON_IDENTIFIERS.Set, // class name
-                        [ typeNodeForFieldType(fieldType.valueType) ],
+                        [ typeNodeForFieldType(fieldType.valueType, identifiers) ],
                         []
                     )
                 ),

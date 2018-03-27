@@ -7,7 +7,7 @@ export interface Code_Loose {
 export const CodeCodec: thrift.IStructCodec<Code> = {
     encode(val: Code_Loose, output: thrift.TProtocol): void {
         const obj = {
-            status: val.status
+            status: (typeof val.status === "number" ? new thrift.Int64(val.status) : val.status)
         };
         output.writeStructBegin("Code");
         if (obj.status != null) {
@@ -55,8 +55,11 @@ export namespace MyService {
     export interface PegArgs {
         name: string;
     }
+    export interface PegArgs_Loose {
+        name: string;
+    }
     export const PegArgsCodec: thrift.IStructCodec<PegArgs> = {
-        encode(val: PegArgs, output: thrift.TProtocol): void {
+        encode(val: PegArgs_Loose, output: thrift.TProtocol): void {
             const obj = {
                 name: val.name
             };
@@ -225,7 +228,7 @@ export namespace MyService {
     export const PongResultCodec: thrift.IStructCodec<PongResult> = {
         encode(val: PongResult_Loose, output: thrift.TProtocol): void {
             const obj = {
-                success: val.success
+                success: (typeof val.success === "number" ? new thrift.Int64(val.success) : val.success)
             };
             output.writeStructBegin("PongResult");
             if (obj.success != null) {

@@ -6,7 +6,7 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-    IResolvedFile,
+    INamespaceFile,
 } from '../../types'
 
 function constUsesThrift(statement: ConstDefinition): boolean {
@@ -43,7 +43,7 @@ function statementUsesThrift(statement: ThriftStatement): boolean {
     }
 }
 
-export function fileUsesThrift(resolvedFile: IResolvedFile): boolean {
+export function fileUsesThrift(resolvedFile: INamespaceFile): boolean {
     for (let i = 0; i < resolvedFile.body.length; i++) {
         if (statementUsesThrift(resolvedFile.body[i])) {
             return true

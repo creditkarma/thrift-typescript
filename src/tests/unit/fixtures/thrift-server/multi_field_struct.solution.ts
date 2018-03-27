@@ -14,12 +14,12 @@ export interface MyStruct_Loose {
 }
 export const MyStructCodec: thrift.IStructCodec<MyStruct> = {
     encode(val: MyStruct_Loose, output: thrift.TProtocol): void {
-        const obj: MyStruct = {
-            id: val.id != null ? val.id : 45,
-            bigID: val.bigID != null ? val.bigID : new thrift.Int64(23948234),
+        const obj = {
+            id: (val.id != null ? val.id : 45),
+            bigID: (val.bigID != null ? (typeof val.bigID === "number" ? new thrift.Int64(val.bigID) : val.bigID) : new thrift.Int64(23948234)),
             word: val.word,
             field1: val.field1,
-            blob: val.blob != null ? val.blob : Buffer.from("binary")
+            blob: (val.blob != null ? (typeof val.blob === "string" ? Buffer.from(val.blob) : val.blob) : Buffer.from("binary"))
         };
         output.writeStructBegin("MyStruct");
         if (obj.id != null) {
@@ -125,11 +125,11 @@ export const MyStructCodec: thrift.IStructCodec<MyStruct> = {
         input.readStructEnd();
         if (_args.id !== undefined && _args.bigID !== undefined && _args.word !== undefined) {
             return {
-                id: _args.id != null ? _args.id : 45,
-                bigID: _args.bigID != null ? _args.bigID : new thrift.Int64(23948234),
+                id: (_args.id != null ? _args.id : 45),
+                bigID: (_args.bigID != null ? _args.bigID : new thrift.Int64(23948234)),
                 word: _args.word,
                 field1: _args.field1,
-                blob: _args.blob != null ? _args.blob : Buffer.from("binary")
+                blob: (_args.blob != null ? _args.blob : Buffer.from("binary"))
             };
         }
         else {

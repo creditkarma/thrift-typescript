@@ -1,12 +1,12 @@
 import { ThriftDocument, ThriftStatement, NamespaceDefinition, SyntaxType } from '@creditkarma/thrift-parser'
 
-import { IResolvedNamespace, IResolvedNamespaceMap } from '../types'
+import { INamespace, INamespaceMap } from '../types'
 
 function createPathForNamespace(ns: string): string {
     return ns.split('.').join('/')
 }
 
-function emptyNamespace(): IResolvedNamespace {
+function emptyNamespace(): INamespace {
     return {
         scope: '',
         name: '',
@@ -21,7 +21,7 @@ function emptyNamespace(): IResolvedNamespace {
  *
  * @param namespaces
  */
-function getNamesapce(namespaces: IResolvedNamespaceMap): IResolvedNamespace {
+function getNamesapce(namespaces: INamespaceMap): INamespace {
     return namespaces.js != null
         ? namespaces.js
         : namespaces.java != null ? namespaces.java : emptyNamespace()
@@ -32,7 +32,7 @@ function getNamesapce(namespaces: IResolvedNamespaceMap): IResolvedNamespace {
  *
  * @param thrift
  */
-export function resolveNamespace(thrift: ThriftDocument): IResolvedNamespace {
+export function resolveNamespace(thrift: ThriftDocument): INamespace {
     const statements: Array<NamespaceDefinition> = thrift.body.filter(
         (next: ThriftStatement): next is NamespaceDefinition => {
             return next.type === SyntaxType.NamespaceDefinition
@@ -41,7 +41,7 @@ export function resolveNamespace(thrift: ThriftDocument): IResolvedNamespace {
 
     return getNamesapce(
         statements.reduce(
-            (acc: IResolvedNamespaceMap, next: NamespaceDefinition) => {
+            (acc: INamespaceMap, next: NamespaceDefinition) => {
                 acc[next.scope.value] = {
                     scope: next.scope.value,
                     name: next.name.value,
@@ -49,7 +49,7 @@ export function resolveNamespace(thrift: ThriftDocument): IResolvedNamespace {
                 }
                 return acc
             },
-            {} as IResolvedNamespaceMap
+            {} as INamespaceMap
         )
     )
 }

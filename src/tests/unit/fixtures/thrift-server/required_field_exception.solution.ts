@@ -1,16 +1,16 @@
 export class MyException extends Error {
-    public message: string;
+    public description: string;
     public code?: number;
     constructor(args: {
-        message: string;
+        description: string;
         code?: number;
     }) {
         super();
-        if (args != null && args.message != null) {
-            this.message = args.message;
+        if (args != null && args.description != null) {
+            this.description = args.description;
         }
         else {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[message] is unset!");
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[description] is unset!");
         }
         if (args != null && args.code != null) {
             this.code = args.code;
@@ -20,17 +20,17 @@ export class MyException extends Error {
 export const MyExceptionCodec: thrift.IStructCodec<MyException> = {
     encode(val: MyException, output: thrift.TProtocol): void {
         const obj = {
-            message: val.message,
+            description: val.description,
             code: val.code
         };
         output.writeStructBegin("MyException");
-        if (obj.message != null) {
-            output.writeFieldBegin("message", thrift.TType.STRING, 1);
-            output.writeString(obj.message);
+        if (obj.description != null) {
+            output.writeFieldBegin("description", thrift.TType.STRING, 1);
+            output.writeString(obj.description);
             output.writeFieldEnd();
         }
         else {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[message] is unset!");
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[description] is unset!");
         }
         if (obj.code != null) {
             output.writeFieldBegin("code", thrift.TType.I32, 2);
@@ -55,7 +55,7 @@ export const MyExceptionCodec: thrift.IStructCodec<MyException> = {
                 case 1:
                     if (fieldType === thrift.TType.STRING) {
                         const value_1: string = input.readString();
-                        _args.message = value_1;
+                        _args.description = value_1;
                     }
                     else {
                         input.skip(fieldType);
@@ -77,9 +77,9 @@ export const MyExceptionCodec: thrift.IStructCodec<MyException> = {
             input.readFieldEnd();
         }
         input.readStructEnd();
-        if (_args.message !== undefined) {
+        if (_args.description !== undefined) {
             return new MyException({
-                message: _args.message,
+                description: _args.description,
                 code: _args.code
             });
         }

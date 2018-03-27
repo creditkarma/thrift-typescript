@@ -69,7 +69,7 @@ export function createEncodeMethod(union: UnionDefinition, identifiers: IIdentif
             createFunctionParameter(
                 COMMON_IDENTIFIERS.val,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(union.name.value),
+                    ts.createIdentifier(`${union.name.value}_Loose`),
                     undefined,
                 ),
             ),
@@ -84,7 +84,7 @@ export function createEncodeMethod(union: UnionDefinition, identifiers: IIdentif
         createVoidType(),
         ts.createBlock([
             createFieldIncrementer(),
-            ...createTempVariables(union),
+            ...createTempVariables(union, identifiers),
             writeStructBegin(union.name.value),
             ...union.fields.filter(isNotVoid).map((field) => {
                 return createWriteForField(union, field, identifiers)
@@ -252,7 +252,7 @@ function forEach(
     const forEachParameters: Array<ts.ParameterDeclaration> = [
         createFunctionParameter(
             value,
-            typeNodeForFieldType(fieldType.valueType)
+            typeNodeForFieldType(fieldType.valueType, identifiers)
         )
     ]
 
@@ -265,7 +265,7 @@ function forEach(
         const key: ts.Identifier = ts.createUniqueName('key')
         forEachParameters.push(createFunctionParameter(
             key,
-            typeNodeForFieldType(fieldType.keyType)
+            typeNodeForFieldType(fieldType.keyType, identifiers)
         ))
 
         forEachStatements.unshift(...writeValueForField(union, fieldType.keyType, key, identifiers))

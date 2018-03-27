@@ -44,7 +44,7 @@ import {
     IResolvedIdentifier,
 } from '../../../types'
 
-export function createTempVariables(struct: InterfaceWithFields): Array<ts.VariableStatement> {
+export function createTempVariables(struct: InterfaceWithFields, identifiers: IIdentifierMap): Array<ts.VariableStatement> {
     const structFields: Array<FieldDefinition> = struct.fields.filter((next: FieldDefinition): boolean => {
         return next.fieldType.type !== SyntaxType.VoidKeyword
     })
@@ -52,12 +52,12 @@ export function createTempVariables(struct: InterfaceWithFields): Array<ts.Varia
     if (structFields.length > 0) {
         return [ createConstStatement(
             COMMON_IDENTIFIERS.obj,
-            ts.createTypeReferenceNode(struct.name.value, undefined),
+            undefined,
             ts.createObjectLiteral(
                 struct.fields.map((next: FieldDefinition): ts.ObjectLiteralElementLike => {
                     return ts.createPropertyAssignment(
                         next.name.value,
-                        getInitializerForField('val', next),
+                        getInitializerForField('val', next, true),
                     )
                 }),
                 true // multiline
@@ -69,7 +69,7 @@ export function createTempVariables(struct: InterfaceWithFields): Array<ts.Varia
 }
 
 export function createEncodeMethod(struct: InterfaceWithFields, identifiers: IIdentifierMap): ts.MethodDeclaration {
-    const tempVariables: Array<ts.VariableStatement> = createTempVariables(struct)
+    const tempVariables: Array<ts.VariableStatement> = createTempVariables(struct, identifiers)
 
     return ts.createMethod(
         undefined,
@@ -303,7 +303,7 @@ function forEach(
     const forEachParameters: Array<ts.ParameterDeclaration> = [
         createFunctionParameter(
             value,
-            typeNodeForFieldType(fieldType.valueType)
+            typeNodeForFieldType(fieldType.valueType, identifiers)
         )
     ]
 
@@ -316,7 +316,7 @@ function forEach(
         const key: ts.Identifier = ts.createUniqueName('key')
         forEachParameters.push(createFunctionParameter(
             key,
-            typeNodeForFieldType(fieldType.keyType)
+            typeNodeForFieldType(fieldType.keyType, identifiers)
         ))
 
         forEachStatements.unshift(...writeValueForField(struct, fieldType.keyType, key, identifiers))

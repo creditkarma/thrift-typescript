@@ -38,22 +38,21 @@ import {
 import {
     IIdentifierMap,
     IRenderer,
-    IRenderedFileMap,
-    IResolvedFile,
+    INamespaceFile,
 } from '../../types'
 import { typeNodeForFieldType } from './types';
 
 export function renderIncludes(
     outPath: string,
-    includes: IRenderedFileMap,
-    resolvedFile: IResolvedFile): Array<ts.Statement> {
+    currentPath: string,
+    resolvedFile: INamespaceFile): Array<ts.Statement> {
     if (fileUsesThrift(resolvedFile)) {
         return [
             renderThriftImports(),
-            ..._renderIncludes(outPath, includes, resolvedFile.includes),
+            ..._renderIncludes(outPath, currentPath, resolvedFile.includes),
         ]
     } else {
-        return _renderIncludes(outPath, includes, resolvedFile.includes)
+        return _renderIncludes(outPath, currentPath, resolvedFile.includes)
     }
 }
 

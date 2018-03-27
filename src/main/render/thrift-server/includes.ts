@@ -10,11 +10,10 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-    IRenderedFileMap,
     IResolvedIdentifier,
-    IRenderedFile,
-    IResolvedFile,
+    INamespaceFile,
     DefinitionType,
+    IResolvedFile,
 } from '../../types'
 
 /**
@@ -116,7 +115,7 @@ function statementsUseName(statements: Array<ThriftStatement>, name: string): bo
  * 1. if struct is used as a fieldType in another struct (union or exception),
  * 2. if the struct is used in a service method (as a field or exception)
  */
-export function shouldImportCodec(def: DefinitionType, resolvedName: string, file: IResolvedFile): boolean {
+export function shouldImportCodec(def: DefinitionType, resolvedName: string, file: INamespaceFile): boolean {
     switch (def.type) {
         case SyntaxType.ExceptionDefinition:
         case SyntaxType.UnionDefinition:
@@ -133,7 +132,7 @@ interface IImportSpecifier {
     localName: string
 }
 
-function createImportsForFile(resolvedFile: IResolvedFile, includes: Array<IResolvedIdentifier>): Array<IImportSpecifier> {
+function createImportsForFile(file: INamespaceFile, includes: Array<IResolvedIdentifier>): Array<IImportSpecifier> {
     return includes.reduce((acc: Array<IImportSpecifier>, next: IResolvedIdentifier) => {
         acc.push({
             remoteName: next.name,
@@ -144,7 +143,7 @@ function createImportsForFile(resolvedFile: IResolvedFile, includes: Array<IReso
          * In the event of a struct-like object we may need to include the codec for encoding/decoding the
          * object. We need to analyize the contents of this file to determine if the codec is needed.
          */
-        if (shouldImportCodec(next.definition, next.resolvedName, resolvedFile)) {
+        if (shouldImportCodec(next.definition, next.resolvedName, file)) {
             acc.push({
                 remoteName: `${next.name}Codec`,
                 localName: `${next.resolvedName}Codec`,
@@ -164,17 +163,18 @@ function createImportsForFile(resolvedFile: IResolvedFile, includes: Array<IReso
  * @param resolved A hash of include name to a list of ids used from this include
  */
 export function renderIncludes(
+    outPath: string,
     currentPath: string,
-    includes: IRenderedFileMap,
-    resolvedFile: IResolvedFile,
+    resolvedFile: INamespaceFile,
 ): Array<ts.ImportDeclaration> {
     const imports: Array<ts.ImportDeclaration> = []
     for (const name of Object.keys(resolvedFile.includes)) {
         const resolvedIncludes: Array<IResolvedIdentifier> = resolvedFile.includes[name].identifiers
         const includeSpecifiers: Array<IImportSpecifier> = createImportsForFile(resolvedFile, resolvedIncludes)
-        const includeFile: IRenderedFile = includes[name]
+        const includeFile: IResolvedFile = resolvedFile.includes[name].file
 
-        if (resolvedIncludes != null && includeFile != null) {
+        if (resolvedIncludes != null && resolvedFile != null) {
+            const includePath: string = path.resolve(outPath, includeFile.namespace.path, includeFile.namespace.name)
             imports.push(ts.createImportDeclaration(
                 undefined,
                 undefined,
@@ -193,9 +193,8 @@ export function renderIncludes(
                     `./${path.join(
                         path.relative(
                             path.dirname(currentPath),
-                            path.dirname(includeFile.outPath),
+                            path.dirname(includePath),
                         ),
-                        path.basename(includeFile.outPath, '.ts'),
                     )}`,
                 ),
             ))

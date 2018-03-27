@@ -10,6 +10,10 @@ import {
     typeNodeForFieldType,
 } from '../types'
 
+import {
+    IIdentifierMap,
+} from '../../../types'
+
 export function renderOptional(field: FieldDefinition, loose: boolean = false): ts.Token<ts.SyntaxKind.QuestionToken> | undefined {
     if (
         field.requiredness !== 'required' ||
@@ -21,13 +25,13 @@ export function renderOptional(field: FieldDefinition, loose: boolean = false): 
     }
 }
 
-function strictInterface(node: InterfaceWithFields): ts.InterfaceDeclaration {
+function strictInterface(node: InterfaceWithFields, identifiers: IIdentifierMap): ts.InterfaceDeclaration {
     const signatures = node.fields.map((field: FieldDefinition) => {
         return ts.createPropertySignature(
             undefined,
             field.name.value,
             renderOptional(field),
-            typeNodeForFieldType(field.fieldType),
+            typeNodeForFieldType(field.fieldType, identifiers),
             undefined,
         )
     })
@@ -45,19 +49,20 @@ function strictInterface(node: InterfaceWithFields): ts.InterfaceDeclaration {
 function looseNameForStruct(node: InterfaceWithFields): string {
     switch (node.type) {
         case SyntaxType.StructDefinition:
+        case SyntaxType.UnionDefinition:
             return `${node.name.value}_Loose`
         default:
             return node.name.value
     }
 }
 
-function looseInterface(node: InterfaceWithFields): ts.InterfaceDeclaration {
+function looseInterface(node: InterfaceWithFields, identifiers: IIdentifierMap): ts.InterfaceDeclaration {
     const signatures = node.fields.map((field: FieldDefinition) => {
         return ts.createPropertySignature(
             undefined,
             field.name.value,
             renderOptional(field, true),
-            typeNodeForFieldType(field.fieldType, true),
+            typeNodeForFieldType(field.fieldType, identifiers, true),
             undefined,
         )
     })
@@ -81,18 +86,22 @@ function looseInterface(node: InterfaceWithFields): ts.InterfaceDeclaration {
  * // thrift
  * stuct MyStruct {
  *   1: required i32 id,
- *   2: optional bool field1,
+ *   2: optional i64 field1,
  * }
  *
  * // typescript
- * export interface IMyStructArgs {
+ * export interface MyStruct {
  *   id: number;
- *   field1?: boolean
+ *   field1?: thrift.Int64
+ * }
+ * export interface MyStruct_Loose {
+ *   id: number;
+ *   field1?: number | thrift.Int64
  * }
  */
-export function renderInterface(node: InterfaceWithFields): Array<ts.InterfaceDeclaration> {
+export function renderInterface(node: InterfaceWithFields, identifiers: IIdentifierMap): Array<ts.InterfaceDeclaration> {
     return [
-        strictInterface(node),
-        looseInterface(node),
+        strictInterface(node, identifiers),
+        looseInterface(node, identifiers),
     ]
 }

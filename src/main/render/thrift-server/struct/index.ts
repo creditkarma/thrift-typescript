@@ -18,7 +18,7 @@ import {
 
 export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifierMap): Array<ts.Statement> {
     return [
-        ...renderInterface(node),
+        ...renderInterface(node, identifiers),
         renderCodec(node, identifiers),
     ]
 }

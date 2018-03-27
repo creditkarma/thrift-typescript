@@ -46,7 +46,7 @@ export function renderException(exp: ExceptionDefinition, identifiers: IIdentifi
 }
 
 export function renderClass(exp: ExceptionDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
-    const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(exp)
+    const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(exp, identifiers)
 
     /**
      * After creating the properties on our class for the struct fields we must create
@@ -63,7 +63,7 @@ export function renderClass(exp: ExceptionDefinition, identifiers: IIdentifierMa
      */
     const fieldAssignments: Array<ts.IfStatement> = exp.fields.map(createFieldAssignment)
 
-    const argsParameter: ts.ParameterDeclaration = createArgsParameterForException(exp)
+    const argsParameter: ts.ParameterDeclaration = createArgsParameterForException(exp, identifiers)
 
     // Build the constructor body
     const ctor: ts.ConstructorDeclaration = createClassConstructor(
@@ -104,8 +104,10 @@ export function renderClass(exp: ExceptionDefinition, identifiers: IIdentifierMa
     )
 }
 
-export function createFieldsForStruct(node: InterfaceWithFields): Array<ts.PropertyDeclaration> {
-    return node.fields.map(renderFieldDeclarations)
+export function createFieldsForStruct(node: InterfaceWithFields, identifiers: IIdentifierMap): Array<ts.PropertyDeclaration> {
+    return node.fields.map((field: FieldDefinition) => {
+        return renderFieldDeclarations(field, identifiers)
+    })
 }
 
 /**
@@ -127,7 +129,7 @@ export function createFieldsForStruct(node: InterfaceWithFields): Array<ts.Prope
  *   ...
  * }
  */
-function renderFieldDeclarations(field: FieldDefinition): ts.PropertyDeclaration {
+function renderFieldDeclarations(field: FieldDefinition, identifiers: IIdentifierMap): ts.PropertyDeclaration {
     let defaultValue: ts.Expression | undefined = (
         (field.defaultValue !== null) ?
             renderValue(field.fieldType, field.defaultValue) :
@@ -147,7 +149,7 @@ function renderFieldDeclarations(field: FieldDefinition): ts.PropertyDeclaration
                 undefined :
                 ts.createToken(ts.SyntaxKind.QuestionToken)
         ),
-        typeNodeForFieldType(field.fieldType),
+        typeNodeForFieldType(field.fieldType, identifiers, true),
         defaultValue
     )
 }
@@ -195,6 +197,34 @@ export function assignmentForField(field: FieldDefinition): ts.Statement {
                 )
             ], true)
         )
+
+    } else if (field.fieldType.type === SyntaxType.BinaryKeyword) {
+        return ts.createIf(
+            ts.createBinary(
+                ts.createTypeOf(ts.createIdentifier(`args.${field.name.value}`)),
+                ts.SyntaxKind.EqualsEqualsEqualsToken,
+                ts.createLiteral('string')
+            ),
+            ts.createBlock([
+                createAssignmentStatement(
+                    propertyAccessForIdentifier('this', field.name.value),
+                    ts.createCall(
+                        ts.createIdentifier('Buffer.from'),
+                        undefined,
+                        [
+                            ts.createIdentifier(`args.${field.name.value}`)
+                        ]
+                    )
+                )
+            ], true),
+            ts.createBlock([
+                createAssignmentStatement(
+                    propertyAccessForIdentifier('this', field.name.value),
+                    propertyAccessForIdentifier('args', field.name.value)
+                )
+            ], true)
+        )
+
     } else {
         return createAssignmentStatement(
             propertyAccessForIdentifier('this', field.name.value),
@@ -247,28 +277,28 @@ export function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
 
     return ts.createIf(
         comparison,
-        ts.createBlock([thenAssign], true),
-        (elseThrow === undefined) ? undefined : ts.createBlock([elseThrow], true),
+        ts.createBlock([ thenAssign ], true),
+        (elseThrow === undefined) ? undefined : ts.createBlock([ elseThrow ], true),
     )
 }
 
-function createArgsParameterForException(exp: ExceptionDefinition): ts.ParameterDeclaration {
+function createArgsParameterForException(exp: ExceptionDefinition, identifiers: IIdentifierMap): ts.ParameterDeclaration {
     return createFunctionParameter(
         'args', // param name
-        createArgsTypeForException(exp), // param type
+        createArgsTypeForException(exp, identifiers), // param type
         undefined, // initializer
         !hasRequiredField(exp) // optional?
     )
 }
 
-function createArgsTypeForException(exp: ExceptionDefinition): ts.TypeNode {
+function createArgsTypeForException(exp: ExceptionDefinition, identifiers: IIdentifierMap): ts.TypeNode {
     return ts.createTypeLiteralNode(
         exp.fields.map((field: FieldDefinition): ts.TypeElement => {
             return ts.createPropertySignature(
                 undefined,
                 field.name.value,
                 renderOptional(field.requiredness),
-                typeNodeForFieldType(field.fieldType, true),
+                typeNodeForFieldType(field.fieldType, identifiers, true),
                 undefined,
             )
         })
