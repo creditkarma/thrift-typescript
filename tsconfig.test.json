@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+      "target": "es6",
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "sourceMap": true,
+      "declaration": true,
+      "rootDir": "./src",
+      "outDir": "./dist",
+      "noEmitOnError": true,
+      "strict": true,
+      "noUnusedLocals": true,
+      "pretty": true,
+      "removeComments": true
+    },
+    "exclude": [
+      "node_modules",
+      "src/tests/unit/fixtures",
+      "dist"
+    ]
+  }

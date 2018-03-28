@@ -1,4 +1,5 @@
 import { assert } from 'chai'
+import * as net from 'net'
 
 import {
     HttpConnection,
@@ -22,7 +23,7 @@ import {
     SharedStruct,
 } from './codegen/shared/shared'
 
-import './server'
+import { createServer } from './server'
 
 import {
     SERVER_CONFIG
@@ -39,6 +40,7 @@ describe('Thrift TypeScript', () => {
     }
     const connection: HttpConnection = createHttpConnection(SERVER_CONFIG.hostName, SERVER_CONFIG.port, options)
     const thriftClient: Calculator.Client = createHttpClient(Calculator.Client, connection)
+    let server: net.Server
 
     connection.on('error', (err: Error) => {
         process.exit(1)
@@ -46,7 +48,15 @@ describe('Thrift TypeScript', () => {
 
     // Allow servers to spin up
     before((done) => {
-        setTimeout(done, 5000)
+        server = createServer().listen(SERVER_CONFIG.port, () => {
+            console.log(`Thrift server listening at http://${SERVER_CONFIG.hostName}:${SERVER_CONFIG.port}`)
+            done()
+        });
+    })
+
+    after((done) => {
+        server.close()
+        done()
     })
 
     it('should call an endpoint with no arguments', async () => {
