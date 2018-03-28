@@ -15,7 +15,7 @@
   },
   "exclude": [
     "node_modules",
-    "src/tests/unit/fixtures",
+    "src/tests/",
     "dist"
   ]
 }
