@@ -207,7 +207,9 @@ export function thriftTypeForFieldType(fieldType: FunctionType, identifiers: IId
 function typeNameForIdentifier(fieldType: Identifier, id: IResolvedIdentifier): string {
     switch (id.definition.type) {
         case SyntaxType.StructDefinition:
+        case SyntaxType.UnionDefinition:
             return `${fieldType.value}_Loose`
+
         default:
             return fieldType.value
     }

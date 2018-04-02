@@ -1,11 +1,17 @@
-export interface Option {
-    option1?: Buffer;
-    option2?: thrift.Int64;
-}
-export interface Option_Loose {
-    option1?: string | Buffer;
-    option2?: number | thrift.Int64;
-}
+export type Option = {
+    option1: Buffer;
+    option2?: undefined;
+} | {
+    option1?: undefined;
+    option2: thrift.Int64;
+};
+export type Option_Loose = {
+    option1: string | Buffer;
+    option2?: undefined;
+} | {
+    option1?: undefined;
+    option2: number | thrift.Int64;
+};
 export const OptionCodec: thrift.IStructCodec<Option> = {
     encode(val: Option_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
@@ -89,14 +95,20 @@ export const OptionCodec: thrift.IStructCodec<Option> = {
         }
     }
 };
-export interface MyUnion {
-    name?: string;
-    option?: Option;
-}
-export interface MyUnion_Loose {
-    name?: string;
-    option?: Option_Loose;
-}
+export type MyUnion = {
+    name: string;
+    option?: undefined;
+} | {
+    name?: undefined;
+    option: Option;
+};
+export type MyUnion_Loose = {
+    name: string;
+    option?: undefined;
+} | {
+    name?: undefined;
+    option: Option_Loose;
+};
 export const MyUnionCodec: thrift.IStructCodec<MyUnion> = {
     encode(val: MyUnion_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
