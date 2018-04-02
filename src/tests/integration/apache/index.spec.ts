@@ -23,10 +23,12 @@ import {
     SharedStruct,
 } from './codegen/shared'
 
-import { createServer } from './server'
+import { createCalculatorServer } from './calculator-service'
+import { createAddServer } from './add-service'
 
 import {
-    SERVER_CONFIG
+    CALC_SERVER_CONFIG,
+    ADD_SERVER_CONFIG,
 } from './config'
 
 describe('Thrift TypeScript', () => {
@@ -35,12 +37,13 @@ describe('Thrift TypeScript', () => {
         protocol: TBinaryProtocol,
         https: false,
         headers: {
-            Host: SERVER_CONFIG.hostName,
+            Host: CALC_SERVER_CONFIG.hostName,
         }
     }
-    const connection: HttpConnection = createHttpConnection(SERVER_CONFIG.hostName, SERVER_CONFIG.port, options)
+    const connection: HttpConnection = createHttpConnection(CALC_SERVER_CONFIG.hostName, CALC_SERVER_CONFIG.port, options)
     const thriftClient: Calculator.Client = createHttpClient(Calculator.Client, connection)
-    let server: net.Server
+    let calcService: net.Server
+    let addService: net.Server
 
     connection.on('error', (err: Error) => {
         process.exit(1)
@@ -48,14 +51,17 @@ describe('Thrift TypeScript', () => {
 
     // Allow servers to spin up
     before((done) => {
-        server = createServer().listen(SERVER_CONFIG.port, () => {
-            console.log(`Thrift server listening at http://${SERVER_CONFIG.hostName}:${SERVER_CONFIG.port}`)
+        addService = createAddServer().listen(ADD_SERVER_CONFIG.port, () => {
+            calcService = createCalculatorServer().listen(CALC_SERVER_CONFIG.port, () => {
+                console.log(`Thrift server listening at http://${CALC_SERVER_CONFIG.hostName}:${CALC_SERVER_CONFIG.port}`)
             done()
+            })
         });
     })
 
     after((done) => {
-        server.close()
+        calcService.close()
+        addService.close()
         done()
     })
 
@@ -104,7 +110,7 @@ describe('Thrift TypeScript', () => {
         const left: Int64 = new Int64(5)
         const right: Int64 = new Int64(3)
 
-        return thriftClient.add(left, right).then((val: Int64) => {
+        return thriftClient.addInt64(left, right).then((val: Int64) => {
             assert.equal(val.toNumber(), 8)
         })
     })
