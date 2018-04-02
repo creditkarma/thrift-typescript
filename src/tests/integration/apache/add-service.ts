@@ -1,0 +1,43 @@
+import {
+    createWebServer,
+    TBinaryProtocol,
+    TBufferedTransport,
+    Int64,
+} from 'thrift'
+
+import {
+    AddService,
+} from './codegen/calculator'
+
+import { Server } from 'net'
+
+export function createAddServer(): Server {
+    // ServiceHandler: Implement the hello service
+    const myServiceHandler: AddService.IHandler = {
+        ping(): void {},
+        add(a: number, b: number): number {
+            return a + b
+        },
+        addInt64(a: Int64, b: Int64): Int64 {
+            return new Int64(a.toNumber() + b.toNumber())
+        },
+    };
+
+    // ServiceOptions: The I/O stack for the service
+    const myServiceOpts = {
+        handler: myServiceHandler,
+        processor: AddService,
+        protocol: TBinaryProtocol,
+        transport: TBufferedTransport
+    };
+
+    // ServerOptions: Define server features
+    const serverOpt = {
+        services: {
+            '/': myServiceOpts
+        }
+    }
+
+    // Create and start the web server
+    return createWebServer(serverOpt)
+}

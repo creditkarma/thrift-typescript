@@ -69,6 +69,16 @@ function collectNamespaces(
         const namespace = cache.get(head.namespace.path)
         if (namespace !== undefined) {
             namespace.body = namespace.body.concat(head.body)
+            for (const item in head.identifiers) {
+                if (head.identifiers.hasOwnProperty(item)) {
+                    namespace.identifiers[item] = head.identifiers[item]
+                }
+            }
+            for (const item in head.includes) {
+                if (head.includes.hasOwnProperty(item)) {
+                    namespace.includes[item] = head.includes[item]
+                }
+            }
         } else {
             cache.set(head.namespace.path, {
                 namespace: head.namespace,
