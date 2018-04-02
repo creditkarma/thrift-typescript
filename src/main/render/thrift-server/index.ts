@@ -39,6 +39,7 @@ import {
     IIdentifierMap,
     IRenderer,
     INamespaceFile,
+    IMakeFlags,
 } from '../../types'
 
 import { typeNodeForFieldType } from './types';
@@ -82,8 +83,8 @@ export function renderException(statement: ExceptionDefinition, identifiers: IId
     return _renderException(statement, identifiers)
 }
 
-export function renderUnion(statement: UnionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return _renderUnion(statement, identifiers)
+export function renderUnion(statement: UnionDefinition, identifiers: IIdentifierMap, flags: IMakeFlags): Array<ts.Statement> {
+    return _renderUnion(statement, identifiers, flags)
 }
 
 export function renderService(statement: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {

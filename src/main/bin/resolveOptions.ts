@@ -17,6 +17,7 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
         target: 'apache',
         flags: {
             strict: false,
+            strictUnions: false,
         },
         files: []
     }
@@ -53,7 +54,12 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
             case '--strict':
                 options.flags.strict = args[index + 1] !== 'false'
                 index += 2
-                break;
+                break
+
+            case '--strictUnions':
+                options.flags.strictUnions = args[index + 1] !== 'false'
+                index += 2
+                break
 
             case '--target':
                 const option = args[index + 1]
