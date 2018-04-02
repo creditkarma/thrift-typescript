@@ -51,14 +51,7 @@ export function renderIncludes(
                 undefined,
                 ts.createImportClause(
                     undefined,
-                    ts.createNamedImports(
-                        resolvedIncludes.map((next: IResolvedIdentifier) => {
-                            return ts.createImportSpecifier(
-                                ts.createIdentifier(next.name),
-                                ts.createIdentifier(next.resolvedName),
-                            )
-                        }),
-                    ),
+                    ts.createNamespaceImport(ts.createIdentifier(name)),
                 ),
                 ts.createLiteral(
                     `./${path.join(

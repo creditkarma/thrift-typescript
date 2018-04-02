@@ -17,7 +17,7 @@ export class MyException extends Error {
         }
     }
 }
-export const MyExceptionCodec: thrift.IStructCodec<MyException> = {
+export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
     encode(val: MyException, output: thrift.TProtocol): void {
         const obj = {
             description: val.description,

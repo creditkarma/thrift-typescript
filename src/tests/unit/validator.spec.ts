@@ -548,7 +548,7 @@ describe('Thrift TypeScript Validator', () => {
                 include 'exception.thrift'
 
                 exception MyException {
-                1: exception.Status status = exception.Status.SUCCESS;
+                    1: exception.Status status = exception.Status.SUCCESS;
                 }
             `,
             includes: [

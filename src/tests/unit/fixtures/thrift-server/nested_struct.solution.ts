@@ -6,7 +6,7 @@ export interface User_Loose {
     name: string;
     age?: number | thrift.Int64;
 }
-export const UserCodec: thrift.IStructCodec<User> = {
+export const UserCodec: thrift.IStructCodec<User_Loose, User> = {
     encode(val: User_Loose, output: thrift.TProtocol): void {
         const obj = {
             name: val.name,
@@ -85,7 +85,7 @@ export interface MyStruct_Loose {
     name: string;
     user: User_Loose;
 }
-export const MyStructCodec: thrift.IStructCodec<MyStruct> = {
+export const MyStructCodec: thrift.IStructCodec<MyStruct_Loose, MyStruct> = {
     encode(val: MyStruct_Loose, output: thrift.TProtocol): void {
         const obj = {
             name: val.name,

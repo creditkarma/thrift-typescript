@@ -230,7 +230,7 @@
             "identifiers": [
                 {
                     "name": "MyException",
-                    "resolvedName": "exception$MyException",
+                    "resolvedName": "exception.MyException",
                     "definition": {
                         "type": "ExceptionDefinition",
                         "name": {
@@ -335,9 +335,9 @@
         }
     },
     "identifiers": {
-        "exception$MyException": {
+        "exception.MyException": {
             "name": "MyException",
-            "resolvedName": "exception$MyException",
+            "resolvedName": "exception.MyException",
             "definition": {
                 "type": "ExceptionDefinition",
                 "name": {
@@ -532,7 +532,7 @@
                                 },
                                 "fieldType": {
                                     "type": "Identifier",
-                                    "value": "exception$MyException",
+                                    "value": "exception.MyException",
                                     "loc": {
                                         "start": {
                                             "line": 5,
@@ -720,7 +720,7 @@
                             },
                             "fieldType": {
                                 "type": "Identifier",
-                                "value": "exception$MyException",
+                                "value": "exception.MyException",
                                 "loc": {
                                     "start": {
                                         "line": 5,

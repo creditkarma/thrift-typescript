@@ -33,6 +33,10 @@ export function renderCodec(node: UnionDefinition, identifiers: IIdentifierMap):
                 THRIFT_IDENTIFIERS.IStructCodec,
                 [
                     ts.createTypeReferenceNode(
+                        ts.createIdentifier(`${node.name.value}_Loose`),
+                        undefined
+                    ),
+                    ts.createTypeReferenceNode(
                         ts.createIdentifier(node.name.value),
                         undefined
                     )

@@ -6,7 +6,7 @@ export interface Code_Loose {
     status?: number | thrift.Int64;
     data?: string | Buffer;
 }
-export const CodeCodec: thrift.IStructCodec<Code> = {
+export const CodeCodec: thrift.IStructCodec<Code_Loose, Code> = {
     encode(val: Code_Loose, output: thrift.TProtocol): void {
         const obj = {
             status: (val.status != null ? (typeof val.status === "number" ? new thrift.Int64(val.status) : val.status) : new thrift.Int64(200)),
@@ -88,7 +88,7 @@ export class MyException extends Error {
         }
     }
 }
-export const MyExceptionCodec: thrift.IStructCodec<MyException> = {
+export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
     encode(val: MyException, output: thrift.TProtocol): void {
         const obj = {
             description: val.description,

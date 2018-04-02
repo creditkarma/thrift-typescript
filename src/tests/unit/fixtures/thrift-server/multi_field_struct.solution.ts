@@ -12,7 +12,7 @@ export interface MyStruct_Loose {
     field1?: number;
     blob?: string | Buffer;
 }
-export const MyStructCodec: thrift.IStructCodec<MyStruct> = {
+export const MyStructCodec: thrift.IStructCodec<MyStruct_Loose, MyStruct> = {
     encode(val: MyStruct_Loose, output: thrift.TProtocol): void {
         const obj = {
             id: (val.id != null ? val.id : 45),
