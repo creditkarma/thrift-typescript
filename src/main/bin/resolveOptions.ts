@@ -15,7 +15,9 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
         outDir: './codegen',
         sourceDir: './thrift',
         target: 'apache',
-        strict: true,
+        flags: {
+            strict: false,
+        },
         files: []
     }
 
@@ -49,7 +51,7 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                 break
 
             case '--strict':
-                options.strict = args[index + 1] !== 'false'
+                options.flags.strict = args[index + 1] !== 'false'
                 index += 2
                 break;
 

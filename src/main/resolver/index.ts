@@ -84,16 +84,16 @@ import {
  * @param thrift
  * @param includes
  */
-export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {}): IResolvedFile {
+export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IResolvedCache = {}): IResolvedFile {
     const cacheKey: string = `${parsedFile.path}/${parsedFile.name}`
 
     if (cacheKey === '/' || !cache[cacheKey]) {
         const identifiers: IIdentifierMap = {}
         const resolvedIncludes: IResolvedIncludeMap = {}
-        const namespace: INamespace = resolveNamespace(parsedFile.ast)
+        const namespace: INamespace = resolveNamespace(outPath, parsedFile.ast)
         const includes: Array<IResolvedFile> =
             parsedFile.includes.map((next: IParsedFile): IResolvedFile => {
-                return resolveFile(next)
+                return resolveFile(outPath, next)
             })
 
         const includeMap: IResolvedFileMap =

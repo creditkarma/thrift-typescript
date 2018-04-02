@@ -45,7 +45,7 @@ export function renderIncludes(
         const includeFile: IResolvedFile = resolved[name].file
 
         if (resolvedIncludes != null && includeFile != null) {
-            const includePath: string = path.resolve(outPath, includeFile.namespace.path, includeFile.namespace.name)
+            const includePath: string = includeFile.namespace.path
             imports.push(ts.createImportDeclaration(
                 undefined,
                 undefined,

@@ -71,11 +71,7 @@ function collectNamespaces(
             namespace.body = namespace.body.concat(head.body)
         } else {
             cache.set(head.namespace.path, {
-                namespace: {
-                    scope: head.namespace.scope,
-                    name: head.namespace.name,
-                    path: path.resolve(outPath, head.namespace.path, 'index.ts'),
-                },
+                namespace: head.namespace,
                 includes: head.includes,
                 identifiers: head.identifiers,
                 body: head.body,
