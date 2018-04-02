@@ -174,7 +174,7 @@ export function renderIncludes(
         const includeFile: IResolvedFile = resolvedFile.includes[name].file
 
         if (resolvedIncludes != null && resolvedFile != null) {
-            const includePath: string = path.resolve(outPath, includeFile.namespace.path, includeFile.namespace.name)
+            const includePath: string = includeFile.namespace.path
             imports.push(ts.createImportDeclaration(
                 undefined,
                 undefined,

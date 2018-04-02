@@ -49,7 +49,7 @@ import {
  */
 export function make(source: string, target: CompileTarget = 'apache'): string {
     const parsedFile: IParsedFile = parseSource(source)
-    const resolvedAST: IResolvedFile = resolveFile(parsedFile)
+    const resolvedAST: IResolvedFile = resolveFile('', parsedFile)
     const validAST: IResolvedFile = validateFile(resolvedAST)
     return print(processStatements(validAST.body, validAST.identifiers, rendererForTarget(target)))
 }
@@ -80,7 +80,7 @@ export function generate(options: IMakeOptions): void {
         (acc: Array<IResolvedFile>, next: string): Array<IResolvedFile> => {
             const thriftFile: IThriftFile = readThriftFile(next, [sourceDir])
             const parsedFile: IParsedFile = parseFile(sourceDir, thriftFile, includeCache)
-            const resolvedFile: IResolvedFile = resolveFile(parsedFile, resolvedCache)
+            const resolvedFile: IResolvedFile = resolveFile(outDir, parsedFile, resolvedCache)
             return acc.concat(flattenResolvedFile(resolvedFile).map(validateFile))
         },
         [],

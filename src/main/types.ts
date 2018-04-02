@@ -38,8 +38,10 @@ export interface IMakeOptions {
     // What core libs are you compiling for?
     target: CompileTarget
 
-    // Strict mode
-    strict: boolean
+    // Flags to change compiler behavior
+    flags: {
+        strict: boolean,
+    }
 }
 
 export interface IRenderer {
