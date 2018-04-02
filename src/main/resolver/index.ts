@@ -327,7 +327,7 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                  * containing the type definition
                  */
                 if (resolvedIncludes[pathname] !== undefined) {
-                    const resolvedName: string = `${pathname}$${base}`
+                    const resolvedName: string = `${pathname}.${base}`
                     const baseIdentifier: IResolvedIdentifier = includeMap[pathname].identifiers[base]
 
                     identifiers[resolvedName] = {

@@ -5,7 +5,7 @@ export namespace ParentService {
     export interface PingArgs_Loose {
         status: number;
     }
-    export const PingArgsCodec: thrift.IStructCodec<PingArgs> = {
+    export const PingArgsCodec: thrift.IStructCodec<PingArgs_Loose, PingArgs> = {
         encode(val: PingArgs_Loose, output: thrift.TProtocol): void {
             const obj = {
                 status: val.status
@@ -66,7 +66,7 @@ export namespace ParentService {
     export interface PingResult_Loose {
         success?: string;
     }
-    export const PingResultCodec: thrift.IStructCodec<PingResult> = {
+    export const PingResultCodec: thrift.IStructCodec<PingResult_Loose, PingResult> = {
         encode(val: PingResult_Loose, output: thrift.TProtocol): void {
             const obj = {
                 success: val.success
@@ -228,7 +228,7 @@ export namespace ChildService {
     export interface PegArgs_Loose {
         name: string;
     }
-    export const PegArgsCodec: thrift.IStructCodec<PegArgs> = {
+    export const PegArgsCodec: thrift.IStructCodec<PegArgs_Loose, PegArgs> = {
         encode(val: PegArgs_Loose, output: thrift.TProtocol): void {
             const obj = {
                 name: val.name
@@ -289,7 +289,7 @@ export namespace ChildService {
     export interface PongArgs_Loose {
         name?: string;
     }
-    export const PongArgsCodec: thrift.IStructCodec<PongArgs> = {
+    export const PongArgsCodec: thrift.IStructCodec<PongArgs_Loose, PongArgs> = {
         encode(val: PongArgs_Loose, output: thrift.TProtocol): void {
             const obj = {
                 name: val.name
@@ -342,7 +342,7 @@ export namespace ChildService {
     export interface PegResult_Loose {
         success?: string;
     }
-    export const PegResultCodec: thrift.IStructCodec<PegResult> = {
+    export const PegResultCodec: thrift.IStructCodec<PegResult_Loose, PegResult> = {
         encode(val: PegResult_Loose, output: thrift.TProtocol): void {
             const obj = {
                 success: val.success
@@ -395,7 +395,7 @@ export namespace ChildService {
     export interface PongResult_Loose {
         success?: string;
     }
-    export const PongResultCodec: thrift.IStructCodec<PongResult> = {
+    export const PongResultCodec: thrift.IStructCodec<PongResult_Loose, PongResult> = {
         encode(val: PongResult_Loose, output: thrift.TProtocol): void {
             const obj = {
                 success: val.success

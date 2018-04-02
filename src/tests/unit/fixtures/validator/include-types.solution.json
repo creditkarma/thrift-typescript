@@ -1,7 +1,7 @@
 {
     "name": "",
     "path": "",
-    "source": "\n                include 'exception.thrift'\n\n                exception MyException {\n                1: exception.Status status = exception.Status.SUCCESS;\n                }\n            ",
+    "source": "\n                include 'exception.thrift'\n\n                exception MyException {\n                    1: exception.Status status = exception.Status.SUCCESS;\n                }\n            ",
     "namespace": {
         "scope": "",
         "name": "",
@@ -232,7 +232,7 @@
             "identifiers": [
                 {
                     "name": "Status",
-                    "resolvedName": "exception$Status",
+                    "resolvedName": "exception.Status",
                     "definition": {
                         "type": "EnumDefinition",
                         "name": {
@@ -338,9 +338,9 @@
         }
     },
     "identifiers": {
-        "exception$Status": {
+        "exception.Status": {
             "name": "Status",
-            "resolvedName": "exception$Status",
+            "resolvedName": "exception.Status",
             "definition": {
                 "type": "EnumDefinition",
                 "name": {
@@ -500,7 +500,7 @@
                         },
                         "fieldType": {
                             "type": "Identifier",
-                            "value": "exception$Status",
+                            "value": "exception.Status",
                             "loc": {
                                 "start": {
                                     "line": 5,
@@ -517,7 +517,7 @@
                         "requiredness": null,
                         "defaultValue": {
                             "type": "Identifier",
-                            "value": "exception$Status.SUCCESS",
+                            "value": "exception.Status.SUCCESS",
                             "loc": {
                                 "start": {
                                     "line": 5,
@@ -650,7 +650,7 @@
                     },
                     "fieldType": {
                         "type": "Identifier",
-                        "value": "exception$Status",
+                        "value": "exception.Status",
                         "loc": {
                             "start": {
                                 "line": 5,
@@ -667,7 +667,7 @@
                     "requiredness": null,
                     "defaultValue": {
                         "type": "Identifier",
-                        "value": "exception$Status.SUCCESS",
+                        "value": "exception.Status.SUCCESS",
                         "loc": {
                             "start": {
                                 "line": 5,

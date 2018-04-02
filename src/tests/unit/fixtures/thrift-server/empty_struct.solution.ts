@@ -2,7 +2,7 @@ export interface MyStruct {
 }
 export interface MyStruct_Loose {
 }
-export const MyStructCodec: thrift.IStructCodec<MyStruct> = {
+export const MyStructCodec: thrift.IStructCodec<MyStruct_Loose, MyStruct> = {
     encode(val: MyStruct_Loose, output: thrift.TProtocol): void {
         output.writeStructBegin("MyStruct");
         output.writeFieldStop();

@@ -35,6 +35,10 @@ export function renderCodec(exp: ExceptionDefinition, identifiers: IIdentifierMa
                     ts.createTypeReferenceNode(
                         ts.createIdentifier(exp.name.value),
                         undefined
+                    ),
+                    ts.createTypeReferenceNode(
+                        ts.createIdentifier(exp.name.value),
+                        undefined
                     )
                 ],
             ),

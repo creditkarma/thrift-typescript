@@ -230,8 +230,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
     }
 
     function validateExtends(id: Identifier): Identifier {
-        const [ baseName ] = id.value.split('.')
-        const resolvedID: IResolvedIdentifier = getIdentifier(id.loc, baseName)
+        const resolvedID: IResolvedIdentifier = getIdentifier(id.loc, id.value)
         if (resolvedID.definition.type === SyntaxType.ServiceDefinition) {
             return id
         } else {
@@ -275,12 +274,13 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
         switch (constValue.type) {
             /**
              * If we're dealing with object access (Status.SUCCESS), we just want the base of the identifier (Status)
-             *
-             * The resolver pass should have already mangled something like "exception.Status.SUCCESS" into
-             * "exception$Status.SUCCESS"
              */
             case SyntaxType.Identifier:
-                const [baseName, accessName] = constValue.value.split('.')
+                const parts = constValue.value.split('.')
+                const baseName = (
+                    (parts.length > 2) ? `${parts[0]}.${parts[1]}` : parts[0]
+                )
+                const accessName = parts[(parts.length - 1)]
                 const resolvedConst: IResolvedIdentifier = getIdentifier(
                     constValue.loc,
                     baseName,
@@ -484,6 +484,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
             case SyntaxType.Identifier:
                 if (getIdentifier(fieldType.loc, fieldType.value) != null) {
                     return fieldType
+
                 } else {
                     throw new ValidationError(
                         `Unable to resolve type of identifier ${fieldType.value}`,

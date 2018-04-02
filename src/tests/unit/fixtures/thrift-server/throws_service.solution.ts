@@ -9,7 +9,7 @@ export class ServiceException extends Error {
         }
     }
 }
-export const ServiceExceptionCodec: thrift.IStructCodec<ServiceException> = {
+export const ServiceExceptionCodec: thrift.IStructCodec<ServiceException, ServiceException> = {
     encode(val: ServiceException, output: thrift.TProtocol): void {
         const obj = {
             message: val.message
@@ -63,7 +63,7 @@ export namespace MyService {
     export interface PegArgs_Loose {
         name: string;
     }
-    export const PegArgsCodec: thrift.IStructCodec<PegArgs> = {
+    export const PegArgsCodec: thrift.IStructCodec<PegArgs_Loose, PegArgs> = {
         encode(val: PegArgs_Loose, output: thrift.TProtocol): void {
             const obj = {
                 name: val.name
@@ -124,7 +124,7 @@ export namespace MyService {
     export interface PongArgs_Loose {
         name?: string;
     }
-    export const PongArgsCodec: thrift.IStructCodec<PongArgs> = {
+    export const PongArgsCodec: thrift.IStructCodec<PongArgs_Loose, PongArgs> = {
         encode(val: PongArgs_Loose, output: thrift.TProtocol): void {
             const obj = {
                 name: val.name
@@ -179,7 +179,7 @@ export namespace MyService {
         success?: string;
         exp?: ServiceException;
     }
-    export const PegResultCodec: thrift.IStructCodec<PegResult> = {
+    export const PegResultCodec: thrift.IStructCodec<PegResult_Loose, PegResult> = {
         encode(val: PegResult_Loose, output: thrift.TProtocol): void {
             const obj = {
                 success: val.success,
@@ -248,7 +248,7 @@ export namespace MyService {
     export interface PongResult_Loose {
         success?: string;
     }
-    export const PongResultCodec: thrift.IStructCodec<PongResult> = {
+    export const PongResultCodec: thrift.IStructCodec<PongResult_Loose, PongResult> = {
         encode(val: PongResult_Loose, output: thrift.TProtocol): void {
             const obj = {
                 success: val.success

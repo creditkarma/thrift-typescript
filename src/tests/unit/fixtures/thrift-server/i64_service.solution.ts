@@ -4,7 +4,7 @@ export interface Code {
 export interface Code_Loose {
     status?: number | thrift.Int64;
 }
-export const CodeCodec: thrift.IStructCodec<Code> = {
+export const CodeCodec: thrift.IStructCodec<Code_Loose, Code> = {
     encode(val: Code_Loose, output: thrift.TProtocol): void {
         const obj = {
             status: (typeof val.status === "number" ? new thrift.Int64(val.status) : val.status)
@@ -58,7 +58,7 @@ export namespace MyService {
     export interface PegArgs_Loose {
         name: string;
     }
-    export const PegArgsCodec: thrift.IStructCodec<PegArgs> = {
+    export const PegArgsCodec: thrift.IStructCodec<PegArgs_Loose, PegArgs> = {
         encode(val: PegArgs_Loose, output: thrift.TProtocol): void {
             const obj = {
                 name: val.name
@@ -119,7 +119,7 @@ export namespace MyService {
     export interface PongArgs_Loose {
         code?: Code_Loose;
     }
-    export const PongArgsCodec: thrift.IStructCodec<PongArgs> = {
+    export const PongArgsCodec: thrift.IStructCodec<PongArgs_Loose, PongArgs> = {
         encode(val: PongArgs_Loose, output: thrift.TProtocol): void {
             const obj = {
                 code: val.code
@@ -172,7 +172,7 @@ export namespace MyService {
     export interface PegResult_Loose {
         success?: string;
     }
-    export const PegResultCodec: thrift.IStructCodec<PegResult> = {
+    export const PegResultCodec: thrift.IStructCodec<PegResult_Loose, PegResult> = {
         encode(val: PegResult_Loose, output: thrift.TProtocol): void {
             const obj = {
                 success: val.success
@@ -225,7 +225,7 @@ export namespace MyService {
     export interface PongResult_Loose {
         success?: number | thrift.Int64;
     }
-    export const PongResultCodec: thrift.IStructCodec<PongResult> = {
+    export const PongResultCodec: thrift.IStructCodec<PongResult_Loose, PongResult> = {
         encode(val: PongResult_Loose, output: thrift.TProtocol): void {
             const obj = {
                 success: (typeof val.success === "number" ? new thrift.Int64(val.success) : val.success)

@@ -12,7 +12,7 @@ export type Option_Loose = {
     option1?: undefined;
     option2: number | thrift.Int64;
 };
-export const OptionCodec: thrift.IStructCodec<Option> = {
+export const OptionCodec: thrift.IStructCodec<Option_Loose, Option> = {
     encode(val: Option_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
@@ -109,7 +109,7 @@ export type MyUnion_Loose = {
     name?: undefined;
     option: Option_Loose;
 };
-export const MyUnionCodec: thrift.IStructCodec<MyUnion> = {
+export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
     encode(val: MyUnion_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
