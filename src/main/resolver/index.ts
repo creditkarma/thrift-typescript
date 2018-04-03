@@ -13,6 +13,7 @@ import {
     FunctionType,
     SyntaxType,
     ThriftStatement,
+    TypedefDefinition,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -24,6 +25,7 @@ import {
     IResolvedIncludeMap,
     INamespace,
     IResolvedCache,
+    DefinitionType,
 } from '../types'
 
 import {
@@ -134,7 +136,6 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                         return {
                             type: SyntaxType.Identifier,
                             value: resolveName(fieldType.value),
-
                             loc: fieldType.loc,
                         }
                     }
@@ -293,6 +294,16 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
             return false
         }
 
+        function definitionForTypeDef(statement: TypedefDefinition): DefinitionType {
+            switch (statement.definitionType.type) {
+                case SyntaxType.Identifier:
+                    return identifiers[statement.definitionType.value].definition
+
+                default:
+                    return statement
+            }
+        }
+
         // Add types defined in this file to our Identifier map
         function addIdentiferForStatement(statement: ThriftStatement): void {
             switch (statement.type) {
@@ -301,12 +312,19 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                 case SyntaxType.ExceptionDefinition:
                 case SyntaxType.EnumDefinition:
                 case SyntaxType.ConstDefinition:
-                case SyntaxType.TypedefDefinition:
                 case SyntaxType.ServiceDefinition:
                     identifiers[statement.name.value] = {
                         name: statement.name.value,
                         resolvedName: statement.name.value,
                         definition: statement,
+                    }
+                    return
+
+                case SyntaxType.TypedefDefinition:
+                    identifiers[statement.name.value] = {
+                        name: statement.name.value,
+                        resolvedName: statement.name.value,
+                        definition: definitionForTypeDef(statement),
                     }
                     return
 

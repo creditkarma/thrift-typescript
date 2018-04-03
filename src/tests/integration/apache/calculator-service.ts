@@ -14,6 +14,7 @@ import {
     Operation,
     Work,
     Choice,
+    CommonStruct,
 } from './codegen/calculator'
 
 import {
@@ -113,6 +114,9 @@ export function createCalculatorServer(): Server {
                 return acc
             }, new Map())
         },
+        fetchThing(): CommonStruct {
+            return new SharedStruct({ key: 5, value: 'test' })
+        }
     };
 
     // ServiceOptions: The I/O stack for the service
