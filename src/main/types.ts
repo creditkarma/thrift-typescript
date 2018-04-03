@@ -120,6 +120,11 @@ export interface IParsedFile {
     ast: ThriftDocument
 }
 
+// Map from import identifier to namespace path
+export interface IIncludeMap {
+    [name: string]: string
+}
+
 export interface IResolvedFile {
     name: string
     path: string
