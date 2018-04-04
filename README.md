@@ -159,7 +159,7 @@ import {
 } from './codegen/calculator'
 
 // express.Request is the context for each of the service handlers
-const serviceHandlers: Calculator.ServiceHandler<express.Request> = {
+const serviceHandlers: Calculator.Handler<express.Request> = {
     add(left: number, right: number, context?: express.Request): number {
         if (context && context.headers['x-trace-id']) {
             // You can trace this request, perform auth, or use additional middleware to handle that.
@@ -390,11 +390,11 @@ export namespace MyService {
             // ...
         }
     }
-    export interface ServiceHandler<Context> {
+    export interface Handler<Context> {
         getUser(id: number, context?: Context): User | Promise<User>
     }
     export class Processor {
-        constructor(handler: ServiceHandler<Context>) {
+        constructor(handler: Handler<Context>) {
             // ...
         }
         public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
@@ -404,7 +404,75 @@ export namespace MyService {
 }
 ```
 
-The `Client` is pretty straight forward. You create a `Client` instance and you can call service methods on it. The inner-workings of the `Processor` aren't something consumers need to concern themselves with. The more interesting bit is `ServiceHandler`. This is the interface that service teams need to implement in order to meet the promises of their service contract. Create an object that satisfies `<service-name>.ServiceHandler` and pass it to the construction of `<service-name>.Processor` and everything else is handled for you.
+The `Client` is pretty straight forward. You create a `Client` instance and you can call service methods on it. The inner-workings of the `Processor` aren't something consumers need to concern themselves with. The more interesting bit is `Handler`. This is the interface that service teams need to implement in order to meet the promises of their service contract. Create an object that satisfies `<service-name>.Handler` and pass it to the construction of `<service-name>.Processor` and everything else is handled for you.
+
+#### Loose Interfaces
+
+Given these two structs:
+
+```c
+struct User {
+    1: required i64 id
+}
+
+struct Profile {
+    1: required User user
+    2: binary data
+    3: i64 lastModified
+}
+```
+
+There is something of a difference between how we want to handle things in TypeScript and how data is going to be sent over the wire. Because of this when we generate interfaces for these structs we generate two interfaces for each struct, one is an exact representation of the Thrift, the other is something looser that more represents how the data will be worked with in TypeScript.
+
+Generated TypeScript:
+
+```typescript
+interface User {
+    id: thrift.Int64
+}
+interface User_Loose {
+    id: number | thrift.Int64
+}
+
+interface Profile {
+    user: User
+    data?: Buffer
+    lastModified?: thrift.Int64
+}
+interface Profile_Loose {
+    user: User_Loose
+    data?: string | Buffer
+    lastModified?: number | thrift.Int64
+}
+```
+
+Where are the loose interfaces used? The loose interfaces can be passed to client methods.
+
+If we had this service:
+
+```c
+service ProfileService {
+    Profile getProfileForUser(1: User user)
+}
+```
+
+And generated TypeScript:
+
+```typescript
+namespace ProfileService {
+    export class Client<Context> {
+        constructor(connection: thrift.IThriftConnection<Context>) {
+            // ...
+        }
+        getProfileForUser(user: User_Loose): Promise<Profile> {
+            // ...
+        }
+    }
+    // Handler, Processor
+}
+```
+
+We can use a `User` object where the `id` is a `number` without having to wrap it in `Int64`. These conversions are handled for us, similarly `string` data can be passed to a `binary` field and the conversion to `Buffer` is handled under the hood. This are just convinience interfaces to make handling the Thrift objects in TypeScript a little easier. You will notice service methods always return an object of the more strict interface. Also, the more strict interface can always be passed where the loose interface is expected.
 
 #### Sending Data Over the Wire
 
@@ -497,7 +565,7 @@ import {
 
 import { Calculator } from './codegen/calculator'
 
-// ServiceHandler: Implement the Calculator service
+// Handler: Implement the Calculator service
 const myServiceHandler = {
     add(left: number, right: number): number {
         return left + right
