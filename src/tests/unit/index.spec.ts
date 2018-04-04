@@ -54,6 +54,25 @@ describe('Thrift TypeScript Generator', () => {
             assert.deepEqual(actual, expected)
         })
 
+        it('should correctly generate a struct containing a list of structs', () => {
+            const content: string = `
+                struct OtherStruct {
+                    1: required i64 id
+                    2: required string name = "John"
+                }
+
+                struct MyStruct {
+                    1: required list<OtherStruct> idList
+                    2: required map<string,OtherStruct> idMap
+                    3: required set<OtherStruct> idSet
+                }
+            `
+            const expected: string = readFixture('complex_nested_struct', 'thrift-server')
+            const actual: string = make(content, 'thrift-server')
+
+            assert.deepEqual(actual, expected)
+        })
+
         it('should correctly generate a union', () => {
             const content: string = `
                 union MyUnion {

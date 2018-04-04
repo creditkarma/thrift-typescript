@@ -26,13 +26,13 @@ function renderTypeDefForIdentifier(
                     undefined,
                     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
                     ts.createIdentifier(node.name.value),
-                    ts.createIdentifier(id.resolvedName)
+                    ts.createIdentifier(id.resolvedName),
                 ),
                 ts.createImportEqualsDeclaration(
                     undefined,
                     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
                     ts.createIdentifier(`${node.name.value}Codec`),
-                    ts.createIdentifier(`${id.resolvedName}Codec`)
+                    ts.createIdentifier(`${id.resolvedName}Codec`),
                 )
             ]
 
@@ -43,19 +43,19 @@ function renderTypeDefForIdentifier(
                     undefined,
                     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
                     ts.createIdentifier(node.name.value),
-                    ts.createIdentifier(id.resolvedName)
+                    ts.createIdentifier(id.resolvedName),
                 ),
                 ts.createImportEqualsDeclaration(
                     undefined,
                     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
                     ts.createIdentifier(`${node.name.value}_Loose`),
-                    ts.createIdentifier(`${id.resolvedName}_Loose`)
+                    ts.createIdentifier(`${id.resolvedName}_Loose`),
                 ),
                 ts.createImportEqualsDeclaration(
                     undefined,
                     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
                     ts.createIdentifier(`${node.name.value}Codec`),
-                    ts.createIdentifier(`${id.resolvedName}Codec`)
+                    ts.createIdentifier(`${id.resolvedName}Codec`),
                 )
             ]
 
@@ -65,7 +65,7 @@ function renderTypeDefForIdentifier(
                     undefined,
                     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
                     ts.createIdentifier(node.name.value),
-                    ts.createIdentifier(id.resolvedName)
+                    ts.createIdentifier(id.resolvedName),
                 )
             ]
     }

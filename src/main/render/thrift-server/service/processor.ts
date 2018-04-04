@@ -71,7 +71,7 @@ function objectLiteralForServiceFunctions(node: ThriftStatement): ts.ObjectLiter
 
 function handlerType(node: ServiceDefinition): ts.TypeNode {
     return ts.createTypeReferenceNode(
-        ts.createIdentifier('IHandler'),
+        COMMON_IDENTIFIERS.Handler,
         [ ts.createTypeReferenceNode('Context', undefined) ]
     )
 }

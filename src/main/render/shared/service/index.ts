@@ -87,7 +87,7 @@ export function renderHandlerInterface(service: ServiceDefinition, typeMapping: 
             ts.createTypeAliasDeclaration(
                 undefined,
                 [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-                ts.createIdentifier('IHandler'),
+                COMMON_IDENTIFIERS.Handler,
                 [
                     ts.createTypeParameterDeclaration(
                         COMMON_IDENTIFIERS.Context,
@@ -103,7 +103,7 @@ export function renderHandlerInterface(service: ServiceDefinition, typeMapping: 
                         ]
                     ),
                     ts.createTypeReferenceNode(
-                        ts.createIdentifier(`${service.extends.value}.IHandler`),
+                        ts.createIdentifier(`${service.extends.value}.Handler`),
                         [
                             ts.createTypeReferenceNode('Context', undefined)
                         ]
@@ -116,7 +116,7 @@ export function renderHandlerInterface(service: ServiceDefinition, typeMapping: 
             ts.createInterfaceDeclaration(
                 undefined,
                 [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-                ts.createIdentifier('IHandler'),
+                COMMON_IDENTIFIERS.Handler,
                 [
                     ts.createTypeParameterDeclaration(
                         COMMON_IDENTIFIERS.Context,

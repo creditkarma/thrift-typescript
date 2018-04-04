@@ -103,7 +103,7 @@ export function renderHandlerInterface(service: ServiceDefinition): Array<ts.Sta
             ts.createTypeAliasDeclaration(
                 undefined,
                 [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-                ts.createIdentifier('IHandler'),
+                COMMON_IDENTIFIERS.Handler,
                 undefined,
                 ts.createIntersectionTypeNode([
                     ts.createTypeReferenceNode(
@@ -111,7 +111,7 @@ export function renderHandlerInterface(service: ServiceDefinition): Array<ts.Sta
                         undefined,
                     ),
                     ts.createTypeReferenceNode(
-                        ts.createIdentifier(`${service.extends.value}.IHandler`),
+                        ts.createIdentifier(`${service.extends.value}.Handler`),
                         undefined,
                     )
                 ])
@@ -122,7 +122,7 @@ export function renderHandlerInterface(service: ServiceDefinition): Array<ts.Sta
             ts.createInterfaceDeclaration(
                 undefined,
                 [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-                ts.createIdentifier('IHandler'),
+                COMMON_IDENTIFIERS.Handler,
                 undefined,
                 [],
                 signatures,
@@ -152,7 +152,7 @@ function objectLiteralForServiceFunctions(node: ThriftStatement): ts.ObjectLiter
 
 function handlerType(node: ServiceDefinition): ts.TypeNode {
     return ts.createTypeReferenceNode(
-        ts.createIdentifier('IHandler'),
+        COMMON_IDENTIFIERS.Handler,
         undefined,
     )
 }

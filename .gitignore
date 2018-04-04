@@ -3,6 +3,9 @@ logs
 *.log
 npm-debug.log*
 
+# Useless files
+test.js
+
 # Dependency directory
 node_modules
 

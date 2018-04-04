@@ -119,7 +119,7 @@ export function renderClient(node: ServiceDefinition, identifiers: IIdentifierMa
 
     const incrementRequestIdMethod: ts.MethodDeclaration = ts.createMethod(
         undefined,
-        [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
+        [ ts.createToken(ts.SyntaxKind.ProtectedKeyword) ],
         undefined,
         'incrementRequestId',
         undefined,
@@ -284,7 +284,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition, identifiers: IId
             createConstStatement(
                 COMMON_IDENTIFIERS.args,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(createStructArgsName(def)),
+                    ts.createIdentifier(`${createStructArgsName(def)}_Loose`),
                     undefined
                 ),
                 ts.createObjectLiteral(
@@ -615,7 +615,7 @@ function createParametersForField(field: FieldDefinition, identifiers: IIdentifi
 
     return createFunctionParameter(
         field.name.value,
-        typeNodeForFieldType(field.fieldType, identifiers),
+        typeNodeForFieldType(field.fieldType, identifiers, true),
         defaultValue,
         (field.requiredness === 'optional'),
     )
