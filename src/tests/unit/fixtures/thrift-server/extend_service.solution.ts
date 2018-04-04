@@ -124,14 +124,14 @@ export namespace ParentService {
             this.protocol = connection.Protocol;
             this.connection = connection;
         }
-        public incrementRequestId(): number {
+        protected incrementRequestId(): number {
             return this._requestId += 1;
         }
         public ping(status: number, context?: Context): Promise<string> {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("ping", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: PingArgs = { status };
+            const args: PingArgs_Loose = { status };
             PingArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -164,12 +164,12 @@ export namespace ParentService {
             });
         }
     }
-    export interface IHandler<Context = any> {
+    export interface Handler<Context = any> {
         ping(status: number, context?: Context): string | Promise<string>;
     }
     export class Processor<Context = any> {
-        public _handler: IHandler<Context>;
-        constructor(handler: IHandler<Context>) {
+        public _handler: Handler<Context>;
+        constructor(handler: Handler<Context>) {
             this._handler = handler;
         }
         public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
@@ -454,14 +454,14 @@ export namespace ChildService {
             this.protocol = connection.Protocol;
             this.connection = connection;
         }
-        public incrementRequestId(): number {
+        protected incrementRequestId(): number {
             return this._requestId += 1;
         }
         public peg(name: string, context?: Context): Promise<string> {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("peg", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: PegArgs = { name };
+            const args: PegArgs_Loose = { name };
             PegArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -497,7 +497,7 @@ export namespace ChildService {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("pong", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: PongArgs = { name };
+            const args: PongArgs_Loose = { name };
             PongArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -534,10 +534,10 @@ export namespace ChildService {
         peg(name: string, context?: Context): string | Promise<string>;
         pong(name?: string, context?: Context): string | Promise<string>;
     }
-    export type IHandler<Context = any> = ILocalHandler<Context> & ParentService.IHandler<Context>;
+    export type Handler<Context = any> = ILocalHandler<Context> & ParentService.Handler<Context>;
     export class Processor<Context = any> extends ParentService.Processor<Context> {
-        public _handler: IHandler<Context>;
-        constructor(handler: IHandler<Context>) {
+        public _handler: Handler<Context>;
+        constructor(handler: Handler<Context>) {
             super({
                 ping: handler.ping
             });

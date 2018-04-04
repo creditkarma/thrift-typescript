@@ -306,14 +306,14 @@ export namespace MyService {
             this.protocol = connection.Protocol;
             this.connection = connection;
         }
-        public incrementRequestId(): number {
+        protected incrementRequestId(): number {
             return this._requestId += 1;
         }
         public peg(name: string, context?: Context): Promise<string> {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("peg", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: PegArgs = { name };
+            const args: PegArgs_Loose = { name };
             PegArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -352,7 +352,7 @@ export namespace MyService {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("pong", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: PongArgs = { name };
+            const args: PongArgs_Loose = { name };
             PongArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -385,13 +385,13 @@ export namespace MyService {
             });
         }
     }
-    export interface IHandler<Context = any> {
+    export interface Handler<Context = any> {
         peg(name: string, context?: Context): string | Promise<string>;
         pong(name?: string, context?: Context): string | Promise<string>;
     }
     export class Processor<Context = any> {
-        public _handler: IHandler<Context>;
-        constructor(handler: IHandler<Context>) {
+        public _handler: Handler<Context>;
+        constructor(handler: Handler<Context>) {
             this._handler = handler;
         }
         public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {

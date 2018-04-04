@@ -303,7 +303,7 @@ function forEach(
     const forEachParameters: Array<ts.ParameterDeclaration> = [
         createFunctionParameter(
             value,
-            typeNodeForFieldType(fieldType.valueType, identifiers)
+            typeNodeForFieldType(fieldType.valueType, identifiers, true)
         )
     ]
 
@@ -316,7 +316,7 @@ function forEach(
         const key: ts.Identifier = ts.createUniqueName('key')
         forEachParameters.push(createFunctionParameter(
             key,
-            typeNodeForFieldType(fieldType.keyType, identifiers)
+            typeNodeForFieldType(fieldType.keyType, identifiers, true)
         ))
 
         forEachStatements.unshift(...writeValueForField(struct, fieldType.keyType, key, identifiers))

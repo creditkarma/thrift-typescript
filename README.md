@@ -28,7 +28,7 @@ struct MyStruct {
 You can generate TypeScript via the command line:
 
 ```sh
-$ thrift-typescript --target apache --rootDir . --sourceDir thrift --outDir codegen simple.thrift
+$ thrift-typescript --target apache --strict false --rootDir . --sourceDir thrift --outDir codegen simple.thrift
 ```
 
 The available options are:
@@ -37,6 +37,7 @@ The available options are:
 * --outDir: The directory to save generated files to. Will be created if it doesn't exist. Defaults to 'codegen'.
 * --sourceDir: The directory to search for source Thrift files. Defaults to 'thrift'.
 * --target: The core library to generate for, either 'apache' or 'thrift-server'. Defaults to 'apache'.
+* --strictUnions: With target set to 'thrift-server' there are two ways to render unions (more details below). Defaults to 'false'.
 
 All other fields are assumed to be source files.
 
@@ -61,7 +62,10 @@ generate({
     target: 'apache',
     files: [
         'simple.thrift'
-    ]
+    ],
+    flags: {
+        strictUnions: false,
+    },
 })
 ```
 
@@ -114,7 +118,7 @@ $ thrift-typescript --target thrift-server --rootDir . --sourceDir thrift --outD
 
 In this example we are using the Request library as our underlying connection instance. The options for Request (CoreOptions) are our request context.
 
-You'll notice that the Client class is a generic. The type parameter represents the type of the context. For Request this is CoreOptions, for Axios this is AxiosRequestConfig.
+You'll notice that the Client class is a generic. The type parameter represents the type of the context. This is usually going to be of type `CoreOptions` from the Request library.
 
 ```typescript
 import {
@@ -151,11 +155,11 @@ import * as express from 'express'
 import { ThriftServerExpress } from '@creditkarma/thrift-server-express'
 
 import {
-  Calculator,
+    Calculator,
 } from './codegen/calculator'
 
 // express.Request is the context for each of the service handlers
-const serviceHandlers: Calculator.IHandler<express.Request> = {
+const serviceHandlers: Calculator.ServiceHandler<express.Request> = {
     add(left: number, right: number, context?: express.Request): number {
         if (context && context.headers['x-trace-id']) {
             // You can trace this request, perform auth, or use additional middleware to handle that.
@@ -259,7 +263,9 @@ Only fields that are explicitly required loose the `?`.
 
 #### Union
 
-Unions in Thrift are very similar to structs. The difference is they only allow one field to be set. They also require that one field is set. We get compile-time guarantees for this property by generating a union of single-field interfaces.
+Unions with Thrift TypeScript can be generated in two different ways. This was noted in the above section about generator options. Unions in Thrift are very similar to structs. The difference is they only allow one field to be set. They also require that one field is set. Implicitly all fields are optional, but one field must be set.
+
+So, this could translate into a struct with all optional fields:
 
 Given Thrift:
 
@@ -270,7 +276,27 @@ union MyUnion {
 }
 ```
 
-Generated TypeScript:
+Generated TypeScript (with 'strictUnions' set to 'false'):
+
+```typescript
+export interface MyUnion = {
+    option1?: string
+    option2?: undefined
+}
+```
+
+TypeScript itself does have a union construct, but this construct does not provide a way for distiguishing fields. However, we can translate a union into a TypeScript union of interfaces each with one field.
+
+Given Thrift:
+
+```c
+union MyUnion {
+    1: string option1
+    2: i32 option2
+}
+```
+
+Generated TypeScript (with 'strictUnions' set to 'true'):
 
 ```typescript
 export type MyUnion = {
@@ -282,7 +308,7 @@ export type MyUnion = {
 }
 ```
 
-By creating a TypeScript union type we are prevented from incorrectly constructing our Thrift union by compile-time checks.
+This creates a TypeScript union type where we are prevented from incorrectly constructing our Thrift union by compile-time checks.
 
 In the following set, only the last two, `try3` and `try4`, won't throw a type-checking error:
 
@@ -310,6 +336,8 @@ const try4: MyUnion = {
     option2: 42,
 }
 ```
+
+We support generating unions in either fashion, by creating an interface with all optional fields, or creating a union of interfaces that each require one field to be set. When generating an interface with all optional fields we check at runtime to see that a field is set and that only one field is set.
 
 #### Exception
 
@@ -362,11 +390,11 @@ export namespace MyService {
             // ...
         }
     }
-    export interface IHandler<Context> {
+    export interface ServiceHandler<Context> {
         getUser(id: number, context?: Context): User | Promise<User>
     }
     export class Processor {
-        constructor(handler: IHandler<Context>) {
+        constructor(handler: ServiceHandler<Context>) {
             // ...
         }
         public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
@@ -376,7 +404,7 @@ export namespace MyService {
 }
 ```
 
-The `Client` is pretty straight forward. You create a `Client` instance and you can call service methods on it. The inner-workings of the `Processor` aren't something consumers need to concern themselves with. The more interesting bit is `IHandler`. This is the interface that service teams need to implement in order to meet the promises of their service contract. Create an object that satisfies `<service-name>.IHander` and pass it to the construction of `<service-name>.Processor` and everything else is handled for you.
+The `Client` is pretty straight forward. You create a `Client` instance and you can call service methods on it. The inner-workings of the `Processor` aren't something consumers need to concern themselves with. The more interesting bit is `ServiceHandler`. This is the interface that service teams need to implement in order to meet the promises of their service contract. Create an object that satisfies `<service-name>.ServiceHandler` and pass it to the construction of `<service-name>.Processor` and everything else is handled for you.
 
 #### Sending Data Over the Wire
 
@@ -386,7 +414,7 @@ Looking back at the `User` object from our struct example, in addition to the in
 
 ```typescript
 export const UserCodec: thrift.IStructCodec<User> {
-    encode(obj: User, output: thrift.TProtocol): void {
+    encode(obj: User_Loose, output: thrift.TProtocol): void {
         // ...
     },
     decode(input: thrift.TProtocol): User {

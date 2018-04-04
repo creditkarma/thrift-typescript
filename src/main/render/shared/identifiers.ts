@@ -39,4 +39,5 @@ export const COMMON_IDENTIFIERS = {
     Error: ts.createIdentifier('Error'),
     void: ts.createIdentifier('void'),
     Int64: ts.createIdentifier('thrift.Int64'),
+    Handler: ts.createIdentifier('Handler'),
 }

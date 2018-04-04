@@ -202,12 +202,12 @@ export namespace MyService {
             return callback(undefined);
         }
     }
-    export interface IHandler {
+    export interface Handler {
         ping(): void | Promise<void>;
     }
     export class Processor {
-        public _handler: IHandler;
-        constructor(handler: IHandler) {
+        public _handler: Handler;
+        constructor(handler: Handler) {
             this._handler = handler;
         }
         public process(input: thrift.TProtocol, output: thrift.TProtocol): void {
