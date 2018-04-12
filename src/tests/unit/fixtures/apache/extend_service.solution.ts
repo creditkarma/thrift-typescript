@@ -398,10 +398,10 @@ export namespace ChildService {
             }
         }
     }
-    export interface ILocalHandler {
+    export interface LocalHandler {
         peg(name: string): string | Promise<string>;
     }
-    export type Handler = ILocalHandler & ParentService.Handler;
+    export type Handler = LocalHandler & ParentService.Handler;
     export class Processor extends ParentService.Processor {
         public _handler: Handler;
         constructor(handler: Handler) {

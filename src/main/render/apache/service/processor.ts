@@ -95,7 +95,7 @@ export function renderHandlerInterface(service: ServiceDefinition): Array<ts.Sta
             ts.createInterfaceDeclaration(
                 undefined,
                 [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-                ts.createIdentifier('ILocalHandler'),
+                COMMON_IDENTIFIERS.LocalHandler,
                 undefined,
                 [],
                 signatures,
@@ -107,7 +107,7 @@ export function renderHandlerInterface(service: ServiceDefinition): Array<ts.Sta
                 undefined,
                 ts.createIntersectionTypeNode([
                     ts.createTypeReferenceNode(
-                        ts.createIdentifier('ILocalHandler'),
+                        COMMON_IDENTIFIERS.LocalHandler,
                         undefined,
                     ),
                     ts.createTypeReferenceNode(

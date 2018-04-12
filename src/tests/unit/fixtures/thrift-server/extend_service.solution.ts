@@ -530,11 +530,11 @@ export namespace ChildService {
             });
         }
     }
-    export interface ILocalHandler<Context = any> {
+    export interface LocalHandler<Context = any> {
         peg(name: string, context?: Context): string | Promise<string>;
         pong(name?: string, context?: Context): string | Promise<string>;
     }
-    export type Handler<Context = any> = ILocalHandler<Context> & ParentService.Handler<Context>;
+    export type Handler<Context = any> = LocalHandler<Context> & ParentService.Handler<Context>;
     export class Processor<Context = any> extends ParentService.Processor<Context> {
         public _handler: Handler<Context>;
         constructor(handler: Handler<Context>) {

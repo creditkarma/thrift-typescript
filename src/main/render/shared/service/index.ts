@@ -73,7 +73,7 @@ export function renderHandlerInterface(service: ServiceDefinition, typeMapping: 
             ts.createInterfaceDeclaration(
                 undefined,
                 [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-                ts.createIdentifier('ILocalHandler'),
+                COMMON_IDENTIFIERS.LocalHandler,
                 [
                     ts.createTypeParameterDeclaration(
                         COMMON_IDENTIFIERS.Context,
@@ -97,7 +97,7 @@ export function renderHandlerInterface(service: ServiceDefinition, typeMapping: 
                 ],
                 ts.createIntersectionTypeNode([
                     ts.createTypeReferenceNode(
-                        ts.createIdentifier('ILocalHandler'),
+                        COMMON_IDENTIFIERS.LocalHandler,
                         [
                             ts.createTypeReferenceNode('Context', undefined)
                         ]
