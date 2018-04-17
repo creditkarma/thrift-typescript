@@ -2,22 +2,29 @@ import {
     createWebServer,
     TBinaryProtocol,
     TBufferedTransport,
+    HttpConnection,
+    createHttpConnection,
+    createHttpClient,
     Int64,
 } from 'thrift'
 
 import {
+    AddService,
     Calculator,
     Operation,
     Work,
     Choice,
-} from './codegen/calculator/calculator'
+    CommonStruct,
+} from './codegen/calculator'
 
 import {
     SharedStruct,
     SharedUnion,
-} from './codegen/shared/shared'
+} from './codegen/shared'
 
 import { Server } from 'net'
+
+import { ADD_SERVER_CONFIG } from './config'
 
 function delay(val: number): Promise<number> {
     return new Promise((resolve, reject) => {
@@ -27,12 +34,26 @@ function delay(val: number): Promise<number> {
     })
 }
 
-export function createServer(): Server {
-    // ServiceHandler: Implement the hello service
-    const myServiceHandler: Calculator.IHandler = {
+export function createCalculatorServer(): Server {
+    const options = {
+        transport: TBufferedTransport,
+        protocol: TBinaryProtocol,
+        https: false,
+        headers: {
+            Host: ADD_SERVER_CONFIG.hostName,
+        }
+    }
+    const connection: HttpConnection = createHttpConnection(ADD_SERVER_CONFIG.hostName, ADD_SERVER_CONFIG.port, options)
+    const thriftClient: AddService.Client = createHttpClient(AddService.Client, connection)
+
+    // Handler: Implement the hello service
+    const myServiceHandler: Calculator.Handler = {
         ping(): void {},
-        add(a: Int64, b: Int64): Int64 {
-            return new Int64(a.toNumber() + b.toNumber())
+        add(a: number, b: number): Promise<number> {
+            return thriftClient.add(a, b)
+        },
+        addInt64(a: Int64, b: Int64): Promise<Int64> {
+            return thriftClient.addInt64(a, b)
         },
         calculate(logId: number, work: Work): Promise<number> {
             switch (work.op) {
@@ -93,6 +114,9 @@ export function createServer(): Server {
                 return acc
             }, new Map())
         },
+        fetchThing(): CommonStruct {
+            return new SharedStruct({ key: 5, value: 'test' })
+        }
     };
 
     // ServiceOptions: The I/O stack for the service

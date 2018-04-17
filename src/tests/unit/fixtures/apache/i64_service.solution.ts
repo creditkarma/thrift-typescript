@@ -16,7 +16,7 @@ export namespace MyService {
                 }
             }
             else {
-                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field num1 is unset!");
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field[num1] is unset!");
             }
             if (args != null && args.num2 != null) {
                 if (typeof args.num2 === "number") {
@@ -27,7 +27,7 @@ export namespace MyService {
                 }
             }
             else {
-                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field num2 is unset!");
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field[num2] is unset!");
             }
         }
         public write(output: thrift.TProtocol): void {
@@ -205,12 +205,12 @@ export namespace MyService {
             }
         }
     }
-    export interface IHandler {
+    export interface Handler {
         add(num1: thrift.Int64, num2: thrift.Int64): thrift.Int64 | Promise<thrift.Int64>;
     }
     export class Processor {
-        public _handler: IHandler;
-        constructor(handler: IHandler) {
+        public _handler: Handler;
+        constructor(handler: Handler) {
             this._handler = handler;
         }
         public process(input: thrift.TProtocol, output: thrift.TProtocol): void {

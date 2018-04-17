@@ -12,9 +12,6 @@ import {
  * EXAMPLE
  *
  * createNotNull(obj, prop) => 'obj && (obj.prop != null)'
- *
- * @param obj
- * @param prop
  */
 export function createNotNullCheck(obj: string | ts.Expression ): ts.BinaryExpression {
     return ts.createBinary(
@@ -27,9 +24,31 @@ export function createNotNullCheck(obj: string | ts.Expression ): ts.BinaryExpre
 export function createNullCheck(obj: string | ts.Expression ): ts.BinaryExpression {
     return ts.createBinary(
         ((typeof obj === 'string') ? ts.createIdentifier(obj) : obj),
-        ts.SyntaxKind.EqualsEqualsEqualsToken,
-        ts.createIdentifier('undefined'),
+        ts.SyntaxKind.EqualsEqualsToken,
+        ts.createNull(),
     )
+}
+
+/**
+ * Create a check for strict inequality
+ *
+ * EXAMPLE
+ *
+ * createNotEquals(left, right) => 'left !== right'
+ */
+export function createNotEqualsCheck(left: ts.Expression, right: ts.Expression): ts.BinaryExpression {
+    return ts.createBinary(left, ts.SyntaxKind.ExclamationEqualsEqualsToken, right)
+}
+
+/**
+ * Create a check for strict equality
+ *
+ * EXAMPLE
+ *
+ * createEquals(left, right) => 'left === right'
+ */
+export function createEqualsCheck(left: ts.Expression, right: ts.Expression): ts.BinaryExpression {
+    return ts.createBinary(left, ts.SyntaxKind.EqualsEqualsEqualsToken, right)
 }
 
 export function createClassConstructor(
@@ -65,40 +84,9 @@ export function createPublicMethod(
 
 /**
  * Create assignment of one ts.Expression to another
- *
- * @param left
- * @param right
  */
 export function createAssignmentStatement(left: ts.Expression, right: ts.Expression): ts.ExpressionStatement {
     return ts.createStatement(ts.createAssignment(left, right))
-}
-
-/**
- * Create a check for strict inequality
- *
- * EXAMPLE
- *
- * createNotEquals(left, right) => 'left !== right'
- *
- * @param left
- * @param right
- */
-export function createNotEquals(left: ts.Expression, right: ts.Expression): ts.BinaryExpression {
-    return ts.createBinary(left, ts.SyntaxKind.ExclamationEqualsEqualsToken, right)
-}
-
-/**
- * Create a check for strict equality
- *
- * EXAMPLE
- *
- * createEquals(left, right) => 'left === right'
- *
- * @param left
- * @param right
- */
-export function createEquals(left: ts.Expression, right: ts.Expression): ts.BinaryExpression {
-    return ts.createBinary(left, ts.SyntaxKind.EqualsEqualsEqualsToken, right)
 }
 
 export function createLetStatement(
@@ -216,9 +204,6 @@ export function createMethodCall(
  * EXAMPLE
  *
  * propertyAccessForIdentifier('test', 'this') => 'test.this'
- *
- * @param obj
- * @param field
  */
 export function propertyAccessForIdentifier(obj: string | ts.Expression, prop: string): ts.PropertyAccessExpression {
     switch (obj) {

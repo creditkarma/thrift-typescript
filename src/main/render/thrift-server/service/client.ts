@@ -18,18 +18,11 @@ import {
 } from './utils'
 
 import {
-    createApplicationException,
-} from '../utils'
-
-import {
     APPLICATION_EXCEPTION,
     THRIFT_IDENTIFIERS,
     MESSAGE_TYPE,
-} from '../identifiers'
-
-import {
     COMMON_IDENTIFIERS,
-} from '../../shared/identifiers'
+} from '../identifiers'
 
 import {
     createFunctionParameter,
@@ -39,19 +32,24 @@ import {
     createConstStatement,
     createMethodCallStatement,
     createProtectedProperty,
-} from '../../shared/utils'
+    createApplicationException,
+} from '../utils'
 
 import {
     createAnyType,
     createNumberType,
     typeNodeForFieldType,
-} from '../../shared/types'
+} from '../types'
 
 import {
     renderValue
 } from '../../shared/values'
 
-export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
+import {
+    IIdentifierMap
+} from '../../../types'
+
+export function renderClient(node: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
     // private _requestId: number;
     const requestId: ts.PropertyDeclaration = createProtectedProperty(
         '_requestId',
@@ -99,19 +97,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
             )
         ], // parameters
         [
-            ...(
-                (node.extends !== null) ?
-                [
-                    ts.createStatement(ts.createCall(
-                        ts.createSuper(),
-                        [],
-                        [
-                            COMMON_IDENTIFIERS.connection,
-                        ]
-                    ))
-                ] :
-                []
-            ),
+            ...createSuperCall(node),
             createAssignmentStatement(
                 ts.createIdentifier('this._requestId'),
                 ts.createLiteral(0)
@@ -133,7 +119,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
 
     const incrementRequestIdMethod: ts.MethodDeclaration = ts.createMethod(
         undefined,
-        [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
+        [ ts.createToken(ts.SyntaxKind.ProtectedKeyword) ],
         undefined,
         'incrementRequestId',
         undefined,
@@ -151,7 +137,9 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
         ], true)
     )
 
-    const baseMethods: Array<ts.MethodDeclaration> = node.functions.map(createBaseMethodForDefinition)
+    const baseMethods: Array<ts.MethodDeclaration> = node.functions.map((func: FunctionDefinition) => {
+        return createBaseMethodForDefinition(func, identifiers)
+    })
 
     const heritage: Array<ts.HeritageClause> = (
         (node.extends !== null) ?
@@ -160,13 +148,13 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
                 ts.SyntaxKind.ExtendsKeyword,
                 [
                     ts.createExpressionWithTypeArguments(
-                        [
-                            ts.createTypeReferenceNode(
-                                COMMON_IDENTIFIERS.Context,
-                                undefined
-                            )
-                        ],
-                        ts.createIdentifier(`${node.extends.value}.Client`),
+                    [
+                        ts.createTypeReferenceNode(
+                            COMMON_IDENTIFIERS.Context,
+                            undefined
+                        )
+                    ],
+                    ts.createIdentifier(`${node.extends.value}.Client`),
                     )
                 ]
             )
@@ -199,6 +187,22 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
     )
 }
 
+function createSuperCall(node: ServiceDefinition): Array<ts.Statement> {
+    if (node.extends !== null) {
+        return [
+            ts.createStatement(ts.createCall(
+                ts.createSuper(),
+                [],
+                [
+                    COMMON_IDENTIFIERS.connection,
+                ]
+            ))
+        ]
+    } else {
+        return []
+    }
+}
+
 // public {{name}}( {{#args}}{{fieldName}}: {{fieldType}}, {{/args}} ): Promise<{{typeName}}> {
 //     this._requestId = this.incrementSeqId()
 //     return new Promise<{{typeName}}>((resolve, reject) => {
@@ -212,7 +216,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
 //         this.send_{{name}}( {{#args}}{{fieldName}}, {{/args}} )
 //     })
 // }
-function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclaration {
+function createBaseMethodForDefinition(def: FunctionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
     return ts.createMethod(
         undefined, // decorators
         [ ts.createToken(ts.SyntaxKind.PublicKeyword) ], // modifiers
@@ -221,7 +225,9 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
         undefined, // question token
         undefined, // type parameters
         [
-            ...def.fields.map(createParametersForField),
+            ...def.fields.map((field: FieldDefinition) => {
+                return createParametersForField(field, identifiers)
+            }),
             createFunctionParameter(
                 COMMON_IDENTIFIERS.context,
                 ContextType,
@@ -230,8 +236,8 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
             )
         ], // parameters
         ts.createTypeReferenceNode(
-          'Promise',
-          [ typeNodeForFieldType(def.returnType) ]
+            'Promise',
+            [ typeNodeForFieldType(def.returnType, identifiers) ]
         ), // return type
         ts.createBlock([
             createConstStatement(
@@ -278,26 +284,20 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
             createConstStatement(
                 COMMON_IDENTIFIERS.args,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(createStructArgsName(def)),
+                    ts.createIdentifier(`${createStructArgsName(def)}_Loose`),
                     undefined
                 ),
-                ts.createNew(
-                    ts.createIdentifier(createStructArgsName(def)),
-                    undefined,
-                    [
-                        ts.createObjectLiteral(
-                            def.fields.map((next: FieldDefinition) => {
-                                return ts.createShorthandPropertyAssignment(next.name.value)
-                            })
-                        )
-                    ]
-                )
+                ts.createObjectLiteral(
+                    def.fields.map((next: FieldDefinition) => {
+                        return ts.createShorthandPropertyAssignment(next.name.value)
+                    })
+                ),
             ),
             // args.write(output)
             createMethodCallStatement(
-                COMMON_IDENTIFIERS.args,
-                'write',
-                [ COMMON_IDENTIFIERS.output ]
+                ts.createIdentifier(`${createStructArgsName(def)}Codec`),
+                'encode',
+                [ COMMON_IDENTIFIERS.args, COMMON_IDENTIFIERS.output ]
             ),
             // output.writeMessageEnd()
             createMethodCallStatement(
@@ -416,16 +416,16 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                                                 //     return callback(result.{{throwName}})
                                                 // }
                                                 ...def.throws.map((next: FieldDefinition): ts.IfStatement => {
-                                                return ts.createIf(
-                                                    createNotNullCheck(`result.${next.name.value}`),
-                                                    ts.createBlock([
-                                                        ts.createReturn(
-                                                            rejectPromiseWith(
-                                                                ts.createIdentifier(`result.${next.name.value}`)
+                                                    return ts.createIf(
+                                                        createNotNullCheck(`result.${next.name.value}`),
+                                                        ts.createBlock([
+                                                            ts.createReturn(
+                                                                rejectPromiseWith(
+                                                                    ts.createIdentifier(`result.${next.name.value}`)
+                                                                )
                                                             )
-                                                        )
-                                                    ], true)
-                                                )
+                                                        ], true)
+                                                    )
                                                 }),
                                                 createResultHandler(def)
                                             ], true),
@@ -492,7 +492,7 @@ function createConnectionSend(): ts.CallExpression {
     )
 }
 
-// const result = new {{ServiceName}}{{nameTitleCase}}Result()
+// const result: GetUserResult = GetUserResultCodec.decode(input);
 function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
     return [
         createConstStatement(
@@ -503,8 +503,8 @@ function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
             ),
             ts.createCall(
                 ts.createPropertyAccess(
-                    ts.createIdentifier(createStructResultName(def)),
-                    ts.createIdentifier('read')
+                    ts.createIdentifier(`${createStructResultName(def)}Codec`),
+                    ts.createIdentifier('decode')
                 ),
                 undefined,
                 [
@@ -531,8 +531,8 @@ function createExceptionHandler(): ts.Statement {
                 ),
                 ts.createCall(
                     ts.createPropertyAccess(
-                        THRIFT_IDENTIFIERS.TApplicationException,
-                        ts.createIdentifier('read')
+                        THRIFT_IDENTIFIERS.TApplicationExceptionCodec,
+                        ts.createIdentifier('decode')
                     ),
                     undefined,
                     [
@@ -608,14 +608,14 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
     }
 }
 
-function createParametersForField(field: FieldDefinition): ts.ParameterDeclaration {
+function createParametersForField(field: FieldDefinition, identifiers: IIdentifierMap): ts.ParameterDeclaration {
     const defaultValue = (field.defaultValue !== null) ?
         renderValue(field.fieldType, field.defaultValue) :
         undefined
 
     return createFunctionParameter(
         field.name.value,
-        typeNodeForFieldType(field.fieldType),
+        typeNodeForFieldType(field.fieldType, identifiers, true),
         defaultValue,
         (field.requiredness === 'optional'),
     )

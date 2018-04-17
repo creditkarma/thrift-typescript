@@ -9,7 +9,7 @@ export namespace ParentService {
                 this.status = args.status;
             }
             else {
-                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field status is unset!");
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field[status] is unset!");
             }
         }
         public write(output: thrift.TProtocol): void {
@@ -168,12 +168,12 @@ export namespace ParentService {
             }
         }
     }
-    export interface IHandler {
+    export interface Handler {
         ping(status: number): string | Promise<string>;
     }
     export class Processor {
-        public _handler: IHandler;
-        constructor(handler: IHandler) {
+        public _handler: Handler;
+        constructor(handler: Handler) {
             this._handler = handler;
         }
         public process(input: thrift.TProtocol, output: thrift.TProtocol): void {
@@ -238,7 +238,7 @@ export namespace ChildService {
                 this.name = args.name;
             }
             else {
-                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field name is unset!");
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
             }
         }
         public write(output: thrift.TProtocol): void {
@@ -401,10 +401,10 @@ export namespace ChildService {
     export interface ILocalHandler {
         peg(name: string): string | Promise<string>;
     }
-    export type IHandler = ILocalHandler & ParentService.IHandler;
+    export type Handler = ILocalHandler & ParentService.Handler;
     export class Processor extends ParentService.Processor {
-        public _handler: IHandler;
-        constructor(handler: IHandler) {
+        public _handler: Handler;
+        constructor(handler: Handler) {
             super({
                 ping: handler.ping
             });

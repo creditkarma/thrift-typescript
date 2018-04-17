@@ -3,7 +3,12 @@ export const CLIENT_CONFIG = {
   port: 8044
 }
 
-export const SERVER_CONFIG = {
+export const CALC_SERVER_CONFIG = {
   hostName: 'localhost',
   port: 8054
+}
+
+export const ADD_SERVER_CONFIG = {
+    hostName: 'localhost',
+    port: 8064
 }

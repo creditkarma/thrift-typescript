@@ -2,4 +2,4 @@ export enum MyEnum {
     ONE,
     TWO
 }
-export { MyEnum as AnotherName };
+export import AnotherName = MyEnum;

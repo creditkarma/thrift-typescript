@@ -60,7 +60,7 @@ export namespace MyService {
                 this.status = args.status;
             }
             else {
-                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field status is unset!");
+                throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field[status] is unset!");
             }
         }
         public write(output: thrift.TProtocol): void {
@@ -241,12 +241,12 @@ export namespace MyService {
             }
         }
     }
-    export interface IHandler {
+    export interface Handler {
         ping(status: number): string | Promise<string>;
     }
     export class Processor {
-        public _handler: IHandler;
-        constructor(handler: IHandler) {
+        public _handler: Handler;
+        constructor(handler: Handler) {
             this._handler = handler;
         }
         public process(input: thrift.TProtocol, output: thrift.TProtocol): void {

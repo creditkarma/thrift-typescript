@@ -17,6 +17,8 @@ import {
     APPLICATION_EXCEPTION,
 } from './identifiers'
 
+export * from '../shared/utils'
+
 export function createProtocolException(
     type: TProtocolException,
     message: string,

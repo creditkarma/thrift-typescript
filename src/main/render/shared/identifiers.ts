@@ -1,6 +1,9 @@
 import * as ts from 'typescript'
 
 export const COMMON_IDENTIFIERS = {
+    result: ts.createIdentifier('result'),
+    val: ts.createIdentifier('val'),
+    obj: ts.createIdentifier('obj'),
     callback: ts.createIdentifier('callback'),
     requestId: ts.createIdentifier('requestId'),
     err: ts.createIdentifier('err'),
@@ -33,6 +36,8 @@ export const COMMON_IDENTIFIERS = {
     Boolean: ts.createIdentifier('Boolean'),
     Promise: ts.createIdentifier('Promise'),
     Number: ts.createIdentifier('Number'),
+    Error: ts.createIdentifier('Error'),
     void: ts.createIdentifier('void'),
     Int64: ts.createIdentifier('thrift.Int64'),
+    Handler: ts.createIdentifier('Handler'),
 }

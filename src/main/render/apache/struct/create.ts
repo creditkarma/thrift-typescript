@@ -12,27 +12,30 @@ import {
 
 import {
     throwProtocolException,
-} from '../utils'
-
-import {
     createClassConstructor,
     createAssignmentStatement,
     propertyAccessForIdentifier,
     createNotNullCheck,
-} from '../../shared/utils'
+    hasRequiredField,
+    renderOptional,
+    createFunctionParameter,
+} from '../utils'
+
+import {
+    renderValue,
+} from '../../shared/values'
 
 import {
     COMMON_IDENTIFIERS,
-} from '../../shared/identifiers';
+} from '../identifiers';
 
 import {
-    createArgsParameterForStruct,
-    renderFieldDeclarations,
-} from '../../shared/struct'
+    typeNodeForFieldType,
+} from '../types'
 
 import {
     interfaceNameForClass
-} from '../../shared/interface'
+} from '../interface'
 
 import { createReadMethod } from './read'
 import { createWriteMethod } from './write'
@@ -108,8 +111,6 @@ export function createArgsTypeForStruct(node: InterfaceWithFields): ts.TypeRefer
  * }
  *
  * This function creates the 'this.id = args.id' bit.
- *
- * @param field
  */
 export function assignmentForField(field: FieldDefinition): ts.Statement {
     if (field.fieldType.type === SyntaxType.I64Keyword) {
@@ -152,14 +153,12 @@ export function assignmentForField(field: FieldDefinition): ts.Statement {
  * EXAMPLE
  *
  * throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
- *
- * @param field
  */
 export function throwForField(field: FieldDefinition): ts.ThrowStatement | undefined {
     if (field.requiredness === 'required') {
         return throwProtocolException(
             'UNKNOWN',
-            `Required field ${field.name.value} is unset!`
+            `Required field[${field.name.value}] is unset!`
         )
     } else {
         return undefined
@@ -194,5 +193,48 @@ export function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
         comparison,
         ts.createBlock([thenAssign], true),
         (elseThrow === undefined) ? undefined : ts.createBlock([elseThrow], true),
+    )
+}
+
+/**
+ * Render properties for struct class based on values thrift file
+ *
+ * EXAMPLE:
+ *
+ * // thrift
+ * stuct MyStruct {
+ *   1: required i32 id,
+ *   2: optional bool field1,
+ * }
+ *
+ * // typescript
+ * export class MyStruct {
+ *   public id: number = null;
+ *   public field1?: boolean = null;
+ *
+ *   ...
+ * }
+ */
+export function renderFieldDeclarations(field: FieldDefinition): ts.PropertyDeclaration {
+    const defaultValue = (field.defaultValue !== null) ?
+        renderValue(field.fieldType, field.defaultValue) :
+        undefined
+
+    return ts.createProperty(
+        undefined,
+        [ts.createToken(ts.SyntaxKind.PublicKeyword)],
+        ts.createIdentifier(field.name.value),
+        renderOptional(field.requiredness),
+        typeNodeForFieldType(field.fieldType),
+        defaultValue
+    )
+}
+
+export function createArgsParameterForStruct(node: InterfaceWithFields): ts.ParameterDeclaration {
+    return createFunctionParameter(
+        'args', // param name
+        createArgsTypeForStruct(node), // param type
+        undefined, // initializer
+        !hasRequiredField(node) // optional?
     )
 }
