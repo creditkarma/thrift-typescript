@@ -319,7 +319,7 @@ const try1: MyUnion = {
     option2: 42,
 }
 
-// This won't work
+// ...and this won't work
 const try2: MyUnion = {
     option1: undefined,
     option2: undefined,
@@ -330,7 +330,7 @@ const try3: MyUnion = {
     option1: 'foo',
 }
 
-// Or, this works
+// ...or, this works
 const try4: MyUnion = {
     option1: undefined,
     option2: 42,
@@ -433,7 +433,6 @@ interface User {
 interface User_Loose {
     id: number | thrift.Int64
 }
-
 interface Profile {
     user: User
     data?: Buffer
