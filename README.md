@@ -114,7 +114,7 @@ $ thrift-typescript --target thrift-server --rootDir . --sourceDir thrift --outD
 
 In this example we are using the Request library as our underlying connection instance. The options for Request (CoreOptions) are our request context.
 
-You'll notice that the Client class is a generic. The type parameter represents the type of the context. For Request this is CoreOptions, for Axios this is AxiosRequestConfig.
+You'll notice that the Client class is a generic. The type parameter represents the type of the context. Since we are using Request this is CoreOptions.
 
 ```typescript
 import {
