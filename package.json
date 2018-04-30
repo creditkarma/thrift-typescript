@@ -11,7 +11,8 @@
         "dist/main"
     ],
     "scripts": {
-        "clean": "rimraf ./coverage ./dist ./**/codegen",
+        "clean": "rimraf ./coverage/ ./dist/ ./**/codegen/",
+        "clean-all": "rimraf ./coverage/ ./dist/ ./**/codegen/ ./node_modules/ ./package-lock.json",
         "codegen": "node ./dist/main/bin/index.js --sourceDir ./src/tests/integration/thrift --outDir ./src/tests/integration/apache/codegen",
         "prebuild": "npm run clean",
         "build": "npm run lint && tsc",

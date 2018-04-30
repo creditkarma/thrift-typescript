@@ -93,7 +93,7 @@ describe('Thrift TypeScript Generator', () => {
                     2: i64 field2
                 }
             `
-            const expected: string = readFixture('strict_union', 'thrift-server')
+            const expected: string = readFixture('basic_strict_union', 'thrift-server')
             const actual: string = make(content, 'thrift-server', { strict: true })
 
             assert.deepEqual(actual, expected)
