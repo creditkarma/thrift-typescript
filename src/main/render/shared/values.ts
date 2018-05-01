@@ -3,15 +3,15 @@ import * as ts from 'typescript'
 import {
     ConstList,
     ConstMap,
-    ConstValue,
-    DoubleConstant,
     FunctionType,
-    IntConstant,
-    ListType,
-    MapType,
-    SetType,
-    StringLiteral,
+    ConstValue,
     SyntaxType,
+    ListType,
+    SetType,
+    MapType,
+    IntConstant,
+    DoubleConstant,
+    StringLiteral,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -19,7 +19,7 @@ import {
 } from './identifiers'
 
 import {
-    propertyAccessForIdentifier,
+    propertyAccessForIdentifier
 } from './utils'
 
 export function renderValue(fieldType: FunctionType, node: ConstValue): ts.Expression {
@@ -77,11 +77,11 @@ export function renderIntConstant(node: IntConstant, fieldType?: FunctionType): 
                     COMMON_IDENTIFIERS.Int64,
                     undefined,
                     [
-                        ts.createLiteral(parseInt(node.value.value, 10)),
-                    ],
+                        ts.createLiteral(parseInt(node.value.value))
+                    ]
                 )
             } else {
-                return ts.createLiteral(parseInt(node.value.value, 10))
+                return ts.createLiteral(parseInt(node.value.value))
             }
 
         case SyntaxType.HexLiteral:
@@ -91,11 +91,11 @@ export function renderIntConstant(node: IntConstant, fieldType?: FunctionType): 
                     COMMON_IDENTIFIERS.Int64,
                     undefined,
                     [
-                        ts.createLiteral(node.value.value),
-                    ],
+                        ts.createLiteral(node.value.value)
+                    ]
                 )
             } else {
-                return ts.createLiteral(parseInt(node.value.value, 10))
+                return ts.createLiteral(parseInt(node.value.value))
             }
 
         default:
@@ -109,7 +109,7 @@ export function renderDoubleConstant(node: DoubleConstant): ts.Expression {
         case SyntaxType.FloatLiteral:
         case SyntaxType.ExponentialLiteral:
             return ts.createLiteral(
-                parseFloat(node.value.value),
+                parseFloat(node.value.value)
             )
 
         default:
@@ -141,7 +141,7 @@ function renderSet(fieldType: SetType, node: ConstList): ts.NewExpression {
     return ts.createNew(
         COMMON_IDENTIFIERS.Set,
         undefined,
-        [ ts.createArrayLiteral(values) ],
+        [ ts.createArrayLiteral(values) ]
     )
 }
 

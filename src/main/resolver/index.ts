@@ -17,19 +17,19 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-    DefinitionType,
     IIdentifierMap,
-    INamespace,
     IParsedFile,
-    IResolvedCache,
     IResolvedFile,
     IResolvedFileMap,
     IResolvedIdentifier,
     IResolvedIncludeMap,
+    INamespace,
+    IResolvedCache,
+    DefinitionType,
 } from '../types'
 
 import {
-    resolveNamespace,
+    resolveNamespace
 } from './utils'
 
 /**

@@ -12,9 +12,9 @@ import {
 } from './types'
 
 import {
-    APPLICATION_EXCEPTION,
-    PROTOCOL_EXCEPTION,
     THRIFT_IDENTIFIERS,
+    PROTOCOL_EXCEPTION,
+    APPLICATION_EXCEPTION,
 } from './identifiers'
 
 export * from '../shared/utils'
@@ -38,7 +38,7 @@ export function throwProtocolException(
 
 export function createApplicationException(
      type: TApplicationException,
-     message: string | ts.Expression,
+    message: string | ts.Expression,
 ): ts.NewExpression {
     const errCtor = THRIFT_IDENTIFIERS.TApplicationException
     const errType = APPLICATION_EXCEPTION[type]

@@ -1,7 +1,7 @@
-import * as path from 'path'
 import * as ts from 'typescript'
+import * as path from 'path'
 
-import { IRenderedFile, IRenderedFileMap, IResolvedIdentifier, IResolvedIncludeMap } from '../types'
+import { IRenderedFileMap, IResolvedIncludeMap, IResolvedIdentifier, IRenderedFile } from '../types'
 
 /**
  * import { Thrift, TProtocol, TTransport, Int64 } from 'thrift';
@@ -14,7 +14,7 @@ export function createThriftImports(): ts.ImportDeclaration {
         undefined,
         undefined,
         ts.createImportClause(undefined, ts.createNamespaceImport(ts.createIdentifier('thrift'))),
-        ts.createLiteral('thrift'),
+        ts.createLiteral('thrift')
     )
 }
 
@@ -29,7 +29,7 @@ export function createThriftImports(): ts.ImportDeclaration {
 export function createImportsForIncludes(
     currentPath: string,
     includes: IRenderedFileMap,
-    resolved: IResolvedIncludeMap,
+    resolved: IResolvedIncludeMap
 ): Array<ts.ImportDeclaration> {
     const imports: Array<ts.ImportDeclaration> = []
     for (const name of Object.keys(resolved)) {
@@ -47,18 +47,18 @@ export function createImportsForIncludes(
                             resolvedIncludes.map((next: IResolvedIdentifier) => {
                                 return ts.createImportSpecifier(
                                     ts.createIdentifier(next.name),
-                                    ts.createIdentifier(next.resolvedName),
+                                    ts.createIdentifier(next.resolvedName)
                                 )
-                            }),
-                        ),
+                            })
+                        )
                     ),
                     ts.createLiteral(
                         `./${path.join(
                             path.relative(path.dirname(currentPath), path.dirname(includeFile.outPath)),
-                            path.basename(includeFile.outPath, '.ts'),
-                        )}`,
-                    ),
-                ),
+                            path.basename(includeFile.outPath, '.ts')
+                        )}`
+                    )
+                )
             )
         }
     }

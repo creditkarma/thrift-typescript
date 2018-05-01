@@ -1,10 +1,10 @@
-import * as path from 'path'
 import * as ts from 'typescript'
+import * as path from 'path'
 
 import {
-    IResolvedFile,
-    IResolvedIdentifier,
     IResolvedIncludeMap,
+    IResolvedIdentifier,
+    IResolvedFile,
 } from '../../types'
 
 /**
@@ -19,7 +19,7 @@ export function renderThriftImports(): ts.ImportDeclaration {
         undefined,
         ts.createImportClause(
             undefined,
-            ts.createNamespaceImport(ts.createIdentifier('thrift')),
+            ts.createNamespaceImport(ts.createIdentifier('thrift'))
         ),
         ts.createLiteral('thrift'),
     )

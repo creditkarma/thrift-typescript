@@ -3,24 +3,25 @@ import * as ts from 'typescript'
 import {
     FunctionType,
     SyntaxType,
+    Identifier,
 } from '@creditkarma/thrift-parser'
 
 import {
     IIdentifierMap,
-    IResolvedIdentifier,
+    IResolvedIdentifier
 } from '../../types'
 
 import {
+    THRIFT_TYPES,
+    PROTOCOL_EXCEPTION,
     APPLICATION_EXCEPTION,
     COMMON_IDENTIFIERS,
-    PROTOCOL_EXCEPTION,
-    THRIFT_TYPES,
 } from './identifiers'
 
 import {
-    createBooleanType,
     createNumberType,
     createStringType,
+    createBooleanType,
     createVoidType,
 } from '../shared/types'
 
@@ -108,7 +109,7 @@ function thriftTypeForIdentifier(id: IResolvedIdentifier, identifiers: IIdentifi
         case SyntaxType.TypedefDefinition:
             return thriftTypeForFieldType(
                 id.definition.definitionType,
-                identifiers,
+                identifiers
             )
 
         default:
@@ -132,7 +133,7 @@ export function thriftTypeForFieldType(fieldType: FunctionType, identifiers: IId
         case SyntaxType.Identifier:
             return thriftTypeForIdentifier(
                 identifiers[fieldType.value],
-                identifiers,
+                identifiers
             )
 
         case SyntaxType.SetType:
@@ -203,14 +204,28 @@ export function thriftTypeForFieldType(fieldType: FunctionType, identifiers: IId
  *
  * SyntaxType.VoidKeyword
  */
+function typeNameForIdentifier(fieldType: Identifier, id: IResolvedIdentifier): string {
+    switch (id.definition.type) {
+        case SyntaxType.StructDefinition:
+        case SyntaxType.UnionDefinition:
+            return `${fieldType.value}_Loose`
+
+        default:
+            return fieldType.value
+    }
+}
+
 export function typeNodeForFieldType(fieldType: FunctionType, identifiers: IIdentifierMap, loose: boolean = false): ts.TypeNode {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
-            if (loose === true) {
-                return ts.createTypeReferenceNode(`I${fieldType.value}_Loose`, undefined)
+            if (loose == true) {
+                return ts.createTypeReferenceNode(
+                    typeNameForIdentifier(fieldType, identifiers[fieldType.value]),
+                    undefined
+                )
 
             } else {
-                return ts.createTypeReferenceNode(`I${fieldType.value}`, undefined)
+                return ts.createTypeReferenceNode(fieldType.value, undefined)
             }
 
         case SyntaxType.SetType:
@@ -224,7 +239,7 @@ export function typeNodeForFieldType(fieldType: FunctionType, identifiers: IIden
                 'Map',
                 [
                     typeNodeForFieldType(fieldType.keyType, identifiers, loose),
-                    typeNodeForFieldType(fieldType.valueType, identifiers, loose),
+                    typeNodeForFieldType(fieldType.valueType, identifiers, loose)
                 ],
             )
 
@@ -246,8 +261,8 @@ export function typeNodeForFieldType(fieldType: FunctionType, identifiers: IIden
                     createNumberType(),
                     ts.createTypeReferenceNode(
                         COMMON_IDENTIFIERS.Int64,
-                        undefined,
-                    ),
+                        undefined
+                    )
                 ])
             } else {
                 return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Int64, undefined)
@@ -259,8 +274,8 @@ export function typeNodeForFieldType(fieldType: FunctionType, identifiers: IIden
                     createStringType(),
                     ts.createTypeReferenceNode(
                         COMMON_IDENTIFIERS.Buffer,
-                        undefined,
-                    ),
+                        undefined
+                    )
                 ])
             } else {
                 return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Buffer, undefined)

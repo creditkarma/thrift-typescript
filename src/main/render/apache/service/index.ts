@@ -1,24 +1,24 @@
-export * from './client'
-export * from './processor'
+export * from './client';
+export * from './processor';
 
 import * as ts from 'typescript'
 
 import {
-    FieldDefinition,
-    FunctionDefinition,
-    ServiceDefinition,
-    StructDefinition,
     SyntaxType,
-    TextLocation,
+    StructDefinition,
+    ServiceDefinition,
+    FunctionDefinition,
+    FieldDefinition,
+    TextLocation
 } from '@creditkarma/thrift-parser'
 
 import {
     createStructArgsName,
-    createStructResultName,
+    createStructResultName
 } from './utils'
 
 import {
-    renderStruct,
+    renderStruct
 } from '../struct'
 
 import {
@@ -32,68 +32,69 @@ import {
 function emptyLocation(): TextLocation {
     return {
         start: { line: 0, column: 0, index: 0 },
-        end: { line: 0, column: 0, index: 0 },
-    }
+        end: { line: 0, column: 0, index: 0 }
+    };
 }
+
 
 export function renderArgsStruct(service: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.InterfaceDeclaration | ts.ClassDeclaration> {
     return service.functions.reduce((
         acc: Array<ts.InterfaceDeclaration | ts.ClassDeclaration>,
-        func: FunctionDefinition,
+        func: FunctionDefinition
     ): Array<ts.InterfaceDeclaration | ts.ClassDeclaration> => {
         const argsStruct: StructDefinition = {
             type: SyntaxType.StructDefinition,
             name: {
                 type: SyntaxType.Identifier,
                 value: createStructArgsName(func),
-                loc: emptyLocation(),
+                loc: emptyLocation()
             },
             fields: func.fields.map((next: FieldDefinition) => {
                 next.requiredness = (next.requiredness === 'optional') ? 'optional' : 'required'
                 return next
             }),
             comments: [],
-            loc: emptyLocation(),
-        }
+            loc: emptyLocation()
+        };
 
         return [
             ...acc,
             renderInterface(argsStruct),
-            renderStruct(argsStruct, identifiers),
-        ]
-    }, [])
+            renderStruct(argsStruct, identifiers)
+        ];
+    }, []);
 }
 
 export function renderResultStruct(service: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.InterfaceDeclaration | ts.ClassDeclaration> {
     return service.functions.reduce((
         acc: Array<ts.InterfaceDeclaration | ts.ClassDeclaration>,
-        func: FunctionDefinition,
+        func: FunctionDefinition
     ): Array<ts.InterfaceDeclaration | ts.ClassDeclaration> => {
-        let fieldID: number = 0
+        var fieldID: number = 0;
         const resultStruct: StructDefinition = {
             type: SyntaxType.StructDefinition,
             name: {
                 type: SyntaxType.Identifier,
                 value: createStructResultName(func),
-                loc: emptyLocation(),
+                loc: emptyLocation()
             },
             fields: [{
                 type: SyntaxType.FieldDefinition,
                 name: {
                     type: SyntaxType.Identifier,
                     value: 'success',
-                    loc: emptyLocation(),
+                    loc: emptyLocation()
                 },
                 fieldID: {
                     type: SyntaxType.FieldID,
                     value: (fieldID++),
-                    loc: emptyLocation(),
+                    loc: emptyLocation()
                 },
                 requiredness: 'optional',
                 fieldType: func.returnType,
                 defaultValue: null,
                 comments: [],
-                loc: emptyLocation(),
+                loc: emptyLocation()
             },
             ...func.throws.map((next: FieldDefinition): FieldDefinition => {
                 return {
@@ -102,23 +103,23 @@ export function renderResultStruct(service: ServiceDefinition, identifiers: IIde
                     fieldID: {
                         type: SyntaxType.FieldID,
                         value: (fieldID++),
-                        loc: emptyLocation(),
+                        loc: emptyLocation()
                     },
                     requiredness: 'optional',
                     fieldType: next.fieldType,
                     defaultValue: null,
                     comments: [],
-                    loc: emptyLocation(),
+                    loc: emptyLocation()
                 }
             })],
             comments: [],
             loc: emptyLocation(),
-        }
+        };
 
         return [
             ...acc,
             renderInterface(resultStruct),
-            renderStruct(resultStruct, identifiers),
-        ]
-    }, [])
+            renderStruct(resultStruct, identifiers)
+        ];
+    }, []);
 }

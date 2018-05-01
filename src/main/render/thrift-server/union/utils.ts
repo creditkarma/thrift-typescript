@@ -1,6 +1,10 @@
 import * as ts from 'typescript'
 
 import {
+    UnionDefinition,
+} from '@creditkarma/thrift-parser'
+
+import {
     createLetStatement,
     throwProtocolException,
 } from '../utils'
@@ -25,8 +29,8 @@ export function createFieldIncrementer(): ts.VariableStatement {
 export function incrementFieldsSet(): ts.ExpressionStatement {
     return ts.createStatement(
         ts.createPostfixIncrement(
-            ts.createIdentifier(INCREMENTER),
-        ),
+            ts.createIdentifier(INCREMENTER)
+        )
     )
 }
 
@@ -38,7 +42,7 @@ export function incrementFieldsSet(): ts.ExpressionStatement {
  *   throw new Thrift.TProtocolException(TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
  * }
  */
-export function createFieldValidation(): ts.IfStatement {
+export function createFieldValidation(node: UnionDefinition): ts.IfStatement {
     return ts.createIf(
         ts.createBinary(
             ts.createIdentifier(INCREMENTER),

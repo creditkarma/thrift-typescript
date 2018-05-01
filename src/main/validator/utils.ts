@@ -1,7 +1,7 @@
 import {
-    ConstValue,
     FunctionType,
     SyntaxType,
+    ConstValue
 } from '@creditkarma/thrift-parser'
 
 /**
@@ -30,7 +30,7 @@ export function constToTypeString(constValue: ConstValue): string {
 
         case SyntaxType.ConstMap:
             return `Map<${constToTypeString(constValue.properties[0].name)},${constToTypeString(
-                constValue.properties[0].initializer,
+                constValue.properties[0].initializer
             )}>`
 
         default:

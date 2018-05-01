@@ -1,7 +1,7 @@
 import * as ts from 'typescript'
 
 import {
-    THRIFT_IDENTIFIERS,
+    THRIFT_IDENTIFIERS
 } from '../identifiers'
 
 import {
@@ -19,7 +19,7 @@ export function createConnectionType(): ts.TypeNode {
             ts.createTypeReferenceNode(
                 COMMON_IDENTIFIERS.Context,
                 undefined,
-            ),
+            )
         ],
     )
 }

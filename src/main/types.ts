@@ -37,41 +37,57 @@ export interface IMakeOptions {
 
     // What core libs are you compiling for?
     target: CompileTarget
+
+    // Flags to change compiler behavior
+    flags: IMakeFlags
+}
+
+export interface IMakeFlags {
+    strict?: boolean
+    strictUnions?: boolean
 }
 
 export interface IRenderer {
     renderIncludes(
         outPath: string,
         currentPath: string,
-        resolvedFile: INamespaceFile): Array<ts.Statement>
+        resolvedFile: INamespaceFile,
+        flags?: IMakeFlags): Array<ts.Statement>
 
     renderConst(
         statement: ConstDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        identifiers?: IIdentifierMap,
+        flags?: IMakeFlags): Array<ts.Statement>
 
     renderTypeDef(
         statement: TypedefDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        identifiers?: IIdentifierMap,
+        flags?: IMakeFlags): Array<ts.Statement>
 
     renderEnum(
         statement: EnumDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        identifiers?: IIdentifierMap,
+        flags?: IMakeFlags): Array<ts.Statement>
 
     renderStruct(
         statement: StructDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        identifiers?: IIdentifierMap,
+        flags?: IMakeFlags): Array<ts.Statement>
 
     renderException(
         statement: ExceptionDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        identifiers?: IIdentifierMap,
+        flags?: IMakeFlags): Array<ts.Statement>
 
     renderUnion(
         statement: UnionDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        identifiers?: IIdentifierMap,
+        flags?: IMakeFlags): Array<ts.Statement>
 
     renderService(
         statement: ServiceDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        identifiers?: IIdentifierMap,
+        flags?: IMakeFlags): Array<ts.Statement>
 }
 
 /**

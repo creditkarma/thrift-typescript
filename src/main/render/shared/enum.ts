@@ -2,11 +2,11 @@ import * as ts from 'typescript'
 
 import {
     EnumDefinition,
-    EnumMember,
+    EnumMember
 } from '@creditkarma/thrift-parser'
 
 import {
-    renderIntConstant,
+    renderIntConstant
 } from './values'
 
 /**

@@ -6,7 +6,7 @@ import {
 } from '../types'
 
 import {
-    createFunctionParameter,
+    createFunctionParameter
 } from '../utils'
 
 import {
@@ -21,10 +21,10 @@ export function createProtocolType(): ts.ConstructorTypeNode {
         [
             createFunctionParameter(
                 'trans',
-                ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TTransport, undefined),
-            ),
+                ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TTransport, undefined)
+            )
         ],
-        TProtocolType,
+        TProtocolType
     )
 }
 
@@ -41,8 +41,8 @@ export function createReqType(): ts.TypeLiteralNode {
                     undefined,
                     'name',
                     undefined,
-                    createNumberType(),
-                ),
+                    createNumberType()
+                )
             ],
             ts.createFunctionTypeNode(
                 undefined,
@@ -52,18 +52,18 @@ export function createReqType(): ts.TypeLiteralNode {
                         ts.createUnionTypeNode([
                             ts.createTypeReferenceNode('Error', undefined),
                             ts.createTypeReferenceNode('object', undefined),
-                            ts.createTypeReferenceNode('undefined', undefined),
-                        ]),
+                            ts.createTypeReferenceNode('undefined', undefined)
+                        ])
                     ),
                     createFunctionParameter(
                         'val',
                         ts.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
                         undefined,
-                        true,
-                    ),
+                        true
+                    )
                 ],
-                createVoidType(),
-            ),
-        ),
+                createVoidType()
+            )
+        )
     ])
 }

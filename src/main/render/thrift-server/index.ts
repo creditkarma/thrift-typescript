@@ -2,13 +2,13 @@ import * as ts from 'typescript'
 
 import {
     ConstDefinition,
-    EnumDefinition,
-    ExceptionDefinition,
-    FunctionType,
-    ServiceDefinition,
-    StructDefinition,
     TypedefDefinition,
+    EnumDefinition,
+    StructDefinition,
+    ServiceDefinition,
+    ExceptionDefinition,
     UnionDefinition,
+    FunctionType,
 } from '@creditkarma/thrift-parser'
 
 import { renderException as _renderException } from './exception'
@@ -24,24 +24,25 @@ import {
     renderHandlerInterface,
 } from '../shared/service'
 
+import { renderStruct as _renderStruct } from './struct'
+import { renderUnion as _renderUnion } from './union'
+import { renderEnum as _renderEnum } from '../shared/enum'
+import { renderTypeDef as _renderTypeDef } from './typedef'
+import { renderConst as _renderConst } from '../shared/const'
 import { fileUsesThrift } from '../shared/includes'
-import { renderConst as _renderConst } from './const'
-import { renderEnum as _renderEnum } from './enum'
 import {
     renderIncludes as _renderIncludes,
     renderThriftImports,
 } from './includes'
-import { renderStruct as _renderStruct } from './struct'
-import { renderTypeDef as _renderTypeDef } from './typedef'
-import { renderUnion as _renderUnion } from './union'
 
 import {
     IIdentifierMap,
-    INamespaceFile,
     IRenderer,
+    INamespaceFile,
+    IMakeFlags,
 } from '../../types'
 
-import { typeNodeForFieldType } from './types'
+import { typeNodeForFieldType } from './types';
 
 export function renderIncludes(
     outPath: string,
@@ -82,8 +83,8 @@ export function renderException(statement: ExceptionDefinition, identifiers: IId
     return _renderException(statement, identifiers)
 }
 
-export function renderUnion(statement: UnionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return _renderUnion(statement, identifiers)
+export function renderUnion(statement: UnionDefinition, identifiers: IIdentifierMap, flags: IMakeFlags): Array<ts.Statement> {
+    return _renderUnion(statement, identifiers, flags)
 }
 
 export function renderService(statement: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
@@ -101,8 +102,8 @@ export function renderService(statement: ServiceDefinition, identifiers: IIdenti
                 }),
                 renderProcessor(statement, identifiers),
             ]),
-            ts.NodeFlags.Namespace,
-        ),
+            ts.NodeFlags.Namespace
+        )
     ]
 }
 

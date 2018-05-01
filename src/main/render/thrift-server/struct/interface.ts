@@ -1,8 +1,9 @@
 import * as ts from 'typescript'
 
 import {
-    FieldDefinition,
     InterfaceWithFields,
+    FieldDefinition,
+    SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -38,19 +39,21 @@ function strictInterface(node: InterfaceWithFields, identifiers: IIdentifierMap)
     return ts.createInterfaceDeclaration(
         undefined,
         [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-        ts.createIdentifier(nameForStruct(node)),
+        ts.createIdentifier(node.name.value),
         [],
         [],
         signatures,
     )
 }
 
-export function nameForStruct(node: InterfaceWithFields): string {
-    return `I${node.name.value}`
-}
-
-export function looseNameForStruct(node: InterfaceWithFields): string {
-    return `I${node.name.value}_Loose`
+function looseNameForStruct(node: InterfaceWithFields): string {
+    switch (node.type) {
+        case SyntaxType.StructDefinition:
+        case SyntaxType.UnionDefinition:
+            return `${node.name.value}_Loose`
+        default:
+            return node.name.value
+    }
 }
 
 function looseInterface(node: InterfaceWithFields, identifiers: IIdentifierMap): ts.InterfaceDeclaration {

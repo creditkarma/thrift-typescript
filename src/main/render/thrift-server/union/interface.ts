@@ -1,8 +1,8 @@
 import * as ts from 'typescript'
 
 import {
-    FieldDefinition,
     UnionDefinition,
+    FieldDefinition,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -10,7 +10,7 @@ import {
 } from '../types'
 
 import {
-    IIdentifierMap,
+    IIdentifierMap
 } from '../../../types'
 
 export function renderLooseInterface(node: UnionDefinition, identifiers: IIdentifierMap): ts.TypeAliasDeclaration {
@@ -29,7 +29,7 @@ export function renderLooseInterface(node: UnionDefinition, identifiers: IIdenti
                             ts.createTypeReferenceNode('undefined', undefined),
                         undefined,
                     )
-                }),
+                })
             )
         })
 
@@ -38,7 +38,7 @@ export function renderLooseInterface(node: UnionDefinition, identifiers: IIdenti
         return ts.createTypeAliasDeclaration(
             undefined,
             [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-            ts.createIdentifier(`I${node.name.value}_Loose`),
+            ts.createIdentifier(`${node.name.value}_Loose`),
             undefined,
             unionOfTypes,
         )
@@ -47,14 +47,14 @@ export function renderLooseInterface(node: UnionDefinition, identifiers: IIdenti
         return ts.createTypeAliasDeclaration(
             undefined,
             [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-            ts.createIdentifier(`I${node.name.value}_Loose`),
+            ts.createIdentifier(`${node.name.value}_Loose`),
             undefined,
             ts.createTypeLiteralNode([]),
         )
     }
 }
 
-export function renderStrictInterface(node: UnionDefinition, identifiers: IIdentifierMap): ts.TypeAliasDeclaration {
+export function renderInterface(node: UnionDefinition, identifiers: IIdentifierMap): ts.TypeAliasDeclaration {
     if (node.fields.length > 0) {
         const types: Array<ts.TypeLiteralNode> = node.fields.map((field: FieldDefinition): ts.TypeLiteralNode => {
             return ts.createTypeLiteralNode(
@@ -70,7 +70,7 @@ export function renderStrictInterface(node: UnionDefinition, identifiers: IIdent
                             ts.createTypeReferenceNode('undefined', undefined),
                         undefined,
                     )
-                }),
+                })
             )
         })
 
@@ -79,7 +79,7 @@ export function renderStrictInterface(node: UnionDefinition, identifiers: IIdent
         return ts.createTypeAliasDeclaration(
             undefined,
             [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-            ts.createIdentifier(`I${node.name.value}`),
+            ts.createIdentifier(node.name.value),
             undefined,
             unionOfTypes,
         )
@@ -110,9 +110,9 @@ export function renderStrictInterface(node: UnionDefinition, identifiers: IIdent
  * // typescript
  * export type MyUnion = { id: number } | { field1: boolean }
  */
-export function renderInterface(node: UnionDefinition, identifiers: IIdentifierMap): Array<ts.TypeAliasDeclaration> {
+export function renderStrictInterface(node: UnionDefinition, identifiers: IIdentifierMap): Array<ts.TypeAliasDeclaration> {
     return [
-        renderStrictInterface(node, identifiers),
+        renderInterface(node, identifiers),
         renderLooseInterface(node, identifiers),
     ]
 }

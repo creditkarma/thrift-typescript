@@ -1,11 +1,11 @@
 import * as ts from 'typescript'
 
 import {
-    ContainerType,
+    InterfaceWithFields,
+    SyntaxType,
     FieldDefinition,
     FunctionType,
-    SyntaxType,
-    UnionDefinition,
+    ContainerType,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -22,28 +22,21 @@ import {
     throwForField,
     writeFieldBegin,
     writeFieldEnd,
-    writeFieldStop,
-    writeListBegin,
-    writeListEnd,
-    writeMapBegin,
-    writeMapEnd,
     writeSetBegin,
     writeSetEnd,
+    writeMapBegin,
+    writeMapEnd,
+    writeListBegin,
+    writeListEnd,
     writeStructBegin,
     writeStructEnd,
+    writeFieldStop,
     writeValueForIdentifier,
-} from '../struct/write'
+} from '../struct/encode'
 
 import {
-    createTempVariables,
-} from '../struct/utils'
-
-import {
-    createFunctionParameter,
-    createMethodCall,
-    createNotNullCheck,
-    isNotVoid,
-} from '../utils'
+    IIdentifierMap,
+} from '../../../types'
 
 import {
     createVoidType,
@@ -51,31 +44,27 @@ import {
 } from '../types'
 
 import {
-    IIdentifierMap,
-} from '../../../types'
+    createFunctionParameter,
+    createNotNullCheck,
+    createMethodCall,
+    createConstStatement,
+    getInitializerForField,
+    isNotVoid,
+} from '../utils'
 
-import {
-    createFieldIncrementer,
-    createFieldValidation,
-    incrementFieldsSet,
-} from './utils'
-
-export function createWriteMethod(node: UnionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
+export function createEncodeMethod(struct: InterfaceWithFields, identifiers: IIdentifierMap): ts.MethodDeclaration {
     return ts.createMethod(
         undefined,
-        [
-            ts.createToken(ts.SyntaxKind.PublicKeyword),
-            ts.createToken(ts.SyntaxKind.StaticKeyword),
-        ],
         undefined,
-        ts.createIdentifier('write'),
+        undefined,
+        ts.createIdentifier('encode'),
         undefined,
         undefined,
         [
             createFunctionParameter(
-                COMMON_IDENTIFIERS.args,
+                COMMON_IDENTIFIERS.val,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(`I${node.name.value}_Loose`),
+                    ts.createIdentifier(struct.name.value),
                     undefined,
                 ),
             ),
@@ -89,17 +78,27 @@ export function createWriteMethod(node: UnionDefinition, identifiers: IIdentifie
         ],
         createVoidType(),
         ts.createBlock([
-            createFieldIncrementer(),
-            ...createTempVariables(node, identifiers),
-            writeStructBegin(node.name.value),
-            ...node.fields.filter(isNotVoid).map((field) => {
-                return createWriteForField(node, field, identifiers)
+            createConstStatement(
+                COMMON_IDENTIFIERS.obj,
+                undefined,
+                ts.createObjectLiteral(
+                    struct.fields.map((next: FieldDefinition): ts.ObjectLiteralElementLike => {
+                        return ts.createPropertyAssignment(
+                            next.name.value,
+                            getInitializerForField('val', next),
+                        )
+                    }),
+                    true // multiline
+                )
+            ),
+            writeStructBegin(struct.name.value),
+            ...struct.fields.filter(isNotVoid).map((field) => {
+                return createWriteForField(struct, field, identifiers)
             }),
             writeFieldStop(),
             writeStructEnd(),
-            createFieldValidation(),
-            ts.createReturn(),
-        ], true),
+            ts.createReturn()
+        ], true)
     )
 }
 
@@ -110,20 +109,20 @@ export function createWriteMethod(node: UnionDefinition, identifiers: IIdentifie
  *
  * If field is optional and has a default value write the default if value not set.
  */
-export function createWriteForField(node: UnionDefinition, field: FieldDefinition, identifiers: IIdentifierMap): ts.IfStatement {
+export function createWriteForField(struct: InterfaceWithFields, field: FieldDefinition, identifiers: IIdentifierMap): ts.IfStatement {
     const isFieldNull: ts.BinaryExpression = createNotNullCheck(`obj.${field.name.value}`)
     const thenWrite: ts.Statement = createWriteForFieldType(
-        node,
+        struct,
         field,
         ts.createIdentifier(`obj.${field.name.value}`),
-        identifiers,
+        identifiers
     )
     const elseThrow: ts.Statement | undefined = throwForField(field)
 
     return ts.createIf(
         isFieldNull,
         thenWrite, // Then block
-        (elseThrow === undefined) ? undefined : ts.createBlock([elseThrow], true),
+        (elseThrow === undefined) ? undefined : ts.createBlock([ elseThrow ], true),
     )
 }
 
@@ -132,39 +131,37 @@ export function createWriteForField(node: UnionDefinition, field: FieldDefinitio
  *
  * EXAMPLE
  *
- * _fieldsSet++;
  * output.writeFieldBegin("id", Thrift.Type.I32, 1);
  * output.writeI32(obj.id);
  * output.writeFieldEnd();
  */
 export function createWriteForFieldType(
-    node: UnionDefinition,
+    struct: InterfaceWithFields,
     field: FieldDefinition,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    identifiers: IIdentifierMap
 ): ts.Block {
     return ts.createBlock([
-        incrementFieldsSet(),
         writeFieldBegin(field, identifiers),
-        ...writeValueForField(node, field.fieldType, fieldName, identifiers),
-        writeFieldEnd(),
-    ], true)
+        ...writeValueForField(struct, field.fieldType, fieldName, identifiers),
+        writeFieldEnd()
+    ])
 }
 
 export function writeValueForType(
-    node: UnionDefinition,
+    struct: InterfaceWithFields,
     fieldType: FunctionType,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    identifiers: IIdentifierMap
 ): Array<ts.Expression> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return writeValueForIdentifier(
                 identifiers[fieldType.value],
-                node,
+                struct,
                 fieldType,
                 fieldName,
-                identifiers,
+                identifiers
             )
 
         /**
@@ -175,22 +172,22 @@ export function writeValueForType(
         case SyntaxType.SetType:
             return  [
                 writeSetBegin(fieldType, fieldName, identifiers),
-                forEach(node, fieldType, fieldName, identifiers),
-                writeSetEnd(),
+                forEach(struct, fieldType, fieldName, identifiers),
+                writeSetEnd()
             ]
 
         case SyntaxType.MapType:
             return [
                 writeMapBegin(fieldType, fieldName, identifiers),
-                forEach(node, fieldType, fieldName, identifiers),
-                writeMapEnd(),
+                forEach(struct, fieldType, fieldName, identifiers),
+                writeMapEnd()
             ]
 
         case SyntaxType.ListType:
             return  [
                 writeListBegin(fieldType, fieldName, identifiers),
-                forEach(node, fieldType, fieldName, identifiers),
-                writeListEnd(),
+                forEach(struct, fieldType, fieldName, identifiers),
+                writeListEnd()
             ]
 
         /**
@@ -225,12 +222,12 @@ function writeMethodForName(methodName: WriteMethodName, fieldName: ts.Identifie
 }
 
 function writeValueForField(
-    node: UnionDefinition,
+    struct: InterfaceWithFields,
     fieldType: FunctionType,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    identifiers: IIdentifierMap
 ): Array<ts.ExpressionStatement> {
-    return writeValueForType(node, fieldType, fieldName, identifiers).map(ts.createStatement)
+    return writeValueForType(struct, fieldType, fieldName, identifiers).map(ts.createStatement)
 }
 
 /**
@@ -249,21 +246,21 @@ function writeValueForField(
  * });
  */
 function forEach(
-    node: UnionDefinition,
+    struct: InterfaceWithFields,
     fieldType: ContainerType,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    identifiers: IIdentifierMap
 ): ts.CallExpression {
     const value: ts.Identifier = ts.createUniqueName('value')
     const forEachParameters: Array<ts.ParameterDeclaration> = [
         createFunctionParameter(
             value,
-            typeNodeForFieldType(fieldType.valueType, identifiers),
-        ),
+            typeNodeForFieldType(fieldType.valueType, identifiers)
+        )
     ]
 
     const forEachStatements: Array<ts.Statement> = [
-        ...writeValueForField(node, fieldType.valueType, value, identifiers),
+        ...writeValueForField(struct, fieldType.valueType, value, identifiers)
     ]
 
     // If map we have to handle key type as well as value type
@@ -271,10 +268,10 @@ function forEach(
         const key: ts.Identifier = ts.createUniqueName('key')
         forEachParameters.push(createFunctionParameter(
             key,
-            typeNodeForFieldType(fieldType.keyType, identifiers),
+            typeNodeForFieldType(fieldType.keyType, identifiers)
         ))
 
-        forEachStatements.unshift(...writeValueForField(node, fieldType.keyType, key, identifiers))
+        forEachStatements.unshift(...writeValueForField(struct, fieldType.keyType, key, identifiers))
     }
 
     return createMethodCall(fieldName, 'forEach', [
@@ -284,7 +281,7 @@ function forEach(
             forEachParameters, // parameters
             createVoidType(), // return type,
             ts.createToken(ts.SyntaxKind.EqualsGreaterThanToken), // greater than equals token
-            ts.createBlock(forEachStatements, true), // body
-        ),
+            ts.createBlock(forEachStatements, true) // body
+        )
     ])
 }

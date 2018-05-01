@@ -1,40 +1,40 @@
 import * as ts from 'typescript'
 
 import {
-    FieldDefinition,
     InterfaceWithFields,
+    FieldDefinition,
     SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
-    IIdentifierMap,
+    IIdentifierMap
 } from '../../../types'
 
 import {
-    createAssignmentStatement,
+    throwProtocolException,
     createClassConstructor,
-    createFunctionParameter,
+    createAssignmentStatement,
+    propertyAccessForIdentifier,
     createNotNullCheck,
     hasRequiredField,
-    propertyAccessForIdentifier,
     renderOptional,
-    throwProtocolException,
+    createFunctionParameter,
 } from '../utils'
 
 import {
     renderValue,
-} from '../values'
+} from '../../shared/values'
 
 import {
     COMMON_IDENTIFIERS,
-} from '../identifiers'
+} from '../identifiers';
 
 import {
     typeNodeForFieldType,
 } from '../types'
 
 import {
-    interfaceNameForClass,
+    interfaceNameForClass
 } from '../interface'
 
 import { createReadMethod } from './read'
@@ -63,7 +63,7 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
     // Build the constructor body
     const ctor: ts.ConstructorDeclaration = createClassConstructor(
         [ argsParameter ],
-        [ ...fieldAssignments ],
+        [ ...fieldAssignments ]
     )
 
     // Build the `read` method
@@ -83,8 +83,8 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
             ...fields,
             ctor,
             writeMethod,
-            readMethod,
-        ],
+            readMethod
+        ]
     )
 }
 
@@ -118,7 +118,7 @@ export function assignmentForField(field: FieldDefinition): ts.Statement {
             ts.createBinary(
                 ts.createTypeOf(ts.createIdentifier(`args.${field.name.value}`)),
                 ts.SyntaxKind.EqualsEqualsEqualsToken,
-                ts.createLiteral('number'),
+                ts.createLiteral('number')
             ),
             ts.createBlock([
                 createAssignmentStatement(
@@ -127,22 +127,22 @@ export function assignmentForField(field: FieldDefinition): ts.Statement {
                         COMMON_IDENTIFIERS.Int64,
                         undefined,
                         [
-                        ts.createIdentifier(`args.${field.name.value}`),
-                        ],
-                    ),
-                ),
+                        ts.createIdentifier(`args.${field.name.value}`)
+                        ]
+                    )
+                )
             ], true),
             ts.createBlock([
                 createAssignmentStatement(
                     propertyAccessForIdentifier('this', field.name.value),
-                    propertyAccessForIdentifier('args', field.name.value),
-                ),
-            ], true),
+                    propertyAccessForIdentifier('args', field.name.value)
+                )
+            ], true)
         )
     } else {
         return createAssignmentStatement(
             propertyAccessForIdentifier('this', field.name.value),
-            propertyAccessForIdentifier('args', field.name.value),
+            propertyAccessForIdentifier('args', field.name.value)
         )
     }
 }
@@ -158,7 +158,7 @@ export function throwForField(field: FieldDefinition): ts.ThrowStatement | undef
     if (field.requiredness === 'required') {
         return throwProtocolException(
             'UNKNOWN',
-            `Required field[${field.name.value}] is unset!`,
+            `Required field[${field.name.value}] is unset!`
         )
     } else {
         return undefined
@@ -226,7 +226,7 @@ export function renderFieldDeclarations(field: FieldDefinition): ts.PropertyDecl
         ts.createIdentifier(field.name.value),
         renderOptional(field.requiredness),
         typeNodeForFieldType(field.fieldType),
-        defaultValue,
+        defaultValue
     )
 }
 
@@ -235,6 +235,6 @@ export function createArgsParameterForStruct(node: InterfaceWithFields): ts.Para
         'args', // param name
         createArgsTypeForStruct(node), // param type
         undefined, // initializer
-        !hasRequiredField(node), // optional?
+        !hasRequiredField(node) // optional?
     )
 }

@@ -1,8 +1,8 @@
 import * as ts from 'typescript'
 
 import {
-    SyntaxType,
     TypedefDefinition,
+    SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -10,14 +10,14 @@ import {
 } from './types'
 
 import {
-    IIdentifierMap,
     IResolvedIdentifier,
+    IIdentifierMap,
 } from '../../types'
 
 function renderTypeDefForIdentifier(
     id: IResolvedIdentifier,
     node: TypedefDefinition,
-    typeMapping: TypeMapping,
+    typeMapping: TypeMapping
 ): Array<ts.Statement> {
     switch (id.definition.type) {
         case SyntaxType.ExceptionDefinition:
@@ -31,9 +31,9 @@ function renderTypeDefForIdentifier(
                 ts.createImportEqualsDeclaration(
                     undefined,
                     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-                    ts.createIdentifier(`${node.name.value}`),
-                    ts.createIdentifier(`${id.resolvedName}`),
-                ),
+                    ts.createIdentifier(`${node.name.value}Codec`),
+                    ts.createIdentifier(`${id.resolvedName}Codec`),
+                )
             ]
 
         case SyntaxType.StructDefinition:
@@ -48,15 +48,15 @@ function renderTypeDefForIdentifier(
                 ts.createImportEqualsDeclaration(
                     undefined,
                     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-                    ts.createIdentifier(`I${node.name.value}_Loose`),
-                    ts.createIdentifier(`I${id.resolvedName}_Loose`),
+                    ts.createIdentifier(`${node.name.value}_Loose`),
+                    ts.createIdentifier(`${id.resolvedName}_Loose`),
                 ),
                 ts.createImportEqualsDeclaration(
                     undefined,
                     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-                    ts.createIdentifier(`${node.name.value}`),
-                    ts.createIdentifier(`${id.resolvedName}`),
-                ),
+                    ts.createIdentifier(`${node.name.value}Codec`),
+                    ts.createIdentifier(`${id.resolvedName}Codec`),
+                )
             ]
 
         default:
@@ -66,7 +66,7 @@ function renderTypeDefForIdentifier(
                     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
                     ts.createIdentifier(node.name.value),
                     ts.createIdentifier(id.resolvedName),
-                ),
+                )
             ]
     }
 }

@@ -1,30 +1,27 @@
-export interface IMyException {
-    description: string;
-    code?: number;
-}
-export interface IMyException_Loose {
-    description: string;
-    code?: number;
-}
-export class MyException extends thrift.IStructLike  implements IMyException_Loose {
+export class MyException extends Error {
     public description: string;
     public code?: number;
-    constructor(args: IMyException_Loose) {
+    constructor(args: {
+        description: string;
+        code?: number;
+    }) {
         super();
-        if (args.description != null) {
+        if (args != null && args.description != null) {
             this.description = args.description;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[description] is unset!");
         }
-        if (args.code != null) {
+        if (args != null && args.code != null) {
             this.code = args.code;
         }
     }
-    public static write(args: IMyException_Loose, output: thrift.TProtocol): void {
+}
+export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
+    encode(val: MyException, output: thrift.TProtocol): void {
         const obj = {
-            description: args.description,
-            code: args.code
+            description: val.description,
+            code: val.code
         };
         output.writeStructBegin("MyException");
         if (obj.description != null) {
@@ -43,8 +40,8 @@ export class MyException extends thrift.IStructLike  implements IMyException_Loo
         output.writeFieldStop();
         output.writeStructEnd();
         return;
-    }
-    public static read(input: thrift.TProtocol): IMyException {
+    },
+    decode(input: thrift.TProtocol): MyException {
         let _args: any = {};
         input.readStructBegin();
         while (true) {
@@ -81,13 +78,13 @@ export class MyException extends thrift.IStructLike  implements IMyException_Loo
         }
         input.readStructEnd();
         if (_args.description !== undefined) {
-            return {
+            return new MyException({
                 description: _args.description,
                 code: _args.code
-            };
+            });
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read MyException from input");
         }
     }
-}
+};

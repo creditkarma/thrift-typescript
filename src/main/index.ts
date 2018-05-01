@@ -5,6 +5,7 @@ import * as path from 'path'
 import {
     CompileTarget,
     IIncludeCache,
+    IMakeFlags,
     IMakeOptions,
     INamespaceFile,
     IParsedFile,
@@ -39,6 +40,8 @@ import {
     saveFiles,
 } from './utils'
 
+import { DEFAULT_FLAGS } from './constants'
+
 /**
  * This function is mostly for testing purposes. It does not support includes.
  * Given a string of Thrift IDL it will return a string of TypeScript. If the
@@ -47,11 +50,11 @@ import {
  *
  * @param source
  */
-export function make(source: string, target: CompileTarget = 'apache'): string {
+export function make(source: string, target: CompileTarget = 'apache', flags: IMakeFlags = DEFAULT_FLAGS): string {
     const parsedFile: IParsedFile = parseSource(source)
     const resolvedAST: IResolvedFile = resolveFile('', parsedFile)
     const validAST: IResolvedFile = validateFile(resolvedAST)
-    return print(processStatements(validAST.body, validAST.identifiers, rendererForTarget(target)))
+    return print(processStatements(validAST.body, validAST.identifiers, rendererForTarget(target), flags))
 }
 
 /**
@@ -100,6 +103,7 @@ export function generate(options: IMakeOptions): void {
                     outDir,
                     sourceDir,
                     next,
+                    options.flags,
                     renderedCache,
                 )
             },
