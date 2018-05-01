@@ -1,6 +1,8 @@
 {
   "extends": "tslint:recommended",
   "rules": {
+    "max-line-length": false,
+    "interface-name": false,
     "object-literal-sort-keys": false,
     "no-console": [
       false

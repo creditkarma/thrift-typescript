@@ -1,24 +1,27 @@
-export class MyException extends Error {
-    public message: string = "";
-    public code?: number = 200;
-    constructor(args?: {
-        message?: string;
-        code?: number;
-    }) {
+export interface IMyException {
+    message?: string;
+    code?: number;
+}
+export interface IMyException_Loose {
+    message?: string;
+    code?: number;
+}
+export class MyException extends thrift.IStructLike  implements IMyException_Loose {
+    public message?: string;
+    public code?: number;
+    constructor(args: IMyException_Loose = {}) {
         super();
-        if (args != null && args.message != null) {
+        if (args.message != null) {
             this.message = args.message;
         }
-        if (args != null && args.code != null) {
+        if (args.code != null) {
             this.code = args.code;
         }
     }
-}
-export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
-    encode(val: MyException, output: thrift.TProtocol): void {
+    public static write(args: IMyException_Loose, output: thrift.TProtocol): void {
         const obj = {
-            message: val.message,
-            code: (val.code != null ? val.code : 200)
+            message: args.message,
+            code: (args.code != null ? args.code : 200)
         };
         output.writeStructBegin("MyException");
         if (obj.message != null) {
@@ -34,8 +37,8 @@ export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
         output.writeFieldStop();
         output.writeStructEnd();
         return;
-    },
-    decode(input: thrift.TProtocol): MyException {
+    }
+    public static read(input: thrift.TProtocol): IMyException {
         let _args: any = {};
         input.readStructBegin();
         while (true) {
@@ -71,9 +74,9 @@ export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
             input.readFieldEnd();
         }
         input.readStructEnd();
-        return new MyException({
+        return {
             message: _args.message,
             code: (_args.code != null ? _args.code : 200)
-        });
+        };
     }
-};
+}

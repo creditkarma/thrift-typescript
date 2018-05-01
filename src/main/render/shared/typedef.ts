@@ -1,8 +1,8 @@
 import * as ts from 'typescript'
 
 import {
-    TypedefDefinition,
     SyntaxType,
+    TypedefDefinition,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -10,8 +10,8 @@ import {
 } from './types'
 
 import {
-    IResolvedIdentifier,
     IIdentifierMap,
+    IResolvedIdentifier,
 } from '../../types'
 
 function renderTypeDefForIdentifier(
@@ -24,7 +24,7 @@ function renderTypeDefForIdentifier(
             undefined,
             [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
             ts.createIdentifier(node.name.value),
-            ts.createIdentifier(id.resolvedName)
+            ts.createIdentifier(id.resolvedName),
         ),
     ]
 }

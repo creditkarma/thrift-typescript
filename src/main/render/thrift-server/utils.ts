@@ -18,17 +18,17 @@ import {
 
 import {
     renderValue,
-} from '../shared/values'
+} from './values'
 
 import {
     createNotNullCheck,
 } from './utils'
 
 import {
-    THRIFT_IDENTIFIERS,
-    PROTOCOL_EXCEPTION,
     APPLICATION_EXCEPTION,
     COMMON_IDENTIFIERS,
+    PROTOCOL_EXCEPTION,
+    THRIFT_IDENTIFIERS,
 } from './identifiers'
 
 export * from '../shared/utils'
@@ -40,12 +40,12 @@ function coerceType(objName: string, field: FieldDefinition): ts.Expression {
                 ts.createBinary(
                     ts.createTypeOf(ts.createIdentifier(`${objName}.${field.name.value}`)),
                     ts.SyntaxKind.EqualsEqualsEqualsToken,
-                    ts.createLiteral('number')
+                    ts.createLiteral('number'),
                 ),
                 ts.createNew(
                     COMMON_IDENTIFIERS.Int64,
                     undefined,
-                    [ ts.createIdentifier(`${objName}.${field.name.value}`) ]
+                    [ ts.createIdentifier(`${objName}.${field.name.value}`) ],
                 ),
                 ts.createIdentifier(`${objName}.${field.name.value}`),
             ))
@@ -55,12 +55,12 @@ function coerceType(objName: string, field: FieldDefinition): ts.Expression {
                 ts.createBinary(
                     ts.createTypeOf(ts.createIdentifier(`${objName}.${field.name.value}`)),
                     ts.SyntaxKind.EqualsEqualsEqualsToken,
-                    ts.createLiteral('string')
+                    ts.createLiteral('string'),
                 ),
                 ts.createCall(
                     ts.createIdentifier('Buffer.from'),
                     undefined,
-                    [ ts.createIdentifier(`${objName}.${field.name.value}`) ]
+                    [ ts.createIdentifier(`${objName}.${field.name.value}`) ],
                 ),
                 ts.createIdentifier(`${objName}.${field.name.value}`),
             ))
@@ -74,7 +74,7 @@ export function getInitializerForField(objName: string, field: FieldDefinition, 
     if (field.defaultValue !== null && field.defaultValue !== undefined) {
         return ts.createParen(ts.createConditional(
             createNotNullCheck(
-                ts.createIdentifier(`${objName}.${field.name.value}`)
+                ts.createIdentifier(`${objName}.${field.name.value}`),
             ),
             (
                 (loose === true) ?
@@ -94,7 +94,7 @@ export function getInitializerForField(objName: string, field: FieldDefinition, 
 }
 
 export function isNotVoid(field: FieldDefinition): boolean {
-    return field.fieldType.type !== SyntaxType.VoidKeyword;
+    return field.fieldType.type !== SyntaxType.VoidKeyword
 }
 
 export function createProtocolException(

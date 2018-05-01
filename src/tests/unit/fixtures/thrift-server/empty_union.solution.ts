@@ -1,9 +1,19 @@
-export interface MyUnion {
+export interface IMyUnion {
 }
-export interface MyUnion_Loose {
+export interface IMyUnion_Loose {
 }
-export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
-    encode(val: MyUnion_Loose, output: thrift.TProtocol): void {
+export class MyUnion extends thrift.IStructLike  implements IMyUnion_Loose {
+    constructor(args: IMyUnion_Loose) {
+        super();
+        let _fieldsSet: number = 0;
+        if (_fieldsSet > 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
+        }
+        else if (_fieldsSet < 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
+        }
+    }
+    public static write(args: IMyUnion_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         output.writeStructBegin("MyUnion");
         output.writeFieldStop();
@@ -15,10 +25,10 @@ export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         return;
-    },
-    decode(input: thrift.TProtocol): MyUnion {
+    }
+    public static read(input: thrift.TProtocol): IMyUnion {
         let _fieldsSet: number = 0;
-        let _returnValue: MyUnion | null = null;
+        let _returnValue: IMyUnion | null = null;
         input.readStructBegin();
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
@@ -48,4 +58,4 @@ export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read data for TUnion");
         }
     }
-};
+}

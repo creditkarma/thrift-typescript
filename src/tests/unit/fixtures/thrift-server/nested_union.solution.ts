@@ -1,17 +1,37 @@
-export interface Option {
+export interface IOption {
     option1?: Buffer;
     option2?: thrift.Int64;
 }
-export interface Option_Loose {
+export interface IOption_Loose {
     option1?: string | Buffer;
     option2?: number | thrift.Int64;
 }
-export const OptionCodec: thrift.IStructCodec<Option_Loose, Option> = {
-    encode(val: Option_Loose, output: thrift.TProtocol): void {
+export class Option extends thrift.IStructLike  implements IOption_Loose {
+    public option1?: string | Buffer;
+    public option2?: number | thrift.Int64;
+    constructor(args: IOption_Loose) {
+        super();
+        let _fieldsSet: number = 0;
+        if (args.option1 != null) {
+            _fieldsSet++;
+            this.option1 = args.option1;
+        }
+        if (args.option2 != null) {
+            _fieldsSet++;
+            this.option2 = args.option2;
+        }
+        if (_fieldsSet > 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
+        }
+        else if (_fieldsSet < 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
+        }
+    }
+    public static write(args: IOption_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
-            option1: (typeof val.option1 === "string" ? Buffer.from(val.option1) : val.option1),
-            option2: (typeof val.option2 === "number" ? new thrift.Int64(val.option2) : val.option2)
+            option1: (typeof args.option1 === "string" ? Buffer.from(args.option1) : args.option1),
+            option2: (typeof args.option2 === "number" ? new thrift.Int64(args.option2) : args.option2)
         };
         output.writeStructBegin("Option");
         if (obj.option1 != null) {
@@ -35,10 +55,10 @@ export const OptionCodec: thrift.IStructCodec<Option_Loose, Option> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         return;
-    },
-    decode(input: thrift.TProtocol): Option {
+    }
+    public static read(input: thrift.TProtocol): IOption {
         let _fieldsSet: number = 0;
-        let _returnValue: Option | null = null;
+        let _returnValue: IOption | null = null;
         input.readStructBegin();
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
@@ -88,21 +108,41 @@ export const OptionCodec: thrift.IStructCodec<Option_Loose, Option> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read data for TUnion");
         }
     }
-};
-export interface MyUnion {
-    name?: string;
-    option?: Option;
 }
-export interface MyUnion_Loose {
+export interface IMyUnion {
     name?: string;
-    option?: Option_Loose;
+    option?: IOption;
 }
-export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
-    encode(val: MyUnion_Loose, output: thrift.TProtocol): void {
+export interface IMyUnion_Loose {
+    name?: string;
+    option?: IOption_Loose;
+}
+export class MyUnion extends thrift.IStructLike  implements IMyUnion_Loose {
+    public name?: string;
+    public option?: IOption_Loose;
+    constructor(args: IMyUnion_Loose) {
+        super();
+        let _fieldsSet: number = 0;
+        if (args.name != null) {
+            _fieldsSet++;
+            this.name = args.name;
+        }
+        if (args.option != null) {
+            _fieldsSet++;
+            this.option = args.option;
+        }
+        if (_fieldsSet > 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
+        }
+        else if (_fieldsSet < 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
+        }
+    }
+    public static write(args: IMyUnion_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
-            name: val.name,
-            option: val.option
+            name: args.name,
+            option: args.option
         };
         output.writeStructBegin("MyUnion");
         if (obj.name != null) {
@@ -114,7 +154,7 @@ export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
         if (obj.option != null) {
             _fieldsSet++;
             output.writeFieldBegin("option", thrift.TType.STRUCT, 2);
-            OptionCodec.encode(obj.option, output);
+            Option.write(obj.option, output);
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -126,10 +166,10 @@ export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         return;
-    },
-    decode(input: thrift.TProtocol): MyUnion {
+    }
+    public static read(input: thrift.TProtocol): IMyUnion {
         let _fieldsSet: number = 0;
-        let _returnValue: MyUnion | null = null;
+        let _returnValue: IMyUnion | null = null;
         input.readStructBegin();
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
@@ -152,7 +192,7 @@ export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
                 case 2:
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
-                        const value_4: Option = OptionCodec.decode(input);
+                        const value_4: IOption = Option.read(input);
                         _returnValue = { option: value_4 };
                     }
                     else {
@@ -179,4 +219,4 @@ export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read data for TUnion");
         }
     }
-};
+}

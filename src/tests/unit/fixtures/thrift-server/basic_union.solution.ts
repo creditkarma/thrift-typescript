@@ -1,17 +1,37 @@
-export interface MyUnion {
+export interface IMyUnion {
     field1?: number;
     field2?: thrift.Int64;
 }
-export interface MyUnion_Loose {
+export interface IMyUnion_Loose {
     field1?: number;
     field2?: number | thrift.Int64;
 }
-export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
-    encode(val: MyUnion_Loose, output: thrift.TProtocol): void {
+export class MyUnion extends thrift.IStructLike  implements IMyUnion_Loose {
+    public field1?: number;
+    public field2?: number | thrift.Int64;
+    constructor(args: IMyUnion_Loose) {
+        super();
+        let _fieldsSet: number = 0;
+        if (args.field1 != null) {
+            _fieldsSet++;
+            this.field1 = args.field1;
+        }
+        if (args.field2 != null) {
+            _fieldsSet++;
+            this.field2 = args.field2;
+        }
+        if (_fieldsSet > 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
+        }
+        else if (_fieldsSet < 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
+        }
+    }
+    public static write(args: IMyUnion_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
-            field1: val.field1,
-            field2: (typeof val.field2 === "number" ? new thrift.Int64(val.field2) : val.field2)
+            field1: args.field1,
+            field2: (typeof args.field2 === "number" ? new thrift.Int64(args.field2) : args.field2)
         };
         output.writeStructBegin("MyUnion");
         if (obj.field1 != null) {
@@ -35,10 +55,10 @@ export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         return;
-    },
-    decode(input: thrift.TProtocol): MyUnion {
+    }
+    public static read(input: thrift.TProtocol): IMyUnion {
         let _fieldsSet: number = 0;
-        let _returnValue: MyUnion | null = null;
+        let _returnValue: IMyUnion | null = null;
         input.readStructBegin();
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
@@ -88,4 +108,4 @@ export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read data for TUnion");
         }
     }
-};
+}

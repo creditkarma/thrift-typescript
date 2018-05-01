@@ -1,11 +1,11 @@
 import { assert } from 'chai'
-import * as path from 'path'
 import * as fs from 'fs'
+import * as path from 'path'
 
 import { resolveFile } from '../../main/resolver'
-import { validateFile } from '../../main/validator'
+import { ErrorType, IParsedFile, IResolvedFile, IThriftError } from '../../main/types'
 import { parseSource, parseThriftString } from '../../main/utils'
-import { IResolvedFile, IParsedFile, IThriftError, ErrorType } from '../../main/types'
+import { validateFile } from '../../main/validator'
 
 function loadSolution(name: string): any {
     return JSON.parse(fs.readFileSync(path.join(__dirname, `./fixtures/validator/${name}.solution.json`), 'utf-8'))
@@ -29,15 +29,15 @@ describe('Thrift TypeScript Validator', () => {
                     start: {
                         line: 3,
                         column: 24,
-                        index: 51
+                        index: 51,
                     },
                     end: {
                         line: 3,
                         column: 37,
-                        index: 64
-                    }
-                }
-            }
+                        index: 64,
+                    },
+                },
+            },
         ]
 
         assert.deepEqual(validatedFile.errors, expected)
@@ -78,15 +78,15 @@ describe('Thrift TypeScript Validator', () => {
                     start: {
                         line: 6,
                         column: 32,
-                        index: 113
+                        index: 113,
                     },
                     end: {
                         line: 6,
                         column: 50,
-                        index: 131
-                    }
-                }
-            }
+                        index: 131,
+                    },
+                },
+            },
         ]
 
         assert.deepEqual(validatedFile.errors, expected)
@@ -125,15 +125,15 @@ describe('Thrift TypeScript Validator', () => {
                     start: {
                         line: 2,
                         column: 41,
-                        index: 41
+                        index: 41,
                     },
                     end: {
                         line: 2,
                         column: 43,
-                        index: 43
-                    }
-                }
-            }
+                        index: 43,
+                    },
+                },
+            },
         ]
 
         assert.deepEqual(validatedFile.errors, expected)
@@ -166,15 +166,15 @@ describe('Thrift TypeScript Validator', () => {
                     start: {
                         line: 2,
                         column: 49,
-                        index: 49
+                        index: 49,
                     },
                     end: {
                         line: 2,
                         column: 51,
-                        index: 51
-                    }
-                }
-            }
+                        index: 51,
+                    },
+                },
+            },
         ]
 
         assert.deepEqual(validatedFile.errors, expected)
@@ -207,15 +207,15 @@ describe('Thrift TypeScript Validator', () => {
                     start: {
                         line: 2,
                         column: 40,
-                        index: 40
+                        index: 40,
                     },
                     end: {
                         line: 2,
                         column: 42,
-                        index: 42
-                    }
-                }
-            }
+                        index: 42,
+                    },
+                },
+            },
         ]
 
         assert.deepEqual(validatedFile.errors, expected)
@@ -248,15 +248,15 @@ describe('Thrift TypeScript Validator', () => {
                     start: {
                         line: 2,
                         column: 54,
-                        index: 54
+                        index: 54,
                     },
                     end: {
                         line: 2,
                         column: 55,
-                        index: 55
-                    }
-                }
-            }
+                        index: 55,
+                    },
+                },
+            },
         ]
 
         assert.deepEqual(validatedFile.errors, expected)
@@ -289,15 +289,15 @@ describe('Thrift TypeScript Validator', () => {
                     start: {
                         line: 2,
                         column: 73,
-                        index: 73
+                        index: 73,
                     },
                     end: {
                         line: 2,
                         column: 74,
-                        index: 74
-                    }
-                }
-            }
+                        index: 74,
+                    },
+                },
+            },
         ]
 
         assert.deepEqual(validatedFile.errors, expected)
@@ -333,15 +333,15 @@ describe('Thrift TypeScript Validator', () => {
                     start: {
                         line: 4,
                         column: 17,
-                        index: 79
+                        index: 79,
                     },
                     end: {
                         line: 4,
                         column: 19,
-                        index: 81
-                    }
-                }
-            }
+                        index: 81,
+                    },
+                },
+            },
         ]
 
         assert.deepEqual(validatedFile.errors, expected)
@@ -364,15 +364,15 @@ describe('Thrift TypeScript Validator', () => {
                     start: {
                         line: 3,
                         column: 31,
-                        index: 63
+                        index: 63,
                     },
                     end: {
                         line: 3,
                         column: 52,
-                        index: 84
-                    }
-                }
-            }
+                        index: 84,
+                    },
+                },
+            },
         ]
 
         assert.deepEqual(validatedFile.errors, expected)
@@ -409,15 +409,15 @@ describe('Thrift TypeScript Validator', () => {
                     start: {
                         line: 3,
                         column: 31,
-                        index: 63
+                        index: 63,
                     },
                     end: {
                         line: 3,
                         column: 37,
-                        index: 69
-                    }
-                }
-            }
+                        index: 69,
+                    },
+                },
+            },
         ]
 
         assert.deepEqual(validatedFile.errors, expected)
@@ -445,15 +445,15 @@ describe('Thrift TypeScript Validator', () => {
                     start: {
                         line: 8,
                         column: 31,
-                        index: 153
+                        index: 153,
                     },
                     end: {
                         line: 8,
                         column: 45,
-                        index: 167
-                    }
-                }
-            }
+                        index: 167,
+                    },
+                },
+            },
         ]
 
         assert.deepEqual(validatedFile.errors, expected)
@@ -498,15 +498,15 @@ describe('Thrift TypeScript Validator', () => {
                     start: {
                         line: 8,
                         column: 35,
-                        index: 142
+                        index: 142,
                     },
                     end: {
                         line: 8,
                         column: 36,
-                        index: 143
-                    }
-                }
-            }
+                        index: 143,
+                    },
+                },
+            },
         ]
 
         assert.deepEqual(validatedFile.errors, expected)
@@ -557,10 +557,10 @@ describe('Thrift TypeScript Validator', () => {
                     path: '',
                     source: '',
                     includes: [],
-                    ast: parseThriftString(mockIncludeContent)
-                }
+                    ast: parseThriftString(mockIncludeContent),
+                },
             ],
-            ast: parseThriftString(content)
+            ast: parseThriftString(content),
         }
         const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
@@ -601,15 +601,15 @@ describe('Thrift TypeScript Validator', () => {
                     start: {
                         line: 3,
                         column: 32,
-                        index: 64
+                        index: 64,
                     },
                     end: {
                         line: 3,
                         column: 33,
-                        index: 65
-                    }
-                }
-            }
+                        index: 65,
+                    },
+                },
+            },
         ]
 
         assert.deepEqual(validatedFile.errors, expected)
@@ -646,15 +646,15 @@ describe('Thrift TypeScript Validator', () => {
                     start: {
                         line: 3,
                         column: 34,
-                        index: 66
+                        index: 66,
                     },
                     end: {
                         line: 3,
                         column: 35,
-                        index: 67
-                    }
-                }
-            }
+                        index: 67,
+                    },
+                },
+            },
         ]
 
         assert.deepEqual(validatedFile.errors, expected)

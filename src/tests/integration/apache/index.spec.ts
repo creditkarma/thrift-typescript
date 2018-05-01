@@ -2,33 +2,33 @@ import { assert } from 'chai'
 import * as net from 'net'
 
 import {
-    HttpConnection,
     createHttpClient,
     createHttpConnection,
-    TBufferedTransport,
-    TBinaryProtocol,
+    HttpConnection,
     Int64,
+    TBinaryProtocol,
+    TBufferedTransport,
 } from 'thrift'
 
 import {
     Calculator,
-    Operation,
-    Work,
     Choice,
     FirstName,
     LastName,
+    Operation,
+    Work,
 } from './codegen/calculator'
 
 import {
     SharedStruct,
 } from './codegen/shared'
 
-import { createCalculatorServer } from './calculator-service'
 import { createAddServer } from './add-service'
+import { createCalculatorServer } from './calculator-service'
 
 import {
-    CALC_SERVER_CONFIG,
     ADD_SERVER_CONFIG,
+    CALC_SERVER_CONFIG,
 } from './config'
 
 describe('Thrift TypeScript', () => {
@@ -38,7 +38,7 @@ describe('Thrift TypeScript', () => {
         https: false,
         headers: {
             Host: CALC_SERVER_CONFIG.hostName,
-        }
+        },
     }
     const connection: HttpConnection = createHttpConnection(CALC_SERVER_CONFIG.hostName, CALC_SERVER_CONFIG.port, options)
     const thriftClient: Calculator.Client = createHttpClient(Calculator.Client, connection)
@@ -54,9 +54,9 @@ describe('Thrift TypeScript', () => {
         addService = createAddServer().listen(ADD_SERVER_CONFIG.port, () => {
             calcService = createCalculatorServer().listen(CALC_SERVER_CONFIG.port, () => {
                 console.log(`Thrift server listening at http://${CALC_SERVER_CONFIG.hostName}:${CALC_SERVER_CONFIG.port}`)
-            done()
+                done()
             })
-        });
+        })
     })
 
     after((done) => {
@@ -75,18 +75,18 @@ describe('Thrift TypeScript', () => {
         const add: Work = new Work({
             num1: 4,
             num2: 8,
-            op: Operation.ADD
+            op: Operation.ADD,
         })
 
         const subtract: Work = new Work({
             num1: 67,
             num2: 13,
-            op: Operation.SUBTRACT
+            op: Operation.SUBTRACT,
         })
 
         return Promise.all([
             thriftClient.calculate(1, add),
-            thriftClient.calculate(1, subtract)
+            thriftClient.calculate(1, subtract),
         ]).then((val: Array<number>) => {
             assert.equal(val[0], 12)
             assert.equal(val[1], 54)
@@ -149,20 +149,20 @@ describe('Thrift TypeScript', () => {
     })
 
     it('should correctly call endpoint with lists as parameters', async () => {
-        return thriftClient.mapOneList([1,2,3,4]).then((val: Array<number>) => {
-            assert.deepEqual(val, [2,3,4,5])
+        return thriftClient.mapOneList([1, 2, 3, 4]).then((val: Array<number>) => {
+            assert.deepEqual(val, [2, 3, 4, 5])
         })
     })
 
     it('should correctly call endpoint with maps as parameters', async () => {
-        return thriftClient.mapValues(new Map([['key1', 6], ['key2', 5]])).then((response: number[]) => {
+        return thriftClient.mapValues(new Map([['key1', 6], ['key2', 5]])).then((response: Array<number>) => {
             assert.deepEqual(response, [6, 5])
         })
     })
 
     it('should correctly call endpoint that returns a map', async () => {
-        return thriftClient.listToMap([['key_1','value_1'], ['key_2','value_2']]).then((response: Map<string,string>) => {
-            assert.deepEqual(response, new Map([['key_1','value_1'], ['key_2','value_2']]))
+        return thriftClient.listToMap([['key_1', 'value_1'], ['key_2', 'value_2']]).then((response: Map<string, string>) => {
+            assert.deepEqual(response, new Map([['key_1', 'value_1'], ['key_2', 'value_2']]))
         })
     })
 })

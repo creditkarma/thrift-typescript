@@ -1,8 +1,8 @@
 import {
-    SyntaxType,
     ConstDefinition,
-    TypedefDefinition,
+    SyntaxType,
     ThriftStatement,
+    TypedefDefinition,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -44,8 +44,8 @@ function statementUsesThrift(statement: ThriftStatement): boolean {
 }
 
 export function fileUsesThrift(resolvedFile: INamespaceFile): boolean {
-    for (let i = 0; i < resolvedFile.body.length; i++) {
-        if (statementUsesThrift(resolvedFile.body[i])) {
+    for (const statement of resolvedFile.body) {
+        if (statementUsesThrift(statement)) {
             return true
         }
     }

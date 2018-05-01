@@ -1,10 +1,10 @@
 import { assert } from 'chai'
-import * as path from 'path'
 import * as fs from 'fs'
+import * as path from 'path'
 
 import { resolveFile } from '../../main/resolver'
+import { IParsedFile, IResolvedFile } from '../../main/types'
 import { parseThriftString } from '../../main/utils'
-import { IResolvedFile, IParsedFile } from '../../main/types'
 
 function loadSolution(name: string): any {
     return JSON.parse(fs.readFileSync(path.join(__dirname, `./fixtures/resolver/${name}.solution.json`), 'utf-8'))
@@ -34,10 +34,10 @@ describe('Thrift TypeScript Resolver', () => {
                     path: '',
                     source: '',
                     includes: [],
-                    ast: parseThriftString(mockIncludeContent)
-                }
+                    ast: parseThriftString(mockIncludeContent),
+                },
             ],
-            ast: parseThriftString(content)
+            ast: parseThriftString(content),
         }
         const actual: IResolvedFile = resolveFile('', mockParsedFile)
         const expected: IResolvedFile = loadSolution('imported-id-types')
@@ -69,10 +69,10 @@ describe('Thrift TypeScript Resolver', () => {
                     path: '',
                     source: '',
                     includes: [],
-                    ast: parseThriftString(mockIncludeContent)
-                }
+                    ast: parseThriftString(mockIncludeContent),
+                },
             ],
-            ast: parseThriftString(content)
+            ast: parseThriftString(content),
         }
         const actual: IResolvedFile = resolveFile('', mockParsedFile)
         const expected: IResolvedFile = loadSolution('imported-id-values')

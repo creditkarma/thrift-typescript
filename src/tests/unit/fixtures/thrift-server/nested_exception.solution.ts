@@ -1,16 +1,27 @@
-export interface Code {
+export interface ICode {
     status?: thrift.Int64;
     data?: Buffer;
 }
-export interface Code_Loose {
+export interface ICode_Loose {
     status?: number | thrift.Int64;
     data?: string | Buffer;
 }
-export const CodeCodec: thrift.IStructCodec<Code_Loose, Code> = {
-    encode(val: Code_Loose, output: thrift.TProtocol): void {
+export class Code extends thrift.IStructLike  implements ICode_Loose {
+    public status?: number | thrift.Int64;
+    public data?: string | Buffer;
+    constructor(args: ICode_Loose = {}) {
+        super();
+        if (args.status != null) {
+            this.status = args.status;
+        }
+        if (args.data != null) {
+            this.data = args.data;
+        }
+    }
+    public static write(args: ICode_Loose, output: thrift.TProtocol): void {
         const obj = {
-            status: (val.status != null ? (typeof val.status === "number" ? new thrift.Int64(val.status) : val.status) : new thrift.Int64(200)),
-            data: (val.data != null ? (typeof val.data === "string" ? Buffer.from(val.data) : val.data) : Buffer.from("data"))
+            status: (args.status != null ? (typeof args.status === "number" ? new thrift.Int64(args.status) : args.status) : thrift.Int64.fromDecimalString("200")),
+            data: (args.data != null ? (typeof args.data === "string" ? Buffer.from(args.data) : args.data) : Buffer.from("data"))
         };
         output.writeStructBegin("Code");
         if (obj.status != null) {
@@ -26,8 +37,8 @@ export const CodeCodec: thrift.IStructCodec<Code_Loose, Code> = {
         output.writeFieldStop();
         output.writeStructEnd();
         return;
-    },
-    decode(input: thrift.TProtocol): Code {
+    }
+    public static read(input: thrift.TProtocol): ICode {
         let _args: any = {};
         input.readStructBegin();
         while (true) {
@@ -64,35 +75,38 @@ export const CodeCodec: thrift.IStructCodec<Code_Loose, Code> = {
         }
         input.readStructEnd();
         return {
-            status: (_args.status != null ? _args.status : new thrift.Int64(200)),
+            status: (_args.status != null ? _args.status : thrift.Int64.fromDecimalString("200")),
             data: (_args.data != null ? _args.data : Buffer.from("data"))
         };
     }
-};
-export class MyException extends Error {
+}
+export interface IMyException {
+    description: string;
+    code?: ICode;
+}
+export interface IMyException_Loose {
+    description: string;
+    code?: ICode_Loose;
+}
+export class MyException extends thrift.IStructLike  implements IMyException_Loose {
     public description: string;
-    public code?: Code_Loose;
-    constructor(args: {
-        description: string;
-        code?: Code_Loose;
-    }) {
+    public code?: ICode_Loose;
+    constructor(args: IMyException_Loose) {
         super();
-        if (args != null && args.description != null) {
+        if (args.description != null) {
             this.description = args.description;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[description] is unset!");
         }
-        if (args != null && args.code != null) {
+        if (args.code != null) {
             this.code = args.code;
         }
     }
-}
-export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
-    encode(val: MyException, output: thrift.TProtocol): void {
+    public static write(args: IMyException_Loose, output: thrift.TProtocol): void {
         const obj = {
-            description: val.description,
-            code: val.code
+            description: args.description,
+            code: args.code
         };
         output.writeStructBegin("MyException");
         if (obj.description != null) {
@@ -105,14 +119,14 @@ export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
         }
         if (obj.code != null) {
             output.writeFieldBegin("code", thrift.TType.STRUCT, 3);
-            CodeCodec.encode(obj.code, output);
+            Code.write(obj.code, output);
             output.writeFieldEnd();
         }
         output.writeFieldStop();
         output.writeStructEnd();
         return;
-    },
-    decode(input: thrift.TProtocol): MyException {
+    }
+    public static read(input: thrift.TProtocol): IMyException {
         let _args: any = {};
         input.readStructBegin();
         while (true) {
@@ -134,7 +148,7 @@ export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
                     break;
                 case 3:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_4: Code = CodeCodec.decode(input);
+                        const value_4: ICode = Code.read(input);
                         _args.code = value_4;
                     }
                     else {
@@ -149,13 +163,13 @@ export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
         }
         input.readStructEnd();
         if (_args.description !== undefined) {
-            return new MyException({
+            return {
                 description: _args.description,
                 code: _args.code
-            });
+            };
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read MyException from input");
         }
     }
-};
+}

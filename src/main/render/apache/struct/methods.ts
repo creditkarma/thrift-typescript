@@ -5,7 +5,7 @@ export type ReadMethodName =
     'readI32' | 'readI64' | 'readByte' | 'readBool'
 
 export interface ReadMap {
-    [name: string]: ReadMethodName;
+    [name: string]: ReadMethodName
 }
 
 export const READ_METHODS: ReadMap = {
@@ -25,7 +25,7 @@ export type WriteMethodName =
     'writeI32' | 'writeI64' | 'writeByte' | 'writeBool'
 
 export interface WriteMap {
-    [name: string]: WriteMethodName;
+    [name: string]: WriteMethodName
 }
 
 export const WRITE_METHODS: WriteMap = {

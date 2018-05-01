@@ -1,9 +1,9 @@
 import * as ts from 'typescript'
 
 import {
-    InterfaceWithFields,
     FieldDefinition,
     FieldRequired,
+    InterfaceWithFields,
 } from '@creditkarma/thrift-parser'
 
 /**
@@ -245,17 +245,14 @@ export function renderOptional(value: FieldRequired | null): ts.Token<ts.SyntaxK
 
 export function hasRequiredField(struct: InterfaceWithFields): boolean {
     return struct.fields.reduce((acc: boolean, next: FieldDefinition) => {
-        if (acc === false) {
-            acc = next.requiredness === 'required'
-        }
-        return acc
+        return acc || next.requiredness === 'required'
     }, false)
 }
 
 export function createPromise(
     type: ts.TypeNode,
     returnType: ts.TypeNode,
-    body: Array<ts.Statement>
+    body: Array<ts.Statement>,
 ): ts.NewExpression {
     return ts.createNew(
         ts.createIdentifier('Promise'),

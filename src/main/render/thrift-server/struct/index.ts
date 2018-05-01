@@ -5,7 +5,7 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-    IIdentifierMap
+    IIdentifierMap,
 } from '../../../types'
 
 import {
@@ -13,12 +13,12 @@ import {
 } from './interface'
 
 import {
-    renderCodec,
-} from './codec'
+    renderClass,
+} from './class'
 
 export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifierMap): Array<ts.Statement> {
     return [
         ...renderInterface(node, identifiers),
-        renderCodec(node, identifiers),
+        renderClass(node, identifiers),
     ]
 }

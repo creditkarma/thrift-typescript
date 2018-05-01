@@ -15,11 +15,7 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
         outDir: './codegen',
         sourceDir: './thrift',
         target: 'apache',
-        flags: {
-            strict: false,
-            strictUnions: false,
-        },
-        files: []
+        files: [],
     }
 
     while (index < len) {
@@ -48,16 +44,6 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
 
             case '--outDir':
                 options.outDir = args[index + 1]
-                index += 2
-                break
-
-            case '--strict':
-                options.flags.strict = args[index + 1] !== 'false'
-                index += 2
-                break
-
-            case '--strictUnions':
-                options.flags.strictUnions = args[index + 1] !== 'false'
                 index += 2
                 break
 

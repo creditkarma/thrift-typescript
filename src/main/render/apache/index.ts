@@ -2,45 +2,45 @@ import * as ts from 'typescript'
 
 import {
     ConstDefinition,
-    TypedefDefinition,
     EnumDefinition,
-    StructDefinition,
-    ServiceDefinition,
     ExceptionDefinition,
+    ServiceDefinition,
+    StructDefinition,
+    TypedefDefinition,
     UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
 import { renderException as _renderException } from './exception'
 
 import {
-    renderInterface
+    renderInterface,
 } from './interface'
 
 import {
     renderArgsStruct,
     renderClient,
+    renderHandlerInterface,
     renderProcessor,
     renderResultStruct,
-    renderHandlerInterface,
 } from './service'
 
-import { renderStruct as _renderStruct } from './struct'
-import { renderUnion as _renderUnion } from './union'
-import { renderEnum as _renderEnum } from '../shared/enum'
-import { renderTypeDef as _renderTypeDef } from '../shared/typedef'
-import { renderConst as _renderConst } from '../shared/const'
 import { fileUsesThrift } from '../shared/includes'
+import { renderTypeDef as _renderTypeDef } from '../shared/typedef'
+import { renderConst as _renderConst } from './const'
+import { renderEnum as _renderEnum } from './enum'
 import {
     renderIncludes as _renderIncludes,
     renderThriftImports,
 } from './includes'
+import { renderStruct as _renderStruct } from './struct'
+import { renderUnion as _renderUnion } from './union'
 
 import {
     IIdentifierMap,
-    IRenderer,
     INamespaceFile,
+    IRenderer,
 } from '../../types'
-import { typeNodeForFieldType } from './types';
+import { typeNodeForFieldType } from './types'
 
 export function renderIncludes(
     outPath: string,
@@ -102,8 +102,8 @@ export function renderService(statement: ServiceDefinition, identifiers: IIdenti
                 ...renderHandlerInterface(statement),
                 renderProcessor(statement, identifiers),
             ]),
-            ts.NodeFlags.Namespace
-        )
+            ts.NodeFlags.Namespace,
+        ),
     ]
 }
 

@@ -1,25 +1,57 @@
-export interface MyStruct {
+export interface IMyStruct {
     id: number;
     bigID: thrift.Int64;
     word: string;
     field1?: number;
     blob?: Buffer;
 }
-export interface MyStruct_Loose {
+export interface IMyStruct_Loose {
     id?: number;
     bigID?: number | thrift.Int64;
     word: string;
     field1?: number;
     blob?: string | Buffer;
 }
-export const MyStructCodec: thrift.IStructCodec<MyStruct_Loose, MyStruct> = {
-    encode(val: MyStruct_Loose, output: thrift.TProtocol): void {
+export class MyStruct extends thrift.IStructLike  implements IMyStruct_Loose {
+    public id: number;
+    public bigID: number | thrift.Int64;
+    public word: string;
+    public field1?: number;
+    public blob?: string | Buffer;
+    constructor(args: IMyStruct_Loose) {
+        super();
+        if (args.id != null) {
+            this.id = args.id;
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[id] is unset!");
+        }
+        if (args.bigID != null) {
+            this.bigID = args.bigID;
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[bigID] is unset!");
+        }
+        if (args.word != null) {
+            this.word = args.word;
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[word] is unset!");
+        }
+        if (args.field1 != null) {
+            this.field1 = args.field1;
+        }
+        if (args.blob != null) {
+            this.blob = args.blob;
+        }
+    }
+    public static write(args: IMyStruct_Loose, output: thrift.TProtocol): void {
         const obj = {
-            id: (val.id != null ? val.id : 45),
-            bigID: (val.bigID != null ? (typeof val.bigID === "number" ? new thrift.Int64(val.bigID) : val.bigID) : new thrift.Int64(23948234)),
-            word: val.word,
-            field1: val.field1,
-            blob: (val.blob != null ? (typeof val.blob === "string" ? Buffer.from(val.blob) : val.blob) : Buffer.from("binary"))
+            id: (args.id != null ? args.id : 45),
+            bigID: (args.bigID != null ? (typeof args.bigID === "number" ? new thrift.Int64(args.bigID) : args.bigID) : thrift.Int64.fromDecimalString("23948234")),
+            word: args.word,
+            field1: args.field1,
+            blob: (args.blob != null ? (typeof args.blob === "string" ? Buffer.from(args.blob) : args.blob) : Buffer.from("binary"))
         };
         output.writeStructBegin("MyStruct");
         if (obj.id != null) {
@@ -59,8 +91,8 @@ export const MyStructCodec: thrift.IStructCodec<MyStruct_Loose, MyStruct> = {
         output.writeFieldStop();
         output.writeStructEnd();
         return;
-    },
-    decode(input: thrift.TProtocol): MyStruct {
+    }
+    public static read(input: thrift.TProtocol): IMyStruct {
         let _args: any = {};
         input.readStructBegin();
         while (true) {
@@ -126,7 +158,7 @@ export const MyStructCodec: thrift.IStructCodec<MyStruct_Loose, MyStruct> = {
         if (_args.id !== undefined && _args.bigID !== undefined && _args.word !== undefined) {
             return {
                 id: (_args.id != null ? _args.id : 45),
-                bigID: (_args.bigID != null ? _args.bigID : new thrift.Int64(23948234)),
+                bigID: (_args.bigID != null ? _args.bigID : thrift.Int64.fromDecimalString("23948234")),
                 word: _args.word,
                 field1: _args.field1,
                 blob: (_args.blob != null ? _args.blob : Buffer.from("binary"))
@@ -136,4 +168,4 @@ export const MyStructCodec: thrift.IStructCodec<MyStruct_Loose, MyStruct> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read MyStruct from input");
         }
     }
-};
+}
