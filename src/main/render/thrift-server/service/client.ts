@@ -153,13 +153,13 @@ export function renderClient(node: ServiceDefinition, identifiers: IIdentifierMa
                 ts.SyntaxKind.ExtendsKeyword,
                 [
                     ts.createExpressionWithTypeArguments(
-                    [
-                        ts.createTypeReferenceNode(
-                            COMMON_IDENTIFIERS.Context,
-                            undefined
-                        )
-                    ],
-                    ts.createIdentifier(`${node.extends.value}.Client`),
+                        [
+                            ts.createTypeReferenceNode(
+                                COMMON_IDENTIFIERS.Context,
+                                undefined
+                            )
+                        ],
+                        ts.createIdentifier(`${node.extends.value}.Client`),
                     )
                 ]
             )
