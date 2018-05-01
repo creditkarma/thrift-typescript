@@ -22,29 +22,33 @@ import {
 
 import {
     IIdentifierMap
-} from '../../../types';
+} from '../../../types'
 
-export function renderCodec(exp: ExceptionDefinition, identifiers: IIdentifierMap): ts.Statement {
+import {
+    codecNameForStruct, strictNameForStruct
+} from '../struct/utils'
+
+export function renderCodec(node: ExceptionDefinition, identifiers: IIdentifierMap): ts.Statement {
     return ts.createVariableStatement(
         [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
         createConst(
-            ts.createIdentifier(`${exp.name.value}Codec`),
+            ts.createIdentifier(codecNameForStruct(node)),
             ts.createTypeReferenceNode(
                 THRIFT_IDENTIFIERS.IStructCodec,
                 [
                     ts.createTypeReferenceNode(
-                        ts.createIdentifier(exp.name.value),
+                        ts.createIdentifier(strictNameForStruct(node)),
                         undefined
                     ),
                     ts.createTypeReferenceNode(
-                        ts.createIdentifier(exp.name.value),
+                        ts.createIdentifier(strictNameForStruct(node)),
                         undefined
                     )
                 ],
             ),
             ts.createObjectLiteral([
-                createEncodeMethod(exp, identifiers),
-                createDecodeMethod(exp, identifiers),
+                createEncodeMethod(node, identifiers),
+                createDecodeMethod(node, identifiers),
             ], true)
         ),
     )

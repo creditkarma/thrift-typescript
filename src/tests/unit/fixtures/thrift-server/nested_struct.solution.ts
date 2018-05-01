@@ -10,7 +10,7 @@ export const UserCodec: thrift.IStructCodec<User_Loose, User> = {
     encode(val: User_Loose, output: thrift.TProtocol): void {
         const obj = {
             name: val.name,
-            age: (val.age != null ? (typeof val.age === "number" ? new thrift.Int64(val.age) : val.age) : new thrift.Int64(45))
+            age: (val.age != null ? (typeof val.age === "number" ? new thrift.Int64(val.age) : val.age) : thrift.Int64.fromDecimalString("45"))
         };
         output.writeStructBegin("User");
         if (obj.name != null) {
@@ -69,7 +69,7 @@ export const UserCodec: thrift.IStructCodec<User_Loose, User> = {
         if (_args.name !== undefined) {
             return {
                 name: _args.name,
-                age: (_args.age != null ? _args.age : new thrift.Int64(45))
+                age: (_args.age != null ? _args.age : thrift.Int64.fromDecimalString("45"))
             };
         }
         else {

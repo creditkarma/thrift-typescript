@@ -51,6 +51,10 @@ import {
     typeNodeForFieldType,
 } from '../types'
 
+import {
+    codecName,
+} from '../struct/utils'
+
 function objectLiteralForServiceFunctions(node: ThriftStatement): ts.ObjectLiteralExpression {
     switch (node.type) {
         case SyntaxType.ServiceDefinition:
@@ -320,7 +324,7 @@ function createProcessFunctionMethod(
                                     ),
                                     // StructCodec.encode(result, output)
                                     createMethodCallStatement(
-                                        ts.createIdentifier(`${createStructResultName(funcDef)}Codec`),
+                                        ts.createIdentifier(codecName(createStructResultName(funcDef))),
                                         'encode',
                                         [
                                             COMMON_IDENTIFIERS.result,
@@ -391,7 +395,7 @@ function createArgsVariable(funcDef: FunctionDefinition): Array<ts.Statement> {
                 ),
                 ts.createCall(
                     ts.createPropertyAccess(
-                        ts.createIdentifier(`${createStructArgsName(funcDef)}Codec`),
+                        ts.createIdentifier(codecName(createStructArgsName(funcDef))),
                         ts.createIdentifier('decode')
                     ),
                     undefined,
@@ -443,7 +447,7 @@ function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statemen
                     ),
                     // StructCodec.encode(result, output)
                     createMethodCallStatement(
-                        ts.createIdentifier(`${createStructResultName(funcDef)}Codec`),
+                        ts.createIdentifier(codecName(createStructResultName(funcDef))),
                         'encode',
                         [
                             COMMON_IDENTIFIERS.result,

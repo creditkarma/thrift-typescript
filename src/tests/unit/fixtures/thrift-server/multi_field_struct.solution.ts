@@ -16,7 +16,7 @@ export const MyStructCodec: thrift.IStructCodec<MyStruct_Loose, MyStruct> = {
     encode(val: MyStruct_Loose, output: thrift.TProtocol): void {
         const obj = {
             id: (val.id != null ? val.id : 45),
-            bigID: (val.bigID != null ? (typeof val.bigID === "number" ? new thrift.Int64(val.bigID) : val.bigID) : new thrift.Int64(23948234)),
+            bigID: (val.bigID != null ? (typeof val.bigID === "number" ? new thrift.Int64(val.bigID) : val.bigID) : thrift.Int64.fromDecimalString("23948234")),
             word: val.word,
             field1: val.field1,
             blob: (val.blob != null ? (typeof val.blob === "string" ? Buffer.from(val.blob) : val.blob) : Buffer.from("binary"))
@@ -126,7 +126,7 @@ export const MyStructCodec: thrift.IStructCodec<MyStruct_Loose, MyStruct> = {
         if (_args.id !== undefined && _args.bigID !== undefined && _args.word !== undefined) {
             return {
                 id: (_args.id != null ? _args.id : 45),
-                bigID: (_args.bigID != null ? _args.bigID : new thrift.Int64(23948234)),
+                bigID: (_args.bigID != null ? _args.bigID : thrift.Int64.fromDecimalString("23948234")),
                 word: _args.word,
                 field1: _args.field1,
                 blob: (_args.blob != null ? _args.blob : Buffer.from("binary"))

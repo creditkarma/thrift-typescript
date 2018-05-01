@@ -23,21 +23,22 @@ import {
 import {
     IIdentifierMap
 } from '../../../types';
+import { codecNameForStruct, looseNameForStruct, strictNameForStruct } from '../struct/utils';
 
 export function renderCodec(node: UnionDefinition, identifiers: IIdentifierMap): ts.Statement {
     return ts.createVariableStatement(
         [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
         createConst(
-            ts.createIdentifier(`${node.name.value}Codec`),
+            ts.createIdentifier(codecNameForStruct(node)),
             ts.createTypeReferenceNode(
                 THRIFT_IDENTIFIERS.IStructCodec,
                 [
                     ts.createTypeReferenceNode(
-                        ts.createIdentifier(`${node.name.value}_Loose`),
+                        ts.createIdentifier(looseNameForStruct(node)),
                         undefined
                     ),
                     ts.createTypeReferenceNode(
-                        ts.createIdentifier(node.name.value),
+                        ts.createIdentifier(strictNameForStruct(node)),
                         undefined
                     )
                 ],

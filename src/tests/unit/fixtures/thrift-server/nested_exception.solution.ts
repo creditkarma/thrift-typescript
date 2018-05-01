@@ -9,7 +9,7 @@ export interface Code_Loose {
 export const CodeCodec: thrift.IStructCodec<Code_Loose, Code> = {
     encode(val: Code_Loose, output: thrift.TProtocol): void {
         const obj = {
-            status: (val.status != null ? (typeof val.status === "number" ? new thrift.Int64(val.status) : val.status) : new thrift.Int64(200)),
+            status: (val.status != null ? (typeof val.status === "number" ? new thrift.Int64(val.status) : val.status) : thrift.Int64.fromDecimalString("200")),
             data: (val.data != null ? (typeof val.data === "string" ? Buffer.from(val.data) : val.data) : Buffer.from("data"))
         };
         output.writeStructBegin("Code");
@@ -64,19 +64,18 @@ export const CodeCodec: thrift.IStructCodec<Code_Loose, Code> = {
         }
         input.readStructEnd();
         return {
-            status: (_args.status != null ? _args.status : new thrift.Int64(200)),
+            status: (_args.status != null ? _args.status : thrift.Int64.fromDecimalString("200")),
             data: (_args.data != null ? _args.data : Buffer.from("data"))
         };
     }
 };
-export class MyException extends Error {
+export class MyException {
     public description: string;
     public code?: Code_Loose;
     constructor(args: {
         description: string;
         code?: Code_Loose;
     }) {
-        super();
         if (args != null && args.description != null) {
             this.description = args.description;
         }

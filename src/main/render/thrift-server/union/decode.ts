@@ -50,14 +50,15 @@ import {
     incrementFieldsSet,
     createFieldValidation,
 } from './utils'
+import { strictNameForStruct } from '../struct/utils';
 
-export function createDecodeMethod(union: UnionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
+export function createDecodeMethod(node: UnionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
     const returnVariable: ts.VariableStatement = createLetStatement(
         ts.createIdentifier(RETURN_NAME),
         ts.createUnionTypeNode([
             ts.createTypeReferenceNode(
-                ts.createIdentifier(union.name.value),
+                ts.createIdentifier(strictNameForStruct(node)),
                 undefined,
             ),
             ts.createNull(),
@@ -118,8 +119,8 @@ export function createDecodeMethod(union: UnionDefinition, identifiers: IIdentif
             ts.createSwitch(
                 COMMON_IDENTIFIERS.fieldId, // what to switch on
                 ts.createCaseBlock([
-                    ...union.fields.map((next: FieldDefinition) => {
-                        return createCaseForField(union, next, identifiers)
+                    ...node.fields.map((next: FieldDefinition) => {
+                        return createCaseForField(node, next, identifiers)
                     }),
                     ts.createDefaultClause([
                         createSkipBlock()
@@ -139,7 +140,7 @@ export function createDecodeMethod(union: UnionDefinition, identifiers: IIdentif
         undefined,
         [ inputParameter ],
         ts.createTypeReferenceNode(
-            ts.createIdentifier(union.name.value),
+            ts.createIdentifier(strictNameForStruct(node)),
             undefined,
         ), // return type
         ts.createBlock([
@@ -148,7 +149,7 @@ export function createDecodeMethod(union: UnionDefinition, identifiers: IIdentif
             readStructBegin(),
             whileLoop,
             readStructEnd(),
-            createFieldValidation(union),
+            createFieldValidation(node),
             ts.createIf(
                 ts.createBinary(
                     ts.createIdentifier(RETURN_NAME),

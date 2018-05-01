@@ -17,7 +17,7 @@ import {
 
 import {
     renderValue,
-} from '../../shared/values'
+} from '../values'
 
 import {
     COMMON_IDENTIFIERS,
@@ -37,16 +37,17 @@ import {
 import {
     typeNodeForFieldType,
 } from '../types'
+import { strictNameForStruct } from '../struct/utils';
 
-export function renderException(exp: ExceptionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function renderException(node: ExceptionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
     return [
-        renderClass(exp, identifiers),
-        renderCodec(exp, identifiers),
+        renderClass(node, identifiers),
+        renderCodec(node, identifiers),
     ]
 }
 
-export function renderClass(exp: ExceptionDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
-    const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(exp, identifiers)
+export function renderClass(node: ExceptionDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
+    const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(node, identifiers)
 
     /**
      * After creating the properties on our class for the struct fields we must create
@@ -61,42 +62,23 @@ export function renderClass(exp: ExceptionDefinition, identifiers: IIdentifierMa
      * If a required argument is not on the passed 'args' argument we need to throw on error.
      * Optional fields we must allow to be null or undefined.
      */
-    const fieldAssignments: Array<ts.IfStatement> = exp.fields.map(createFieldAssignment)
+    const fieldAssignments: Array<ts.IfStatement> = node.fields.map(createFieldAssignment)
 
-    const argsParameter: ts.ParameterDeclaration = createArgsParameterForException(exp, identifiers)
+    const argsParameter: ts.ParameterDeclaration = createArgsParameterForException(node, identifiers)
 
     // Build the constructor body
     const ctor: ts.ConstructorDeclaration = createClassConstructor(
         [ argsParameter ],
-        [
-            ts.createStatement(
-                ts.createCall(
-                    ts.createIdentifier('super'),
-                    undefined,
-                    [],
-                )
-            ),
-            ...fieldAssignments
-        ]
-    )
-
-    const heritage: ts.HeritageClause = ts.createHeritageClause(
-        ts.SyntaxKind.ExtendsKeyword,
-        [
-            ts.createExpressionWithTypeArguments(
-                [],
-                COMMON_IDENTIFIERS.Error,
-            )
-        ]
+        [ ...fieldAssignments ],
     )
 
     // export class <node.name> { ... }
     return ts.createClassDeclaration(
         undefined,
         [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-        exp.name.value,
+        strictNameForStruct(node),
         [],
-        [ heritage ], // heritage
+        [], // heritage
         [
             ...fields,
             ctor
@@ -130,22 +112,18 @@ export function createFieldsForStruct(node: InterfaceWithFields, identifiers: II
  * }
  */
 function renderFieldDeclarations(field: FieldDefinition, identifiers: IIdentifierMap): ts.PropertyDeclaration {
-    let defaultValue: ts.Expression | undefined = (
+    const defaultValue: ts.Expression | undefined = (
         (field.defaultValue !== null) ?
             renderValue(field.fieldType, field.defaultValue) :
             undefined
     )
-
-    if (field.requiredness !== 'required' && field.name.value === 'message' && defaultValue === undefined) {
-        defaultValue = ts.createLiteral('');
-    }
 
     return ts.createProperty(
         undefined,
         [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
         ts.createIdentifier(field.name.value),
         (
-            (field.requiredness === 'required' || field.name.value === 'message') ?
+            (field.requiredness === 'required') ?
                 undefined :
                 ts.createToken(ts.SyntaxKind.QuestionToken)
         ),
@@ -282,18 +260,18 @@ export function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
     )
 }
 
-function createArgsParameterForException(exp: ExceptionDefinition, identifiers: IIdentifierMap): ts.ParameterDeclaration {
+function createArgsParameterForException(node: ExceptionDefinition, identifiers: IIdentifierMap): ts.ParameterDeclaration {
     return createFunctionParameter(
         'args', // param name
-        createArgsTypeForException(exp, identifiers), // param type
+        createArgsTypeForException(node, identifiers), // param type
         undefined, // initializer
-        !hasRequiredField(exp) // optional?
+        !hasRequiredField(node) // optional?
     )
 }
 
-function createArgsTypeForException(exp: ExceptionDefinition, identifiers: IIdentifierMap): ts.TypeNode {
+function createArgsTypeForException(node: ExceptionDefinition, identifiers: IIdentifierMap): ts.TypeNode {
     return ts.createTypeLiteralNode(
-        exp.fields.map((field: FieldDefinition): ts.TypeElement => {
+        node.fields.map((field: FieldDefinition): ts.TypeElement => {
             return ts.createPropertySignature(
                 undefined,
                 field.name.value,

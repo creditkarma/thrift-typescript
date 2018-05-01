@@ -19,7 +19,7 @@ import {
 
 import {
     renderValue
-} from '../../shared/values'
+} from '../values'
 
 import {
     THRIFT_IDENTIFIERS,

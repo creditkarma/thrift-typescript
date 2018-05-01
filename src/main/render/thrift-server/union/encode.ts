@@ -56,8 +56,9 @@ import {
     createFieldValidation,
     incrementFieldsSet,
 } from './utils'
+import { looseNameForStruct } from '../struct/utils';
 
-export function createEncodeMethod(union: UnionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
+export function createEncodeMethod(node: UnionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
     return ts.createMethod(
         undefined,
         undefined,
@@ -69,7 +70,7 @@ export function createEncodeMethod(union: UnionDefinition, identifiers: IIdentif
             createFunctionParameter(
                 COMMON_IDENTIFIERS.val,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(`${union.name.value}_Loose`),
+                    ts.createIdentifier(looseNameForStruct(node)),
                     undefined,
                 ),
             ),
@@ -84,14 +85,14 @@ export function createEncodeMethod(union: UnionDefinition, identifiers: IIdentif
         createVoidType(),
         ts.createBlock([
             createFieldIncrementer(),
-            ...createTempVariables(union, identifiers),
-            writeStructBegin(union.name.value),
-            ...union.fields.filter(isNotVoid).map((field) => {
-                return createWriteForField(union, field, identifiers)
+            ...createTempVariables(node, identifiers),
+            writeStructBegin(node.name.value),
+            ...node.fields.filter(isNotVoid).map((field) => {
+                return createWriteForField(node, field, identifiers)
             }),
             writeFieldStop(),
             writeStructEnd(),
-            createFieldValidation(union),
+            createFieldValidation(node),
             ts.createReturn()
         ], true)
     )
@@ -104,10 +105,10 @@ export function createEncodeMethod(union: UnionDefinition, identifiers: IIdentif
  *
  * If field is optional and has a default value write the default if value not set.
  */
-export function createWriteForField(union: UnionDefinition, field: FieldDefinition, identifiers: IIdentifierMap): ts.IfStatement {
+export function createWriteForField(node: UnionDefinition, field: FieldDefinition, identifiers: IIdentifierMap): ts.IfStatement {
     const isFieldNull: ts.BinaryExpression = createNotNullCheck(`obj.${field.name.value}`)
     const thenWrite: ts.Statement = createWriteForFieldType(
-        union,
+        node,
         field,
         ts.createIdentifier(`obj.${field.name.value}`),
         identifiers
@@ -132,7 +133,7 @@ export function createWriteForField(union: UnionDefinition, field: FieldDefiniti
  * output.writeFieldEnd();
  */
 export function createWriteForFieldType(
-    union: UnionDefinition,
+    node: UnionDefinition,
     field: FieldDefinition,
     fieldName: ts.Identifier,
     identifiers: IIdentifierMap
@@ -140,13 +141,13 @@ export function createWriteForFieldType(
     return ts.createBlock([
         incrementFieldsSet(),
         writeFieldBegin(field, identifiers),
-        ...writeValueForField(union, field.fieldType, fieldName, identifiers),
+        ...writeValueForField(node, field.fieldType, fieldName, identifiers),
         writeFieldEnd()
     ], true)
 }
 
 export function writeValueForType(
-    union: UnionDefinition,
+    node: UnionDefinition,
     fieldType: FunctionType,
     fieldName: ts.Identifier,
     identifiers: IIdentifierMap
@@ -155,7 +156,7 @@ export function writeValueForType(
         case SyntaxType.Identifier:
             return writeValueForIdentifier(
                 identifiers[fieldType.value],
-                union,
+                node,
                 fieldType,
                 fieldName,
                 identifiers
@@ -169,21 +170,21 @@ export function writeValueForType(
         case SyntaxType.SetType:
             return  [
                 writeSetBegin(fieldType, fieldName, identifiers),
-                forEach(union, fieldType, fieldName, identifiers),
+                forEach(node, fieldType, fieldName, identifiers),
                 writeSetEnd()
             ]
 
         case SyntaxType.MapType:
             return [
                 writeMapBegin(fieldType, fieldName, identifiers),
-                forEach(union, fieldType, fieldName, identifiers),
+                forEach(node, fieldType, fieldName, identifiers),
                 writeMapEnd()
             ]
 
         case SyntaxType.ListType:
             return  [
                 writeListBegin(fieldType, fieldName, identifiers),
-                forEach(union, fieldType, fieldName, identifiers),
+                forEach(node, fieldType, fieldName, identifiers),
                 writeListEnd()
             ]
 
@@ -219,12 +220,12 @@ function writeMethodForName(methodName: WriteMethodName, fieldName: ts.Identifie
 }
 
 function writeValueForField(
-    union: UnionDefinition,
+    node: UnionDefinition,
     fieldType: FunctionType,
     fieldName: ts.Identifier,
     identifiers: IIdentifierMap
 ): Array<ts.ExpressionStatement> {
-    return writeValueForType(union, fieldType, fieldName, identifiers).map(ts.createStatement)
+    return writeValueForType(node, fieldType, fieldName, identifiers).map(ts.createStatement)
 }
 
 /**
@@ -243,7 +244,7 @@ function writeValueForField(
  * });
  */
 function forEach(
-    union: UnionDefinition,
+    node: UnionDefinition,
     fieldType: ContainerType,
     fieldName: ts.Identifier,
     identifiers: IIdentifierMap
@@ -257,7 +258,7 @@ function forEach(
     ]
 
     const forEachStatements: Array<ts.Statement> = [
-        ...writeValueForField(union, fieldType.valueType, value, identifiers)
+        ...writeValueForField(node, fieldType.valueType, value, identifiers)
     ]
 
     // If map we have to handle key type as well as value type
@@ -268,7 +269,7 @@ function forEach(
             typeNodeForFieldType(fieldType.keyType, identifiers)
         ))
 
-        forEachStatements.unshift(...writeValueForField(union, fieldType.keyType, key, identifiers))
+        forEachStatements.unshift(...writeValueForField(node, fieldType.keyType, key, identifiers))
     }
 
     return createMethodCall(fieldName, 'forEach', [

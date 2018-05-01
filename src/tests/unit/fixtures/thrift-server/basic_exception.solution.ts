@@ -1,11 +1,10 @@
-export class MyException extends Error {
-    public message: string = "";
+export class MyException {
+    public message?: string;
     public code?: number = 200;
     constructor(args?: {
         message?: string;
         code?: number;
     }) {
-        super();
         if (args != null && args.message != null) {
             this.message = args.message;
         }

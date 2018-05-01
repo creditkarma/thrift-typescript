@@ -48,10 +48,11 @@ import {
 import {
     createNumberType,
 } from '../types'
+import { strictNameForStruct } from '../struct/utils';
 
-export function createDecodeMethod(exp: ExceptionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
+export function createDecodeMethod(node: ExceptionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
-    const tempVariables: Array<ts.VariableStatement> = createTempVariables(exp)
+    const tempVariables: Array<ts.VariableStatement> = createTempVariables(node)
 
     /**
      * cosnt ret: { fieldName: string; fieldType: Thrift.Type; fieldId: number; } = input.readFieldBegin()
@@ -104,7 +105,7 @@ export function createDecodeMethod(exp: ExceptionDefinition, identifiers: IIdent
             ts.createSwitch(
                 COMMON_IDENTIFIERS.fieldId, // what to switch on
                 ts.createCaseBlock([
-                    ...exp.fields.map((next: FieldDefinition) => {
+                    ...node.fields.map((next: FieldDefinition) => {
                         return createCaseForField(next, identifiers)
                     }),
                     ts.createDefaultClause([
@@ -125,7 +126,7 @@ export function createDecodeMethod(exp: ExceptionDefinition, identifiers: IIdent
         undefined,
         [ inputParameter ],
         ts.createTypeReferenceNode(
-            ts.createIdentifier(exp.name.value),
+            ts.createIdentifier(strictNameForStruct(node)),
             undefined,
         ), // return type
         ts.createBlock([
@@ -133,37 +134,37 @@ export function createDecodeMethod(exp: ExceptionDefinition, identifiers: IIdent
             readStructBegin(),
             whileLoop,
             readStructEnd(),
-            createReturnForException(exp),
+            createReturnForException(node),
         ], true),
     )
 }
 
-export function createReturnForException(exp: ExceptionDefinition): ts.Statement {
-    if (hasRequiredField(exp)) {
+export function createReturnForException(node: ExceptionDefinition): ts.Statement {
+    if (hasRequiredField(node)) {
         return ts.createIf(
-            createCheckForFields(exp.fields),
+            createCheckForFields(node.fields),
             ts.createBlock([
-                createReturnValue(exp),
+                createReturnValue(node),
             ], true),
             ts.createBlock([
                 throwProtocolException(
                     'UNKNOWN',
-                    `Unable to read ${exp.name.value} from input`
+                    `Unable to read ${node.name.value} from input`
                 )
             ], true)
         )
     } else {
-        return createReturnValue(exp)
+        return createReturnValue(node)
     }
 }
 
-function createReturnValue(exp: ExceptionDefinition): ts.ReturnStatement {
+function createReturnValue(node: ExceptionDefinition): ts.ReturnStatement {
     return ts.createReturn(
         ts.createNew(
-            ts.createIdentifier(exp.name.value),
+            ts.createIdentifier(strictNameForStruct(node)),
             undefined,
             [ ts.createObjectLiteral(
-                exp.fields.map((next: FieldDefinition): ts.ObjectLiteralElementLike => {
+                node.fields.map((next: FieldDefinition): ts.ObjectLiteralElementLike => {
                     return ts.createPropertyAssignment(
                         next.name.value,
                         getInitializerForField('_args', next),

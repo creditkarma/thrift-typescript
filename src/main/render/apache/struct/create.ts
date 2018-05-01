@@ -23,7 +23,7 @@ import {
 
 import {
     renderValue,
-} from '../../shared/values'
+} from '../values'
 
 import {
     COMMON_IDENTIFIERS,

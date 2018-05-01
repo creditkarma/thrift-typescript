@@ -1,9 +1,8 @@
-export class ServiceException extends Error {
-    public message: string = "";
+export class ServiceException {
+    public message?: string;
     constructor(args?: {
         message?: string;
     }) {
-        super();
         if (args != null && args.message != null) {
             this.message = args.message;
         }

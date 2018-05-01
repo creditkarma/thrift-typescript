@@ -3,7 +3,6 @@ import * as ts from 'typescript'
 import {
     InterfaceWithFields,
     FieldDefinition,
-    SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -13,6 +12,10 @@ import {
 import {
     IIdentifierMap,
 } from '../../../types'
+
+import {
+    looseNameForStruct, strictNameForStruct,
+} from './utils'
 
 export function renderOptional(field: FieldDefinition, loose: boolean = false): ts.Token<ts.SyntaxKind.QuestionToken> | undefined {
     if (
@@ -39,21 +42,11 @@ function strictInterface(node: InterfaceWithFields, identifiers: IIdentifierMap)
     return ts.createInterfaceDeclaration(
         undefined,
         [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-        ts.createIdentifier(node.name.value),
+        ts.createIdentifier(strictNameForStruct(node)),
         [],
         [],
         signatures,
     )
-}
-
-function looseNameForStruct(node: InterfaceWithFields): string {
-    switch (node.type) {
-        case SyntaxType.StructDefinition:
-        case SyntaxType.UnionDefinition:
-            return `${node.name.value}_Loose`
-        default:
-            return node.name.value
-    }
 }
 
 function looseInterface(node: InterfaceWithFields, identifiers: IIdentifierMap): ts.InterfaceDeclaration {

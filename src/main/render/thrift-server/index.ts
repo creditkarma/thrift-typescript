@@ -26,9 +26,9 @@ import {
 
 import { renderStruct as _renderStruct } from './struct'
 import { renderUnion as _renderUnion } from './union'
-import { renderEnum as _renderEnum } from '../shared/enum'
+import { renderEnum as _renderEnum } from './enum'
 import { renderTypeDef as _renderTypeDef } from './typedef'
-import { renderConst as _renderConst } from '../shared/const'
+import { renderConst as _renderConst } from './const'
 import { fileUsesThrift } from '../shared/includes'
 import {
     renderIncludes as _renderIncludes,

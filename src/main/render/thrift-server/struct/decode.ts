@@ -45,8 +45,12 @@ import {
     READ_METHODS,
 } from './methods'
 
-export function createTempVariables(struct: InterfaceWithFields): Array<ts.VariableStatement> {
-    if (struct.fields.length > 0) {
+import {
+    codecName, strictNameForStruct,
+} from './utils'
+
+export function createTempVariables(node: InterfaceWithFields): Array<ts.VariableStatement> {
+    if (node.fields.length > 0) {
         return [
             createLetStatement(
                 ts.createIdentifier('_args'),
@@ -59,9 +63,9 @@ export function createTempVariables(struct: InterfaceWithFields): Array<ts.Varia
     }
 }
 
-export function createDecodeMethod(struct: InterfaceWithFields, identifiers: IIdentifierMap): ts.MethodDeclaration {
+export function createDecodeMethod(node: InterfaceWithFields, identifiers: IIdentifierMap): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
-    const tempVariables: Array<ts.VariableStatement> = createTempVariables(struct)
+    const tempVariables: Array<ts.VariableStatement> = createTempVariables(node)
 
     /**
      * cosnt ret: { fieldName: string; fieldType: Thrift.Type; fieldId: number; } = input.readFieldBegin()
@@ -114,7 +118,7 @@ export function createDecodeMethod(struct: InterfaceWithFields, identifiers: IId
             ts.createSwitch(
                 COMMON_IDENTIFIERS.fieldId, // what to switch on
                 ts.createCaseBlock([
-                    ...struct.fields.map((next: FieldDefinition) => {
+                    ...node.fields.map((next: FieldDefinition) => {
                         return createCaseForField(next, identifiers)
                     }),
                     ts.createDefaultClause([
@@ -135,7 +139,7 @@ export function createDecodeMethod(struct: InterfaceWithFields, identifiers: IId
         undefined,
         [ inputParameter ],
         ts.createTypeReferenceNode(
-            ts.createIdentifier(struct.name.value),
+            ts.createIdentifier(strictNameForStruct(node)),
             undefined,
         ), // return type
         ts.createBlock([
@@ -143,7 +147,7 @@ export function createDecodeMethod(struct: InterfaceWithFields, identifiers: IId
             readStructBegin(),
             whileLoop,
             readStructEnd(),
-            createReturnForStruct(struct),
+            createReturnForStruct(node),
         ], true),
     )
 }
@@ -234,29 +238,29 @@ export function endReadForField(fieldName: ts.Identifier, field: FieldDefinition
     }
 }
 
-export function createReturnForStruct(struct: InterfaceWithFields): ts.Statement {
-    if (hasRequiredField(struct)) {
+export function createReturnForStruct(node: InterfaceWithFields): ts.Statement {
+    if (hasRequiredField(node)) {
         return ts.createIf(
-            createCheckForFields(struct.fields),
+            createCheckForFields(node.fields),
             ts.createBlock([
-                createReturnValue(struct),
+                createReturnValue(node),
             ], true),
             ts.createBlock([
                 throwProtocolException(
                     'UNKNOWN',
-                    `Unable to read ${struct.name.value} from input`
+                    `Unable to read ${node.name.value} from input`
                 )
             ], true)
         )
     } else {
-        return createReturnValue(struct)
+        return createReturnValue(node)
     }
 }
 
-function createReturnValue(struct: InterfaceWithFields): ts.ReturnStatement {
+function createReturnValue(node: InterfaceWithFields): ts.ReturnStatement {
     return ts.createReturn(
         ts.createObjectLiteral(
-            struct.fields.map((next: FieldDefinition): ts.ObjectLiteralElementLike => {
+            node.fields.map((next: FieldDefinition): ts.ObjectLiteralElementLike => {
                 return ts.createPropertyAssignment(
                     next.name.value,
                     getInitializerForField('_args', next),
@@ -290,7 +294,7 @@ export function readValueForIdentifier(
                     typeNodeForFieldType(fieldType, identifiers),
                     ts.createCall(
                         ts.createPropertyAccess(
-                            ts.createIdentifier(`${id.resolvedName}Codec`),
+                            ts.createIdentifier(codecName(id.resolvedName)),
                             ts.createIdentifier('decode'),
                         ),
                         undefined,

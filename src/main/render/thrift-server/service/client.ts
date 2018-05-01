@@ -43,11 +43,16 @@ import {
 
 import {
     renderValue
-} from '../../shared/values'
+} from '../values'
 
 import {
     IIdentifierMap
 } from '../../../types'
+
+import {
+    looseName,
+    codecName,
+} from '../struct/utils'
 
 export function renderClient(node: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
     // private _requestId: number;
@@ -284,7 +289,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition, identifiers: IId
             createConstStatement(
                 COMMON_IDENTIFIERS.args,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(`${createStructArgsName(def)}_Loose`),
+                    ts.createIdentifier(looseName(createStructArgsName(def))),
                     undefined
                 ),
                 ts.createObjectLiteral(
@@ -295,7 +300,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition, identifiers: IId
             ),
             // args.write(output)
             createMethodCallStatement(
-                ts.createIdentifier(`${createStructArgsName(def)}Codec`),
+                ts.createIdentifier(codecName(createStructArgsName(def))),
                 'encode',
                 [ COMMON_IDENTIFIERS.args, COMMON_IDENTIFIERS.output ]
             ),
@@ -503,7 +508,7 @@ function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
             ),
             ts.createCall(
                 ts.createPropertyAccess(
-                    ts.createIdentifier(`${createStructResultName(def)}Codec`),
+                    ts.createIdentifier(codecName(createStructResultName(def))),
                     ts.createIdentifier('decode')
                 ),
                 undefined,

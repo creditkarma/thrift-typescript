@@ -12,6 +12,7 @@ import {
 import {
     IIdentifierMap
 } from '../../../types'
+import { looseNameForStruct, strictNameForStruct } from '../struct/utils';
 
 export function renderLooseInterface(node: UnionDefinition, identifiers: IIdentifierMap): ts.TypeAliasDeclaration {
     if (node.fields.length > 0) {
@@ -38,7 +39,7 @@ export function renderLooseInterface(node: UnionDefinition, identifiers: IIdenti
         return ts.createTypeAliasDeclaration(
             undefined,
             [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-            ts.createIdentifier(`${node.name.value}_Loose`),
+            ts.createIdentifier(looseNameForStruct(node)),
             undefined,
             unionOfTypes,
         )
@@ -47,7 +48,7 @@ export function renderLooseInterface(node: UnionDefinition, identifiers: IIdenti
         return ts.createTypeAliasDeclaration(
             undefined,
             [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-            ts.createIdentifier(`${node.name.value}_Loose`),
+            ts.createIdentifier(looseNameForStruct(node)),
             undefined,
             ts.createTypeLiteralNode([]),
         )
@@ -79,7 +80,7 @@ export function renderInterface(node: UnionDefinition, identifiers: IIdentifierM
         return ts.createTypeAliasDeclaration(
             undefined,
             [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-            ts.createIdentifier(node.name.value),
+            ts.createIdentifier(strictNameForStruct(node)),
             undefined,
             unionOfTypes,
         )
@@ -88,7 +89,7 @@ export function renderInterface(node: UnionDefinition, identifiers: IIdentifierM
         return ts.createTypeAliasDeclaration(
             undefined,
             [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-            ts.createIdentifier(node.name.value),
+            ts.createIdentifier(strictNameForStruct(node)),
             undefined,
             ts.createTypeLiteralNode([]),
         )

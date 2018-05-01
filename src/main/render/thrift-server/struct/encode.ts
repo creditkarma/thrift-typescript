@@ -44,8 +44,13 @@ import {
     IResolvedIdentifier,
 } from '../../../types'
 
-export function createTempVariables(struct: InterfaceWithFields, identifiers: IIdentifierMap): Array<ts.VariableStatement> {
-    const structFields: Array<FieldDefinition> = struct.fields.filter((next: FieldDefinition): boolean => {
+import {
+    codecName,
+    looseNameForStruct
+} from './utils';
+
+export function createTempVariables(node: InterfaceWithFields, identifiers: IIdentifierMap): Array<ts.VariableStatement> {
+    const structFields: Array<FieldDefinition> = node.fields.filter((next: FieldDefinition): boolean => {
         return next.fieldType.type !== SyntaxType.VoidKeyword
     })
 
@@ -54,7 +59,7 @@ export function createTempVariables(struct: InterfaceWithFields, identifiers: II
             COMMON_IDENTIFIERS.obj,
             undefined,
             ts.createObjectLiteral(
-                struct.fields.map((next: FieldDefinition): ts.ObjectLiteralElementLike => {
+                node.fields.map((next: FieldDefinition): ts.ObjectLiteralElementLike => {
                     return ts.createPropertyAssignment(
                         next.name.value,
                         getInitializerForField('val', next, true),
@@ -68,8 +73,8 @@ export function createTempVariables(struct: InterfaceWithFields, identifiers: II
     }
 }
 
-export function createEncodeMethod(struct: InterfaceWithFields, identifiers: IIdentifierMap): ts.MethodDeclaration {
-    const tempVariables: Array<ts.VariableStatement> = createTempVariables(struct, identifiers)
+export function createEncodeMethod(node: InterfaceWithFields, identifiers: IIdentifierMap): ts.MethodDeclaration {
+    const tempVariables: Array<ts.VariableStatement> = createTempVariables(node, identifiers)
 
     return ts.createMethod(
         undefined,
@@ -82,7 +87,7 @@ export function createEncodeMethod(struct: InterfaceWithFields, identifiers: IId
             createFunctionParameter(
                 COMMON_IDENTIFIERS.val,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(`${struct.name.value}_Loose`),
+                    ts.createIdentifier(looseNameForStruct(node)),
                     undefined,
                 ),
             ),
@@ -97,9 +102,9 @@ export function createEncodeMethod(struct: InterfaceWithFields, identifiers: IId
         createVoidType(),
         ts.createBlock([
             ...tempVariables,
-            writeStructBegin(struct.name.value),
-            ...struct.fields.filter(isNotVoid).map((field) => {
-                return createWriteForField(struct, field, identifiers)
+            writeStructBegin(node.name.value),
+            ...node.fields.filter(isNotVoid).map((field) => {
+                return createWriteForField(node, field, identifiers)
             }),
             writeFieldStop(),
             writeStructEnd(),
@@ -115,10 +120,10 @@ export function createEncodeMethod(struct: InterfaceWithFields, identifiers: IId
  *
  * If field is optional and has a default value write the default if value not set.
  */
-export function createWriteForField(struct: InterfaceWithFields, field: FieldDefinition, identifiers: IIdentifierMap): ts.IfStatement {
+export function createWriteForField(node: InterfaceWithFields, field: FieldDefinition, identifiers: IIdentifierMap): ts.IfStatement {
     const isFieldNull: ts.BinaryExpression = createNotNullCheck(`obj.${field.name.value}`)
     const thenWrite: ts.Statement = createWriteForFieldType(
-        struct,
+        node,
         field,
         ts.createIdentifier(`obj.${field.name.value}`),
         identifiers,
@@ -142,21 +147,21 @@ export function createWriteForField(struct: InterfaceWithFields, field: FieldDef
  * output.writeFieldEnd();
  */
 export function createWriteForFieldType(
-    struct: InterfaceWithFields,
+    node: InterfaceWithFields,
     field: FieldDefinition,
     fieldName: ts.Identifier,
     identifiers: IIdentifierMap,
 ): ts.Block {
     return ts.createBlock([
         writeFieldBegin(field, identifiers),
-        ...writeValueForField(struct, field.fieldType, fieldName, identifiers),
+        ...writeValueForField(node, field.fieldType, fieldName, identifiers),
         writeFieldEnd()
     ])
 }
 
 export function writeValueForIdentifier(
     id: IResolvedIdentifier,
-    struct: InterfaceWithFields,
+    node: InterfaceWithFields,
     fieldType: FunctionType,
     fieldName: ts.Identifier,
     identifiers: IIdentifierMap,
@@ -173,7 +178,7 @@ export function writeValueForIdentifier(
         case SyntaxType.ExceptionDefinition:
             return [
                 createMethodCall(
-                    ts.createIdentifier(`${id.resolvedName}Codec`),
+                    ts.createIdentifier(codecName(id.resolvedName)),
                     'encode',
                     [ fieldName, COMMON_IDENTIFIERS.output ],
                 )
@@ -184,7 +189,7 @@ export function writeValueForIdentifier(
 
         case SyntaxType.TypedefDefinition:
             return writeValueForType(
-                struct,
+                node,
                 id.definition.definitionType,
                 fieldName,
                 identifiers,
@@ -197,7 +202,7 @@ export function writeValueForIdentifier(
 }
 
 export function writeValueForType(
-    struct: InterfaceWithFields,
+    node: InterfaceWithFields,
     fieldType: FunctionType,
     fieldName: ts.Identifier,
     identifiers: IIdentifierMap
@@ -206,7 +211,7 @@ export function writeValueForType(
         case SyntaxType.Identifier:
             return writeValueForIdentifier(
                 identifiers[fieldType.value],
-                struct,
+                node,
                 fieldType,
                 fieldName,
                 identifiers,
@@ -220,21 +225,21 @@ export function writeValueForType(
         case SyntaxType.SetType:
             return  [
                 writeSetBegin(fieldType, fieldName, identifiers),
-                forEach(struct, fieldType, fieldName, identifiers),
+                forEach(node, fieldType, fieldName, identifiers),
                 writeSetEnd(),
             ]
 
         case SyntaxType.MapType:
             return [
                 writeMapBegin(fieldType, fieldName, identifiers),
-                forEach(struct, fieldType, fieldName, identifiers),
+                forEach(node, fieldType, fieldName, identifiers),
                 writeMapEnd(),
             ]
 
         case SyntaxType.ListType:
             return  [
                 writeListBegin(fieldType, fieldName, identifiers),
-                forEach(struct, fieldType, fieldName, identifiers),
+                forEach(node, fieldType, fieldName, identifiers),
                 writeListEnd(),
             ]
 
@@ -270,12 +275,12 @@ function writeMethodForName(methodName: WriteMethodName, fieldName: ts.Identifie
 }
 
 function writeValueForField(
-    struct: InterfaceWithFields,
+    node: InterfaceWithFields,
     fieldType: FunctionType,
     fieldName: ts.Identifier,
     identifiers: IIdentifierMap,
 ): Array<ts.ExpressionStatement> {
-    return writeValueForType(struct, fieldType, fieldName, identifiers).map(ts.createStatement)
+    return writeValueForType(node, fieldType, fieldName, identifiers).map(ts.createStatement)
 }
 
 /**
@@ -284,7 +289,7 @@ function writeValueForField(
  * EXAMPLE FOR SET
  *
  * // thrift
- * struct MyStruct {
+ * node MyStruct {
  *   1: required set<string> field1;
  * }
  *
@@ -294,7 +299,7 @@ function writeValueForField(
  * });
  */
 function forEach(
-    struct: InterfaceWithFields,
+    node: InterfaceWithFields,
     fieldType: ContainerType,
     fieldName: ts.Identifier,
     identifiers: IIdentifierMap
@@ -308,7 +313,7 @@ function forEach(
     ]
 
     const forEachStatements: Array<ts.Statement> = [
-        ...writeValueForField(struct, fieldType.valueType, value, identifiers)
+        ...writeValueForField(node, fieldType.valueType, value, identifiers)
     ]
 
     // If map we have to handle key type as well as value type
@@ -319,7 +324,7 @@ function forEach(
             typeNodeForFieldType(fieldType.keyType, identifiers, true)
         ))
 
-        forEachStatements.unshift(...writeValueForField(struct, fieldType.keyType, key, identifiers))
+        forEachStatements.unshift(...writeValueForField(node, fieldType.keyType, key, identifiers))
     }
 
     return createMethodCall(fieldName, 'forEach', [

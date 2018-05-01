@@ -25,6 +25,10 @@ import {
     createVoidType,
 } from '../shared/types'
 
+import {
+    looseName,
+} from './struct/utils'
+
 export * from '../shared/types'
 
 export type TProtocolException =
@@ -208,7 +212,7 @@ function typeNameForIdentifier(fieldType: Identifier, id: IResolvedIdentifier): 
     switch (id.definition.type) {
         case SyntaxType.StructDefinition:
         case SyntaxType.UnionDefinition:
-            return `${fieldType.value}_Loose`
+            return looseName(fieldType.value)
 
         default:
             return fieldType.value
