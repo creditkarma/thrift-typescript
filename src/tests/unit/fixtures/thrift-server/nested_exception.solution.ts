@@ -7,10 +7,10 @@ export interface Code_Loose {
     data?: string | Buffer;
 }
 export const CodeCodec: thrift.IStructCodec<Code_Loose, Code> = {
-    encode(val: Code_Loose, output: thrift.TProtocol): void {
+    encode(args: Code_Loose, output: thrift.TProtocol): void {
         const obj = {
-            status: (val.status != null ? (typeof val.status === "number" ? new thrift.Int64(val.status) : val.status) : thrift.Int64.fromDecimalString("200")),
-            data: (val.data != null ? (typeof val.data === "string" ? Buffer.from(val.data) : val.data) : Buffer.from("data"))
+            status: (args.status != null ? (typeof args.status === "number" ? new thrift.Int64(args.status) : args.status) : thrift.Int64.fromDecimalString("200")),
+            data: (args.data != null ? (typeof args.data === "string" ? Buffer.from(args.data) : args.data) : Buffer.from("data"))
         };
         output.writeStructBegin("Code");
         if (obj.status != null) {
@@ -76,22 +76,22 @@ export class MyException {
         description: string;
         code?: Code_Loose;
     }) {
-        if (args != null && args.description != null) {
+        if (args.description != null) {
             this.description = args.description;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[description] is unset!");
         }
-        if (args != null && args.code != null) {
+        if (args.code != null) {
             this.code = args.code;
         }
     }
 }
 export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
-    encode(val: MyException, output: thrift.TProtocol): void {
+    encode(args: MyException, output: thrift.TProtocol): void {
         const obj = {
-            description: val.description,
-            code: val.code
+            description: args.description,
+            code: args.code
         };
         output.writeStructBegin("MyException");
         if (obj.description != null) {

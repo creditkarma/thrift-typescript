@@ -62,7 +62,7 @@ export function createTempVariables(node: InterfaceWithFields, identifiers: IIde
                 node.fields.map((next: FieldDefinition): ts.ObjectLiteralElementLike => {
                     return ts.createPropertyAssignment(
                         next.name.value,
-                        getInitializerForField('val', next, true),
+                        getInitializerForField('args', next, true),
                     )
                 }),
                 true // multiline
@@ -85,7 +85,7 @@ export function createEncodeMethod(node: InterfaceWithFields, identifiers: IIden
         undefined,
         [
             createFunctionParameter(
-                COMMON_IDENTIFIERS.val,
+                COMMON_IDENTIFIERS.args,
                 ts.createTypeReferenceNode(
                     ts.createIdentifier(looseNameForStruct(node)),
                     undefined,

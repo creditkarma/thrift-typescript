@@ -7,10 +7,10 @@ export interface OtherStruct_Loose {
     name?: string;
 }
 export const OtherStructCodec: thrift.IStructCodec<OtherStruct_Loose, OtherStruct> = {
-    encode(val: OtherStruct_Loose, output: thrift.TProtocol): void {
+    encode(args: OtherStruct_Loose, output: thrift.TProtocol): void {
         const obj = {
-            id: (typeof val.id === "number" ? new thrift.Int64(val.id) : val.id),
-            name: (val.name != null ? val.name : "John")
+            id: (typeof args.id === "number" ? new thrift.Int64(args.id) : args.id),
+            name: (args.name != null ? args.name : "John")
         };
         output.writeStructBegin("OtherStruct");
         if (obj.id != null) {
@@ -91,11 +91,11 @@ export interface MyStruct_Loose {
     idSet: Set<OtherStruct_Loose>;
 }
 export const MyStructCodec: thrift.IStructCodec<MyStruct_Loose, MyStruct> = {
-    encode(val: MyStruct_Loose, output: thrift.TProtocol): void {
+    encode(args: MyStruct_Loose, output: thrift.TProtocol): void {
         const obj = {
-            idList: val.idList,
-            idMap: val.idMap,
-            idSet: val.idSet
+            idList: args.idList,
+            idMap: args.idMap,
+            idSet: args.idSet
         };
         output.writeStructBegin("MyStruct");
         if (obj.idList != null) {

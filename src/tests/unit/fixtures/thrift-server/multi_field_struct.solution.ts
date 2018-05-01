@@ -13,13 +13,13 @@ export interface MyStruct_Loose {
     blob?: string | Buffer;
 }
 export const MyStructCodec: thrift.IStructCodec<MyStruct_Loose, MyStruct> = {
-    encode(val: MyStruct_Loose, output: thrift.TProtocol): void {
+    encode(args: MyStruct_Loose, output: thrift.TProtocol): void {
         const obj = {
-            id: (val.id != null ? val.id : 45),
-            bigID: (val.bigID != null ? (typeof val.bigID === "number" ? new thrift.Int64(val.bigID) : val.bigID) : thrift.Int64.fromDecimalString("23948234")),
-            word: val.word,
-            field1: val.field1,
-            blob: (val.blob != null ? (typeof val.blob === "string" ? Buffer.from(val.blob) : val.blob) : Buffer.from("binary"))
+            id: (args.id != null ? args.id : 45),
+            bigID: (args.bigID != null ? (typeof args.bigID === "number" ? new thrift.Int64(args.bigID) : args.bigID) : thrift.Int64.fromDecimalString("23948234")),
+            word: args.word,
+            field1: args.field1,
+            blob: (args.blob != null ? (typeof args.blob === "string" ? Buffer.from(args.blob) : args.blob) : Buffer.from("binary"))
         };
         output.writeStructBegin("MyStruct");
         if (obj.id != null) {

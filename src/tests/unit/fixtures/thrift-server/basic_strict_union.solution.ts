@@ -13,11 +13,11 @@ export type MyUnion_Loose = {
     field2: number | thrift.Int64;
 };
 export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
-    encode(val: MyUnion_Loose, output: thrift.TProtocol): void {
+    encode(args: MyUnion_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
-            field1: val.field1,
-            field2: (typeof val.field2 === "number" ? new thrift.Int64(val.field2) : val.field2)
+            field1: args.field1,
+            field2: (typeof args.field2 === "number" ? new thrift.Int64(args.field2) : args.field2)
         };
         output.writeStructBegin("MyUnion");
         if (obj.field1 != null) {

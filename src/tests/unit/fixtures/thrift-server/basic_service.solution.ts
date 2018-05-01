@@ -7,10 +7,10 @@ export interface User_Loose {
     id: number;
 }
 export const UserCodec: thrift.IStructCodec<User_Loose, User> = {
-    encode(val: User_Loose, output: thrift.TProtocol): void {
+    encode(args: User_Loose, output: thrift.TProtocol): void {
         const obj = {
-            name: val.name,
-            id: val.id
+            name: args.name,
+            id: args.id
         };
         output.writeStructBegin("User");
         if (obj.name != null) {
@@ -88,9 +88,9 @@ export namespace MyService {
         id: number;
     }
     export const GetUserArgsCodec: thrift.IStructCodec<GetUserArgs_Loose, GetUserArgs> = {
-        encode(val: GetUserArgs_Loose, output: thrift.TProtocol): void {
+        encode(args: GetUserArgs_Loose, output: thrift.TProtocol): void {
             const obj = {
-                id: val.id
+                id: args.id
             };
             output.writeStructBegin("GetUserArgs");
             if (obj.id != null) {
@@ -147,7 +147,7 @@ export namespace MyService {
     export interface PingArgs_Loose {
     }
     export const PingArgsCodec: thrift.IStructCodec<PingArgs_Loose, PingArgs> = {
-        encode(val: PingArgs_Loose, output: thrift.TProtocol): void {
+        encode(args: PingArgs_Loose, output: thrift.TProtocol): void {
             output.writeStructBegin("PingArgs");
             output.writeFieldStop();
             output.writeStructEnd();
@@ -180,9 +180,9 @@ export namespace MyService {
         success?: User_Loose;
     }
     export const GetUserResultCodec: thrift.IStructCodec<GetUserResult_Loose, GetUserResult> = {
-        encode(val: GetUserResult_Loose, output: thrift.TProtocol): void {
+        encode(args: GetUserResult_Loose, output: thrift.TProtocol): void {
             const obj = {
-                success: val.success
+                success: args.success
             };
             output.writeStructBegin("GetUserResult");
             if (obj.success != null) {
@@ -233,7 +233,7 @@ export namespace MyService {
         success?: void;
     }
     export const PingResultCodec: thrift.IStructCodec<PingResult_Loose, PingResult> = {
-        encode(val: PingResult_Loose, output: thrift.TProtocol): void {
+        encode(args: PingResult_Loose, output: thrift.TProtocol): void {
             output.writeStructBegin("PingResult");
             output.writeFieldStop();
             output.writeStructEnd();

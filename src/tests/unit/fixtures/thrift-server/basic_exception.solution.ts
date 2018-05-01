@@ -1,23 +1,23 @@
 export class MyException {
     public message?: string;
     public code?: number = 200;
-    constructor(args?: {
+    constructor(args: {
         message?: string;
         code?: number;
-    }) {
-        if (args != null && args.message != null) {
+    } = {}) {
+        if (args.message != null) {
             this.message = args.message;
         }
-        if (args != null && args.code != null) {
+        if (args.code != null) {
             this.code = args.code;
         }
     }
 }
 export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
-    encode(val: MyException, output: thrift.TProtocol): void {
+    encode(args: MyException, output: thrift.TProtocol): void {
         const obj = {
-            message: val.message,
-            code: (val.code != null ? val.code : 200)
+            message: args.message,
+            code: (args.code != null ? args.code : 200)
         };
         output.writeStructBegin("MyException");
         if (obj.message != null) {

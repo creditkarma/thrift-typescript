@@ -7,10 +7,10 @@ export interface User_Loose {
     age?: number | thrift.Int64;
 }
 export const UserCodec: thrift.IStructCodec<User_Loose, User> = {
-    encode(val: User_Loose, output: thrift.TProtocol): void {
+    encode(args: User_Loose, output: thrift.TProtocol): void {
         const obj = {
-            name: val.name,
-            age: (val.age != null ? (typeof val.age === "number" ? new thrift.Int64(val.age) : val.age) : thrift.Int64.fromDecimalString("45"))
+            name: args.name,
+            age: (args.age != null ? (typeof args.age === "number" ? new thrift.Int64(args.age) : args.age) : thrift.Int64.fromDecimalString("45"))
         };
         output.writeStructBegin("User");
         if (obj.name != null) {
@@ -86,10 +86,10 @@ export interface MyStruct_Loose {
     user: User_Loose;
 }
 export const MyStructCodec: thrift.IStructCodec<MyStruct_Loose, MyStruct> = {
-    encode(val: MyStruct_Loose, output: thrift.TProtocol): void {
+    encode(args: MyStruct_Loose, output: thrift.TProtocol): void {
         const obj = {
-            name: val.name,
-            user: val.user
+            name: args.name,
+            user: args.user
         };
         output.writeStructBegin("MyStruct");
         if (obj.name != null) {

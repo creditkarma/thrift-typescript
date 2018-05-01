@@ -7,11 +7,11 @@ export interface Option_Loose {
     option2?: number | thrift.Int64;
 }
 export const OptionCodec: thrift.IStructCodec<Option_Loose, Option> = {
-    encode(val: Option_Loose, output: thrift.TProtocol): void {
+    encode(args: Option_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
-            option1: (typeof val.option1 === "string" ? Buffer.from(val.option1) : val.option1),
-            option2: (typeof val.option2 === "number" ? new thrift.Int64(val.option2) : val.option2)
+            option1: (typeof args.option1 === "string" ? Buffer.from(args.option1) : args.option1),
+            option2: (typeof args.option2 === "number" ? new thrift.Int64(args.option2) : args.option2)
         };
         output.writeStructBegin("Option");
         if (obj.option1 != null) {
@@ -98,11 +98,11 @@ export interface MyUnion_Loose {
     option?: Option_Loose;
 }
 export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
-    encode(val: MyUnion_Loose, output: thrift.TProtocol): void {
+    encode(args: MyUnion_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
-            name: val.name,
-            option: val.option
+            name: args.name,
+            option: args.option
         };
         output.writeStructBegin("MyUnion");
         if (obj.name != null) {

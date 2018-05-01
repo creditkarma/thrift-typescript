@@ -62,7 +62,7 @@ export function createEncodeMethod(struct: InterfaceWithFields, identifiers: IId
         undefined,
         [
             createFunctionParameter(
-                COMMON_IDENTIFIERS.val,
+                COMMON_IDENTIFIERS.args,
                 ts.createTypeReferenceNode(
                     ts.createIdentifier(struct.name.value),
                     undefined,
@@ -85,7 +85,7 @@ export function createEncodeMethod(struct: InterfaceWithFields, identifiers: IId
                     struct.fields.map((next: FieldDefinition): ts.ObjectLiteralElementLike => {
                         return ts.createPropertyAssignment(
                             next.name.value,
-                            getInitializerForField('val', next),
+                            getInitializerForField('args', next),
                         )
                     }),
                     true // multiline

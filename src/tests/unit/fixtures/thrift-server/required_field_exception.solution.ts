@@ -5,22 +5,22 @@ export class MyException {
         description: string;
         code?: number;
     }) {
-        if (args != null && args.description != null) {
+        if (args.description != null) {
             this.description = args.description;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[description] is unset!");
         }
-        if (args != null && args.code != null) {
+        if (args.code != null) {
             this.code = args.code;
         }
     }
 }
 export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
-    encode(val: MyException, output: thrift.TProtocol): void {
+    encode(args: MyException, output: thrift.TProtocol): void {
         const obj = {
-            description: val.description,
-            code: val.code
+            description: args.description,
+            code: args.code
         };
         output.writeStructBegin("MyException");
         if (obj.description != null) {

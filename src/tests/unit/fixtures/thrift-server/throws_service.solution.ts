@@ -1,17 +1,17 @@
 export class ServiceException {
     public message?: string;
-    constructor(args?: {
+    constructor(args: {
         message?: string;
-    }) {
-        if (args != null && args.message != null) {
+    } = {}) {
+        if (args.message != null) {
             this.message = args.message;
         }
     }
 }
 export const ServiceExceptionCodec: thrift.IStructCodec<ServiceException, ServiceException> = {
-    encode(val: ServiceException, output: thrift.TProtocol): void {
+    encode(args: ServiceException, output: thrift.TProtocol): void {
         const obj = {
-            message: val.message
+            message: args.message
         };
         output.writeStructBegin("ServiceException");
         if (obj.message != null) {
@@ -63,9 +63,9 @@ export namespace MyService {
         name: string;
     }
     export const PegArgsCodec: thrift.IStructCodec<PegArgs_Loose, PegArgs> = {
-        encode(val: PegArgs_Loose, output: thrift.TProtocol): void {
+        encode(args: PegArgs_Loose, output: thrift.TProtocol): void {
             const obj = {
-                name: val.name
+                name: args.name
             };
             output.writeStructBegin("PegArgs");
             if (obj.name != null) {
@@ -124,9 +124,9 @@ export namespace MyService {
         name?: string;
     }
     export const PongArgsCodec: thrift.IStructCodec<PongArgs_Loose, PongArgs> = {
-        encode(val: PongArgs_Loose, output: thrift.TProtocol): void {
+        encode(args: PongArgs_Loose, output: thrift.TProtocol): void {
             const obj = {
-                name: val.name
+                name: args.name
             };
             output.writeStructBegin("PongArgs");
             if (obj.name != null) {
@@ -179,10 +179,10 @@ export namespace MyService {
         exp?: ServiceException;
     }
     export const PegResultCodec: thrift.IStructCodec<PegResult_Loose, PegResult> = {
-        encode(val: PegResult_Loose, output: thrift.TProtocol): void {
+        encode(args: PegResult_Loose, output: thrift.TProtocol): void {
             const obj = {
-                success: val.success,
-                exp: val.exp
+                success: args.success,
+                exp: args.exp
             };
             output.writeStructBegin("PegResult");
             if (obj.success != null) {
@@ -248,9 +248,9 @@ export namespace MyService {
         success?: string;
     }
     export const PongResultCodec: thrift.IStructCodec<PongResult_Loose, PongResult> = {
-        encode(val: PongResult_Loose, output: thrift.TProtocol): void {
+        encode(args: PongResult_Loose, output: thrift.TProtocol): void {
             const obj = {
-                success: val.success
+                success: args.success
             };
             output.writeStructBegin("PongResult");
             if (obj.success != null) {

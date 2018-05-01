@@ -127,7 +127,7 @@ export function assignmentForField(field: FieldDefinition): ts.Statement {
                         COMMON_IDENTIFIERS.Int64,
                         undefined,
                         [
-                        ts.createIdentifier(`args.${field.name.value}`)
+                            ts.createIdentifier(`args.${field.name.value}`)
                         ]
                     )
                 )
@@ -160,6 +160,7 @@ export function throwForField(field: FieldDefinition): ts.ThrowStatement | undef
             'UNKNOWN',
             `Required field[${field.name.value}] is unset!`
         )
+
     } else {
         return undefined
     }

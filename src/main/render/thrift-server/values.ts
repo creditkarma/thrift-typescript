@@ -138,8 +138,8 @@ function renderMap(fieldType: MapType, node: ConstMap): ts.NewExpression {
 }
 
 function renderSet(fieldType: SetType, node: ConstList): ts.NewExpression {
-    const values: Array<ts.Expression> = node.elements.map((val: ConstValue) => {
-        return renderValue(fieldType.valueType, val)
+    const values: Array<ts.Expression> = node.elements.map((value: ConstValue) => {
+        return renderValue(fieldType.valueType, value)
     })
 
     return ts.createNew(
@@ -150,8 +150,8 @@ function renderSet(fieldType: SetType, node: ConstList): ts.NewExpression {
 }
 
 function renderList(fieldType: ListType, node: ConstList): ts.ArrayLiteralExpression {
-    const values: Array<ts.Expression> = node.elements.map((val: ConstValue) => {
-        return renderValue(fieldType.valueType, val)
+    const values: Array<ts.Expression> = node.elements.map((value: ConstValue) => {
+        return renderValue(fieldType.valueType, value)
     })
 
     return ts.createArrayLiteral(values)

@@ -68,7 +68,7 @@ export function createEncodeMethod(node: UnionDefinition, identifiers: IIdentifi
         undefined,
         [
             createFunctionParameter(
-                COMMON_IDENTIFIERS.val,
+                COMMON_IDENTIFIERS.args,
                 ts.createTypeReferenceNode(
                     ts.createIdentifier(looseNameForStruct(node)),
                     undefined,

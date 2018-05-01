@@ -37,7 +37,10 @@ import {
 import {
     typeNodeForFieldType,
 } from '../types'
-import { strictNameForStruct } from '../struct/utils';
+
+import {
+    strictNameForStruct
+} from '../struct/utils'
 
 export function renderException(node: ExceptionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
     return [
@@ -243,29 +246,30 @@ export function throwForField(field: FieldDefinition): ts.ThrowStatement | undef
  * }
  */
 export function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
-    const isArgsNull: ts.BinaryExpression = createNotNullCheck('args')
-    const isValue: ts.BinaryExpression = createNotNullCheck(`args.${field.name.value}`)
-    const comparison: ts.BinaryExpression = ts.createBinary(
-        isArgsNull,
-        ts.SyntaxKind.AmpersandAmpersandToken,
-        isValue,
-    )
+    const hasValue: ts.BinaryExpression = createNotNullCheck(`args.${field.name.value}`)
     const thenAssign: ts.Statement = assignmentForField(field)
     const elseThrow: ts.Statement | undefined = throwForField(field)
 
     return ts.createIf(
-        comparison,
+        hasValue,
         ts.createBlock([ thenAssign ], true),
         (elseThrow === undefined) ? undefined : ts.createBlock([ elseThrow ], true),
     )
+}
+
+function createDefaultInitializer(node: InterfaceWithFields): ts.Expression | undefined {
+    if (hasRequiredField(node)) {
+        return undefined
+    } else {
+        return ts.createObjectLiteral([])
+    }
 }
 
 function createArgsParameterForException(node: ExceptionDefinition, identifiers: IIdentifierMap): ts.ParameterDeclaration {
     return createFunctionParameter(
         'args', // param name
         createArgsTypeForException(node, identifiers), // param type
-        undefined, // initializer
-        !hasRequiredField(node) // optional?
+        createDefaultInitializer(node),
     )
 }
 

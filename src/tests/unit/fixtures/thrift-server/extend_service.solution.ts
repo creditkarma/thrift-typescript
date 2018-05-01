@@ -6,9 +6,9 @@ export namespace ParentService {
         status: number;
     }
     export const PingArgsCodec: thrift.IStructCodec<PingArgs_Loose, PingArgs> = {
-        encode(val: PingArgs_Loose, output: thrift.TProtocol): void {
+        encode(args: PingArgs_Loose, output: thrift.TProtocol): void {
             const obj = {
-                status: val.status
+                status: args.status
             };
             output.writeStructBegin("PingArgs");
             if (obj.status != null) {
@@ -67,9 +67,9 @@ export namespace ParentService {
         success?: string;
     }
     export const PingResultCodec: thrift.IStructCodec<PingResult_Loose, PingResult> = {
-        encode(val: PingResult_Loose, output: thrift.TProtocol): void {
+        encode(args: PingResult_Loose, output: thrift.TProtocol): void {
             const obj = {
-                success: val.success
+                success: args.success
             };
             output.writeStructBegin("PingResult");
             if (obj.success != null) {
@@ -229,9 +229,9 @@ export namespace ChildService {
         name: string;
     }
     export const PegArgsCodec: thrift.IStructCodec<PegArgs_Loose, PegArgs> = {
-        encode(val: PegArgs_Loose, output: thrift.TProtocol): void {
+        encode(args: PegArgs_Loose, output: thrift.TProtocol): void {
             const obj = {
-                name: val.name
+                name: args.name
             };
             output.writeStructBegin("PegArgs");
             if (obj.name != null) {
@@ -290,9 +290,9 @@ export namespace ChildService {
         name?: string;
     }
     export const PongArgsCodec: thrift.IStructCodec<PongArgs_Loose, PongArgs> = {
-        encode(val: PongArgs_Loose, output: thrift.TProtocol): void {
+        encode(args: PongArgs_Loose, output: thrift.TProtocol): void {
             const obj = {
-                name: val.name
+                name: args.name
             };
             output.writeStructBegin("PongArgs");
             if (obj.name != null) {
@@ -343,9 +343,9 @@ export namespace ChildService {
         success?: string;
     }
     export const PegResultCodec: thrift.IStructCodec<PegResult_Loose, PegResult> = {
-        encode(val: PegResult_Loose, output: thrift.TProtocol): void {
+        encode(args: PegResult_Loose, output: thrift.TProtocol): void {
             const obj = {
-                success: val.success
+                success: args.success
             };
             output.writeStructBegin("PegResult");
             if (obj.success != null) {
@@ -396,9 +396,9 @@ export namespace ChildService {
         success?: string;
     }
     export const PongResultCodec: thrift.IStructCodec<PongResult_Loose, PongResult> = {
-        encode(val: PongResult_Loose, output: thrift.TProtocol): void {
+        encode(args: PongResult_Loose, output: thrift.TProtocol): void {
             const obj = {
-                success: val.success
+                success: args.success
             };
             output.writeStructBegin("PongResult");
             if (obj.success != null) {
