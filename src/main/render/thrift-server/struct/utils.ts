@@ -1,17 +1,15 @@
+import * as ts from 'typescript'
+
 import {
     InterfaceWithFields,
-    SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-export function looseNameForStruct(node: InterfaceWithFields): string {
-    switch (node.type) {
-        case SyntaxType.StructDefinition:
-        case SyntaxType.UnionDefinition:
-            return looseName(node.name.value)
+import {
+    THRIFT_IDENTIFIERS, COMMON_IDENTIFIERS,
+} from '../identifiers'
 
-        default:
-            return node.name.value
-    }
+export function looseNameForStruct(node: InterfaceWithFields): string {
+    return looseName(node.name.value)
 }
 
 export function classNameForStruct(node: InterfaceWithFields): string {
@@ -40,4 +38,38 @@ export function strictName(name: string): string {
 
 export function codecName(name: string): string {
     return `${name}Codec`
+}
+
+export function extendsAbstract(): ts.HeritageClause {
+    return ts.createHeritageClause(
+        ts.SyntaxKind.ExtendsKeyword,
+        [
+            ts.createExpressionWithTypeArguments(
+                [],
+                THRIFT_IDENTIFIERS.StructLike,
+            ),
+        ],
+    )
+}
+
+export function implementsInterface(node: InterfaceWithFields): ts.HeritageClause {
+    return ts.createHeritageClause(
+        ts.SyntaxKind.ImplementsKeyword,
+        [
+            ts.createExpressionWithTypeArguments(
+                [],
+                ts.createIdentifier(`I${node.name.value}_Loose`),
+            ),
+        ],
+    )
+}
+
+export function createSuperCall(): ts.Statement {
+    return ts.createStatement(
+        ts.createCall(
+            COMMON_IDENTIFIERS.super,
+            undefined,
+            [],
+        ),
+    )
 }

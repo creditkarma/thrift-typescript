@@ -1,10 +1,15 @@
-export class MyException {
+export interface IMyException {
+    message?: string;
+    code?: number;
+}
+export interface IMyException_Loose {
+    message?: string;
+    code?: number;
+}
+export class MyException implements IMyException_Loose {
     public message?: string;
     public code?: number = 200;
-    constructor(args: {
-        message?: string;
-        code?: number;
-    } = {}) {
+    constructor(args: IMyException_Loose = {}) {
         if (args.message != null) {
             this.message = args.message;
         }
@@ -13,8 +18,8 @@ export class MyException {
         }
     }
 }
-export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
-    encode(args: MyException, output: thrift.TProtocol): void {
+export const MyExceptionCodec: thrift.IStructCodec<IMyException_Loose, IMyException> = {
+    encode(args: IMyException_Loose, output: thrift.TProtocol): void {
         const obj = {
             message: args.message,
             code: (args.code != null ? args.code : 200)
@@ -34,7 +39,7 @@ export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
         output.writeStructEnd();
         return;
     },
-    decode(input: thrift.TProtocol): MyException {
+    decode(input: thrift.TProtocol): IMyException {
         let _args: any = {};
         input.readStructBegin();
         while (true) {
@@ -70,9 +75,9 @@ export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
             input.readFieldEnd();
         }
         input.readStructEnd();
-        return new MyException({
+        return {
             message: _args.message,
             code: (_args.code != null ? _args.code : 200)
-        });
+        };
     }
 };

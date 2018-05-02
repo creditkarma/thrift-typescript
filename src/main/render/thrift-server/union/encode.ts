@@ -56,14 +56,17 @@ import {
     createFieldValidation,
     incrementFieldsSet,
 } from './utils'
-import { looseNameForStruct } from '../struct/utils';
+
+import {
+    looseNameForStruct
+} from '../struct/utils'
 
 export function createEncodeMethod(node: UnionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
     return ts.createMethod(
         undefined,
         undefined,
         undefined,
-        ts.createIdentifier('encode'),
+        COMMON_IDENTIFIERS.encode,
         undefined,
         undefined,
         [

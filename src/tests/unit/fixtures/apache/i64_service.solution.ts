@@ -205,12 +205,12 @@ export namespace MyService {
             }
         }
     }
-    export interface Handler {
+    export interface IHandler {
         add(num1: thrift.Int64, num2: thrift.Int64): thrift.Int64 | Promise<thrift.Int64>;
     }
     export class Processor {
-        public _handler: Handler;
-        constructor(handler: Handler) {
+        public _handler: IHandler;
+        constructor(handler: IHandler) {
             this._handler = handler;
         }
         public process(input: thrift.TProtocol, output: thrift.TProtocol): void {

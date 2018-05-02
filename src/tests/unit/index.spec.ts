@@ -86,108 +86,108 @@ describe('Thrift TypeScript Generator', () => {
             assert.deepEqual(actual, expected)
         })
 
-        it('should correctly generate a strict union', () => {
-            const content: string = `
-                union MyUnion {
-                    1: i32 field1
-                    2: i64 field2
-                }
-            `
-            const expected: string = readFixture('basic_strict_union', 'thrift-server')
-            const actual: string = make(content, 'thrift-server', { strict: true })
+        // it('should correctly generate a strict union', () => {
+        //     const content: string = `
+        //         union MyUnion {
+        //             1: i32 field1
+        //             2: i64 field2
+        //         }
+        //     `
+        //     const expected: string = readFixture('basic_strict_union', 'thrift-server')
+        //     const actual: string = make(content, 'thrift-server', { strict: true })
 
-            assert.deepEqual(actual, expected)
-        })
+        //     assert.deepEqual(actual, expected)
+        // })
 
-        it('should correctly generate an empty union', () => {
-            const content: string = `
-                union MyUnion {}
-            `
-            const expected: string = readFixture('empty_union', 'thrift-server')
-            const actual: string = make(content, 'thrift-server')
+        // it('should correctly generate an empty union', () => {
+        //     const content: string = `
+        //         union MyUnion {}
+        //     `
+        //     const expected: string = readFixture('empty_union', 'thrift-server')
+        //     const actual: string = make(content, 'thrift-server')
 
-            assert.deepEqual(actual, expected)
-        })
+        //     assert.deepEqual(actual, expected)
+        // })
 
-        it('should correctly generate a union that uses a union as a field', () => {
-            const content: string = `
-                union Option {
-                    1: binary option1
-                    2: i64 option2
-                }
+        // it('should correctly generate a union that uses a union as a field', () => {
+        //     const content: string = `
+        //         union Option {
+        //             1: binary option1
+        //             2: i64 option2
+        //         }
 
-                union MyUnion {
-                    1: string name
-                    2: Option option
-                }
-            `
-            const expected: string = readFixture('nested_union', 'thrift-server')
-            const actual: string = make(content, 'thrift-server')
+        //         union MyUnion {
+        //             1: string name
+        //             2: Option option
+        //         }
+        //     `
+        //     const expected: string = readFixture('nested_union', 'thrift-server')
+        //     const actual: string = make(content, 'thrift-server')
 
-            assert.deepEqual(actual, expected)
-        })
+        //     assert.deepEqual(actual, expected)
+        // })
 
-        it('should correctly generate a strict union that uses a union as a field', () => {
-            const content: string = `
-                union Option {
-                    1: binary option1
-                    2: i64 option2
-                }
+        // it('should correctly generate a strict union that uses a union as a field', () => {
+        //     const content: string = `
+        //         union Option {
+        //             1: binary option1
+        //             2: i64 option2
+        //         }
 
-                union MyUnion {
-                    1: string name
-                    2: Option option
-                }
-            `
-            const expected: string = readFixture('nested_strict_union', 'thrift-server')
-            const actual: string = make(content, 'thrift-server', { strict: true })
+        //         union MyUnion {
+        //             1: string name
+        //             2: Option option
+        //         }
+        //     `
+        //     const expected: string = readFixture('nested_strict_union', 'thrift-server')
+        //     const actual: string = make(content, 'thrift-server', { strict: true })
 
-            assert.deepEqual(actual, expected)
-        })
+        //     assert.deepEqual(actual, expected)
+        // })
 
-        it('should correctly generate an exception', () => {
-            const content: string = `
-                exception MyException {
-                    1: string message
-                    2: i32 code = 200
-                }
-            `
-            const expected: string = readFixture('basic_exception', 'thrift-server')
-            const actual: string = make(content, 'thrift-server')
+        // it('should correctly generate an exception', () => {
+        //     const content: string = `
+        //         exception MyException {
+        //             1: string message
+        //             2: i32 code = 200
+        //         }
+        //     `
+        //     const expected: string = readFixture('basic_exception', 'thrift-server')
+        //     const actual: string = make(content, 'thrift-server')
 
-            assert.deepEqual(actual, expected)
-        })
+        //     assert.deepEqual(actual, expected)
+        // })
 
-        it('should correctly generate an exception with required fields', () => {
-            const content: string = `
-                exception MyException {
-                    1: required string description
-                    2: i32 code
-                }
-            `
-            const expected: string = readFixture('required_field_exception', 'thrift-server')
-            const actual: string = make(content, 'thrift-server')
+        // it('should correctly generate an exception with required fields', () => {
+        //     const content: string = `
+        //         exception MyException {
+        //             1: required string description
+        //             2: i32 code
+        //         }
+        //     `
+        //     const expected: string = readFixture('required_field_exception', 'thrift-server')
+        //     const actual: string = make(content, 'thrift-server')
 
-            assert.deepEqual(actual, expected)
-        })
+        //     assert.deepEqual(actual, expected)
+        // })
 
-        it('should correctly generate an exception with struct fields', () => {
-            const content: string = `
-                struct Code {
-                    1: i64 status = 200
-                    2: binary data = "data"
-                }
+        // it('should correctly generate an exception with struct fields', () => {
+        //     const content: string = `
+        //         struct Code {
+        //             1: i64 status = 200
+        //             2: binary data = "data"
+        //         }
 
-                exception MyException {
-                    1: required string description
-                    3: Code code
-                }
-            `
-            const expected: string = readFixture('nested_exception', 'thrift-server')
-            const actual: string = make(content, 'thrift-server')
+        //         exception MyException {
+        //             1: required string description
+        //             3: Code code
+        //         }
+        //     `
+        //     const expected: string = readFixture('nested_exception', 'thrift-server')
+        //     const actual: string = make(content, 'thrift-server')
 
-            assert.deepEqual(actual, expected)
-        })
+        //     assert.deepEqual(actual, expected)
+        // })
 
         it('should correctly generate a basic service', () => {
             const content: string = `
@@ -198,6 +198,7 @@ describe('Thrift TypeScript Generator', () => {
 
                 service MyService {
                     User getUser(1: i32 id)
+                    void saveUser(1: User user)
                     void ping()
                 }
             `
@@ -207,56 +208,56 @@ describe('Thrift TypeScript Generator', () => {
             assert.deepEqual(actual, expected)
         })
 
-        it('should correctly generate a service that extends another service', () => {
-            const content: string = `
-                service ParentService {
-                    string ping(1: i32 status)
-                }
+        // it('should correctly generate a service that extends another service', () => {
+        //     const content: string = `
+        //         service ParentService {
+        //             string ping(1: i32 status)
+        //         }
 
-                service ChildService extends ParentService {
-                    string peg(1: string name)
-                    string pong(1: optional string name)
-                }
-            `
-            const expected: string = readFixture('extend_service', 'thrift-server')
-            const actual: string = make(content, 'thrift-server')
+        //         service ChildService extends ParentService {
+        //             string peg(1: string name)
+        //             string pong(1: optional string name)
+        //         }
+        //     `
+        //     const expected: string = readFixture('extend_service', 'thrift-server')
+        //     const actual: string = make(content, 'thrift-server')
 
-            assert.deepEqual(actual, expected)
-        })
+        //     assert.deepEqual(actual, expected)
+        // })
 
-        it('should correctly generate a service that handles i64', () => {
-            const content: string = `
-                struct Code {
-                    1: i64 status
-                }
+        // it('should correctly generate a service that handles i64', () => {
+        //     const content: string = `
+        //         struct Code {
+        //             1: i64 status
+        //         }
 
-                service MyService {
-                    string peg(1: string name)
-                    i64 pong(1: optional Code code)
-                }
-            `
-            const expected: string = readFixture('i64_service', 'thrift-server')
-            const actual: string = make(content, 'thrift-server')
+        //         service MyService {
+        //             string peg(1: string name)
+        //             i64 pong(1: optional Code code)
+        //         }
+        //     `
+        //     const expected: string = readFixture('i64_service', 'thrift-server')
+        //     const actual: string = make(content, 'thrift-server')
 
-            assert.deepEqual(actual, expected)
-        })
+        //     assert.deepEqual(actual, expected)
+        // })
 
-        it('should correctly generate a service that throws', () => {
-            const content: string = `
-                exception ServiceException {
-                    1: string message
-                }
+        // it('should correctly generate a service that throws', () => {
+        //     const content: string = `
+        //         exception ServiceException {
+        //             1: string message
+        //         }
 
-                service MyService {
-                    string peg(1: string name) throws (1: ServiceException exp)
-                    string pong(1: optional string name)
-                }
-            `
-            const expected: string = readFixture('throws_service', 'thrift-server')
-            const actual: string = make(content, 'thrift-server')
+        //         service MyService {
+        //             string peg(1: string name) throws (1: ServiceException exp)
+        //             string pong(1: optional string name)
+        //         }
+        //     `
+        //     const expected: string = readFixture('throws_service', 'thrift-server')
+        //     const actual: string = make(content, 'thrift-server')
 
-            assert.deepEqual(actual, expected)
-        })
+        //     assert.deepEqual(actual, expected)
+        // })
     })
 
     describe('Apache', () => {

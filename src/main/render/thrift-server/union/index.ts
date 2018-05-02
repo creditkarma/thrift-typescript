@@ -20,6 +20,10 @@ import {
     renderCodec,
 } from './codec'
 
+import {
+    renderClass
+} from './class'
+
 export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap, flags: IMakeFlags): Array<ts.Statement> {
     if (flags.strict || flags.strictUnions) {
         return [
@@ -31,6 +35,7 @@ export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap, 
         return [
             ...renderInterface(node, identifiers),
             renderCodec(node, identifiers),
+            renderClass(node, identifiers),
         ]
     }
 }

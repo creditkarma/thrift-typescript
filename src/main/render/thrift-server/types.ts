@@ -3,7 +3,6 @@ import * as ts from 'typescript'
 import {
     FunctionType,
     SyntaxType,
-    Identifier,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -27,6 +26,7 @@ import {
 
 import {
     looseName,
+    strictName,
 } from './struct/utils'
 
 export * from '../shared/types'
@@ -208,28 +208,20 @@ export function thriftTypeForFieldType(fieldType: FunctionType, identifiers: IId
  *
  * SyntaxType.VoidKeyword
  */
-function typeNameForIdentifier(fieldType: Identifier, id: IResolvedIdentifier): string {
-    switch (id.definition.type) {
-        case SyntaxType.StructDefinition:
-        case SyntaxType.UnionDefinition:
-            return looseName(fieldType.value)
-
-        default:
-            return fieldType.value
-    }
-}
-
 export function typeNodeForFieldType(fieldType: FunctionType, identifiers: IIdentifierMap, loose: boolean = false): ts.TypeNode {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             if (loose == true) {
                 return ts.createTypeReferenceNode(
-                    typeNameForIdentifier(fieldType, identifiers[fieldType.value]),
-                    undefined
+                    ts.createIdentifier(looseName(fieldType.value)),
+                    undefined,
                 )
 
             } else {
-                return ts.createTypeReferenceNode(fieldType.value, undefined)
+                return ts.createTypeReferenceNode(
+                    ts.createIdentifier(strictName(fieldType.value)),
+                    undefined,
+                )
             }
 
         case SyntaxType.SetType:

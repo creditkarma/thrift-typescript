@@ -1,13 +1,13 @@
-export interface Option {
+export interface IOption {
     option1?: Buffer;
     option2?: thrift.Int64;
 }
-export interface Option_Loose {
+export interface IOption_Loose {
     option1?: string | Buffer;
     option2?: number | thrift.Int64;
 }
-export const OptionCodec: thrift.IStructCodec<Option_Loose, Option> = {
-    encode(args: Option_Loose, output: thrift.TProtocol): void {
+export const OptionCodec: thrift.IStructCodec<IOption_Loose, IOption> = {
+    encode(args: IOption_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
             option1: (typeof args.option1 === "string" ? Buffer.from(args.option1) : args.option1),
@@ -36,9 +36,9 @@ export const OptionCodec: thrift.IStructCodec<Option_Loose, Option> = {
         }
         return;
     },
-    decode(input: thrift.TProtocol): Option {
+    decode(input: thrift.TProtocol): IOption {
         let _fieldsSet: number = 0;
-        let _returnValue: Option | null = null;
+        let _returnValue: IOption | null = null;
         input.readStructBegin();
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
@@ -89,16 +89,16 @@ export const OptionCodec: thrift.IStructCodec<Option_Loose, Option> = {
         }
     }
 };
-export interface MyUnion {
+export interface IMyUnion {
     name?: string;
-    option?: Option;
+    option?: IOption;
 }
-export interface MyUnion_Loose {
+export interface IMyUnion_Loose {
     name?: string;
-    option?: Option_Loose;
+    option?: IOption_Loose;
 }
-export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
-    encode(args: MyUnion_Loose, output: thrift.TProtocol): void {
+export const MyUnionCodec: thrift.IStructCodec<IMyUnion_Loose, IMyUnion> = {
+    encode(args: IMyUnion_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
             name: args.name,
@@ -127,9 +127,9 @@ export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
         }
         return;
     },
-    decode(input: thrift.TProtocol): MyUnion {
+    decode(input: thrift.TProtocol): IMyUnion {
         let _fieldsSet: number = 0;
-        let _returnValue: MyUnion | null = null;
+        let _returnValue: IMyUnion | null = null;
         input.readStructBegin();
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
@@ -152,7 +152,7 @@ export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
                 case 2:
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
-                        const value_4: Option = OptionCodec.decode(input);
+                        const value_4: IOption = OptionCodec.decode(input);
                         _returnValue = { option: value_4 };
                     }
                     else {

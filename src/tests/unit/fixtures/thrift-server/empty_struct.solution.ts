@@ -1,15 +1,15 @@
-export interface MyStruct {
+export interface IMyStruct {
 }
-export interface MyStruct_Loose {
+export interface IMyStruct_Loose {
 }
-export const MyStructCodec: thrift.IStructCodec<MyStruct_Loose, MyStruct> = {
-    encode(args: MyStruct_Loose, output: thrift.TProtocol): void {
+export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
+    encode(args: IMyStruct_Loose, output: thrift.TProtocol): void {
         output.writeStructBegin("MyStruct");
         output.writeFieldStop();
         output.writeStructEnd();
         return;
     },
-    decode(input: thrift.TProtocol): MyStruct {
+    decode(input: thrift.TProtocol): IMyStruct {
         input.readStructBegin();
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
@@ -29,3 +29,14 @@ export const MyStructCodec: thrift.IStructCodec<MyStruct_Loose, MyStruct> = {
         return {};
     }
 };
+export class MyStruct extends thrift.StructLike  implements IMyStruct_Loose {
+    constructor(args: IMyStruct_Loose = {}) {
+        super();
+    }
+    public static read(input: thrift.TProtocol): MyStruct {
+        return new MyStruct(MyStructCodec.decode(input));
+    }
+    public write(output: thrift.TProtocol): void {
+        return MyStructCodec.encode(this, output);
+    }
+}

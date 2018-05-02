@@ -269,7 +269,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                                         ts.createBlock([
                                             createCallStatement(
                                                 ts.createIdentifier('resolve'),
-                                                [ ts.createIdentifier('result') ]
+                                                [ COMMON_IDENTIFIERS.result ]
                                             )
                                         ], true)
                                     )
@@ -380,7 +380,7 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
             // args.write(output)
             createMethodCallStatement(
                 COMMON_IDENTIFIERS.args,
-                'write',
+                COMMON_IDENTIFIERS.write,
                 [ COMMON_IDENTIFIERS.output ]
             ),
             // output.writeMessageEnd()
@@ -391,7 +391,7 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
             // return this.output.flush()
             ts.createStatement(createMethodCall(
                 ts.createIdentifier('this.output'),
-                'flush',
+                COMMON_IDENTIFIERS.flush,
                 []
             )),
             ts.createReturn()
@@ -528,7 +528,7 @@ function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
     } else {
         return [
             createConstStatement(
-                ts.createIdentifier('result'),
+                COMMON_IDENTIFIERS.result,
                 ts.createTypeReferenceNode(
                 ts.createIdentifier(createStructResultName(def)),
                 undefined
@@ -536,7 +536,7 @@ function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
                 ts.createCall(
                     ts.createPropertyAccess(
                         ts.createIdentifier(createStructResultName(def)),
-                        ts.createIdentifier('read')
+                        COMMON_IDENTIFIERS.read,
                     ),
                     undefined,
                     [

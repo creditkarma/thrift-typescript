@@ -1,9 +1,9 @@
-export interface MyUnion {
+export interface IMyUnion {
 }
-export interface MyUnion_Loose {
+export interface IMyUnion_Loose {
 }
-export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
-    encode(args: MyUnion_Loose, output: thrift.TProtocol): void {
+export const MyUnionCodec: thrift.IStructCodec<IMyUnion_Loose, IMyUnion> = {
+    encode(args: IMyUnion_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         output.writeStructBegin("MyUnion");
         output.writeFieldStop();
@@ -16,9 +16,9 @@ export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
         }
         return;
     },
-    decode(input: thrift.TProtocol): MyUnion {
+    decode(input: thrift.TProtocol): IMyUnion {
         let _fieldsSet: number = 0;
-        let _returnValue: MyUnion | null = null;
+        let _returnValue: IMyUnion | null = null;
         input.readStructBegin();
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();

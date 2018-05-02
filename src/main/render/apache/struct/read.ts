@@ -89,7 +89,7 @@ import {
 export function createReadMethod(struct: InterfaceWithFields, identifiers: IIdentifierMap): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
     const tempVariable: ts.VariableStatement = createLetStatement(
-        ts.createIdentifier('_args'),
+        COMMON_IDENTIFIERS._args,
         createAnyType(),
         ts.createObjectLiteral(),
     )
@@ -164,7 +164,7 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
             ts.createToken(ts.SyntaxKind.StaticKeyword),
         ],
         undefined,
-        ts.createIdentifier('read'),
+        COMMON_IDENTIFIERS.read,
         undefined,
         undefined,
         [ inputParameter ],
@@ -224,14 +224,14 @@ function createReturnValue(struct: InterfaceWithFields): ts.ReturnStatement {
         ts.createNew(
             ts.createIdentifier(struct.name.value),
             undefined,
-            [ ts.createIdentifier('_args') ]
+            [ COMMON_IDENTIFIERS._args ]
         )
     )
 }
 
 export function createInputParameter(): ts.ParameterDeclaration {
     return createFunctionParameter(
-        'input', // param name
+        COMMON_IDENTIFIERS.input, // param name
         ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined) // param type
     )
 }
@@ -463,8 +463,8 @@ export function readValueForIdentifier(
                     typeNodeForFieldType(fieldType),
                     ts.createCall(
                         ts.createPropertyAccess(
-                        ts.createIdentifier(id.resolvedName),
-                        ts.createIdentifier('read'),
+                            ts.createIdentifier(id.resolvedName),
+                            COMMON_IDENTIFIERS.read,
                         ),
                         undefined,
                         [

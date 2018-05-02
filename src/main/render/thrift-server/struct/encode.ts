@@ -80,7 +80,7 @@ export function createEncodeMethod(node: InterfaceWithFields, identifiers: IIden
         undefined,
         undefined,
         undefined,
-        ts.createIdentifier('encode'),
+        COMMON_IDENTIFIERS.encode,
         undefined,
         undefined,
         [

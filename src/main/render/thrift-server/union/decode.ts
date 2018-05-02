@@ -135,7 +135,7 @@ export function createDecodeMethod(node: UnionDefinition, identifiers: IIdentifi
         undefined,
         undefined,
         undefined,
-        ts.createIdentifier('decode'),
+        COMMON_IDENTIFIERS.decode,
         undefined,
         undefined,
         [ inputParameter ],
@@ -294,7 +294,7 @@ export function createReturnForStruct(struct: InterfaceWithFields): ts.Statement
             ts.createNew(
                 ts.createIdentifier(struct.name.value),
                 undefined,
-                [ ts.createIdentifier('_args') ]
+                [ COMMON_IDENTIFIERS._args ]
             )
         )
     }

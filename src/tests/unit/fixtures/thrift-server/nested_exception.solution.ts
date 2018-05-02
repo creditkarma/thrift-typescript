@@ -1,13 +1,13 @@
-export interface Code {
+export interface ICode {
     status?: thrift.Int64;
     data?: Buffer;
 }
-export interface Code_Loose {
+export interface ICode_Loose {
     status?: number | thrift.Int64;
     data?: string | Buffer;
 }
-export const CodeCodec: thrift.IStructCodec<Code_Loose, Code> = {
-    encode(args: Code_Loose, output: thrift.TProtocol): void {
+export const CodeCodec: thrift.IStructCodec<ICode_Loose, ICode> = {
+    encode(args: ICode_Loose, output: thrift.TProtocol): void {
         const obj = {
             status: (args.status != null ? (typeof args.status === "number" ? new thrift.Int64(args.status) : args.status) : thrift.Int64.fromDecimalString("200")),
             data: (args.data != null ? (typeof args.data === "string" ? Buffer.from(args.data) : args.data) : Buffer.from("data"))
@@ -27,7 +27,7 @@ export const CodeCodec: thrift.IStructCodec<Code_Loose, Code> = {
         output.writeStructEnd();
         return;
     },
-    decode(input: thrift.TProtocol): Code {
+    decode(input: thrift.TProtocol): ICode {
         let _args: any = {};
         input.readStructBegin();
         while (true) {
@@ -71,10 +71,10 @@ export const CodeCodec: thrift.IStructCodec<Code_Loose, Code> = {
 };
 export class MyException {
     public description: string;
-    public code?: Code_Loose;
+    public code?: ICode_Loose;
     constructor(args: {
         description: string;
-        code?: Code_Loose;
+        code?: ICode_Loose;
     }) {
         if (args.description != null) {
             this.description = args.description;
@@ -133,7 +133,7 @@ export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
                     break;
                 case 3:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_4: Code = CodeCodec.decode(input);
+                        const value_4: ICode = CodeCodec.decode(input);
                         _args.code = value_4;
                     }
                     else {

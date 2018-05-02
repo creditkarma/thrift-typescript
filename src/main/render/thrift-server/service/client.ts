@@ -52,6 +52,7 @@ import {
 import {
     looseName,
     codecName,
+    strictName,
 } from '../struct/utils'
 
 export function renderClient(node: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
@@ -289,7 +290,9 @@ function createBaseMethodForDefinition(def: FunctionDefinition, identifiers: IId
             createConstStatement(
                 COMMON_IDENTIFIERS.args,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(looseName(createStructArgsName(def))),
+                    ts.createIdentifier(
+                        looseName(createStructArgsName(def))
+                    ),
                     undefined
                 ),
                 ts.createObjectLiteral(
@@ -501,9 +504,11 @@ function createConnectionSend(): ts.CallExpression {
 function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
     return [
         createConstStatement(
-            ts.createIdentifier('result'),
+            COMMON_IDENTIFIERS.result,
             ts.createTypeReferenceNode(
-                ts.createIdentifier(createStructResultName(def)),
+                ts.createIdentifier(
+                    strictName(createStructResultName(def))
+                ),
                 undefined
             ),
             ts.createCall(

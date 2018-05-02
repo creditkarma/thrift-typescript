@@ -52,7 +52,7 @@ import {
 } from '../types'
 
 import {
-    codecName,
+    codecName, strictName,
 } from '../struct/utils'
 
 function objectLiteralForServiceFunctions(node: ThriftStatement): ts.ObjectLiteralExpression {
@@ -75,7 +75,7 @@ function objectLiteralForServiceFunctions(node: ThriftStatement): ts.ObjectLiter
 
 function handlerType(node: ServiceDefinition): ts.TypeNode {
     return ts.createTypeReferenceNode(
-        COMMON_IDENTIFIERS.Handler,
+        COMMON_IDENTIFIERS.IHandler,
         [ ts.createTypeReferenceNode('Context', undefined) ]
     )
 }
@@ -214,7 +214,7 @@ function createProcessFunctionMethod(
     identifiers: IIdentifierMap
 ): ts.MethodDeclaration {
     return createPublicMethod(
-        `process_${funcDef.name.value}`,
+        ts.createIdentifier(`process_${funcDef.name.value}`),
         [
             createFunctionParameter('requestId', createNumberType()),
             createFunctionParameter('input', TProtocolType),
@@ -300,7 +300,9 @@ function createProcessFunctionMethod(
                                     createConstStatement(
                                         COMMON_IDENTIFIERS.result,
                                         ts.createTypeReferenceNode(
-                                            ts.createIdentifier(createStructResultName(funcDef)),
+                                            ts.createIdentifier(
+                                                strictName(createStructResultName(funcDef))
+                                            ),
                                             undefined
                                         ),
                                         ts.createObjectLiteral(
@@ -390,12 +392,16 @@ function createArgsVariable(funcDef: FunctionDefinition): Array<ts.Statement> {
             createConstStatement(
                 COMMON_IDENTIFIERS.args,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(createStructArgsName(funcDef)),
+                    ts.createIdentifier(
+                        strictName(createStructArgsName(funcDef))
+                    ),
                     undefined
                 ),
                 ts.createCall(
                     ts.createPropertyAccess(
-                        ts.createIdentifier(codecName(createStructArgsName(funcDef))),
+                        ts.createIdentifier(
+                            codecName(createStructArgsName(funcDef))
+                        ),
                         ts.createIdentifier('decode')
                     ),
                     undefined,
@@ -423,7 +429,9 @@ function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statemen
                     createConstStatement(
                         COMMON_IDENTIFIERS.result,
                         ts.createTypeReferenceNode(
-                            ts.createIdentifier(createStructResultName(funcDef)),
+                            ts.createIdentifier(
+                                strictName(createStructResultName(funcDef))
+                            ),
                             undefined
                         ),
                         ts.createObjectLiteral(
@@ -590,7 +598,7 @@ function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statemen
 // }
 function createProcessMethod(service: ServiceDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
     return createPublicMethod(
-        'process',
+        COMMON_IDENTIFIERS.process,
         [
             createFunctionParameter('input', TProtocolType),
             createFunctionParameter('output', TProtocolType),

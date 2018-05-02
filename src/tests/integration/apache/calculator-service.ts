@@ -47,7 +47,7 @@ export function createCalculatorServer(): Server {
     const thriftClient: AddService.Client = createHttpClient(AddService.Client, connection)
 
     // Handler: Implement the hello service
-    const myServiceHandler: Calculator.Handler = {
+    const myServiceHandler: Calculator.IHandler = {
         ping(): void {},
         add(a: number, b: number): Promise<number> {
             return thriftClient.add(a, b)

@@ -1,6 +1,16 @@
 import * as ts from 'typescript'
 
 export const COMMON_IDENTIFIERS = {
+    success: ts.createIdentifier('success'),
+    handler: ts.createIdentifier('handler'),
+    super: ts.createIdentifier('super'),
+    this: ts.createIdentifier('this'),
+    flush: ts.createIdentifier('flush'),
+    process: ts.createIdentifier('process'),
+    decode: ts.createIdentifier('decode'),
+    encode: ts.createIdentifier('encode'),
+    read: ts.createIdentifier('read'),
+    write: ts.createIdentifier('write'),
     result: ts.createIdentifier('result'),
     val: ts.createIdentifier('val'),
     obj: ts.createIdentifier('obj'),
@@ -8,6 +18,7 @@ export const COMMON_IDENTIFIERS = {
     requestId: ts.createIdentifier('requestId'),
     err: ts.createIdentifier('err'),
     args: ts.createIdentifier('args'),
+    _args: ts.createIdentifier('_args'),
     undefined: ts.createIdentifier('undefined'),
     input: ts.createIdentifier('input'),
     data: ts.createIdentifier('data'),
@@ -39,6 +50,6 @@ export const COMMON_IDENTIFIERS = {
     Error: ts.createIdentifier('Error'),
     void: ts.createIdentifier('void'),
     Int64: ts.createIdentifier('thrift.Int64'),
-    Handler: ts.createIdentifier('Handler'),
-    LocalHandler: ts.createIdentifier('LocalHandler'),
+    IHandler: ts.createIdentifier('IHandler'),
+    ILocalHandler: ts.createIdentifier('ILocalHandler'),
 }

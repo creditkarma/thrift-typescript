@@ -1,19 +1,19 @@
-export type MyUnion = {
+export type IMyUnion = {
     field1: number;
     field2?: undefined;
 } | {
     field1?: undefined;
     field2: thrift.Int64;
 };
-export type MyUnion_Loose = {
+export type IMyUnion_Loose = {
     field1: number;
     field2?: undefined;
 } | {
     field1?: undefined;
     field2: number | thrift.Int64;
 };
-export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
-    encode(args: MyUnion_Loose, output: thrift.TProtocol): void {
+export const MyUnionCodec: thrift.IStructCodec<IMyUnion_Loose, IMyUnion> = {
+    encode(args: IMyUnion_Loose, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
             field1: args.field1,
@@ -42,9 +42,9 @@ export const MyUnionCodec: thrift.IStructCodec<MyUnion_Loose, MyUnion> = {
         }
         return;
     },
-    decode(input: thrift.TProtocol): MyUnion {
+    decode(input: thrift.TProtocol): IMyUnion {
         let _fieldsSet: number = 0;
-        let _returnValue: MyUnion | null = null;
+        let _returnValue: IMyUnion | null = null;
         input.readStructBegin();
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();

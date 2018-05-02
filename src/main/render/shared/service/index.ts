@@ -73,7 +73,7 @@ export function renderHandlerInterface(service: ServiceDefinition, typeMapping: 
             ts.createInterfaceDeclaration(
                 undefined,
                 [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-                COMMON_IDENTIFIERS.LocalHandler,
+                COMMON_IDENTIFIERS.ILocalHandler,
                 [
                     ts.createTypeParameterDeclaration(
                         COMMON_IDENTIFIERS.Context,
@@ -87,7 +87,7 @@ export function renderHandlerInterface(service: ServiceDefinition, typeMapping: 
             ts.createTypeAliasDeclaration(
                 undefined,
                 [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-                COMMON_IDENTIFIERS.Handler,
+                COMMON_IDENTIFIERS.IHandler,
                 [
                     ts.createTypeParameterDeclaration(
                         COMMON_IDENTIFIERS.Context,
@@ -97,13 +97,13 @@ export function renderHandlerInterface(service: ServiceDefinition, typeMapping: 
                 ],
                 ts.createIntersectionTypeNode([
                     ts.createTypeReferenceNode(
-                        COMMON_IDENTIFIERS.LocalHandler,
+                        COMMON_IDENTIFIERS.ILocalHandler,
                         [
                             ts.createTypeReferenceNode('Context', undefined)
                         ]
                     ),
                     ts.createTypeReferenceNode(
-                        ts.createIdentifier(`${service.extends.value}.Handler`),
+                        ts.createIdentifier(`${service.extends.value}.IHandler`),
                         [
                             ts.createTypeReferenceNode('Context', undefined)
                         ]
@@ -116,7 +116,7 @@ export function renderHandlerInterface(service: ServiceDefinition, typeMapping: 
             ts.createInterfaceDeclaration(
                 undefined,
                 [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-                COMMON_IDENTIFIERS.Handler,
+                COMMON_IDENTIFIERS.IHandler,
                 [
                     ts.createTypeParameterDeclaration(
                         COMMON_IDENTIFIERS.Context,

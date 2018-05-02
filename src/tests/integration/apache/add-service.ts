@@ -13,7 +13,7 @@ import { Server } from 'net'
 
 export function createAddServer(): Server {
     // Handler: Implement the hello service
-    const myServiceHandler: AddService.Handler = {
+    const myServiceHandler: AddService.IHandler = {
         ping(): void {},
         add(a: number, b: number): number {
             return a + b

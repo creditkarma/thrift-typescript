@@ -63,12 +63,12 @@ export function createWriteMethod(struct: InterfaceWithFields, identifiers: IIde
         return createWriteForField(struct, field, identifiers)
     })
     const inputParameter: ts.ParameterDeclaration = createFunctionParameter(
-        'output',
+        COMMON_IDENTIFIERS.output,
         ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined)
     )
 
     return createPublicMethod(
-        'write', // Method name
+        COMMON_IDENTIFIERS.write, // Method name
         [ inputParameter ], // Method parameters
         createVoidType(), // Method return type
         [
@@ -156,7 +156,7 @@ function writeValueForIdentifier(
             return [
                 createMethodCall(
                     fieldName,
-                    'write',
+                    COMMON_IDENTIFIERS.write,
                     [ COMMON_IDENTIFIERS.output ]
                 )
             ]

@@ -53,7 +53,7 @@ export function createTempVariables(node: InterfaceWithFields): Array<ts.Variabl
     if (node.fields.length > 0) {
         return [
             createLetStatement(
-                ts.createIdentifier('_args'),
+                COMMON_IDENTIFIERS._args,
                 createAnyType(),
                 ts.createObjectLiteral(),
             )
@@ -134,7 +134,7 @@ export function createDecodeMethod(node: InterfaceWithFields, identifiers: IIden
         undefined,
         undefined,
         undefined,
-        ts.createIdentifier('decode'),
+        COMMON_IDENTIFIERS.decode,
         undefined,
         undefined,
         [ inputParameter ],
@@ -295,7 +295,7 @@ export function readValueForIdentifier(
                     ts.createCall(
                         ts.createPropertyAccess(
                             ts.createIdentifier(codecName(id.resolvedName)),
-                            ts.createIdentifier('decode'),
+                            COMMON_IDENTIFIERS.decode,
                         ),
                         undefined,
                         [

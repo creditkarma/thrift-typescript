@@ -168,12 +168,12 @@ export namespace ParentService {
             }
         }
     }
-    export interface Handler {
+    export interface IHandler {
         ping(status: number): string | Promise<string>;
     }
     export class Processor {
-        public _handler: Handler;
-        constructor(handler: Handler) {
+        public _handler: IHandler;
+        constructor(handler: IHandler) {
             this._handler = handler;
         }
         public process(input: thrift.TProtocol, output: thrift.TProtocol): void {
@@ -398,13 +398,13 @@ export namespace ChildService {
             }
         }
     }
-    export interface LocalHandler {
+    export interface ILocalHandler {
         peg(name: string): string | Promise<string>;
     }
-    export type Handler = LocalHandler & ParentService.Handler;
+    export type IHandler = ILocalHandler & ParentService.IHandler;
     export class Processor extends ParentService.Processor {
-        public _handler: Handler;
-        constructor(handler: Handler) {
+        public _handler: IHandler;
+        constructor(handler: IHandler) {
             super({
                 ping: handler.ping
             });

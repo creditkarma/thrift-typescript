@@ -5,6 +5,7 @@ import {
     FieldDefinition,
     FieldRequired,
 } from '@creditkarma/thrift-parser'
+import { COMMON_IDENTIFIERS } from './identifiers';
 
 /**
  * Create a binary ts.Expression for testing not equal to null
@@ -64,7 +65,7 @@ export function createClassConstructor(
 }
 
 export function createPublicMethod(
-    name: string,
+    name: ts.Identifier,
     args: Array<ts.ParameterDeclaration>,
     type: ts.TypeNode,
     statements: Array<ts.Statement>,
@@ -73,7 +74,7 @@ export function createPublicMethod(
         undefined,
         [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
         undefined,
-        ts.createIdentifier(name),
+        name,
         undefined,
         undefined,
         args,
@@ -177,7 +178,7 @@ export function createCallStatement(
 
 export function createMethodCallStatement(
     obj: string | ts.Identifier,
-    methodName: string,
+    methodName: string | ts.Identifier,
     args: Array<ts.Expression> = [],
 ): ts.ExpressionStatement {
     return createCallStatement(
@@ -188,7 +189,7 @@ export function createMethodCallStatement(
 
 export function createMethodCall(
     obj: string | ts.Expression,
-    method: string,
+    method: string | ts.Identifier,
     args: Array<ts.Expression> = [],
 ): ts.CallExpression {
     return ts.createCall(
@@ -205,7 +206,7 @@ export function createMethodCall(
  *
  * propertyAccessForIdentifier('test', 'this') => 'test.this'
  */
-export function propertyAccessForIdentifier(obj: string | ts.Expression, prop: string): ts.PropertyAccessExpression {
+export function propertyAccessForIdentifier(obj: string | ts.Expression, prop: string | ts.Identifier): ts.PropertyAccessExpression {
     switch (obj) {
         case 'this':
             return ts.createPropertyAccess(ts.createThis(), prop)
@@ -258,7 +259,7 @@ export function createPromise(
     body: Array<ts.Statement>
 ): ts.NewExpression {
     return ts.createNew(
-        ts.createIdentifier('Promise'),
+        COMMON_IDENTIFIERS.Promise,
         [ type ],
         [ ts.createArrowFunction(
             undefined,

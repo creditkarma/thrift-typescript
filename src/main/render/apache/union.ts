@@ -297,7 +297,7 @@ function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): t
             ts.createToken(ts.SyntaxKind.StaticKeyword),
         ],
         undefined,
-        ts.createIdentifier('read'),
+        COMMON_IDENTIFIERS.read,
         undefined,
         undefined,
         [ inputParameter ],
