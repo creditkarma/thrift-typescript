@@ -19,7 +19,9 @@ export function renderThriftImports(): ts.ImportDeclaration {
         undefined,
         ts.createImportClause(
             undefined,
-            ts.createNamespaceImport(ts.createIdentifier('thrift'))
+            ts.createNamespaceImport(
+                ts.createIdentifier('thrift')
+            )
         ),
         ts.createLiteral('@creditkarma/thrift-server-core'),
     )
@@ -50,7 +52,9 @@ export function renderIncludes(
                 undefined,
                 ts.createImportClause(
                     undefined,
-                    ts.createNamespaceImport(ts.createIdentifier(name)),
+                    ts.createNamespaceImport(
+                        ts.createIdentifier(name)
+                    ),
                 ),
                 ts.createLiteral(
                     `./${path.join(

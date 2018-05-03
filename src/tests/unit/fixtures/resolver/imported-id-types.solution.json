@@ -5,7 +5,7 @@
     "namespace": {
         "scope": "",
         "name": "",
-        "path": ""
+        "path": "/Users/kevin.greene/Documents/_our_stuff/thrift-typescript/index.ts"
     },
     "includes": {
         "exception": {
@@ -16,12 +16,13 @@
                 "namespace": {
                     "scope": "",
                     "name": "",
-                    "path": ""
+                    "path": "/Users/kevin.greene/Documents/_our_stuff/thrift-typescript/index.ts"
                 },
                 "includes": {},
                 "identifiers": {
                     "MyException": {
                         "name": "MyException",
+                        "pathName": "",
                         "resolvedName": "MyException",
                         "definition": {
                             "type": "ExceptionDefinition",
@@ -230,6 +231,7 @@
             "identifiers": [
                 {
                     "name": "MyException",
+                    "pathName": "exception",
                     "resolvedName": "exception.MyException",
                     "definition": {
                         "type": "ExceptionDefinition",
@@ -337,6 +339,7 @@
     "identifiers": {
         "exception.MyException": {
             "name": "MyException",
+            "pathName": "exception",
             "resolvedName": "exception.MyException",
             "definition": {
                 "type": "ExceptionDefinition",
@@ -440,6 +443,7 @@
         },
         "MyService": {
             "name": "MyService",
+            "pathName": "",
             "resolvedName": "MyService",
             "definition": {
                 "type": "ServiceDefinition",

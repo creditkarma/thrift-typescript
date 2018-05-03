@@ -139,7 +139,9 @@ export function createDecodeMethod(node: InterfaceWithFields, identifiers: IIden
         undefined,
         [ inputParameter ],
         ts.createTypeReferenceNode(
-            ts.createIdentifier(strictNameForStruct(node)),
+            ts.createIdentifier(
+                strictNameForStruct(node)
+            ),
             undefined,
         ), // return type
         ts.createBlock([

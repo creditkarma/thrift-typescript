@@ -18,7 +18,8 @@ import {
     looseName,
     codecName,
     strictName,
-} from './struct/utils';
+    className,
+} from './struct/utils'
 
 function renderTypeDefForIdentifier(
     id: IResolvedIdentifier,
@@ -27,21 +28,6 @@ function renderTypeDefForIdentifier(
 ): Array<ts.Statement> {
     switch (id.definition.type) {
         case SyntaxType.ExceptionDefinition:
-            return [
-                ts.createImportEqualsDeclaration(
-                    undefined,
-                    [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-                    ts.createIdentifier(strictName(node.name.value)),
-                    ts.createIdentifier(strictName(id.resolvedName)),
-                ),
-                ts.createImportEqualsDeclaration(
-                    undefined,
-                    [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-                    ts.createIdentifier(codecName(node.name.value)),
-                    ts.createIdentifier(codecName(id.resolvedName)),
-                )
-            ]
-
         case SyntaxType.StructDefinition:
         case SyntaxType.UnionDefinition:
             return [
@@ -49,13 +35,19 @@ function renderTypeDefForIdentifier(
                     undefined,
                     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
                     ts.createIdentifier(strictName(node.name.value)),
-                    ts.createIdentifier(strictName(id.resolvedName)),
+                    ts.createIdentifier(`${id.pathName}.${strictName(id.name)}`),
                 ),
                 ts.createImportEqualsDeclaration(
                     undefined,
                     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
                     ts.createIdentifier(looseName(node.name.value)),
-                    ts.createIdentifier(looseName(id.resolvedName)),
+                    ts.createIdentifier(`${id.pathName}.${looseName(id.name)}`),
+                ),
+                ts.createImportEqualsDeclaration(
+                    undefined,
+                    [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+                    ts.createIdentifier(className(node.name.value)),
+                    ts.createIdentifier(`${id.pathName}.${className(id.name)}`),
                 ),
                 ts.createImportEqualsDeclaration(
                     undefined,
@@ -70,8 +62,8 @@ function renderTypeDefForIdentifier(
                 ts.createImportEqualsDeclaration(
                     undefined,
                     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-                    ts.createIdentifier(strictName(node.name.value)),
-                    ts.createIdentifier(strictName(id.resolvedName)),
+                    ts.createIdentifier(node.name.value),
+                    ts.createIdentifier(id.resolvedName),
                 )
             ]
     }

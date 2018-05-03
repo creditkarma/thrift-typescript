@@ -60,7 +60,6 @@ export function dedupResolvedFiles(files: Array<IResolvedFile>): Array<IResolved
 }
 
 function collectNamespaces(
-    outPath: string,
     files: Array<IResolvedFile>,
     cache: Map<string, INamespaceFile> = new Map(),
 ): Map<string, INamespaceFile> {
@@ -88,14 +87,14 @@ function collectNamespaces(
             })
         }
 
-        return collectNamespaces(outPath, tail, cache)
+        return collectNamespaces(tail, cache)
     } else {
         return cache
     }
 }
 
-export function organizeByNamespace(outPath: string, files: Array<IResolvedFile>): Array<INamespaceFile> {
-    return Array.from(collectNamespaces(outPath, files).values())
+export function organizeByNamespace(files: Array<IResolvedFile>): Array<INamespaceFile> {
+    return Array.from(collectNamespaces(files).values())
 }
 
 /**

@@ -315,6 +315,7 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                 case SyntaxType.ServiceDefinition:
                     identifiers[statement.name.value] = {
                         name: statement.name.value,
+                        pathName: '',
                         resolvedName: statement.name.value,
                         definition: statement,
                     }
@@ -323,6 +324,7 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                 case SyntaxType.TypedefDefinition:
                     identifiers[statement.name.value] = {
                         name: statement.name.value,
+                        pathName: '',
                         resolvedName: statement.name.value,
                         definition: definitionForTypeDef(statement),
                     }
@@ -350,6 +352,7 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
 
                     identifiers[resolvedName] = {
                         name: baseIdentifier.name,
+                        pathName: pathname,
                         resolvedName,
                         definition: baseIdentifier.definition,
                     }
@@ -357,9 +360,11 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                     if (!containsIdentifier(pathname, resolvedName)) {
                         const resolvedIdentifier: IResolvedIdentifier = {
                             name: base,
+                            pathName: pathname,
                             resolvedName,
                             definition: baseIdentifier.definition,
                         }
+
                         resolvedIncludes[pathname].identifiers.push(resolvedIdentifier)
                     }
 

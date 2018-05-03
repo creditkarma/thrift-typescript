@@ -8,6 +8,23 @@ import {
     THRIFT_IDENTIFIERS, COMMON_IDENTIFIERS,
 } from '../identifiers'
 
+type NameMapping = (name: string) => string
+
+function splitPath(path: string): Array<string> {
+    return path.split('.').filter((next: string): boolean => {
+        return next.trim() !== ''
+    })
+}
+
+function makeNameForNode(name: string, mapping: NameMapping): string {
+    const parts: Array<string> = splitPath(name)
+    if (parts.length > 1) {
+        return `${parts[0]}.${mapping(parts[1])}`
+    } else {
+        return mapping(name)
+    }
+}
+
 export function looseNameForStruct(node: InterfaceWithFields): string {
     return looseName(node.name.value)
 }
@@ -25,19 +42,27 @@ export function codecNameForStruct(node: InterfaceWithFields): string {
 }
 
 export function className(name: string): string {
-    return `${name}`
+    return makeNameForNode(name, (part: string) => {
+        return part
+    })
 }
 
 export function looseName(name: string): string {
-    return `I${name}_Loose`
+    return makeNameForNode(name, (part: string) => {
+        return `I${part}_Loose`
+    })
 }
 
 export function strictName(name: string): string {
-    return `I${name}`
+    return makeNameForNode(name, (part: string) => {
+        return `I${part}`
+    })
 }
 
 export function codecName(name: string): string {
-    return `${name}Codec`
+    return makeNameForNode(name, (part: string) => {
+        return `${part}Codec`
+    })
 }
 
 export function extendsAbstract(): ts.HeritageClause {

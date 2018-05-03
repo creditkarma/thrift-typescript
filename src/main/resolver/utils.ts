@@ -7,11 +7,11 @@ function createPathForNamespace(outPath: string, ns: string): string {
     return path.resolve(outPath, ns.split('.').join('/'), 'index.ts')
 }
 
-function emptyNamespace(): INamespace {
+function emptyNamespace(outPath: string = ''): INamespace {
     return {
         scope: '',
         name: '',
-        path: ''
+        path: createPathForNamespace(outPath, ''),
     }
 }
 
@@ -22,10 +22,10 @@ function emptyNamespace(): INamespace {
  *
  * @param namespaces
  */
-function getNamesapce(namespaces: INamespaceMap): INamespace {
+function getNamesapce(outPath: string, namespaces: INamespaceMap): INamespace {
     return namespaces.js != null
         ? namespaces.js
-        : namespaces.java != null ? namespaces.java : emptyNamespace()
+        : namespaces.java != null ? namespaces.java : emptyNamespace(outPath)
 }
 
 /**
@@ -41,6 +41,7 @@ export function resolveNamespace(outPath: string, thrift: ThriftDocument): IName
     )
 
     return getNamesapce(
+        outPath,
         statements.reduce(
             (acc: INamespaceMap, next: NamespaceDefinition) => {
                 acc[next.scope.value] = {

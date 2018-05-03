@@ -2,7 +2,7 @@ import * as ts from 'typescript'
 
 import { SyntaxType, ThriftStatement } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap, IRenderer, IMakeFlags } from '../types'
+import { IIdentifierMap, IRenderer } from '../types'
 
 /**
  * Given a Thrift declaration return the corresponding TypeScript statement
@@ -13,7 +13,6 @@ export function renderStatement(
     statement: ThriftStatement,
     identifiers: IIdentifierMap,
     renderer: IRenderer,
-    flags: IMakeFlags
 ): Array<ts.Statement> {
     switch (statement.type) {
         case SyntaxType.ConstDefinition:
@@ -29,7 +28,7 @@ export function renderStatement(
             return renderer.renderStruct(statement, identifiers)
 
         case SyntaxType.UnionDefinition:
-            return renderer.renderUnion(statement, identifiers, flags)
+            return renderer.renderUnion(statement, identifiers)
 
         case SyntaxType.ExceptionDefinition:
             return renderer.renderException(statement, identifiers)
@@ -58,9 +57,8 @@ export function processStatements(
     statements: Array<ThriftStatement>,
     identifiers: IIdentifierMap,
     renderer: IRenderer,
-    flags: IMakeFlags,
 ): Array<ts.Statement> {
     return statements.reduce((acc: Array<ts.Statement>, next: ThriftStatement) => {
-        return [...acc, ...renderStatement(next, identifiers, renderer, flags)]
+        return [...acc, ...renderStatement(next, identifiers, renderer)]
     }, [])
 }

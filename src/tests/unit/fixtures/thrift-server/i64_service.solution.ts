@@ -51,6 +51,21 @@ export const CodeCodec: thrift.IStructCodec<ICode_Loose, ICode> = {
         };
     }
 };
+export class Code extends thrift.StructLike  implements ICode_Loose {
+    public status?: number | thrift.Int64;
+    constructor(args: ICode_Loose = {}) {
+        super();
+        if (args.status != null) {
+            this.status = args.status;
+        }
+    }
+    public static read(input: thrift.TProtocol): Code {
+        return new Code(CodeCodec.decode(input));
+    }
+    public write(output: thrift.TProtocol): void {
+        return CodeCodec.encode(this, output);
+    }
+}
 export namespace MyService {
     export interface IPegArgs {
         name: string;
@@ -109,10 +124,28 @@ export namespace MyService {
                 };
             }
             else {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read IPegArgs from input");
+                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read PegArgs from input");
             }
         }
     };
+    export class PegArgs extends thrift.StructLike  implements IPegArgs_Loose {
+        public name: string;
+        constructor(args: IPegArgs_Loose) {
+            super();
+            if (args.name != null) {
+                this.name = args.name;
+            }
+            else {
+                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
+            }
+        }
+        public static read(input: thrift.TProtocol): PegArgs {
+            return new PegArgs(PegArgsCodec.decode(input));
+        }
+        public write(output: thrift.TProtocol): void {
+            return PegArgsCodec.encode(this, output);
+        }
+    }
     export interface IPongArgs {
         code?: ICode;
     }
@@ -166,6 +199,21 @@ export namespace MyService {
             };
         }
     };
+    export class PongArgs extends thrift.StructLike  implements IPongArgs_Loose {
+        public code?: ICode_Loose;
+        constructor(args: IPongArgs_Loose = {}) {
+            super();
+            if (args.code != null) {
+                this.code = args.code;
+            }
+        }
+        public static read(input: thrift.TProtocol): PongArgs {
+            return new PongArgs(PongArgsCodec.decode(input));
+        }
+        public write(output: thrift.TProtocol): void {
+            return PongArgsCodec.encode(this, output);
+        }
+    }
     export interface IPegResult {
         success?: string;
     }
@@ -219,6 +267,21 @@ export namespace MyService {
             };
         }
     };
+    export class PegResult extends thrift.StructLike  implements IPegResult_Loose {
+        public success?: string;
+        constructor(args: IPegResult_Loose = {}) {
+            super();
+            if (args.success != null) {
+                this.success = args.success;
+            }
+        }
+        public static read(input: thrift.TProtocol): PegResult {
+            return new PegResult(PegResultCodec.decode(input));
+        }
+        public write(output: thrift.TProtocol): void {
+            return PegResultCodec.encode(this, output);
+        }
+    }
     export interface IPongResult {
         success?: thrift.Int64;
     }
@@ -272,6 +335,21 @@ export namespace MyService {
             };
         }
     };
+    export class PongResult extends thrift.StructLike  implements IPongResult_Loose {
+        public success?: number | thrift.Int64;
+        constructor(args: IPongResult_Loose = {}) {
+            super();
+            if (args.success != null) {
+                this.success = args.success;
+            }
+        }
+        public static read(input: thrift.TProtocol): PongResult {
+            return new PongResult(PongResultCodec.decode(input));
+        }
+        public write(output: thrift.TProtocol): void {
+            return PongResultCodec.encode(this, output);
+        }
+    }
     export class Client<Context = any> {
         protected _requestId: number;
         protected transport: thrift.ITransportConstructor;

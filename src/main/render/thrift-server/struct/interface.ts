@@ -14,7 +14,8 @@ import {
 } from '../../../types'
 
 import {
-    looseNameForStruct, strictNameForStruct,
+    looseNameForStruct,
+    strictNameForStruct,
 } from './utils'
 
 export function renderOptional(field: FieldDefinition, loose: boolean = false): ts.Token<ts.SyntaxKind.QuestionToken> | undefined {
@@ -23,6 +24,7 @@ export function renderOptional(field: FieldDefinition, loose: boolean = false): 
         (loose && field.defaultValue !== null)
     ) {
         return ts.createToken(ts.SyntaxKind.QuestionToken)
+
     } else {
         return undefined
     }
@@ -42,7 +44,9 @@ function strictInterface(node: InterfaceWithFields, identifiers: IIdentifierMap)
     return ts.createInterfaceDeclaration(
         undefined,
         [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-        ts.createIdentifier(strictNameForStruct(node)),
+        ts.createIdentifier(
+            strictNameForStruct(node)
+        ),
         [],
         [],
         signatures,
@@ -63,7 +67,9 @@ function looseInterface(node: InterfaceWithFields, identifiers: IIdentifierMap):
     return ts.createInterfaceDeclaration(
         undefined,
         [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-        ts.createIdentifier(looseNameForStruct(node)),
+        ts.createIdentifier(
+            looseNameForStruct(node)
+        ),
         [],
         [],
         signatures,

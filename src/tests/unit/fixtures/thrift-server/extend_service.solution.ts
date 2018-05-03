@@ -1,12 +1,12 @@
 export namespace ParentService {
-    export interface PingArgs {
+    export interface IPingArgs {
         status: number;
     }
-    export interface PingArgs_Loose {
+    export interface IPingArgs_Loose {
         status: number;
     }
-    export const PingArgsCodec: thrift.IStructCodec<PingArgs_Loose, PingArgs> = {
-        encode(args: PingArgs_Loose, output: thrift.TProtocol): void {
+    export const PingArgsCodec: thrift.IStructCodec<IPingArgs_Loose, IPingArgs> = {
+        encode(args: IPingArgs_Loose, output: thrift.TProtocol): void {
             const obj = {
                 status: args.status
             };
@@ -23,7 +23,7 @@ export namespace ParentService {
             output.writeStructEnd();
             return;
         },
-        decode(input: thrift.TProtocol): PingArgs {
+        decode(input: thrift.TProtocol): IPingArgs {
             let _args: any = {};
             input.readStructBegin();
             while (true) {
@@ -60,14 +60,32 @@ export namespace ParentService {
             }
         }
     };
+    export class PingArgs extends thrift.StructLike  implements IPingArgs_Loose {
+        public status: number;
+        constructor(args: IPingArgs_Loose) {
+            super();
+            if (args.status != null) {
+                this.status = args.status;
+            }
+            else {
+                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[status] is unset!");
+            }
+        }
+        public static read(input: thrift.TProtocol): PingArgs {
+            return new PingArgs(PingArgsCodec.decode(input));
+        }
+        public write(output: thrift.TProtocol): void {
+            return PingArgsCodec.encode(this, output);
+        }
+    }
     export interface IPingResult {
         success?: string;
     }
-    export interface PingResult_Loose {
+    export interface IPingResult_Loose {
         success?: string;
     }
-    export const PingResultCodec: thrift.IStructCodec<PingResult_Loose, IPingResult> = {
-        encode(args: PingResult_Loose, output: thrift.TProtocol): void {
+    export const PingResultCodec: thrift.IStructCodec<IPingResult_Loose, IPingResult> = {
+        encode(args: IPingResult_Loose, output: thrift.TProtocol): void {
             const obj = {
                 success: args.success
             };
@@ -113,6 +131,21 @@ export namespace ParentService {
             };
         }
     };
+    export class PingResult extends thrift.StructLike  implements IPingResult_Loose {
+        public success?: string;
+        constructor(args: IPingResult_Loose = {}) {
+            super();
+            if (args.success != null) {
+                this.success = args.success;
+            }
+        }
+        public static read(input: thrift.TProtocol): PingResult {
+            return new PingResult(PingResultCodec.decode(input));
+        }
+        public write(output: thrift.TProtocol): void {
+            return PingResultCodec.encode(this, output);
+        }
+    }
     export class Client<Context = any> {
         protected _requestId: number;
         protected transport: thrift.ITransportConstructor;
@@ -131,7 +164,7 @@ export namespace ParentService {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("ping", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: PingArgs_Loose = { status };
+            const args: IPingArgs_Loose = { status };
             PingArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -198,7 +231,7 @@ export namespace ParentService {
         public process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
             return new Promise<string>((resolve, reject): void => {
                 try {
-                    const args: PingArgs = PingArgsCodec.decode(input);
+                    const args: IPingArgs = PingArgsCodec.decode(input);
                     input.readMessageEnd();
                     resolve(this._handler.ping(args.status, context));
                 }
@@ -279,10 +312,28 @@ export namespace ChildService {
                 };
             }
             else {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read IPegArgs from input");
+                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read PegArgs from input");
             }
         }
     };
+    export class PegArgs extends thrift.StructLike  implements IPegArgs_Loose {
+        public name: string;
+        constructor(args: IPegArgs_Loose) {
+            super();
+            if (args.name != null) {
+                this.name = args.name;
+            }
+            else {
+                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
+            }
+        }
+        public static read(input: thrift.TProtocol): PegArgs {
+            return new PegArgs(PegArgsCodec.decode(input));
+        }
+        public write(output: thrift.TProtocol): void {
+            return PegArgsCodec.encode(this, output);
+        }
+    }
     export interface IPongArgs {
         name?: string;
     }
@@ -336,6 +387,21 @@ export namespace ChildService {
             };
         }
     };
+    export class PongArgs extends thrift.StructLike  implements IPongArgs_Loose {
+        public name?: string;
+        constructor(args: IPongArgs_Loose = {}) {
+            super();
+            if (args.name != null) {
+                this.name = args.name;
+            }
+        }
+        public static read(input: thrift.TProtocol): PongArgs {
+            return new PongArgs(PongArgsCodec.decode(input));
+        }
+        public write(output: thrift.TProtocol): void {
+            return PongArgsCodec.encode(this, output);
+        }
+    }
     export interface IPegResult {
         success?: string;
     }
@@ -389,6 +455,21 @@ export namespace ChildService {
             };
         }
     };
+    export class PegResult extends thrift.StructLike  implements IPegResult_Loose {
+        public success?: string;
+        constructor(args: IPegResult_Loose = {}) {
+            super();
+            if (args.success != null) {
+                this.success = args.success;
+            }
+        }
+        public static read(input: thrift.TProtocol): PegResult {
+            return new PegResult(PegResultCodec.decode(input));
+        }
+        public write(output: thrift.TProtocol): void {
+            return PegResultCodec.encode(this, output);
+        }
+    }
     export interface IPongResult {
         success?: string;
     }
@@ -442,6 +523,21 @@ export namespace ChildService {
             };
         }
     };
+    export class PongResult extends thrift.StructLike  implements IPongResult_Loose {
+        public success?: string;
+        constructor(args: IPongResult_Loose = {}) {
+            super();
+            if (args.success != null) {
+                this.success = args.success;
+            }
+        }
+        public static read(input: thrift.TProtocol): PongResult {
+            return new PongResult(PongResultCodec.decode(input));
+        }
+        public write(output: thrift.TProtocol): void {
+            return PongResultCodec.encode(this, output);
+        }
+    }
     export class Client<Context = any> extends ParentService.Client<Context> {
         protected _requestId: number;
         protected transport: thrift.ITransportConstructor;

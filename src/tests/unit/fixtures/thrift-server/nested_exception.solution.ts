@@ -69,26 +69,35 @@ export const CodeCodec: thrift.IStructCodec<ICode_Loose, ICode> = {
         };
     }
 };
-export class MyException {
-    public description: string;
-    public code?: ICode_Loose;
-    constructor(args: {
-        description: string;
-        code?: ICode_Loose;
-    }) {
-        if (args.description != null) {
-            this.description = args.description;
+export class Code extends thrift.StructLike  implements ICode_Loose {
+    public status?: number | thrift.Int64 = thrift.Int64.fromDecimalString("200");
+    public data?: string | Buffer = Buffer.from("data");
+    constructor(args: ICode_Loose = {}) {
+        super();
+        if (args.status != null) {
+            this.status = args.status;
         }
-        else {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[description] is unset!");
-        }
-        if (args.code != null) {
-            this.code = args.code;
+        if (args.data != null) {
+            this.data = args.data;
         }
     }
+    public static read(input: thrift.TProtocol): Code {
+        return new Code(CodeCodec.decode(input));
+    }
+    public write(output: thrift.TProtocol): void {
+        return CodeCodec.encode(this, output);
+    }
 }
-export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
-    encode(args: MyException, output: thrift.TProtocol): void {
+export interface IMyException {
+    description: string;
+    code?: ICode;
+}
+export interface IMyException_Loose {
+    description: string;
+    code?: ICode_Loose;
+}
+export const MyExceptionCodec: thrift.IStructCodec<IMyException_Loose, IMyException> = {
+    encode(args: IMyException_Loose, output: thrift.TProtocol): void {
         const obj = {
             description: args.description,
             code: args.code
@@ -111,7 +120,7 @@ export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
         output.writeStructEnd();
         return;
     },
-    decode(input: thrift.TProtocol): MyException {
+    decode(input: thrift.TProtocol): IMyException {
         let _args: any = {};
         input.readStructBegin();
         while (true) {
@@ -148,13 +157,35 @@ export const MyExceptionCodec: thrift.IStructCodec<MyException, MyException> = {
         }
         input.readStructEnd();
         if (_args.description !== undefined) {
-            return new MyException({
+            return {
                 description: _args.description,
                 code: _args.code
-            });
+            };
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read MyException from input");
         }
     }
 };
+export class MyException extends thrift.StructLike  implements IMyException_Loose {
+    public description: string;
+    public code?: ICode_Loose;
+    constructor(args: IMyException_Loose) {
+        super();
+        if (args.description != null) {
+            this.description = args.description;
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[description] is unset!");
+        }
+        if (args.code != null) {
+            this.code = args.code;
+        }
+    }
+    public static read(input: thrift.TProtocol): MyException {
+        return new MyException(MyExceptionCodec.decode(input));
+    }
+    public write(output: thrift.TProtocol): void {
+        return MyExceptionCodec.encode(this, output);
+    }
+}

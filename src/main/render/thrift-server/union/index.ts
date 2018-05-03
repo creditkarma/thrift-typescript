@@ -5,7 +5,7 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-    IIdentifierMap, IMakeFlags
+    IIdentifierMap,
 } from '../../../types'
 
 import {
@@ -13,29 +13,17 @@ import {
 } from '../struct/interface'
 
 import {
-    renderStrictInterface
-} from './interface'
-
-import {
     renderCodec,
 } from './codec'
 
 import {
-    renderClass
+    renderClass,
 } from './class'
 
-export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap, flags: IMakeFlags): Array<ts.Statement> {
-    if (flags.strict || flags.strictUnions) {
-        return [
-            ...renderStrictInterface(node, identifiers),
-            renderCodec(node, identifiers),
-        ]
-
-    } else {
-        return [
-            ...renderInterface(node, identifiers),
-            renderCodec(node, identifiers),
-            renderClass(node, identifiers),
-        ]
-    }
+export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+    return [
+        ...renderInterface(node, identifiers),
+        renderCodec(node, identifiers),
+        renderClass(node, identifiers),
+    ]
 }

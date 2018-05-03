@@ -5,12 +5,13 @@
     "namespace": {
         "scope": "",
         "name": "",
-        "path": ""
+        "path": "/Users/kevin.greene/Documents/_our_stuff/thrift-typescript/index.ts"
     },
     "includes": {},
     "identifiers": {
         "TestStruct": {
             "name": "TestStruct",
+            "pathName": "",
             "resolvedName": "TestStruct",
             "definition": {
                 "type": "StructDefinition",

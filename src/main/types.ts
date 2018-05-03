@@ -37,57 +37,41 @@ export interface IMakeOptions {
 
     // What core libs are you compiling for?
     target: CompileTarget
-
-    // Flags to change compiler behavior
-    flags: IMakeFlags
-}
-
-export interface IMakeFlags {
-    strict?: boolean
-    strictUnions?: boolean
 }
 
 export interface IRenderer {
     renderIncludes(
         outPath: string,
         currentPath: string,
-        resolvedFile: INamespaceFile,
-        flags?: IMakeFlags): Array<ts.Statement>
+        resolvedFile: INamespaceFile): Array<ts.Statement>
 
     renderConst(
         statement: ConstDefinition,
-        identifiers?: IIdentifierMap,
-        flags?: IMakeFlags): Array<ts.Statement>
+        identifiers?: IIdentifierMap): Array<ts.Statement>
 
     renderTypeDef(
         statement: TypedefDefinition,
-        identifiers?: IIdentifierMap,
-        flags?: IMakeFlags): Array<ts.Statement>
+        identifiers?: IIdentifierMap): Array<ts.Statement>
 
     renderEnum(
         statement: EnumDefinition,
-        identifiers?: IIdentifierMap,
-        flags?: IMakeFlags): Array<ts.Statement>
+        identifiers?: IIdentifierMap): Array<ts.Statement>
 
     renderStruct(
         statement: StructDefinition,
-        identifiers?: IIdentifierMap,
-        flags?: IMakeFlags): Array<ts.Statement>
+        identifiers?: IIdentifierMap): Array<ts.Statement>
 
     renderException(
         statement: ExceptionDefinition,
-        identifiers?: IIdentifierMap,
-        flags?: IMakeFlags): Array<ts.Statement>
+        identifiers?: IIdentifierMap): Array<ts.Statement>
 
     renderUnion(
         statement: UnionDefinition,
-        identifiers?: IIdentifierMap,
-        flags?: IMakeFlags): Array<ts.Statement>
+        identifiers?: IIdentifierMap): Array<ts.Statement>
 
     renderService(
         statement: ServiceDefinition,
-        identifiers?: IIdentifierMap,
-        flags?: IMakeFlags): Array<ts.Statement>
+        identifiers?: IIdentifierMap): Array<ts.Statement>
 }
 
 /**
@@ -200,6 +184,7 @@ export type DefinitionType =
 
 export interface IResolvedIdentifier {
     name: string
+    pathName: string
     resolvedName: string
     definition: DefinitionType
 }

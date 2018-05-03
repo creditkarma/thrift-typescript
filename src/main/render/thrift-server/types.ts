@@ -208,21 +208,36 @@ export function thriftTypeForFieldType(fieldType: FunctionType, identifiers: IId
  *
  * SyntaxType.VoidKeyword
  */
-export function typeNodeForFieldType(fieldType: FunctionType, identifiers: IIdentifierMap, loose: boolean = false): ts.TypeNode {
-    switch (fieldType.type) {
-        case SyntaxType.Identifier:
+function typeNodeForIdentifier(id: IResolvedIdentifier, name: string, loose: boolean = false): ts.TypeNode {
+    switch (id.definition.type) {
+        case SyntaxType.StructDefinition:
+        case SyntaxType.ExceptionDefinition:
+        case SyntaxType.UnionDefinition:
             if (loose == true) {
                 return ts.createTypeReferenceNode(
-                    ts.createIdentifier(looseName(fieldType.value)),
+                    ts.createIdentifier(looseName(name)),
                     undefined,
                 )
 
             } else {
                 return ts.createTypeReferenceNode(
-                    ts.createIdentifier(strictName(fieldType.value)),
+                    ts.createIdentifier(strictName(name)),
                     undefined,
                 )
             }
+
+        default:
+            return ts.createTypeReferenceNode(
+                ts.createIdentifier(name),
+                undefined,
+            )
+    }
+}
+
+export function typeNodeForFieldType(fieldType: FunctionType, identifiers: IIdentifierMap, loose: boolean = false): ts.TypeNode {
+    switch (fieldType.type) {
+        case SyntaxType.Identifier:
+            return typeNodeForIdentifier(identifiers[fieldType.value], fieldType.value, loose)
 
         case SyntaxType.SetType:
             return ts.createTypeReferenceNode(

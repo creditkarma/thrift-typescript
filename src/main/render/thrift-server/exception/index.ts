@@ -9,21 +9,9 @@ import {
 } from '../../../types'
 
 import {
-    renderCodec,
-} from '../struct/codec'
-
-import {
-    renderClass
-} from '../struct/class'
-
-import {
-    renderInterface,
-} from '../struct/interface'
+    renderStruct,
+} from '../struct'
 
 export function renderException(node: ExceptionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return [
-        ...renderInterface(node, identifiers),
-        renderClass(node, identifiers),
-        renderCodec(node, identifiers),
-    ]
+    return renderStruct(node, identifiers)
 }

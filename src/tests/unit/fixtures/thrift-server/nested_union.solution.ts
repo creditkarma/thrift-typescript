@@ -89,6 +89,34 @@ export const OptionCodec: thrift.IStructCodec<IOption_Loose, IOption> = {
         }
     }
 };
+export class Option extends thrift.StructLike  implements IOption_Loose {
+    public option1?: string | Buffer;
+    public option2?: number | thrift.Int64;
+    constructor(args: IOption_Loose = {}) {
+        super();
+        let _fieldsSet: number = 0;
+        if (args.option1 != null) {
+            _fieldsSet++;
+            this.option1 = args.option1;
+        }
+        if (args.option2 != null) {
+            _fieldsSet++;
+            this.option2 = args.option2;
+        }
+        if (_fieldsSet > 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
+        }
+        else if (_fieldsSet < 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
+        }
+    }
+    public static read(input: thrift.TProtocol): Option {
+        return new Option(OptionCodec.decode(input));
+    }
+    public write(output: thrift.TProtocol): void {
+        return OptionCodec.encode(this, output);
+    }
+}
 export interface IMyUnion {
     name?: string;
     option?: IOption;
@@ -180,3 +208,31 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnion_Loose, IMyUnion> = {
         }
     }
 };
+export class MyUnion extends thrift.StructLike  implements IMyUnion_Loose {
+    public name?: string;
+    public option?: IOption_Loose;
+    constructor(args: IMyUnion_Loose = {}) {
+        super();
+        let _fieldsSet: number = 0;
+        if (args.name != null) {
+            _fieldsSet++;
+            this.name = args.name;
+        }
+        if (args.option != null) {
+            _fieldsSet++;
+            this.option = args.option;
+        }
+        if (_fieldsSet > 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
+        }
+        else if (_fieldsSet < 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
+        }
+    }
+    public static read(input: thrift.TProtocol): MyUnion {
+        return new MyUnion(MyUnionCodec.decode(input));
+    }
+    public write(output: thrift.TProtocol): void {
+        return MyUnionCodec.encode(this, output);
+    }
+}

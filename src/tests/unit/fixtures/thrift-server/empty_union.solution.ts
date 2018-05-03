@@ -49,3 +49,21 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnion_Loose, IMyUnion> = {
         }
     }
 };
+export class MyUnion extends thrift.StructLike  implements IMyUnion_Loose {
+    constructor(args: IMyUnion_Loose = {}) {
+        super();
+        let _fieldsSet: number = 0;
+        if (_fieldsSet > 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
+        }
+        else if (_fieldsSet < 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
+        }
+    }
+    public static read(input: thrift.TProtocol): MyUnion {
+        return new MyUnion(MyUnionCodec.decode(input));
+    }
+    public write(output: thrift.TProtocol): void {
+        return MyUnionCodec.encode(this, output);
+    }
+}

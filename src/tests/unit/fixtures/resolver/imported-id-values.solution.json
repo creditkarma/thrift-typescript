@@ -5,7 +5,7 @@
     "namespace": {
         "scope": "",
         "name": "",
-        "path": ""
+        "path": "/Users/kevin.greene/Documents/_our_stuff/thrift-typescript/index.ts"
     },
     "includes": {
         "exception": {
@@ -16,12 +16,13 @@
                 "namespace": {
                     "scope": "",
                     "name": "",
-                    "path": ""
+                    "path": "/Users/kevin.greene/Documents/_our_stuff/thrift-typescript/index.ts"
                 },
                 "includes": {},
                 "identifiers": {
                     "Status": {
                         "name": "Status",
+                        "pathName": "",
                         "resolvedName": "Status",
                         "definition": {
                             "type": "EnumDefinition",
@@ -232,6 +233,7 @@
             "identifiers": [
                 {
                     "name": "Status",
+                    "pathName": "exception",
                     "resolvedName": "exception.Status",
                     "definition": {
                         "type": "EnumDefinition",
@@ -340,6 +342,7 @@
     "identifiers": {
         "exception.Status": {
             "name": "Status",
+            "pathName": "exception",
             "resolvedName": "exception.Status",
             "definition": {
                 "type": "EnumDefinition",
@@ -444,6 +447,7 @@
         },
         "MyStruct": {
             "name": "MyStruct",
+            "pathName": "",
             "resolvedName": "MyStruct",
             "definition": {
                 "type": "StructDefinition",
