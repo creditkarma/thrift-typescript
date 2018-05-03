@@ -524,7 +524,7 @@ describe('Thrift TypeScript Validator', () => {
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: IResolvedFile = loadSolution('missing-ids')
 
-        assert.deepEqual(validatedFile, expected)
+        assert.deepEqual(validatedFile.identifiers, expected.identifiers)
     })
 
     it('should validate types for includes', () => {
@@ -566,7 +566,7 @@ describe('Thrift TypeScript Validator', () => {
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: IResolvedFile = loadSolution('include-types')
 
-        assert.deepEqual(validatedFile, expected)
+        assert.deepEqual(validatedFile.identifiers, expected.identifiers)
     })
 
     it('should not return an error if assigning an int with value 0 or 1 to a bool field', () => {

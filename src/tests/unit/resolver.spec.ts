@@ -42,7 +42,7 @@ describe('Thrift TypeScript Resolver', () => {
         const actual: IResolvedFile = resolveFile('', mockParsedFile)
         const expected: IResolvedFile = loadSolution('imported-id-types')
 
-        assert.deepEqual(actual, expected)
+        assert.deepEqual(actual.identifiers, expected.identifiers)
     })
 
     it('should find and resolve imported identifiers as values', () => {
@@ -77,6 +77,6 @@ describe('Thrift TypeScript Resolver', () => {
         const actual: IResolvedFile = resolveFile('', mockParsedFile)
         const expected: IResolvedFile = loadSolution('imported-id-values')
 
-        assert.deepEqual(actual, expected)
+        assert.deepEqual(actual.identifiers, expected.identifiers)
     })
 })
