@@ -80,19 +80,21 @@ export const UserCodec: thrift.IStructCodec<IUser_Loose, IUser> = {
         }
     }
 };
-export class User extends thrift.StructLike  implements IUser_Loose {
+export class User extends thrift.StructLike  implements IUser {
     public name: string;
     public id: number;
     constructor(args: IUser_Loose) {
         super();
         if (args.name != null) {
-            this.name = args.name;
+            const value_3: string = args.name;
+            this.name = value_3;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
         }
         if (args.id != null) {
-            this.id = args.id;
+            const value_4: number = args.id;
+            this.id = value_4;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[id] is unset!");
@@ -143,8 +145,8 @@ export namespace MyService {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.TType.I32) {
-                            const value_3: number = input.readI32();
-                            _args.id = value_3;
+                            const value_5: number = input.readI32();
+                            _args.id = value_5;
                         }
                         else {
                             input.skip(fieldType);
@@ -167,12 +169,13 @@ export namespace MyService {
             }
         }
     };
-    export class GetUserArgs extends thrift.StructLike  implements IGetUserArgs_Loose {
+    export class GetUserArgs extends thrift.StructLike  implements IGetUserArgs {
         public id: number;
         constructor(args: IGetUserArgs_Loose) {
             super();
             if (args.id != null) {
-                this.id = args.id;
+                const value_6: number = args.id;
+                this.id = value_6;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[id] is unset!");
@@ -222,8 +225,8 @@ export namespace MyService {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.TType.STRUCT) {
-                            const value_4: IUser = UserCodec.decode(input);
-                            _args.user = value_4;
+                            const value_7: IUser = UserCodec.decode(input);
+                            _args.user = value_7;
                         }
                         else {
                             input.skip(fieldType);
@@ -246,12 +249,13 @@ export namespace MyService {
             }
         }
     };
-    export class SaveUserArgs extends thrift.StructLike  implements ISaveUserArgs_Loose {
-        public user: IUser_Loose;
+    export class SaveUserArgs extends thrift.StructLike  implements ISaveUserArgs {
+        public user: IUser;
         constructor(args: ISaveUserArgs_Loose) {
             super();
             if (args.user != null) {
-                this.user = args.user;
+                const value_8: IUser = new User(args.user);
+                this.user = value_8;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[user] is unset!");
@@ -295,7 +299,7 @@ export namespace MyService {
             return {};
         }
     };
-    export class PingArgs extends thrift.StructLike  implements IPingArgs_Loose {
+    export class PingArgs extends thrift.StructLike  implements IPingArgs {
         constructor(args: IPingArgs_Loose = {}) {
             super();
         }
@@ -340,8 +344,8 @@ export namespace MyService {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.STRUCT) {
-                            const value_5: IUser = UserCodec.decode(input);
-                            _args.success = value_5;
+                            const value_9: IUser = UserCodec.decode(input);
+                            _args.success = value_9;
                         }
                         else {
                             input.skip(fieldType);
@@ -359,12 +363,13 @@ export namespace MyService {
             };
         }
     };
-    export class GetUserResult extends thrift.StructLike  implements IGetUserResult_Loose {
-        public success?: IUser_Loose;
+    export class GetUserResult extends thrift.StructLike  implements IGetUserResult {
+        public success?: IUser;
         constructor(args: IGetUserResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_10: IUser = new User(args.success);
+                this.success = value_10;
             }
         }
         public static read(input: thrift.TProtocol): GetUserResult {
@@ -418,12 +423,13 @@ export namespace MyService {
             };
         }
     };
-    export class SaveUserResult extends thrift.StructLike  implements ISaveUserResult_Loose {
+    export class SaveUserResult extends thrift.StructLike  implements ISaveUserResult {
         public success?: void;
         constructor(args: ISaveUserResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_11: void = undefined;
+                this.success = value_11;
             }
         }
         public static read(input: thrift.TProtocol): SaveUserResult {
@@ -477,12 +483,13 @@ export namespace MyService {
             };
         }
     };
-    export class PingResult extends thrift.StructLike  implements IPingResult_Loose {
+    export class PingResult extends thrift.StructLike  implements IPingResult {
         public success?: void;
         constructor(args: IPingResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_12: void = undefined;
+                this.success = value_12;
             }
         }
         public static read(input: thrift.TProtocol): PingResult {

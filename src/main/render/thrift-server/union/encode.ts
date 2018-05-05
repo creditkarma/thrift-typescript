@@ -19,7 +19,6 @@ import {
 } from '../struct/methods'
 
 import {
-    throwForField,
     writeFieldBegin,
     writeFieldEnd,
     writeSetBegin,
@@ -58,7 +57,8 @@ import {
 } from './utils'
 
 import {
-    looseNameForStruct
+    looseNameForStruct,
+    throwForField,
 } from '../struct/utils'
 
 export function createEncodeMethod(node: UnionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {

@@ -89,19 +89,21 @@ export const OptionCodec: thrift.IStructCodec<IOption_Loose, IOption> = {
         }
     }
 };
-export class Option extends thrift.StructLike  implements IOption_Loose {
-    public option1?: string | Buffer;
-    public option2?: number | thrift.Int64;
+export class Option extends thrift.StructLike  implements IOption {
+    public option1?: Buffer;
+    public option2?: thrift.Int64;
     constructor(args: IOption_Loose = {}) {
         super();
         let _fieldsSet: number = 0;
         if (args.option1 != null) {
             _fieldsSet++;
-            this.option1 = args.option1;
+            const value_3: Buffer = (typeof args.option1 === "string" ? Buffer.from(args.option1) : args.option1);
+            this.option1 = value_3;
         }
         if (args.option2 != null) {
             _fieldsSet++;
-            this.option2 = args.option2;
+            const value_4: thrift.Int64 = (typeof args.option2 === "number" ? new thrift.Int64(args.option2) : args.option2);
+            this.option2 = value_4;
         }
         if (_fieldsSet > 1) {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
@@ -170,8 +172,8 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnion_Loose, IMyUnion> = {
                 case 1:
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
-                        const value_3: string = input.readString();
-                        _returnValue = { name: value_3 };
+                        const value_5: string = input.readString();
+                        _returnValue = { name: value_5 };
                     }
                     else {
                         input.skip(fieldType);
@@ -180,8 +182,8 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnion_Loose, IMyUnion> = {
                 case 2:
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
-                        const value_4: IOption = OptionCodec.decode(input);
-                        _returnValue = { option: value_4 };
+                        const value_6: IOption = OptionCodec.decode(input);
+                        _returnValue = { option: value_6 };
                     }
                     else {
                         input.skip(fieldType);
@@ -208,19 +210,21 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnion_Loose, IMyUnion> = {
         }
     }
 };
-export class MyUnion extends thrift.StructLike  implements IMyUnion_Loose {
+export class MyUnion extends thrift.StructLike  implements IMyUnion {
     public name?: string;
-    public option?: IOption_Loose;
+    public option?: IOption;
     constructor(args: IMyUnion_Loose = {}) {
         super();
         let _fieldsSet: number = 0;
         if (args.name != null) {
             _fieldsSet++;
-            this.name = args.name;
+            const value_7: string = args.name;
+            this.name = value_7;
         }
         if (args.option != null) {
             _fieldsSet++;
-            this.option = args.option;
+            const value_8: IOption = new Option(args.option);
+            this.option = value_8;
         }
         if (_fieldsSet > 1) {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");

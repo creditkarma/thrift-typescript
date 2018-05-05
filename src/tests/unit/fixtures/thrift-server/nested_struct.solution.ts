@@ -77,19 +77,21 @@ export const UserCodec: thrift.IStructCodec<IUser_Loose, IUser> = {
         }
     }
 };
-export class User extends thrift.StructLike  implements IUser_Loose {
+export class User extends thrift.StructLike  implements IUser {
     public name: string;
-    public age?: number | thrift.Int64 = thrift.Int64.fromDecimalString("45");
+    public age?: thrift.Int64 = thrift.Int64.fromDecimalString("45");
     constructor(args: IUser_Loose) {
         super();
         if (args.name != null) {
-            this.name = args.name;
+            const value_3: string = args.name;
+            this.name = value_3;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
         }
         if (args.age != null) {
-            this.age = args.age;
+            const value_4: thrift.Int64 = (typeof args.age === "number" ? new thrift.Int64(args.age) : args.age);
+            this.age = value_4;
         }
     }
     public static read(input: thrift.TProtocol): User {
@@ -147,8 +149,8 @@ export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.TType.STRING) {
-                        const value_3: string = input.readString();
-                        _args.name = value_3;
+                        const value_5: string = input.readString();
+                        _args.name = value_5;
                     }
                     else {
                         input.skip(fieldType);
@@ -156,8 +158,8 @@ export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
                     break;
                 case 2:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_4: IUser = UserCodec.decode(input);
-                        _args.user = value_4;
+                        const value_6: IUser = UserCodec.decode(input);
+                        _args.user = value_6;
                     }
                     else {
                         input.skip(fieldType);
@@ -181,19 +183,21 @@ export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
         }
     }
 };
-export class MyStruct extends thrift.StructLike  implements IMyStruct_Loose {
+export class MyStruct extends thrift.StructLike  implements IMyStruct {
     public name: string;
-    public user: IUser_Loose;
+    public user: IUser;
     constructor(args: IMyStruct_Loose) {
         super();
         if (args.name != null) {
-            this.name = args.name;
+            const value_7: string = args.name;
+            this.name = value_7;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
         }
         if (args.user != null) {
-            this.user = args.user;
+            const value_8: IUser = new User(args.user);
+            this.user = value_8;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[user] is unset!");

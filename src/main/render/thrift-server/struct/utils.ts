@@ -2,11 +2,16 @@ import * as ts from 'typescript'
 
 import {
     InterfaceWithFields,
+    FieldDefinition,
 } from '@creditkarma/thrift-parser'
 
 import {
     THRIFT_IDENTIFIERS, COMMON_IDENTIFIERS,
 } from '../identifiers'
+
+import {
+    throwProtocolException,
+} from '../utils'
 
 type NameMapping = (name: string) => string
 
@@ -83,7 +88,9 @@ export function implementsInterface(node: InterfaceWithFields): ts.HeritageClaus
         [
             ts.createExpressionWithTypeArguments(
                 [],
-                ts.createIdentifier(`I${node.name.value}_Loose`),
+                ts.createIdentifier(
+                    strictNameForStruct(node)
+                ),
             ),
         ],
     )
@@ -97,4 +104,22 @@ export function createSuperCall(): ts.Statement {
             [],
         ),
     )
+}
+
+/**
+ * Create the Error for a missing required field
+ *
+ * EXAMPLE
+ *
+ * throw new thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
+ */
+export function throwForField(field: FieldDefinition): ts.ThrowStatement | undefined {
+    if (field.requiredness === 'required' && field.defaultValue === null) {
+        return throwProtocolException(
+            'UNKNOWN',
+            `Required field[${field.name.value}] is unset!`
+        )
+    } else {
+        return undefined
+    }
 }

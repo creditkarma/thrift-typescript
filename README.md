@@ -28,7 +28,7 @@ struct MyStruct {
 You can generate TypeScript via the command line:
 
 ```sh
-$ thrift-typescript --target apache --strict false --rootDir . --sourceDir thrift --outDir codegen simple.thrift
+$ thrift-typescript --target apache --rootDir . --sourceDir thrift --outDir codegen simple.thrift
 ```
 
 The available options are:
@@ -36,8 +36,7 @@ The available options are:
 * --rootDir: This is used to resolve out and source directories. Defaults to current directory.
 * --outDir: The directory to save generated files to. Will be created if it doesn't exist. Defaults to 'codegen'.
 * --sourceDir: The directory to search for source Thrift files. Defaults to 'thrift'.
-* --target: The core library to generate for, either 'apache' or 'thrift-server'. Defaults to 'apache'.
-* --strictUnions: With target set to 'thrift-server' there are two ways to render unions (more details below). Defaults to 'false'.
+* --target: The core library to generate for, either 'apache' or 'thrift-server'. Defaults to 'thrift-server'.
 
 All other fields are assumed to be source files.
 
@@ -59,13 +58,10 @@ generate({
     rootDir: '.',
     sourceDir: 'thirft',
     outDir: 'codegen',
-    target: 'apache',
+    target: 'thrift-server',
     files: [
         'simple.thrift'
     ],
-    flags: {
-        strictUnions: false,
-    },
 })
 ```
 
@@ -108,10 +104,10 @@ service Caluculator {
 }
 ```
 
-Run codegen for your Thrift service. The `target` option is required here, otherwise the generated code will only work with the Apache libs.
+Run codegen for your Thrift service. The `--target` option here is omitted because we are generating for the default, 'thrift-server'.
 
 ```sh
-$ thrift-typescript --target thrift-server --rootDir . --sourceDir thrift --outDir codegen
+$ thrift-typescript --rootDir . --sourceDir thrift --outDir codegen
 ```
 
 ### Client
@@ -159,7 +155,7 @@ import {
 } from './codegen/calculator'
 
 // express.Request is the context for each of the service handlers
-const serviceHandlers: Calculator.Handler<express.Request> = {
+const serviceHandlers: Calculator.IHandler<express.Request> = {
     add(left: number, right: number, context?: express.Request): number {
         if (context && context.headers['x-trace-id']) {
             // You can trace this request, perform auth, or use additional middleware to handle that.
@@ -252,20 +248,22 @@ struct User {
 Generated TypeScript:
 
 ```typescript
-export interface User {
+export interface IUser {
     name: string
     email?: string
     id: number
 }
 ```
 
+*Note: We adopt the convention of prefixing interfaces names with a capital 'I'.*
+
 Only fields that are explicitly required loose the `?`.
 
 #### Union
 
-Unions with Thrift TypeScript can be generated in two different ways. This was noted in the above section about generator options. Unions in Thrift are very similar to structs. The difference is they only allow one field to be set. They also require that one field is set. Implicitly all fields are optional, but one field must be set.
+Unions in Thrift are very similar to structs. The difference is they only allow one field to be set. They also require that one field is set. Implicitly all fields are optional, but one field must be set.
 
-So, this could translate into a struct with all optional fields:
+So, this translates into a struct with all optional fields:
 
 Given Thrift:
 
@@ -279,69 +277,17 @@ union MyUnion {
 Generated TypeScript (with 'strictUnions' set to 'false'):
 
 ```typescript
-export interface MyUnion = {
+export interface IMyUnion = {
     option1?: string
     option2?: undefined
 }
 ```
 
-TypeScript itself does have a union construct, but this construct does not provide a way for distiguishing fields. However, we can translate a union into a TypeScript union of interfaces each with one field.
-
-Given Thrift:
-
-```c
-union MyUnion {
-    1: string option1
-    2: i32 option2
-}
-```
-
-Generated TypeScript (with 'strictUnions' set to 'true'):
-
-```typescript
-export type MyUnion = {
-    option1: string
-    option2?: undefined
-} | {
-    option1?: undefined
-    option2: number
-}
-```
-
-This creates a TypeScript union type where we are prevented from incorrectly constructing our Thrift union by compile-time checks.
-
-In the following set, only the last two, `try3` and `try4`, won't throw a type-checking error:
-
-```typescript
-// This won't work
-const try1: MyUnion = {
-    option1: 'foo',
-    option2: 42,
-}
-
-// ...and this won't work
-const try2: MyUnion = {
-    option1: undefined,
-    option2: undefined,
-}
-
-// Yay, this works
-const try3: MyUnion = {
-    option1: 'foo',
-}
-
-// ...or, this works
-const try4: MyUnion = {
-    option1: undefined,
-    option2: 42,
-}
-```
-
-We support generating unions in either fashion, by creating an interface with all optional fields, or creating a union of interfaces that each require one field to be set. When generating an interface with all optional fields we check at runtime to see that a field is set and that only one field is set.
+*Note: The difference here is that a runtime error will be raised if one of the fields isn't set or if more than one of the fields is set.*
 
 #### Exception
 
-Exceptions are errors that can be thrown by service methods. It is more natural in JS/TS to create and throw new errors. So our defined exceptions will become JS classes that extend `Error`.
+Exceptions are errors that can be thrown by service methods. It is more natural in JS/TS to create and throw new errors. So our defined exceptions will become JS classes.
 
 Given Thrift:
 
@@ -355,7 +301,7 @@ exception MyException {
 Generated TypeScript:
 
 ```typescript
-export class MyException extends Error {
+export class MyException extends thrift.StructLike implements IMyException {
     public message: string
     public code?: number
     constructor(args?: { message?: string, code?: number }) {
@@ -390,11 +336,11 @@ export namespace MyService {
             // ...
         }
     }
-    export interface Handler<Context> {
+    export interface IHandler<Context> {
         getUser(id: number, context?: Context): User | Promise<User>
     }
     export class Processor {
-        constructor(handler: Handler<Context>) {
+        constructor(handler: IHandler<Context>) {
             // ...
         }
         public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
@@ -404,7 +350,7 @@ export namespace MyService {
 }
 ```
 
-The `Client` is pretty straight forward. You create a `Client` instance and you can call service methods on it. The inner-workings of the `Processor` aren't something consumers need to concern themselves with. The more interesting bit is `Handler`. This is the interface that service teams need to implement in order to meet the promises of their service contract. Create an object that satisfies `<service-name>.Handler` and pass it to the construction of `<service-name>.Processor` and everything else is handled for you.
+The `Client` is pretty straight forward. You create a `Client` instance and you can call service methods on it. The inner-workings of the `Processor` aren't something consumers need to concern themselves with. The more interesting bit is `IHandler`. This is the interface that service teams need to implement in order to meet the promises of their service contract. Create an object that satisfies `<service-name>.IHandler` and pass it to the construction of `<service-name>.Processor` and everything else is handled for you.
 
 #### Loose Interfaces
 
@@ -424,22 +370,24 @@ struct Profile {
 
 There is something of a difference between how we want to handle things in TypeScript and how data is going to be sent over the wire. Because of this when we generate interfaces for these structs we generate two interfaces for each struct, one is an exact representation of the Thrift, the other is something looser that more represents how the data will be worked with in TypeScript.
 
+The main difference is that fields marked as `i64` can be represented as either `number` or an `Int64` object and `binary` can be represented as either a `string` or a `Buffer` object.
+
 Generated TypeScript:
 
 ```typescript
-interface User {
+interface IUser {
     id: thrift.Int64
 }
-interface User_Loose {
+interface IUser_Loose {
     id: number | thrift.Int64
 }
-interface Profile {
-    user: User
+interface IProfile {
+    user: IUser
     data?: Buffer
     lastModified?: thrift.Int64
 }
-interface Profile_Loose {
-    user: User_Loose
+interface IProfile_Loose {
+    user: IUser_Loose
     data?: string | Buffer
     lastModified?: number | thrift.Int64
 }
@@ -463,7 +411,7 @@ namespace ProfileService {
         constructor(connection: thrift.IThriftConnection<Context>) {
             // ...
         }
-        getProfileForUser(user: User_Loose): Promise<Profile> {
+        getProfileForUser(user: IUser_Loose): Promise<Profile> {
             // ...
         }
     }
@@ -480,11 +428,11 @@ When it comes to struct-like data types (struct, union and exception) usually yo
 Looking back at the `User` object from our struct example, in addition to the interface, the code generator creates a codec object like this:
 
 ```typescript
-export const UserCodec: thrift.IStructCodec<User> {
-    encode(obj: User_Loose, output: thrift.TProtocol): void {
+export const UserCodec: thrift.IStructCodec<IUser_Loose, IUser> {
+    encode(obj: IUser_Loose, output: thrift.TProtocol): void {
         // ...
     },
-    decode(input: thrift.TProtocol): User {
+    decode(input: thrift.TProtocol): IUser {
         // ...
     }
 }
@@ -512,10 +460,10 @@ service Calculator {
 }
 ```
 
-Run codegen for your Thrift service. Here the `--target` option isn't needed as `apache` is the default build target.
+Run codegen for your Thrift service. Here the `--target` option is needed as `apache` is not the default target.
 
 ```sh
-$ thrift-typescript --rootDir . --sourceDir thrift --outDir codegen
+$ thrift-typescript --target apache --rootDir . --sourceDir thrift --outDir codegen
 ```
 
 ### Client

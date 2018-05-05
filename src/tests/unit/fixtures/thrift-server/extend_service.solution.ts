@@ -60,12 +60,13 @@ export namespace ParentService {
             }
         }
     };
-    export class PingArgs extends thrift.StructLike  implements IPingArgs_Loose {
+    export class PingArgs extends thrift.StructLike  implements IPingArgs {
         public status: number;
         constructor(args: IPingArgs_Loose) {
             super();
             if (args.status != null) {
-                this.status = args.status;
+                const value_2: number = args.status;
+                this.status = value_2;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[status] is unset!");
@@ -112,8 +113,8 @@ export namespace ParentService {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.STRING) {
-                            const value_2: string = input.readString();
-                            _args.success = value_2;
+                            const value_3: string = input.readString();
+                            _args.success = value_3;
                         }
                         else {
                             input.skip(fieldType);
@@ -131,12 +132,13 @@ export namespace ParentService {
             };
         }
     };
-    export class PingResult extends thrift.StructLike  implements IPingResult_Loose {
+    export class PingResult extends thrift.StructLike  implements IPingResult {
         public success?: string;
         constructor(args: IPingResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_4: string = args.success;
+                this.success = value_4;
             }
         }
         public static read(input: thrift.TProtocol): PingResult {
@@ -292,8 +294,8 @@ export namespace ChildService {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.TType.STRING) {
-                            const value_3: string = input.readString();
-                            _args.name = value_3;
+                            const value_5: string = input.readString();
+                            _args.name = value_5;
                         }
                         else {
                             input.skip(fieldType);
@@ -316,12 +318,13 @@ export namespace ChildService {
             }
         }
     };
-    export class PegArgs extends thrift.StructLike  implements IPegArgs_Loose {
+    export class PegArgs extends thrift.StructLike  implements IPegArgs {
         public name: string;
         constructor(args: IPegArgs_Loose) {
             super();
             if (args.name != null) {
-                this.name = args.name;
+                const value_6: string = args.name;
+                this.name = value_6;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
@@ -368,8 +371,8 @@ export namespace ChildService {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.TType.STRING) {
-                            const value_4: string = input.readString();
-                            _args.name = value_4;
+                            const value_7: string = input.readString();
+                            _args.name = value_7;
                         }
                         else {
                             input.skip(fieldType);
@@ -387,12 +390,13 @@ export namespace ChildService {
             };
         }
     };
-    export class PongArgs extends thrift.StructLike  implements IPongArgs_Loose {
+    export class PongArgs extends thrift.StructLike  implements IPongArgs {
         public name?: string;
         constructor(args: IPongArgs_Loose = {}) {
             super();
             if (args.name != null) {
-                this.name = args.name;
+                const value_8: string = args.name;
+                this.name = value_8;
             }
         }
         public static read(input: thrift.TProtocol): PongArgs {
@@ -436,8 +440,8 @@ export namespace ChildService {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.STRING) {
-                            const value_5: string = input.readString();
-                            _args.success = value_5;
+                            const value_9: string = input.readString();
+                            _args.success = value_9;
                         }
                         else {
                             input.skip(fieldType);
@@ -455,12 +459,13 @@ export namespace ChildService {
             };
         }
     };
-    export class PegResult extends thrift.StructLike  implements IPegResult_Loose {
+    export class PegResult extends thrift.StructLike  implements IPegResult {
         public success?: string;
         constructor(args: IPegResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_10: string = args.success;
+                this.success = value_10;
             }
         }
         public static read(input: thrift.TProtocol): PegResult {
@@ -504,8 +509,8 @@ export namespace ChildService {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.STRING) {
-                            const value_6: string = input.readString();
-                            _args.success = value_6;
+                            const value_11: string = input.readString();
+                            _args.success = value_11;
                         }
                         else {
                             input.skip(fieldType);
@@ -523,12 +528,13 @@ export namespace ChildService {
             };
         }
     };
-    export class PongResult extends thrift.StructLike  implements IPongResult_Loose {
+    export class PongResult extends thrift.StructLike  implements IPongResult {
         public success?: string;
         constructor(args: IPongResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_12: string = args.success;
+                this.success = value_12;
             }
         }
         public static read(input: thrift.TProtocol): PongResult {

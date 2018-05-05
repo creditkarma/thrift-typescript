@@ -77,19 +77,21 @@ export const MyExceptionCodec: thrift.IStructCodec<IMyException_Loose, IMyExcept
         }
     }
 };
-export class MyException extends thrift.StructLike  implements IMyException_Loose {
+export class MyException extends thrift.StructLike  implements IMyException {
     public description: string;
     public code?: number;
     constructor(args: IMyException_Loose) {
         super();
         if (args.description != null) {
-            this.description = args.description;
+            const value_3: string = args.description;
+            this.description = value_3;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[description] is unset!");
         }
         if (args.code != null) {
-            this.code = args.code;
+            const value_4: number = args.code;
+            this.code = value_4;
         }
     }
     public static read(input: thrift.TProtocol): MyException {

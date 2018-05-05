@@ -9,6 +9,7 @@ import * as ts from 'typescript'
 import {
     FieldDefinition,
     SyntaxType,
+    FunctionType,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -33,53 +34,53 @@ import {
 
 export * from '../shared/utils'
 
-function coerceType(objName: string, field: FieldDefinition): ts.Expression {
-    switch (field.fieldType.type) {
+export function coerceType(valueName: ts.Identifier, fieldType: FunctionType): ts.Expression {
+    switch (fieldType.type) {
         case SyntaxType.I64Keyword:
             return ts.createParen(ts.createConditional(
                 ts.createBinary(
-                    ts.createTypeOf(ts.createIdentifier(`${objName}.${field.name.value}`)),
+                    ts.createTypeOf(valueName),
                     ts.SyntaxKind.EqualsEqualsEqualsToken,
                     ts.createLiteral('number')
                 ),
                 ts.createNew(
                     COMMON_IDENTIFIERS.Int64,
                     undefined,
-                    [ ts.createIdentifier(`${objName}.${field.name.value}`) ]
+                    [ valueName ]
                 ),
-                ts.createIdentifier(`${objName}.${field.name.value}`),
+                valueName,
             ))
 
         case SyntaxType.BinaryKeyword:
             return ts.createParen(ts.createConditional(
                 ts.createBinary(
-                    ts.createTypeOf(ts.createIdentifier(`${objName}.${field.name.value}`)),
+                    ts.createTypeOf(valueName),
                     ts.SyntaxKind.EqualsEqualsEqualsToken,
                     ts.createLiteral('string')
                 ),
                 ts.createCall(
                     ts.createIdentifier('Buffer.from'),
                     undefined,
-                    [ ts.createIdentifier(`${objName}.${field.name.value}`) ]
+                    [ valueName ]
                 ),
-                ts.createIdentifier(`${objName}.${field.name.value}`),
+                valueName,
             ))
 
         default:
-            return ts.createIdentifier(`${objName}.${field.name.value}`)
+            return valueName
     }
 }
 
 export function getInitializerForField(objName: string, field: FieldDefinition, loose: boolean = false): ts.Expression {
+    const valueName: ts.Identifier = ts.createIdentifier(`${objName}.${field.name.value}`)
+
     if (field.defaultValue !== null && field.defaultValue !== undefined) {
         return ts.createParen(ts.createConditional(
-            createNotNullCheck(
-                ts.createIdentifier(`${objName}.${field.name.value}`)
-            ),
+            createNotNullCheck(valueName),
             (
                 (loose === true) ?
-                    coerceType(objName, field) :
-                    ts.createIdentifier(`${objName}.${field.name.value}`)
+                    coerceType(valueName, field.fieldType) :
+                    valueName
             ),
             renderValue(field.fieldType, field.defaultValue),
         ))
@@ -87,8 +88,8 @@ export function getInitializerForField(objName: string, field: FieldDefinition, 
     } else {
         return (
             (loose === true) ?
-                coerceType(objName, field) :
-                ts.createIdentifier(`${objName}.${field.name.value}`)
+                coerceType(valueName, field.fieldType) :
+                valueName
         )
     }
 }

@@ -89,19 +89,21 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnion_Loose, IMyUnion> = {
         }
     }
 };
-export class MyUnion extends thrift.StructLike  implements IMyUnion_Loose {
+export class MyUnion extends thrift.StructLike  implements IMyUnion {
     public field1?: number;
-    public field2?: number | thrift.Int64;
+    public field2?: thrift.Int64;
     constructor(args: IMyUnion_Loose = {}) {
         super();
         let _fieldsSet: number = 0;
         if (args.field1 != null) {
             _fieldsSet++;
-            this.field1 = args.field1;
+            const value_3: number = args.field1;
+            this.field1 = value_3;
         }
         if (args.field2 != null) {
             _fieldsSet++;
-            this.field2 = args.field2;
+            const value_4: thrift.Int64 = (typeof args.field2 === "number" ? new thrift.Int64(args.field2) : args.field2);
+            this.field2 = value_4;
         }
         if (_fieldsSet > 1) {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");

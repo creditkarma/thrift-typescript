@@ -76,16 +76,18 @@ export const InvalidOperationCodec: thrift.IStructCodec<IInvalidOperation_Loose,
         };
     }
 };
-export class InvalidOperation extends thrift.StructLike  implements IInvalidOperation_Loose {
+export class InvalidOperation extends thrift.StructLike  implements IInvalidOperation {
     public whatOp?: number;
     public why?: string;
     constructor(args: IInvalidOperation_Loose = {}) {
         super();
         if (args.whatOp != null) {
-            this.whatOp = args.whatOp;
+            const value_3: number = args.whatOp;
+            this.whatOp = value_3;
         }
         if (args.why != null) {
-            this.why = args.why;
+            const value_4: string = args.why;
+            this.why = value_4;
         }
     }
     public static read(input: thrift.TProtocol): InvalidOperation {
@@ -137,8 +139,8 @@ export const InvalidResultCodec: thrift.IStructCodec<IInvalidResult_Loose, IInva
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.TType.STRING) {
-                        const value_3: string = input.readString();
-                        _args.message = value_3;
+                        const value_5: string = input.readString();
+                        _args.message = value_5;
                     }
                     else {
                         input.skip(fieldType);
@@ -146,8 +148,8 @@ export const InvalidResultCodec: thrift.IStructCodec<IInvalidResult_Loose, IInva
                     break;
                 case 2:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_4: shared.ICode = shared.CodeCodec.decode(input);
-                        _args.code = value_4;
+                        const value_6: shared.ICode = shared.CodeCodec.decode(input);
+                        _args.code = value_6;
                     }
                     else {
                         input.skip(fieldType);
@@ -166,16 +168,18 @@ export const InvalidResultCodec: thrift.IStructCodec<IInvalidResult_Loose, IInva
         };
     }
 };
-export class InvalidResult extends thrift.StructLike  implements IInvalidResult_Loose {
+export class InvalidResult extends thrift.StructLike  implements IInvalidResult {
     public message?: string;
-    public code?: shared.ICode_Loose;
+    public code?: shared.ICode;
     constructor(args: IInvalidResult_Loose = {}) {
         super();
         if (args.message != null) {
-            this.message = args.message;
+            const value_7: string = args.message;
+            this.message = value_7;
         }
         if (args.code != null) {
-            this.code = args.code;
+            const value_8: shared.ICode = new shared.Code(args.code);
+            this.code = value_8;
         }
     }
     public static read(input: thrift.TProtocol): InvalidResult {

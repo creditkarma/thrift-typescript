@@ -69,16 +69,18 @@ export const CodeCodec: thrift.IStructCodec<ICode_Loose, ICode> = {
         };
     }
 };
-export class Code extends thrift.StructLike  implements ICode_Loose {
-    public status?: number | thrift.Int64 = thrift.Int64.fromDecimalString("200");
-    public data?: string | Buffer = Buffer.from("data");
+export class Code extends thrift.StructLike  implements ICode {
+    public status?: thrift.Int64 = thrift.Int64.fromDecimalString("200");
+    public data?: Buffer = Buffer.from("data");
     constructor(args: ICode_Loose = {}) {
         super();
         if (args.status != null) {
-            this.status = args.status;
+            const value_3: thrift.Int64 = (typeof args.status === "number" ? new thrift.Int64(args.status) : args.status);
+            this.status = value_3;
         }
         if (args.data != null) {
-            this.data = args.data;
+            const value_4: Buffer = (typeof args.data === "string" ? Buffer.from(args.data) : args.data);
+            this.data = value_4;
         }
     }
     public static read(input: thrift.TProtocol): Code {
@@ -133,8 +135,8 @@ export const MyExceptionCodec: thrift.IStructCodec<IMyException_Loose, IMyExcept
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.TType.STRING) {
-                        const value_3: string = input.readString();
-                        _args.description = value_3;
+                        const value_5: string = input.readString();
+                        _args.description = value_5;
                     }
                     else {
                         input.skip(fieldType);
@@ -142,8 +144,8 @@ export const MyExceptionCodec: thrift.IStructCodec<IMyException_Loose, IMyExcept
                     break;
                 case 3:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_4: ICode = CodeCodec.decode(input);
-                        _args.code = value_4;
+                        const value_6: ICode = CodeCodec.decode(input);
+                        _args.code = value_6;
                     }
                     else {
                         input.skip(fieldType);
@@ -167,19 +169,21 @@ export const MyExceptionCodec: thrift.IStructCodec<IMyException_Loose, IMyExcept
         }
     }
 };
-export class MyException extends thrift.StructLike  implements IMyException_Loose {
+export class MyException extends thrift.StructLike  implements IMyException {
     public description: string;
-    public code?: ICode_Loose;
+    public code?: ICode;
     constructor(args: IMyException_Loose) {
         super();
         if (args.description != null) {
-            this.description = args.description;
+            const value_7: string = args.description;
+            this.description = value_7;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[description] is unset!");
         }
         if (args.code != null) {
-            this.code = args.code;
+            const value_8: ICode = new Code(args.code);
+            this.code = value_8;
         }
     }
     public static read(input: thrift.TProtocol): MyException {

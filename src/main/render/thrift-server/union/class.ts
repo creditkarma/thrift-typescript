@@ -18,8 +18,6 @@ import {
 import {
     createClassConstructor,
     createNotNullCheck,
-    createAssignmentStatement,
-    propertyAccessForIdentifier,
     createFunctionParameter,
 } from '../utils'
 
@@ -28,6 +26,7 @@ import {
     implementsInterface,
     extendsAbstract,
     createSuperCall,
+    throwForField,
 } from '../struct/utils'
 
 import {
@@ -35,7 +34,7 @@ import {
     createWriteMethod,
     renderFieldDeclarations,
     createArgsParameterForStruct,
-    throwForField,
+    assignmentForField as _assignmentForField,
 } from '../struct/class'
 
 import {
@@ -60,7 +59,9 @@ export function renderClass(node: UnionDefinition, identifiers: IIdentifierMap):
      * If a required argument is not on the passed 'args' argument we need to throw on error.
      * Optional fields we must allow to be null or undefined.
      */
-    const fieldAssignments: Array<ts.IfStatement> = node.fields.map(createFieldAssignment)
+    const fieldAssignments: Array<ts.IfStatement> = node.fields.map((next: FieldDefinition) => {
+        return createFieldAssignment(next, identifiers)
+    })
 
     const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(node, identifiers)
 
@@ -130,19 +131,10 @@ export function createFieldsForStruct(node: InterfaceWithFields, identifiers: II
  *
  * This function creates the 'this.id = args.id' bit.
  */
-export function assignmentForField(field: FieldDefinition): Array<ts.Statement> {
+export function assignmentForField(field: FieldDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
     return [
         incrementFieldsSet(),
-        createAssignmentStatement(
-            propertyAccessForIdentifier(
-                COMMON_IDENTIFIERS.this,
-                field.name.value,
-            ),
-            propertyAccessForIdentifier(
-                COMMON_IDENTIFIERS.args,
-                field.name.value,
-            )
-        ),
+        ..._assignmentForField(field, identifiers)
     ]
 }
 
@@ -159,14 +151,14 @@ export function assignmentForField(field: FieldDefinition): Array<ts.Statement> 
  *   throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
  * }
  */
-export function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
+export function createFieldAssignment(field: FieldDefinition, identifiers: IIdentifierMap): ts.IfStatement {
     const hasValue: ts.BinaryExpression = createNotNullCheck(
         ts.createPropertyAccess(
             COMMON_IDENTIFIERS.args,
             `${field.name.value}`
         )
     )
-    const thenAssign: Array<ts.Statement> = assignmentForField(field)
+    const thenAssign: Array<ts.Statement> = assignmentForField(field, identifiers)
     const elseThrow: ts.Statement | undefined = throwForField(field)
 
     return ts.createIf(

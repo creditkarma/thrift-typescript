@@ -47,7 +47,7 @@ import {
  *
  * @param source
  */
-export function make(source: string, target: CompileTarget = 'apache'): string {
+export function make(source: string, target: CompileTarget = 'thrift-server'): string {
     const parsedFile: IParsedFile = parseSource(source)
     const resolvedAST: IResolvedFile = resolveFile('', parsedFile)
     const validAST: IResolvedFile = validateFile(resolvedAST)

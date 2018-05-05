@@ -27,16 +27,10 @@ export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
             output.writeI32(obj.id);
             output.writeFieldEnd();
         }
-        else {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[id] is unset!");
-        }
         if (obj.bigID != null) {
             output.writeFieldBegin("bigID", thrift.TType.I64, 2);
             output.writeI64(obj.bigID);
             output.writeFieldEnd();
-        }
-        else {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[bigID] is unset!");
         }
         if (obj.word != null) {
             output.writeFieldBegin("word", thrift.TType.STRING, 3);
@@ -137,37 +131,36 @@ export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
         }
     }
 };
-export class MyStruct extends thrift.StructLike  implements IMyStruct_Loose {
+export class MyStruct extends thrift.StructLike  implements IMyStruct {
     public id: number = 45;
-    public bigID: number | thrift.Int64 = thrift.Int64.fromDecimalString("23948234");
+    public bigID: thrift.Int64 = thrift.Int64.fromDecimalString("23948234");
     public word: string;
     public field1?: number;
-    public blob?: string | Buffer = Buffer.from("binary");
+    public blob?: Buffer = Buffer.from("binary");
     constructor(args: IMyStruct_Loose) {
         super();
         if (args.id != null) {
-            this.id = args.id;
-        }
-        else {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[id] is unset!");
+            const value_6: number = args.id;
+            this.id = value_6;
         }
         if (args.bigID != null) {
-            this.bigID = args.bigID;
-        }
-        else {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[bigID] is unset!");
+            const value_7: thrift.Int64 = (typeof args.bigID === "number" ? new thrift.Int64(args.bigID) : args.bigID);
+            this.bigID = value_7;
         }
         if (args.word != null) {
-            this.word = args.word;
+            const value_8: string = args.word;
+            this.word = value_8;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[word] is unset!");
         }
         if (args.field1 != null) {
-            this.field1 = args.field1;
+            const value_9: number = args.field1;
+            this.field1 = value_9;
         }
         if (args.blob != null) {
-            this.blob = args.blob;
+            const value_10: Buffer = (typeof args.blob === "string" ? Buffer.from(args.blob) : args.blob);
+            this.blob = value_10;
         }
     }
     public static read(input: thrift.TProtocol): MyStruct {

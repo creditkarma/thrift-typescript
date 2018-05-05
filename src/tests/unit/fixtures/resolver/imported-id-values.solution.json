@@ -5,7 +5,7 @@
     "namespace": {
         "scope": "",
         "name": "",
-        "path": "/Users/kevin.greene/Documents/_our_stuff/thrift-typescript/index.ts"
+        "path": ""
     },
     "includes": {
         "exception": {
@@ -16,7 +16,7 @@
                 "namespace": {
                     "scope": "",
                     "name": "",
-                    "path": "/Users/kevin.greene/Documents/_our_stuff/thrift-typescript/index.ts"
+                    "path": ""
                 },
                 "includes": {},
                 "identifiers": {

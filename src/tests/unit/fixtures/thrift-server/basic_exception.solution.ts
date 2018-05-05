@@ -69,16 +69,18 @@ export const MyExceptionCodec: thrift.IStructCodec<IMyException_Loose, IMyExcept
         };
     }
 };
-export class MyException extends thrift.StructLike  implements IMyException_Loose {
+export class MyException extends thrift.StructLike  implements IMyException {
     public message?: string;
     public code?: number = 200;
     constructor(args: IMyException_Loose = {}) {
         super();
         if (args.message != null) {
-            this.message = args.message;
+            const value_3: string = args.message;
+            this.message = value_3;
         }
         if (args.code != null) {
-            this.code = args.code;
+            const value_4: number = args.code;
+            this.code = value_4;
         }
     }
     public static read(input: thrift.TProtocol): MyException {

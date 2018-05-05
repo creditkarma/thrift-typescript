@@ -41,9 +41,6 @@ export const WorkCodec: thrift.IStructCodec<IWork_Loose, IWork> = {
             output.writeI32(obj.num1);
             output.writeFieldEnd();
         }
-        else {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[num1] is unset!");
-        }
         if (obj.num2 != null) {
             output.writeFieldBegin("num2", thrift.TType.I32, 2);
             output.writeI32(obj.num2);
@@ -136,7 +133,7 @@ export const WorkCodec: thrift.IStructCodec<IWork_Loose, IWork> = {
         }
     }
 };
-export class Work extends thrift.StructLike  implements IWork_Loose {
+export class Work extends thrift.StructLike  implements IWork {
     public num1: number = 0;
     public num2: number;
     public op: Operation;
@@ -144,25 +141,26 @@ export class Work extends thrift.StructLike  implements IWork_Loose {
     constructor(args: IWork_Loose) {
         super();
         if (args.num1 != null) {
-            this.num1 = args.num1;
-        }
-        else {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[num1] is unset!");
+            const value_5: number = args.num1;
+            this.num1 = value_5;
         }
         if (args.num2 != null) {
-            this.num2 = args.num2;
+            const value_6: number = args.num2;
+            this.num2 = value_6;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[num2] is unset!");
         }
         if (args.op != null) {
-            this.op = args.op;
+            const value_7: Operation = args.op;
+            this.op = value_7;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[op] is unset!");
         }
         if (args.comment != null) {
-            this.comment = args.comment;
+            const value_8: string = args.comment;
+            this.comment = value_8;
         }
     }
     public static read(input: thrift.TProtocol): Work {
@@ -206,8 +204,8 @@ export const FirstNameCodec: thrift.IStructCodec<IFirstName_Loose, IFirstName> =
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.TType.STRING) {
-                        const value_5: string = input.readString();
-                        _args.name = value_5;
+                        const value_9: string = input.readString();
+                        _args.name = value_9;
                     }
                     else {
                         input.skip(fieldType);
@@ -225,12 +223,13 @@ export const FirstNameCodec: thrift.IStructCodec<IFirstName_Loose, IFirstName> =
         };
     }
 };
-export class FirstName extends thrift.StructLike  implements IFirstName_Loose {
+export class FirstName extends thrift.StructLike  implements IFirstName {
     public name?: string;
     constructor(args: IFirstName_Loose = {}) {
         super();
         if (args.name != null) {
-            this.name = args.name;
+            const value_10: string = args.name;
+            this.name = value_10;
         }
     }
     public static read(input: thrift.TProtocol): FirstName {
@@ -274,8 +273,8 @@ export const LastNameCodec: thrift.IStructCodec<ILastName_Loose, ILastName> = {
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.TType.STRING) {
-                        const value_6: string = input.readString();
-                        _args.name = value_6;
+                        const value_11: string = input.readString();
+                        _args.name = value_11;
                     }
                     else {
                         input.skip(fieldType);
@@ -293,12 +292,13 @@ export const LastNameCodec: thrift.IStructCodec<ILastName_Loose, ILastName> = {
         };
     }
 };
-export class LastName extends thrift.StructLike  implements ILastName_Loose {
+export class LastName extends thrift.StructLike  implements ILastName {
     public name?: string;
     constructor(args: ILastName_Loose = {}) {
         super();
         if (args.name != null) {
-            this.name = args.name;
+            const value_12: string = args.name;
+            this.name = value_12;
         }
     }
     public static read(input: thrift.TProtocol): LastName {
@@ -361,8 +361,8 @@ export const ChoiceCodec: thrift.IStructCodec<IChoice_Loose, IChoice> = {
                 case 1:
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
-                        const value_7: IFirstName = FirstNameCodec.decode(input);
-                        _returnValue = { firstName: value_7 };
+                        const value_13: IFirstName = FirstNameCodec.decode(input);
+                        _returnValue = { firstName: value_13 };
                     }
                     else {
                         input.skip(fieldType);
@@ -371,8 +371,8 @@ export const ChoiceCodec: thrift.IStructCodec<IChoice_Loose, IChoice> = {
                 case 2:
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
-                        const value_8: ILastName = LastNameCodec.decode(input);
-                        _returnValue = { lastName: value_8 };
+                        const value_14: ILastName = LastNameCodec.decode(input);
+                        _returnValue = { lastName: value_14 };
                     }
                     else {
                         input.skip(fieldType);
@@ -399,19 +399,21 @@ export const ChoiceCodec: thrift.IStructCodec<IChoice_Loose, IChoice> = {
         }
     }
 };
-export class Choice extends thrift.StructLike  implements IChoice_Loose {
-    public firstName?: IFirstName_Loose;
-    public lastName?: ILastName_Loose;
+export class Choice extends thrift.StructLike  implements IChoice {
+    public firstName?: IFirstName;
+    public lastName?: ILastName;
     constructor(args: IChoice_Loose = {}) {
         super();
         let _fieldsSet: number = 0;
         if (args.firstName != null) {
             _fieldsSet++;
-            this.firstName = args.firstName;
+            const value_15: IFirstName = new FirstName(args.firstName);
+            this.firstName = value_15;
         }
         if (args.lastName != null) {
             _fieldsSet++;
-            this.lastName = args.lastName;
+            const value_16: ILastName = new LastName(args.lastName);
+            this.lastName = value_16;
         }
         if (_fieldsSet > 1) {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
@@ -459,7 +461,7 @@ export namespace Calculator {
             return {};
         }
     };
-    export class PingArgs extends thrift.StructLike  implements IPingArgs_Loose {
+    export class PingArgs extends thrift.StructLike  implements IPingArgs {
         constructor(args: IPingArgs_Loose = {}) {
             super();
         }
@@ -518,8 +520,8 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.TType.I32) {
-                            const value_9: number = input.readI32();
-                            _args.num1 = value_9;
+                            const value_17: number = input.readI32();
+                            _args.num1 = value_17;
                         }
                         else {
                             input.skip(fieldType);
@@ -527,8 +529,8 @@ export namespace Calculator {
                         break;
                     case 2:
                         if (fieldType === thrift.TType.I32) {
-                            const value_10: number = input.readI32();
-                            _args.num2 = value_10;
+                            const value_18: number = input.readI32();
+                            _args.num2 = value_18;
                         }
                         else {
                             input.skip(fieldType);
@@ -552,19 +554,21 @@ export namespace Calculator {
             }
         }
     };
-    export class AddArgs extends thrift.StructLike  implements IAddArgs_Loose {
+    export class AddArgs extends thrift.StructLike  implements IAddArgs {
         public num1: number;
         public num2: number;
         constructor(args: IAddArgs_Loose) {
             super();
             if (args.num1 != null) {
-                this.num1 = args.num1;
+                const value_19: number = args.num1;
+                this.num1 = value_19;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[num1] is unset!");
             }
             if (args.num2 != null) {
-                this.num2 = args.num2;
+                const value_20: number = args.num2;
+                this.num2 = value_20;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[num2] is unset!");
@@ -625,8 +629,8 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.TType.I64) {
-                            const value_11: thrift.Int64 = input.readI64();
-                            _args.num1 = value_11;
+                            const value_21: thrift.Int64 = input.readI64();
+                            _args.num1 = value_21;
                         }
                         else {
                             input.skip(fieldType);
@@ -634,8 +638,8 @@ export namespace Calculator {
                         break;
                     case 2:
                         if (fieldType === thrift.TType.I64) {
-                            const value_12: thrift.Int64 = input.readI64();
-                            _args.num2 = value_12;
+                            const value_22: thrift.Int64 = input.readI64();
+                            _args.num2 = value_22;
                         }
                         else {
                             input.skip(fieldType);
@@ -659,19 +663,21 @@ export namespace Calculator {
             }
         }
     };
-    export class AddInt64Args extends thrift.StructLike  implements IAddInt64Args_Loose {
-        public num1: number | thrift.Int64;
-        public num2: number | thrift.Int64;
+    export class AddInt64Args extends thrift.StructLike  implements IAddInt64Args {
+        public num1: thrift.Int64;
+        public num2: thrift.Int64;
         constructor(args: IAddInt64Args_Loose) {
             super();
             if (args.num1 != null) {
-                this.num1 = args.num1;
+                const value_23: thrift.Int64 = (typeof args.num1 === "number" ? new thrift.Int64(args.num1) : args.num1);
+                this.num1 = value_23;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[num1] is unset!");
             }
             if (args.num2 != null) {
-                this.num2 = args.num2;
+                const value_24: thrift.Int64 = (typeof args.num2 === "number" ? new thrift.Int64(args.num2) : args.num2);
+                this.num2 = value_24;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[num2] is unset!");
@@ -732,8 +738,8 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.TType.I32) {
-                            const value_13: number = input.readI32();
-                            _args.num1 = value_13;
+                            const value_25: number = input.readI32();
+                            _args.num1 = value_25;
                         }
                         else {
                             input.skip(fieldType);
@@ -741,8 +747,8 @@ export namespace Calculator {
                         break;
                     case 2:
                         if (fieldType === thrift.TType.I32) {
-                            const value_14: number = input.readI32();
-                            _args.num2 = value_14;
+                            const value_26: number = input.readI32();
+                            _args.num2 = value_26;
                         }
                         else {
                             input.skip(fieldType);
@@ -766,19 +772,21 @@ export namespace Calculator {
             }
         }
     };
-    export class AddWithContextArgs extends thrift.StructLike  implements IAddWithContextArgs_Loose {
+    export class AddWithContextArgs extends thrift.StructLike  implements IAddWithContextArgs {
         public num1: number;
         public num2: number;
         constructor(args: IAddWithContextArgs_Loose) {
             super();
             if (args.num1 != null) {
-                this.num1 = args.num1;
+                const value_27: number = args.num1;
+                this.num1 = value_27;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[num1] is unset!");
             }
             if (args.num2 != null) {
-                this.num2 = args.num2;
+                const value_28: number = args.num2;
+                this.num2 = value_28;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[num2] is unset!");
@@ -839,8 +847,8 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.TType.I32) {
-                            const value_15: number = input.readI32();
-                            _args.logid = value_15;
+                            const value_29: number = input.readI32();
+                            _args.logid = value_29;
                         }
                         else {
                             input.skip(fieldType);
@@ -848,8 +856,8 @@ export namespace Calculator {
                         break;
                     case 2:
                         if (fieldType === thrift.TType.STRUCT) {
-                            const value_16: IWork = WorkCodec.decode(input);
-                            _args.work = value_16;
+                            const value_30: IWork = WorkCodec.decode(input);
+                            _args.work = value_30;
                         }
                         else {
                             input.skip(fieldType);
@@ -873,19 +881,21 @@ export namespace Calculator {
             }
         }
     };
-    export class CalculateArgs extends thrift.StructLike  implements ICalculateArgs_Loose {
+    export class CalculateArgs extends thrift.StructLike  implements ICalculateArgs {
         public logid: number;
-        public work: IWork_Loose;
+        public work: IWork;
         constructor(args: ICalculateArgs_Loose) {
             super();
             if (args.logid != null) {
-                this.logid = args.logid;
+                const value_31: number = args.logid;
+                this.logid = value_31;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[logid] is unset!");
             }
             if (args.work != null) {
-                this.work = args.work;
+                const value_32: IWork = new Work(args.work);
+                this.work = value_32;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[work] is unset!");
@@ -935,8 +945,8 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.TType.STRING) {
-                            const value_17: Buffer = input.readBinary();
-                            _args.word = value_17;
+                            const value_33: Buffer = input.readBinary();
+                            _args.word = value_33;
                         }
                         else {
                             input.skip(fieldType);
@@ -959,12 +969,13 @@ export namespace Calculator {
             }
         }
     };
-    export class EchoBinaryArgs extends thrift.StructLike  implements IEchoBinaryArgs_Loose {
-        public word: string | Buffer;
+    export class EchoBinaryArgs extends thrift.StructLike  implements IEchoBinaryArgs {
+        public word: Buffer;
         constructor(args: IEchoBinaryArgs_Loose) {
             super();
             if (args.word != null) {
-                this.word = args.word;
+                const value_34: Buffer = (typeof args.word === "string" ? Buffer.from(args.word) : args.word);
+                this.word = value_34;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[word] is unset!");
@@ -1014,8 +1025,8 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.TType.STRING) {
-                            const value_18: string = input.readString();
-                            _args.word = value_18;
+                            const value_35: string = input.readString();
+                            _args.word = value_35;
                         }
                         else {
                             input.skip(fieldType);
@@ -1038,12 +1049,13 @@ export namespace Calculator {
             }
         }
     };
-    export class EchoStringArgs extends thrift.StructLike  implements IEchoStringArgs_Loose {
+    export class EchoStringArgs extends thrift.StructLike  implements IEchoStringArgs {
         public word: string;
         constructor(args: IEchoStringArgs_Loose) {
             super();
             if (args.word != null) {
-                this.word = args.word;
+                const value_36: string = args.word;
+                this.word = value_36;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[word] is unset!");
@@ -1093,8 +1105,8 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.TType.STRUCT) {
-                            const value_19: IChoice = ChoiceCodec.decode(input);
-                            _args.choice = value_19;
+                            const value_37: IChoice = ChoiceCodec.decode(input);
+                            _args.choice = value_37;
                         }
                         else {
                             input.skip(fieldType);
@@ -1117,12 +1129,13 @@ export namespace Calculator {
             }
         }
     };
-    export class CheckNameArgs extends thrift.StructLike  implements ICheckNameArgs_Loose {
-        public choice: IChoice_Loose;
+    export class CheckNameArgs extends thrift.StructLike  implements ICheckNameArgs {
+        public choice: IChoice;
         constructor(args: ICheckNameArgs_Loose) {
             super();
             if (args.choice != null) {
-                this.choice = args.choice;
+                const value_38: IChoice = new Choice(args.choice);
+                this.choice = value_38;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[choice] is unset!");
@@ -1169,8 +1182,8 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.TType.STRING) {
-                            const value_20: string = input.readString();
-                            _args.type = value_20;
+                            const value_39: string = input.readString();
+                            _args.type = value_39;
                         }
                         else {
                             input.skip(fieldType);
@@ -1188,12 +1201,13 @@ export namespace Calculator {
             };
         }
     };
-    export class CheckOptionalArgs extends thrift.StructLike  implements ICheckOptionalArgs_Loose {
+    export class CheckOptionalArgs extends thrift.StructLike  implements ICheckOptionalArgs {
         public type?: string;
         constructor(args: ICheckOptionalArgs_Loose = {}) {
             super();
             if (args.type != null) {
-                this.type = args.type;
+                const value_40: string = args.type;
+                this.type = value_40;
             }
         }
         public static read(input: thrift.TProtocol): CheckOptionalArgs {
@@ -1218,8 +1232,8 @@ export namespace Calculator {
             if (obj.arg != null) {
                 output.writeFieldBegin("arg", thrift.TType.LIST, 1);
                 output.writeListBegin(thrift.TType.I32, obj.arg.length);
-                obj.arg.forEach((value_21: number): void => {
-                    output.writeI32(value_21);
+                obj.arg.forEach((value_41: number): void => {
+                    output.writeI32(value_41);
                 });
                 output.writeListEnd();
                 output.writeFieldEnd();
@@ -1244,15 +1258,15 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.TType.LIST) {
-                            const value_22: Array<number> = new Array<number>();
+                            const value_42: Array<number> = new Array<number>();
                             const metadata_1: thrift.IThriftList = input.readListBegin();
                             const size_1: number = metadata_1.size;
                             for (let i_1: number = 0; i_1 < size_1; i_1++) {
-                                const value_23: number = input.readI32();
-                                value_22.push(value_23);
+                                const value_43: number = input.readI32();
+                                value_42.push(value_43);
                             }
                             input.readListEnd();
-                            _args.arg = value_22;
+                            _args.arg = value_42;
                         }
                         else {
                             input.skip(fieldType);
@@ -1275,12 +1289,17 @@ export namespace Calculator {
             }
         }
     };
-    export class MapOneListArgs extends thrift.StructLike  implements IMapOneListArgs_Loose {
+    export class MapOneListArgs extends thrift.StructLike  implements IMapOneListArgs {
         public arg: Array<number>;
         constructor(args: IMapOneListArgs_Loose) {
             super();
             if (args.arg != null) {
-                this.arg = args.arg;
+                const value_44: Array<number> = new Array<number>();
+                args.arg.forEach((value_45: number): void => {
+                    const value_46: number = value_45;
+                    value_44.push(value_46);
+                });
+                this.arg = value_44;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[arg] is unset!");
@@ -1308,9 +1327,9 @@ export namespace Calculator {
             if (obj.arg != null) {
                 output.writeFieldBegin("arg", thrift.TType.MAP, 1);
                 output.writeMapBegin(thrift.TType.STRING, thrift.TType.I32, obj.arg.size);
-                obj.arg.forEach((value_24: number, key_1: string): void => {
+                obj.arg.forEach((value_47: number, key_1: string): void => {
                     output.writeString(key_1);
-                    output.writeI32(value_24);
+                    output.writeI32(value_47);
                 });
                 output.writeMapEnd();
                 output.writeFieldEnd();
@@ -1335,16 +1354,16 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.TType.MAP) {
-                            const value_25: Map<string, number> = new Map<string, number>();
+                            const value_48: Map<string, number> = new Map<string, number>();
                             const metadata_2: thrift.IThriftMap = input.readMapBegin();
                             const size_2: number = metadata_2.size;
                             for (let i_2: number = 0; i_2 < size_2; i_2++) {
                                 const key_2: string = input.readString();
-                                const value_26: number = input.readI32();
-                                value_25.set(key_2, value_26);
+                                const value_49: number = input.readI32();
+                                value_48.set(key_2, value_49);
                             }
                             input.readMapEnd();
-                            _args.arg = value_25;
+                            _args.arg = value_48;
                         }
                         else {
                             input.skip(fieldType);
@@ -1367,12 +1386,17 @@ export namespace Calculator {
             }
         }
     };
-    export class MapValuesArgs extends thrift.StructLike  implements IMapValuesArgs_Loose {
+    export class MapValuesArgs extends thrift.StructLike  implements IMapValuesArgs {
         public arg: Map<string, number>;
         constructor(args: IMapValuesArgs_Loose) {
             super();
             if (args.arg != null) {
-                this.arg = args.arg;
+                const value_50: Map<string, number> = new Map<string, number>();
+                args.arg.forEach((value_51: number, key_3: string): void => {
+                    const value_52: number = value_51;
+                    value_50.set(key_3, value_52);
+                });
+                this.arg = value_50;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[arg] is unset!");
@@ -1400,10 +1424,10 @@ export namespace Calculator {
             if (obj.arg != null) {
                 output.writeFieldBegin("arg", thrift.TType.LIST, 1);
                 output.writeListBegin(thrift.TType.LIST, obj.arg.length);
-                obj.arg.forEach((value_27: Array<string>): void => {
-                    output.writeListBegin(thrift.TType.STRING, value_27.length);
-                    value_27.forEach((value_28: string): void => {
-                        output.writeString(value_28);
+                obj.arg.forEach((value_53: Array<string>): void => {
+                    output.writeListBegin(thrift.TType.STRING, value_53.length);
+                    value_53.forEach((value_54: string): void => {
+                        output.writeString(value_54);
                     });
                     output.writeListEnd();
                 });
@@ -1430,22 +1454,22 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.TType.LIST) {
-                            const value_29: Array<Array<string>> = new Array<Array<string>>();
+                            const value_55: Array<Array<string>> = new Array<Array<string>>();
                             const metadata_3: thrift.IThriftList = input.readListBegin();
                             const size_3: number = metadata_3.size;
                             for (let i_3: number = 0; i_3 < size_3; i_3++) {
-                                const value_30: Array<string> = new Array<string>();
+                                const value_56: Array<string> = new Array<string>();
                                 const metadata_4: thrift.IThriftList = input.readListBegin();
                                 const size_4: number = metadata_4.size;
                                 for (let i_4: number = 0; i_4 < size_4; i_4++) {
-                                    const value_31: string = input.readString();
-                                    value_30.push(value_31);
+                                    const value_57: string = input.readString();
+                                    value_56.push(value_57);
                                 }
                                 input.readListEnd();
-                                value_29.push(value_30);
+                                value_55.push(value_56);
                             }
                             input.readListEnd();
-                            _args.arg = value_29;
+                            _args.arg = value_55;
                         }
                         else {
                             input.skip(fieldType);
@@ -1468,12 +1492,21 @@ export namespace Calculator {
             }
         }
     };
-    export class ListToMapArgs extends thrift.StructLike  implements IListToMapArgs_Loose {
+    export class ListToMapArgs extends thrift.StructLike  implements IListToMapArgs {
         public arg: Array<Array<string>>;
         constructor(args: IListToMapArgs_Loose) {
             super();
             if (args.arg != null) {
-                this.arg = args.arg;
+                const value_58: Array<Array<string>> = new Array<Array<string>>();
+                args.arg.forEach((value_59: Array<string>): void => {
+                    const value_60: Array<string> = new Array<string>();
+                    value_59.forEach((value_61: string): void => {
+                        const value_62: string = value_61;
+                        value_60.push(value_62);
+                    });
+                    value_58.push(value_60);
+                });
+                this.arg = value_58;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[arg] is unset!");
@@ -1517,7 +1550,7 @@ export namespace Calculator {
             return {};
         }
     };
-    export class FetchThingArgs extends thrift.StructLike  implements IFetchThingArgs_Loose {
+    export class FetchThingArgs extends thrift.StructLike  implements IFetchThingArgs {
         constructor(args: IFetchThingArgs_Loose = {}) {
             super();
         }
@@ -1559,7 +1592,7 @@ export namespace Calculator {
             return {};
         }
     };
-    export class ZipArgs extends thrift.StructLike  implements IZipArgs_Loose {
+    export class ZipArgs extends thrift.StructLike  implements IZipArgs {
         constructor(args: IZipArgs_Loose = {}) {
             super();
         }
@@ -1614,12 +1647,13 @@ export namespace Calculator {
             };
         }
     };
-    export class PingResult extends thrift.StructLike  implements IPingResult_Loose {
+    export class PingResult extends thrift.StructLike  implements IPingResult {
         public success?: void;
         constructor(args: IPingResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_63: void = undefined;
+                this.success = value_63;
             }
         }
         public static read(input: thrift.TProtocol): PingResult {
@@ -1671,8 +1705,8 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.I32) {
-                            const value_32: number = input.readI32();
-                            _args.success = value_32;
+                            const value_64: number = input.readI32();
+                            _args.success = value_64;
                         }
                         else {
                             input.skip(fieldType);
@@ -1680,8 +1714,8 @@ export namespace Calculator {
                         break;
                     case 1:
                         if (fieldType === thrift.TType.STRUCT) {
-                            const value_33: operation.IJankyResult = operation.JankyResultCodec.decode(input);
-                            _args.exp = value_33;
+                            const value_65: operation.IJankyResult = operation.JankyResultCodec.decode(input);
+                            _args.exp = value_65;
                         }
                         else {
                             input.skip(fieldType);
@@ -1700,16 +1734,18 @@ export namespace Calculator {
             };
         }
     };
-    export class AddResult extends thrift.StructLike  implements IAddResult_Loose {
+    export class AddResult extends thrift.StructLike  implements IAddResult {
         public success?: number;
-        public exp?: operation.IJankyResult_Loose;
+        public exp?: operation.IJankyResult;
         constructor(args: IAddResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_66: number = args.success;
+                this.success = value_66;
             }
             if (args.exp != null) {
-                this.exp = args.exp;
+                const value_67: operation.IJankyResult = new operation.JankyResult(args.exp);
+                this.exp = value_67;
             }
         }
         public static read(input: thrift.TProtocol): AddResult {
@@ -1753,8 +1789,8 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.I64) {
-                            const value_34: thrift.Int64 = input.readI64();
-                            _args.success = value_34;
+                            const value_68: thrift.Int64 = input.readI64();
+                            _args.success = value_68;
                         }
                         else {
                             input.skip(fieldType);
@@ -1772,12 +1808,13 @@ export namespace Calculator {
             };
         }
     };
-    export class AddInt64Result extends thrift.StructLike  implements IAddInt64Result_Loose {
-        public success?: number | thrift.Int64;
+    export class AddInt64Result extends thrift.StructLike  implements IAddInt64Result {
+        public success?: thrift.Int64;
         constructor(args: IAddInt64Result_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_69: thrift.Int64 = (typeof args.success === "number" ? new thrift.Int64(args.success) : args.success);
+                this.success = value_69;
             }
         }
         public static read(input: thrift.TProtocol): AddInt64Result {
@@ -1821,8 +1858,8 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.I32) {
-                            const value_35: number = input.readI32();
-                            _args.success = value_35;
+                            const value_70: number = input.readI32();
+                            _args.success = value_70;
                         }
                         else {
                             input.skip(fieldType);
@@ -1840,12 +1877,13 @@ export namespace Calculator {
             };
         }
     };
-    export class AddWithContextResult extends thrift.StructLike  implements IAddWithContextResult_Loose {
+    export class AddWithContextResult extends thrift.StructLike  implements IAddWithContextResult {
         public success?: number;
         constructor(args: IAddWithContextResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_71: number = args.success;
+                this.success = value_71;
             }
         }
         public static read(input: thrift.TProtocol): AddWithContextResult {
@@ -1897,8 +1935,8 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.I32) {
-                            const value_36: number = input.readI32();
-                            _args.success = value_36;
+                            const value_72: number = input.readI32();
+                            _args.success = value_72;
                         }
                         else {
                             input.skip(fieldType);
@@ -1906,8 +1944,8 @@ export namespace Calculator {
                         break;
                     case 1:
                         if (fieldType === thrift.TType.STRUCT) {
-                            const value_37: operation.IJankyOperation = operation.JankyOperationCodec.decode(input);
-                            _args.ouch = value_37;
+                            const value_73: operation.IJankyOperation = operation.JankyOperationCodec.decode(input);
+                            _args.ouch = value_73;
                         }
                         else {
                             input.skip(fieldType);
@@ -1926,16 +1964,18 @@ export namespace Calculator {
             };
         }
     };
-    export class CalculateResult extends thrift.StructLike  implements ICalculateResult_Loose {
+    export class CalculateResult extends thrift.StructLike  implements ICalculateResult {
         public success?: number;
-        public ouch?: operation.IJankyOperation_Loose;
+        public ouch?: operation.IJankyOperation;
         constructor(args: ICalculateResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_74: number = args.success;
+                this.success = value_74;
             }
             if (args.ouch != null) {
-                this.ouch = args.ouch;
+                const value_75: operation.IJankyOperation = new operation.JankyOperation(args.ouch);
+                this.ouch = value_75;
             }
         }
         public static read(input: thrift.TProtocol): CalculateResult {
@@ -1979,8 +2019,8 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.STRING) {
-                            const value_38: string = input.readString();
-                            _args.success = value_38;
+                            const value_76: string = input.readString();
+                            _args.success = value_76;
                         }
                         else {
                             input.skip(fieldType);
@@ -1998,12 +2038,13 @@ export namespace Calculator {
             };
         }
     };
-    export class EchoBinaryResult extends thrift.StructLike  implements IEchoBinaryResult_Loose {
+    export class EchoBinaryResult extends thrift.StructLike  implements IEchoBinaryResult {
         public success?: string;
         constructor(args: IEchoBinaryResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_77: string = args.success;
+                this.success = value_77;
             }
         }
         public static read(input: thrift.TProtocol): EchoBinaryResult {
@@ -2047,8 +2088,8 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.STRING) {
-                            const value_39: string = input.readString();
-                            _args.success = value_39;
+                            const value_78: string = input.readString();
+                            _args.success = value_78;
                         }
                         else {
                             input.skip(fieldType);
@@ -2066,12 +2107,13 @@ export namespace Calculator {
             };
         }
     };
-    export class EchoStringResult extends thrift.StructLike  implements IEchoStringResult_Loose {
+    export class EchoStringResult extends thrift.StructLike  implements IEchoStringResult {
         public success?: string;
         constructor(args: IEchoStringResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_79: string = args.success;
+                this.success = value_79;
             }
         }
         public static read(input: thrift.TProtocol): EchoStringResult {
@@ -2115,8 +2157,8 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.STRING) {
-                            const value_40: string = input.readString();
-                            _args.success = value_40;
+                            const value_80: string = input.readString();
+                            _args.success = value_80;
                         }
                         else {
                             input.skip(fieldType);
@@ -2134,12 +2176,13 @@ export namespace Calculator {
             };
         }
     };
-    export class CheckNameResult extends thrift.StructLike  implements ICheckNameResult_Loose {
+    export class CheckNameResult extends thrift.StructLike  implements ICheckNameResult {
         public success?: string;
         constructor(args: ICheckNameResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_81: string = args.success;
+                this.success = value_81;
             }
         }
         public static read(input: thrift.TProtocol): CheckNameResult {
@@ -2183,8 +2226,8 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.STRING) {
-                            const value_41: string = input.readString();
-                            _args.success = value_41;
+                            const value_82: string = input.readString();
+                            _args.success = value_82;
                         }
                         else {
                             input.skip(fieldType);
@@ -2202,12 +2245,13 @@ export namespace Calculator {
             };
         }
     };
-    export class CheckOptionalResult extends thrift.StructLike  implements ICheckOptionalResult_Loose {
+    export class CheckOptionalResult extends thrift.StructLike  implements ICheckOptionalResult {
         public success?: string;
         constructor(args: ICheckOptionalResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_83: string = args.success;
+                this.success = value_83;
             }
         }
         public static read(input: thrift.TProtocol): CheckOptionalResult {
@@ -2232,8 +2276,8 @@ export namespace Calculator {
             if (obj.success != null) {
                 output.writeFieldBegin("success", thrift.TType.LIST, 0);
                 output.writeListBegin(thrift.TType.I32, obj.success.length);
-                obj.success.forEach((value_42: number): void => {
-                    output.writeI32(value_42);
+                obj.success.forEach((value_84: number): void => {
+                    output.writeI32(value_84);
                 });
                 output.writeListEnd();
                 output.writeFieldEnd();
@@ -2255,15 +2299,15 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.LIST) {
-                            const value_43: Array<number> = new Array<number>();
+                            const value_85: Array<number> = new Array<number>();
                             const metadata_5: thrift.IThriftList = input.readListBegin();
                             const size_5: number = metadata_5.size;
                             for (let i_5: number = 0; i_5 < size_5; i_5++) {
-                                const value_44: number = input.readI32();
-                                value_43.push(value_44);
+                                const value_86: number = input.readI32();
+                                value_85.push(value_86);
                             }
                             input.readListEnd();
-                            _args.success = value_43;
+                            _args.success = value_85;
                         }
                         else {
                             input.skip(fieldType);
@@ -2281,12 +2325,17 @@ export namespace Calculator {
             };
         }
     };
-    export class MapOneListResult extends thrift.StructLike  implements IMapOneListResult_Loose {
+    export class MapOneListResult extends thrift.StructLike  implements IMapOneListResult {
         public success?: Array<number>;
         constructor(args: IMapOneListResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_87: Array<number> = new Array<number>();
+                args.success.forEach((value_88: number): void => {
+                    const value_89: number = value_88;
+                    value_87.push(value_89);
+                });
+                this.success = value_87;
             }
         }
         public static read(input: thrift.TProtocol): MapOneListResult {
@@ -2311,8 +2360,8 @@ export namespace Calculator {
             if (obj.success != null) {
                 output.writeFieldBegin("success", thrift.TType.LIST, 0);
                 output.writeListBegin(thrift.TType.I32, obj.success.length);
-                obj.success.forEach((value_45: number): void => {
-                    output.writeI32(value_45);
+                obj.success.forEach((value_90: number): void => {
+                    output.writeI32(value_90);
                 });
                 output.writeListEnd();
                 output.writeFieldEnd();
@@ -2334,15 +2383,15 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.LIST) {
-                            const value_46: Array<number> = new Array<number>();
+                            const value_91: Array<number> = new Array<number>();
                             const metadata_6: thrift.IThriftList = input.readListBegin();
                             const size_6: number = metadata_6.size;
                             for (let i_6: number = 0; i_6 < size_6; i_6++) {
-                                const value_47: number = input.readI32();
-                                value_46.push(value_47);
+                                const value_92: number = input.readI32();
+                                value_91.push(value_92);
                             }
                             input.readListEnd();
-                            _args.success = value_46;
+                            _args.success = value_91;
                         }
                         else {
                             input.skip(fieldType);
@@ -2360,12 +2409,17 @@ export namespace Calculator {
             };
         }
     };
-    export class MapValuesResult extends thrift.StructLike  implements IMapValuesResult_Loose {
+    export class MapValuesResult extends thrift.StructLike  implements IMapValuesResult {
         public success?: Array<number>;
         constructor(args: IMapValuesResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_93: Array<number> = new Array<number>();
+                args.success.forEach((value_94: number): void => {
+                    const value_95: number = value_94;
+                    value_93.push(value_95);
+                });
+                this.success = value_93;
             }
         }
         public static read(input: thrift.TProtocol): MapValuesResult {
@@ -2390,9 +2444,9 @@ export namespace Calculator {
             if (obj.success != null) {
                 output.writeFieldBegin("success", thrift.TType.MAP, 0);
                 output.writeMapBegin(thrift.TType.STRING, thrift.TType.STRING, obj.success.size);
-                obj.success.forEach((value_48: string, key_3: string): void => {
-                    output.writeString(key_3);
-                    output.writeString(value_48);
+                obj.success.forEach((value_96: string, key_4: string): void => {
+                    output.writeString(key_4);
+                    output.writeString(value_96);
                 });
                 output.writeMapEnd();
                 output.writeFieldEnd();
@@ -2414,16 +2468,16 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.MAP) {
-                            const value_49: Map<string, string> = new Map<string, string>();
+                            const value_97: Map<string, string> = new Map<string, string>();
                             const metadata_7: thrift.IThriftMap = input.readMapBegin();
                             const size_7: number = metadata_7.size;
                             for (let i_7: number = 0; i_7 < size_7; i_7++) {
-                                const key_4: string = input.readString();
-                                const value_50: string = input.readString();
-                                value_49.set(key_4, value_50);
+                                const key_5: string = input.readString();
+                                const value_98: string = input.readString();
+                                value_97.set(key_5, value_98);
                             }
                             input.readMapEnd();
-                            _args.success = value_49;
+                            _args.success = value_97;
                         }
                         else {
                             input.skip(fieldType);
@@ -2441,12 +2495,17 @@ export namespace Calculator {
             };
         }
     };
-    export class ListToMapResult extends thrift.StructLike  implements IListToMapResult_Loose {
+    export class ListToMapResult extends thrift.StructLike  implements IListToMapResult {
         public success?: Map<string, string>;
         constructor(args: IListToMapResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_99: Map<string, string> = new Map<string, string>();
+                args.success.forEach((value_100: string, key_6: string): void => {
+                    const value_101: string = value_100;
+                    value_99.set(key_6, value_101);
+                });
+                this.success = value_99;
             }
         }
         public static read(input: thrift.TProtocol): ListToMapResult {
@@ -2490,8 +2549,8 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.STRUCT) {
-                            const value_51: common.ICommonStruct = common.CommonStructCodec.decode(input);
-                            _args.success = value_51;
+                            const value_102: common.ICommonStruct = common.CommonStructCodec.decode(input);
+                            _args.success = value_102;
                         }
                         else {
                             input.skip(fieldType);
@@ -2509,12 +2568,13 @@ export namespace Calculator {
             };
         }
     };
-    export class FetchThingResult extends thrift.StructLike  implements IFetchThingResult_Loose {
-        public success?: common.ICommonStruct_Loose;
+    export class FetchThingResult extends thrift.StructLike  implements IFetchThingResult {
+        public success?: common.ICommonStruct;
         constructor(args: IFetchThingResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_103: common.ICommonStruct = new common.CommonStruct(args.success);
+                this.success = value_103;
             }
         }
         public static read(input: thrift.TProtocol): FetchThingResult {
@@ -2568,12 +2628,13 @@ export namespace Calculator {
             };
         }
     };
-    export class ZipResult extends thrift.StructLike  implements IZipResult_Loose {
+    export class ZipResult extends thrift.StructLike  implements IZipResult {
         public success?: void;
         constructor(args: IZipResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_104: void = undefined;
+                this.success = value_104;
             }
         }
         public static read(input: thrift.TProtocol): ZipResult {

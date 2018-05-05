@@ -51,12 +51,13 @@ export const CodeCodec: thrift.IStructCodec<ICode_Loose, ICode> = {
         };
     }
 };
-export class Code extends thrift.StructLike  implements ICode_Loose {
-    public status?: number | thrift.Int64;
+export class Code extends thrift.StructLike  implements ICode {
+    public status?: thrift.Int64;
     constructor(args: ICode_Loose = {}) {
         super();
         if (args.status != null) {
-            this.status = args.status;
+            const value_2: thrift.Int64 = (typeof args.status === "number" ? new thrift.Int64(args.status) : args.status);
+            this.status = value_2;
         }
     }
     public static read(input: thrift.TProtocol): Code {
@@ -104,8 +105,8 @@ export namespace MyService {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.TType.STRING) {
-                            const value_2: string = input.readString();
-                            _args.name = value_2;
+                            const value_3: string = input.readString();
+                            _args.name = value_3;
                         }
                         else {
                             input.skip(fieldType);
@@ -128,12 +129,13 @@ export namespace MyService {
             }
         }
     };
-    export class PegArgs extends thrift.StructLike  implements IPegArgs_Loose {
+    export class PegArgs extends thrift.StructLike  implements IPegArgs {
         public name: string;
         constructor(args: IPegArgs_Loose) {
             super();
             if (args.name != null) {
-                this.name = args.name;
+                const value_4: string = args.name;
+                this.name = value_4;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
@@ -180,8 +182,8 @@ export namespace MyService {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.TType.STRUCT) {
-                            const value_3: ICode = CodeCodec.decode(input);
-                            _args.code = value_3;
+                            const value_5: ICode = CodeCodec.decode(input);
+                            _args.code = value_5;
                         }
                         else {
                             input.skip(fieldType);
@@ -199,12 +201,13 @@ export namespace MyService {
             };
         }
     };
-    export class PongArgs extends thrift.StructLike  implements IPongArgs_Loose {
-        public code?: ICode_Loose;
+    export class PongArgs extends thrift.StructLike  implements IPongArgs {
+        public code?: ICode;
         constructor(args: IPongArgs_Loose = {}) {
             super();
             if (args.code != null) {
-                this.code = args.code;
+                const value_6: ICode = new Code(args.code);
+                this.code = value_6;
             }
         }
         public static read(input: thrift.TProtocol): PongArgs {
@@ -248,8 +251,8 @@ export namespace MyService {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.STRING) {
-                            const value_4: string = input.readString();
-                            _args.success = value_4;
+                            const value_7: string = input.readString();
+                            _args.success = value_7;
                         }
                         else {
                             input.skip(fieldType);
@@ -267,12 +270,13 @@ export namespace MyService {
             };
         }
     };
-    export class PegResult extends thrift.StructLike  implements IPegResult_Loose {
+    export class PegResult extends thrift.StructLike  implements IPegResult {
         public success?: string;
         constructor(args: IPegResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_8: string = args.success;
+                this.success = value_8;
             }
         }
         public static read(input: thrift.TProtocol): PegResult {
@@ -316,8 +320,8 @@ export namespace MyService {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.I64) {
-                            const value_5: thrift.Int64 = input.readI64();
-                            _args.success = value_5;
+                            const value_9: thrift.Int64 = input.readI64();
+                            _args.success = value_9;
                         }
                         else {
                             input.skip(fieldType);
@@ -335,12 +339,13 @@ export namespace MyService {
             };
         }
     };
-    export class PongResult extends thrift.StructLike  implements IPongResult_Loose {
-        public success?: number | thrift.Int64;
+    export class PongResult extends thrift.StructLike  implements IPongResult {
+        public success?: thrift.Int64;
         constructor(args: IPongResult_Loose = {}) {
             super();
             if (args.success != null) {
-                this.success = args.success;
+                const value_10: thrift.Int64 = (typeof args.success === "number" ? new thrift.Int64(args.success) : args.success);
+                this.success = value_10;
             }
         }
         public static read(input: thrift.TProtocol): PongResult {

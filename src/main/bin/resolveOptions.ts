@@ -14,7 +14,7 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
         rootDir: '.',
         outDir: './codegen',
         sourceDir: './thrift',
-        target: 'apache',
+        target: 'thrift-server',
         files: []
     }
 

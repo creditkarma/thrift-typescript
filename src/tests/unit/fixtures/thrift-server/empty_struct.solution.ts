@@ -29,7 +29,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
         return {};
     }
 };
-export class MyStruct extends thrift.StructLike  implements IMyStruct_Loose {
+export class MyStruct extends thrift.StructLike  implements IMyStruct {
     constructor(args: IMyStruct_Loose = {}) {
         super();
     }

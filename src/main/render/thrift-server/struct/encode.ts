@@ -30,7 +30,6 @@ import {
     createMethodCallStatement,
     propertyAccessForIdentifier,
     getInitializerForField,
-    throwProtocolException,
 } from '../utils'
 
 import {
@@ -46,7 +45,8 @@ import {
 
 import {
     codecName,
-    looseNameForStruct
+    looseNameForStruct,
+    throwForField,
 } from './utils';
 
 export function createTempVariables(node: InterfaceWithFields, identifiers: IIdentifierMap): Array<ts.VariableStatement> {
@@ -337,24 +337,6 @@ function forEach(
             ts.createBlock(forEachStatements, true) // body
         )
     ])
-}
-
-/**
- * Create the Error for a missing required field
- *
- * EXAMPLE
- *
- * throw new thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
- */
-export function throwForField(field: FieldDefinition): ts.ThrowStatement | undefined {
-    if (field.requiredness === 'required') {
-        return throwProtocolException(
-            'UNKNOWN',
-            `Required field[${field.name.value}] is unset!`
-        )
-    } else {
-        return undefined
-    }
 }
 
 // output.writeStructBegin(<structName>)
