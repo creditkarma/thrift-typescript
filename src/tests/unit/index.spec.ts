@@ -112,6 +112,7 @@ describe('Thrift TypeScript Generator', () => {
                 service MyService {
                     i64 send(1: i64 code);
                     void ping();
+                    void status(1: string code);
                 }
             `;
             const expected: string = readFixture('basic_service', 'thrift-server');
