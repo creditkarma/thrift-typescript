@@ -64,25 +64,12 @@ export namespace MyService {
         }
     }
     export interface IPingArgsArgs {
-        status: string;
     }
     export class PingArgs implements thrift.StructLike {
-        public status: string;
-        constructor(args: IPingArgsArgs) {
-            if (args != null && args.status != null) {
-                this.status = args.status;
-            }
-            else {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field status is unset!");
-            }
+        constructor(args?: IPingArgsArgs) {
         }
         public write(output: thrift.TProtocol): void {
             output.writeStructBegin("PingArgs");
-            if (this.status != null) {
-                output.writeFieldBegin("status", thrift.TType.STRING, 1);
-                output.writeString(this.status);
-                output.writeFieldEnd();
-            }
             output.writeFieldStop();
             output.writeStructEnd();
             return;
@@ -98,15 +85,6 @@ export namespace MyService {
                     break;
                 }
                 switch (fieldId) {
-                    case 1:
-                        if (fieldType === thrift.TType.STRING) {
-                            const value_2: string = input.readString();
-                            _args.status = value_2;
-                        }
-                        else {
-                            input.skip(fieldType);
-                        }
-                        break;
                     default: {
                         input.skip(fieldType);
                     }
@@ -114,12 +92,7 @@ export namespace MyService {
                 input.readFieldEnd();
             }
             input.readStructEnd();
-            if (_args.status !== undefined) {
-                return new PingArgs(_args);
-            }
-            else {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read PingArgs from input");
-            }
+            return new PingArgs(_args);
         }
     }
     export interface ISendResultArgs {
@@ -161,8 +134,8 @@ export namespace MyService {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.I64) {
-                            const value_3: thrift.Int64 = input.readI64();
-                            _args.success = value_3;
+                            const value_2: thrift.Int64 = input.readI64();
+                            _args.success = value_2;
                         }
                         else {
                             input.skip(fieldType);
@@ -273,11 +246,11 @@ export namespace MyService {
                 }
             });
         }
-        public ping(status: string, context?: Context): Promise<void> {
+        public ping(context?: Context): Promise<void> {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("ping", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: PingArgs = new PingArgs({ status });
+            const args: PingArgs = new PingArgs({});
             args.write(output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -307,7 +280,7 @@ export namespace MyService {
     }
     export interface IHandler<Context = any> {
         send(code: thrift.Int64, context?: Context): thrift.Int64 | Promise<thrift.Int64>;
-        ping(status: string, context?: Context): void | Promise<void>;
+        ping(context?: Context): void | Promise<void>;
     }
     export class Processor<Context = any> {
         public _handler: IHandler<Context>;
@@ -367,9 +340,9 @@ export namespace MyService {
         public process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
             return new Promise<void>((resolve, reject): void => {
                 try {
-                    const args: PingArgs = PingArgs.read(input);
+                    PingArgs.read(input);
                     input.readMessageEnd();
-                    resolve(this._handler.ping(args.status, context));
+                    resolve(this._handler.ping(context));
                 }
                 catch (err) {
                     reject(err);
