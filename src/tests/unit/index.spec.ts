@@ -111,7 +111,7 @@ describe('Thrift TypeScript Generator', () => {
             const content: string = `
                 service MyService {
                     i64 send(1: i64 code);
-                    void ping(1: string status);
+                    void ping();
                 }
             `;
             const expected: string = readFixture('basic_service', 'thrift-server');
@@ -166,8 +166,8 @@ describe('Thrift TypeScript Generator', () => {
         it('should correctly generate a type alias for an identifier', () => {
             const content: string = `
                 enum MyEnum {
-                ONE,
-                TWO
+                    ONE,
+                    TWO
                 }
 
                 typedef MyEnum AnotherName
@@ -181,8 +181,8 @@ describe('Thrift TypeScript Generator', () => {
         it('should correctly generate a complex type alias for an identifier', () => {
             const content: string = `
                 enum MyEnum {
-                ONE,
-                TWO
+                    ONE,
+                    TWO
                 }
 
                 typedef i32 MyInt
@@ -202,9 +202,9 @@ describe('Thrift TypeScript Generator', () => {
         it('should correctly generate an enum', () => {
             const content: string = `
                 enum MyEnum {
-                ONE,
-                TWO,
-                THREE
+                    ONE,
+                    TWO,
+                    THREE
                 }
             `;
             const expected: string = readFixture('basic_enum');
@@ -216,9 +216,9 @@ describe('Thrift TypeScript Generator', () => {
         it('should correctly generate an enum with member initializer', () => {
             const content: string = `
                 enum MyEnum {
-                ONE = 5,
-                TWO = 3,
-                THREE = 6
+                    ONE = 5,
+                    TWO = 3,
+                    THREE = 6
                 }
             `;
             const expected: string = readFixture('field_initialized_enum');

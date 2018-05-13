@@ -236,6 +236,7 @@ export namespace MyService {
         public process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
             new Promise<void>((resolve, reject): void => {
                 try {
+                    PingArgs.read(input);
                     input.readMessageEnd();
                     resolve(this._handler.ping());
                 }

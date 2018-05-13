@@ -59,7 +59,7 @@ describe('Thrift TypeScript', () => {
         done()
     })
 
-    it('should call an endpoint with no arguments', async () => {
+    it('should corrently handle a void service client request', async () => {
         return thriftClient.ping().then((val: any) => {
             assert.equal(val, undefined)
         })

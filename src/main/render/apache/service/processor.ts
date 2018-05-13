@@ -311,21 +311,30 @@ function createProcessFunctionMethod(service: ServiceDefinition, funcDef: Functi
                         ts.createBlock([
                         ...(funcDef.fields.length > 0) ?
                             [ createConstStatement(
-                            COMMON_IDENTIFIERS.args,
-                            ts.createTypeReferenceNode(
-                                ts.createIdentifier(createStructArgsName(funcDef)),
-                                undefined
-                            ),
-                            ts.createCall(
-                                ts.createPropertyAccess(
-                                ts.createIdentifier(createStructArgsName(funcDef)),
-                                ts.createIdentifier('read')
+                                COMMON_IDENTIFIERS.args,
+                                ts.createTypeReferenceNode(
+                                    ts.createIdentifier(createStructArgsName(funcDef)),
+                                    undefined
                                 ),
-                                undefined,
-                                [ COMMON_IDENTIFIERS.input ]
-                            )
+                                ts.createCall(
+                                    ts.createPropertyAccess(
+                                    ts.createIdentifier(createStructArgsName(funcDef)),
+                                    ts.createIdentifier('read')
+                                    ),
+                                    undefined,
+                                    [ COMMON_IDENTIFIERS.input ]
+                                )
                             ) ] :
-                            [],
+                            [
+                                ts.createStatement(ts.createCall(
+                                    ts.createPropertyAccess(
+                                    ts.createIdentifier(createStructArgsName(funcDef)),
+                                    ts.createIdentifier('read')
+                                    ),
+                                    undefined,
+                                    [ COMMON_IDENTIFIERS.input ]
+                                ))
+                            ],
                         // input.readMessageEnd();
                         createMethodCallStatement(
                             COMMON_IDENTIFIERS.input,
