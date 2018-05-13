@@ -95,6 +95,65 @@ export namespace MyService {
             return new PingArgs(_args);
         }
     }
+    export interface IStatusArgsArgs {
+        code: string;
+    }
+    export class StatusArgs implements thrift.StructLike {
+        public code: string;
+        constructor(args: IStatusArgsArgs) {
+            if (args != null && args.code != null) {
+                this.code = args.code;
+            }
+            else {
+                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field code is unset!");
+            }
+        }
+        public write(output: thrift.TProtocol): void {
+            output.writeStructBegin("StatusArgs");
+            if (this.code != null) {
+                output.writeFieldBegin("code", thrift.TType.STRING, 1);
+                output.writeString(this.code);
+                output.writeFieldEnd();
+            }
+            output.writeFieldStop();
+            output.writeStructEnd();
+            return;
+        }
+        public static read(input: thrift.TProtocol): StatusArgs {
+            input.readStructBegin();
+            let _args: any = {};
+            while (true) {
+                const ret: thrift.IThriftField = input.readFieldBegin();
+                const fieldType: thrift.TType = ret.fieldType;
+                const fieldId: number = ret.fieldId;
+                if (fieldType === thrift.TType.STOP) {
+                    break;
+                }
+                switch (fieldId) {
+                    case 1:
+                        if (fieldType === thrift.TType.STRING) {
+                            const value_2: string = input.readString();
+                            _args.code = value_2;
+                        }
+                        else {
+                            input.skip(fieldType);
+                        }
+                        break;
+                    default: {
+                        input.skip(fieldType);
+                    }
+                }
+                input.readFieldEnd();
+            }
+            input.readStructEnd();
+            if (_args.code !== undefined) {
+                return new StatusArgs(_args);
+            }
+            else {
+                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read StatusArgs from input");
+            }
+        }
+    }
     export interface ISendResultArgs {
         success?: number | thrift.Int64;
     }
@@ -134,8 +193,8 @@ export namespace MyService {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.I64) {
-                            const value_2: thrift.Int64 = input.readI64();
-                            _args.success = value_2;
+                            const value_3: thrift.Int64 = input.readI64();
+                            _args.success = value_3;
                         }
                         else {
                             input.skip(fieldType);
@@ -194,6 +253,51 @@ export namespace MyService {
             }
             input.readStructEnd();
             return new PingResult(_args);
+        }
+    }
+    export interface IStatusResultArgs {
+        success?: void;
+    }
+    export class StatusResult implements thrift.StructLike {
+        public success?: void;
+        constructor(args?: IStatusResultArgs) {
+            if (args != null && args.success != null) {
+                this.success = args.success;
+            }
+        }
+        public write(output: thrift.TProtocol): void {
+            output.writeStructBegin("StatusResult");
+            output.writeFieldStop();
+            output.writeStructEnd();
+            return;
+        }
+        public static read(input: thrift.TProtocol): StatusResult {
+            input.readStructBegin();
+            let _args: any = {};
+            while (true) {
+                const ret: thrift.IThriftField = input.readFieldBegin();
+                const fieldType: thrift.TType = ret.fieldType;
+                const fieldId: number = ret.fieldId;
+                if (fieldType === thrift.TType.STOP) {
+                    break;
+                }
+                switch (fieldId) {
+                    case 0:
+                        if (fieldType === thrift.TType.VOID) {
+                            input.skip(fieldType);
+                        }
+                        else {
+                            input.skip(fieldType);
+                        }
+                        break;
+                    default: {
+                        input.skip(fieldType);
+                    }
+                }
+                input.readFieldEnd();
+            }
+            input.readStructEnd();
+            return new StatusResult(_args);
         }
     }
     export class Client<Context = any> {
@@ -277,10 +381,42 @@ export namespace MyService {
                 }
             });
         }
+        public status(code: string, context?: Context): Promise<void> {
+            const writer: thrift.TTransport = new this.transport();
+            const output: thrift.TProtocol = new this.protocol(writer);
+            output.writeMessageBegin("status", thrift.MessageType.CALL, this.incrementRequestId());
+            const args: StatusArgs = new StatusArgs({ code });
+            args.write(output);
+            output.writeMessageEnd();
+            return this.connection.send(writer.flush(), context).then((data: Buffer) => {
+                const reader: thrift.TTransport = this.transport.receiver(data);
+                const input: thrift.TProtocol = new this.protocol(reader);
+                try {
+                    const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
+                    if (fieldName === "status") {
+                        if (messageType === thrift.MessageType.EXCEPTION) {
+                            const err: thrift.TApplicationException = thrift.TApplicationException.read(input);
+                            input.readMessageEnd();
+                            return Promise.reject(err);
+                        }
+                        const result: StatusResult = StatusResult.read(input);
+                        input.readMessageEnd();
+                        return Promise.resolve(result.success);
+                    }
+                    else {
+                        return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.WRONG_METHOD_NAME, "Received a response to an unknown RPC function: " + fieldName));
+                    }
+                }
+                catch (err) {
+                    return Promise.reject(err);
+                }
+            });
+        }
     }
     export interface IHandler<Context = any> {
         send(code: thrift.Int64, context?: Context): thrift.Int64 | Promise<thrift.Int64>;
         ping(context?: Context): void | Promise<void>;
+        status(code: string, context?: Context): void | Promise<void>;
     }
     export class Processor<Context = any> {
         public _handler: IHandler<Context>;
@@ -299,6 +435,9 @@ export namespace MyService {
                     }
                     case "process_ping": {
                         resolve(this.process_ping(requestId, input, output, context));
+                    }
+                    case "process_status": {
+                        resolve(this.process_status(requestId, input, output, context));
                     }
                     default: {
                         input.skip(thrift.TType.STRUCT);
@@ -356,6 +495,30 @@ export namespace MyService {
             }).catch((err: Error): Buffer => {
                 const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
                 output.writeMessageBegin("ping", thrift.MessageType.EXCEPTION, requestId);
+                result.write(output);
+                output.writeMessageEnd();
+                return output.flush();
+            });
+        }
+        public process_status(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+            return new Promise<void>((resolve, reject): void => {
+                try {
+                    const args: StatusArgs = StatusArgs.read(input);
+                    input.readMessageEnd();
+                    resolve(this._handler.status(args.code, context));
+                }
+                catch (err) {
+                    reject(err);
+                }
+            }).then((data: void): Buffer => {
+                const result: StatusResult = new StatusResult({ success: data });
+                output.writeMessageBegin("status", thrift.MessageType.REPLY, requestId);
+                result.write(output);
+                output.writeMessageEnd();
+                return output.flush();
+            }).catch((err: Error): Buffer => {
+                const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+                output.writeMessageBegin("status", thrift.MessageType.EXCEPTION, requestId);
                 result.write(output);
                 output.writeMessageEnd();
                 return output.flush();
