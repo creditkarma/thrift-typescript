@@ -58,7 +58,6 @@ describe('Thrift TypeScript Resolver', () => {
       ast: parseThriftString(content),
     }
     const actual: IResolvedFile = resolveFile(mockParsedFile)
-    console.log('actual: ', JSON.stringify(actual, null, 4))
     const expected: IResolvedFile = objectify(readFixture('import-identifiers-types'))
 
     assert.deepEqual(objectify(actual), expected)
