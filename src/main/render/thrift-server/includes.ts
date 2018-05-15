@@ -1,19 +1,19 @@
-import * as ts from 'typescript'
 import * as path from 'path'
+import * as ts from 'typescript'
 
 import {
-  ThriftStatement,
-  SyntaxType,
   ConstDefinition,
+  SyntaxType,
+  ThriftStatement,
   TypedefDefinition,
 } from '@creditkarma/thrift-parser'
 
 import {
-  IRenderedFileMap,
-  IResolvedIncludeMap,
-  IResolvedIdentifier,
   IRenderedFile,
+  IRenderedFileMap,
   IResolvedFile,
+  IResolvedIdentifier,
+  IResolvedIncludeMap,
 } from '../../types'
 
 function constUsesThrift(statement: ConstDefinition): boolean {
@@ -51,8 +51,8 @@ function statementUsesThrift(statement: ThriftStatement): boolean {
 }
 
 export function fileUsesThrift(resolvedFile: IResolvedFile): boolean {
-  for (let i = 0; i < resolvedFile.body.length; i++) {
-    if (statementUsesThrift(resolvedFile.body[i])) {
+  for (const statement of resolvedFile.body) {
+    if (statementUsesThrift(statement)) {
       return true
     }
   }
@@ -72,7 +72,7 @@ export function renderThriftImports(): ts.ImportDeclaration {
     undefined,
     ts.createImportClause(
       undefined,
-      ts.createNamespaceImport(ts.createIdentifier('thrift'))
+      ts.createNamespaceImport(ts.createIdentifier('thrift')),
     ),
     ts.createLiteral('@creditkarma/thrift-server-core'),
   )

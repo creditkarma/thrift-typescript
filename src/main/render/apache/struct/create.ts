@@ -1,13 +1,13 @@
 import * as ts from 'typescript'
 
 import {
-    InterfaceWithFields,
     FieldDefinition,
+    InterfaceWithFields,
     SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
-    IIdentifierMap
+    IIdentifierMap,
 } from '../../../types'
 
 import {
@@ -15,15 +15,15 @@ import {
 } from '../utils'
 
 import {
-    createClassConstructor,
     createAssignmentStatement,
-    propertyAccessForIdentifier,
+    createClassConstructor,
     createNotNullCheck,
+    propertyAccessForIdentifier,
 } from '../../shared/utils'
 
 import {
     COMMON_IDENTIFIERS,
-} from '../../shared/identifiers';
+} from '../../shared/identifiers'
 
 import {
     createArgsParameterForStruct,
@@ -31,7 +31,7 @@ import {
 } from '../../shared/struct'
 
 import {
-    interfaceNameForClass
+    interfaceNameForClass,
 } from '../../shared/interface'
 
 import { createReadMethod } from './read'
@@ -60,7 +60,7 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
     // Build the constructor body
     const ctor: ts.ConstructorDeclaration = createClassConstructor(
         [ argsParameter ],
-        [ ...fieldAssignments ]
+        [ ...fieldAssignments ],
     )
 
     // Build the `read` method
@@ -80,8 +80,8 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
             ...fields,
             ctor,
             writeMethod,
-            readMethod
-        ]
+            readMethod,
+        ],
     )
 }
 
@@ -117,7 +117,7 @@ export function assignmentForField(field: FieldDefinition): ts.Statement {
             ts.createBinary(
                 ts.createTypeOf(ts.createIdentifier(`args.${field.name.value}`)),
                 ts.SyntaxKind.EqualsEqualsEqualsToken,
-                ts.createLiteral('number')
+                ts.createLiteral('number'),
             ),
             ts.createBlock([
                 createAssignmentStatement(
@@ -126,22 +126,22 @@ export function assignmentForField(field: FieldDefinition): ts.Statement {
                         COMMON_IDENTIFIERS.Int64,
                         undefined,
                         [
-                        ts.createIdentifier(`args.${field.name.value}`)
-                        ]
-                    )
-                )
+                        ts.createIdentifier(`args.${field.name.value}`),
+                        ],
+                    ),
+                ),
             ], true),
             ts.createBlock([
                 createAssignmentStatement(
                     propertyAccessForIdentifier('this', field.name.value),
-                    propertyAccessForIdentifier('args', field.name.value)
-                )
-            ], true)
+                    propertyAccessForIdentifier('args', field.name.value),
+                ),
+            ], true),
         )
     } else {
         return createAssignmentStatement(
             propertyAccessForIdentifier('this', field.name.value),
-            propertyAccessForIdentifier('args', field.name.value)
+            propertyAccessForIdentifier('args', field.name.value),
         )
     }
 }
@@ -159,7 +159,7 @@ export function throwForField(field: FieldDefinition): ts.ThrowStatement | undef
     if (field.requiredness === 'required') {
         return throwProtocolException(
             'UNKNOWN',
-            `Required field ${field.name.value} is unset!`
+            `Required field ${field.name.value} is unset!`,
         )
     } else {
         return undefined

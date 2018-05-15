@@ -1,23 +1,23 @@
 import {
-    ThriftStatement,
-    SyntaxType,
-    FieldDefinition,
-    FunctionDefinition,
+    ConstValue,
+    createBooleanLiteral,
     EnumDefinition,
     EnumMember,
+    FieldDefinition,
     FieldID,
-    TextLocation,
-    ConstValue,
-    FunctionType,
     FieldType,
-    PropertyAssignment,
+    FunctionDefinition,
+    FunctionType,
     Identifier,
-    createBooleanLiteral
+    PropertyAssignment,
+    SyntaxType,
+    TextLocation,
+    ThriftStatement,
 } from '@creditkarma/thrift-parser'
 
-import { IResolvedFile, IResolvedIdentifier, ErrorType, IThriftError } from '../types'
+import { ErrorType, IResolvedFile, IResolvedIdentifier, IThriftError } from '../types'
 
-import { fieldTypeToString, constToTypeString } from './utils'
+import { constToTypeString, fieldTypeToString } from './utils'
 
 /**
  * Internal class that we will transform into an IThriftError object before passing to the reporter.
@@ -38,14 +38,14 @@ function createValidationError(message: string, loc: TextLocation): IThriftError
     return {
         type: ErrorType.ValidationError,
         message,
-        loc
+        loc,
     }
 }
 
 function emptyLocation(): TextLocation {
     return {
         start: { line: 0, column: 0, index: 0 },
-        end: { line: 0, column: 0, index: 0 }
+        end: { line: 0, column: 0, index: 0 },
     }
 }
 
@@ -136,7 +136,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
     }
 
     function getIdentifier(loc: TextLocation, ...names: Array<string>): IResolvedIdentifier {
-        for (let name of names) {
+        for (const name of names) {
             if (resolvedFile.identifiers[name]) {
                 return resolvedFile.identifiers[name]
             }
@@ -171,7 +171,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                     fieldType: statement.fieldType,
                     initializer: validateValue(statement.fieldType, statement.initializer),
                     comments: statement.comments,
-                    loc: statement.loc
+                    loc: statement.loc,
                 }
 
             case SyntaxType.StructDefinition:
@@ -180,7 +180,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                     name: statement.name,
                     fields: validateFields(statement.fields),
                     comments: statement.comments,
-                    loc: statement.loc
+                    loc: statement.loc,
                 }
 
             case SyntaxType.UnionDefinition:
@@ -189,7 +189,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                     name: statement.name,
                     fields: validateFields(statement.fields),
                     comments: statement.comments,
-                    loc: statement.loc
+                    loc: statement.loc,
                 }
 
             case SyntaxType.ExceptionDefinition:
@@ -198,7 +198,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                     name: statement.name,
                     fields: validateFields(statement.fields),
                     comments: statement.comments,
-                    loc: statement.loc
+                    loc: statement.loc,
                 }
 
             case SyntaxType.ServiceDefinition:
@@ -208,7 +208,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                     functions: validateFunctions(statement.functions),
                     extends: statement.extends !== null ? validateExtends(statement.extends) : null,
                     comments: statement.comments,
-                    loc: statement.loc
+                    loc: statement.loc,
                 }
 
             default:
@@ -225,7 +225,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
         } else {
             throw new ValidationError(
                 `Service type expected but found type ${resolvedID.definition.type}`,
-                id.loc
+                id.loc,
             )
         }
     }
@@ -235,12 +235,12 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
         const values: Array<number | null> = enumDef.members.reduce(
             (acc: Array<number | null>, next: EnumMember): Array<number | null> => {
                 if (next.initializer !== null) {
-                    return [...acc, parseInt(next.initializer.value.value)]
+                    return [...acc, parseInt(next.initializer.value.value, 10)]
                 } else {
                     return [...acc, null]
                 }
             },
-            []
+            [],
         )
 
         return values.map((next: number | null): number => {
@@ -272,7 +272,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                 const resolvedConst: IResolvedIdentifier = getIdentifier(
                     constValue.loc,
                     baseName,
-                    constValue.value
+                    constValue.value,
                 )
                 if (resolvedConst.resolvedName === enumName) {
                     if (enumMembers(enumDef).indexOf(accessName) > -1) {
@@ -280,13 +280,13 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                     } else {
                         throw new ValidationError(
                             `The value ${accessName} is not a member of enum ${enumDef.name.value}`,
-                            constValue.loc
+                            constValue.loc,
                         )
                     }
                 } else {
                     throw new ValidationError(
                         `The value ${resolvedConst.name} is not assignable to type ${enumDef.name.value}`,
-                        constValue.loc
+                        constValue.loc,
                     )
                 }
 
@@ -296,13 +296,13 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
              */
             case SyntaxType.IntConstant:
                 const acceptedValues: Array<number> = valuesForEnum(enumDef)
-                const intValue: number = parseInt(constValue.value.value)
+                const intValue: number = parseInt(constValue.value.value, 10)
                 if (acceptedValues.indexOf(intValue) > -1) {
                     return constValue
                 } else {
                     throw new ValidationError(
                         `The value ${constValue.value.value} is not assignable to type ${enumDef.name.value}`,
-                        constValue.loc
+                        constValue.loc,
                     )
                 }
 
@@ -311,7 +311,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                     `Value of type ${constToTypeString(constValue)} cannot be assigned to type ${
                         enumDef.name.value
                     }`,
-                    constValue.loc
+                    constValue.loc,
                 )
         }
     }
@@ -321,7 +321,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
             case SyntaxType.ServiceDefinition:
                 throw new ValidationError(
                     `Service ${id.definition.name.value} is being used as a value`,
-                    value.loc
+                    value.loc,
                 )
 
             case SyntaxType.EnumDefinition:
@@ -338,7 +338,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
             case SyntaxType.ExceptionDefinition:
                 throw new ValidationError(
                     `Cannot assign value to type ${id.definition.name.value}`,
-                    value.loc
+                    value.loc,
                 )
 
             default:
@@ -414,7 +414,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                         elements: value.elements.map((next: ConstValue): ConstValue => {
                             return validateValue(expectedType.valueType, next)
                         }),
-                        loc: value.loc
+                        loc: value.loc,
                     }
                 } else {
                     throw typeMismatch(expectedType, value, value.loc)
@@ -427,7 +427,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                         elements: value.elements.map((next: ConstValue): ConstValue => {
                             return validateValue(expectedType.valueType, next)
                         }),
-                        loc: value.loc
+                        loc: value.loc,
                     }
                 } else {
                     throw typeMismatch(expectedType, value, value.loc)
@@ -442,10 +442,10 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                                 type: SyntaxType.PropertyAssignment,
                                 name: validateValue(expectedType.keyType, next.name),
                                 initializer: validateValue(expectedType.valueType, next.initializer),
-                                loc: next.loc
+                                loc: next.loc,
                             }
                         }),
-                        loc: value.loc
+                        loc: value.loc,
                     }
                 } else {
                     throw typeMismatch(expectedType, value, value.loc)
@@ -475,7 +475,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                 } else {
                     throw new ValidationError(
                         `Unable to resolve type of identifier ${fieldType.value}`,
-                        fieldType.loc
+                        fieldType.loc,
                     )
                 }
 
@@ -484,21 +484,21 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                     type: SyntaxType.MapType,
                     keyType: validateFieldType(fieldType.keyType),
                     valueType: validateFieldType(fieldType.valueType),
-                    loc: fieldType.loc
+                    loc: fieldType.loc,
                 }
 
             case SyntaxType.ListType:
                 return {
                     type: SyntaxType.ListType,
                     valueType: validateFieldType(fieldType.valueType),
-                    loc: fieldType.loc
+                    loc: fieldType.loc,
                 }
 
             case SyntaxType.SetType:
                 return {
                     type: SyntaxType.SetType,
                     valueType: validateFieldType(fieldType.valueType),
-                    loc: fieldType.loc
+                    loc: fieldType.loc,
                 }
 
             default:
@@ -508,19 +508,19 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
 
     function validateFields(fields: Array<FieldDefinition>): Array<FieldDefinition> {
         let generatedFieldID: number = 0
-        let usedFieldIDs: Array<number> = []
+        const usedFieldIDs: Array<number> = []
 
         function validateFieldID(fieldID: FieldID | null): FieldID {
             if (fieldID === null) {
                 return {
                     type: SyntaxType.FieldID,
                     value: --generatedFieldID,
-                    loc: emptyLocation()
+                    loc: emptyLocation(),
                 }
             } else if (fieldID.value < 0) {
                 throw new ValidationError(
                     `Field IDs should be positive integers, found ${fieldID.value}`,
-                    fieldID.loc
+                    fieldID.loc,
                 )
             } else if (usedFieldIDs.indexOf(fieldID.value) > -1) {
                 throw new ValidationError(`Found duplicate usage of fieldID: ${fieldID.value}`, fieldID.loc)
@@ -540,7 +540,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                 defaultValue:
                     field.defaultValue !== null ? validateValue(field.fieldType, field.defaultValue) : null,
                 comments: field.comments,
-                loc: field.loc
+                loc: field.loc,
             }
         })
     }
@@ -550,9 +550,9 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
             if (func.oneway && func.returnType.type !== SyntaxType.VoidKeyword) {
                 throw new ValidationError(
                     `Oneway function must have return type of void, instead found ${fieldTypeToString(
-                        func.returnType
+                        func.returnType,
                     )}`,
-                    func.loc
+                    func.loc,
                 )
             }
 
@@ -565,17 +565,17 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                     func.fields.map((next: FieldDefinition) => {
                         next.requiredness = next.requiredness === 'optional' ? 'optional' : 'required'
                         return next
-                    })
+                    }),
                 ),
                 throws: validateFields(
                     func.throws.map((next: FieldDefinition) => {
                         next.requiredness = next.requiredness === 'optional' ? 'optional' : 'required'
                         return next
-                    })
+                    }),
                 ),
                 modifiers: func.modifiers,
                 comments: func.comments,
-                loc: func.loc
+                loc: func.loc,
             }
         })
     }
@@ -588,6 +588,6 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
         includes: resolvedFile.includes,
         identifiers: resolvedFile.identifiers,
         body: validateStatements(),
-        errors: errors
+        errors,
     }
 }

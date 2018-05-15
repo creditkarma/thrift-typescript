@@ -101,8 +101,8 @@ export function typeNodeForFieldType(fieldType: FunctionType, loose: boolean = f
                     createNumberType(),
                     ts.createTypeReferenceNode(
                         COMMON_IDENTIFIERS.Int64,
-                        undefined
-                    )
+                        undefined,
+                    ),
                 ])
             } else {
                 return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Int64, undefined)

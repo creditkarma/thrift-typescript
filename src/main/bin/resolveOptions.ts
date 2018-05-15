@@ -1,7 +1,7 @@
 import { lstatSync } from 'fs'
 
 import {
-  IMakeOptions
+  IMakeOptions,
 } from '../types'
 
 /**
@@ -17,7 +17,7 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
     outDir: './codegen',
     sourceDir: './thrift',
     target: 'apache',
-    files: []
+    files: [],
   }
 
   while (index < len) {
@@ -33,7 +33,7 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
           } else {
             throw new Error(`Provided root directory "${options.rootDir}" isn't a directory`)
           }
-        } catch(e) {
+        } catch (e) {
           throw new Error(`Provided root directory "${options.rootDir}" doesn't exist`)
         }
 

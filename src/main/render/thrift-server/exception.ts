@@ -5,11 +5,11 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-    IIdentifierMap
+    IIdentifierMap,
 } from '../../types'
 
 import {
-    renderStruct
+    renderStruct,
 } from './struct'
 
 export function renderException(node: ExceptionDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {

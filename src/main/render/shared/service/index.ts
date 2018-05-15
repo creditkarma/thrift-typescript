@@ -1,16 +1,16 @@
 import * as ts from 'typescript'
 
 import {
-    FunctionDefinition,
     FieldDefinition,
+    FunctionDefinition,
     ServiceDefinition,
 } from '@creditkarma/thrift-parser'
 
 import { COMMON_IDENTIFIERS } from '../identifiers'
 
 import {
-    typeNodeForFieldType,
     createAnyType,
+    typeNodeForFieldType,
 } from '../types'
 
 import {
@@ -35,18 +35,18 @@ function funcToMethodReducer(acc: Array<ts.MethodSignature>, func: FunctionDefin
                     ts.createTypeReferenceNode('Context', undefined),
                     undefined,
                     true,
-                )
+                ),
             ],
             ts.createUnionTypeNode([
                 typeNodeForFieldType(func.returnType),
                 ts.createTypeReferenceNode(
                     COMMON_IDENTIFIERS.Promise,
-                    [ typeNodeForFieldType(func.returnType) ]
-                )
+                    [ typeNodeForFieldType(func.returnType) ],
+                ),
             ]),
             func.name.value,
             undefined,
-        )
+        ),
     ])
 }
 
@@ -77,7 +77,7 @@ export function renderHandlerInterface(service: ServiceDefinition): Array<ts.Sta
                         COMMON_IDENTIFIERS.Context,
                         undefined,
                         createAnyType(),
-                    )
+                    ),
                 ],
                 [],
                 signatures,
@@ -90,24 +90,24 @@ export function renderHandlerInterface(service: ServiceDefinition): Array<ts.Sta
                     ts.createTypeParameterDeclaration(
                         COMMON_IDENTIFIERS.Context,
                         undefined,
-                        createAnyType()
-                    )
+                        createAnyType(),
+                    ),
                 ],
                 ts.createIntersectionTypeNode([
                     ts.createTypeReferenceNode(
                         ts.createIdentifier('ILocalHandler'),
                         [
-                            ts.createTypeReferenceNode('Context', undefined)
-                        ]
+                            ts.createTypeReferenceNode('Context', undefined),
+                        ],
                     ),
                     ts.createTypeReferenceNode(
                         ts.createIdentifier(`${service.extends.value}.IHandler`),
                         [
-                            ts.createTypeReferenceNode('Context', undefined)
-                        ]
-                    )
-                ])
-            )
+                            ts.createTypeReferenceNode('Context', undefined),
+                        ],
+                    ),
+                ]),
+            ),
         ]
     } else {
         return [
@@ -119,12 +119,12 @@ export function renderHandlerInterface(service: ServiceDefinition): Array<ts.Sta
                     ts.createTypeParameterDeclaration(
                         COMMON_IDENTIFIERS.Context,
                         undefined,
-                        createAnyType()
-                    )
+                        createAnyType(),
+                    ),
                 ],
                 [],
                 signatures,
-            )
+            ),
         ]
     }
 }

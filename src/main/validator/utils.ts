@@ -1,4 +1,4 @@
-import { FunctionType, SyntaxType, ConstValue } from '@creditkarma/thrift-parser'
+import { ConstValue, FunctionType, SyntaxType } from '@creditkarma/thrift-parser'
 
 /**
  * Takes a ConstValue type from our Thrift AST and generated a string representation of the TypeScript
@@ -26,7 +26,7 @@ export function constToTypeString(constValue: ConstValue): string {
 
         case SyntaxType.ConstMap:
             return `Map<${constToTypeString(constValue.properties[0].name)},${constToTypeString(
-                constValue.properties[0].initializer
+                constValue.properties[0].initializer,
             )}>`
 
         default:

@@ -3,12 +3,12 @@ import * as ts from 'typescript'
 
 import {
     IIdentifierMap,
-    IRenderedFileMap,
+    IRenderedCache,
     IRenderedFile,
+    IRenderedFileMap,
+    IRenderer,
     IResolvedFile,
     IResolvedIncludeMap,
-    IRenderer,
-    IRenderedCache
 } from '../types'
 
 import { processStatements } from './iterator'
@@ -35,7 +35,7 @@ export function generateFile(
     outDir: string,
     sourceDir: string,
     resolvedFile: IResolvedFile,
-    cache: IRenderedCache = {}
+    cache: IRenderedCache = {},
 ): IRenderedFile {
     const cacheKey: string = `${resolvedFile.path}/${resolvedFile.name}`
 
@@ -47,16 +47,16 @@ export function generateFile(
             return outFile
         }
 
-        function createIncludes(currentPath: string, includes: IResolvedIncludeMap): IRenderedFileMap {
-            return Object.keys(includes).reduce((acc: IRenderedFileMap, next: string): IRenderedFileMap => {
-                const include: IResolvedFile = includes[next].file
+        function createIncludes(currentPath: string, includesMap: IResolvedIncludeMap): IRenderedFileMap {
+            return Object.keys(includesMap).reduce((acc: IRenderedFileMap, next: string): IRenderedFileMap => {
+                const include: IResolvedFile = includesMap[next].file
                 const renderedFile: IRenderedFile = generateFile(
                     renderer,
                     rootDir,
                     outDir,
                     sourceDir,
                     include,
-                    cache
+                    cache,
                 )
                 acc[next] = renderedFile
                 return acc
@@ -68,7 +68,7 @@ export function generateFile(
         const outPath: string = outPathForFile()
         const statements: Array<ts.Statement> = [
             ...renderer.renderIncludes(outPath, includes, resolvedFile),
-            ...processStatements(resolvedFile.body, identifiers, renderer)
+            ...processStatements(resolvedFile.body, identifiers, renderer),
         ]
 
         cache[cacheKey] = {
@@ -78,7 +78,7 @@ export function generateFile(
             namespace: resolvedFile.namespace,
             statements,
             includes,
-            identifiers
+            identifiers,
         }
     }
 

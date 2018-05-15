@@ -1,19 +1,19 @@
 import * as ts from 'typescript'
 
 import {
-    ConstDefinition
+    ConstDefinition,
 } from '@creditkarma/thrift-parser'
 
 import {
-    typeNodeForFieldType
+    typeNodeForFieldType,
 } from '../shared/types'
 
 import {
-    renderValue
+    renderValue,
 } from './values'
 
 import {
-    createConst
+    createConst,
 } from './utils'
 
 /**

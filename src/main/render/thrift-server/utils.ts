@@ -12,9 +12,9 @@ import {
 } from './types'
 
 import {
-    THRIFT_IDENTIFIERS,
-    PROTOCOL_EXCEPTION,
     APPLICATION_EXCEPTION,
+    PROTOCOL_EXCEPTION,
+    THRIFT_IDENTIFIERS,
 } from './identifiers'
 
 export function createProtocolException(
