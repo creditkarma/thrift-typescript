@@ -1,15 +1,15 @@
 import {
     createWebServer,
+    Int64,
     TBinaryProtocol,
     TBufferedTransport,
-    Int64,
 } from 'thrift'
 
 import {
     Calculator,
+    Choice,
     Operation,
     Work,
-    Choice,
 } from './codegen/calculator/calculator'
 
 import {
@@ -84,30 +84,30 @@ export function createServer(): Server {
         mapOneList(list: Array<number>): Array<number> {
             return list.map((next: number) => next + 1)
         },
-        mapValues(map: Map<string, number>): number[] {
+        mapValues(map: Map<string, number>): Array<number> {
             return Array.from(map.values())
         },
-        listToMap(list: Array<Array<string>>): Map<string,string> {
-            return list.reduce((acc: Map<string,string>, next: Array<string>) => {
+        listToMap(list: Array<Array<string>>): Map<string, string> {
+            return list.reduce((acc: Map<string, string>, next: Array<string>) => {
                 acc.set(next[0], next[1])
                 return acc
             }, new Map())
         },
-    };
+    }
 
     // ServiceOptions: The I/O stack for the service
     const myServiceOpts = {
         handler: myServiceHandler,
         processor: Calculator,
         protocol: TBinaryProtocol,
-        transport: TBufferedTransport
-    };
+        transport: TBufferedTransport,
+    }
 
     // ServerOptions: Define server features
     const serverOpt = {
         services: {
-            '/': myServiceOpts
-        }
+            '/': myServiceOpts,
+        },
     }
 
     // Create and start the web server

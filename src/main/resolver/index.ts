@@ -12,18 +12,18 @@ import {
     FunctionDefinition,
     FunctionType,
     SyntaxType,
-    ThriftStatement
+    ThriftStatement,
 } from '@creditkarma/thrift-parser'
 
 import {
     IIdentifierMap,
     IParsedFile,
+    IResolvedCache,
     IResolvedFile,
     IResolvedFileMap,
     IResolvedIdentifier,
     IResolvedIncludeMap,
     IResolvedNamespace,
-    IResolvedCache
 } from '../types'
 
 import { resolveNamespace } from './utils'
@@ -98,13 +98,13 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
                 acc[next.name] = next
                 return acc
             },
-            {}
+            {},
         )
 
         for (const include of includes) {
             resolvedIncludes[include.name] = {
                 file: include,
-                identifiers: []
+                identifiers: [],
             }
         }
 
@@ -133,7 +133,7 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
                         return {
                             type: SyntaxType.Identifier,
                             value: resolveName(fieldType.value),
-                            loc: fieldType.loc
+                            loc: fieldType.loc,
                         }
                     }
 
@@ -141,14 +141,14 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
                     return {
                         type: SyntaxType.ListType,
                         valueType: resolveFieldType(fieldType.valueType),
-                        loc: fieldType.loc
+                        loc: fieldType.loc,
                     }
 
                 case SyntaxType.SetType:
                     return {
                         type: SyntaxType.SetType,
                         valueType: resolveFieldType(fieldType.valueType),
-                        loc: fieldType.loc
+                        loc: fieldType.loc,
                     }
 
                 case SyntaxType.MapType:
@@ -156,7 +156,7 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
                         type: SyntaxType.MapType,
                         valueType: resolveFieldType(fieldType.valueType),
                         keyType: resolveFieldType(fieldType.keyType),
-                        loc: fieldType.loc
+                        loc: fieldType.loc,
                     }
 
                 default:
@@ -170,7 +170,7 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
                     return {
                         type: SyntaxType.Identifier,
                         value: resolveName(constValue.value),
-                        loc: constValue.loc
+                        loc: constValue.loc,
                     }
 
                 default:
@@ -188,7 +188,7 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
                 comments: func.comments,
                 oneway: func.oneway,
                 modifiers: func.modifiers,
-                loc: func.loc
+                loc: func.loc,
             }
         }
 
@@ -201,7 +201,7 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
                 requiredness: field.requiredness,
                 defaultValue: field.defaultValue !== null ? resolveValue(field.defaultValue) : null,
                 comments: field.comments,
-                loc: field.loc
+                loc: field.loc,
             }
         }
 
@@ -214,7 +214,7 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
                         fieldType: resolveFieldType(statement.fieldType),
                         initializer: resolveValue(statement.initializer),
                         comments: statement.comments,
-                        loc: statement.loc
+                        loc: statement.loc,
                     }
 
                 case SyntaxType.ServiceDefinition:
@@ -226,14 +226,14 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
                                 ? {
                                       type: SyntaxType.Identifier,
                                       value: resolveName(statement.extends.value),
-                                      loc: statement.extends.loc
+                                      loc: statement.extends.loc,
                                   }
                                 : null,
                         functions: statement.functions.map((next: FunctionDefinition) => {
                             return resolveFunction(next)
                         }),
                         comments: statement.comments,
-                        loc: statement.loc
+                        loc: statement.loc,
                     }
 
                 case SyntaxType.StructDefinition:
@@ -242,7 +242,7 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
                         name: statement.name,
                         fields: statement.fields.map(resolveField),
                         comments: statement.comments,
-                        loc: statement.loc
+                        loc: statement.loc,
                     }
 
                 case SyntaxType.UnionDefinition:
@@ -251,7 +251,7 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
                         name: statement.name,
                         fields: statement.fields.map(resolveField),
                         comments: statement.comments,
-                        loc: statement.loc
+                        loc: statement.loc,
                     }
 
                 case SyntaxType.ExceptionDefinition:
@@ -260,7 +260,7 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
                         name: statement.name,
                         fields: statement.fields.map(resolveField),
                         comments: statement.comments,
-                        loc: statement.loc
+                        loc: statement.loc,
                     }
 
                 case SyntaxType.TypedefDefinition:
@@ -269,7 +269,7 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
                         name: statement.name,
                         definitionType: resolveFieldType(statement.definitionType),
                         comments: statement.comments,
-                        loc: statement.loc
+                        loc: statement.loc,
                     }
 
                 default:
@@ -299,7 +299,7 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
                     identifiers[statement.name.value] = {
                         name: statement.name.value,
                         resolvedName: statement.name.value,
-                        definition: statement
+                        definition: statement,
                     }
                     return
 
@@ -326,14 +326,14 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
                     identifiers[resolvedName] = {
                         name: baseIdentifier.name,
                         resolvedName,
-                        definition: baseIdentifier.definition
+                        definition: baseIdentifier.definition,
                     }
 
                     if (!containsIdentifier(pathname, resolvedName)) {
                         const resolvedIdentifier: IResolvedIdentifier = {
                             name: base,
                             resolvedName,
-                            definition: baseIdentifier.definition
+                            definition: baseIdentifier.definition,
                         }
                         resolvedIncludes[pathname].identifiers.push(resolvedIdentifier)
                     }
@@ -386,7 +386,7 @@ export function resolveFile(parsedFile: IParsedFile, cache: IResolvedCache = {})
                 addIdentiferForStatement(resolvedStatement)
                 return resolvedStatement
             }),
-            errors: []
+            errors: [],
         }
     }
 

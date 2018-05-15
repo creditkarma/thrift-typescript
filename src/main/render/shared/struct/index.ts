@@ -1,15 +1,15 @@
 import * as ts from 'typescript'
 
 import {
-    InterfaceWithFields,
     FieldDefinition,
+    InterfaceWithFields,
     // SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
-    renderOptional,
-    hasRequiredField,
     createFunctionParameter,
+    hasRequiredField,
+    renderOptional,
 } from '../utils'
 
 import {
@@ -29,7 +29,7 @@ export function createArgsParameterForStruct(node: InterfaceWithFields): ts.Para
       'args', // param name
       createArgsTypeForStruct(node), // param type
       undefined, // initializer
-      !hasRequiredField(node) // optional?
+      !hasRequiredField(node), // optional?
     )
 }
 
@@ -67,6 +67,6 @@ export function renderFieldDeclarations(field: FieldDefinition): ts.PropertyDecl
       ts.createIdentifier(field.name.value),
       renderOptional(field.requiredness),
       typeNodeForFieldType(field.fieldType),
-      defaultValue
+      defaultValue,
     )
   }

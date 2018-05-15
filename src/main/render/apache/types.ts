@@ -7,13 +7,13 @@ import {
 
 import {
     IIdentifierMap,
-    IResolvedIdentifier
+    IResolvedIdentifier,
 } from '../../types'
 
 import {
-    THRIFT_TYPES,
-    PROTOCOL_EXCEPTION,
     APPLICATION_EXCEPTION,
+    PROTOCOL_EXCEPTION,
+    THRIFT_TYPES,
 } from './identifiers'
 
 export type TProtocolException =
@@ -98,7 +98,7 @@ function thriftTypeForIdentifier(id: IResolvedIdentifier, identifiers: IIdentifi
         case SyntaxType.TypedefDefinition:
             return thriftTypeForFieldType(
                 id.definition.definitionType,
-                identifiers
+                identifiers,
             )
 
         default:
@@ -124,7 +124,7 @@ export function thriftTypeForFieldType(fieldType: FunctionType, identifiers: IId
         case SyntaxType.Identifier:
             return thriftTypeForIdentifier(
                 identifiers[fieldType.value],
-                identifiers
+                identifiers,
             )
 
         case SyntaxType.SetType:

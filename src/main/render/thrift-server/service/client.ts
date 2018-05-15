@@ -1,9 +1,9 @@
 import * as ts from 'typescript'
 
 import {
-    ServiceDefinition,
-    FunctionDefinition,
     FieldDefinition,
+    FunctionDefinition,
+    ServiceDefinition,
     SyntaxType,
 } from '@creditkarma/thrift-parser'
 
@@ -14,7 +14,7 @@ import {
 
 import {
     createStructArgsName,
-    createStructResultName
+    createStructResultName,
 } from './utils'
 
 import {
@@ -23,8 +23,8 @@ import {
 
 import {
     APPLICATION_EXCEPTION,
-    THRIFT_IDENTIFIERS,
     MESSAGE_TYPE,
+    THRIFT_IDENTIFIERS,
 } from '../identifiers'
 
 import {
@@ -32,12 +32,12 @@ import {
 } from '../../shared/identifiers'
 
 import {
-    createFunctionParameter,
-    createClassConstructor,
     createAssignmentStatement,
-    createNotNullCheck,
+    createClassConstructor,
     createConstStatement,
+    createFunctionParameter,
     createMethodCallStatement,
+    createNotNullCheck,
     createProtectedProperty,
 } from '../../shared/utils'
 
@@ -48,14 +48,14 @@ import {
 } from '../../shared/types'
 
 import {
-    renderValue
+    renderValue,
 } from '../../shared/values'
 
 export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
     // private _requestId: number;
     const requestId: ts.PropertyDeclaration = createProtectedProperty(
         '_requestId',
-        createNumberType()
+        createNumberType(),
     )
 
     // public transport: TTransport;
@@ -63,8 +63,8 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
         'transport',
         ts.createTypeReferenceNode(
             THRIFT_IDENTIFIERS.TransportConstructor,
-            undefined
-        )
+            undefined,
+        ),
     )
 
     // public protocol: new (trans: TTransport) => TProtocol;
@@ -73,7 +73,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
         ts.createTypeReferenceNode(
             THRIFT_IDENTIFIERS.ProtocolConstructor,
             undefined,
-        )
+        ),
     )
 
     // private send: (data: Buffer, requestId: number, context: Context) => void;
@@ -96,7 +96,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
             createFunctionParameter(
                 'connection',
                 createConnectionType(),
-            )
+            ),
         ], // parameters
         [
             ...(
@@ -107,14 +107,14 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
                         [],
                         [
                             COMMON_IDENTIFIERS.connection,
-                        ]
-                    ))
+                        ],
+                    )),
                 ] :
                 []
             ),
             createAssignmentStatement(
                 ts.createIdentifier('this._requestId'),
-                ts.createLiteral(0)
+                ts.createLiteral(0),
             ),
             createAssignmentStatement(
                 ts.createIdentifier('this.transport'),
@@ -127,8 +127,8 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
             createAssignmentStatement(
                 ts.createIdentifier('this.connection'),
                 COMMON_IDENTIFIERS.connection,
-            )
-        ] // body
+            ),
+        ], // body
     )
 
     const incrementRequestIdMethod: ts.MethodDeclaration = ts.createMethod(
@@ -145,10 +145,10 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
                 ts.createBinary(
                 ts.createIdentifier('this._requestId'),
                 ts.SyntaxKind.PlusEqualsToken,
-                ts.createLiteral(1)
-                )
-            )
-        ], true)
+                ts.createLiteral(1),
+                ),
+            ),
+        ], true),
     )
 
     const baseMethods: Array<ts.MethodDeclaration> = node.functions.map(createBaseMethodForDefinition)
@@ -163,13 +163,13 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
                         [
                             ts.createTypeReferenceNode(
                                 COMMON_IDENTIFIERS.Context,
-                                undefined
-                            )
+                                undefined,
+                            ),
                         ],
                         ts.createIdentifier(`${node.extends.value}.Client`),
-                    )
-                ]
-            )
+                    ),
+                ],
+            ),
         ] :
         []
     )
@@ -183,8 +183,8 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
             ts.createTypeParameterDeclaration(
                 COMMON_IDENTIFIERS.Context,
                 undefined,
-                createAnyType()
-            )
+                createAnyType(),
+            ),
         ], // type parameters
         heritage, // heritage
         [
@@ -195,7 +195,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
             ctor,
             incrementRequestIdMethod,
             ...baseMethods,
-        ] // body
+        ], // body
     )
 }
 
@@ -227,38 +227,38 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                 ContextType,
                 undefined,
                 true,
-            )
+            ),
         ], // parameters
         ts.createTypeReferenceNode(
           'Promise',
-          [ typeNodeForFieldType(def.returnType) ]
+          [ typeNodeForFieldType(def.returnType) ],
         ), // return type
         ts.createBlock([
             createConstStatement(
                 COMMON_IDENTIFIERS.writer,
                 ts.createTypeReferenceNode(
                     THRIFT_IDENTIFIERS.TTransport,
-                    undefined
+                    undefined,
                 ),
                 ts.createNew(
                     ts.createIdentifier('this.transport'),
                     undefined,
-                    []
-                )
+                    [],
+                ),
             ),
             createConstStatement(
                 COMMON_IDENTIFIERS.output,
                 ts.createTypeReferenceNode(
                     THRIFT_IDENTIFIERS.TProtocol,
-                    undefined
+                    undefined,
                 ),
                 ts.createNew(
                     ts.createIdentifier('this.protocol'),
                     undefined,
                     [
-                        COMMON_IDENTIFIERS.writer
-                    ]
-                )
+                        COMMON_IDENTIFIERS.writer,
+                    ],
+                ),
             ),
             // output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.requestId())
             createMethodCallStatement(
@@ -271,15 +271,15 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                         ts.createIdentifier('this.incrementRequestId'),
                         undefined,
                         [],
-                    )
-                ]
+                    ),
+                ],
             ),
             // const args = new {{ServiceName}}{{nameTitleCase}}Args( { {{#args}}{{fieldName}}, {{/args}} } )
             createConstStatement(
                 COMMON_IDENTIFIERS.args,
                 ts.createTypeReferenceNode(
                     ts.createIdentifier(createStructArgsName(def)),
-                    undefined
+                    undefined,
                 ),
                 ts.createNew(
                     ts.createIdentifier(createStructArgsName(def)),
@@ -288,21 +288,21 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                         ts.createObjectLiteral(
                             def.fields.map((next: FieldDefinition) => {
                                 return ts.createShorthandPropertyAssignment(next.name.value)
-                            })
-                        )
-                    ]
-                )
+                            }),
+                        ),
+                    ],
+                ),
             ),
             // args.write(output)
             createMethodCallStatement(
                 COMMON_IDENTIFIERS.args,
                 'write',
-                [ COMMON_IDENTIFIERS.output ]
+                [ COMMON_IDENTIFIERS.output ],
             ),
             // output.writeMessageEnd()
             createMethodCallStatement(
                 COMMON_IDENTIFIERS.output,
-                'writeMessageEnd'
+                'writeMessageEnd',
             ),
             ts.createReturn(
                 ts.createCall(
@@ -321,8 +321,8 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                                     ts.createTypeReferenceNode(
                                         COMMON_IDENTIFIERS.Buffer,
                                         undefined,
-                                    )
-                                )
+                                    ),
+                                ),
                             ],
                             undefined,
                             undefined,
@@ -339,7 +339,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                                         [
                                             COMMON_IDENTIFIERS.data,
                                         ],
-                                    )
+                                    ),
                                 ),
                                 createConstStatement(
                                     COMMON_IDENTIFIERS.input,
@@ -351,9 +351,9 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                                         ts.createIdentifier('this.protocol'),
                                         undefined,
                                         [
-                                            COMMON_IDENTIFIERS.reader
+                                            COMMON_IDENTIFIERS.reader,
                                         ],
-                                    )
+                                    ),
                                 ),
                                 ts.createTry(
                                     ts.createBlock([
@@ -371,7 +371,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                                                             undefined,
                                                             COMMON_IDENTIFIERS.messageType,
                                                             COMMON_IDENTIFIERS.messageType,
-                                                        )
+                                                        ),
                                                     ]),
                                                     ts.createTypeReferenceNode(
                                                         THRIFT_IDENTIFIERS.IThriftMessage,
@@ -380,13 +380,13 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                                                     ts.createCall(
                                                         ts.createPropertyAccess(
                                                             COMMON_IDENTIFIERS.input,
-                                                            'readMessageBegin'
+                                                            'readMessageBegin',
                                                         ),
                                                         undefined,
                                                         [],
-                                                    )
-                                                )
-                                            ], ts.NodeFlags.Const)
+                                                    ),
+                                                ),
+                                            ], ts.NodeFlags.Const),
                                         ),
                                         ts.createIf(
                                             ts.createBinary(
@@ -409,7 +409,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                                                 // proto.readMessageEnd()
                                                 createMethodCallStatement(
                                                     COMMON_IDENTIFIERS.input,
-                                                    'readMessageEnd'
+                                                    'readMessageEnd',
                                                 ),
 
                                                 // {{#throws}}if (result.{{throwName}} != null) {
@@ -421,13 +421,13 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                                                     ts.createBlock([
                                                         ts.createReturn(
                                                             rejectPromiseWith(
-                                                                ts.createIdentifier(`result.${next.name.value}`)
-                                                            )
-                                                        )
-                                                    ], true)
+                                                                ts.createIdentifier(`result.${next.name.value}`),
+                                                            ),
+                                                        ),
+                                                    ], true),
                                                 )
                                                 }),
-                                                createResultHandler(def)
+                                                createResultHandler(def),
                                             ], true),
                                             ts.createBlock([
                                                 ts.createReturn(
@@ -439,17 +439,17 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                                                                 APPLICATION_EXCEPTION.WRONG_METHOD_NAME,
                                                                 ts.createBinary(
                                                                     ts.createLiteral(
-                                                                        "Received a response to an unknown RPC function: ",
+                                                                        'Received a response to an unknown RPC function: ',
                                                                     ),
                                                                     ts.SyntaxKind.PlusToken,
-                                                                    COMMON_IDENTIFIERS.fieldName
-                                                                )
-                                                            ]
-                                                        )
-                                                    )
-                                                )
+                                                                    COMMON_IDENTIFIERS.fieldName,
+                                                                ),
+                                                            ],
+                                                        ),
+                                                    ),
+                                                ),
                                             ], true),
-                                        )
+                                        ),
                                     ], true),
                                     ts.createCatchClause(
                                         ts.createVariableDeclaration(
@@ -459,18 +459,18 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                                             ts.createReturn(
                                                 rejectPromiseWith(
                                                     COMMON_IDENTIFIERS.err,
-                                                )
+                                                ),
                                             ),
                                         ], true),
                                     ),
                                     undefined,
-                                )
-                            ], true)
-                        )
+                                ),
+                            ], true),
+                        ),
                     ],
-                )
+                ),
             ),
-        ], true) // body
+        ], true), // body
     )
 }
 
@@ -482,13 +482,13 @@ function createConnectionSend(): ts.CallExpression {
             ts.createCall(
                 ts.createPropertyAccess(
                     COMMON_IDENTIFIERS.writer,
-                    'flush'
+                    'flush',
                 ),
                 undefined,
                 [],
             ),
             COMMON_IDENTIFIERS.context,
-        ]
+        ],
     )
 }
 
@@ -499,18 +499,18 @@ function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
             ts.createIdentifier('result'),
             ts.createTypeReferenceNode(
                 ts.createIdentifier(createStructResultName(def)),
-                undefined
+                undefined,
             ),
             ts.createCall(
                 ts.createPropertyAccess(
                     ts.createIdentifier(createStructResultName(def)),
-                    ts.createIdentifier('read')
+                    ts.createIdentifier('read'),
                 ),
                 undefined,
                 [
-                    COMMON_IDENTIFIERS.input
+                    COMMON_IDENTIFIERS.input,
                 ],
-            )
+            ),
         ),
     ]
 }
@@ -520,34 +520,34 @@ function createExceptionHandler(): ts.Statement {
         ts.createBinary(
             COMMON_IDENTIFIERS.messageType,
             ts.SyntaxKind.EqualsEqualsEqualsToken,
-            MESSAGE_TYPE.EXCEPTION
+            MESSAGE_TYPE.EXCEPTION,
         ),
         ts.createBlock([
             createConstStatement(
                 COMMON_IDENTIFIERS.err,
                 ts.createTypeReferenceNode(
                     THRIFT_IDENTIFIERS.TApplicationException,
-                    undefined
+                    undefined,
                 ),
                 ts.createCall(
                     ts.createPropertyAccess(
                         THRIFT_IDENTIFIERS.TApplicationException,
-                        ts.createIdentifier('read')
+                        ts.createIdentifier('read'),
                     ),
                     undefined,
                     [
-                        COMMON_IDENTIFIERS.input
+                        COMMON_IDENTIFIERS.input,
                     ],
-                )
+                ),
             ),
             createMethodCallStatement(
                 COMMON_IDENTIFIERS.input,
-                'readMessageEnd'
+                'readMessageEnd',
             ),
             ts.createReturn(
-                rejectPromiseWith(COMMON_IDENTIFIERS.err)
-            )
-        ], true)
+                rejectPromiseWith(COMMON_IDENTIFIERS.err),
+            ),
+        ], true),
     )
 }
 
@@ -558,7 +558,7 @@ function resolvePromiseWith(result: ts.Expression): ts.CallExpression {
             'resolve',
         ),
         undefined,
-        [ result ]
+        [ result ],
     )
 }
 
@@ -569,14 +569,14 @@ function rejectPromiseWith(result: ts.Expression): ts.CallExpression {
             'reject',
         ),
         undefined,
-        [ result ]
+        [ result ],
     )
 }
 
 function createResultHandler(def: FunctionDefinition): ts.Statement {
     if (def.returnType.type === SyntaxType.VoidKeyword) {
         return ts.createReturn(
-            resolvePromiseWith(ts.createIdentifier('result.success'))
+            resolvePromiseWith(ts.createIdentifier('result.success')),
         )
     } else {
         // {{^isVoid}}
@@ -586,12 +586,12 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
         // {{/isVoid}}
         return ts.createIf(
             createNotNullCheck(
-                ts.createIdentifier('result.success')
+                ts.createIdentifier('result.success'),
             ),
             ts.createBlock([
                 ts.createReturn(
-                    resolvePromiseWith(ts.createIdentifier('result.success'))
-                )
+                    resolvePromiseWith(ts.createIdentifier('result.success')),
+                ),
             ], true),
             ts.createBlock([
                 // return callback(new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, "{{name}} failed: unknown result"))
@@ -599,11 +599,11 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
                     rejectPromiseWith(
                         createApplicationException(
                             'UNKNOWN',
-                            `${def.name.value} failed: unknown result`
-                        )
-                    )
-                )
-            ], true)
+                            `${def.name.value} failed: unknown result`,
+                        ),
+                    ),
+                ),
+            ], true),
         )
     }
 }

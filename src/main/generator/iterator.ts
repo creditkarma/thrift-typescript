@@ -12,7 +12,7 @@ import { IIdentifierMap, IRenderer } from '../types'
 export function renderStatement(
     statement: ThriftStatement,
     identifiers: IIdentifierMap,
-    renderer: IRenderer
+    renderer: IRenderer,
 ): Array<ts.Statement> {
     switch (statement.type) {
         case SyntaxType.ConstDefinition:
@@ -56,7 +56,7 @@ export function renderStatement(
 export function processStatements(
     statements: Array<ThriftStatement>,
     identifiers: IIdentifierMap,
-    renderer: IRenderer
+    renderer: IRenderer,
 ): Array<ts.Statement> {
     return statements.reduce((acc: Array<ts.Statement>, next: ThriftStatement) => {
         return [...acc, ...renderStatement(next, identifiers, renderer)]
