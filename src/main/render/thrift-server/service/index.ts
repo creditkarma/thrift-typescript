@@ -1,94 +1,94 @@
-export * from './client';
-export * from './processor';
+export * from './client'
+export * from './processor'
 
 import * as ts from 'typescript'
 
 import {
-    SyntaxType,
-    StructDefinition,
-    ServiceDefinition,
-    FunctionDefinition,
     FieldDefinition,
-    TextLocation
+    FunctionDefinition,
+    ServiceDefinition,
+    StructDefinition,
+    SyntaxType,
+    TextLocation,
 } from '@creditkarma/thrift-parser'
 
 import {
     createStructArgsName,
-    createStructResultName
+    createStructResultName,
 } from './utils'
 
 import {
-    renderStruct
+    renderStruct,
 } from '../struct'
 
 import {
-    IIdentifierMap
+    IIdentifierMap,
 } from '../../../types'
 
 function emptyLocation(): TextLocation {
     return {
         start: { line: 0, column: 0, index: 0 },
-        end: { line: 0, column: 0, index: 0 }
-    };
+        end: { line: 0, column: 0, index: 0 },
+    }
 }
 
 export function renderArgsStruct(service: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
     return service.functions.reduce((
         acc: Array<ts.Statement>,
-        func: FunctionDefinition
+        func: FunctionDefinition,
     ): Array<ts.Statement> => {
         const argsStruct: StructDefinition = {
             type: SyntaxType.StructDefinition,
             name: {
                 type: SyntaxType.Identifier,
                 value: createStructArgsName(func),
-                loc: emptyLocation()
+                loc: emptyLocation(),
             },
             fields: func.fields.map((next: FieldDefinition) => {
                 next.requiredness = (next.requiredness === 'optional') ? 'optional' : 'required'
                 return next
             }),
             comments: [],
-            loc: emptyLocation()
-        };
+            loc: emptyLocation(),
+        }
 
         return [
             ...acc,
-            ...renderStruct(argsStruct, identifiers)
-        ];
-    }, []);
+            ...renderStruct(argsStruct, identifiers),
+        ]
+    }, [])
 }
 
 export function renderResultStruct(service: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
     return service.functions.reduce((
         acc: Array<ts.Statement>,
-        func: FunctionDefinition
+        func: FunctionDefinition,
     ): Array<ts.Statement> => {
-        var fieldID: number = 0;
+        let fieldID: number = 0
         const resultStruct: StructDefinition = {
             type: SyntaxType.StructDefinition,
             name: {
                 type: SyntaxType.Identifier,
                 value: createStructResultName(func),
-                loc: emptyLocation()
+                loc: emptyLocation(),
             },
             fields: [{
                 type: SyntaxType.FieldDefinition,
                 name: {
                     type: SyntaxType.Identifier,
                     value: 'success',
-                    loc: emptyLocation()
+                    loc: emptyLocation(),
                 },
                 fieldID: {
                     type: SyntaxType.FieldID,
                     value: (fieldID++),
-                    loc: emptyLocation()
+                    loc: emptyLocation(),
                 },
                 requiredness: 'optional',
                 fieldType: func.returnType,
                 defaultValue: null,
                 comments: [],
-                loc: emptyLocation()
+                loc: emptyLocation(),
             },
             ...func.throws.map((next: FieldDefinition): FieldDefinition => {
                 return {
@@ -97,22 +97,22 @@ export function renderResultStruct(service: ServiceDefinition, identifiers: IIde
                     fieldID: {
                         type: SyntaxType.FieldID,
                         value: (fieldID++),
-                        loc: emptyLocation()
+                        loc: emptyLocation(),
                     },
                     requiredness: 'optional',
                     fieldType: next.fieldType,
                     defaultValue: null,
                     comments: [],
-                    loc: emptyLocation()
+                    loc: emptyLocation(),
                 }
             })],
             comments: [],
             loc: emptyLocation(),
-        };
+        }
 
         return [
             ...acc,
-            ...renderStruct(resultStruct, identifiers)
-        ];
-    }, []);
+            ...renderStruct(resultStruct, identifiers),
+        ]
+    }, [])
 }

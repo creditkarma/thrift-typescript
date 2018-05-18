@@ -10,6 +10,10 @@ function loadSolution(name: string): any {
     return JSON.parse(fs.readFileSync(path.join(__dirname, `./fixtures/resolver/${name}.solution.json`), 'utf-8'))
 }
 
+function objectify(thrift: any): any {
+    return JSON.parse(JSON.stringify(thrift))
+}
+
 describe('Thrift TypeScript Resolver', () => {
     it('should find and resolve imported identifiers as types', () => {
         const content: string = `
@@ -42,7 +46,7 @@ describe('Thrift TypeScript Resolver', () => {
         const actual: IResolvedFile = resolveFile('', mockParsedFile)
         const expected: IResolvedFile = loadSolution('imported-id-types')
 
-        assert.deepEqual(actual.identifiers, expected.identifiers)
+        assert.deepEqual(objectify(actual.identifiers), objectify(expected.identifiers))
     })
 
     it('should find and resolve imported identifiers as values', () => {
@@ -77,6 +81,6 @@ describe('Thrift TypeScript Resolver', () => {
         const actual: IResolvedFile = resolveFile('', mockParsedFile)
         const expected: IResolvedFile = loadSolution('imported-id-values')
 
-        assert.deepEqual(actual.identifiers, expected.identifiers)
+        assert.deepEqual(objectify(actual.identifiers), objectify(expected.identifiers))
     })
 })

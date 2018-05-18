@@ -2,10 +2,10 @@ import * as ts from 'typescript'
 
 import {
     IIdentifierMap,
-    IRenderedFile,
     INamespaceFile,
-    IRenderer,
     IRenderedCache,
+    IRenderedFile,
+    IRenderer,
 } from '../types'
 
 import { processStatements } from './iterator'
@@ -32,7 +32,7 @@ export function generateFile(
     outDir: string,
     sourceDir: string,
     resolvedFile: INamespaceFile,
-    cache: IRenderedCache = {}
+    cache: IRenderedCache = {},
 ): IRenderedFile {
     const cacheKey: string = resolvedFile.namespace.path
 
@@ -40,7 +40,7 @@ export function generateFile(
         const identifiers: IIdentifierMap = resolvedFile.identifiers
         const statements: Array<ts.Statement> = [
             ...renderer.renderIncludes(outDir, resolvedFile.namespace.path, resolvedFile),
-            ...processStatements(resolvedFile.body, identifiers, renderer)
+            ...processStatements(resolvedFile.body, identifiers, renderer),
         ]
 
         cache[cacheKey] = {

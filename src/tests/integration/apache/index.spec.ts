@@ -17,7 +17,7 @@ import {
     LastName,
     Operation,
     Work,
-} from './codegen/calculator/calculator'
+} from './codegen/calculator'
 
 import {
     SharedStruct,

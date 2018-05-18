@@ -1,12 +1,12 @@
 import * as ts from 'typescript'
 
 import {
-    InterfaceWithFields,
     FieldDefinition,
+    InterfaceWithFields,
 } from '@creditkarma/thrift-parser'
 
 import {
-    THRIFT_IDENTIFIERS, COMMON_IDENTIFIERS,
+    COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS,
 } from '../identifiers'
 
 import {
@@ -89,7 +89,7 @@ export function implementsInterface(node: InterfaceWithFields): ts.HeritageClaus
             ts.createExpressionWithTypeArguments(
                 [],
                 ts.createIdentifier(
-                    strictNameForStruct(node)
+                    strictNameForStruct(node),
                 ),
             ),
         ],
@@ -117,7 +117,7 @@ export function throwForField(field: FieldDefinition): ts.ThrowStatement | undef
     if (field.requiredness === 'required' && field.defaultValue === null) {
         return throwProtocolException(
             'UNKNOWN',
-            `Required field[${field.name.value}] is unset!`
+            `Required field[${field.name.value}] is unset!`,
         )
     } else {
         return undefined

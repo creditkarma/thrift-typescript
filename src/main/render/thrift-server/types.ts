@@ -7,20 +7,20 @@ import {
 
 import {
     IIdentifierMap,
-    IResolvedIdentifier
+    IResolvedIdentifier,
 } from '../../types'
 
 import {
-    THRIFT_TYPES,
-    PROTOCOL_EXCEPTION,
     APPLICATION_EXCEPTION,
     COMMON_IDENTIFIERS,
+    PROTOCOL_EXCEPTION,
+    THRIFT_TYPES,
 } from './identifiers'
 
 import {
+    createBooleanType,
     createNumberType,
     createStringType,
-    createBooleanType,
     createVoidType,
 } from '../shared/types'
 
@@ -113,7 +113,7 @@ function thriftTypeForIdentifier(id: IResolvedIdentifier, identifiers: IIdentifi
         case SyntaxType.TypedefDefinition:
             return thriftTypeForFieldType(
                 id.definition.definitionType,
-                identifiers
+                identifiers,
             )
 
         default:
@@ -137,7 +137,7 @@ export function thriftTypeForFieldType(fieldType: FunctionType, identifiers: IId
         case SyntaxType.Identifier:
             return thriftTypeForIdentifier(
                 identifiers[fieldType.value],
-                identifiers
+                identifiers,
             )
 
         case SyntaxType.SetType:
@@ -213,7 +213,7 @@ function typeNodeForIdentifier(id: IResolvedIdentifier, name: string, loose: boo
         case SyntaxType.StructDefinition:
         case SyntaxType.ExceptionDefinition:
         case SyntaxType.UnionDefinition:
-            if (loose == true) {
+            if (loose) {
                 return ts.createTypeReferenceNode(
                     ts.createIdentifier(looseName(name)),
                     undefined,
@@ -250,7 +250,7 @@ export function typeNodeForFieldType(fieldType: FunctionType, identifiers: IIden
                 'Map',
                 [
                     typeNodeForFieldType(fieldType.keyType, identifiers, loose),
-                    typeNodeForFieldType(fieldType.valueType, identifiers, loose)
+                    typeNodeForFieldType(fieldType.valueType, identifiers, loose),
                 ],
             )
 
@@ -272,8 +272,8 @@ export function typeNodeForFieldType(fieldType: FunctionType, identifiers: IIden
                     createNumberType(),
                     ts.createTypeReferenceNode(
                         COMMON_IDENTIFIERS.Int64,
-                        undefined
-                    )
+                        undefined,
+                    ),
                 ])
             } else {
                 return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Int64, undefined)
@@ -285,8 +285,8 @@ export function typeNodeForFieldType(fieldType: FunctionType, identifiers: IIden
                     createStringType(),
                     ts.createTypeReferenceNode(
                         COMMON_IDENTIFIERS.Buffer,
-                        undefined
-                    )
+                        undefined,
+                    ),
                 ])
             } else {
                 return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Buffer, undefined)

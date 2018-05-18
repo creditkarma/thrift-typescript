@@ -11,6 +11,10 @@ function loadSolution(name: string): any {
     return JSON.parse(fs.readFileSync(path.join(__dirname, `./fixtures/validator/${name}.solution.json`), 'utf-8'))
 }
 
+function objectify(thrift: any): any {
+    return JSON.parse(JSON.stringify(thrift))
+}
+
 describe('Thrift TypeScript Validator', () => {
     it('should return error if oneway keyword is not followed by void type', () => {
         const content: string = `
@@ -524,7 +528,7 @@ describe('Thrift TypeScript Validator', () => {
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: IResolvedFile = loadSolution('missing-ids')
 
-        assert.deepEqual(validatedFile.identifiers, expected.identifiers)
+        assert.deepEqual(objectify(validatedFile.identifiers), expected.identifiers)
     })
 
     it('should validate types for includes', () => {
@@ -566,7 +570,7 @@ describe('Thrift TypeScript Validator', () => {
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: IResolvedFile = loadSolution('include-types')
 
-        assert.deepEqual(validatedFile.identifiers, expected.identifiers)
+        assert.deepEqual(objectify(validatedFile.identifiers), expected.identifiers)
     })
 
     it('should not return an error if assigning an int with value 0 or 1 to a bool field', () => {

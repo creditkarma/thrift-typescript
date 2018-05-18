@@ -1,12 +1,12 @@
 import * as ts from 'typescript'
 
 import {
-    InterfaceWithFields,
+    ContainerType,
     FieldDefinition,
-    SyntaxType,
     FieldType,
     FunctionType,
-    ContainerType,
+    InterfaceWithFields,
+    SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -20,13 +20,13 @@ import {
 } from '../identifiers'
 
 import {
+    coerceType,
     createClassConstructor,
+    createConstStatement,
+    createFunctionParameter,
+    createMethodCallStatement,
     createNotNullCheck,
     hasRequiredField,
-    createFunctionParameter,
-    createConstStatement,
-    createMethodCallStatement,
-    coerceType,
 } from '../utils'
 
 import {
@@ -34,18 +34,18 @@ import {
 } from '../values'
 
 import {
-    typeNodeForFieldType,
     createVoidType,
+    typeNodeForFieldType,
 } from '../types'
 
 import {
+    className,
     classNameForStruct,
+    codecNameForStruct,
+    createSuperCall,
+    extendsAbstract,
     implementsInterface,
     looseNameForStruct,
-    codecNameForStruct,
-    extendsAbstract,
-    createSuperCall,
-    className,
     throwForField,
 } from './utils'
 
@@ -95,7 +95,7 @@ export function renderClass(node: InterfaceWithFields, identifiers: IIdentifierM
             ctor,
             createReadMethod(node),
             createWriteMethod(node),
-        ]
+        ],
     )
 }
 
@@ -124,10 +124,10 @@ export function createWriteMethod(node: InterfaceWithFields): ts.MethodDeclarati
                     [
                         COMMON_IDENTIFIERS.this,
                         COMMON_IDENTIFIERS.output,
-                    ]
-                )
-            )
-        ], true)
+                    ],
+                ),
+            ),
+        ], true),
     )
 }
 
@@ -166,10 +166,10 @@ export function createReadMethod(node: InterfaceWithFields): ts.MethodDeclaratio
                             [
                                 COMMON_IDENTIFIERS.input,
                             ],
-                        )
+                        ),
                     ],
-                )
-            )
+                ),
+            ),
         ], true),
     )
 }
@@ -177,14 +177,14 @@ export function createReadMethod(node: InterfaceWithFields): ts.MethodDeclaratio
 export function createOutputParameter(): ts.ParameterDeclaration {
     return createFunctionParameter(
         COMMON_IDENTIFIERS.output, // param name
-        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined) // param type
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined), // param type
     )
 }
 
 export function createInputParameter(): ts.ParameterDeclaration {
     return createFunctionParameter(
         COMMON_IDENTIFIERS.input, // param name
-        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined) // param type
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined), // param type
     )
 }
 
@@ -230,7 +230,7 @@ export function renderFieldDeclarations(field: FieldDefinition, identifiers: IId
                 ts.createToken(ts.SyntaxKind.QuestionToken)
         ),
         typeNodeForFieldType(field.fieldType, identifiers),
-        defaultValue
+        defaultValue,
     )
 }
 
@@ -238,7 +238,7 @@ export function defaultAssignment(
     saveName: ts.Identifier,
     readName: ts.Identifier,
     fieldType: FieldType,
-    identifiers: IIdentifierMap
+    identifiers: IIdentifierMap,
 ): ts.Statement {
     return createConstStatement(
         saveName,
@@ -255,12 +255,12 @@ export function assignmentForField(field: FieldDefinition, identifiers: IIdentif
             field.fieldType,
             valueName,
             ts.createIdentifier(`args.${field.name.value}`),
-            identifiers
+            identifiers,
         ),
         ts.createStatement(ts.createAssignment(
             ts.createIdentifier(`this.${field.name.value}`),
             valueName,
-        ))
+        )),
     ]
 }
 
@@ -288,14 +288,14 @@ export function assignmentForIdentifier(
                     typeNodeForFieldType(fieldType, identifiers),
                     ts.createNew(
                         ts.createIdentifier(
-                            className(id.resolvedName)
+                            className(id.resolvedName),
                         ),
                         undefined,
                         [
                             readName,
                         ],
-                    )
-                )
+                    ),
+                ),
             ]
 
         case SyntaxType.EnumDefinition:
@@ -307,7 +307,7 @@ export function assignmentForIdentifier(
                 id.definition.definitionType,
                 saveName,
                 readName,
-                identifiers
+                identifiers,
             )
 
         default:
@@ -331,7 +331,7 @@ export function assignmentForFieldType(
                 fieldType,
                 saveName,
                 readName,
-                identifiers
+                identifiers,
             )
 
         /**
@@ -367,10 +367,10 @@ export function assignmentForFieldType(
                         COMMON_IDENTIFIERS.Map, // class name
                         [
                             typeNodeForFieldType(fieldType.keyType, identifiers),
-                            typeNodeForFieldType(fieldType.valueType, identifiers)
+                            typeNodeForFieldType(fieldType.valueType, identifiers),
                         ],
                         [],
-                    )
+                    ),
                 ),
                 ...loopOverContainer(field, fieldType, saveName, readName, identifiers),
             ]
@@ -385,7 +385,7 @@ export function assignmentForFieldType(
                         COMMON_IDENTIFIERS.Array, // class name
                         [ typeNodeForFieldType(fieldType.valueType, identifiers) ],
                         [],
-                    )
+                    ),
                 ),
                 ...loopOverContainer(field, fieldType, saveName, readName, identifiers),
             ]
@@ -400,7 +400,7 @@ export function assignmentForFieldType(
                         COMMON_IDENTIFIERS.Set, // class name
                         [ typeNodeForFieldType(fieldType.valueType, identifiers) ],
                         [],
-                    )
+                    ),
                 ),
                 ...loopOverContainer(field, fieldType, saveName, readName, identifiers),
             ]
@@ -412,7 +412,7 @@ export function assignmentForFieldType(
                     saveName,
                     createVoidType(),
                     COMMON_IDENTIFIERS.undefined,
-                )
+                ),
             ]
 
         default:
@@ -454,15 +454,15 @@ export function loopOverContainer(
                                     keyName, // param name
                                     typeNodeForFieldType(fieldType.keyType, identifiers, true), // param type
                                     undefined,
-                                )
+                                ),
                             ],
                             createVoidType(),
                             ts.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
                             ts.createBlock([
                                 ...assignmentForFieldType(field, fieldType.valueType, valueConst, valueParam, identifiers),
-                                createMethodCallStatement(saveName, 'set', [ keyName, valueConst ])
-                            ], true)
-                        )
+                                createMethodCallStatement(saveName, 'set', [ keyName, valueConst ]),
+                            ], true),
+                        ),
                     ],
                 )),
             ]
@@ -493,9 +493,9 @@ export function loopOverContainer(
                             ts.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
                             ts.createBlock([
                                 ...assignmentForFieldType(field, fieldType.valueType, valueConst, valueParam, identifiers),
-                                createMethodCallStatement(saveName, 'push', [ valueConst ])
-                            ], true)
-                        )
+                                createMethodCallStatement(saveName, 'push', [ valueConst ]),
+                            ], true),
+                        ),
                     ],
                 )),
             ]
@@ -526,9 +526,9 @@ export function loopOverContainer(
                             ts.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
                             ts.createBlock([
                                 ...assignmentForFieldType(field, fieldType.valueType, valueConst, valueParam, identifiers),
-                                createMethodCallStatement(saveName, 'add', [ valueConst ])
-                            ], true)
-                        )
+                                createMethodCallStatement(saveName, 'add', [ valueConst ]),
+                            ], true),
+                        ),
                     ],
                 )),
             ]
@@ -552,7 +552,7 @@ export function loopOverContainer(
 export function createFieldAssignment(field: FieldDefinition, identifiers: IIdentifierMap): ts.IfStatement {
     const hasValue: ts.BinaryExpression = createNotNullCheck(ts.createPropertyAccess(
         COMMON_IDENTIFIERS.args,
-        `${field.name.value}`
+        `${field.name.value}`,
     ))
     const thenAssign: Array<ts.Statement> = assignmentForField(field, identifiers)
     const elseThrow: ts.Statement | undefined = throwForField(field)

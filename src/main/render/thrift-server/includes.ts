@@ -1,10 +1,10 @@
-import * as ts from 'typescript'
 import * as path from 'path'
+import * as ts from 'typescript'
 
 import {
-    IResolvedIdentifier,
     INamespaceFile,
     IResolvedFile,
+    IResolvedIdentifier,
 } from '../../types'
 
 /**
@@ -20,8 +20,8 @@ export function renderThriftImports(): ts.ImportDeclaration {
         ts.createImportClause(
             undefined,
             ts.createNamespaceImport(
-                ts.createIdentifier('thrift')
-            )
+                ts.createIdentifier('thrift'),
+            ),
         ),
         ts.createLiteral('@creditkarma/thrift-server-core'),
     )
@@ -53,7 +53,7 @@ export function renderIncludes(
                 ts.createImportClause(
                     undefined,
                     ts.createNamespaceImport(
-                        ts.createIdentifier(name)
+                        ts.createIdentifier(name),
                     ),
                 ),
                 ts.createLiteral(

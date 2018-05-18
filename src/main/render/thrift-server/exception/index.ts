@@ -5,7 +5,7 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-    IIdentifierMap
+    IIdentifierMap,
 } from '../../../types'
 
 import {

@@ -4,11 +4,11 @@ export type ReadMethodName =
     'readString' | 'readBinary' | 'readDouble' | 'readI16' |
     'readI32' | 'readI64' | 'readByte' | 'readBool'
 
-export interface ReadMap {
-    [name: string]: ReadMethodName;
+export interface IReadMap {
+    [name: string]: ReadMethodName
 }
 
-export const READ_METHODS: ReadMap = {
+export const READ_METHODS: IReadMap = {
     [SyntaxType.BoolKeyword]: 'readBool',
     [SyntaxType.BinaryKeyword]: 'readBinary',
     [SyntaxType.StringKeyword]: 'readString',
@@ -24,11 +24,11 @@ export type WriteMethodName =
     'writeString' | 'writeBinary' | 'writeDouble' | 'writeI16' |
     'writeI32' | 'writeI64' | 'writeByte' | 'writeBool'
 
-export interface WriteMap {
-    [name: string]: WriteMethodName;
+export interface IWriteMap {
+    [name: string]: WriteMethodName
 }
 
-export const WRITE_METHODS: WriteMap = {
+export const WRITE_METHODS: IWriteMap = {
     [SyntaxType.BoolKeyword]: 'writeBool',
     [SyntaxType.BinaryKeyword]: 'writeBinary',
     [SyntaxType.StringKeyword]: 'writeString',

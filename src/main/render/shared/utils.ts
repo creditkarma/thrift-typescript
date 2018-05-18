@@ -1,11 +1,11 @@
 import * as ts from 'typescript'
 
 import {
-    InterfaceWithFields,
     FieldDefinition,
     FieldRequired,
+    InterfaceWithFields,
 } from '@creditkarma/thrift-parser'
-import { COMMON_IDENTIFIERS } from './identifiers';
+import { COMMON_IDENTIFIERS } from './identifiers'
 
 /**
  * Create a binary ts.Expression for testing not equal to null
@@ -256,7 +256,7 @@ export function hasRequiredField(struct: InterfaceWithFields): boolean {
 export function createPromise(
     type: ts.TypeNode,
     returnType: ts.TypeNode,
-    body: Array<ts.Statement>
+    body: Array<ts.Statement>,
 ): ts.NewExpression {
     return ts.createNew(
         COMMON_IDENTIFIERS.Promise,

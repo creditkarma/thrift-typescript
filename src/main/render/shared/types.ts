@@ -9,9 +9,7 @@ import {
     COMMON_IDENTIFIERS,
 } from './identifiers'
 
-export interface TypeMapping {
-    (fieldType: FunctionType, loose?: boolean): ts.TypeNode
-}
+export type TypeMapping = (fieldType: FunctionType, loose?: boolean) => ts.TypeNode
 
 export function createVoidType(): ts.TypeNode {
     return ts.createKeywordTypeNode(ts.SyntaxKind.VoidKeyword)

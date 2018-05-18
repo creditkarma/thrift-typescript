@@ -1,39 +1,39 @@
 import * as ts from 'typescript'
 
 import {
-    InterfaceWithFields,
-    FieldDefinition,
-    SyntaxType,
-    FunctionType,
     ContainerType,
+    FieldDefinition,
+    FunctionType,
+    InterfaceWithFields,
+    SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
+    COMMON_IDENTIFIERS,
     THRIFT_IDENTIFIERS,
     THRIFT_TYPES,
-    COMMON_IDENTIFIERS,
 } from '../identifiers'
 
 import {
     createAnyType,
     createNumberType,
-    typeNodeForFieldType,
     thriftTypeForFieldType,
+    typeNodeForFieldType,
 } from '../types'
 
 import {
-    createLetStatement,
+    createAssignmentStatement,
     createConstStatement,
-    propertyAccessForIdentifier,
     createEqualsCheck,
-    hasRequiredField,
+    createFunctionParameter,
+    createLet,
+    createLetStatement,
     createMethodCall,
     createMethodCallStatement,
-    createFunctionParameter,
-    createAssignmentStatement,
-    createLet,
-    throwProtocolException,
     getInitializerForField,
+    hasRequiredField,
+    propertyAccessForIdentifier,
+    throwProtocolException,
 } from '../utils'
 
 import {
@@ -56,7 +56,7 @@ export function createTempVariables(node: InterfaceWithFields): Array<ts.Variabl
                 COMMON_IDENTIFIERS._args,
                 createAnyType(),
                 ts.createObjectLiteral(),
-            )
+            ),
         ]
     } else {
         return []
@@ -76,21 +76,21 @@ export function createDecodeMethod(node: InterfaceWithFields, identifiers: IIden
         'ret',
         ts.createTypeReferenceNode(
             THRIFT_IDENTIFIERS.IThriftField,
-            undefined
+            undefined,
         ),
-        readFieldBegin()
+        readFieldBegin(),
     )
 
     const fieldType: ts.VariableStatement = createConstStatement(
         'fieldType',
         ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.Thrift_Type, undefined),
-        propertyAccessForIdentifier('ret', 'fieldType')
+        propertyAccessForIdentifier('ret', 'fieldType'),
     )
 
     const fieldId: ts.VariableStatement = createConstStatement(
         'fieldId',
         createNumberType(),
-        propertyAccessForIdentifier('ret', 'fieldId')
+        propertyAccessForIdentifier('ret', 'fieldId'),
     )
 
     /**
@@ -101,11 +101,11 @@ export function createDecodeMethod(node: InterfaceWithFields, identifiers: IIden
     const checkStop: ts.IfStatement = ts.createIf(
         createEqualsCheck(
             COMMON_IDENTIFIERS.fieldType,
-            THRIFT_TYPES.STOP
+            THRIFT_TYPES.STOP,
         ),
         ts.createBlock([
-            ts.createBreak()
-        ], true)
+            ts.createBreak(),
+        ], true),
     )
 
     const whileLoop: ts.WhileStatement = ts.createWhile(
@@ -122,12 +122,12 @@ export function createDecodeMethod(node: InterfaceWithFields, identifiers: IIden
                         return createCaseForField(next, identifiers)
                     }),
                     ts.createDefaultClause([
-                        createSkipBlock()
-                    ])
-                ])
+                        createSkipBlock(),
+                    ]),
+                ]),
             ),
             readFieldEnd(),
-        ], true)
+        ], true),
     )
 
     return ts.createMethod(
@@ -140,7 +140,7 @@ export function createDecodeMethod(node: InterfaceWithFields, identifiers: IIden
         [ inputParameter ],
         ts.createTypeReferenceNode(
             ts.createIdentifier(
-                strictNameForStruct(node)
+                strictNameForStruct(node),
             ),
             undefined,
         ), // return type
@@ -157,7 +157,7 @@ export function createDecodeMethod(node: InterfaceWithFields, identifiers: IIden
 export function createInputParameter(): ts.ParameterDeclaration {
     return createFunctionParameter(
         'input', // param name
-        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined) // param type
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined), // param type
     )
 }
 
@@ -169,14 +169,14 @@ export function createCheckForFields(fields: Array<FieldDefinition>): ts.BinaryE
         return ts.createBinary(
             ts.createIdentifier(`_args.${next.name.value}`),
             ts.SyntaxKind.ExclamationEqualsEqualsToken,
-            COMMON_IDENTIFIERS.undefined
+            COMMON_IDENTIFIERS.undefined,
         )
 
     }).reduce((acc: ts.BinaryExpression, next: ts.BinaryExpression) => {
         return ts.createBinary(
             acc,
             ts.SyntaxKind.AmpersandAmpersandToken,
-            next
+            next,
         )
     })
 }
@@ -199,17 +199,17 @@ export function createCaseForField(field: FieldDefinition, identifiers: IIdentif
     const checkType: ts.IfStatement = ts.createIf(
         createEqualsCheck(
             COMMON_IDENTIFIERS.fieldType,
-            thriftTypeForFieldType(field.fieldType, identifiers)
+            thriftTypeForFieldType(field.fieldType, identifiers),
         ),
         ts.createBlock([
             ...readValueForFieldType(
                 field.fieldType,
                 fieldAlias,
-                identifiers
+                identifiers,
             ),
-            ...endReadForField(fieldAlias, field)
+            ...endReadForField(fieldAlias, field),
         ], true),
-        createSkipBlock()
+        createSkipBlock(),
     )
 
     if (field.fieldID !== null) {
@@ -217,8 +217,8 @@ export function createCaseForField(field: FieldDefinition, identifiers: IIdentif
             ts.createLiteral(field.fieldID.value),
             [
                 checkType,
-                ts.createBreak()
-            ]
+                ts.createBreak(),
+            ],
         )
     } else {
         throw new Error(`FieldID on line ${field.loc.start.line} is null`)
@@ -234,8 +234,8 @@ export function endReadForField(fieldName: ts.Identifier, field: FieldDefinition
             return [
                 createAssignmentStatement(
                     ts.createIdentifier(`_args.${field.name.value}`),
-                    fieldName
-                )
+                    fieldName,
+                ),
             ]
     }
 }
@@ -250,9 +250,9 @@ export function createReturnForStruct(node: InterfaceWithFields): ts.Statement {
             ts.createBlock([
                 throwProtocolException(
                     'UNKNOWN',
-                    `Unable to read ${node.name.value} from input`
-                )
-            ], true)
+                    `Unable to read ${node.name.value} from input`,
+                ),
+            ], true),
         )
     } else {
         return createReturnValue(node)
@@ -268,8 +268,8 @@ function createReturnValue(node: InterfaceWithFields): ts.ReturnStatement {
                     getInitializerForField('_args', next),
                 )
             }),
-            true // multiline
-        )
+            true, // multiline
+        ),
     )
 }
 
@@ -301,9 +301,9 @@ export function readValueForIdentifier(
                         ),
                         undefined,
                         [
-                            COMMON_IDENTIFIERS.input
-                        ]
-                    )
+                            COMMON_IDENTIFIERS.input,
+                        ],
+                    ),
                 ),
             ]
 
@@ -312,8 +312,8 @@ export function readValueForIdentifier(
                 createConstStatement(
                     fieldName,
                     typeNodeForFieldType(fieldType, identifiers),
-                    createMethodCall('input', READ_METHODS[SyntaxType.I32Keyword])
-                )
+                    createMethodCall('input', READ_METHODS[SyntaxType.I32Keyword]),
+                ),
             ]
 
         case SyntaxType.TypedefDefinition:
@@ -328,7 +328,7 @@ export function readValueForIdentifier(
 export function readValueForFieldType(
     fieldType: FunctionType,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap
+    identifiers: IIdentifierMap,
 ): Array<ts.Statement> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
@@ -336,7 +336,7 @@ export function readValueForFieldType(
                 identifiers[fieldType.value],
                 fieldType,
                 fieldName,
-                identifiers
+                identifiers,
             )
 
         /**
@@ -360,8 +360,8 @@ export function readValueForFieldType(
                 createConstStatement(
                     fieldName,
                     typeNodeForFieldType(fieldType, identifiers),
-                    createMethodCall('input', READ_METHODS[fieldType.type])
-                )
+                    createMethodCall('input', READ_METHODS[fieldType.type]),
+                ),
             ]
 
         /**
@@ -378,12 +378,12 @@ export function readValueForFieldType(
                         COMMON_IDENTIFIERS.Map, // class name
                         [
                             typeNodeForFieldType(fieldType.keyType, identifiers),
-                            typeNodeForFieldType(fieldType.valueType, identifiers)
+                            typeNodeForFieldType(fieldType.valueType, identifiers),
                         ],
-                        []
-                    )
+                        [],
+                    ),
                 ),
-                ...loopOverContainer(fieldType, fieldName, identifiers)
+                ...loopOverContainer(fieldType, fieldName, identifiers),
             ]
 
         case SyntaxType.ListType:
@@ -394,10 +394,10 @@ export function readValueForFieldType(
                     ts.createNew(
                         COMMON_IDENTIFIERS.Array, // class name
                         [ typeNodeForFieldType(fieldType.valueType, identifiers) ],
-                        []
-                    )
+                        [],
+                    ),
                 ),
-                ...loopOverContainer(fieldType, fieldName, identifiers)
+                ...loopOverContainer(fieldType, fieldName, identifiers),
             ]
 
         case SyntaxType.SetType:
@@ -408,17 +408,17 @@ export function readValueForFieldType(
                     ts.createNew(
                         COMMON_IDENTIFIERS.Set, // class name
                         [ typeNodeForFieldType(fieldType.valueType, identifiers) ],
-                        []
-                    )
+                        [],
+                    ),
                 ),
-                ...loopOverContainer(fieldType, fieldName, identifiers)
+                ...loopOverContainer(fieldType, fieldName, identifiers),
             ]
 
         case SyntaxType.VoidKeyword:
             return [
                 createMethodCallStatement('input', 'skip', [
-                    COMMON_IDENTIFIERS.fieldType
-                ])
+                    COMMON_IDENTIFIERS.fieldType,
+                ]),
             ]
 
         default:
@@ -456,29 +456,29 @@ function loopOverContainer(fieldType: ContainerType, fieldName: ts.Identifier, i
         createConstStatement(
             metadata,
             metadataTypeForFieldType(fieldType),
-            readBeginForFieldType(fieldType)
+            readBeginForFieldType(fieldType),
         ),
         // cosnt size: number = metadata.size
         createConstStatement(
             size,
             createNumberType(),
-            propertyAccessForIdentifier(metadata, 'size')
+            propertyAccessForIdentifier(metadata, 'size'),
         ),
         // for (let i = 0, i < size; i++) { .. }
         ts.createFor(
             createLet(
                 incrementer,
                 createNumberType(),
-                ts.createLiteral(0)
+                ts.createLiteral(0),
             ),
             ts.createLessThan(incrementer, size),
             ts.createPostfixIncrement(incrementer),
             ts.createBlock(
                 loopBody(fieldType, fieldName, identifiers),
-                true
-            )
+                true,
+            ),
         ),
-        ts.createStatement(readEndForFieldType(fieldType))
+        ts.createStatement(readEndForFieldType(fieldType)),
     ]
 }
 
@@ -517,19 +517,19 @@ function loopBody(fieldType: ContainerType, fieldName: ts.Identifier, identifier
             return [
                 ...readValueForFieldType(fieldType.keyType, key, identifiers),
                 ...readValueForFieldType(fieldType.valueType, value, identifiers),
-                createMethodCallStatement(fieldName, 'set', [ key, value ])
+                createMethodCallStatement(fieldName, 'set', [ key, value ]),
             ]
 
         case SyntaxType.ListType:
             return [
                 ...readValueForFieldType(fieldType.valueType, value, identifiers),
-                createMethodCallStatement(fieldName, 'push', [ value ])
+                createMethodCallStatement(fieldName, 'push', [ value ]),
             ]
 
         case SyntaxType.SetType:
             return [
                 ...readValueForFieldType(fieldType.valueType, value, identifiers),
-                createMethodCallStatement(fieldName, 'add', [ value ])
+                createMethodCallStatement(fieldName, 'add', [ value ]),
             ]
     }
 }
@@ -621,12 +621,12 @@ export function readSetEnd(): ts.CallExpression {
 // input.skip(fieldType)
 export function createSkipBlock(): ts.Block {
     return ts.createBlock([
-        createSkipStatement()
+        createSkipStatement(),
     ], true)
 }
 
 function createSkipStatement(): ts.ExpressionStatement {
     return createMethodCallStatement('input', 'skip', [
-        COMMON_IDENTIFIERS.fieldType
+        COMMON_IDENTIFIERS.fieldType,
     ])
 }

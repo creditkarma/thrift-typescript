@@ -2,12 +2,12 @@ import * as ts from 'typescript'
 
 import {
     FieldDefinition,
-    UnionDefinition,
     SyntaxType,
+    UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
 import {
-    IIdentifierMap
+    IIdentifierMap,
 } from '../../types'
 
 import {
@@ -16,14 +16,14 @@ import {
 } from './types'
 
 import {
-    throwProtocolException,
-    createFunctionParameter,
     createClassConstructor,
     createConstStatement,
     createEqualsCheck,
+    createFunctionParameter,
     createLetStatement,
     createNotNullCheck,
     propertyAccessForIdentifier,
+    throwProtocolException,
 } from './utils'
 
 import {
@@ -32,8 +32,9 @@ import {
 
 import {
     assignmentForField,
-    createInputParameter,
+    createArgsParameterForStruct,
     createFieldsForStruct,
+    createInputParameter,
     createSkipBlock,
     createWriteMethod,
     readFieldBegin,
@@ -42,7 +43,6 @@ import {
     readStructEnd,
     readValueForFieldType,
     throwForField,
-    createArgsParameterForStruct,
 } from './struct'
 
 import {
@@ -126,13 +126,13 @@ export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap):
             ctor,
             ...factories,
             writeMethod,
-            readMethod
+            readMethod,
         ], // body
     )
 }
 
 function capitalize(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+    return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
 function createFactoryNameForField(field: FieldDefinition): string {
@@ -145,7 +145,7 @@ function createUnionFactories(node: UnionDefinition, identifiers: IIdentifierMap
             undefined,
             [
                 ts.createToken(ts.SyntaxKind.PublicKeyword),
-                ts.createToken(ts.SyntaxKind.StaticKeyword)
+                ts.createToken(ts.SyntaxKind.StaticKeyword),
             ],
             undefined,
             ts.createIdentifier(createFactoryNameForField(next)),
@@ -154,12 +154,12 @@ function createUnionFactories(node: UnionDefinition, identifiers: IIdentifierMap
             [
                 createFunctionParameter(
                     ts.createIdentifier(next.name.value),
-                    typeNodeForFieldType(next.fieldType)
-                )
+                    typeNodeForFieldType(next.fieldType),
+                ),
             ],
             ts.createTypeReferenceNode(
                 ts.createIdentifier(node.name.value),
-                undefined
+                undefined,
             ),
             ts.createBlock([
                 ts.createReturn(
@@ -168,11 +168,11 @@ function createUnionFactories(node: UnionDefinition, identifiers: IIdentifierMap
                         undefined,
                         [
                             ts.createObjectLiteral([
-                                ts.createShorthandPropertyAssignment(next.name.value)
-                            ])
-                        ]
-                    )
-                )
+                                ts.createShorthandPropertyAssignment(next.name.value),
+                            ]),
+                        ],
+                    ),
+                ),
             ], true),
         )
     })
@@ -215,7 +215,7 @@ function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): t
             ),
             ts.createNull(),
         ]),
-        ts.createNull()
+        ts.createNull(),
     )
 
     // let fieldsSet: number = 0;
@@ -228,21 +228,21 @@ function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): t
             THRIFT_IDENTIFIERS.TField,
             undefined,
         ),
-        readFieldBegin()
+        readFieldBegin(),
     )
 
     // const fieldType: Thrift.Type = ret.fieldType
     const fieldType: ts.VariableStatement = createConstStatement(
         'fieldType',
         ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.Thrift_Type, undefined),
-        propertyAccessForIdentifier('ret', 'ftype')
+        propertyAccessForIdentifier('ret', 'ftype'),
     )
 
-    //const fieldId: number = ret.fieldId
+    // const fieldId: number = ret.fieldId
     const fieldId: ts.VariableStatement = createConstStatement(
         'fieldId',
         createNumberType(),
-        propertyAccessForIdentifier('ret', 'fid')
+        propertyAccessForIdentifier('ret', 'fid'),
     )
 
     /**
@@ -253,7 +253,7 @@ function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): t
     const checkStop: ts.IfStatement = ts.createIf(
         createEqualsCheck(
             COMMON_IDENTIFIERS.fieldType,
-            THRIFT_TYPES.STOP
+            THRIFT_TYPES.STOP,
         ),
         ts.createBlock([
             ts.createBreak(),
@@ -316,11 +316,11 @@ function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): t
                 ts.createBinary(
                     ts.createIdentifier(RETURN_NAME),
                     ts.SyntaxKind.ExclamationEqualsEqualsToken,
-                    ts.createNull()
+                    ts.createNull(),
                 ),
                 ts.createBlock([
                     ts.createReturn(
-                        ts.createIdentifier(RETURN_NAME)
+                        ts.createIdentifier(RETURN_NAME),
                     ),
                 ], true),
                 ts.createBlock([
@@ -328,8 +328,8 @@ function createReadMethod(node: UnionDefinition, identifiers: IIdentifierMap): t
                         'UNKNOWN',
                         'Unable to read data for TUnion',
                     ),
-                ], true)
-            )
+                ], true),
+            ),
         ], true),
     )
 }
@@ -352,18 +352,18 @@ export function createCaseForField(node: UnionDefinition, field: FieldDefinition
     const checkType: ts.IfStatement = ts.createIf(
         createEqualsCheck(
             COMMON_IDENTIFIERS.fieldType,
-            thriftTypeForFieldType(field.fieldType, identifiers)
+            thriftTypeForFieldType(field.fieldType, identifiers),
         ),
         ts.createBlock([
             incrementFieldsSet(),
             ...readValueForFieldType(
                 field.fieldType,
                 fieldAlias,
-                identifiers
+                identifiers,
             ),
-            ...endReadForField(node, fieldAlias, field)
+            ...endReadForField(node, fieldAlias, field),
         ], true),
-        createSkipBlock()
+        createSkipBlock(),
     )
 
     if (field.fieldID !== null) {
@@ -371,8 +371,8 @@ export function createCaseForField(node: UnionDefinition, field: FieldDefinition
             ts.createLiteral(field.fieldID.value),
             [
                 checkType,
-                ts.createBreak()
-            ]
+                ts.createBreak(),
+            ],
         )
     } else {
         throw new Error(`FieldID on line ${field.loc.start.line} is null`)
@@ -391,12 +391,12 @@ function endReadForField(node: UnionDefinition, fieldName: ts.Identifier, field:
                     ts.createCall(
                         ts.createPropertyAccess(
                             ts.createIdentifier(node.name.value),
-                            createFactoryNameForField(field)
+                            createFactoryNameForField(field),
                         ),
                         undefined,
                         [ fieldName ],
-                    )
-                ))
+                    ),
+                )),
             ]
     }
 }

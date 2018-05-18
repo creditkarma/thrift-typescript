@@ -8,8 +8,8 @@ import * as ts from 'typescript'
 
 import {
     FieldDefinition,
-    SyntaxType,
     FunctionType,
+    SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -26,10 +26,10 @@ import {
 } from './utils'
 
 import {
-    THRIFT_IDENTIFIERS,
-    PROTOCOL_EXCEPTION,
     APPLICATION_EXCEPTION,
     COMMON_IDENTIFIERS,
+    PROTOCOL_EXCEPTION,
+    THRIFT_IDENTIFIERS,
 } from './identifiers'
 
 export * from '../shared/utils'
@@ -41,12 +41,12 @@ export function coerceType(valueName: ts.Identifier, fieldType: FunctionType): t
                 ts.createBinary(
                     ts.createTypeOf(valueName),
                     ts.SyntaxKind.EqualsEqualsEqualsToken,
-                    ts.createLiteral('number')
+                    ts.createLiteral('number'),
                 ),
                 ts.createNew(
                     COMMON_IDENTIFIERS.Int64,
                     undefined,
-                    [ valueName ]
+                    [ valueName ],
                 ),
                 valueName,
             ))
@@ -56,12 +56,12 @@ export function coerceType(valueName: ts.Identifier, fieldType: FunctionType): t
                 ts.createBinary(
                     ts.createTypeOf(valueName),
                     ts.SyntaxKind.EqualsEqualsEqualsToken,
-                    ts.createLiteral('string')
+                    ts.createLiteral('string'),
                 ),
                 ts.createCall(
                     ts.createIdentifier('Buffer.from'),
                     undefined,
-                    [ valueName ]
+                    [ valueName ],
                 ),
                 valueName,
             ))
@@ -95,7 +95,7 @@ export function getInitializerForField(objName: string, field: FieldDefinition, 
 }
 
 export function isNotVoid(field: FieldDefinition): boolean {
-    return field.fieldType.type !== SyntaxType.VoidKeyword;
+    return field.fieldType.type !== SyntaxType.VoidKeyword
 }
 
 export function createProtocolException(

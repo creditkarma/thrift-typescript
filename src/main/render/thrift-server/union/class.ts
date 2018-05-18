@@ -1,13 +1,13 @@
 import * as ts from 'typescript'
 
 import {
-    InterfaceWithFields,
     FieldDefinition,
+    InterfaceWithFields,
     UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
 import {
-    IIdentifierMap
+    IIdentifierMap,
 } from '../../../types'
 
 import {
@@ -17,24 +17,24 @@ import {
 
 import {
     createClassConstructor,
-    createNotNullCheck,
     createFunctionParameter,
+    createNotNullCheck,
 } from '../utils'
 
 import {
     classNameForStruct,
-    implementsInterface,
-    extendsAbstract,
     createSuperCall,
+    extendsAbstract,
+    implementsInterface,
     throwForField,
 } from '../struct/utils'
 
 import {
+    assignmentForField as _assignmentForField,
+    createArgsParameterForStruct,
     createReadMethod,
     createWriteMethod,
     renderFieldDeclarations,
-    createArgsParameterForStruct,
-    assignmentForField as _assignmentForField,
 } from '../struct/class'
 
 import {
@@ -91,21 +91,21 @@ export function renderClass(node: UnionDefinition, identifiers: IIdentifierMap):
             ctor,
             createReadMethod(node),
             createWriteMethod(node),
-        ]
+        ],
     )
 }
 
 export function createOutputParameter(): ts.ParameterDeclaration {
     return createFunctionParameter(
         COMMON_IDENTIFIERS.output, // param name
-        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined) // param type
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined), // param type
     )
 }
 
 export function createInputParameter(): ts.ParameterDeclaration {
     return createFunctionParameter(
         COMMON_IDENTIFIERS.input, // param name
-        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined) // param type
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined), // param type
     )
 }
 
@@ -134,7 +134,7 @@ export function createFieldsForStruct(node: InterfaceWithFields, identifiers: II
 export function assignmentForField(field: FieldDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
     return [
         incrementFieldsSet(),
-        ..._assignmentForField(field, identifiers)
+        ..._assignmentForField(field, identifiers),
     ]
 }
 
@@ -155,8 +155,8 @@ export function createFieldAssignment(field: FieldDefinition, identifiers: IIden
     const hasValue: ts.BinaryExpression = createNotNullCheck(
         ts.createPropertyAccess(
             COMMON_IDENTIFIERS.args,
-            `${field.name.value}`
-        )
+            `${field.name.value}`,
+        ),
     )
     const thenAssign: Array<ts.Statement> = assignmentForField(field, identifiers)
     const elseThrow: ts.Statement | undefined = throwForField(field)

@@ -21,9 +21,9 @@ import {
 } from './decode'
 
 import {
-    IIdentifierMap
-} from '../../../types';
-import { codecNameForStruct, looseNameForStruct, strictNameForStruct } from './utils';
+    IIdentifierMap,
+} from '../../../types'
+import { codecNameForStruct, looseNameForStruct, strictNameForStruct } from './utils'
 
 export function renderCodec(node: InterfaceWithFields, identifiers: IIdentifierMap): ts.Statement {
     return ts.createVariableStatement(
@@ -35,18 +35,18 @@ export function renderCodec(node: InterfaceWithFields, identifiers: IIdentifierM
                 [
                     ts.createTypeReferenceNode(
                         ts.createIdentifier(looseNameForStruct(node)),
-                        undefined
+                        undefined,
                     ),
                     ts.createTypeReferenceNode(
                         ts.createIdentifier(strictNameForStruct(node)),
-                        undefined
-                    )
+                        undefined,
+                    ),
                 ],
             ),
             ts.createObjectLiteral([
                 createEncodeMethod(node, identifiers),
                 createDecodeMethod(node, identifiers),
-            ], true)
+            ], true),
         ),
     )
 }

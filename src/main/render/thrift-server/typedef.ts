@@ -1,8 +1,8 @@
 import * as ts from 'typescript'
 
 import {
-    TypedefDefinition,
     SyntaxType,
+    TypedefDefinition,
 } from '@creditkarma/thrift-parser'
 
 import {
@@ -10,21 +10,21 @@ import {
 } from './types'
 
 import {
-    IResolvedIdentifier,
     IIdentifierMap,
+    IResolvedIdentifier,
 } from '../../types'
 
 import {
-    looseName,
-    codecName,
-    strictName,
     className,
+    codecName,
+    looseName,
+    strictName,
 } from './struct/utils'
 
 function renderTypeDefForIdentifier(
     id: IResolvedIdentifier,
     node: TypedefDefinition,
-    typeMapping: TypeMapping
+    typeMapping: TypeMapping,
 ): Array<ts.Statement> {
     switch (id.definition.type) {
         case SyntaxType.ExceptionDefinition:
@@ -54,7 +54,7 @@ function renderTypeDefForIdentifier(
                     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
                     ts.createIdentifier(codecName(node.name.value)),
                     ts.createIdentifier(codecName(id.resolvedName)),
-                )
+                ),
             ]
 
         default:
@@ -64,7 +64,7 @@ function renderTypeDefForIdentifier(
                     [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
                     ts.createIdentifier(node.name.value),
                     ts.createIdentifier(id.resolvedName),
-                )
+                ),
             ]
     }
 }
@@ -86,7 +86,7 @@ export function renderTypeDef(
                     node.name.value,
                     undefined,
                     typeMapping(node.definitionType),
-                )
+                ),
             ]
     }
 }

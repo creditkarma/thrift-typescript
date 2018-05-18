@@ -29,8 +29,8 @@ export function createFieldIncrementer(): ts.VariableStatement {
 export function incrementFieldsSet(): ts.ExpressionStatement {
     return ts.createStatement(
         ts.createPostfixIncrement(
-            ts.createIdentifier(INCREMENTER)
-        )
+            ts.createIdentifier(INCREMENTER),
+        ),
     )
 }
 

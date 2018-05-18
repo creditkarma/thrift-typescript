@@ -1,5 +1,5 @@
+import { NamespaceDefinition, SyntaxType, ThriftDocument, ThriftStatement } from '@creditkarma/thrift-parser'
 import * as path from 'path'
-import { ThriftDocument, ThriftStatement, NamespaceDefinition, SyntaxType } from '@creditkarma/thrift-parser'
 
 import { INamespace, INamespaceMap } from '../types'
 
@@ -37,7 +37,7 @@ export function resolveNamespace(outPath: string, thrift: ThriftDocument): IName
     const statements: Array<NamespaceDefinition> = thrift.body.filter(
         (next: ThriftStatement): next is NamespaceDefinition => {
             return next.type === SyntaxType.NamespaceDefinition
-        }
+        },
     )
 
     return getNamesapce(
@@ -47,11 +47,11 @@ export function resolveNamespace(outPath: string, thrift: ThriftDocument): IName
                 acc[next.scope.value] = {
                     scope: next.scope.value,
                     name: next.name.value,
-                    path: createPathForNamespace(outPath, next.name.value)
+                    path: createPathForNamespace(outPath, next.name.value),
                 }
                 return acc
             },
-            {} as INamespaceMap
-        )
+            {} as INamespaceMap,
+        ),
     )
 }
