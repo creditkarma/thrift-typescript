@@ -36,7 +36,7 @@ The available options are:
 * --rootDir: This is used to resolve out and source directories. Defaults to current directory.
 * --outDir: The directory to save generated files to. Will be created if it doesn't exist. Defaults to 'codegen'.
 * --sourceDir: The directory to search for source Thrift files. Defaults to 'thrift'.
-* --target: The core library to generate for, either 'apache' or 'thrift-server'. Defaults to 'thrift-server'.
+* --target: The core library to generate for, either 'apache' or 'thrift-server'. Defaults to 'apache'.
 
 All other fields are assumed to be source files.
 
@@ -104,10 +104,10 @@ service Caluculator {
 }
 ```
 
-Run codegen for your Thrift service. The `--target` option here is omitted because we are generating for the default, 'thrift-server'.
+Run codegen for your Thrift service. The `target` option is required here, otherwise the generated code will only work with the Apache libs.
 
 ```sh
-$ thrift-typescript --rootDir . --sourceDir thrift --outDir codegen
+$ thrift-typescript --target thrift-server --rootDir . --sourceDir thrift --outDir codegen
 ```
 
 ### Client
@@ -460,10 +460,10 @@ service Calculator {
 }
 ```
 
-Run codegen for your Thrift service. Here the `--target` option is needed as `apache` is not the default target.
+Run codegen for your Thrift service. Here the `--target` option isn't needed as `apache` is the default build target.
 
 ```sh
-$ thrift-typescript --target apache --rootDir . --sourceDir thrift --outDir codegen
+$ thrift-typescript --rootDir . --sourceDir thrift --outDir codegen
 ```
 
 ### Client
