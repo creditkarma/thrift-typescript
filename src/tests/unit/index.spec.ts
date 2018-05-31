@@ -127,8 +127,6 @@ describe('Thrift TypeScript Generator', () => {
             const expected: string = readSolution('complex_nested_struct', 'thrift-server')
             const actual: string = make(content)
 
-            console.log('actual: ', actual)
-
             assert.deepEqual(actual, expected)
         })
 
