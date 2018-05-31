@@ -58,7 +58,7 @@ export const CodeCodec: thrift.IStructCodec<ICode_Loose, ICode> = {
         };
     }
 };
-export class Code extends thrift.StructLike  implements ICode {
+export class Code extends thrift.StructLike implements ICode {
     public status?: thrift.Int64;
     constructor(args: ICode_Loose = {}) {
         super();
@@ -156,7 +156,7 @@ export const SharedStructCodec: thrift.IStructCodec<ISharedStruct_Loose, IShared
         }
     }
 };
-export class SharedStruct extends thrift.StructLike  implements ISharedStruct {
+export class SharedStruct extends thrift.StructLike implements ISharedStruct {
     public code: ICode;
     public value: string;
     constructor(args: ISharedStruct_Loose) {
@@ -274,7 +274,7 @@ export const SharedUnionCodec: thrift.IStructCodec<ISharedUnion_Loose, ISharedUn
         }
     }
 };
-export class SharedUnion extends thrift.StructLike  implements ISharedUnion {
+export class SharedUnion extends thrift.StructLike implements ISharedUnion {
     public option1?: string;
     public option2?: string;
     constructor(args: ISharedUnion_Loose = {}) {
@@ -366,7 +366,7 @@ export namespace SharedService {
             }
         }
     };
-    export class GetStructArgs extends thrift.StructLike  implements IGetStructArgs {
+    export class GetStructArgs extends thrift.StructLike implements IGetStructArgs {
         public key: number;
         constructor(args: IGetStructArgs_Loose) {
             super();
@@ -446,7 +446,7 @@ export namespace SharedService {
             }
         }
     };
-    export class GetUnionArgs extends thrift.StructLike  implements IGetUnionArgs {
+    export class GetUnionArgs extends thrift.StructLike implements IGetUnionArgs {
         public index: number;
         constructor(args: IGetUnionArgs_Loose) {
             super();
@@ -518,7 +518,7 @@ export namespace SharedService {
             };
         }
     };
-    export class GetStructResult extends thrift.StructLike  implements IGetStructResult {
+    export class GetStructResult extends thrift.StructLike implements IGetStructResult {
         public success?: ISharedStruct;
         constructor(args: IGetStructResult_Loose = {}) {
             super();
@@ -587,7 +587,7 @@ export namespace SharedService {
             };
         }
     };
-    export class GetUnionResult extends thrift.StructLike  implements IGetUnionResult {
+    export class GetUnionResult extends thrift.StructLike implements IGetUnionResult {
         public success?: ISharedUnion;
         constructor(args: IGetUnionResult_Loose = {}) {
             super();

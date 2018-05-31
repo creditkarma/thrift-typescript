@@ -69,7 +69,7 @@ export const CodeCodec: thrift.IStructCodec<ICode_Loose, ICode> = {
         };
     }
 };
-export class Code extends thrift.StructLike  implements ICode {
+export class Code extends thrift.StructLike implements ICode {
     public status?: thrift.Int64 = thrift.Int64.fromDecimalString("200");
     public data?: Buffer = Buffer.from("data");
     constructor(args: ICode_Loose = {}) {
@@ -169,7 +169,7 @@ export const MyExceptionCodec: thrift.IStructCodec<IMyException_Loose, IMyExcept
         }
     }
 };
-export class MyException extends thrift.StructLike  implements IMyException {
+export class MyException extends thrift.StructLike implements IMyException {
     public description: string;
     public code?: ICode;
     constructor(args: IMyException_Loose) {

@@ -89,7 +89,7 @@ export const OptionCodec: thrift.IStructCodec<IOption_Loose, IOption> = {
         }
     }
 };
-export class Option extends thrift.StructLike  implements IOption {
+export class Option extends thrift.StructLike implements IOption {
     public option1?: Buffer;
     public option2?: thrift.Int64;
     constructor(args: IOption_Loose = {}) {
@@ -210,7 +210,7 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnion_Loose, IMyUnion> = {
         }
     }
 };
-export class MyUnion extends thrift.StructLike  implements IMyUnion {
+export class MyUnion extends thrift.StructLike implements IMyUnion {
     public name?: string;
     public option?: IOption;
     constructor(args: IMyUnion_Loose = {}) {

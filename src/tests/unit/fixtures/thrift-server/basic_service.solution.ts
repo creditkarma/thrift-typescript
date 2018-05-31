@@ -80,7 +80,7 @@ export const UserCodec: thrift.IStructCodec<IUser_Loose, IUser> = {
         }
     }
 };
-export class User extends thrift.StructLike  implements IUser {
+export class User extends thrift.StructLike implements IUser {
     public name: string;
     public id: number;
     constructor(args: IUser_Loose) {
@@ -169,7 +169,7 @@ export namespace MyService {
             }
         }
     };
-    export class GetUserArgs extends thrift.StructLike  implements IGetUserArgs {
+    export class GetUserArgs extends thrift.StructLike implements IGetUserArgs {
         public id: number;
         constructor(args: IGetUserArgs_Loose) {
             super();
@@ -249,7 +249,7 @@ export namespace MyService {
             }
         }
     };
-    export class SaveUserArgs extends thrift.StructLike  implements ISaveUserArgs {
+    export class SaveUserArgs extends thrift.StructLike implements ISaveUserArgs {
         public user: IUser;
         constructor(args: ISaveUserArgs_Loose) {
             super();
@@ -299,7 +299,7 @@ export namespace MyService {
             return {};
         }
     };
-    export class PingArgs extends thrift.StructLike  implements IPingArgs {
+    export class PingArgs extends thrift.StructLike implements IPingArgs {
         constructor(args: IPingArgs_Loose = {}) {
             super();
         }
@@ -363,7 +363,7 @@ export namespace MyService {
             };
         }
     };
-    export class GetUserResult extends thrift.StructLike  implements IGetUserResult {
+    export class GetUserResult extends thrift.StructLike implements IGetUserResult {
         public success?: IUser;
         constructor(args: IGetUserResult_Loose = {}) {
             super();
@@ -423,7 +423,7 @@ export namespace MyService {
             };
         }
     };
-    export class SaveUserResult extends thrift.StructLike  implements ISaveUserResult {
+    export class SaveUserResult extends thrift.StructLike implements ISaveUserResult {
         public success?: void;
         constructor(args: ISaveUserResult_Loose = {}) {
             super();
@@ -483,7 +483,7 @@ export namespace MyService {
             };
         }
     };
-    export class PingResult extends thrift.StructLike  implements IPingResult {
+    export class PingResult extends thrift.StructLike implements IPingResult {
         public success?: void;
         constructor(args: IPingResult_Loose = {}) {
             super();

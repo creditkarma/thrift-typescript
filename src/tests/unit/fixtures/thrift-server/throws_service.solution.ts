@@ -51,7 +51,7 @@ export const ServiceExceptionCodec: thrift.IStructCodec<IServiceException_Loose,
         };
     }
 };
-export class ServiceException extends thrift.StructLike  implements IServiceException {
+export class ServiceException extends thrift.StructLike implements IServiceException {
     public message?: string;
     constructor(args: IServiceException_Loose = {}) {
         super();
@@ -129,7 +129,7 @@ export namespace MyService {
             }
         }
     };
-    export class PegArgs extends thrift.StructLike  implements IPegArgs {
+    export class PegArgs extends thrift.StructLike implements IPegArgs {
         public name: string;
         constructor(args: IPegArgs_Loose) {
             super();
@@ -201,7 +201,7 @@ export namespace MyService {
             };
         }
     };
-    export class PongArgs extends thrift.StructLike  implements IPongArgs {
+    export class PongArgs extends thrift.StructLike implements IPongArgs {
         public name?: string;
         constructor(args: IPongArgs_Loose = {}) {
             super();
@@ -288,7 +288,7 @@ export namespace MyService {
             };
         }
     };
-    export class PegResult extends thrift.StructLike  implements IPegResult {
+    export class PegResult extends thrift.StructLike implements IPegResult {
         public success?: string;
         public exp?: IServiceException;
         constructor(args: IPegResult_Loose = {}) {
@@ -362,7 +362,7 @@ export namespace MyService {
             };
         }
     };
-    export class PongResult extends thrift.StructLike  implements IPongResult {
+    export class PongResult extends thrift.StructLike implements IPongResult {
         public success?: string;
         constructor(args: IPongResult_Loose = {}) {
             super();

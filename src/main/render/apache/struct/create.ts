@@ -58,11 +58,11 @@ export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifier
      */
     const fieldAssignments: Array<ts.IfStatement> = node.fields.map(createFieldAssignment)
 
-    const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(node)
+    const argsParameter: Array<ts.ParameterDeclaration> = createArgsParameterForStruct(node)
 
     // Build the constructor body
     const ctor: ts.ConstructorDeclaration = createClassConstructor(
-        [ argsParameter ],
+        argsParameter,
         [ ...fieldAssignments ],
     )
 
@@ -231,11 +231,15 @@ export function renderFieldDeclarations(field: FieldDefinition): ts.PropertyDecl
     )
 }
 
-export function createArgsParameterForStruct(node: InterfaceWithFields): ts.ParameterDeclaration {
-    return createFunctionParameter(
-        'args', // param name
-        createArgsTypeForStruct(node), // param type
-        undefined, // initializer
-        !hasRequiredField(node), // optional?
-    )
+export function createArgsParameterForStruct(node: InterfaceWithFields): Array<ts.ParameterDeclaration> {
+    if (node.fields.length > 0) {
+        return [ createFunctionParameter(
+            'args', // param name
+            createArgsTypeForStruct(node), // param type
+            undefined, // initializer
+            !hasRequiredField(node), // optional?
+        ) ]
+    } else {
+        return []
+    }
 }

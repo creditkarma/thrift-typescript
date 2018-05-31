@@ -89,7 +89,7 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnion_Loose, IMyUnion> = {
         }
     }
 };
-export class MyUnion extends thrift.StructLike  implements IMyUnion {
+export class MyUnion extends thrift.StructLike implements IMyUnion {
     public field1?: number;
     public field2?: thrift.Int64;
     constructor(args: IMyUnion_Loose = {}) {

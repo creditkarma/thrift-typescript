@@ -95,14 +95,14 @@ export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap):
         undefined, // else
     )
 
-    const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(node)
+    const argsParameter: Array<ts.ParameterDeclaration> = createArgsParameterForStruct(node)
 
     // let fieldsSet: number = 0;
     const fieldsSet: ts.VariableStatement = createFieldIncrementer()
 
     // Build the constructor body
     const ctor: ts.ConstructorDeclaration = createClassConstructor(
-        [ argsParameter ],
+        argsParameter,
         [ fieldsSet, argsCheckWithAssignments ],
     )
 

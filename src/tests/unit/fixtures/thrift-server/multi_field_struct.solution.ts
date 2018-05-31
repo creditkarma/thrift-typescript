@@ -131,7 +131,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
         }
     }
 };
-export class MyStruct extends thrift.StructLike  implements IMyStruct {
+export class MyStruct extends thrift.StructLike implements IMyStruct {
     public id: number = 45;
     public bigID: thrift.Int64 = thrift.Int64.fromDecimalString("23948234");
     public word: string;

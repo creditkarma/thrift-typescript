@@ -133,7 +133,7 @@ export const WorkCodec: thrift.IStructCodec<IWork_Loose, IWork> = {
         }
     }
 };
-export class Work extends thrift.StructLike  implements IWork {
+export class Work extends thrift.StructLike implements IWork {
     public num1: number = 0;
     public num2: number;
     public op: Operation;
@@ -223,7 +223,7 @@ export const FirstNameCodec: thrift.IStructCodec<IFirstName_Loose, IFirstName> =
         };
     }
 };
-export class FirstName extends thrift.StructLike  implements IFirstName {
+export class FirstName extends thrift.StructLike implements IFirstName {
     public name?: string;
     constructor(args: IFirstName_Loose = {}) {
         super();
@@ -292,7 +292,7 @@ export const LastNameCodec: thrift.IStructCodec<ILastName_Loose, ILastName> = {
         };
     }
 };
-export class LastName extends thrift.StructLike  implements ILastName {
+export class LastName extends thrift.StructLike implements ILastName {
     public name?: string;
     constructor(args: ILastName_Loose = {}) {
         super();
@@ -399,7 +399,7 @@ export const ChoiceCodec: thrift.IStructCodec<IChoice_Loose, IChoice> = {
         }
     }
 };
-export class Choice extends thrift.StructLike  implements IChoice {
+export class Choice extends thrift.StructLike implements IChoice {
     public firstName?: IFirstName;
     public lastName?: ILastName;
     constructor(args: IChoice_Loose = {}) {
@@ -461,7 +461,7 @@ export namespace Calculator {
             return {};
         }
     };
-    export class PingArgs extends thrift.StructLike  implements IPingArgs {
+    export class PingArgs extends thrift.StructLike implements IPingArgs {
         constructor(args: IPingArgs_Loose = {}) {
             super();
         }
@@ -554,7 +554,7 @@ export namespace Calculator {
             }
         }
     };
-    export class AddArgs extends thrift.StructLike  implements IAddArgs {
+    export class AddArgs extends thrift.StructLike implements IAddArgs {
         public num1: number;
         public num2: number;
         constructor(args: IAddArgs_Loose) {
@@ -663,7 +663,7 @@ export namespace Calculator {
             }
         }
     };
-    export class AddInt64Args extends thrift.StructLike  implements IAddInt64Args {
+    export class AddInt64Args extends thrift.StructLike implements IAddInt64Args {
         public num1: thrift.Int64;
         public num2: thrift.Int64;
         constructor(args: IAddInt64Args_Loose) {
@@ -772,7 +772,7 @@ export namespace Calculator {
             }
         }
     };
-    export class AddWithContextArgs extends thrift.StructLike  implements IAddWithContextArgs {
+    export class AddWithContextArgs extends thrift.StructLike implements IAddWithContextArgs {
         public num1: number;
         public num2: number;
         constructor(args: IAddWithContextArgs_Loose) {
@@ -881,7 +881,7 @@ export namespace Calculator {
             }
         }
     };
-    export class CalculateArgs extends thrift.StructLike  implements ICalculateArgs {
+    export class CalculateArgs extends thrift.StructLike implements ICalculateArgs {
         public logid: number;
         public work: IWork;
         constructor(args: ICalculateArgs_Loose) {
@@ -969,7 +969,7 @@ export namespace Calculator {
             }
         }
     };
-    export class EchoBinaryArgs extends thrift.StructLike  implements IEchoBinaryArgs {
+    export class EchoBinaryArgs extends thrift.StructLike implements IEchoBinaryArgs {
         public word: Buffer;
         constructor(args: IEchoBinaryArgs_Loose) {
             super();
@@ -1049,7 +1049,7 @@ export namespace Calculator {
             }
         }
     };
-    export class EchoStringArgs extends thrift.StructLike  implements IEchoStringArgs {
+    export class EchoStringArgs extends thrift.StructLike implements IEchoStringArgs {
         public word: string;
         constructor(args: IEchoStringArgs_Loose) {
             super();
@@ -1129,7 +1129,7 @@ export namespace Calculator {
             }
         }
     };
-    export class CheckNameArgs extends thrift.StructLike  implements ICheckNameArgs {
+    export class CheckNameArgs extends thrift.StructLike implements ICheckNameArgs {
         public choice: IChoice;
         constructor(args: ICheckNameArgs_Loose) {
             super();
@@ -1201,7 +1201,7 @@ export namespace Calculator {
             };
         }
     };
-    export class CheckOptionalArgs extends thrift.StructLike  implements ICheckOptionalArgs {
+    export class CheckOptionalArgs extends thrift.StructLike implements ICheckOptionalArgs {
         public type?: string;
         constructor(args: ICheckOptionalArgs_Loose = {}) {
             super();
@@ -1289,7 +1289,7 @@ export namespace Calculator {
             }
         }
     };
-    export class MapOneListArgs extends thrift.StructLike  implements IMapOneListArgs {
+    export class MapOneListArgs extends thrift.StructLike implements IMapOneListArgs {
         public arg: Array<number>;
         constructor(args: IMapOneListArgs_Loose) {
             super();
@@ -1386,7 +1386,7 @@ export namespace Calculator {
             }
         }
     };
-    export class MapValuesArgs extends thrift.StructLike  implements IMapValuesArgs {
+    export class MapValuesArgs extends thrift.StructLike implements IMapValuesArgs {
         public arg: Map<string, number>;
         constructor(args: IMapValuesArgs_Loose) {
             super();
@@ -1492,7 +1492,7 @@ export namespace Calculator {
             }
         }
     };
-    export class ListToMapArgs extends thrift.StructLike  implements IListToMapArgs {
+    export class ListToMapArgs extends thrift.StructLike implements IListToMapArgs {
         public arg: Array<Array<string>>;
         constructor(args: IListToMapArgs_Loose) {
             super();
@@ -1550,7 +1550,7 @@ export namespace Calculator {
             return {};
         }
     };
-    export class FetchThingArgs extends thrift.StructLike  implements IFetchThingArgs {
+    export class FetchThingArgs extends thrift.StructLike implements IFetchThingArgs {
         constructor(args: IFetchThingArgs_Loose = {}) {
             super();
         }
@@ -1592,7 +1592,7 @@ export namespace Calculator {
             return {};
         }
     };
-    export class ZipArgs extends thrift.StructLike  implements IZipArgs {
+    export class ZipArgs extends thrift.StructLike implements IZipArgs {
         constructor(args: IZipArgs_Loose = {}) {
             super();
         }
@@ -1647,7 +1647,7 @@ export namespace Calculator {
             };
         }
     };
-    export class PingResult extends thrift.StructLike  implements IPingResult {
+    export class PingResult extends thrift.StructLike implements IPingResult {
         public success?: void;
         constructor(args: IPingResult_Loose = {}) {
             super();
@@ -1734,7 +1734,7 @@ export namespace Calculator {
             };
         }
     };
-    export class AddResult extends thrift.StructLike  implements IAddResult {
+    export class AddResult extends thrift.StructLike implements IAddResult {
         public success?: number;
         public exp?: operation.IJankyResult;
         constructor(args: IAddResult_Loose = {}) {
@@ -1808,7 +1808,7 @@ export namespace Calculator {
             };
         }
     };
-    export class AddInt64Result extends thrift.StructLike  implements IAddInt64Result {
+    export class AddInt64Result extends thrift.StructLike implements IAddInt64Result {
         public success?: thrift.Int64;
         constructor(args: IAddInt64Result_Loose = {}) {
             super();
@@ -1877,7 +1877,7 @@ export namespace Calculator {
             };
         }
     };
-    export class AddWithContextResult extends thrift.StructLike  implements IAddWithContextResult {
+    export class AddWithContextResult extends thrift.StructLike implements IAddWithContextResult {
         public success?: number;
         constructor(args: IAddWithContextResult_Loose = {}) {
             super();
@@ -1964,7 +1964,7 @@ export namespace Calculator {
             };
         }
     };
-    export class CalculateResult extends thrift.StructLike  implements ICalculateResult {
+    export class CalculateResult extends thrift.StructLike implements ICalculateResult {
         public success?: number;
         public ouch?: operation.IJankyOperation;
         constructor(args: ICalculateResult_Loose = {}) {
@@ -2038,7 +2038,7 @@ export namespace Calculator {
             };
         }
     };
-    export class EchoBinaryResult extends thrift.StructLike  implements IEchoBinaryResult {
+    export class EchoBinaryResult extends thrift.StructLike implements IEchoBinaryResult {
         public success?: string;
         constructor(args: IEchoBinaryResult_Loose = {}) {
             super();
@@ -2107,7 +2107,7 @@ export namespace Calculator {
             };
         }
     };
-    export class EchoStringResult extends thrift.StructLike  implements IEchoStringResult {
+    export class EchoStringResult extends thrift.StructLike implements IEchoStringResult {
         public success?: string;
         constructor(args: IEchoStringResult_Loose = {}) {
             super();
@@ -2176,7 +2176,7 @@ export namespace Calculator {
             };
         }
     };
-    export class CheckNameResult extends thrift.StructLike  implements ICheckNameResult {
+    export class CheckNameResult extends thrift.StructLike implements ICheckNameResult {
         public success?: string;
         constructor(args: ICheckNameResult_Loose = {}) {
             super();
@@ -2245,7 +2245,7 @@ export namespace Calculator {
             };
         }
     };
-    export class CheckOptionalResult extends thrift.StructLike  implements ICheckOptionalResult {
+    export class CheckOptionalResult extends thrift.StructLike implements ICheckOptionalResult {
         public success?: string;
         constructor(args: ICheckOptionalResult_Loose = {}) {
             super();
@@ -2325,7 +2325,7 @@ export namespace Calculator {
             };
         }
     };
-    export class MapOneListResult extends thrift.StructLike  implements IMapOneListResult {
+    export class MapOneListResult extends thrift.StructLike implements IMapOneListResult {
         public success?: Array<number>;
         constructor(args: IMapOneListResult_Loose = {}) {
             super();
@@ -2409,7 +2409,7 @@ export namespace Calculator {
             };
         }
     };
-    export class MapValuesResult extends thrift.StructLike  implements IMapValuesResult {
+    export class MapValuesResult extends thrift.StructLike implements IMapValuesResult {
         public success?: Array<number>;
         constructor(args: IMapValuesResult_Loose = {}) {
             super();
@@ -2495,7 +2495,7 @@ export namespace Calculator {
             };
         }
     };
-    export class ListToMapResult extends thrift.StructLike  implements IListToMapResult {
+    export class ListToMapResult extends thrift.StructLike implements IListToMapResult {
         public success?: Map<string, string>;
         constructor(args: IListToMapResult_Loose = {}) {
             super();
@@ -2568,7 +2568,7 @@ export namespace Calculator {
             };
         }
     };
-    export class FetchThingResult extends thrift.StructLike  implements IFetchThingResult {
+    export class FetchThingResult extends thrift.StructLike implements IFetchThingResult {
         public success?: common.ICommonStruct;
         constructor(args: IFetchThingResult_Loose = {}) {
             super();
@@ -2628,7 +2628,7 @@ export namespace Calculator {
             };
         }
     };
-    export class ZipResult extends thrift.StructLike  implements IZipResult {
+    export class ZipResult extends thrift.StructLike implements IZipResult {
         public success?: void;
         constructor(args: IZipResult_Loose = {}) {
             super();

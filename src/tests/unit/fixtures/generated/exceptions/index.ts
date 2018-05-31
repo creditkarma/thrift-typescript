@@ -76,7 +76,7 @@ export const InvalidOperationCodec: thrift.IStructCodec<IInvalidOperation_Loose,
         };
     }
 };
-export class InvalidOperation extends thrift.StructLike  implements IInvalidOperation {
+export class InvalidOperation extends thrift.StructLike implements IInvalidOperation {
     public whatOp?: number;
     public why?: string;
     constructor(args: IInvalidOperation_Loose = {}) {
@@ -168,7 +168,7 @@ export const InvalidResultCodec: thrift.IStructCodec<IInvalidResult_Loose, IInva
         };
     }
 };
-export class InvalidResult extends thrift.StructLike  implements IInvalidResult {
+export class InvalidResult extends thrift.StructLike implements IInvalidResult {
     public message?: string;
     public code?: shared.ICode;
     constructor(args: IInvalidResult_Loose = {}) {

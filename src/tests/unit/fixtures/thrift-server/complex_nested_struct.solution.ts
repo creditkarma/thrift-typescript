@@ -77,7 +77,7 @@ export const OtherStructCodec: thrift.IStructCodec<IOtherStruct_Loose, IOtherStr
         }
     }
 };
-export class OtherStruct extends thrift.StructLike  implements IOtherStruct {
+export class OtherStruct extends thrift.StructLike implements IOtherStruct {
     public id: thrift.Int64;
     public name: Buffer = Buffer.from("John");
     constructor(args: IOtherStruct_Loose) {
@@ -402,7 +402,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
         }
     }
 };
-export class MyStruct extends thrift.StructLike  implements IMyStruct {
+export class MyStruct extends thrift.StructLike implements IMyStruct {
     public idList: Array<IOtherStruct>;
     public idMap: Map<string, IOtherStruct>;
     public idMapList: Map<string, Array<IOtherStruct>>;
@@ -414,9 +414,9 @@ export class MyStruct extends thrift.StructLike  implements IMyStruct {
         super();
         if (args.idList != null) {
             const value_32: Array<IOtherStruct> = new Array<IOtherStruct>();
-            args.idList.forEach((value_33: IOtherStruct_Loose): void => {
-                const value_34: IOtherStruct = new OtherStruct(value_33);
-                value_32.push(value_34);
+            args.idList.forEach((value_39: IOtherStruct_Loose): void => {
+                const value_40: IOtherStruct = new OtherStruct(value_39);
+                value_32.push(value_40);
             });
             this.idList = value_32;
         }
@@ -424,79 +424,79 @@ export class MyStruct extends thrift.StructLike  implements IMyStruct {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[idList] is unset!");
         }
         if (args.idMap != null) {
-            const value_35: Map<string, IOtherStruct> = new Map<string, IOtherStruct>();
-            args.idMap.forEach((value_36: IOtherStruct_Loose, key_5: string): void => {
-                const value_37: IOtherStruct = new OtherStruct(value_36);
-                value_35.set(key_5, value_37);
+            const value_33: Map<string, IOtherStruct> = new Map<string, IOtherStruct>();
+            args.idMap.forEach((value_41: IOtherStruct_Loose, key_5: string): void => {
+                const value_42: IOtherStruct = new OtherStruct(value_41);
+                value_33.set(key_5, value_42);
             });
-            this.idMap = value_35;
+            this.idMap = value_33;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[idMap] is unset!");
         }
         if (args.idMapList != null) {
-            const value_38: Map<string, Array<IOtherStruct>> = new Map<string, Array<IOtherStruct>>();
-            args.idMapList.forEach((value_39: Array<IOtherStruct_Loose>, key_6: string): void => {
-                const value_40: Array<IOtherStruct> = new Array<IOtherStruct>();
-                value_39.forEach((value_41: IOtherStruct_Loose): void => {
-                    const value_42: IOtherStruct = new OtherStruct(value_41);
-                    value_40.push(value_42);
+            const value_34: Map<string, Array<IOtherStruct>> = new Map<string, Array<IOtherStruct>>();
+            args.idMapList.forEach((value_43: Array<IOtherStruct_Loose>, key_6: string): void => {
+                const value_44: Array<IOtherStruct> = new Array<IOtherStruct>();
+                value_43.forEach((value_45: IOtherStruct_Loose): void => {
+                    const value_46: IOtherStruct = new OtherStruct(value_45);
+                    value_44.push(value_46);
                 });
-                value_38.set(key_6, value_40);
+                value_34.set(key_6, value_44);
             });
-            this.idMapList = value_38;
+            this.idMapList = value_34;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[idMapList] is unset!");
         }
         if (args.idSet != null) {
-            const value_43: Set<IOtherStruct> = new Set<IOtherStruct>();
-            args.idSet.forEach((value_44: IOtherStruct_Loose): void => {
-                const value_45: IOtherStruct = new OtherStruct(value_44);
-                value_43.add(value_45);
+            const value_35: Set<IOtherStruct> = new Set<IOtherStruct>();
+            args.idSet.forEach((value_47: IOtherStruct_Loose): void => {
+                const value_48: IOtherStruct = new OtherStruct(value_47);
+                value_35.add(value_48);
             });
-            this.idSet = value_43;
+            this.idSet = value_35;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[idSet] is unset!");
         }
         if (args.intList != null) {
-            const value_46: Array<thrift.Int64> = new Array<thrift.Int64>();
-            args.intList.forEach((value_47: number | thrift.Int64): void => {
-                const value_48: thrift.Int64 = (typeof value_47 === "number" ? new thrift.Int64(value_47) : value_47);
-                value_46.push(value_48);
+            const value_36: Array<thrift.Int64> = new Array<thrift.Int64>();
+            args.intList.forEach((value_49: number | thrift.Int64): void => {
+                const value_50: thrift.Int64 = (typeof value_49 === "number" ? new thrift.Int64(value_49) : value_49);
+                value_36.push(value_50);
             });
-            this.intList = value_46;
+            this.intList = value_36;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[intList] is unset!");
         }
         if (args.listList != null) {
-            const value_49: Array<Array<IOtherStruct>> = new Array<Array<IOtherStruct>>();
-            args.listList.forEach((value_50: Array<IOtherStruct_Loose>): void => {
-                const value_51: Array<IOtherStruct> = new Array<IOtherStruct>();
-                value_50.forEach((value_52: IOtherStruct_Loose): void => {
-                    const value_53: IOtherStruct = new OtherStruct(value_52);
-                    value_51.push(value_53);
+            const value_37: Array<Array<IOtherStruct>> = new Array<Array<IOtherStruct>>();
+            args.listList.forEach((value_51: Array<IOtherStruct_Loose>): void => {
+                const value_52: Array<IOtherStruct> = new Array<IOtherStruct>();
+                value_51.forEach((value_53: IOtherStruct_Loose): void => {
+                    const value_54: IOtherStruct = new OtherStruct(value_53);
+                    value_52.push(value_54);
                 });
-                value_49.push(value_51);
+                value_37.push(value_52);
             });
-            this.listList = value_49;
+            this.listList = value_37;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[listList] is unset!");
         }
         if (args.listListString != null) {
-            const value_54: Array<Array<string>> = new Array<Array<string>>();
+            const value_38: Array<Array<string>> = new Array<Array<string>>();
             args.listListString.forEach((value_55: Array<string>): void => {
                 const value_56: Array<string> = new Array<string>();
                 value_55.forEach((value_57: string): void => {
                     const value_58: string = value_57;
                     value_56.push(value_58);
                 });
-                value_54.push(value_56);
+                value_38.push(value_56);
             });
-            this.listListString = value_54;
+            this.listListString = value_38;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[listListString] is unset!");

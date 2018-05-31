@@ -370,11 +370,7 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
                 ts.createNew(
                     ts.createIdentifier(createStructArgsName(def)),
                     undefined,
-                    [ ts.createObjectLiteral(
-                        def.fields.map((next: FieldDefinition) => {
-                            return ts.createShorthandPropertyAssignment(next.name.value)
-                        }),
-                    ) ],
+                    createArgumentsObject(def),
                 ),
             ),
             // args.write(output)
@@ -397,6 +393,18 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
             ts.createReturn(),
         ], true), // body
     )
+}
+
+function createArgumentsObject(def: FunctionDefinition): Array<ts.Expression> {
+    if (def.fields.length > 0) {
+        return  [ ts.createObjectLiteral(
+            def.fields.map((next: FieldDefinition) => {
+                return ts.createShorthandPropertyAssignment(next.name.value)
+            }),
+        ) ]
+    } else {
+        return []
+    }
 }
 
 // public recv_{{name}}(input: TProtocol, mtype: Thrift.MessageType, rseqid: number): void {

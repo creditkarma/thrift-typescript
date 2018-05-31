@@ -77,7 +77,7 @@ export const UserCodec: thrift.IStructCodec<IUser_Loose, IUser> = {
         }
     }
 };
-export class User extends thrift.StructLike  implements IUser {
+export class User extends thrift.StructLike implements IUser {
     public name: string;
     public age?: thrift.Int64 = thrift.Int64.fromDecimalString("45");
     constructor(args: IUser_Loose) {
@@ -183,7 +183,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
         }
     }
 };
-export class MyStruct extends thrift.StructLike  implements IMyStruct {
+export class MyStruct extends thrift.StructLike implements IMyStruct {
     public name: string;
     public user: IUser;
     constructor(args: IMyStruct_Loose) {

@@ -85,7 +85,7 @@ export const AuthExceptionCodec: thrift.IStructCodec<IAuthException_Loose, IAuth
         };
     }
 };
-export class AuthException extends thrift.StructLike  implements IAuthException {
+export class AuthException extends thrift.StructLike implements IAuthException {
     public code?: number;
     public message?: string;
     constructor(args: IAuthException_Loose = {}) {

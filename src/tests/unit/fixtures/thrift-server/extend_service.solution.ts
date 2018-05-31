@@ -60,7 +60,7 @@ export namespace ParentService {
             }
         }
     };
-    export class PingArgs extends thrift.StructLike  implements IPingArgs {
+    export class PingArgs extends thrift.StructLike implements IPingArgs {
         public status: number;
         constructor(args: IPingArgs_Loose) {
             super();
@@ -132,7 +132,7 @@ export namespace ParentService {
             };
         }
     };
-    export class PingResult extends thrift.StructLike  implements IPingResult {
+    export class PingResult extends thrift.StructLike implements IPingResult {
         public success?: string;
         constructor(args: IPingResult_Loose = {}) {
             super();
@@ -318,7 +318,7 @@ export namespace ChildService {
             }
         }
     };
-    export class PegArgs extends thrift.StructLike  implements IPegArgs {
+    export class PegArgs extends thrift.StructLike implements IPegArgs {
         public name: string;
         constructor(args: IPegArgs_Loose) {
             super();
@@ -390,7 +390,7 @@ export namespace ChildService {
             };
         }
     };
-    export class PongArgs extends thrift.StructLike  implements IPongArgs {
+    export class PongArgs extends thrift.StructLike implements IPongArgs {
         public name?: string;
         constructor(args: IPongArgs_Loose = {}) {
             super();
@@ -459,7 +459,7 @@ export namespace ChildService {
             };
         }
     };
-    export class PegResult extends thrift.StructLike  implements IPegResult {
+    export class PegResult extends thrift.StructLike implements IPegResult {
         public success?: string;
         constructor(args: IPegResult_Loose = {}) {
             super();
@@ -528,7 +528,7 @@ export namespace ChildService {
             };
         }
     };
-    export class PongResult extends thrift.StructLike  implements IPongResult {
+    export class PongResult extends thrift.StructLike implements IPongResult {
         public success?: string;
         constructor(args: IPongResult_Loose = {}) {
             super();

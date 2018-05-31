@@ -51,7 +51,7 @@ export const CodeCodec: thrift.IStructCodec<ICode_Loose, ICode> = {
         };
     }
 };
-export class Code extends thrift.StructLike  implements ICode {
+export class Code extends thrift.StructLike implements ICode {
     public status?: thrift.Int64;
     constructor(args: ICode_Loose = {}) {
         super();
@@ -129,7 +129,7 @@ export namespace MyService {
             }
         }
     };
-    export class PegArgs extends thrift.StructLike  implements IPegArgs {
+    export class PegArgs extends thrift.StructLike implements IPegArgs {
         public name: string;
         constructor(args: IPegArgs_Loose) {
             super();
@@ -201,7 +201,7 @@ export namespace MyService {
             };
         }
     };
-    export class PongArgs extends thrift.StructLike  implements IPongArgs {
+    export class PongArgs extends thrift.StructLike implements IPongArgs {
         public code?: ICode;
         constructor(args: IPongArgs_Loose = {}) {
             super();
@@ -270,7 +270,7 @@ export namespace MyService {
             };
         }
     };
-    export class PegResult extends thrift.StructLike  implements IPegResult {
+    export class PegResult extends thrift.StructLike implements IPegResult {
         public success?: string;
         constructor(args: IPegResult_Loose = {}) {
             super();
@@ -339,7 +339,7 @@ export namespace MyService {
             };
         }
     };
-    export class PongResult extends thrift.StructLike  implements IPongResult {
+    export class PongResult extends thrift.StructLike implements IPongResult {
         public success?: thrift.Int64;
         constructor(args: IPongResult_Loose = {}) {
             super();

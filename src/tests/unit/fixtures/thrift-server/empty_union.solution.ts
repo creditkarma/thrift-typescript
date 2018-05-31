@@ -49,7 +49,7 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnion_Loose, IMyUnion> = {
         }
     }
 };
-export class MyUnion extends thrift.StructLike  implements IMyUnion {
+export class MyUnion extends thrift.StructLike implements IMyUnion {
     constructor(args: IMyUnion_Loose = {}) {
         super();
         let _fieldsSet: number = 0;

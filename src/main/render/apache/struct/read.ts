@@ -88,11 +88,7 @@ import {
  */
 export function createReadMethod(struct: InterfaceWithFields, identifiers: IIdentifierMap): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
-    const tempVariable: ts.VariableStatement = createLetStatement(
-        COMMON_IDENTIFIERS._args,
-        createAnyType(),
-        ts.createObjectLiteral(),
-    )
+    const tempVariable: Array<ts.VariableStatement> = createTempVariable(struct)
 
     /**
      * cosnt ret: { fieldName: string; fieldType: Thrift.Type; fieldId: number; } = input.readFieldBegin()
@@ -174,12 +170,24 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
         ), // return type
         ts.createBlock([
             readStructBegin(),
-            tempVariable,
+            ...tempVariable,
             whileLoop,
             readStructEnd(),
             createReturnForStruct(struct),
         ], true),
     )
+}
+
+function createTempVariable(struct: InterfaceWithFields): Array<ts.VariableStatement> {
+    if (struct.fields.length > 0) {
+        return [ createLetStatement(
+            COMMON_IDENTIFIERS._args,
+            createAnyType(),
+            ts.createObjectLiteral(),
+        ) ]
+    } else {
+        return []
+    }
 }
 
 function createCheckForFields(fields: Array<FieldDefinition>): ts.BinaryExpression {
@@ -224,9 +232,17 @@ function createReturnValue(struct: InterfaceWithFields): ts.ReturnStatement {
         ts.createNew(
             ts.createIdentifier(struct.name.value),
             undefined,
-            [ COMMON_IDENTIFIERS._args ],
+            createReturnArgs(struct),
         ),
     )
+}
+
+function createReturnArgs(struct: InterfaceWithFields): Array<ts.Expression> {
+    if (struct.fields.length > 0) {
+        return [ COMMON_IDENTIFIERS._args ]
+    } else {
+        return []
+    }
 }
 
 export function createInputParameter(): ts.ParameterDeclaration {
