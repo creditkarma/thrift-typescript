@@ -10,7 +10,7 @@ import * as operation from "./../operation";
 export type MyInteger = number;
 export import Operation = operation.Operation;
 export import ICommonStruct = common.ICommonStruct;
-export import ICommonStruct_Loose = common.ICommonStruct_Loose;
+export import ICommonStructArgs = common.ICommonStructArgs;
 export import CommonStruct = common.CommonStruct;
 export import CommonStructCodec = common.CommonStructCodec;
 export const INT32CONSTANT: number = 9853;
@@ -21,14 +21,14 @@ export interface IWork {
     op: Operation;
     comment?: string;
 }
-export interface IWork_Loose {
+export interface IWorkArgs {
     num1?: number;
     num2: number;
     op: Operation;
     comment?: string;
 }
-export const WorkCodec: thrift.IStructCodec<IWork_Loose, IWork> = {
-    encode(args: IWork_Loose, output: thrift.TProtocol): void {
+export const WorkCodec: thrift.IStructCodec<IWorkArgs, IWork> = {
+    encode(args: IWorkArgs, output: thrift.TProtocol): void {
         const obj = {
             num1: (args.num1 != null ? args.num1 : 0),
             num2: args.num2,
@@ -138,7 +138,7 @@ export class Work extends thrift.StructLike implements IWork {
     public num2: number;
     public op: Operation;
     public comment?: string;
-    constructor(args: IWork_Loose) {
+    constructor(args: IWorkArgs) {
         super();
         if (args.num1 != null) {
             const value_5: number = args.num1;
@@ -166,6 +166,9 @@ export class Work extends thrift.StructLike implements IWork {
     public static read(input: thrift.TProtocol): Work {
         return new Work(WorkCodec.decode(input));
     }
+    public static write(args: IWorkArgs, output: thrift.TProtocol): void {
+        return WorkCodec.encode(args, output);
+    }
     public write(output: thrift.TProtocol): void {
         return WorkCodec.encode(this, output);
     }
@@ -173,11 +176,11 @@ export class Work extends thrift.StructLike implements IWork {
 export interface IFirstName {
     name?: string;
 }
-export interface IFirstName_Loose {
+export interface IFirstNameArgs {
     name?: string;
 }
-export const FirstNameCodec: thrift.IStructCodec<IFirstName_Loose, IFirstName> = {
-    encode(args: IFirstName_Loose, output: thrift.TProtocol): void {
+export const FirstNameCodec: thrift.IStructCodec<IFirstNameArgs, IFirstName> = {
+    encode(args: IFirstNameArgs, output: thrift.TProtocol): void {
         const obj = {
             name: args.name
         };
@@ -225,7 +228,7 @@ export const FirstNameCodec: thrift.IStructCodec<IFirstName_Loose, IFirstName> =
 };
 export class FirstName extends thrift.StructLike implements IFirstName {
     public name?: string;
-    constructor(args: IFirstName_Loose = {}) {
+    constructor(args: IFirstNameArgs = {}) {
         super();
         if (args.name != null) {
             const value_10: string = args.name;
@@ -235,6 +238,9 @@ export class FirstName extends thrift.StructLike implements IFirstName {
     public static read(input: thrift.TProtocol): FirstName {
         return new FirstName(FirstNameCodec.decode(input));
     }
+    public static write(args: IFirstNameArgs, output: thrift.TProtocol): void {
+        return FirstNameCodec.encode(args, output);
+    }
     public write(output: thrift.TProtocol): void {
         return FirstNameCodec.encode(this, output);
     }
@@ -242,11 +248,11 @@ export class FirstName extends thrift.StructLike implements IFirstName {
 export interface ILastName {
     name?: string;
 }
-export interface ILastName_Loose {
+export interface ILastNameArgs {
     name?: string;
 }
-export const LastNameCodec: thrift.IStructCodec<ILastName_Loose, ILastName> = {
-    encode(args: ILastName_Loose, output: thrift.TProtocol): void {
+export const LastNameCodec: thrift.IStructCodec<ILastNameArgs, ILastName> = {
+    encode(args: ILastNameArgs, output: thrift.TProtocol): void {
         const obj = {
             name: args.name
         };
@@ -294,7 +300,7 @@ export const LastNameCodec: thrift.IStructCodec<ILastName_Loose, ILastName> = {
 };
 export class LastName extends thrift.StructLike implements ILastName {
     public name?: string;
-    constructor(args: ILastName_Loose = {}) {
+    constructor(args: ILastNameArgs = {}) {
         super();
         if (args.name != null) {
             const value_12: string = args.name;
@@ -304,6 +310,9 @@ export class LastName extends thrift.StructLike implements ILastName {
     public static read(input: thrift.TProtocol): LastName {
         return new LastName(LastNameCodec.decode(input));
     }
+    public static write(args: ILastNameArgs, output: thrift.TProtocol): void {
+        return LastNameCodec.encode(args, output);
+    }
     public write(output: thrift.TProtocol): void {
         return LastNameCodec.encode(this, output);
     }
@@ -312,12 +321,12 @@ export interface IChoice {
     firstName?: IFirstName;
     lastName?: ILastName;
 }
-export interface IChoice_Loose {
-    firstName?: IFirstName_Loose;
-    lastName?: ILastName_Loose;
+export interface IChoiceArgs {
+    firstName?: IFirstNameArgs;
+    lastName?: ILastNameArgs;
 }
-export const ChoiceCodec: thrift.IStructCodec<IChoice_Loose, IChoice> = {
-    encode(args: IChoice_Loose, output: thrift.TProtocol): void {
+export const ChoiceCodec: thrift.IStructCodec<IChoiceArgs, IChoice> = {
+    encode(args: IChoiceArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
             firstName: args.firstName,
@@ -402,7 +411,7 @@ export const ChoiceCodec: thrift.IStructCodec<IChoice_Loose, IChoice> = {
 export class Choice extends thrift.StructLike implements IChoice {
     public firstName?: IFirstName;
     public lastName?: ILastName;
-    constructor(args: IChoice_Loose = {}) {
+    constructor(args: IChoiceArgs = {}) {
         super();
         let _fieldsSet: number = 0;
         if (args.firstName != null) {
@@ -425,6 +434,9 @@ export class Choice extends thrift.StructLike implements IChoice {
     public static read(input: thrift.TProtocol): Choice {
         return new Choice(ChoiceCodec.decode(input));
     }
+    public static write(args: IChoiceArgs, output: thrift.TProtocol): void {
+        return ChoiceCodec.encode(args, output);
+    }
     public write(output: thrift.TProtocol): void {
         return ChoiceCodec.encode(this, output);
     }
@@ -432,10 +444,10 @@ export class Choice extends thrift.StructLike implements IChoice {
 export namespace Calculator {
     export interface IPingArgs {
     }
-    export interface IPingArgs_Loose {
+    export interface IPingArgsArgs {
     }
-    export const PingArgsCodec: thrift.IStructCodec<IPingArgs_Loose, IPingArgs> = {
-        encode(args: IPingArgs_Loose, output: thrift.TProtocol): void {
+    export const PingArgsCodec: thrift.IStructCodec<IPingArgsArgs, IPingArgs> = {
+        encode(args: IPingArgsArgs, output: thrift.TProtocol): void {
             output.writeStructBegin("PingArgs");
             output.writeFieldStop();
             output.writeStructEnd();
@@ -462,11 +474,14 @@ export namespace Calculator {
         }
     };
     export class PingArgs extends thrift.StructLike implements IPingArgs {
-        constructor(args: IPingArgs_Loose = {}) {
+        constructor(args: IPingArgsArgs = {}) {
             super();
         }
         public static read(input: thrift.TProtocol): PingArgs {
             return new PingArgs(PingArgsCodec.decode(input));
+        }
+        public static write(args: IPingArgsArgs, output: thrift.TProtocol): void {
+            return PingArgsCodec.encode(args, output);
         }
         public write(output: thrift.TProtocol): void {
             return PingArgsCodec.encode(this, output);
@@ -476,12 +491,12 @@ export namespace Calculator {
         num1: number;
         num2: number;
     }
-    export interface IAddArgs_Loose {
+    export interface IAddArgsArgs {
         num1: number;
         num2: number;
     }
-    export const AddArgsCodec: thrift.IStructCodec<IAddArgs_Loose, IAddArgs> = {
-        encode(args: IAddArgs_Loose, output: thrift.TProtocol): void {
+    export const AddArgsCodec: thrift.IStructCodec<IAddArgsArgs, IAddArgs> = {
+        encode(args: IAddArgsArgs, output: thrift.TProtocol): void {
             const obj = {
                 num1: args.num1,
                 num2: args.num2
@@ -557,7 +572,7 @@ export namespace Calculator {
     export class AddArgs extends thrift.StructLike implements IAddArgs {
         public num1: number;
         public num2: number;
-        constructor(args: IAddArgs_Loose) {
+        constructor(args: IAddArgsArgs) {
             super();
             if (args.num1 != null) {
                 const value_19: number = args.num1;
@@ -577,6 +592,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): AddArgs {
             return new AddArgs(AddArgsCodec.decode(input));
         }
+        public static write(args: IAddArgsArgs, output: thrift.TProtocol): void {
+            return AddArgsCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return AddArgsCodec.encode(this, output);
         }
@@ -585,12 +603,12 @@ export namespace Calculator {
         num1: thrift.Int64;
         num2: thrift.Int64;
     }
-    export interface IAddInt64Args_Loose {
+    export interface IAddInt64ArgsArgs {
         num1: number | thrift.Int64;
         num2: number | thrift.Int64;
     }
-    export const AddInt64ArgsCodec: thrift.IStructCodec<IAddInt64Args_Loose, IAddInt64Args> = {
-        encode(args: IAddInt64Args_Loose, output: thrift.TProtocol): void {
+    export const AddInt64ArgsCodec: thrift.IStructCodec<IAddInt64ArgsArgs, IAddInt64Args> = {
+        encode(args: IAddInt64ArgsArgs, output: thrift.TProtocol): void {
             const obj = {
                 num1: (typeof args.num1 === "number" ? new thrift.Int64(args.num1) : args.num1),
                 num2: (typeof args.num2 === "number" ? new thrift.Int64(args.num2) : args.num2)
@@ -666,7 +684,7 @@ export namespace Calculator {
     export class AddInt64Args extends thrift.StructLike implements IAddInt64Args {
         public num1: thrift.Int64;
         public num2: thrift.Int64;
-        constructor(args: IAddInt64Args_Loose) {
+        constructor(args: IAddInt64ArgsArgs) {
             super();
             if (args.num1 != null) {
                 const value_23: thrift.Int64 = (typeof args.num1 === "number" ? new thrift.Int64(args.num1) : args.num1);
@@ -686,6 +704,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): AddInt64Args {
             return new AddInt64Args(AddInt64ArgsCodec.decode(input));
         }
+        public static write(args: IAddInt64ArgsArgs, output: thrift.TProtocol): void {
+            return AddInt64ArgsCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return AddInt64ArgsCodec.encode(this, output);
         }
@@ -694,12 +715,12 @@ export namespace Calculator {
         num1: number;
         num2: number;
     }
-    export interface IAddWithContextArgs_Loose {
+    export interface IAddWithContextArgsArgs {
         num1: number;
         num2: number;
     }
-    export const AddWithContextArgsCodec: thrift.IStructCodec<IAddWithContextArgs_Loose, IAddWithContextArgs> = {
-        encode(args: IAddWithContextArgs_Loose, output: thrift.TProtocol): void {
+    export const AddWithContextArgsCodec: thrift.IStructCodec<IAddWithContextArgsArgs, IAddWithContextArgs> = {
+        encode(args: IAddWithContextArgsArgs, output: thrift.TProtocol): void {
             const obj = {
                 num1: args.num1,
                 num2: args.num2
@@ -775,7 +796,7 @@ export namespace Calculator {
     export class AddWithContextArgs extends thrift.StructLike implements IAddWithContextArgs {
         public num1: number;
         public num2: number;
-        constructor(args: IAddWithContextArgs_Loose) {
+        constructor(args: IAddWithContextArgsArgs) {
             super();
             if (args.num1 != null) {
                 const value_27: number = args.num1;
@@ -795,6 +816,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): AddWithContextArgs {
             return new AddWithContextArgs(AddWithContextArgsCodec.decode(input));
         }
+        public static write(args: IAddWithContextArgsArgs, output: thrift.TProtocol): void {
+            return AddWithContextArgsCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return AddWithContextArgsCodec.encode(this, output);
         }
@@ -803,12 +827,12 @@ export namespace Calculator {
         logid: number;
         work: IWork;
     }
-    export interface ICalculateArgs_Loose {
+    export interface ICalculateArgsArgs {
         logid: number;
-        work: IWork_Loose;
+        work: IWorkArgs;
     }
-    export const CalculateArgsCodec: thrift.IStructCodec<ICalculateArgs_Loose, ICalculateArgs> = {
-        encode(args: ICalculateArgs_Loose, output: thrift.TProtocol): void {
+    export const CalculateArgsCodec: thrift.IStructCodec<ICalculateArgsArgs, ICalculateArgs> = {
+        encode(args: ICalculateArgsArgs, output: thrift.TProtocol): void {
             const obj = {
                 logid: args.logid,
                 work: args.work
@@ -884,7 +908,7 @@ export namespace Calculator {
     export class CalculateArgs extends thrift.StructLike implements ICalculateArgs {
         public logid: number;
         public work: IWork;
-        constructor(args: ICalculateArgs_Loose) {
+        constructor(args: ICalculateArgsArgs) {
             super();
             if (args.logid != null) {
                 const value_31: number = args.logid;
@@ -904,6 +928,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): CalculateArgs {
             return new CalculateArgs(CalculateArgsCodec.decode(input));
         }
+        public static write(args: ICalculateArgsArgs, output: thrift.TProtocol): void {
+            return CalculateArgsCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return CalculateArgsCodec.encode(this, output);
         }
@@ -911,11 +938,11 @@ export namespace Calculator {
     export interface IEchoBinaryArgs {
         word: Buffer;
     }
-    export interface IEchoBinaryArgs_Loose {
+    export interface IEchoBinaryArgsArgs {
         word: string | Buffer;
     }
-    export const EchoBinaryArgsCodec: thrift.IStructCodec<IEchoBinaryArgs_Loose, IEchoBinaryArgs> = {
-        encode(args: IEchoBinaryArgs_Loose, output: thrift.TProtocol): void {
+    export const EchoBinaryArgsCodec: thrift.IStructCodec<IEchoBinaryArgsArgs, IEchoBinaryArgs> = {
+        encode(args: IEchoBinaryArgsArgs, output: thrift.TProtocol): void {
             const obj = {
                 word: (typeof args.word === "string" ? Buffer.from(args.word) : args.word)
             };
@@ -971,7 +998,7 @@ export namespace Calculator {
     };
     export class EchoBinaryArgs extends thrift.StructLike implements IEchoBinaryArgs {
         public word: Buffer;
-        constructor(args: IEchoBinaryArgs_Loose) {
+        constructor(args: IEchoBinaryArgsArgs) {
             super();
             if (args.word != null) {
                 const value_34: Buffer = (typeof args.word === "string" ? Buffer.from(args.word) : args.word);
@@ -984,6 +1011,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): EchoBinaryArgs {
             return new EchoBinaryArgs(EchoBinaryArgsCodec.decode(input));
         }
+        public static write(args: IEchoBinaryArgsArgs, output: thrift.TProtocol): void {
+            return EchoBinaryArgsCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return EchoBinaryArgsCodec.encode(this, output);
         }
@@ -991,11 +1021,11 @@ export namespace Calculator {
     export interface IEchoStringArgs {
         word: string;
     }
-    export interface IEchoStringArgs_Loose {
+    export interface IEchoStringArgsArgs {
         word: string;
     }
-    export const EchoStringArgsCodec: thrift.IStructCodec<IEchoStringArgs_Loose, IEchoStringArgs> = {
-        encode(args: IEchoStringArgs_Loose, output: thrift.TProtocol): void {
+    export const EchoStringArgsCodec: thrift.IStructCodec<IEchoStringArgsArgs, IEchoStringArgs> = {
+        encode(args: IEchoStringArgsArgs, output: thrift.TProtocol): void {
             const obj = {
                 word: args.word
             };
@@ -1051,7 +1081,7 @@ export namespace Calculator {
     };
     export class EchoStringArgs extends thrift.StructLike implements IEchoStringArgs {
         public word: string;
-        constructor(args: IEchoStringArgs_Loose) {
+        constructor(args: IEchoStringArgsArgs) {
             super();
             if (args.word != null) {
                 const value_36: string = args.word;
@@ -1064,6 +1094,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): EchoStringArgs {
             return new EchoStringArgs(EchoStringArgsCodec.decode(input));
         }
+        public static write(args: IEchoStringArgsArgs, output: thrift.TProtocol): void {
+            return EchoStringArgsCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return EchoStringArgsCodec.encode(this, output);
         }
@@ -1071,11 +1104,11 @@ export namespace Calculator {
     export interface ICheckNameArgs {
         choice: IChoice;
     }
-    export interface ICheckNameArgs_Loose {
-        choice: IChoice_Loose;
+    export interface ICheckNameArgsArgs {
+        choice: IChoiceArgs;
     }
-    export const CheckNameArgsCodec: thrift.IStructCodec<ICheckNameArgs_Loose, ICheckNameArgs> = {
-        encode(args: ICheckNameArgs_Loose, output: thrift.TProtocol): void {
+    export const CheckNameArgsCodec: thrift.IStructCodec<ICheckNameArgsArgs, ICheckNameArgs> = {
+        encode(args: ICheckNameArgsArgs, output: thrift.TProtocol): void {
             const obj = {
                 choice: args.choice
             };
@@ -1131,7 +1164,7 @@ export namespace Calculator {
     };
     export class CheckNameArgs extends thrift.StructLike implements ICheckNameArgs {
         public choice: IChoice;
-        constructor(args: ICheckNameArgs_Loose) {
+        constructor(args: ICheckNameArgsArgs) {
             super();
             if (args.choice != null) {
                 const value_38: IChoice = new Choice(args.choice);
@@ -1144,6 +1177,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): CheckNameArgs {
             return new CheckNameArgs(CheckNameArgsCodec.decode(input));
         }
+        public static write(args: ICheckNameArgsArgs, output: thrift.TProtocol): void {
+            return CheckNameArgsCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return CheckNameArgsCodec.encode(this, output);
         }
@@ -1151,11 +1187,11 @@ export namespace Calculator {
     export interface ICheckOptionalArgs {
         type?: string;
     }
-    export interface ICheckOptionalArgs_Loose {
+    export interface ICheckOptionalArgsArgs {
         type?: string;
     }
-    export const CheckOptionalArgsCodec: thrift.IStructCodec<ICheckOptionalArgs_Loose, ICheckOptionalArgs> = {
-        encode(args: ICheckOptionalArgs_Loose, output: thrift.TProtocol): void {
+    export const CheckOptionalArgsCodec: thrift.IStructCodec<ICheckOptionalArgsArgs, ICheckOptionalArgs> = {
+        encode(args: ICheckOptionalArgsArgs, output: thrift.TProtocol): void {
             const obj = {
                 type: args.type
             };
@@ -1203,7 +1239,7 @@ export namespace Calculator {
     };
     export class CheckOptionalArgs extends thrift.StructLike implements ICheckOptionalArgs {
         public type?: string;
-        constructor(args: ICheckOptionalArgs_Loose = {}) {
+        constructor(args: ICheckOptionalArgsArgs = {}) {
             super();
             if (args.type != null) {
                 const value_40: string = args.type;
@@ -1213,6 +1249,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): CheckOptionalArgs {
             return new CheckOptionalArgs(CheckOptionalArgsCodec.decode(input));
         }
+        public static write(args: ICheckOptionalArgsArgs, output: thrift.TProtocol): void {
+            return CheckOptionalArgsCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return CheckOptionalArgsCodec.encode(this, output);
         }
@@ -1220,11 +1259,11 @@ export namespace Calculator {
     export interface IMapOneListArgs {
         arg: Array<number>;
     }
-    export interface IMapOneListArgs_Loose {
+    export interface IMapOneListArgsArgs {
         arg: Array<number>;
     }
-    export const MapOneListArgsCodec: thrift.IStructCodec<IMapOneListArgs_Loose, IMapOneListArgs> = {
-        encode(args: IMapOneListArgs_Loose, output: thrift.TProtocol): void {
+    export const MapOneListArgsCodec: thrift.IStructCodec<IMapOneListArgsArgs, IMapOneListArgs> = {
+        encode(args: IMapOneListArgsArgs, output: thrift.TProtocol): void {
             const obj = {
                 arg: args.arg
             };
@@ -1291,7 +1330,7 @@ export namespace Calculator {
     };
     export class MapOneListArgs extends thrift.StructLike implements IMapOneListArgs {
         public arg: Array<number>;
-        constructor(args: IMapOneListArgs_Loose) {
+        constructor(args: IMapOneListArgsArgs) {
             super();
             if (args.arg != null) {
                 const value_44: Array<number> = new Array<number>();
@@ -1308,6 +1347,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): MapOneListArgs {
             return new MapOneListArgs(MapOneListArgsCodec.decode(input));
         }
+        public static write(args: IMapOneListArgsArgs, output: thrift.TProtocol): void {
+            return MapOneListArgsCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return MapOneListArgsCodec.encode(this, output);
         }
@@ -1315,11 +1357,11 @@ export namespace Calculator {
     export interface IMapValuesArgs {
         arg: Map<string, number>;
     }
-    export interface IMapValuesArgs_Loose {
+    export interface IMapValuesArgsArgs {
         arg: Map<string, number>;
     }
-    export const MapValuesArgsCodec: thrift.IStructCodec<IMapValuesArgs_Loose, IMapValuesArgs> = {
-        encode(args: IMapValuesArgs_Loose, output: thrift.TProtocol): void {
+    export const MapValuesArgsCodec: thrift.IStructCodec<IMapValuesArgsArgs, IMapValuesArgs> = {
+        encode(args: IMapValuesArgsArgs, output: thrift.TProtocol): void {
             const obj = {
                 arg: args.arg
             };
@@ -1388,7 +1430,7 @@ export namespace Calculator {
     };
     export class MapValuesArgs extends thrift.StructLike implements IMapValuesArgs {
         public arg: Map<string, number>;
-        constructor(args: IMapValuesArgs_Loose) {
+        constructor(args: IMapValuesArgsArgs) {
             super();
             if (args.arg != null) {
                 const value_50: Map<string, number> = new Map<string, number>();
@@ -1405,6 +1447,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): MapValuesArgs {
             return new MapValuesArgs(MapValuesArgsCodec.decode(input));
         }
+        public static write(args: IMapValuesArgsArgs, output: thrift.TProtocol): void {
+            return MapValuesArgsCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return MapValuesArgsCodec.encode(this, output);
         }
@@ -1412,11 +1457,11 @@ export namespace Calculator {
     export interface IListToMapArgs {
         arg: Array<Array<string>>;
     }
-    export interface IListToMapArgs_Loose {
+    export interface IListToMapArgsArgs {
         arg: Array<Array<string>>;
     }
-    export const ListToMapArgsCodec: thrift.IStructCodec<IListToMapArgs_Loose, IListToMapArgs> = {
-        encode(args: IListToMapArgs_Loose, output: thrift.TProtocol): void {
+    export const ListToMapArgsCodec: thrift.IStructCodec<IListToMapArgsArgs, IListToMapArgs> = {
+        encode(args: IListToMapArgsArgs, output: thrift.TProtocol): void {
             const obj = {
                 arg: args.arg
             };
@@ -1494,7 +1539,7 @@ export namespace Calculator {
     };
     export class ListToMapArgs extends thrift.StructLike implements IListToMapArgs {
         public arg: Array<Array<string>>;
-        constructor(args: IListToMapArgs_Loose) {
+        constructor(args: IListToMapArgsArgs) {
             super();
             if (args.arg != null) {
                 const value_58: Array<Array<string>> = new Array<Array<string>>();
@@ -1515,16 +1560,19 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): ListToMapArgs {
             return new ListToMapArgs(ListToMapArgsCodec.decode(input));
         }
+        public static write(args: IListToMapArgsArgs, output: thrift.TProtocol): void {
+            return ListToMapArgsCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return ListToMapArgsCodec.encode(this, output);
         }
     }
     export interface IFetchThingArgs {
     }
-    export interface IFetchThingArgs_Loose {
+    export interface IFetchThingArgsArgs {
     }
-    export const FetchThingArgsCodec: thrift.IStructCodec<IFetchThingArgs_Loose, IFetchThingArgs> = {
-        encode(args: IFetchThingArgs_Loose, output: thrift.TProtocol): void {
+    export const FetchThingArgsCodec: thrift.IStructCodec<IFetchThingArgsArgs, IFetchThingArgs> = {
+        encode(args: IFetchThingArgsArgs, output: thrift.TProtocol): void {
             output.writeStructBegin("FetchThingArgs");
             output.writeFieldStop();
             output.writeStructEnd();
@@ -1551,11 +1599,14 @@ export namespace Calculator {
         }
     };
     export class FetchThingArgs extends thrift.StructLike implements IFetchThingArgs {
-        constructor(args: IFetchThingArgs_Loose = {}) {
+        constructor(args: IFetchThingArgsArgs = {}) {
             super();
         }
         public static read(input: thrift.TProtocol): FetchThingArgs {
             return new FetchThingArgs(FetchThingArgsCodec.decode(input));
+        }
+        public static write(args: IFetchThingArgsArgs, output: thrift.TProtocol): void {
+            return FetchThingArgsCodec.encode(args, output);
         }
         public write(output: thrift.TProtocol): void {
             return FetchThingArgsCodec.encode(this, output);
@@ -1563,10 +1614,10 @@ export namespace Calculator {
     }
     export interface IZipArgs {
     }
-    export interface IZipArgs_Loose {
+    export interface IZipArgsArgs {
     }
-    export const ZipArgsCodec: thrift.IStructCodec<IZipArgs_Loose, IZipArgs> = {
-        encode(args: IZipArgs_Loose, output: thrift.TProtocol): void {
+    export const ZipArgsCodec: thrift.IStructCodec<IZipArgsArgs, IZipArgs> = {
+        encode(args: IZipArgsArgs, output: thrift.TProtocol): void {
             output.writeStructBegin("ZipArgs");
             output.writeFieldStop();
             output.writeStructEnd();
@@ -1593,11 +1644,14 @@ export namespace Calculator {
         }
     };
     export class ZipArgs extends thrift.StructLike implements IZipArgs {
-        constructor(args: IZipArgs_Loose = {}) {
+        constructor(args: IZipArgsArgs = {}) {
             super();
         }
         public static read(input: thrift.TProtocol): ZipArgs {
             return new ZipArgs(ZipArgsCodec.decode(input));
+        }
+        public static write(args: IZipArgsArgs, output: thrift.TProtocol): void {
+            return ZipArgsCodec.encode(args, output);
         }
         public write(output: thrift.TProtocol): void {
             return ZipArgsCodec.encode(this, output);
@@ -1606,11 +1660,11 @@ export namespace Calculator {
     export interface IPingResult {
         success?: void;
     }
-    export interface IPingResult_Loose {
+    export interface IPingResultArgs {
         success?: void;
     }
-    export const PingResultCodec: thrift.IStructCodec<IPingResult_Loose, IPingResult> = {
-        encode(args: IPingResult_Loose, output: thrift.TProtocol): void {
+    export const PingResultCodec: thrift.IStructCodec<IPingResultArgs, IPingResult> = {
+        encode(args: IPingResultArgs, output: thrift.TProtocol): void {
             output.writeStructBegin("PingResult");
             output.writeFieldStop();
             output.writeStructEnd();
@@ -1649,7 +1703,7 @@ export namespace Calculator {
     };
     export class PingResult extends thrift.StructLike implements IPingResult {
         public success?: void;
-        constructor(args: IPingResult_Loose = {}) {
+        constructor(args: IPingResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_63: void = undefined;
@@ -1659,6 +1713,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): PingResult {
             return new PingResult(PingResultCodec.decode(input));
         }
+        public static write(args: IPingResultArgs, output: thrift.TProtocol): void {
+            return PingResultCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return PingResultCodec.encode(this, output);
         }
@@ -1667,12 +1724,12 @@ export namespace Calculator {
         success?: number;
         exp?: operation.IJankyResult;
     }
-    export interface IAddResult_Loose {
+    export interface IAddResultArgs {
         success?: number;
-        exp?: operation.IJankyResult_Loose;
+        exp?: operation.IJankyResultArgs;
     }
-    export const AddResultCodec: thrift.IStructCodec<IAddResult_Loose, IAddResult> = {
-        encode(args: IAddResult_Loose, output: thrift.TProtocol): void {
+    export const AddResultCodec: thrift.IStructCodec<IAddResultArgs, IAddResult> = {
+        encode(args: IAddResultArgs, output: thrift.TProtocol): void {
             const obj = {
                 success: args.success,
                 exp: args.exp
@@ -1737,7 +1794,7 @@ export namespace Calculator {
     export class AddResult extends thrift.StructLike implements IAddResult {
         public success?: number;
         public exp?: operation.IJankyResult;
-        constructor(args: IAddResult_Loose = {}) {
+        constructor(args: IAddResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_66: number = args.success;
@@ -1751,6 +1808,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): AddResult {
             return new AddResult(AddResultCodec.decode(input));
         }
+        public static write(args: IAddResultArgs, output: thrift.TProtocol): void {
+            return AddResultCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return AddResultCodec.encode(this, output);
         }
@@ -1758,11 +1818,11 @@ export namespace Calculator {
     export interface IAddInt64Result {
         success?: thrift.Int64;
     }
-    export interface IAddInt64Result_Loose {
+    export interface IAddInt64ResultArgs {
         success?: number | thrift.Int64;
     }
-    export const AddInt64ResultCodec: thrift.IStructCodec<IAddInt64Result_Loose, IAddInt64Result> = {
-        encode(args: IAddInt64Result_Loose, output: thrift.TProtocol): void {
+    export const AddInt64ResultCodec: thrift.IStructCodec<IAddInt64ResultArgs, IAddInt64Result> = {
+        encode(args: IAddInt64ResultArgs, output: thrift.TProtocol): void {
             const obj = {
                 success: (typeof args.success === "number" ? new thrift.Int64(args.success) : args.success)
             };
@@ -1810,7 +1870,7 @@ export namespace Calculator {
     };
     export class AddInt64Result extends thrift.StructLike implements IAddInt64Result {
         public success?: thrift.Int64;
-        constructor(args: IAddInt64Result_Loose = {}) {
+        constructor(args: IAddInt64ResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_69: thrift.Int64 = (typeof args.success === "number" ? new thrift.Int64(args.success) : args.success);
@@ -1820,6 +1880,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): AddInt64Result {
             return new AddInt64Result(AddInt64ResultCodec.decode(input));
         }
+        public static write(args: IAddInt64ResultArgs, output: thrift.TProtocol): void {
+            return AddInt64ResultCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return AddInt64ResultCodec.encode(this, output);
         }
@@ -1827,11 +1890,11 @@ export namespace Calculator {
     export interface IAddWithContextResult {
         success?: number;
     }
-    export interface IAddWithContextResult_Loose {
+    export interface IAddWithContextResultArgs {
         success?: number;
     }
-    export const AddWithContextResultCodec: thrift.IStructCodec<IAddWithContextResult_Loose, IAddWithContextResult> = {
-        encode(args: IAddWithContextResult_Loose, output: thrift.TProtocol): void {
+    export const AddWithContextResultCodec: thrift.IStructCodec<IAddWithContextResultArgs, IAddWithContextResult> = {
+        encode(args: IAddWithContextResultArgs, output: thrift.TProtocol): void {
             const obj = {
                 success: args.success
             };
@@ -1879,7 +1942,7 @@ export namespace Calculator {
     };
     export class AddWithContextResult extends thrift.StructLike implements IAddWithContextResult {
         public success?: number;
-        constructor(args: IAddWithContextResult_Loose = {}) {
+        constructor(args: IAddWithContextResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_71: number = args.success;
@@ -1889,6 +1952,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): AddWithContextResult {
             return new AddWithContextResult(AddWithContextResultCodec.decode(input));
         }
+        public static write(args: IAddWithContextResultArgs, output: thrift.TProtocol): void {
+            return AddWithContextResultCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return AddWithContextResultCodec.encode(this, output);
         }
@@ -1897,12 +1963,12 @@ export namespace Calculator {
         success?: number;
         ouch?: operation.IJankyOperation;
     }
-    export interface ICalculateResult_Loose {
+    export interface ICalculateResultArgs {
         success?: number;
-        ouch?: operation.IJankyOperation_Loose;
+        ouch?: operation.IJankyOperationArgs;
     }
-    export const CalculateResultCodec: thrift.IStructCodec<ICalculateResult_Loose, ICalculateResult> = {
-        encode(args: ICalculateResult_Loose, output: thrift.TProtocol): void {
+    export const CalculateResultCodec: thrift.IStructCodec<ICalculateResultArgs, ICalculateResult> = {
+        encode(args: ICalculateResultArgs, output: thrift.TProtocol): void {
             const obj = {
                 success: args.success,
                 ouch: args.ouch
@@ -1967,7 +2033,7 @@ export namespace Calculator {
     export class CalculateResult extends thrift.StructLike implements ICalculateResult {
         public success?: number;
         public ouch?: operation.IJankyOperation;
-        constructor(args: ICalculateResult_Loose = {}) {
+        constructor(args: ICalculateResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_74: number = args.success;
@@ -1981,6 +2047,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): CalculateResult {
             return new CalculateResult(CalculateResultCodec.decode(input));
         }
+        public static write(args: ICalculateResultArgs, output: thrift.TProtocol): void {
+            return CalculateResultCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return CalculateResultCodec.encode(this, output);
         }
@@ -1988,11 +2057,11 @@ export namespace Calculator {
     export interface IEchoBinaryResult {
         success?: string;
     }
-    export interface IEchoBinaryResult_Loose {
+    export interface IEchoBinaryResultArgs {
         success?: string;
     }
-    export const EchoBinaryResultCodec: thrift.IStructCodec<IEchoBinaryResult_Loose, IEchoBinaryResult> = {
-        encode(args: IEchoBinaryResult_Loose, output: thrift.TProtocol): void {
+    export const EchoBinaryResultCodec: thrift.IStructCodec<IEchoBinaryResultArgs, IEchoBinaryResult> = {
+        encode(args: IEchoBinaryResultArgs, output: thrift.TProtocol): void {
             const obj = {
                 success: args.success
             };
@@ -2040,7 +2109,7 @@ export namespace Calculator {
     };
     export class EchoBinaryResult extends thrift.StructLike implements IEchoBinaryResult {
         public success?: string;
-        constructor(args: IEchoBinaryResult_Loose = {}) {
+        constructor(args: IEchoBinaryResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_77: string = args.success;
@@ -2050,6 +2119,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): EchoBinaryResult {
             return new EchoBinaryResult(EchoBinaryResultCodec.decode(input));
         }
+        public static write(args: IEchoBinaryResultArgs, output: thrift.TProtocol): void {
+            return EchoBinaryResultCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return EchoBinaryResultCodec.encode(this, output);
         }
@@ -2057,11 +2129,11 @@ export namespace Calculator {
     export interface IEchoStringResult {
         success?: string;
     }
-    export interface IEchoStringResult_Loose {
+    export interface IEchoStringResultArgs {
         success?: string;
     }
-    export const EchoStringResultCodec: thrift.IStructCodec<IEchoStringResult_Loose, IEchoStringResult> = {
-        encode(args: IEchoStringResult_Loose, output: thrift.TProtocol): void {
+    export const EchoStringResultCodec: thrift.IStructCodec<IEchoStringResultArgs, IEchoStringResult> = {
+        encode(args: IEchoStringResultArgs, output: thrift.TProtocol): void {
             const obj = {
                 success: args.success
             };
@@ -2109,7 +2181,7 @@ export namespace Calculator {
     };
     export class EchoStringResult extends thrift.StructLike implements IEchoStringResult {
         public success?: string;
-        constructor(args: IEchoStringResult_Loose = {}) {
+        constructor(args: IEchoStringResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_79: string = args.success;
@@ -2119,6 +2191,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): EchoStringResult {
             return new EchoStringResult(EchoStringResultCodec.decode(input));
         }
+        public static write(args: IEchoStringResultArgs, output: thrift.TProtocol): void {
+            return EchoStringResultCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return EchoStringResultCodec.encode(this, output);
         }
@@ -2126,11 +2201,11 @@ export namespace Calculator {
     export interface ICheckNameResult {
         success?: string;
     }
-    export interface ICheckNameResult_Loose {
+    export interface ICheckNameResultArgs {
         success?: string;
     }
-    export const CheckNameResultCodec: thrift.IStructCodec<ICheckNameResult_Loose, ICheckNameResult> = {
-        encode(args: ICheckNameResult_Loose, output: thrift.TProtocol): void {
+    export const CheckNameResultCodec: thrift.IStructCodec<ICheckNameResultArgs, ICheckNameResult> = {
+        encode(args: ICheckNameResultArgs, output: thrift.TProtocol): void {
             const obj = {
                 success: args.success
             };
@@ -2178,7 +2253,7 @@ export namespace Calculator {
     };
     export class CheckNameResult extends thrift.StructLike implements ICheckNameResult {
         public success?: string;
-        constructor(args: ICheckNameResult_Loose = {}) {
+        constructor(args: ICheckNameResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_81: string = args.success;
@@ -2188,6 +2263,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): CheckNameResult {
             return new CheckNameResult(CheckNameResultCodec.decode(input));
         }
+        public static write(args: ICheckNameResultArgs, output: thrift.TProtocol): void {
+            return CheckNameResultCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return CheckNameResultCodec.encode(this, output);
         }
@@ -2195,11 +2273,11 @@ export namespace Calculator {
     export interface ICheckOptionalResult {
         success?: string;
     }
-    export interface ICheckOptionalResult_Loose {
+    export interface ICheckOptionalResultArgs {
         success?: string;
     }
-    export const CheckOptionalResultCodec: thrift.IStructCodec<ICheckOptionalResult_Loose, ICheckOptionalResult> = {
-        encode(args: ICheckOptionalResult_Loose, output: thrift.TProtocol): void {
+    export const CheckOptionalResultCodec: thrift.IStructCodec<ICheckOptionalResultArgs, ICheckOptionalResult> = {
+        encode(args: ICheckOptionalResultArgs, output: thrift.TProtocol): void {
             const obj = {
                 success: args.success
             };
@@ -2247,7 +2325,7 @@ export namespace Calculator {
     };
     export class CheckOptionalResult extends thrift.StructLike implements ICheckOptionalResult {
         public success?: string;
-        constructor(args: ICheckOptionalResult_Loose = {}) {
+        constructor(args: ICheckOptionalResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_83: string = args.success;
@@ -2257,6 +2335,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): CheckOptionalResult {
             return new CheckOptionalResult(CheckOptionalResultCodec.decode(input));
         }
+        public static write(args: ICheckOptionalResultArgs, output: thrift.TProtocol): void {
+            return CheckOptionalResultCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return CheckOptionalResultCodec.encode(this, output);
         }
@@ -2264,11 +2345,11 @@ export namespace Calculator {
     export interface IMapOneListResult {
         success?: Array<number>;
     }
-    export interface IMapOneListResult_Loose {
+    export interface IMapOneListResultArgs {
         success?: Array<number>;
     }
-    export const MapOneListResultCodec: thrift.IStructCodec<IMapOneListResult_Loose, IMapOneListResult> = {
-        encode(args: IMapOneListResult_Loose, output: thrift.TProtocol): void {
+    export const MapOneListResultCodec: thrift.IStructCodec<IMapOneListResultArgs, IMapOneListResult> = {
+        encode(args: IMapOneListResultArgs, output: thrift.TProtocol): void {
             const obj = {
                 success: args.success
             };
@@ -2327,7 +2408,7 @@ export namespace Calculator {
     };
     export class MapOneListResult extends thrift.StructLike implements IMapOneListResult {
         public success?: Array<number>;
-        constructor(args: IMapOneListResult_Loose = {}) {
+        constructor(args: IMapOneListResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_87: Array<number> = new Array<number>();
@@ -2341,6 +2422,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): MapOneListResult {
             return new MapOneListResult(MapOneListResultCodec.decode(input));
         }
+        public static write(args: IMapOneListResultArgs, output: thrift.TProtocol): void {
+            return MapOneListResultCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return MapOneListResultCodec.encode(this, output);
         }
@@ -2348,11 +2432,11 @@ export namespace Calculator {
     export interface IMapValuesResult {
         success?: Array<number>;
     }
-    export interface IMapValuesResult_Loose {
+    export interface IMapValuesResultArgs {
         success?: Array<number>;
     }
-    export const MapValuesResultCodec: thrift.IStructCodec<IMapValuesResult_Loose, IMapValuesResult> = {
-        encode(args: IMapValuesResult_Loose, output: thrift.TProtocol): void {
+    export const MapValuesResultCodec: thrift.IStructCodec<IMapValuesResultArgs, IMapValuesResult> = {
+        encode(args: IMapValuesResultArgs, output: thrift.TProtocol): void {
             const obj = {
                 success: args.success
             };
@@ -2411,7 +2495,7 @@ export namespace Calculator {
     };
     export class MapValuesResult extends thrift.StructLike implements IMapValuesResult {
         public success?: Array<number>;
-        constructor(args: IMapValuesResult_Loose = {}) {
+        constructor(args: IMapValuesResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_93: Array<number> = new Array<number>();
@@ -2425,6 +2509,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): MapValuesResult {
             return new MapValuesResult(MapValuesResultCodec.decode(input));
         }
+        public static write(args: IMapValuesResultArgs, output: thrift.TProtocol): void {
+            return MapValuesResultCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return MapValuesResultCodec.encode(this, output);
         }
@@ -2432,11 +2519,11 @@ export namespace Calculator {
     export interface IListToMapResult {
         success?: Map<string, string>;
     }
-    export interface IListToMapResult_Loose {
+    export interface IListToMapResultArgs {
         success?: Map<string, string>;
     }
-    export const ListToMapResultCodec: thrift.IStructCodec<IListToMapResult_Loose, IListToMapResult> = {
-        encode(args: IListToMapResult_Loose, output: thrift.TProtocol): void {
+    export const ListToMapResultCodec: thrift.IStructCodec<IListToMapResultArgs, IListToMapResult> = {
+        encode(args: IListToMapResultArgs, output: thrift.TProtocol): void {
             const obj = {
                 success: args.success
             };
@@ -2497,7 +2584,7 @@ export namespace Calculator {
     };
     export class ListToMapResult extends thrift.StructLike implements IListToMapResult {
         public success?: Map<string, string>;
-        constructor(args: IListToMapResult_Loose = {}) {
+        constructor(args: IListToMapResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_99: Map<string, string> = new Map<string, string>();
@@ -2511,6 +2598,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): ListToMapResult {
             return new ListToMapResult(ListToMapResultCodec.decode(input));
         }
+        public static write(args: IListToMapResultArgs, output: thrift.TProtocol): void {
+            return ListToMapResultCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return ListToMapResultCodec.encode(this, output);
         }
@@ -2518,11 +2608,11 @@ export namespace Calculator {
     export interface IFetchThingResult {
         success?: common.ICommonStruct;
     }
-    export interface IFetchThingResult_Loose {
-        success?: common.ICommonStruct_Loose;
+    export interface IFetchThingResultArgs {
+        success?: common.ICommonStructArgs;
     }
-    export const FetchThingResultCodec: thrift.IStructCodec<IFetchThingResult_Loose, IFetchThingResult> = {
-        encode(args: IFetchThingResult_Loose, output: thrift.TProtocol): void {
+    export const FetchThingResultCodec: thrift.IStructCodec<IFetchThingResultArgs, IFetchThingResult> = {
+        encode(args: IFetchThingResultArgs, output: thrift.TProtocol): void {
             const obj = {
                 success: args.success
             };
@@ -2570,7 +2660,7 @@ export namespace Calculator {
     };
     export class FetchThingResult extends thrift.StructLike implements IFetchThingResult {
         public success?: common.ICommonStruct;
-        constructor(args: IFetchThingResult_Loose = {}) {
+        constructor(args: IFetchThingResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_103: common.ICommonStruct = new common.CommonStruct(args.success);
@@ -2580,6 +2670,9 @@ export namespace Calculator {
         public static read(input: thrift.TProtocol): FetchThingResult {
             return new FetchThingResult(FetchThingResultCodec.decode(input));
         }
+        public static write(args: IFetchThingResultArgs, output: thrift.TProtocol): void {
+            return FetchThingResultCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return FetchThingResultCodec.encode(this, output);
         }
@@ -2587,11 +2680,11 @@ export namespace Calculator {
     export interface IZipResult {
         success?: void;
     }
-    export interface IZipResult_Loose {
+    export interface IZipResultArgs {
         success?: void;
     }
-    export const ZipResultCodec: thrift.IStructCodec<IZipResult_Loose, IZipResult> = {
-        encode(args: IZipResult_Loose, output: thrift.TProtocol): void {
+    export const ZipResultCodec: thrift.IStructCodec<IZipResultArgs, IZipResult> = {
+        encode(args: IZipResultArgs, output: thrift.TProtocol): void {
             output.writeStructBegin("ZipResult");
             output.writeFieldStop();
             output.writeStructEnd();
@@ -2630,7 +2723,7 @@ export namespace Calculator {
     };
     export class ZipResult extends thrift.StructLike implements IZipResult {
         public success?: void;
-        constructor(args: IZipResult_Loose = {}) {
+        constructor(args: IZipResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_104: void = undefined;
@@ -2639,6 +2732,9 @@ export namespace Calculator {
         }
         public static read(input: thrift.TProtocol): ZipResult {
             return new ZipResult(ZipResultCodec.decode(input));
+        }
+        public static write(args: IZipResultArgs, output: thrift.TProtocol): void {
+            return ZipResultCodec.encode(args, output);
         }
         public write(output: thrift.TProtocol): void {
             return ZipResultCodec.encode(this, output);
@@ -2663,7 +2759,7 @@ export namespace Calculator {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("ping", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: IPingArgs_Loose = {};
+            const args: IPingArgsArgs = {};
             PingArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -2694,7 +2790,7 @@ export namespace Calculator {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("add", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: IAddArgs_Loose = { num1, num2 };
+            const args: IAddArgsArgs = { num1, num2 };
             AddArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -2733,7 +2829,7 @@ export namespace Calculator {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("addInt64", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: IAddInt64Args_Loose = { num1, num2 };
+            const args: IAddInt64ArgsArgs = { num1, num2 };
             AddInt64ArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -2769,7 +2865,7 @@ export namespace Calculator {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("addWithContext", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: IAddWithContextArgs_Loose = { num1, num2 };
+            const args: IAddWithContextArgsArgs = { num1, num2 };
             AddWithContextArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -2801,11 +2897,11 @@ export namespace Calculator {
                 }
             });
         }
-        public calculate(logid: number, work: IWork_Loose, context?: Context): Promise<number> {
+        public calculate(logid: number, work: IWorkArgs, context?: Context): Promise<number> {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("calculate", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: ICalculateArgs_Loose = { logid, work };
+            const args: ICalculateArgsArgs = { logid, work };
             CalculateArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -2844,7 +2940,7 @@ export namespace Calculator {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("echoBinary", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: IEchoBinaryArgs_Loose = { word };
+            const args: IEchoBinaryArgsArgs = { word };
             EchoBinaryArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -2880,7 +2976,7 @@ export namespace Calculator {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("echoString", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: IEchoStringArgs_Loose = { word };
+            const args: IEchoStringArgsArgs = { word };
             EchoStringArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -2912,11 +3008,11 @@ export namespace Calculator {
                 }
             });
         }
-        public checkName(choice: IChoice_Loose, context?: Context): Promise<string> {
+        public checkName(choice: IChoiceArgs, context?: Context): Promise<string> {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("checkName", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: ICheckNameArgs_Loose = { choice };
+            const args: ICheckNameArgsArgs = { choice };
             CheckNameArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -2952,7 +3048,7 @@ export namespace Calculator {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("checkOptional", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: ICheckOptionalArgs_Loose = { type };
+            const args: ICheckOptionalArgsArgs = { type };
             CheckOptionalArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -2988,7 +3084,7 @@ export namespace Calculator {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("mapOneList", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: IMapOneListArgs_Loose = { arg };
+            const args: IMapOneListArgsArgs = { arg };
             MapOneListArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -3024,7 +3120,7 @@ export namespace Calculator {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("mapValues", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: IMapValuesArgs_Loose = { arg };
+            const args: IMapValuesArgsArgs = { arg };
             MapValuesArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -3060,7 +3156,7 @@ export namespace Calculator {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("listToMap", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: IListToMapArgs_Loose = { arg };
+            const args: IListToMapArgsArgs = { arg };
             ListToMapArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -3096,7 +3192,7 @@ export namespace Calculator {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("fetchThing", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: IFetchThingArgs_Loose = {};
+            const args: IFetchThingArgsArgs = {};
             FetchThingArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -3132,7 +3228,7 @@ export namespace Calculator {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("zip", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: IZipArgs_Loose = {};
+            const args: IZipArgsArgs = {};
             ZipArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {

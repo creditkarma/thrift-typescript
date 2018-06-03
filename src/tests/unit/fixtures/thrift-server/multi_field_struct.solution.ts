@@ -5,15 +5,15 @@ export interface IMyStruct {
     field1?: number;
     blob?: Buffer;
 }
-export interface IMyStruct_Loose {
+export interface IMyStructArgs {
     id?: number;
     bigID?: number | thrift.Int64;
     word: string;
     field1?: number;
     blob?: string | Buffer;
 }
-export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
-    encode(args: IMyStruct_Loose, output: thrift.TProtocol): void {
+export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
+    encode(args: IMyStructArgs, output: thrift.TProtocol): void {
         const obj = {
             id: (args.id != null ? args.id : 45),
             bigID: (args.bigID != null ? (typeof args.bigID === "number" ? new thrift.Int64(args.bigID) : args.bigID) : thrift.Int64.fromDecimalString("23948234")),
@@ -137,7 +137,7 @@ export class MyStruct extends thrift.StructLike implements IMyStruct {
     public word: string;
     public field1?: number;
     public blob?: Buffer = Buffer.from("binary");
-    constructor(args: IMyStruct_Loose) {
+    constructor(args: IMyStructArgs) {
         super();
         if (args.id != null) {
             const value_6: number = args.id;
@@ -165,6 +165,9 @@ export class MyStruct extends thrift.StructLike implements IMyStruct {
     }
     public static read(input: thrift.TProtocol): MyStruct {
         return new MyStruct(MyStructCodec.decode(input));
+    }
+    public static write(args: IMyStructArgs, output: thrift.TProtocol): void {
+        return MyStructCodec.encode(args, output);
     }
     public write(output: thrift.TProtocol): void {
         return MyStructCodec.encode(this, output);

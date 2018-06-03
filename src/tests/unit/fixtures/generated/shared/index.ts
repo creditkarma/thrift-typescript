@@ -8,11 +8,11 @@ export const SHARED_INT: number = 45;
 export interface ICode {
     status?: thrift.Int64;
 }
-export interface ICode_Loose {
+export interface ICodeArgs {
     status?: number | thrift.Int64;
 }
-export const CodeCodec: thrift.IStructCodec<ICode_Loose, ICode> = {
-    encode(args: ICode_Loose, output: thrift.TProtocol): void {
+export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
+    encode(args: ICodeArgs, output: thrift.TProtocol): void {
         const obj = {
             status: (typeof args.status === "number" ? new thrift.Int64(args.status) : args.status)
         };
@@ -60,7 +60,7 @@ export const CodeCodec: thrift.IStructCodec<ICode_Loose, ICode> = {
 };
 export class Code extends thrift.StructLike implements ICode {
     public status?: thrift.Int64;
-    constructor(args: ICode_Loose = {}) {
+    constructor(args: ICodeArgs = {}) {
         super();
         if (args.status != null) {
             const value_2: thrift.Int64 = (typeof args.status === "number" ? new thrift.Int64(args.status) : args.status);
@@ -70,6 +70,9 @@ export class Code extends thrift.StructLike implements ICode {
     public static read(input: thrift.TProtocol): Code {
         return new Code(CodeCodec.decode(input));
     }
+    public static write(args: ICodeArgs, output: thrift.TProtocol): void {
+        return CodeCodec.encode(args, output);
+    }
     public write(output: thrift.TProtocol): void {
         return CodeCodec.encode(this, output);
     }
@@ -78,12 +81,12 @@ export interface ISharedStruct {
     code: ICode;
     value: string;
 }
-export interface ISharedStruct_Loose {
-    code: ICode_Loose;
+export interface ISharedStructArgs {
+    code: ICodeArgs;
     value: string;
 }
-export const SharedStructCodec: thrift.IStructCodec<ISharedStruct_Loose, ISharedStruct> = {
-    encode(args: ISharedStruct_Loose, output: thrift.TProtocol): void {
+export const SharedStructCodec: thrift.IStructCodec<ISharedStructArgs, ISharedStruct> = {
+    encode(args: ISharedStructArgs, output: thrift.TProtocol): void {
         const obj = {
             code: args.code,
             value: args.value
@@ -159,7 +162,7 @@ export const SharedStructCodec: thrift.IStructCodec<ISharedStruct_Loose, IShared
 export class SharedStruct extends thrift.StructLike implements ISharedStruct {
     public code: ICode;
     public value: string;
-    constructor(args: ISharedStruct_Loose) {
+    constructor(args: ISharedStructArgs) {
         super();
         if (args.code != null) {
             const value_5: ICode = new Code(args.code);
@@ -179,6 +182,9 @@ export class SharedStruct extends thrift.StructLike implements ISharedStruct {
     public static read(input: thrift.TProtocol): SharedStruct {
         return new SharedStruct(SharedStructCodec.decode(input));
     }
+    public static write(args: ISharedStructArgs, output: thrift.TProtocol): void {
+        return SharedStructCodec.encode(args, output);
+    }
     public write(output: thrift.TProtocol): void {
         return SharedStructCodec.encode(this, output);
     }
@@ -187,12 +193,12 @@ export interface ISharedUnion {
     option1?: string;
     option2?: string;
 }
-export interface ISharedUnion_Loose {
+export interface ISharedUnionArgs {
     option1?: string;
     option2?: string;
 }
-export const SharedUnionCodec: thrift.IStructCodec<ISharedUnion_Loose, ISharedUnion> = {
-    encode(args: ISharedUnion_Loose, output: thrift.TProtocol): void {
+export const SharedUnionCodec: thrift.IStructCodec<ISharedUnionArgs, ISharedUnion> = {
+    encode(args: ISharedUnionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
             option1: args.option1,
@@ -277,7 +283,7 @@ export const SharedUnionCodec: thrift.IStructCodec<ISharedUnion_Loose, ISharedUn
 export class SharedUnion extends thrift.StructLike implements ISharedUnion {
     public option1?: string;
     public option2?: string;
-    constructor(args: ISharedUnion_Loose = {}) {
+    constructor(args: ISharedUnionArgs = {}) {
         super();
         let _fieldsSet: number = 0;
         if (args.option1 != null) {
@@ -300,6 +306,9 @@ export class SharedUnion extends thrift.StructLike implements ISharedUnion {
     public static read(input: thrift.TProtocol): SharedUnion {
         return new SharedUnion(SharedUnionCodec.decode(input));
     }
+    public static write(args: ISharedUnionArgs, output: thrift.TProtocol): void {
+        return SharedUnionCodec.encode(args, output);
+    }
     public write(output: thrift.TProtocol): void {
         return SharedUnionCodec.encode(this, output);
     }
@@ -308,11 +317,11 @@ export namespace SharedService {
     export interface IGetStructArgs {
         key: number;
     }
-    export interface IGetStructArgs_Loose {
+    export interface IGetStructArgsArgs {
         key: number;
     }
-    export const GetStructArgsCodec: thrift.IStructCodec<IGetStructArgs_Loose, IGetStructArgs> = {
-        encode(args: IGetStructArgs_Loose, output: thrift.TProtocol): void {
+    export const GetStructArgsCodec: thrift.IStructCodec<IGetStructArgsArgs, IGetStructArgs> = {
+        encode(args: IGetStructArgsArgs, output: thrift.TProtocol): void {
             const obj = {
                 key: args.key
             };
@@ -368,7 +377,7 @@ export namespace SharedService {
     };
     export class GetStructArgs extends thrift.StructLike implements IGetStructArgs {
         public key: number;
-        constructor(args: IGetStructArgs_Loose) {
+        constructor(args: IGetStructArgsArgs) {
             super();
             if (args.key != null) {
                 const value_12: number = args.key;
@@ -381,6 +390,9 @@ export namespace SharedService {
         public static read(input: thrift.TProtocol): GetStructArgs {
             return new GetStructArgs(GetStructArgsCodec.decode(input));
         }
+        public static write(args: IGetStructArgsArgs, output: thrift.TProtocol): void {
+            return GetStructArgsCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return GetStructArgsCodec.encode(this, output);
         }
@@ -388,11 +400,11 @@ export namespace SharedService {
     export interface IGetUnionArgs {
         index: number;
     }
-    export interface IGetUnionArgs_Loose {
+    export interface IGetUnionArgsArgs {
         index: number;
     }
-    export const GetUnionArgsCodec: thrift.IStructCodec<IGetUnionArgs_Loose, IGetUnionArgs> = {
-        encode(args: IGetUnionArgs_Loose, output: thrift.TProtocol): void {
+    export const GetUnionArgsCodec: thrift.IStructCodec<IGetUnionArgsArgs, IGetUnionArgs> = {
+        encode(args: IGetUnionArgsArgs, output: thrift.TProtocol): void {
             const obj = {
                 index: args.index
             };
@@ -448,7 +460,7 @@ export namespace SharedService {
     };
     export class GetUnionArgs extends thrift.StructLike implements IGetUnionArgs {
         public index: number;
-        constructor(args: IGetUnionArgs_Loose) {
+        constructor(args: IGetUnionArgsArgs) {
             super();
             if (args.index != null) {
                 const value_14: number = args.index;
@@ -461,6 +473,9 @@ export namespace SharedService {
         public static read(input: thrift.TProtocol): GetUnionArgs {
             return new GetUnionArgs(GetUnionArgsCodec.decode(input));
         }
+        public static write(args: IGetUnionArgsArgs, output: thrift.TProtocol): void {
+            return GetUnionArgsCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return GetUnionArgsCodec.encode(this, output);
         }
@@ -468,11 +483,11 @@ export namespace SharedService {
     export interface IGetStructResult {
         success?: ISharedStruct;
     }
-    export interface IGetStructResult_Loose {
-        success?: ISharedStruct_Loose;
+    export interface IGetStructResultArgs {
+        success?: ISharedStructArgs;
     }
-    export const GetStructResultCodec: thrift.IStructCodec<IGetStructResult_Loose, IGetStructResult> = {
-        encode(args: IGetStructResult_Loose, output: thrift.TProtocol): void {
+    export const GetStructResultCodec: thrift.IStructCodec<IGetStructResultArgs, IGetStructResult> = {
+        encode(args: IGetStructResultArgs, output: thrift.TProtocol): void {
             const obj = {
                 success: args.success
             };
@@ -520,7 +535,7 @@ export namespace SharedService {
     };
     export class GetStructResult extends thrift.StructLike implements IGetStructResult {
         public success?: ISharedStruct;
-        constructor(args: IGetStructResult_Loose = {}) {
+        constructor(args: IGetStructResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_16: ISharedStruct = new SharedStruct(args.success);
@@ -530,6 +545,9 @@ export namespace SharedService {
         public static read(input: thrift.TProtocol): GetStructResult {
             return new GetStructResult(GetStructResultCodec.decode(input));
         }
+        public static write(args: IGetStructResultArgs, output: thrift.TProtocol): void {
+            return GetStructResultCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return GetStructResultCodec.encode(this, output);
         }
@@ -537,11 +555,11 @@ export namespace SharedService {
     export interface IGetUnionResult {
         success?: ISharedUnion;
     }
-    export interface IGetUnionResult_Loose {
-        success?: ISharedUnion_Loose;
+    export interface IGetUnionResultArgs {
+        success?: ISharedUnionArgs;
     }
-    export const GetUnionResultCodec: thrift.IStructCodec<IGetUnionResult_Loose, IGetUnionResult> = {
-        encode(args: IGetUnionResult_Loose, output: thrift.TProtocol): void {
+    export const GetUnionResultCodec: thrift.IStructCodec<IGetUnionResultArgs, IGetUnionResult> = {
+        encode(args: IGetUnionResultArgs, output: thrift.TProtocol): void {
             const obj = {
                 success: args.success
             };
@@ -589,7 +607,7 @@ export namespace SharedService {
     };
     export class GetUnionResult extends thrift.StructLike implements IGetUnionResult {
         public success?: ISharedUnion;
-        constructor(args: IGetUnionResult_Loose = {}) {
+        constructor(args: IGetUnionResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_18: ISharedUnion = new SharedUnion(args.success);
@@ -598,6 +616,9 @@ export namespace SharedService {
         }
         public static read(input: thrift.TProtocol): GetUnionResult {
             return new GetUnionResult(GetUnionResultCodec.decode(input));
+        }
+        public static write(args: IGetUnionResultArgs, output: thrift.TProtocol): void {
+            return GetUnionResultCodec.encode(args, output);
         }
         public write(output: thrift.TProtocol): void {
             return GetUnionResultCodec.encode(this, output);
@@ -621,7 +642,7 @@ export namespace SharedService {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("getStruct", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: IGetStructArgs_Loose = { key };
+            const args: IGetStructArgsArgs = { key };
             GetStructArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -657,7 +678,7 @@ export namespace SharedService {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("getUnion", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: IGetUnionArgs_Loose = { index };
+            const args: IGetUnionArgsArgs = { index };
             GetUnionArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {

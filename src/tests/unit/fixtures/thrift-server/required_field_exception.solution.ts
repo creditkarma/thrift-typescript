@@ -2,12 +2,12 @@ export interface IMyException {
     description: string;
     code?: number;
 }
-export interface IMyException_Loose {
+export interface IMyExceptionArgs {
     description: string;
     code?: number;
 }
-export const MyExceptionCodec: thrift.IStructCodec<IMyException_Loose, IMyException> = {
-    encode(args: IMyException_Loose, output: thrift.TProtocol): void {
+export const MyExceptionCodec: thrift.IStructCodec<IMyExceptionArgs, IMyException> = {
+    encode(args: IMyExceptionArgs, output: thrift.TProtocol): void {
         const obj = {
             description: args.description,
             code: args.code
@@ -80,7 +80,7 @@ export const MyExceptionCodec: thrift.IStructCodec<IMyException_Loose, IMyExcept
 export class MyException extends thrift.StructLike implements IMyException {
     public description: string;
     public code?: number;
-    constructor(args: IMyException_Loose) {
+    constructor(args: IMyExceptionArgs) {
         super();
         if (args.description != null) {
             const value_3: string = args.description;
@@ -96,6 +96,9 @@ export class MyException extends thrift.StructLike implements IMyException {
     }
     public static read(input: thrift.TProtocol): MyException {
         return new MyException(MyExceptionCodec.decode(input));
+    }
+    public static write(args: IMyExceptionArgs, output: thrift.TProtocol): void {
+        return MyExceptionCodec.encode(args, output);
     }
     public write(output: thrift.TProtocol): void {
         return MyExceptionCodec.encode(this, output);

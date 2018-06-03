@@ -6,11 +6,11 @@
 import * as thrift from "@creditkarma/thrift-server-core";
 import * as shared from "./../shared";
 export import ICommonStruct = shared.ISharedStruct;
-export import ICommonStruct_Loose = shared.ISharedStruct_Loose;
+export import ICommonStructArgs = shared.ISharedStructArgs;
 export import CommonStruct = shared.SharedStruct;
 export import CommonStructCodec = shared.SharedStructCodec;
 export import ICommonUnion = shared.ISharedUnion;
-export import ICommonUnion_Loose = shared.ISharedUnion_Loose;
+export import ICommonUnionArgs = shared.ISharedUnionArgs;
 export import CommonUnion = shared.SharedUnion;
 export import CommonUnionCodec = shared.SharedUnionCodec;
 export import COMMON_INT = shared.SHARED_INT;
@@ -18,12 +18,12 @@ export interface IAuthException {
     code?: number;
     message?: string;
 }
-export interface IAuthException_Loose {
+export interface IAuthExceptionArgs {
     code?: number;
     message?: string;
 }
-export const AuthExceptionCodec: thrift.IStructCodec<IAuthException_Loose, IAuthException> = {
-    encode(args: IAuthException_Loose, output: thrift.TProtocol): void {
+export const AuthExceptionCodec: thrift.IStructCodec<IAuthExceptionArgs, IAuthException> = {
+    encode(args: IAuthExceptionArgs, output: thrift.TProtocol): void {
         const obj = {
             code: args.code,
             message: args.message
@@ -88,7 +88,7 @@ export const AuthExceptionCodec: thrift.IStructCodec<IAuthException_Loose, IAuth
 export class AuthException extends thrift.StructLike implements IAuthException {
     public code?: number;
     public message?: string;
-    constructor(args: IAuthException_Loose = {}) {
+    constructor(args: IAuthExceptionArgs = {}) {
         super();
         if (args.code != null) {
             const value_3: number = args.code;
@@ -101,6 +101,9 @@ export class AuthException extends thrift.StructLike implements IAuthException {
     }
     public static read(input: thrift.TProtocol): AuthException {
         return new AuthException(AuthExceptionCodec.decode(input));
+    }
+    public static write(args: IAuthExceptionArgs, output: thrift.TProtocol): void {
+        return AuthExceptionCodec.encode(args, output);
     }
     public write(output: thrift.TProtocol): void {
         return AuthExceptionCodec.encode(this, output);

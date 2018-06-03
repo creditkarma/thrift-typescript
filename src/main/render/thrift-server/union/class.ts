@@ -32,7 +32,8 @@ import {
 import {
     assignmentForField as _assignmentForField,
     createArgsParameterForStruct,
-    createReadMethod,
+    createStaticReadMethod,
+    createStaticWriteMethod,
     createWriteMethod,
     renderFieldDeclarations,
 } from '../struct/class'
@@ -89,7 +90,8 @@ export function renderClass(node: UnionDefinition, identifiers: IIdentifierMap):
         [
             ...fields,
             ctor,
-            createReadMethod(node),
+            createStaticReadMethod(node),
+            createStaticWriteMethod(node),
             createWriteMethod(node),
         ],
     )

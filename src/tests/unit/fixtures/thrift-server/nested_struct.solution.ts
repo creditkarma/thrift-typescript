@@ -2,12 +2,12 @@ export interface IUser {
     name: string;
     age?: thrift.Int64;
 }
-export interface IUser_Loose {
+export interface IUserArgs {
     name: string;
     age?: number | thrift.Int64;
 }
-export const UserCodec: thrift.IStructCodec<IUser_Loose, IUser> = {
-    encode(args: IUser_Loose, output: thrift.TProtocol): void {
+export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
+    encode(args: IUserArgs, output: thrift.TProtocol): void {
         const obj = {
             name: args.name,
             age: (args.age != null ? (typeof args.age === "number" ? new thrift.Int64(args.age) : args.age) : thrift.Int64.fromDecimalString("45"))
@@ -80,7 +80,7 @@ export const UserCodec: thrift.IStructCodec<IUser_Loose, IUser> = {
 export class User extends thrift.StructLike implements IUser {
     public name: string;
     public age?: thrift.Int64 = thrift.Int64.fromDecimalString("45");
-    constructor(args: IUser_Loose) {
+    constructor(args: IUserArgs) {
         super();
         if (args.name != null) {
             const value_3: string = args.name;
@@ -97,6 +97,9 @@ export class User extends thrift.StructLike implements IUser {
     public static read(input: thrift.TProtocol): User {
         return new User(UserCodec.decode(input));
     }
+    public static write(args: IUserArgs, output: thrift.TProtocol): void {
+        return UserCodec.encode(args, output);
+    }
     public write(output: thrift.TProtocol): void {
         return UserCodec.encode(this, output);
     }
@@ -105,12 +108,12 @@ export interface IMyStruct {
     name: string;
     user: IUser;
 }
-export interface IMyStruct_Loose {
+export interface IMyStructArgs {
     name: string;
-    user: IUser_Loose;
+    user: IUserArgs;
 }
-export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
-    encode(args: IMyStruct_Loose, output: thrift.TProtocol): void {
+export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
+    encode(args: IMyStructArgs, output: thrift.TProtocol): void {
         const obj = {
             name: args.name,
             user: args.user
@@ -186,7 +189,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
 export class MyStruct extends thrift.StructLike implements IMyStruct {
     public name: string;
     public user: IUser;
-    constructor(args: IMyStruct_Loose) {
+    constructor(args: IMyStructArgs) {
         super();
         if (args.name != null) {
             const value_7: string = args.name;
@@ -205,6 +208,9 @@ export class MyStruct extends thrift.StructLike implements IMyStruct {
     }
     public static read(input: thrift.TProtocol): MyStruct {
         return new MyStruct(MyStructCodec.decode(input));
+    }
+    public static write(args: IMyStructArgs, output: thrift.TProtocol): void {
+        return MyStructCodec.encode(args, output);
     }
     public write(output: thrift.TProtocol): void {
         return MyStructCodec.encode(this, output);

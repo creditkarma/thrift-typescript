@@ -11,11 +11,11 @@ export enum Operation {
     DIVIDE = 4
 }
 export import IJankyOperation = exceptions.IInvalidOperation;
-export import IJankyOperation_Loose = exceptions.IInvalidOperation_Loose;
+export import IJankyOperationArgs = exceptions.IInvalidOperationArgs;
 export import JankyOperation = exceptions.InvalidOperation;
 export import JankyOperationCodec = exceptions.InvalidOperationCodec;
 export import IJankyResult = exceptions.IInvalidResult;
-export import IJankyResult_Loose = exceptions.IInvalidResult_Loose;
+export import IJankyResultArgs = exceptions.IInvalidResultArgs;
 export import JankyResult = exceptions.InvalidResult;
 export import JankyResultCodec = exceptions.InvalidResultCodec;
 export import SomethingToDo = Operation;

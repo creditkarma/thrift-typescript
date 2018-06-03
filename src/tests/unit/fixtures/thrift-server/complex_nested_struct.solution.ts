@@ -2,12 +2,12 @@ export interface IOtherStruct {
     id: thrift.Int64;
     name: Buffer;
 }
-export interface IOtherStruct_Loose {
+export interface IOtherStructArgs {
     id: number | thrift.Int64;
     name?: string | Buffer;
 }
-export const OtherStructCodec: thrift.IStructCodec<IOtherStruct_Loose, IOtherStruct> = {
-    encode(args: IOtherStruct_Loose, output: thrift.TProtocol): void {
+export const OtherStructCodec: thrift.IStructCodec<IOtherStructArgs, IOtherStruct> = {
+    encode(args: IOtherStructArgs, output: thrift.TProtocol): void {
         const obj = {
             id: (typeof args.id === "number" ? new thrift.Int64(args.id) : args.id),
             name: (args.name != null ? (typeof args.name === "string" ? Buffer.from(args.name) : args.name) : Buffer.from("John"))
@@ -80,7 +80,7 @@ export const OtherStructCodec: thrift.IStructCodec<IOtherStruct_Loose, IOtherStr
 export class OtherStruct extends thrift.StructLike implements IOtherStruct {
     public id: thrift.Int64;
     public name: Buffer = Buffer.from("John");
-    constructor(args: IOtherStruct_Loose) {
+    constructor(args: IOtherStructArgs) {
         super();
         if (args.id != null) {
             const value_3: thrift.Int64 = (typeof args.id === "number" ? new thrift.Int64(args.id) : args.id);
@@ -97,6 +97,9 @@ export class OtherStruct extends thrift.StructLike implements IOtherStruct {
     public static read(input: thrift.TProtocol): OtherStruct {
         return new OtherStruct(OtherStructCodec.decode(input));
     }
+    public static write(args: IOtherStructArgs, output: thrift.TProtocol): void {
+        return OtherStructCodec.encode(args, output);
+    }
     public write(output: thrift.TProtocol): void {
         return OtherStructCodec.encode(this, output);
     }
@@ -110,17 +113,17 @@ export interface IMyStruct {
     listList: Array<Array<IOtherStruct>>;
     listListString: Array<Array<string>>;
 }
-export interface IMyStruct_Loose {
-    idList: Array<IOtherStruct_Loose>;
-    idMap: Map<string, IOtherStruct_Loose>;
-    idMapList: Map<string, Array<IOtherStruct_Loose>>;
-    idSet: Set<IOtherStruct_Loose>;
+export interface IMyStructArgs {
+    idList: Array<IOtherStructArgs>;
+    idMap: Map<string, IOtherStructArgs>;
+    idMapList: Map<string, Array<IOtherStructArgs>>;
+    idSet: Set<IOtherStructArgs>;
     intList: Array<number | thrift.Int64>;
-    listList: Array<Array<IOtherStruct_Loose>>;
+    listList: Array<Array<IOtherStructArgs>>;
     listListString: Array<Array<string>>;
 }
-export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
-    encode(args: IMyStruct_Loose, output: thrift.TProtocol): void {
+export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
+    encode(args: IMyStructArgs, output: thrift.TProtocol): void {
         const obj = {
             idList: args.idList,
             idMap: args.idMap,
@@ -134,7 +137,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
         if (obj.idList != null) {
             output.writeFieldBegin("idList", thrift.TType.LIST, 1);
             output.writeListBegin(thrift.TType.STRUCT, obj.idList.length);
-            obj.idList.forEach((value_5: IOtherStruct_Loose): void => {
+            obj.idList.forEach((value_5: IOtherStructArgs): void => {
                 OtherStructCodec.encode(value_5, output);
             });
             output.writeListEnd();
@@ -146,7 +149,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
         if (obj.idMap != null) {
             output.writeFieldBegin("idMap", thrift.TType.MAP, 2);
             output.writeMapBegin(thrift.TType.STRING, thrift.TType.STRUCT, obj.idMap.size);
-            obj.idMap.forEach((value_6: IOtherStruct_Loose, key_1: string): void => {
+            obj.idMap.forEach((value_6: IOtherStructArgs, key_1: string): void => {
                 output.writeString(key_1);
                 OtherStructCodec.encode(value_6, output);
             });
@@ -159,10 +162,10 @@ export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
         if (obj.idMapList != null) {
             output.writeFieldBegin("idMapList", thrift.TType.MAP, 3);
             output.writeMapBegin(thrift.TType.STRING, thrift.TType.LIST, obj.idMapList.size);
-            obj.idMapList.forEach((value_7: Array<IOtherStruct_Loose>, key_2: string): void => {
+            obj.idMapList.forEach((value_7: Array<IOtherStructArgs>, key_2: string): void => {
                 output.writeString(key_2);
                 output.writeListBegin(thrift.TType.STRUCT, value_7.length);
-                value_7.forEach((value_8: IOtherStruct_Loose): void => {
+                value_7.forEach((value_8: IOtherStructArgs): void => {
                     OtherStructCodec.encode(value_8, output);
                 });
                 output.writeListEnd();
@@ -176,7 +179,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
         if (obj.idSet != null) {
             output.writeFieldBegin("idSet", thrift.TType.SET, 4);
             output.writeSetBegin(thrift.TType.STRUCT, obj.idSet.size);
-            obj.idSet.forEach((value_9: IOtherStruct_Loose): void => {
+            obj.idSet.forEach((value_9: IOtherStructArgs): void => {
                 OtherStructCodec.encode(value_9, output);
             });
             output.writeSetEnd();
@@ -200,9 +203,9 @@ export const MyStructCodec: thrift.IStructCodec<IMyStruct_Loose, IMyStruct> = {
         if (obj.listList != null) {
             output.writeFieldBegin("listList", thrift.TType.LIST, 6);
             output.writeListBegin(thrift.TType.LIST, obj.listList.length);
-            obj.listList.forEach((value_11: Array<IOtherStruct_Loose>): void => {
+            obj.listList.forEach((value_11: Array<IOtherStructArgs>): void => {
                 output.writeListBegin(thrift.TType.STRUCT, value_11.length);
-                value_11.forEach((value_12: IOtherStruct_Loose): void => {
+                value_11.forEach((value_12: IOtherStructArgs): void => {
                     OtherStructCodec.encode(value_12, output);
                 });
                 output.writeListEnd();
@@ -410,11 +413,11 @@ export class MyStruct extends thrift.StructLike implements IMyStruct {
     public intList: Array<thrift.Int64>;
     public listList: Array<Array<IOtherStruct>>;
     public listListString: Array<Array<string>>;
-    constructor(args: IMyStruct_Loose) {
+    constructor(args: IMyStructArgs) {
         super();
         if (args.idList != null) {
             const value_32: Array<IOtherStruct> = new Array<IOtherStruct>();
-            args.idList.forEach((value_39: IOtherStruct_Loose): void => {
+            args.idList.forEach((value_39: IOtherStructArgs): void => {
                 const value_40: IOtherStruct = new OtherStruct(value_39);
                 value_32.push(value_40);
             });
@@ -425,7 +428,7 @@ export class MyStruct extends thrift.StructLike implements IMyStruct {
         }
         if (args.idMap != null) {
             const value_33: Map<string, IOtherStruct> = new Map<string, IOtherStruct>();
-            args.idMap.forEach((value_41: IOtherStruct_Loose, key_5: string): void => {
+            args.idMap.forEach((value_41: IOtherStructArgs, key_5: string): void => {
                 const value_42: IOtherStruct = new OtherStruct(value_41);
                 value_33.set(key_5, value_42);
             });
@@ -436,9 +439,9 @@ export class MyStruct extends thrift.StructLike implements IMyStruct {
         }
         if (args.idMapList != null) {
             const value_34: Map<string, Array<IOtherStruct>> = new Map<string, Array<IOtherStruct>>();
-            args.idMapList.forEach((value_43: Array<IOtherStruct_Loose>, key_6: string): void => {
+            args.idMapList.forEach((value_43: Array<IOtherStructArgs>, key_6: string): void => {
                 const value_44: Array<IOtherStruct> = new Array<IOtherStruct>();
-                value_43.forEach((value_45: IOtherStruct_Loose): void => {
+                value_43.forEach((value_45: IOtherStructArgs): void => {
                     const value_46: IOtherStruct = new OtherStruct(value_45);
                     value_44.push(value_46);
                 });
@@ -451,7 +454,7 @@ export class MyStruct extends thrift.StructLike implements IMyStruct {
         }
         if (args.idSet != null) {
             const value_35: Set<IOtherStruct> = new Set<IOtherStruct>();
-            args.idSet.forEach((value_47: IOtherStruct_Loose): void => {
+            args.idSet.forEach((value_47: IOtherStructArgs): void => {
                 const value_48: IOtherStruct = new OtherStruct(value_47);
                 value_35.add(value_48);
             });
@@ -473,9 +476,9 @@ export class MyStruct extends thrift.StructLike implements IMyStruct {
         }
         if (args.listList != null) {
             const value_37: Array<Array<IOtherStruct>> = new Array<Array<IOtherStruct>>();
-            args.listList.forEach((value_51: Array<IOtherStruct_Loose>): void => {
+            args.listList.forEach((value_51: Array<IOtherStructArgs>): void => {
                 const value_52: Array<IOtherStruct> = new Array<IOtherStruct>();
-                value_51.forEach((value_53: IOtherStruct_Loose): void => {
+                value_51.forEach((value_53: IOtherStructArgs): void => {
                     const value_54: IOtherStruct = new OtherStruct(value_53);
                     value_52.push(value_54);
                 });
@@ -504,6 +507,9 @@ export class MyStruct extends thrift.StructLike implements IMyStruct {
     }
     public static read(input: thrift.TProtocol): MyStruct {
         return new MyStruct(MyStructCodec.decode(input));
+    }
+    public static write(args: IMyStructArgs, output: thrift.TProtocol): void {
+        return MyStructCodec.encode(args, output);
     }
     public write(output: thrift.TProtocol): void {
         return MyStructCodec.encode(this, output);

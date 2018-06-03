@@ -54,7 +54,7 @@ export function className(name: string): string {
 
 export function looseName(name: string): string {
     return makeNameForNode(name, (part: string) => {
-        return `I${part}_Loose`
+        return `I${part}Args`
     })
 }
 

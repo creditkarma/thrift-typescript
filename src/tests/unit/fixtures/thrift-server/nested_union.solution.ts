@@ -2,12 +2,12 @@ export interface IOption {
     option1?: Buffer;
     option2?: thrift.Int64;
 }
-export interface IOption_Loose {
+export interface IOptionArgs {
     option1?: string | Buffer;
     option2?: number | thrift.Int64;
 }
-export const OptionCodec: thrift.IStructCodec<IOption_Loose, IOption> = {
-    encode(args: IOption_Loose, output: thrift.TProtocol): void {
+export const OptionCodec: thrift.IStructCodec<IOptionArgs, IOption> = {
+    encode(args: IOptionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
             option1: (typeof args.option1 === "string" ? Buffer.from(args.option1) : args.option1),
@@ -92,7 +92,7 @@ export const OptionCodec: thrift.IStructCodec<IOption_Loose, IOption> = {
 export class Option extends thrift.StructLike implements IOption {
     public option1?: Buffer;
     public option2?: thrift.Int64;
-    constructor(args: IOption_Loose = {}) {
+    constructor(args: IOptionArgs = {}) {
         super();
         let _fieldsSet: number = 0;
         if (args.option1 != null) {
@@ -115,6 +115,9 @@ export class Option extends thrift.StructLike implements IOption {
     public static read(input: thrift.TProtocol): Option {
         return new Option(OptionCodec.decode(input));
     }
+    public static write(args: IOptionArgs, output: thrift.TProtocol): void {
+        return OptionCodec.encode(args, output);
+    }
     public write(output: thrift.TProtocol): void {
         return OptionCodec.encode(this, output);
     }
@@ -123,12 +126,12 @@ export interface IMyUnion {
     name?: string;
     option?: IOption;
 }
-export interface IMyUnion_Loose {
+export interface IMyUnionArgs {
     name?: string;
-    option?: IOption_Loose;
+    option?: IOptionArgs;
 }
-export const MyUnionCodec: thrift.IStructCodec<IMyUnion_Loose, IMyUnion> = {
-    encode(args: IMyUnion_Loose, output: thrift.TProtocol): void {
+export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
+    encode(args: IMyUnionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
             name: args.name,
@@ -213,7 +216,7 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnion_Loose, IMyUnion> = {
 export class MyUnion extends thrift.StructLike implements IMyUnion {
     public name?: string;
     public option?: IOption;
-    constructor(args: IMyUnion_Loose = {}) {
+    constructor(args: IMyUnionArgs = {}) {
         super();
         let _fieldsSet: number = 0;
         if (args.name != null) {
@@ -235,6 +238,9 @@ export class MyUnion extends thrift.StructLike implements IMyUnion {
     }
     public static read(input: thrift.TProtocol): MyUnion {
         return new MyUnion(MyUnionCodec.decode(input));
+    }
+    public static write(args: IMyUnionArgs, output: thrift.TProtocol): void {
+        return MyUnionCodec.encode(args, output);
     }
     public write(output: thrift.TProtocol): void {
         return MyUnionCodec.encode(this, output);

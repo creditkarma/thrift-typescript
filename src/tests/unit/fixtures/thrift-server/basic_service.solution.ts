@@ -2,12 +2,12 @@ export interface IUser {
     name: string;
     id: number;
 }
-export interface IUser_Loose {
+export interface IUserArgs {
     name: string;
     id: number;
 }
-export const UserCodec: thrift.IStructCodec<IUser_Loose, IUser> = {
-    encode(args: IUser_Loose, output: thrift.TProtocol): void {
+export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
+    encode(args: IUserArgs, output: thrift.TProtocol): void {
         const obj = {
             name: args.name,
             id: args.id
@@ -83,7 +83,7 @@ export const UserCodec: thrift.IStructCodec<IUser_Loose, IUser> = {
 export class User extends thrift.StructLike implements IUser {
     public name: string;
     public id: number;
-    constructor(args: IUser_Loose) {
+    constructor(args: IUserArgs) {
         super();
         if (args.name != null) {
             const value_3: string = args.name;
@@ -103,6 +103,9 @@ export class User extends thrift.StructLike implements IUser {
     public static read(input: thrift.TProtocol): User {
         return new User(UserCodec.decode(input));
     }
+    public static write(args: IUserArgs, output: thrift.TProtocol): void {
+        return UserCodec.encode(args, output);
+    }
     public write(output: thrift.TProtocol): void {
         return UserCodec.encode(this, output);
     }
@@ -111,11 +114,11 @@ export namespace MyService {
     export interface IGetUserArgs {
         id: number;
     }
-    export interface IGetUserArgs_Loose {
+    export interface IGetUserArgsArgs {
         id: number;
     }
-    export const GetUserArgsCodec: thrift.IStructCodec<IGetUserArgs_Loose, IGetUserArgs> = {
-        encode(args: IGetUserArgs_Loose, output: thrift.TProtocol): void {
+    export const GetUserArgsCodec: thrift.IStructCodec<IGetUserArgsArgs, IGetUserArgs> = {
+        encode(args: IGetUserArgsArgs, output: thrift.TProtocol): void {
             const obj = {
                 id: args.id
             };
@@ -171,7 +174,7 @@ export namespace MyService {
     };
     export class GetUserArgs extends thrift.StructLike implements IGetUserArgs {
         public id: number;
-        constructor(args: IGetUserArgs_Loose) {
+        constructor(args: IGetUserArgsArgs) {
             super();
             if (args.id != null) {
                 const value_6: number = args.id;
@@ -184,6 +187,9 @@ export namespace MyService {
         public static read(input: thrift.TProtocol): GetUserArgs {
             return new GetUserArgs(GetUserArgsCodec.decode(input));
         }
+        public static write(args: IGetUserArgsArgs, output: thrift.TProtocol): void {
+            return GetUserArgsCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return GetUserArgsCodec.encode(this, output);
         }
@@ -191,11 +197,11 @@ export namespace MyService {
     export interface ISaveUserArgs {
         user: IUser;
     }
-    export interface ISaveUserArgs_Loose {
-        user: IUser_Loose;
+    export interface ISaveUserArgsArgs {
+        user: IUserArgs;
     }
-    export const SaveUserArgsCodec: thrift.IStructCodec<ISaveUserArgs_Loose, ISaveUserArgs> = {
-        encode(args: ISaveUserArgs_Loose, output: thrift.TProtocol): void {
+    export const SaveUserArgsCodec: thrift.IStructCodec<ISaveUserArgsArgs, ISaveUserArgs> = {
+        encode(args: ISaveUserArgsArgs, output: thrift.TProtocol): void {
             const obj = {
                 user: args.user
             };
@@ -251,7 +257,7 @@ export namespace MyService {
     };
     export class SaveUserArgs extends thrift.StructLike implements ISaveUserArgs {
         public user: IUser;
-        constructor(args: ISaveUserArgs_Loose) {
+        constructor(args: ISaveUserArgsArgs) {
             super();
             if (args.user != null) {
                 const value_8: IUser = new User(args.user);
@@ -264,16 +270,19 @@ export namespace MyService {
         public static read(input: thrift.TProtocol): SaveUserArgs {
             return new SaveUserArgs(SaveUserArgsCodec.decode(input));
         }
+        public static write(args: ISaveUserArgsArgs, output: thrift.TProtocol): void {
+            return SaveUserArgsCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return SaveUserArgsCodec.encode(this, output);
         }
     }
     export interface IPingArgs {
     }
-    export interface IPingArgs_Loose {
+    export interface IPingArgsArgs {
     }
-    export const PingArgsCodec: thrift.IStructCodec<IPingArgs_Loose, IPingArgs> = {
-        encode(args: IPingArgs_Loose, output: thrift.TProtocol): void {
+    export const PingArgsCodec: thrift.IStructCodec<IPingArgsArgs, IPingArgs> = {
+        encode(args: IPingArgsArgs, output: thrift.TProtocol): void {
             output.writeStructBegin("PingArgs");
             output.writeFieldStop();
             output.writeStructEnd();
@@ -300,11 +309,14 @@ export namespace MyService {
         }
     };
     export class PingArgs extends thrift.StructLike implements IPingArgs {
-        constructor(args: IPingArgs_Loose = {}) {
+        constructor(args: IPingArgsArgs = {}) {
             super();
         }
         public static read(input: thrift.TProtocol): PingArgs {
             return new PingArgs(PingArgsCodec.decode(input));
+        }
+        public static write(args: IPingArgsArgs, output: thrift.TProtocol): void {
+            return PingArgsCodec.encode(args, output);
         }
         public write(output: thrift.TProtocol): void {
             return PingArgsCodec.encode(this, output);
@@ -313,11 +325,11 @@ export namespace MyService {
     export interface IGetUserResult {
         success?: IUser;
     }
-    export interface IGetUserResult_Loose {
-        success?: IUser_Loose;
+    export interface IGetUserResultArgs {
+        success?: IUserArgs;
     }
-    export const GetUserResultCodec: thrift.IStructCodec<IGetUserResult_Loose, IGetUserResult> = {
-        encode(args: IGetUserResult_Loose, output: thrift.TProtocol): void {
+    export const GetUserResultCodec: thrift.IStructCodec<IGetUserResultArgs, IGetUserResult> = {
+        encode(args: IGetUserResultArgs, output: thrift.TProtocol): void {
             const obj = {
                 success: args.success
             };
@@ -365,7 +377,7 @@ export namespace MyService {
     };
     export class GetUserResult extends thrift.StructLike implements IGetUserResult {
         public success?: IUser;
-        constructor(args: IGetUserResult_Loose = {}) {
+        constructor(args: IGetUserResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_10: IUser = new User(args.success);
@@ -375,6 +387,9 @@ export namespace MyService {
         public static read(input: thrift.TProtocol): GetUserResult {
             return new GetUserResult(GetUserResultCodec.decode(input));
         }
+        public static write(args: IGetUserResultArgs, output: thrift.TProtocol): void {
+            return GetUserResultCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return GetUserResultCodec.encode(this, output);
         }
@@ -382,11 +397,11 @@ export namespace MyService {
     export interface ISaveUserResult {
         success?: void;
     }
-    export interface ISaveUserResult_Loose {
+    export interface ISaveUserResultArgs {
         success?: void;
     }
-    export const SaveUserResultCodec: thrift.IStructCodec<ISaveUserResult_Loose, ISaveUserResult> = {
-        encode(args: ISaveUserResult_Loose, output: thrift.TProtocol): void {
+    export const SaveUserResultCodec: thrift.IStructCodec<ISaveUserResultArgs, ISaveUserResult> = {
+        encode(args: ISaveUserResultArgs, output: thrift.TProtocol): void {
             output.writeStructBegin("SaveUserResult");
             output.writeFieldStop();
             output.writeStructEnd();
@@ -425,7 +440,7 @@ export namespace MyService {
     };
     export class SaveUserResult extends thrift.StructLike implements ISaveUserResult {
         public success?: void;
-        constructor(args: ISaveUserResult_Loose = {}) {
+        constructor(args: ISaveUserResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_11: void = undefined;
@@ -435,6 +450,9 @@ export namespace MyService {
         public static read(input: thrift.TProtocol): SaveUserResult {
             return new SaveUserResult(SaveUserResultCodec.decode(input));
         }
+        public static write(args: ISaveUserResultArgs, output: thrift.TProtocol): void {
+            return SaveUserResultCodec.encode(args, output);
+        }
         public write(output: thrift.TProtocol): void {
             return SaveUserResultCodec.encode(this, output);
         }
@@ -442,11 +460,11 @@ export namespace MyService {
     export interface IPingResult {
         success?: void;
     }
-    export interface IPingResult_Loose {
+    export interface IPingResultArgs {
         success?: void;
     }
-    export const PingResultCodec: thrift.IStructCodec<IPingResult_Loose, IPingResult> = {
-        encode(args: IPingResult_Loose, output: thrift.TProtocol): void {
+    export const PingResultCodec: thrift.IStructCodec<IPingResultArgs, IPingResult> = {
+        encode(args: IPingResultArgs, output: thrift.TProtocol): void {
             output.writeStructBegin("PingResult");
             output.writeFieldStop();
             output.writeStructEnd();
@@ -485,7 +503,7 @@ export namespace MyService {
     };
     export class PingResult extends thrift.StructLike implements IPingResult {
         public success?: void;
-        constructor(args: IPingResult_Loose = {}) {
+        constructor(args: IPingResultArgs = {}) {
             super();
             if (args.success != null) {
                 const value_12: void = undefined;
@@ -494,6 +512,9 @@ export namespace MyService {
         }
         public static read(input: thrift.TProtocol): PingResult {
             return new PingResult(PingResultCodec.decode(input));
+        }
+        public static write(args: IPingResultArgs, output: thrift.TProtocol): void {
+            return PingResultCodec.encode(args, output);
         }
         public write(output: thrift.TProtocol): void {
             return PingResultCodec.encode(this, output);
@@ -517,7 +538,7 @@ export namespace MyService {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("getUser", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: IGetUserArgs_Loose = { id };
+            const args: IGetUserArgsArgs = { id };
             GetUserArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -549,11 +570,11 @@ export namespace MyService {
                 }
             });
         }
-        public saveUser(user: IUser_Loose, context?: Context): Promise<void> {
+        public saveUser(user: IUserArgs, context?: Context): Promise<void> {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("saveUser", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: ISaveUserArgs_Loose = { user };
+            const args: ISaveUserArgsArgs = { user };
             SaveUserArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {
@@ -584,7 +605,7 @@ export namespace MyService {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("ping", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: IPingArgs_Loose = {};
+            const args: IPingArgsArgs = {};
             PingArgsCodec.encode(args, output);
             output.writeMessageEnd();
             return this.connection.send(writer.flush(), context).then((data: Buffer) => {

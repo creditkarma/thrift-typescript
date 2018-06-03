@@ -9,12 +9,12 @@ export interface IInvalidOperation {
     whatOp?: number;
     why?: string;
 }
-export interface IInvalidOperation_Loose {
+export interface IInvalidOperationArgs {
     whatOp?: number;
     why?: string;
 }
-export const InvalidOperationCodec: thrift.IStructCodec<IInvalidOperation_Loose, IInvalidOperation> = {
-    encode(args: IInvalidOperation_Loose, output: thrift.TProtocol): void {
+export const InvalidOperationCodec: thrift.IStructCodec<IInvalidOperationArgs, IInvalidOperation> = {
+    encode(args: IInvalidOperationArgs, output: thrift.TProtocol): void {
         const obj = {
             whatOp: args.whatOp,
             why: args.why
@@ -79,7 +79,7 @@ export const InvalidOperationCodec: thrift.IStructCodec<IInvalidOperation_Loose,
 export class InvalidOperation extends thrift.StructLike implements IInvalidOperation {
     public whatOp?: number;
     public why?: string;
-    constructor(args: IInvalidOperation_Loose = {}) {
+    constructor(args: IInvalidOperationArgs = {}) {
         super();
         if (args.whatOp != null) {
             const value_3: number = args.whatOp;
@@ -93,6 +93,9 @@ export class InvalidOperation extends thrift.StructLike implements IInvalidOpera
     public static read(input: thrift.TProtocol): InvalidOperation {
         return new InvalidOperation(InvalidOperationCodec.decode(input));
     }
+    public static write(args: IInvalidOperationArgs, output: thrift.TProtocol): void {
+        return InvalidOperationCodec.encode(args, output);
+    }
     public write(output: thrift.TProtocol): void {
         return InvalidOperationCodec.encode(this, output);
     }
@@ -101,12 +104,12 @@ export interface IInvalidResult {
     message?: string;
     code?: shared.ICode;
 }
-export interface IInvalidResult_Loose {
+export interface IInvalidResultArgs {
     message?: string;
-    code?: shared.ICode_Loose;
+    code?: shared.ICodeArgs;
 }
-export const InvalidResultCodec: thrift.IStructCodec<IInvalidResult_Loose, IInvalidResult> = {
-    encode(args: IInvalidResult_Loose, output: thrift.TProtocol): void {
+export const InvalidResultCodec: thrift.IStructCodec<IInvalidResultArgs, IInvalidResult> = {
+    encode(args: IInvalidResultArgs, output: thrift.TProtocol): void {
         const obj = {
             message: args.message,
             code: args.code
@@ -171,7 +174,7 @@ export const InvalidResultCodec: thrift.IStructCodec<IInvalidResult_Loose, IInva
 export class InvalidResult extends thrift.StructLike implements IInvalidResult {
     public message?: string;
     public code?: shared.ICode;
-    constructor(args: IInvalidResult_Loose = {}) {
+    constructor(args: IInvalidResultArgs = {}) {
         super();
         if (args.message != null) {
             const value_7: string = args.message;
@@ -184,6 +187,9 @@ export class InvalidResult extends thrift.StructLike implements IInvalidResult {
     }
     public static read(input: thrift.TProtocol): InvalidResult {
         return new InvalidResult(InvalidResultCodec.decode(input));
+    }
+    public static write(args: IInvalidResultArgs, output: thrift.TProtocol): void {
+        return InvalidResultCodec.encode(args, output);
     }
     public write(output: thrift.TProtocol): void {
         return InvalidResultCodec.encode(this, output);

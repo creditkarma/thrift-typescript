@@ -1,9 +1,9 @@
 export interface IMyUnion {
 }
-export interface IMyUnion_Loose {
+export interface IMyUnionArgs {
 }
-export const MyUnionCodec: thrift.IStructCodec<IMyUnion_Loose, IMyUnion> = {
-    encode(args: IMyUnion_Loose, output: thrift.TProtocol): void {
+export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
+    encode(args: IMyUnionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         output.writeStructBegin("MyUnion");
         output.writeFieldStop();
@@ -50,7 +50,7 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnion_Loose, IMyUnion> = {
     }
 };
 export class MyUnion extends thrift.StructLike implements IMyUnion {
-    constructor(args: IMyUnion_Loose = {}) {
+    constructor(args: IMyUnionArgs = {}) {
         super();
         let _fieldsSet: number = 0;
         if (_fieldsSet > 1) {
@@ -62,6 +62,9 @@ export class MyUnion extends thrift.StructLike implements IMyUnion {
     }
     public static read(input: thrift.TProtocol): MyUnion {
         return new MyUnion(MyUnionCodec.decode(input));
+    }
+    public static write(args: IMyUnionArgs, output: thrift.TProtocol): void {
+        return MyUnionCodec.encode(args, output);
     }
     public write(output: thrift.TProtocol): void {
         return MyUnionCodec.encode(this, output);

@@ -93,7 +93,8 @@ export function renderClass(node: InterfaceWithFields, identifiers: IIdentifierM
         [
             ...fields,
             ctor,
-            createReadMethod(node),
+            createStaticReadMethod(node),
+            createStaticWriteMethod(node),
             createWriteMethod(node),
         ],
     )
@@ -131,7 +132,47 @@ export function createWriteMethod(node: InterfaceWithFields): ts.MethodDeclarati
     )
 }
 
-export function createReadMethod(node: InterfaceWithFields): ts.MethodDeclaration {
+export function createStaticWriteMethod(node: InterfaceWithFields): ts.MethodDeclaration {
+    return ts.createMethod(
+        undefined,
+        [
+            ts.createToken(ts.SyntaxKind.PublicKeyword),
+            ts.createToken(ts.SyntaxKind.StaticKeyword),
+        ],
+        undefined,
+        COMMON_IDENTIFIERS.write,
+        undefined,
+        undefined,
+        [
+            createFunctionParameter(
+                COMMON_IDENTIFIERS.args,
+                ts.createTypeReferenceNode(
+                    ts.createIdentifier(looseNameForStruct(node)),
+                    undefined,
+                ),
+            ),
+            createOutputParameter(),
+        ],
+        createVoidType(),
+        ts.createBlock([
+            ts.createReturn(
+                ts.createCall(
+                    ts.createPropertyAccess(
+                        ts.createIdentifier(codecNameForStruct(node)),
+                        COMMON_IDENTIFIERS.encode,
+                    ),
+                    undefined,
+                    [
+                        COMMON_IDENTIFIERS.args,
+                        COMMON_IDENTIFIERS.output,
+                    ],
+                ),
+            ),
+        ], true),
+    )
+}
+
+export function createStaticReadMethod(node: InterfaceWithFields): ts.MethodDeclaration {
     return ts.createMethod(
         undefined,
         [
