@@ -378,7 +378,7 @@ Generated TypeScript:
 interface IUser {
     id: thrift.Int64
 }
-interface IUser_Loose {
+interface IUserArgs {
     id: number | thrift.Int64
 }
 interface IProfile {
@@ -386,12 +386,14 @@ interface IProfile {
     data?: Buffer
     lastModified?: thrift.Int64
 }
-interface IProfile_Loose {
-    user: IUser_Loose
+interface IProfileArgs {
+    user: IUserArgs
     data?: string | Buffer
     lastModified?: number | thrift.Int64
 }
 ```
+
+The names of loose interfaces just append `Args` onto the end of the interface name. The reason for this is these interfaces will most often be used as arguments in your code.
 
 Where are the loose interfaces used? The loose interfaces can be passed to client methods.
 
@@ -411,7 +413,7 @@ namespace ProfileService {
         constructor(connection: thrift.IThriftConnection<Context>) {
             // ...
         }
-        getProfileForUser(user: IUser_Loose): Promise<Profile> {
+        getProfileForUser(user: IUserArgs): Promise<Profile> {
             // ...
         }
     }
@@ -428,8 +430,8 @@ When it comes to struct-like data types (struct, union and exception) usually yo
 Looking back at the `User` object from our struct example, in addition to the interface, the code generator creates a codec object like this:
 
 ```typescript
-export const UserCodec: thrift.IStructCodec<IUser_Loose, IUser> {
-    encode(obj: IUser_Loose, output: thrift.TProtocol): void {
+export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> {
+    encode(obj: IUserArgs, output: thrift.TProtocol): void {
         // ...
     },
     decode(input: thrift.TProtocol): IUser {
