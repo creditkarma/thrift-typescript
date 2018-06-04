@@ -5,6 +5,7 @@ import {
     FieldRequired,
     InterfaceWithFields,
 } from '@creditkarma/thrift-parser'
+import { COMMON_IDENTIFIERS } from './identifiers'
 
 /**
  * Create a binary ts.Expression for testing not equal to null
@@ -12,9 +13,6 @@ import {
  * EXAMPLE
  *
  * createNotNull(obj, prop) => 'obj && (obj.prop != null)'
- *
- * @param obj
- * @param prop
  */
 export function createNotNullCheck(obj: string | ts.Expression ): ts.BinaryExpression {
     return ts.createBinary(
@@ -27,9 +25,31 @@ export function createNotNullCheck(obj: string | ts.Expression ): ts.BinaryExpre
 export function createNullCheck(obj: string | ts.Expression ): ts.BinaryExpression {
     return ts.createBinary(
         ((typeof obj === 'string') ? ts.createIdentifier(obj) : obj),
-        ts.SyntaxKind.EqualsEqualsEqualsToken,
-        ts.createIdentifier('undefined'),
+        ts.SyntaxKind.EqualsEqualsToken,
+        ts.createNull(),
     )
+}
+
+/**
+ * Create a check for strict inequality
+ *
+ * EXAMPLE
+ *
+ * createNotEquals(left, right) => 'left !== right'
+ */
+export function createNotEqualsCheck(left: ts.Expression, right: ts.Expression): ts.BinaryExpression {
+    return ts.createBinary(left, ts.SyntaxKind.ExclamationEqualsEqualsToken, right)
+}
+
+/**
+ * Create a check for strict equality
+ *
+ * EXAMPLE
+ *
+ * createEquals(left, right) => 'left === right'
+ */
+export function createEqualsCheck(left: ts.Expression, right: ts.Expression): ts.BinaryExpression {
+    return ts.createBinary(left, ts.SyntaxKind.EqualsEqualsEqualsToken, right)
 }
 
 export function createClassConstructor(
@@ -45,7 +65,7 @@ export function createClassConstructor(
 }
 
 export function createPublicMethod(
-    name: string,
+    name: ts.Identifier,
     args: Array<ts.ParameterDeclaration>,
     type: ts.TypeNode,
     statements: Array<ts.Statement>,
@@ -54,7 +74,7 @@ export function createPublicMethod(
         undefined,
         [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
         undefined,
-        ts.createIdentifier(name),
+        name,
         undefined,
         undefined,
         args,
@@ -65,40 +85,9 @@ export function createPublicMethod(
 
 /**
  * Create assignment of one ts.Expression to another
- *
- * @param left
- * @param right
  */
 export function createAssignmentStatement(left: ts.Expression, right: ts.Expression): ts.ExpressionStatement {
     return ts.createStatement(ts.createAssignment(left, right))
-}
-
-/**
- * Create a check for strict inequality
- *
- * EXAMPLE
- *
- * createNotEquals(left, right) => 'left !== right'
- *
- * @param left
- * @param right
- */
-export function createNotEquals(left: ts.Expression, right: ts.Expression): ts.BinaryExpression {
-    return ts.createBinary(left, ts.SyntaxKind.ExclamationEqualsEqualsToken, right)
-}
-
-/**
- * Create a check for strict equality
- *
- * EXAMPLE
- *
- * createEquals(left, right) => 'left === right'
- *
- * @param left
- * @param right
- */
-export function createEquals(left: ts.Expression, right: ts.Expression): ts.BinaryExpression {
-    return ts.createBinary(left, ts.SyntaxKind.EqualsEqualsEqualsToken, right)
 }
 
 export function createLetStatement(
@@ -189,7 +178,7 @@ export function createCallStatement(
 
 export function createMethodCallStatement(
     obj: string | ts.Identifier,
-    methodName: string,
+    methodName: string | ts.Identifier,
     args: Array<ts.Expression> = [],
 ): ts.ExpressionStatement {
     return createCallStatement(
@@ -200,7 +189,7 @@ export function createMethodCallStatement(
 
 export function createMethodCall(
     obj: string | ts.Expression,
-    method: string,
+    method: string | ts.Identifier,
     args: Array<ts.Expression> = [],
 ): ts.CallExpression {
     return ts.createCall(
@@ -216,11 +205,8 @@ export function createMethodCall(
  * EXAMPLE
  *
  * propertyAccessForIdentifier('test', 'this') => 'test.this'
- *
- * @param obj
- * @param field
  */
-export function propertyAccessForIdentifier(obj: string | ts.Expression, prop: string): ts.PropertyAccessExpression {
+export function propertyAccessForIdentifier(obj: string | ts.Expression, prop: string | ts.Identifier): ts.PropertyAccessExpression {
     switch (obj) {
         case 'this':
             return ts.createPropertyAccess(ts.createThis(), prop)
@@ -273,7 +259,7 @@ export function createPromise(
     body: Array<ts.Statement>,
 ): ts.NewExpression {
     return ts.createNew(
-        ts.createIdentifier('Promise'),
+        COMMON_IDENTIFIERS.Promise,
         [ type ],
         [ ts.createArrowFunction(
             undefined,

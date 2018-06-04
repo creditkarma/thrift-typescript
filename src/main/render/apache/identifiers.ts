@@ -1,5 +1,7 @@
 import * as ts from 'typescript'
 
+export * from '../shared/identifiers'
+
 export const THRIFT_IDENTIFIERS = {
     TMessage: ts.createIdentifier('thrift.TMessage'),
     TField: ts.createIdentifier('thrift.TField'),

@@ -6,7 +6,7 @@ import {
 
 import {
     COMMON_IDENTIFIERS,
-} from '../../shared/identifiers'
+} from '../identifiers'
 
 export const TProtocolType: ts.TypeNode = ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined)
 

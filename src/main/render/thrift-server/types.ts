@@ -12,9 +12,24 @@ import {
 
 import {
     APPLICATION_EXCEPTION,
+    COMMON_IDENTIFIERS,
     PROTOCOL_EXCEPTION,
     THRIFT_TYPES,
 } from './identifiers'
+
+import {
+    createBooleanType,
+    createNumberType,
+    createStringType,
+    createVoidType,
+} from '../shared/types'
+
+import {
+    looseName,
+    strictName,
+} from './struct/utils'
+
+export * from '../shared/types'
 
 export type TProtocolException =
     'UNKNOWN' | 'INVALID_DATA' | 'NEGATIVE_SIZE' |
@@ -116,8 +131,6 @@ function thriftTypeForIdentifier(id: IResolvedIdentifier, identifiers: IIdentifi
  *
  * @todo Clean up so that we can use the strictNullChecks compiler flag which
  * would allow us to use a map and get the same safety as the switch.
- *
- * @param fieldType
  */
 export function thriftTypeForFieldType(fieldType: FunctionType, identifiers: IIdentifierMap): ts.Identifier {
     switch (fieldType.type) {
@@ -161,6 +174,133 @@ export function thriftTypeForFieldType(fieldType: FunctionType, identifiers: IId
 
         case SyntaxType.VoidKeyword:
             return THRIFT_TYPES.VOID
+
+        default:
+            const msg: never = fieldType
+            throw new Error(`Non-exhaustive match for: ${msg}`)
+    }
+}
+
+/**
+ * Creates type annotations for Thrift types
+ *
+ * EXAMPLE
+ *
+ * // thrift
+ * const bool FALSE_CONST = false
+ *
+ * // typescript
+ * const FALSE_CONST: boolean = false
+ *
+ * This function provides the ': boolean' bit.
+ *
+ * Container types:
+ *
+ * SetType | MapType | ListType
+ *
+ * Base types:
+ *
+ * SyntaxType.StringKeyword | SyntaxType.DoubleKeyword | SyntaxType.BoolKeyword |
+ * SyntaxType.I8Keyword | SyntaxType.I16Keyword | SyntaxType.I32Keyword |
+ * SyntaxType.I64Keyword | SyntaxType.BinaryKeyword | SyntaxType.ByteKeyword;
+ *
+ * Function types:
+ *
+ * SyntaxType.VoidKeyword
+ */
+function typeNodeForIdentifier(id: IResolvedIdentifier, name: string, loose: boolean = false): ts.TypeNode {
+    switch (id.definition.type) {
+        case SyntaxType.StructDefinition:
+        case SyntaxType.ExceptionDefinition:
+        case SyntaxType.UnionDefinition:
+            if (loose) {
+                return ts.createTypeReferenceNode(
+                    ts.createIdentifier(looseName(name)),
+                    undefined,
+                )
+
+            } else {
+                return ts.createTypeReferenceNode(
+                    ts.createIdentifier(strictName(name)),
+                    undefined,
+                )
+            }
+
+        default:
+            return ts.createTypeReferenceNode(
+                ts.createIdentifier(name),
+                undefined,
+            )
+    }
+}
+
+export function typeNodeForFieldType(fieldType: FunctionType, identifiers: IIdentifierMap, loose: boolean = false): ts.TypeNode {
+    switch (fieldType.type) {
+        case SyntaxType.Identifier:
+            return typeNodeForIdentifier(identifiers[fieldType.value], fieldType.value, loose)
+
+        case SyntaxType.SetType:
+            return ts.createTypeReferenceNode(
+                'Set',
+                [ typeNodeForFieldType(fieldType.valueType, identifiers, loose) ],
+            )
+
+        case SyntaxType.MapType:
+            return ts.createTypeReferenceNode(
+                'Map',
+                [
+                    typeNodeForFieldType(fieldType.keyType, identifiers, loose),
+                    typeNodeForFieldType(fieldType.valueType, identifiers, loose),
+                ],
+            )
+
+        case SyntaxType.ListType:
+            return ts.createTypeReferenceNode(
+                'Array',
+                [ typeNodeForFieldType(fieldType.valueType, identifiers, loose) ],
+            )
+
+        case SyntaxType.StringKeyword:
+            return createStringType()
+
+        case SyntaxType.BoolKeyword:
+            return createBooleanType()
+
+        case SyntaxType.I64Keyword:
+            if (loose === true) {
+                return ts.createUnionTypeNode([
+                    createNumberType(),
+                    ts.createTypeReferenceNode(
+                        COMMON_IDENTIFIERS.Int64,
+                        undefined,
+                    ),
+                ])
+            } else {
+                return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Int64, undefined)
+            }
+
+        case SyntaxType.BinaryKeyword:
+            if (loose === true) {
+                return ts.createUnionTypeNode([
+                    createStringType(),
+                    ts.createTypeReferenceNode(
+                        COMMON_IDENTIFIERS.Buffer,
+                        undefined,
+                    ),
+                ])
+            } else {
+                return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Buffer, undefined)
+            }
+
+        case SyntaxType.DoubleKeyword:
+        case SyntaxType.I8Keyword:
+        case SyntaxType.I16Keyword:
+        case SyntaxType.I32Keyword:
+        case SyntaxType.ByteKeyword:
+            return createNumberType()
+
+        case SyntaxType.VoidKeyword:
+            return createVoidType()
 
         default:
             const msg: never = fieldType

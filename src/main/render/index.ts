@@ -1,26 +1,26 @@
 import {
-  renderer as ApacheRenderer,
+    renderer as ApacheRenderer,
 } from './apache'
 
 import {
-  renderer as ThriftRenderer,
+    renderer as ThriftRenderer,
 } from './thrift-server'
 
 import {
-  CompileTarget,
-  IRenderer,
+    CompileTarget,
+    IRenderer,
 } from '../types'
 
 export function rendererForTarget(target: CompileTarget = 'apache'): IRenderer {
-  switch (target) {
-    case 'apache':
-      return ApacheRenderer
+    switch (target) {
+        case 'apache':
+            return ApacheRenderer
 
-    case 'thrift-server':
-      return ThriftRenderer
+        case 'thrift-server':
+            return ThriftRenderer
 
-    default:
-      const msg: never = target
-      throw new Error(`Non-exhaustive match for ${msg}`)
-  }
+        default:
+            const msg: never = target
+            throw new Error(`Non-exhaustive match for ${msg}`)
+    }
 }

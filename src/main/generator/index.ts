@@ -1,14 +1,11 @@
-import * as path from 'path'
 import * as ts from 'typescript'
 
 import {
     IIdentifierMap,
+    INamespaceFile,
     IRenderedCache,
     IRenderedFile,
-    IRenderedFileMap,
     IRenderer,
-    IResolvedFile,
-    IResolvedIncludeMap,
 } from '../types'
 
 import { processStatements } from './iterator'
@@ -34,50 +31,22 @@ export function generateFile(
     rootDir: string,
     outDir: string,
     sourceDir: string,
-    resolvedFile: IResolvedFile,
+    resolvedFile: INamespaceFile,
     cache: IRenderedCache = {},
 ): IRenderedFile {
-    const cacheKey: string = `${resolvedFile.path}/${resolvedFile.name}`
+    const cacheKey: string = resolvedFile.namespace.path
 
-    if (cacheKey === '/' || !cache[cacheKey]) {
-        function outPathForFile(): string {
-            const filename: string = `${resolvedFile.name}.ts`
-            const outFile: string = path.resolve(outDir, resolvedFile.namespace.path, filename)
-
-            return outFile
-        }
-
-        function createIncludes(currentPath: string, includesMap: IResolvedIncludeMap): IRenderedFileMap {
-            return Object.keys(includesMap).reduce((acc: IRenderedFileMap, next: string): IRenderedFileMap => {
-                const include: IResolvedFile = includesMap[next].file
-                const renderedFile: IRenderedFile = generateFile(
-                    renderer,
-                    rootDir,
-                    outDir,
-                    sourceDir,
-                    include,
-                    cache,
-                )
-                acc[next] = renderedFile
-                return acc
-            }, {})
-        }
-
-        const includes: IRenderedFileMap = createIncludes(resolvedFile.path, resolvedFile.includes)
+    if (cacheKey === '/' || cache[cacheKey] === undefined) {
         const identifiers: IIdentifierMap = resolvedFile.identifiers
-        const outPath: string = outPathForFile()
         const statements: Array<ts.Statement> = [
-            ...renderer.renderIncludes(outPath, includes, resolvedFile),
+            ...renderer.renderIncludes(outDir, resolvedFile.namespace.path, resolvedFile),
             ...processStatements(resolvedFile.body, identifiers, renderer),
         ]
 
         cache[cacheKey] = {
-            name: resolvedFile.name,
-            path: resolvedFile.path,
-            outPath,
+            outPath: resolvedFile.namespace.path,
             namespace: resolvedFile.namespace,
             statements,
-            includes,
             identifiers,
         }
     }

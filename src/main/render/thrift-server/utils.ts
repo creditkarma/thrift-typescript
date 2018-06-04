@@ -7,15 +7,96 @@
 import * as ts from 'typescript'
 
 import {
+    FieldDefinition,
+    FunctionType,
+    SyntaxType,
+} from '@creditkarma/thrift-parser'
+
+import {
     TApplicationException,
     TProtocolException,
 } from './types'
 
 import {
+    renderValue,
+} from './values'
+
+import {
+    createNotNullCheck,
+} from './utils'
+
+import {
     APPLICATION_EXCEPTION,
+    COMMON_IDENTIFIERS,
     PROTOCOL_EXCEPTION,
     THRIFT_IDENTIFIERS,
 } from './identifiers'
+
+export * from '../shared/utils'
+
+export function coerceType(valueName: ts.Identifier, fieldType: FunctionType): ts.Expression {
+    switch (fieldType.type) {
+        case SyntaxType.I64Keyword:
+            return ts.createParen(ts.createConditional(
+                ts.createBinary(
+                    ts.createTypeOf(valueName),
+                    ts.SyntaxKind.EqualsEqualsEqualsToken,
+                    ts.createLiteral('number'),
+                ),
+                ts.createNew(
+                    COMMON_IDENTIFIERS.Int64,
+                    undefined,
+                    [ valueName ],
+                ),
+                valueName,
+            ))
+
+        case SyntaxType.BinaryKeyword:
+            return ts.createParen(ts.createConditional(
+                ts.createBinary(
+                    ts.createTypeOf(valueName),
+                    ts.SyntaxKind.EqualsEqualsEqualsToken,
+                    ts.createLiteral('string'),
+                ),
+                ts.createCall(
+                    ts.createIdentifier('Buffer.from'),
+                    undefined,
+                    [ valueName ],
+                ),
+                valueName,
+            ))
+
+        default:
+            return valueName
+    }
+}
+
+export function getInitializerForField(objName: string, field: FieldDefinition, loose: boolean = false): ts.Expression {
+    const valueName: ts.Identifier = ts.createIdentifier(`${objName}.${field.name.value}`)
+
+    if (field.defaultValue !== null && field.defaultValue !== undefined) {
+        return ts.createParen(ts.createConditional(
+            createNotNullCheck(valueName),
+            (
+                (loose === true) ?
+                    coerceType(valueName, field.fieldType) :
+                    valueName
+            ),
+            renderValue(field.fieldType, field.defaultValue),
+        ))
+
+    } else {
+        return (
+            (loose === true) ?
+                coerceType(valueName, field.fieldType) :
+                valueName
+        )
+    }
+}
+
+export function isNotVoid(field: FieldDefinition): boolean {
+    return field.fieldType.type !== SyntaxType.VoidKeyword
+}
 
 export function createProtocolException(
     type: TProtocolException,

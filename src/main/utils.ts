@@ -15,6 +15,7 @@ import {
     IIncludeCache,
     IIncludeData,
     IMakeOptions,
+    INamespaceFile,
     IParsedFile,
     IRenderedFile,
     IResolvedFile,
@@ -51,29 +52,67 @@ export function parseThriftString(source: string): ThriftDocument {
     }
 }
 
-/**
- * This utility flattens files and their includes to make them easier to iterate through while
- * generating files.
- *
- * @param files
- */
-function flattenFiles(files: Array<IRenderedFile>): Set<IRenderedFile> {
-    return files.reduce((acc: Set<IRenderedFile>, next: IRenderedFile) => {
-        if (!acc.has(next)) {
-            const includes: Array<IRenderedFile> = []
-            for (const name of Object.keys(next.includes)) {
-                includes.push(next.includes[name])
-            }
+export function dedupResolvedFiles(files: Array<IResolvedFile>): Array<IResolvedFile> {
+    return Array.from(files.reduce((acc: Map<string, IResolvedFile>, next: IResolvedFile) => {
+        acc.set(`${next.path}/${next.name}`, next)
+        return acc
+    }, new Map()).values())
+}
 
-            return new Set([...acc, next, ...flattenFiles(includes)])
+function collectNamespaces(
+    files: Array<IResolvedFile>,
+    cache: Map<string, INamespaceFile> = new Map(),
+): Map<string, INamespaceFile> {
+    if (files.length > 0) {
+        const [head, ...tail] = files
+        const namespace = cache.get(head.namespace.path)
+        if (namespace !== undefined) {
+            namespace.body = namespace.body.concat(head.body)
+            for (const item in head.identifiers) {
+                if (head.identifiers.hasOwnProperty(item)) {
+                    namespace.identifiers[item] = head.identifiers[item]
+                }
+            }
+            for (const item in head.includes) {
+                if (head.includes.hasOwnProperty(item)) {
+                    namespace.includes[item] = head.includes[item]
+                }
+            }
         } else {
-            return acc
+            cache.set(head.namespace.path, {
+                namespace: head.namespace,
+                includes: head.includes,
+                identifiers: head.identifiers,
+                body: head.body,
+            })
         }
-    }, new Set())
+
+        return collectNamespaces(tail, cache)
+    } else {
+        return cache
+    }
+}
+
+export function organizeByNamespace(files: Array<IResolvedFile>): Array<INamespaceFile> {
+    return Array.from(collectNamespaces(files).values())
+}
+
+/**
+ * Once identifiers have been resolved it's easier to deal with files in a flattened state
+ */
+export function flattenResolvedFile(file: IResolvedFile): Array<IResolvedFile> {
+    const result: Array<IResolvedFile> = [ file ]
+    for (const key in file.includes) {
+        if (file.includes.hasOwnProperty(key)) {
+            const include = file.includes[key].file
+            result.concat(flattenResolvedFile(include))
+        }
+    }
+    return result
 }
 
 export function saveFiles(rootDir: string, outDir: string, files: Array<IRenderedFile>): void {
-    flattenFiles(files).forEach((next: IRenderedFile) => {
+    files.forEach((next: IRenderedFile) => {
         mkdir(path.dirname(next.outPath))
         try {
             fs.writeFileSync(next.outPath, print(next.statements, true))
@@ -124,7 +163,10 @@ function parseInclude(
     cache: IIncludeCache = {},
 ): IParsedFile {
     if (!cache[include.path]) {
-        cache[include.path] = parseFile(sourceDir, readThriftFile(include.path, [currentPath, sourceDir]))
+        cache[include.path] = parseFile(
+            sourceDir,
+            readThriftFile(include.path, [ currentPath, sourceDir ]),
+        )
     }
 
     return cache[include.path]

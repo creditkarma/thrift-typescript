@@ -6,12 +6,12 @@ import {
 
 import {
     IIdentifierMap,
-} from '../../types'
+} from '../../../types'
 
 import {
     renderStruct,
-} from './struct'
+} from '../struct'
 
-export function renderException(node: ExceptionDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
+export function renderException(node: ExceptionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
     return renderStruct(node, identifiers)
 }

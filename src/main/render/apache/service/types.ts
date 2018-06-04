@@ -1,13 +1,13 @@
 import * as ts from 'typescript'
 
 import {
-  createNumberType,
-  createVoidType,
-} from '../../shared/types'
+    createNumberType,
+    createVoidType,
+} from '../types'
 
 import {
-  createFunctionParameter,
-} from '../../shared/utils'
+    createFunctionParameter,
+} from '../utils'
 
 import {
     THRIFT_IDENTIFIERS,

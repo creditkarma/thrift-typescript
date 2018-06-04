@@ -1,16 +1,17 @@
 import { NamespaceDefinition, SyntaxType, ThriftDocument, ThriftStatement } from '@creditkarma/thrift-parser'
+import * as path from 'path'
 
-import { IResolvedNamespace, IResolvedNamespaceMap } from '../types'
+import { INamespace, INamespaceMap } from '../types'
 
-function createPathForNamespace(ns: string): string {
-    return ns.split('.').join('/')
+function createPathForNamespace(outPath: string, ns: string): string {
+    return path.resolve(outPath, ns.split('.').join('/'), 'index.ts')
 }
 
-function emptyNamespace(): IResolvedNamespace {
+function emptyNamespace(outPath: string = ''): INamespace {
     return {
         scope: '',
         name: '',
-        path: '',
+        path: createPathForNamespace(outPath, ''),
     }
 }
 
@@ -21,10 +22,10 @@ function emptyNamespace(): IResolvedNamespace {
  *
  * @param namespaces
  */
-function getNamesapce(namespaces: IResolvedNamespaceMap): IResolvedNamespace {
+function getNamesapce(outPath: string, namespaces: INamespaceMap): INamespace {
     return namespaces.js != null
         ? namespaces.js
-        : namespaces.java != null ? namespaces.java : emptyNamespace()
+        : namespaces.java != null ? namespaces.java : emptyNamespace(outPath)
 }
 
 /**
@@ -32,7 +33,7 @@ function getNamesapce(namespaces: IResolvedNamespaceMap): IResolvedNamespace {
  *
  * @param thrift
  */
-export function resolveNamespace(thrift: ThriftDocument): IResolvedNamespace {
+export function resolveNamespace(outPath: string, thrift: ThriftDocument): INamespace {
     const statements: Array<NamespaceDefinition> = thrift.body.filter(
         (next: ThriftStatement): next is NamespaceDefinition => {
             return next.type === SyntaxType.NamespaceDefinition
@@ -40,16 +41,17 @@ export function resolveNamespace(thrift: ThriftDocument): IResolvedNamespace {
     )
 
     return getNamesapce(
+        outPath,
         statements.reduce(
-            (acc: IResolvedNamespaceMap, next: NamespaceDefinition) => {
+            (acc: INamespaceMap, next: NamespaceDefinition) => {
                 acc[next.scope.value] = {
                     scope: next.scope.value,
                     name: next.name.value,
-                    path: createPathForNamespace(next.name.value),
+                    path: createPathForNamespace(outPath, next.name.value),
                 }
                 return acc
             },
-            {} as IResolvedNamespaceMap,
+            {} as INamespaceMap,
         ),
     )
 }

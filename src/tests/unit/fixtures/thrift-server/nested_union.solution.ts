@@ -1,54 +1,44 @@
-export interface IOptionArgs {
-    option1?: string;
-    option2?: string;
+export interface IOption {
+    option1?: Buffer;
+    option2?: thrift.Int64;
 }
-export class Option implements thrift.StructLike {
-    public option1?: string;
-    public option2?: string;
-    constructor(args?: IOptionArgs) {
+export interface IOptionArgs {
+    option1?: string | Buffer;
+    option2?: number | thrift.Int64;
+}
+export const OptionCodec: thrift.IStructCodec<IOptionArgs, IOption> = {
+    encode(args: IOptionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
-        if (args != null) {
-            if (args.option1 != null) {
-                _fieldsSet++;
-                this.option1 = args.option1;
-            }
-            if (args.option2 != null) {
-                _fieldsSet++;
-                this.option2 = args.option2;
-            }
-            if (_fieldsSet > 1) {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
-            }
-            else if (_fieldsSet < 1) {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
-            }
-        }
-    }
-    public static fromOption1(option1: string): Option {
-        return new Option({ option1 });
-    }
-    public static fromOption2(option2: string): Option {
-        return new Option({ option2 });
-    }
-    public write(output: thrift.TProtocol): void {
+        const obj = {
+            option1: (typeof args.option1 === "string" ? Buffer.from(args.option1) : args.option1),
+            option2: (typeof args.option2 === "number" ? new thrift.Int64(args.option2) : args.option2)
+        };
         output.writeStructBegin("Option");
-        if (this.option1 != null) {
+        if (obj.option1 != null) {
+            _fieldsSet++;
             output.writeFieldBegin("option1", thrift.TType.STRING, 1);
-            output.writeString(this.option1);
+            output.writeBinary(obj.option1);
             output.writeFieldEnd();
         }
-        if (this.option2 != null) {
-            output.writeFieldBegin("option2", thrift.TType.STRING, 2);
-            output.writeString(this.option2);
+        if (obj.option2 != null) {
+            _fieldsSet++;
+            output.writeFieldBegin("option2", thrift.TType.I64, 2);
+            output.writeI64(obj.option2);
             output.writeFieldEnd();
         }
         output.writeFieldStop();
         output.writeStructEnd();
+        if (_fieldsSet > 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
+        }
+        else if (_fieldsSet < 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
+        }
         return;
-    }
-    public static read(input: thrift.TProtocol): Option {
+    },
+    decode(input: thrift.TProtocol): IOption {
         let _fieldsSet: number = 0;
-        let _returnValue: Option | null = null;
+        let _returnValue: IOption | null = null;
         input.readStructBegin();
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
@@ -61,18 +51,18 @@ export class Option implements thrift.StructLike {
                 case 1:
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
-                        const value_1: string = input.readString();
-                        _returnValue = Option.fromOption1(value_1);
+                        const value_1: Buffer = input.readBinary();
+                        _returnValue = { option1: value_1 };
                     }
                     else {
                         input.skip(fieldType);
                     }
                     break;
                 case 2:
-                    if (fieldType === thrift.TType.STRING) {
+                    if (fieldType === thrift.TType.I64) {
                         _fieldsSet++;
-                        const value_2: string = input.readString();
-                        _returnValue = Option.fromOption2(value_2);
+                        const value_2: thrift.Int64 = input.readI64();
+                        _returnValue = { option2: value_2 };
                     }
                     else {
                         input.skip(fieldType);
@@ -86,10 +76,10 @@ export class Option implements thrift.StructLike {
         }
         input.readStructEnd();
         if (_fieldsSet > 1) {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
         }
         else if (_fieldsSet < 1) {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
             return _returnValue;
@@ -98,58 +88,81 @@ export class Option implements thrift.StructLike {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read data for TUnion");
         }
     }
+};
+export class Option extends thrift.StructLike implements IOption {
+    public option1?: Buffer;
+    public option2?: thrift.Int64;
+    constructor(args: IOptionArgs = {}) {
+        super();
+        let _fieldsSet: number = 0;
+        if (args.option1 != null) {
+            _fieldsSet++;
+            const value_3: Buffer = (typeof args.option1 === "string" ? Buffer.from(args.option1) : args.option1);
+            this.option1 = value_3;
+        }
+        if (args.option2 != null) {
+            _fieldsSet++;
+            const value_4: thrift.Int64 = (typeof args.option2 === "number" ? new thrift.Int64(args.option2) : args.option2);
+            this.option2 = value_4;
+        }
+        if (_fieldsSet > 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
+        }
+        else if (_fieldsSet < 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
+        }
+    }
+    public static read(input: thrift.TProtocol): Option {
+        return new Option(OptionCodec.decode(input));
+    }
+    public static write(args: IOptionArgs, output: thrift.TProtocol): void {
+        return OptionCodec.encode(args, output);
+    }
+    public write(output: thrift.TProtocol): void {
+        return OptionCodec.encode(this, output);
+    }
+}
+export interface IMyUnion {
+    name?: string;
+    option?: IOption;
 }
 export interface IMyUnionArgs {
     name?: string;
-    option?: Option;
+    option?: IOptionArgs;
 }
-export class MyUnion implements thrift.StructLike {
-    public name?: string;
-    public option?: Option;
-    constructor(args?: IMyUnionArgs) {
+export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
+    encode(args: IMyUnionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
-        if (args != null) {
-            if (args.name != null) {
-                _fieldsSet++;
-                this.name = args.name;
-            }
-            if (args.option != null) {
-                _fieldsSet++;
-                this.option = args.option;
-            }
-            if (_fieldsSet > 1) {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
-            }
-            else if (_fieldsSet < 1) {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
-            }
-        }
-    }
-    public static fromName(name: string): MyUnion {
-        return new MyUnion({ name });
-    }
-    public static fromOption(option: Option): MyUnion {
-        return new MyUnion({ option });
-    }
-    public write(output: thrift.TProtocol): void {
+        const obj = {
+            name: args.name,
+            option: args.option
+        };
         output.writeStructBegin("MyUnion");
-        if (this.name != null) {
+        if (obj.name != null) {
+            _fieldsSet++;
             output.writeFieldBegin("name", thrift.TType.STRING, 1);
-            output.writeString(this.name);
+            output.writeString(obj.name);
             output.writeFieldEnd();
         }
-        if (this.option != null) {
+        if (obj.option != null) {
+            _fieldsSet++;
             output.writeFieldBegin("option", thrift.TType.STRUCT, 2);
-            this.option.write(output);
+            OptionCodec.encode(obj.option, output);
             output.writeFieldEnd();
         }
         output.writeFieldStop();
         output.writeStructEnd();
+        if (_fieldsSet > 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
+        }
+        else if (_fieldsSet < 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
+        }
         return;
-    }
-    public static read(input: thrift.TProtocol): MyUnion {
+    },
+    decode(input: thrift.TProtocol): IMyUnion {
         let _fieldsSet: number = 0;
-        let _returnValue: MyUnion | null = null;
+        let _returnValue: IMyUnion | null = null;
         input.readStructBegin();
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
@@ -162,8 +175,8 @@ export class MyUnion implements thrift.StructLike {
                 case 1:
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
-                        const value_3: string = input.readString();
-                        _returnValue = MyUnion.fromName(value_3);
+                        const value_5: string = input.readString();
+                        _returnValue = { name: value_5 };
                     }
                     else {
                         input.skip(fieldType);
@@ -172,8 +185,8 @@ export class MyUnion implements thrift.StructLike {
                 case 2:
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
-                        const value_4: Option = Option.read(input);
-                        _returnValue = MyUnion.fromOption(value_4);
+                        const value_6: IOption = OptionCodec.decode(input);
+                        _returnValue = { option: value_6 };
                     }
                     else {
                         input.skip(fieldType);
@@ -187,10 +200,10 @@ export class MyUnion implements thrift.StructLike {
         }
         input.readStructEnd();
         if (_fieldsSet > 1) {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
         }
         else if (_fieldsSet < 1) {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
             return _returnValue;
@@ -198,5 +211,38 @@ export class MyUnion implements thrift.StructLike {
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read data for TUnion");
         }
+    }
+};
+export class MyUnion extends thrift.StructLike implements IMyUnion {
+    public name?: string;
+    public option?: IOption;
+    constructor(args: IMyUnionArgs = {}) {
+        super();
+        let _fieldsSet: number = 0;
+        if (args.name != null) {
+            _fieldsSet++;
+            const value_7: string = args.name;
+            this.name = value_7;
+        }
+        if (args.option != null) {
+            _fieldsSet++;
+            const value_8: IOption = new Option(args.option);
+            this.option = value_8;
+        }
+        if (_fieldsSet > 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
+        }
+        else if (_fieldsSet < 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
+        }
+    }
+    public static read(input: thrift.TProtocol): MyUnion {
+        return new MyUnion(MyUnionCodec.decode(input));
+    }
+    public static write(args: IMyUnionArgs, output: thrift.TProtocol): void {
+        return MyUnionCodec.encode(args, output);
+    }
+    public write(output: thrift.TProtocol): void {
+        return MyUnionCodec.encode(this, output);
     }
 }

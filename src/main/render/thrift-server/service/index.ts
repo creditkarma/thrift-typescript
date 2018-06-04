@@ -22,10 +22,6 @@ import {
 } from '../struct'
 
 import {
-    renderInterface,
-} from '../../shared/interface'
-
-import {
     IIdentifierMap,
 } from '../../../types'
 
@@ -36,11 +32,11 @@ function emptyLocation(): TextLocation {
     }
 }
 
-export function renderArgsStruct(service: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.InterfaceDeclaration | ts.ClassDeclaration> {
+export function renderArgsStruct(service: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
     return service.functions.reduce((
-        acc: Array<ts.InterfaceDeclaration | ts.ClassDeclaration>,
+        acc: Array<ts.Statement>,
         func: FunctionDefinition,
-    ): Array<ts.InterfaceDeclaration | ts.ClassDeclaration> => {
+    ): Array<ts.Statement> => {
         const argsStruct: StructDefinition = {
             type: SyntaxType.StructDefinition,
             name: {
@@ -58,17 +54,16 @@ export function renderArgsStruct(service: ServiceDefinition, identifiers: IIdent
 
         return [
             ...acc,
-            renderInterface(argsStruct),
-            renderStruct(argsStruct, identifiers),
+            ...renderStruct(argsStruct, identifiers),
         ]
     }, [])
 }
 
-export function renderResultStruct(service: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.InterfaceDeclaration | ts.ClassDeclaration> {
+export function renderResultStruct(service: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
     return service.functions.reduce((
-        acc: Array<ts.InterfaceDeclaration | ts.ClassDeclaration>,
+        acc: Array<ts.Statement>,
         func: FunctionDefinition,
-    ): Array<ts.InterfaceDeclaration | ts.ClassDeclaration> => {
+    ): Array<ts.Statement> => {
         let fieldID: number = 0
         const resultStruct: StructDefinition = {
             type: SyntaxType.StructDefinition,
@@ -117,8 +112,7 @@ export function renderResultStruct(service: ServiceDefinition, identifiers: IIde
 
         return [
             ...acc,
-            renderInterface(resultStruct),
-            renderStruct(resultStruct, identifiers),
+            ...renderStruct(resultStruct, identifiers),
         ]
     }, [])
 }

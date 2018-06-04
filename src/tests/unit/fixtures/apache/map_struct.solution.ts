@@ -8,7 +8,7 @@ export class MyStruct {
             this.field1 = args.field1;
         }
         else {
-            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field field1 is unset!");
+            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field[field1] is unset!");
         }
     }
     public write(output: thrift.TProtocol): void {

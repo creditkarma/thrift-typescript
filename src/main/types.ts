@@ -42,16 +42,52 @@ export interface IMakeOptions {
 export interface IRenderer {
     renderIncludes(
         outPath: string,
-        includes: IRenderedFileMap,
-        resolvedFile: IResolvedFile,
-    ): Array<ts.Statement>
-    renderConst(statement: ConstDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
-    renderTypeDef(statement: TypedefDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
-    renderEnum(statement: EnumDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
-    renderStruct(statement: StructDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
-    renderException(statement: ExceptionDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
-    renderUnion(statement: UnionDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
-    renderService(statement: ServiceDefinition, identifiers?: IIdentifierMap): Array<ts.Statement>
+        currentPath: string,
+        resolvedFile: INamespaceFile): Array<ts.Statement>
+
+    renderConst(
+        statement: ConstDefinition,
+        identifiers?: IIdentifierMap): Array<ts.Statement>
+
+    renderTypeDef(
+        statement: TypedefDefinition,
+        identifiers?: IIdentifierMap): Array<ts.Statement>
+
+    renderEnum(
+        statement: EnumDefinition,
+        identifiers?: IIdentifierMap): Array<ts.Statement>
+
+    renderStruct(
+        statement: StructDefinition,
+        identifiers?: IIdentifierMap): Array<ts.Statement>
+
+    renderException(
+        statement: ExceptionDefinition,
+        identifiers?: IIdentifierMap): Array<ts.Statement>
+
+    renderUnion(
+        statement: UnionDefinition,
+        identifiers?: IIdentifierMap): Array<ts.Statement>
+
+    renderService(
+        statement: ServiceDefinition,
+        identifiers?: IIdentifierMap): Array<ts.Statement>
+}
+
+/**
+ *
+ * INamespace {
+ *   namespace: string
+ *   path: string
+ * }
+ *
+ *
+ */
+
+export interface IRenderState {
+    includeCache: IIncludeCache
+    resolvedCache: IResolvedCache
+    renderedCache: IRenderedCache
 }
 
 export interface IThriftFile {
@@ -68,23 +104,33 @@ export interface IParsedFile {
     ast: ThriftDocument
 }
 
+// Map from import identifier to namespace path
+export interface IIncludeMap {
+    [name: string]: string
+}
+
 export interface IResolvedFile {
     name: string
     path: string
     source: string
-    namespace: IResolvedNamespace
+    namespace: INamespace
     includes: IResolvedIncludeMap
     identifiers: IIdentifierMap
     body: Array<ThriftStatement>
     errors: Array<IThriftError>
 }
 
+export interface INamespaceFile {
+    namespace: INamespace
+    includes: IResolvedIncludeMap
+    identifiers: IIdentifierMap
+    body: Array<ThriftStatement>
+}
+
 export interface IRenderedFile {
-    name: string
-    path: string
     outPath: string
-    namespace: IResolvedNamespace
-    includes: IRenderedFileMap
+    namespace: INamespace
+    // includes: IRenderedFileMap
     identifiers: IIdentifierMap
     statements: Array<ts.Statement>
 }
@@ -97,14 +143,18 @@ export interface IRenderedFileMap {
     [name: string]: IRenderedFile
 }
 
-export interface IResolvedNamespace {
+export interface INamespacedResolvedFiles {
+    [name: string]: Array<IResolvedFile>
+}
+
+export interface INamespace {
     scope: string
     name: string
     path: string
 }
 
-export interface IResolvedNamespaceMap {
-    [name: string]: IResolvedNamespace
+export interface INamespaceMap {
+    [name: string]: INamespace
 }
 
 export interface IResolvedInclude {
@@ -134,6 +184,7 @@ export type DefinitionType =
 
 export interface IResolvedIdentifier {
     name: string
+    pathName: string
     resolvedName: string
     definition: DefinitionType
 }

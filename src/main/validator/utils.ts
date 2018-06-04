@@ -1,4 +1,8 @@
-import { ConstValue, FunctionType, SyntaxType } from '@creditkarma/thrift-parser'
+import {
+    ConstValue,
+    FunctionType,
+    SyntaxType,
+} from '@creditkarma/thrift-parser'
 
 /**
  * Takes a ConstValue type from our Thrift AST and generated a string representation of the TypeScript

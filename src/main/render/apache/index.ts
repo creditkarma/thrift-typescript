@@ -14,7 +14,7 @@ import { renderException as _renderException } from './exception'
 
 import {
     renderInterface,
-} from '../shared/interface'
+} from './interface'
 
 import {
     renderArgsStruct,
@@ -24,11 +24,11 @@ import {
     renderResultStruct,
 } from './service'
 
-import { renderConst as _renderConst } from '../shared/const'
-import { renderEnum as _renderEnum } from '../shared/enum'
+import { fileUsesThrift } from '../shared/includes'
 import { renderTypeDef as _renderTypeDef } from '../shared/typedef'
+import { renderConst as _renderConst } from './const'
+import { renderEnum as _renderEnum } from './enum'
 import {
-    fileUsesThrift,
     renderIncludes as _renderIncludes,
     renderThriftImports,
 } from './includes'
@@ -37,31 +37,31 @@ import { renderUnion as _renderUnion } from './union'
 
 import {
     IIdentifierMap,
-    IRenderedFileMap,
+    INamespaceFile,
     IRenderer,
-    IResolvedFile,
 } from '../../types'
+import { typeNodeForFieldType } from './types'
 
 export function renderIncludes(
     outPath: string,
-    includes: IRenderedFileMap,
-    resolvedFile: IResolvedFile): Array<ts.Statement> {
+    currentPath: string,
+    resolvedFile: INamespaceFile): Array<ts.Statement> {
     if (fileUsesThrift(resolvedFile)) {
         return [
-        renderThriftImports(),
-        ..._renderIncludes(outPath, includes, resolvedFile.includes),
+            renderThriftImports(),
+            ..._renderIncludes(outPath, currentPath, resolvedFile.includes),
         ]
     } else {
-        return _renderIncludes(outPath, includes, resolvedFile.includes)
+        return _renderIncludes(outPath, currentPath, resolvedFile.includes)
     }
 }
 
 export function renderConst(statement: ConstDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return [ _renderConst(statement) ]
+    return [ _renderConst(statement, typeNodeForFieldType) ]
 }
 
 export function renderTypeDef(statement: TypedefDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return _renderTypeDef(statement, identifiers)
+    return _renderTypeDef(statement, typeNodeForFieldType, identifiers)
 }
 
 export function renderEnum(statement: EnumDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {

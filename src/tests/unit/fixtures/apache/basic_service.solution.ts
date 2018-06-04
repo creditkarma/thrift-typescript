@@ -2,7 +2,7 @@ export namespace MyService {
     export interface IPingArgsArgs {
     }
     export class PingArgs {
-        constructor(args?: IPingArgsArgs) {
+        constructor() {
         }
         public write(output: thrift.TProtocol): void {
             output.writeStructBegin("PingArgs");
@@ -12,7 +12,6 @@ export namespace MyService {
         }
         public static read(input: thrift.TProtocol): PingArgs {
             input.readStructBegin();
-            let _args: any = {};
             while (true) {
                 const ret: thrift.TField = input.readFieldBegin();
                 const fieldType: thrift.Thrift.Type = ret.ftype;
@@ -28,7 +27,7 @@ export namespace MyService {
                 input.readFieldEnd();
             }
             input.readStructEnd();
-            return new PingArgs(_args);
+            return new PingArgs();
         }
     }
     export interface IPingResultArgs {
@@ -110,7 +109,7 @@ export namespace MyService {
         public send_ping(requestId: number): void {
             const output: thrift.TProtocol = new this.protocol(this.output);
             output.writeMessageBegin("ping", thrift.Thrift.MessageType.CALL, requestId);
-            const args: PingArgs = new PingArgs({});
+            const args: PingArgs = new PingArgs();
             args.write(output);
             output.writeMessageEnd();
             this.output.flush();
@@ -163,7 +162,6 @@ export namespace MyService {
         public process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
             new Promise<void>((resolve, reject): void => {
                 try {
-                    PingArgs.read(input);
                     input.readMessageEnd();
                     resolve(this._handler.ping());
                 }

@@ -17,6 +17,8 @@ import {
     THRIFT_IDENTIFIERS,
 } from './identifiers'
 
+export * from '../shared/utils'
+
 export function createProtocolException(
     type: TProtocolException,
     message: string,

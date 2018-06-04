@@ -15,6 +15,7 @@ import {
 
 import {
     thriftTypeForFieldType,
+    typeNodeForFieldType,
 } from '../types'
 
 import {
@@ -24,7 +25,7 @@ import {
 import {
     createAssignmentStatement,
     createConstStatement,
-    createEquals,
+    createEqualsCheck,
     createFunctionParameter,
     createLet,
     createLetStatement,
@@ -41,8 +42,7 @@ import {
 import {
     createAnyType,
     createNumberType,
-    typeNodeForFieldType,
-} from '../../shared/types'
+} from '../types'
 
 import {
     THRIFT_IDENTIFIERS,
@@ -88,11 +88,7 @@ import {
  */
 export function createReadMethod(struct: InterfaceWithFields, identifiers: IIdentifierMap): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
-    const tempVariable: ts.VariableStatement = createLetStatement(
-        ts.createIdentifier('_args'),
-        createAnyType(),
-        ts.createObjectLiteral(),
-    )
+    const tempVariable: Array<ts.VariableStatement> = createTempVariable(struct)
 
     /**
      * cosnt ret: { fieldName: string; fieldType: Thrift.Type; fieldId: number; } = input.readFieldBegin()
@@ -126,7 +122,10 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
      * }
      */
     const checkStop: ts.IfStatement = ts.createIf(
-        createEquals(COMMON_IDENTIFIERS.fieldType, THRIFT_TYPES.STOP),
+        createEqualsCheck(
+            COMMON_IDENTIFIERS.fieldType,
+            THRIFT_TYPES.STOP,
+        ),
         ts.createBlock([
             ts.createBreak(),
         ], true),
@@ -161,7 +160,7 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
             ts.createToken(ts.SyntaxKind.StaticKeyword),
         ],
         undefined,
-        ts.createIdentifier('read'),
+        COMMON_IDENTIFIERS.read,
         undefined,
         undefined,
         [ inputParameter ],
@@ -171,12 +170,24 @@ export function createReadMethod(struct: InterfaceWithFields, identifiers: IIden
         ), // return type
         ts.createBlock([
             readStructBegin(),
-            tempVariable,
+            ...tempVariable,
             whileLoop,
             readStructEnd(),
             createReturnForStruct(struct),
         ], true),
     )
+}
+
+function createTempVariable(struct: InterfaceWithFields): Array<ts.VariableStatement> {
+    if (struct.fields.length > 0) {
+        return [ createLetStatement(
+            COMMON_IDENTIFIERS._args,
+            createAnyType(),
+            ts.createObjectLiteral(),
+        ) ]
+    } else {
+        return []
+    }
 }
 
 function createCheckForFields(fields: Array<FieldDefinition>): ts.BinaryExpression {
@@ -202,13 +213,7 @@ function createReturnForStruct(struct: InterfaceWithFields): ts.Statement {
         return ts.createIf(
             createCheckForFields(struct.fields),
             ts.createBlock([
-                ts.createReturn(
-                    ts.createNew(
-                        ts.createIdentifier(struct.name.value),
-                        undefined,
-                        [ ts.createIdentifier('_args') ],
-                    ),
-                ),
+                createReturnValue(struct),
             ], true),
             ts.createBlock([
                 throwProtocolException(
@@ -218,19 +223,31 @@ function createReturnForStruct(struct: InterfaceWithFields): ts.Statement {
             ], true),
         )
     } else {
-        return ts.createReturn(
-            ts.createNew(
-                ts.createIdentifier(struct.name.value),
-                undefined,
-                [ ts.createIdentifier('_args') ],
-            ),
-        )
+        return createReturnValue(struct)
+    }
+}
+
+function createReturnValue(struct: InterfaceWithFields): ts.ReturnStatement {
+    return ts.createReturn(
+        ts.createNew(
+            ts.createIdentifier(struct.name.value),
+            undefined,
+            createReturnArgs(struct),
+        ),
+    )
+}
+
+function createReturnArgs(struct: InterfaceWithFields): Array<ts.Expression> {
+    if (struct.fields.length > 0) {
+        return [ COMMON_IDENTIFIERS._args ]
+    } else {
+        return []
     }
 }
 
 export function createInputParameter(): ts.ParameterDeclaration {
     return createFunctionParameter(
-        'input', // param name
+        COMMON_IDENTIFIERS.input, // param name
         ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined), // param type
     )
 }
@@ -247,13 +264,11 @@ export function createInputParameter(): ts.ParameterDeclaration {
  *   }
  *   break;
  * }
- *
- * @param field
  */
 export function createCaseForField(field: FieldDefinition, identifiers: IIdentifierMap): ts.CaseClause {
     const fieldAlias: ts.Identifier = ts.createUniqueName('value')
     const checkType: ts.IfStatement = ts.createIf(
-        createEquals(
+        createEqualsCheck(
             COMMON_IDENTIFIERS.fieldType,
             thriftTypeForFieldType(field.fieldType, identifiers),
         ),
@@ -463,8 +478,8 @@ export function readValueForIdentifier(
                     typeNodeForFieldType(fieldType),
                     ts.createCall(
                         ts.createPropertyAccess(
-                        ts.createIdentifier(id.resolvedName),
-                        ts.createIdentifier('read'),
+                            ts.createIdentifier(id.resolvedName),
+                            COMMON_IDENTIFIERS.read,
                         ),
                         undefined,
                         [

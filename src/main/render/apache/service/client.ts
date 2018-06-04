@@ -18,18 +18,17 @@ import {
 } from './utils'
 
 import {
-    createApplicationException,
-} from '../utils'
-
-import {
     renderValue,
-} from '../../shared/values'
+} from '../values'
 
 import {
     COMMON_IDENTIFIERS,
-} from '../../shared/identifiers'
+    MESSAGE_TYPE,
+    THRIFT_IDENTIFIERS,
+} from '../identifiers'
 
 import {
+    createApplicationException,
     createAssignmentStatement,
     createCallStatement,
     createClassConstructor,
@@ -40,19 +39,14 @@ import {
     createNotNullCheck,
     createPromise,
     createPublicProperty,
-} from '../../shared/utils'
+} from '../utils'
 
 import {
     createAnyType,
     createNumberType,
     createVoidType,
     typeNodeForFieldType,
-} from '../../shared/types'
-
-import {
-    MESSAGE_TYPE,
-    THRIFT_IDENTIFIERS,
-} from '../identifiers'
+} from '../types'
 
 export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
     // public _seqid: number;
@@ -97,20 +91,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
             ),
         ], // parameters
         [
-            ...(
-                (node.extends !== null) ?
-                [
-                    ts.createStatement(ts.createCall(
-                        ts.createSuper(),
-                        [],
-                        [
-                            ts.createIdentifier('output'),
-                            ts.createIdentifier('protocol'),
-                        ],
-                    )),
-                ] :
-                []
-            ),
+            ...createSuperCall(node),
             createAssignmentStatement(
                 ts.createIdentifier('this._seqid'),
                 ts.createLiteral(0),
@@ -195,6 +176,23 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
     )
 }
 
+function createSuperCall(node: ServiceDefinition): Array<ts.Statement> {
+    if (node.extends !== null) {
+        return [
+            ts.createStatement(ts.createCall(
+                ts.createSuper(),
+                [],
+                [
+                    ts.createIdentifier('output'),
+                    ts.createIdentifier('protocol'),
+                ],
+            )),
+        ]
+    } else {
+        return []
+    }
+}
+
 // public {{name}}( {{#args}}{{fieldName}}: {{fieldType}}, {{/args}} ): Promise<{{typeName}}> {
 //     this._seqid = this.incrementSeqId()
 //     return new Promise<{{typeName}}>((resolve, reject) => {
@@ -271,7 +269,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition): ts.MethodDeclar
                                         ts.createBlock([
                                             createCallStatement(
                                                 ts.createIdentifier('resolve'),
-                                                [ ts.createIdentifier('result') ],
+                                                [ COMMON_IDENTIFIERS.result ],
                                             ),
                                         ], true),
                                     ),
@@ -372,17 +370,13 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
                 ts.createNew(
                     ts.createIdentifier(createStructArgsName(def)),
                     undefined,
-                    [ ts.createObjectLiteral(
-                        def.fields.map((next: FieldDefinition) => {
-                            return ts.createShorthandPropertyAssignment(next.name.value)
-                        }),
-                    ) ],
+                    createArgumentsObject(def),
                 ),
             ),
             // args.write(output)
             createMethodCallStatement(
                 COMMON_IDENTIFIERS.args,
-                'write',
+                COMMON_IDENTIFIERS.write,
                 [ COMMON_IDENTIFIERS.output ],
             ),
             // output.writeMessageEnd()
@@ -393,12 +387,24 @@ function createSendMethodForDefinition(service: ServiceDefinition, def: Function
             // return this.output.flush()
             ts.createStatement(createMethodCall(
                 ts.createIdentifier('this.output'),
-                'flush',
+                COMMON_IDENTIFIERS.flush,
                 [],
             )),
             ts.createReturn(),
         ], true), // body
     )
+}
+
+function createArgumentsObject(def: FunctionDefinition): Array<ts.Expression> {
+    if (def.fields.length > 0) {
+        return  [ ts.createObjectLiteral(
+            def.fields.map((next: FieldDefinition) => {
+                return ts.createShorthandPropertyAssignment(next.name.value)
+            }),
+        ) ]
+    } else {
+        return []
+    }
 }
 
 // public recv_{{name}}(input: TProtocol, mtype: Thrift.MessageType, rseqid: number): void {
@@ -530,7 +536,7 @@ function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
     } else {
         return [
             createConstStatement(
-                ts.createIdentifier('result'),
+                COMMON_IDENTIFIERS.result,
                 ts.createTypeReferenceNode(
                 ts.createIdentifier(createStructResultName(def)),
                 undefined,
@@ -538,7 +544,7 @@ function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
                 ts.createCall(
                     ts.createPropertyAccess(
                         ts.createIdentifier(createStructResultName(def)),
-                        ts.createIdentifier('read'),
+                        COMMON_IDENTIFIERS.read,
                     ),
                     undefined,
                     [

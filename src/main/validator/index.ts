@@ -15,9 +15,17 @@ import {
     ThriftStatement,
 } from '@creditkarma/thrift-parser'
 
-import { ErrorType, IResolvedFile, IResolvedIdentifier, IThriftError } from '../types'
+import {
+    ErrorType,
+    IResolvedFile,
+    IResolvedIdentifier,
+    IThriftError,
+} from '../types'
 
-import { constToTypeString, fieldTypeToString } from './utils'
+import {
+    constToTypeString,
+    fieldTypeToString,
+} from './utils'
 
 /**
  * Internal class that we will transform into an IThriftError object before passing to the reporter.
@@ -206,7 +214,11 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                     type: SyntaxType.ServiceDefinition,
                     name: statement.name,
                     functions: validateFunctions(statement.functions),
-                    extends: statement.extends !== null ? validateExtends(statement.extends) : null,
+                    extends: (
+                        (statement.extends !== null) ?
+                            validateExtends(statement.extends) :
+                            null
+                    ),
                     comments: statement.comments,
                     loc: statement.loc,
                 }
@@ -218,8 +230,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
     }
 
     function validateExtends(id: Identifier): Identifier {
-        const [baseName] = id.value.split('.')
-        const resolvedID: IResolvedIdentifier = getIdentifier(id.loc, baseName)
+        const resolvedID: IResolvedIdentifier = getIdentifier(id.loc, id.value)
         if (resolvedID.definition.type === SyntaxType.ServiceDefinition) {
             return id
         } else {
@@ -263,12 +274,13 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
         switch (constValue.type) {
             /**
              * If we're dealing with object access (Status.SUCCESS), we just want the base of the identifier (Status)
-             *
-             * The resolver pass should have already mangled something like "exception.Status.SUCCESS" into
-             * "exception$Status.SUCCESS"
              */
             case SyntaxType.Identifier:
-                const [baseName, accessName] = constValue.value.split('.')
+                const parts = constValue.value.split('.')
+                const baseName = (
+                    (parts.length > 2) ? `${parts[0]}.${parts[1]}` : parts[0]
+                )
+                const accessName = parts[(parts.length - 1)]
                 const resolvedConst: IResolvedIdentifier = getIdentifier(
                     constValue.loc,
                     baseName,
@@ -472,6 +484,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
             case SyntaxType.Identifier:
                 if (getIdentifier(fieldType.loc, fieldType.value) != null) {
                     return fieldType
+
                 } else {
                     throw new ValidationError(
                         `Unable to resolve type of identifier ${fieldType.value}`,
@@ -537,8 +550,11 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                 fieldID: validateFieldID(field.fieldID),
                 fieldType: validateFunctionType(field.fieldType),
                 requiredness: field.requiredness,
-                defaultValue:
-                    field.defaultValue !== null ? validateValue(field.fieldType, field.defaultValue) : null,
+                defaultValue: (
+                    (field.defaultValue !== null) ?
+                        validateValue(field.fieldType, field.defaultValue) :
+                        null
+                ),
                 comments: field.comments,
                 loc: field.loc,
             }

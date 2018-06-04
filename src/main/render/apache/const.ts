@@ -5,8 +5,8 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-    typeNodeForFieldType,
-} from '../shared/types'
+    TypeMapping,
+} from './types'
 
 import {
     renderValue,
@@ -24,15 +24,13 @@ import {
  *
  * // typescript
  * const myConst: number = 45
- *
- * @param node
  */
-export function renderConst(node: ConstDefinition): ts.Statement {
+export function renderConst(node: ConstDefinition, typeMapping: TypeMapping): ts.Statement {
     return ts.createVariableStatement(
         [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
         createConst(
             node.name.value,
-            typeNodeForFieldType(node.fieldType),
+            typeMapping(node.fieldType),
             renderValue(node.fieldType, node.initializer),
         ),
     )
