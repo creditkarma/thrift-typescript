@@ -79,6 +79,8 @@ const generatedCode: string = make(rawThrift)
 
 ## Thrift Server
 
+*v2.x of Thrift TypeScript equires @creditkarma/thrift-server v0.7.0 or higher*
+
 While Thrift TypeScript can be used to generate code comaptible with the [Apache Thrift Library](https://github.com/apache/thrift/tree/master/lib/nodejs), it is recommended to use with [Thrift Server](https://github.com/creditkarma/thrift-server). Details on the Apache usage are below.
 
 Thrift Server adds Thrift support to Express or Hapi with plugins or middleware. The other advantange of using the codegen with Thrift Server is the addition of context to service clients and service handlers. Context can be used to do things like auth or tracing in Thrift service methods. Context is an optional final parameter to all service handler methods and all service client methods.
@@ -442,7 +444,7 @@ export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> {
 
 It's just an object that knows how to read the given object from a Thrift Protocol or write the given object to a Thrift Protocol.
 
-The codec will always follow this naming convention, just appending 'Codec' onto the end of your struct name.
+The codec will always follow this naming convention, just appending `Codec` onto the end of your struct name.
 
 ## Apache Thrift
 
