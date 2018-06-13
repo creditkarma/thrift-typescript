@@ -1,66 +1,68 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { assert } from 'chai'
+
 import {
     make,
-    generate,
+    // generate,
 } from '../../main/index'
+
 import { CompileTarget } from '../../main/types'
 
 function readSolution(name: string, target: CompileTarget = 'apache'): string {
     return fs.readFileSync(path.join(__dirname, `./fixtures/${target}/${name}.solution.ts`), 'utf-8')
 }
 
-function readGenerated(name: string): string {
-    return fs.readFileSync(path.join(__dirname, `./generated/${name}/index.ts`), 'utf-8')
-}
+// function readGenerated(name: string): string {
+//     return fs.readFileSync(path.join(__dirname, `./generated/${name}/index.ts`), 'utf-8')
+// }
 
-function readGeneratedSolution(name: string): string {
-    return fs.readFileSync(path.join(__dirname, `./fixtures/generated/${name}/index.ts`), 'utf-8')
-}
+// function readGeneratedSolution(name: string): string {
+//     return fs.readFileSync(path.join(__dirname, `./fixtures/generated/${name}/index.ts`), 'utf-8')
+// }
 
 describe('Thrift TypeScript Generator', () => {
-    describe('Thrift Server v2 Generated', () => {
-        before(() => {
-            generate({
-                rootDir: __dirname,
-                outDir: 'generated',
-                sourceDir: 'fixtures/thrift',
-                target: 'thrift-server',
-                files: [],
-            })
-        })
+    // describe('Thrift Server v2 Generated', () => {
+    //     before(() => {
+    //         generate({
+    //             rootDir: __dirname,
+    //             outDir: 'generated',
+    //             sourceDir: 'fixtures/thrift',
+    //             target: 'thrift-server',
+    //             files: [],
+    //         })
+    //     })
 
-        it('should correctly generate typedefs for includes', () => {
-            const actual: string = readGenerated('operation')
-            const expected: string = readGeneratedSolution('operation')
-            assert.deepEqual(actual, expected)
-        })
+    //     it('should correctly generate typedefs for includes', () => {
+    //         const actual: string = readGenerated('operation')
+    //         const expected: string = readGeneratedSolution('operation')
+    //         assert.deepEqual(actual, expected)
+    //     })
 
-        it('should correctly generate a struct using includes', () => {
-            const actual: string = readGenerated('common')
-            const expected: string = readGeneratedSolution('common')
-            assert.deepEqual(actual, expected)
-        })
+    //     it('should correctly generate a struct using includes', () => {
+    //         const actual: string = readGenerated('common')
+    //         const expected: string = readGeneratedSolution('common')
+    //         assert.deepEqual(actual, expected)
+    //     })
 
-        it('should correctly generate an exception using includes', () => {
-            const actual: string = readGenerated('exceptions')
-            const expected: string = readGeneratedSolution('exceptions')
-            assert.deepEqual(actual, expected)
-        })
+    //     it('should correctly generate an exception using includes', () => {
+    //         const actual: string = readGenerated('exceptions')
+    //         const expected: string = readGeneratedSolution('exceptions')
+    //         assert.deepEqual(actual, expected)
+    //     })
 
-        it('should correctly generate a service', () => {
-            const actual: string = readGenerated('shared')
-            const expected: string = readGeneratedSolution('shared')
-            assert.deepEqual(actual, expected)
-        })
+    //     it('should correctly generate a service', () => {
+    //         const actual: string = readGenerated('shared')
+    //         const expected: string = readGeneratedSolution('shared')
+    //         assert.deepEqual(actual, expected)
+    //     })
 
-        it('should correctly generate a service using includes', () => {
-            const actual: string = readGenerated('calculator')
-            const expected: string = readGeneratedSolution('calculator')
-            assert.deepEqual(actual, expected)
-        })
-    })
+    //     it('should correctly generate a service using includes', () => {
+    //         const actual: string = readGenerated('calculator')
+    //         const expected: string = readGeneratedSolution('calculator')
+    //         assert.deepEqual(actual, expected)
+    //     })
+    // })
 
     describe('Thrift Server v2', () => {
         it('should correctly generate a struct', () => {
