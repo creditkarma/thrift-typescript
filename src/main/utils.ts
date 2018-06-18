@@ -25,6 +25,7 @@ import {
 import { print } from './printer'
 
 import { mkdir } from './sys'
+import { logger } from './logger'
 
 interface IFileCache {
     [path: string]: IThriftFile
@@ -77,6 +78,8 @@ export function saveFiles(rootDir: string, outDir: string, files: Array<IRendere
         mkdir(path.dirname(next.outPath))
         try {
             fs.writeFileSync(next.outPath, print(next.statements, true))
+            logger.log(`Generated file saved: ${next.outPath}`)
+
         } catch (err) {
             throw new Error(`Unable to save generated files to: ${next.outPath}`)
         }

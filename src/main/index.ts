@@ -25,6 +25,7 @@ import { generateFile, processStatements } from './generator'
 import { rendererForTarget } from './render'
 
 import { printErrors } from './debugger'
+import { logger } from './logger'
 
 import {
     collectInvalidFiles,
@@ -62,6 +63,7 @@ export function make(source: string, target: CompileTarget = 'apache'): string {
  * @param options
  */
 export function generate(options: IMakeOptions): void {
+    logger.log(`Generating Thrift from: ${options.rootDir}`)
     const rootDir: string = path.resolve(process.cwd(), options.rootDir)
     const outDir: string = path.resolve(rootDir, options.outDir)
     const sourceDir: string = path.resolve(rootDir, options.sourceDir)
@@ -98,5 +100,6 @@ export function generate(options: IMakeOptions): void {
         )
 
         saveFiles(rootDir, outDir, renderedFiles)
+        logger.log(`Thrift files generated`)
     }
 }
