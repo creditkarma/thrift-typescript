@@ -652,12 +652,15 @@ export namespace MyService {
                 switch (methodName) {
                     case "process_getUser": {
                         resolve(this.process_getUser(requestId, input, output, context));
+                        break;
                     }
                     case "process_saveUser": {
                         resolve(this.process_saveUser(requestId, input, output, context));
+                        break;
                     }
                     case "process_ping": {
                         resolve(this.process_ping(requestId, input, output, context));
+                        break;
                     }
                     default: {
                         input.skip(thrift.TType.STRUCT);
@@ -668,6 +671,7 @@ export namespace MyService {
                         thrift.TApplicationExceptionCodec.encode(err, output);
                         output.writeMessageEnd();
                         resolve(output.flush());
+                        break;
                     }
                 }
             });

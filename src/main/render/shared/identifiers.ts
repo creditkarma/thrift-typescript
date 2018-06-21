@@ -1,6 +1,7 @@
 import * as ts from 'typescript'
 
 export const COMMON_IDENTIFIERS = {
+    break: ts.createIdentifier('break'),
     success: ts.createIdentifier('success'),
     handler: ts.createIdentifier('handler'),
     super: ts.createIdentifier('super'),
