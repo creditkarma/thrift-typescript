@@ -678,6 +678,7 @@ function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
                         ),
                     ],
                 )),
+                ts.createStatement(COMMON_IDENTIFIERS.break),
             ], true),
         ],
     )
@@ -801,6 +802,7 @@ function createMethodCallForFname(service: ServiceDefinition, identifiers: IIden
                             ),
                         ],
                     )),
+                    ts.createStatement(COMMON_IDENTIFIERS.break),
                 ], true),
             ]),
         ]),

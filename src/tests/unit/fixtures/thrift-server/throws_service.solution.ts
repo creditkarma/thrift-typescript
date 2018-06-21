@@ -501,9 +501,11 @@ export namespace MyService {
                 switch (methodName) {
                     case "process_peg": {
                         resolve(this.process_peg(requestId, input, output, context));
+                        break;
                     }
                     case "process_pong": {
                         resolve(this.process_pong(requestId, input, output, context));
+                        break;
                     }
                     default: {
                         input.skip(thrift.TType.STRUCT);
@@ -514,6 +516,7 @@ export namespace MyService {
                         thrift.TApplicationExceptionCodec.encode(err, output);
                         output.writeMessageEnd();
                         resolve(output.flush());
+                        break;
                     }
                 }
             });
