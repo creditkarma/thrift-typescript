@@ -177,6 +177,7 @@ export namespace ParentService {
                 switch (methodName) {
                     case "process_ping": {
                         resolve(this.process_ping(requestId, input, output, context));
+                        break;
                     }
                     default: {
                         input.skip(thrift.TType.STRUCT);
@@ -187,6 +188,7 @@ export namespace ParentService {
                         err.write(output);
                         output.writeMessageEnd();
                         resolve(output.flush());
+                        break;
                     }
                 }
             });
@@ -540,12 +542,15 @@ export namespace ChildService {
                 switch (methodName) {
                     case "process_ping": {
                         resolve(this.process_ping(requestId, input, output, context));
+                        break;
                     }
                     case "process_peg": {
                         resolve(this.process_peg(requestId, input, output, context));
+                        break;
                     }
                     case "process_pong": {
                         resolve(this.process_pong(requestId, input, output, context));
+                        break;
                     }
                     default: {
                         input.skip(thrift.TType.STRUCT);
@@ -556,6 +561,7 @@ export namespace ChildService {
                         err.write(output);
                         output.writeMessageEnd();
                         resolve(output.flush());
+                        break;
                     }
                 }
             });

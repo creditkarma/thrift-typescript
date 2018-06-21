@@ -1,6 +1,7 @@
 import * as ts from 'typescript'
 
 export const COMMON_IDENTIFIERS = {
+    break: ts.createIdentifier('break'),
     callback: ts.createIdentifier('callback'),
     requestId: ts.createIdentifier('requestId'),
     err: ts.createIdentifier('err'),

@@ -24,8 +24,8 @@ import {
 
 import { print } from './printer'
 
-import { mkdir } from './sys'
 import { logger } from './logger'
+import { mkdir } from './sys'
 
 interface IFileCache {
     [path: string]: IThriftFile

@@ -432,12 +432,15 @@ export namespace MyService {
                 switch (methodName) {
                     case "process_send": {
                         resolve(this.process_send(requestId, input, output, context));
+                        break;
                     }
                     case "process_ping": {
                         resolve(this.process_ping(requestId, input, output, context));
+                        break;
                     }
                     case "process_status": {
                         resolve(this.process_status(requestId, input, output, context));
+                        break;
                     }
                     default: {
                         input.skip(thrift.TType.STRUCT);
@@ -448,6 +451,7 @@ export namespace MyService {
                         err.write(output);
                         output.writeMessageEnd();
                         resolve(output.flush());
+                        break;
                     }
                 }
             });
