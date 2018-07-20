@@ -531,7 +531,7 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
 }
 
 function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
-    if (def.returnType.type === SyntaxType.VoidKeyword) {
+    if (def.returnType.type === SyntaxType.VoidKeyword && !def.throws.length) {
         return []
     } else {
         return [
