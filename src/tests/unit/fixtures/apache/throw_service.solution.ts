@@ -194,6 +194,7 @@ export namespace MyService {
                 input.readMessageEnd();
                 return callback(x);
             }
+            const result: PingResult = PingResult.read(input);
             input.readMessageEnd();
             if (result.exp != null) {
                 return callback(result.exp);
