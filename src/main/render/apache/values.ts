@@ -74,7 +74,7 @@ export function renderIntConstant(node: IntConstant, fieldType?: FunctionType): 
         case SyntaxType.IntegerLiteral:
             if (fieldType && fieldType.type === SyntaxType.I64Keyword) {
                 return ts.createNew(
-                    COMMON_IDENTIFIERS.Int64,
+                    COMMON_IDENTIFIERS.Node_Int64,
                     undefined,
                     [
                         ts.createLiteral(parseInt(node.value.value, 10)),
@@ -88,7 +88,7 @@ export function renderIntConstant(node: IntConstant, fieldType?: FunctionType): 
             // The Int64 constructor accepts hex literals as strings
             if (fieldType && fieldType.type === SyntaxType.I64Keyword) {
                 return ts.createNew(
-                    COMMON_IDENTIFIERS.Int64,
+                    COMMON_IDENTIFIERS.Node_Int64,
                     undefined,
                     [
                         ts.createLiteral(node.value.value),

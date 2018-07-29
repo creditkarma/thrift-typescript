@@ -237,12 +237,12 @@ export function typeNodeForFieldType(fieldType: FunctionType, loose: boolean = f
                 return ts.createUnionTypeNode([
                     createNumberType(),
                     ts.createTypeReferenceNode(
-                        COMMON_IDENTIFIERS.Int64,
+                        COMMON_IDENTIFIERS.Node_Int64,
                         undefined,
                     ),
                 ])
             } else {
-                return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Int64, undefined)
+                return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Node_Int64, undefined)
             }
 
         case SyntaxType.BinaryKeyword:
