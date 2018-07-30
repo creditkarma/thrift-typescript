@@ -53,4 +53,5 @@ export const COMMON_IDENTIFIERS = {
     Int64: ts.createIdentifier('thrift.Int64'),
     IHandler: ts.createIdentifier('IHandler'),
     ILocalHandler: ts.createIdentifier('ILocalHandler'),
+    Node_Int64: ts.createIdentifier('Int64'),
 }

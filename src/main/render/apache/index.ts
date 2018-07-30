@@ -24,12 +24,13 @@ import {
     renderResultStruct,
 } from './service'
 
-import { fileUsesThrift } from '../shared/includes'
+import { fileUsesInt64, fileUsesThrift } from '../shared/includes'
 import { renderTypeDef as _renderTypeDef } from '../shared/typedef'
 import { renderConst as _renderConst } from './const'
 import { renderEnum as _renderEnum } from './enum'
 import {
     renderIncludes as _renderIncludes,
+    renderInt64Import,
     renderThriftImports,
 } from './includes'
 import { renderStruct as _renderStruct } from './struct'
@@ -46,14 +47,19 @@ export function renderIncludes(
     outPath: string,
     currentPath: string,
     resolvedFile: INamespaceFile): Array<ts.Statement> {
-    if (fileUsesThrift(resolvedFile)) {
-        return [
-            renderThriftImports(),
+        const includes: Array<ts.Statement> = [
             ..._renderIncludes(outPath, currentPath, resolvedFile.includes),
         ]
-    } else {
-        return _renderIncludes(outPath, currentPath, resolvedFile.includes)
-    }
+
+        if (fileUsesThrift(resolvedFile)) {
+            includes.unshift(renderThriftImports())
+        }
+
+        if (fileUsesInt64(resolvedFile)) {
+            includes.unshift(renderInt64Import())
+        }
+
+        return includes
 }
 
 export function renderConst(statement: ConstDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {

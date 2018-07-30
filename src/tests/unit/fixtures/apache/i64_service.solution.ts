@@ -1,15 +1,15 @@
 export namespace MyService {
     export interface IAddArgsArgs {
-        num1: number | thrift.Int64;
-        num2: number | thrift.Int64;
+        num1: number | Int64;
+        num2: number | Int64;
     }
     export class AddArgs {
-        public num1: thrift.Int64;
-        public num2: thrift.Int64;
+        public num1: Int64;
+        public num2: Int64;
         constructor(args: IAddArgsArgs) {
             if (args != null && args.num1 != null) {
                 if (typeof args.num1 === "number") {
-                    this.num1 = new thrift.Int64(args.num1);
+                    this.num1 = new Int64(args.num1);
                 }
                 else {
                     this.num1 = args.num1;
@@ -20,7 +20,7 @@ export namespace MyService {
             }
             if (args != null && args.num2 != null) {
                 if (typeof args.num2 === "number") {
-                    this.num2 = new thrift.Int64(args.num2);
+                    this.num2 = new Int64(args.num2);
                 }
                 else {
                     this.num2 = args.num2;
@@ -59,7 +59,7 @@ export namespace MyService {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.Thrift.Type.I64) {
-                            const value_1: thrift.Int64 = input.readI64();
+                            const value_1: Int64 = input.readI64();
                             _args.num1 = value_1;
                         }
                         else {
@@ -68,7 +68,7 @@ export namespace MyService {
                         break;
                     case 2:
                         if (fieldType === thrift.Thrift.Type.I64) {
-                            const value_2: thrift.Int64 = input.readI64();
+                            const value_2: Int64 = input.readI64();
                             _args.num2 = value_2;
                         }
                         else {
@@ -91,14 +91,14 @@ export namespace MyService {
         }
     }
     export interface IAddResultArgs {
-        success?: number | thrift.Int64;
+        success?: number | Int64;
     }
     export class AddResult {
-        public success?: thrift.Int64;
+        public success?: Int64;
         constructor(args?: IAddResultArgs) {
             if (args != null && args.success != null) {
                 if (typeof args.success === "number") {
-                    this.success = new thrift.Int64(args.success);
+                    this.success = new Int64(args.success);
                 }
                 else {
                     this.success = args.success;
@@ -129,7 +129,7 @@ export namespace MyService {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.Thrift.Type.I64) {
-                            const value_3: thrift.Int64 = input.readI64();
+                            const value_3: Int64 = input.readI64();
                             _args.success = value_3;
                         }
                         else {
@@ -162,9 +162,9 @@ export namespace MyService {
         public incrementSeqId(): number {
             return this._seqid += 1;
         }
-        public add(num1: thrift.Int64, num2: thrift.Int64): Promise<thrift.Int64> {
+        public add(num1: Int64, num2: Int64): Promise<Int64> {
             const requestId: number = this.incrementSeqId();
-            return new Promise<thrift.Int64>((resolve, reject): void => {
+            return new Promise<Int64>((resolve, reject): void => {
                 this._reqs[requestId] = (error, result) => {
                     delete this._reqs[requestId];
                     if (error != null) {
@@ -177,7 +177,7 @@ export namespace MyService {
                 this.send_add(num1, num2, requestId);
             });
         }
-        public send_add(num1: thrift.Int64, num2: thrift.Int64, requestId: number): void {
+        public send_add(num1: Int64, num2: Int64, requestId: number): void {
             const output: thrift.TProtocol = new this.protocol(this.output);
             output.writeMessageBegin("add", thrift.Thrift.MessageType.CALL, requestId);
             const args: AddArgs = new AddArgs({ num1, num2 });
@@ -206,7 +206,7 @@ export namespace MyService {
         }
     }
     export interface IHandler {
-        add(num1: thrift.Int64, num2: thrift.Int64): thrift.Int64 | Promise<thrift.Int64>;
+        add(num1: Int64, num2: Int64): Int64 | Promise<Int64>;
     }
     export class Processor {
         public _handler: IHandler;
@@ -237,7 +237,7 @@ export namespace MyService {
             }
         }
         public process_add(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
-            new Promise<thrift.Int64>((resolve, reject): void => {
+            new Promise<Int64>((resolve, reject): void => {
                 try {
                     const args: AddArgs = AddArgs.read(input);
                     input.readMessageEnd();
@@ -246,7 +246,7 @@ export namespace MyService {
                 catch (err) {
                     reject(err);
                 }
-            }).then((data: thrift.Int64): void => {
+            }).then((data: Int64): void => {
                 const result: AddResult = new AddResult({ success: data });
                 output.writeMessageBegin("add", thrift.Thrift.MessageType.REPLY, requestId);
                 result.write(output);

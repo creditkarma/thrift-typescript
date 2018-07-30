@@ -124,7 +124,7 @@ export function assignmentForField(field: FieldDefinition): ts.Statement {
                 createAssignmentStatement(
                     propertyAccessForIdentifier('this', field.name.value),
                     ts.createNew(
-                        COMMON_IDENTIFIERS.Int64,
+                        COMMON_IDENTIFIERS.Node_Int64,
                         undefined,
                         [
                             ts.createIdentifier(`args.${field.name.value}`),

@@ -1,13 +1,13 @@
 export interface IMyStructArgs {
     id: number;
-    bigID: number | thrift.Int64;
+    bigID: number | Int64;
     word: string;
     field1?: number;
     blob?: Buffer;
 }
 export class MyStruct {
     public id: number = 45;
-    public bigID: thrift.Int64 = new thrift.Int64(23948234);
+    public bigID: Int64 = new Int64(23948234);
     public word: string;
     public field1?: number;
     public blob?: Buffer = Buffer.from("binary");
@@ -20,7 +20,7 @@ export class MyStruct {
         }
         if (args != null && args.bigID != null) {
             if (typeof args.bigID === "number") {
-                this.bigID = new thrift.Int64(args.bigID);
+                this.bigID = new Int64(args.bigID);
             }
             else {
                 this.bigID = args.bigID;
@@ -95,7 +95,7 @@ export class MyStruct {
                     break;
                 case 2:
                     if (fieldType === thrift.Thrift.Type.I64) {
-                        const value_2: thrift.Int64 = input.readI64();
+                        const value_2: Int64 = input.readI64();
                         _args.bigID = value_2;
                     }
                     else {
