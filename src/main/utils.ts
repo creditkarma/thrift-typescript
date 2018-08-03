@@ -101,11 +101,11 @@ export function organizeByNamespace(files: Array<IResolvedFile>): Array<INamespa
  * Once identifiers have been resolved it's easier to deal with files in a flattened state
  */
 export function flattenResolvedFile(file: IResolvedFile): Array<IResolvedFile> {
-    const result: Array<IResolvedFile> = [ file ]
+    let result: Array<IResolvedFile> = [ file ]
     for (const key in file.includes) {
         if (file.includes.hasOwnProperty(key)) {
             const include = file.includes[key].file
-            result.concat(flattenResolvedFile(include))
+            result = result.concat(flattenResolvedFile(include))
         }
     }
     return result
