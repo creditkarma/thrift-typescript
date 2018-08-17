@@ -2,6 +2,7 @@ import * as path from 'path'
 import * as ts from 'typescript'
 
 import {
+    IIdentifierMap,
     INamespaceFile,
     IResolvedFile,
     IResolvedIdentifier,
@@ -27,6 +28,19 @@ export function renderThriftImports(): ts.ImportDeclaration {
     )
 }
 
+function existInIdentifiers(name: string, identifiers: IIdentifierMap): boolean {
+    for (const next in identifiers) {
+        if (identifiers.hasOwnProperty(next)) {
+            const identifier = identifiers[next]
+            if (identifier.pathName === name) {
+                return true
+            }
+        }
+    }
+
+    return false
+}
+
 /**
  * Given a hash of included files this will return a list of import statements.
  *
@@ -42,29 +56,31 @@ export function renderIncludes(
 ): Array<ts.ImportDeclaration> {
     const imports: Array<ts.ImportDeclaration> = []
     for (const name of Object.keys(resolvedFile.includes)) {
-        const resolvedIncludes: Array<IResolvedIdentifier> = resolvedFile.includes[name].identifiers
-        const includeFile: IResolvedFile = resolvedFile.includes[name].file
+        if (existInIdentifiers(name, resolvedFile.identifiers)) {
+            const resolvedIncludes: Array<IResolvedIdentifier> = resolvedFile.includes[name].identifiers
+            const includeFile: IResolvedFile = resolvedFile.includes[name].file
 
-        if (resolvedIncludes != null && resolvedFile != null) {
-            const includePath: string = includeFile.namespace.path
-            imports.push(ts.createImportDeclaration(
-                undefined,
-                undefined,
-                ts.createImportClause(
+            if (resolvedIncludes != null && resolvedFile != null) {
+                const includePath: string = includeFile.namespace.path
+                imports.push(ts.createImportDeclaration(
                     undefined,
-                    ts.createNamespaceImport(
-                        ts.createIdentifier(name),
-                    ),
-                ),
-                ts.createLiteral(
-                    `./${path.join(
-                        path.relative(
-                            path.dirname(currentPath),
-                            path.dirname(includePath),
+                    undefined,
+                    ts.createImportClause(
+                        undefined,
+                        ts.createNamespaceImport(
+                            ts.createIdentifier(name),
                         ),
-                    )}`,
-                ),
-            ))
+                    ),
+                    ts.createLiteral(
+                        `./${path.join(
+                            path.relative(
+                                path.dirname(currentPath),
+                                path.dirname(includePath),
+                            ),
+                        )}`,
+                    ),
+                ))
+            }
         }
     }
     return imports
