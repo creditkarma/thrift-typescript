@@ -189,6 +189,7 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                 fields: func.fields.map(resolveField),
                 throws: func.throws.map(resolveField),
                 comments: func.comments,
+                annotations: func.annotations,
                 oneway: func.oneway,
                 modifiers: func.modifiers,
                 loc: func.loc,
@@ -208,6 +209,7 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                         null
                 ),
                 comments: field.comments,
+                annotations: field.annotations,
                 loc: field.loc,
             }
         }
@@ -221,6 +223,7 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                         fieldType: resolveFieldType(statement.fieldType),
                         initializer: resolveValue(statement.initializer),
                         comments: statement.comments,
+                        annotations: statement.annotations,
                         loc: statement.loc,
                     }
 
@@ -241,6 +244,7 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                             return resolveFunction(next)
                         }),
                         comments: statement.comments,
+                        annotations: statement.annotations,
                         loc: statement.loc,
                     }
 
@@ -250,6 +254,7 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                         name: statement.name,
                         fields: statement.fields.map(resolveField),
                         comments: statement.comments,
+                        annotations: statement.annotations,
                         loc: statement.loc,
                     }
 
@@ -259,6 +264,7 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                         name: statement.name,
                         fields: statement.fields.map(resolveField),
                         comments: statement.comments,
+                        annotations: statement.annotations,
                         loc: statement.loc,
                     }
 
@@ -268,6 +274,7 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                         name: statement.name,
                         fields: statement.fields.map(resolveField),
                         comments: statement.comments,
+                        annotations: statement.annotations,
                         loc: statement.loc,
                     }
 
@@ -277,6 +284,7 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                         name: statement.name,
                         definitionType: resolveFieldType(statement.definitionType),
                         comments: statement.comments,
+                        annotations: statement.annotations,
                         loc: statement.loc,
                     }
 

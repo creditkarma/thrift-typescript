@@ -1,6 +1,9 @@
 import * as ts from 'typescript'
 
 export const COMMON_IDENTIFIERS = {
+    fieldAnnotations: ts.createIdentifier('_fieldAnnotations'),
+    methodAnnotations: ts.createIdentifier('_methodAnnotations'),
+    annotations: ts.createIdentifier('_annotations'),
     break: ts.createIdentifier('break'),
     success: ts.createIdentifier('success'),
     handler: ts.createIdentifier('handler'),

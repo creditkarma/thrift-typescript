@@ -49,13 +49,14 @@ import {
     IIdentifierMap,
 } from '../../../types'
 
+import { renderAnnotations, renderMethodAnnotations } from '../annotations'
 import {
     codecName,
     looseName,
     strictName,
 } from '../struct/utils'
 
-export function renderClient(node: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
+export function renderClient(service: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
     // private _requestId: number;
     const requestId: ts.PropertyDeclaration = createProtectedProperty(
         '_requestId',
@@ -86,6 +87,10 @@ export function renderClient(node: ServiceDefinition, identifiers: IIdentifierMa
         createConnectionType(),
     )
 
+    const annotations: ts.PropertyDeclaration = renderAnnotations(service.annotations)
+
+    const methodAnnotations: ts.PropertyDeclaration = renderMethodAnnotations(service)
+
     /**
      * constructor(connection: ThriftConnection) {
      *   super(connection)
@@ -103,7 +108,7 @@ export function renderClient(node: ServiceDefinition, identifiers: IIdentifierMa
             ),
         ], // parameters
         [
-            ...createSuperCall(node),
+            ...createSuperCall(service),
             createAssignmentStatement(
                 ts.createIdentifier('this._requestId'),
                 ts.createLiteral(0),
@@ -135,20 +140,20 @@ export function renderClient(node: ServiceDefinition, identifiers: IIdentifierMa
         ts.createBlock([
             ts.createReturn(
                 ts.createBinary(
-                ts.createIdentifier('this._requestId'),
-                ts.SyntaxKind.PlusEqualsToken,
-                ts.createLiteral(1),
+                    ts.createIdentifier('this._requestId'),
+                    ts.SyntaxKind.PlusEqualsToken,
+                    ts.createLiteral(1),
                 ),
             ),
         ], true),
     )
 
-    const baseMethods: Array<ts.MethodDeclaration> = node.functions.map((func: FunctionDefinition) => {
+    const baseMethods: Array<ts.MethodDeclaration> = service.functions.map((func: FunctionDefinition) => {
         return createBaseMethodForDefinition(func, identifiers)
     })
 
     const heritage: Array<ts.HeritageClause> = (
-        (node.extends !== null) ?
+        (service.extends !== null) ?
         [
             ts.createHeritageClause(
                 ts.SyntaxKind.ExtendsKeyword,
@@ -160,7 +165,7 @@ export function renderClient(node: ServiceDefinition, identifiers: IIdentifierMa
                                 undefined,
                             ),
                         ],
-                        ts.createIdentifier(`${node.extends.value}.Client`),
+                        ts.createIdentifier(`${service.extends.value}.Client`),
                     ),
                 ],
             ),
@@ -186,6 +191,8 @@ export function renderClient(node: ServiceDefinition, identifiers: IIdentifierMa
             transport,
             protocol,
             connection,
+            annotations,
+            methodAnnotations,
             ctor,
             incrementRequestIdMethod,
             ...baseMethods,

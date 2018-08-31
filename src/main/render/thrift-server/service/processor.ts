@@ -51,6 +51,7 @@ import {
     typeNodeForFieldType,
 } from '../types'
 
+import { renderAnnotations, renderMethodAnnotations } from '../annotations'
 import {
     codecName, strictName,
 } from '../struct/utils'
@@ -80,26 +81,29 @@ function handlerType(node: ServiceDefinition): ts.TypeNode {
     )
 }
 
-export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
+export function renderProcessor(service: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
     // private _handler
     const handler: ts.PropertyDeclaration = ts.createProperty(
         undefined,
         [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
         '_handler',
         undefined,
-        handlerType(node),
+        handlerType(service),
         undefined,
     )
+
+    const annotations: ts.PropertyDeclaration = renderAnnotations(service.annotations)
+    const methodAnnotations: ts.PropertyDeclaration = renderMethodAnnotations(service)
 
     const ctor: ts.ConstructorDeclaration = createClassConstructor(
         [
             createFunctionParameter(
                 ts.createIdentifier('handler'),
-                handlerType(node),
+                handlerType(service),
             ),
         ],
         [
-            ...createSuperCall(node, identifiers),
+            ...createSuperCall(service, identifiers),
             createAssignmentStatement(
                 ts.createIdentifier('this._handler'),
                 ts.createIdentifier('handler'),
@@ -107,20 +111,20 @@ export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifie
         ],
     )
 
-    const processMethod: ts.MethodDeclaration = createProcessMethod(node, identifiers)
-    const processFunctions: Array<ts.MethodDeclaration> = node.functions.map((next: FunctionDefinition) => {
-        return createProcessFunctionMethod(node, next, identifiers)
+    const processMethod: ts.MethodDeclaration = createProcessMethod(service, identifiers)
+    const processFunctions: Array<ts.MethodDeclaration> = service.functions.map((next: FunctionDefinition) => {
+        return createProcessFunctionMethod(service, next, identifiers)
     })
 
     const heritage: Array<ts.HeritageClause> = (
-        (node.extends !== null) ?
+        (service.extends !== null) ?
         [
             ts.createHeritageClause(
             ts.SyntaxKind.ExtendsKeyword,
             [
                 ts.createExpressionWithTypeArguments(
                     [ ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined) ],
-                    ts.createIdentifier(`${node.extends.value}.Processor`),
+                    ts.createIdentifier(`${service.extends.value}.Processor`),
                 ),
             ],
             ),
@@ -145,6 +149,8 @@ export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifie
         heritage, // heritage
         [
             handler,
+            annotations,
+            methodAnnotations,
             ctor,
             processMethod,
             ...processFunctions,

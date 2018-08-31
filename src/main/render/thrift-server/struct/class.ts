@@ -15,6 +15,11 @@ import {
 } from '../../../types'
 
 import {
+    renderAnnotations,
+    renderFieldAnnotations,
+} from '../annotations'
+
+import {
     COMMON_IDENTIFIERS,
     THRIFT_IDENTIFIERS,
 } from '../identifiers'
@@ -230,9 +235,18 @@ export function createInputParameter(): ts.ParameterDeclaration {
 }
 
 export function createFieldsForStruct(node: InterfaceWithFields, identifiers: IIdentifierMap): Array<ts.PropertyDeclaration> {
-    return node.fields.map((field: FieldDefinition) => {
+    const userFields: Array<ts.PropertyDeclaration> = node.fields.map((field: FieldDefinition) => {
         return renderFieldDeclarations(field, identifiers)
     })
+
+    const annotations: ts.PropertyDeclaration = renderAnnotations(node.annotations)
+    const fieldAnnotations: ts.PropertyDeclaration = renderFieldAnnotations(node.fields)
+
+    return [
+        ...userFields,
+        annotations,
+        fieldAnnotations,
+    ]
 }
 
 /**

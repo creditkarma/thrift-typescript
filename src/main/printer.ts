@@ -24,8 +24,10 @@ export function print(statements: Array<ts.Statement>, includePreface: boolean =
         ts.ScriptKind.TS,
     )
     const bodyFile: ts.SourceFile = ts.updateSourceFileNode(rawSourceFile, statements)
+
     if (includePreface) {
         generatePreface(statements[0])
     }
+
     return printer.printBundle(ts.createBundle([bodyFile]))
 }
