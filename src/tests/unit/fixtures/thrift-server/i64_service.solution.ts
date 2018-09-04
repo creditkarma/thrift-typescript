@@ -53,6 +53,8 @@ export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
 };
 export class Code extends thrift.StructLike implements ICode {
     public status?: thrift.Int64;
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ICodeArgs = {}) {
         super();
         if (args.status != null) {
@@ -134,6 +136,8 @@ export namespace MyService {
     };
     export class PegArgs extends thrift.StructLike implements IPegArgs {
         public name: string;
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IPegArgsArgs) {
             super();
             if (args.name != null) {
@@ -209,6 +213,8 @@ export namespace MyService {
     };
     export class PongArgs extends thrift.StructLike implements IPongArgs {
         public code?: ICode;
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IPongArgsArgs = {}) {
             super();
             if (args.code != null) {
@@ -281,6 +287,8 @@ export namespace MyService {
     };
     export class PegResult extends thrift.StructLike implements IPegResult {
         public success?: string;
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IPegResultArgs = {}) {
             super();
             if (args.success != null) {
@@ -353,6 +361,8 @@ export namespace MyService {
     };
     export class PongResult extends thrift.StructLike implements IPongResult {
         public success?: thrift.Int64;
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IPongResultArgs = {}) {
             super();
             if (args.success != null) {
@@ -375,6 +385,17 @@ export namespace MyService {
         protected transport: thrift.ITransportConstructor;
         protected protocol: thrift.IProtocolConstructor;
         protected connection: thrift.IThriftConnection<Context>;
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _methodAnnotations: thrift.IMethodAnnotations = {
+            peg: {
+                annotations: {},
+                fieldAnnotations: {}
+            },
+            pong: {
+                annotations: {},
+                fieldAnnotations: {}
+            }
+        };
         constructor(connection: thrift.IThriftConnection<Context>) {
             this._requestId = 0;
             this.transport = connection.Transport;
@@ -463,6 +484,17 @@ export namespace MyService {
     }
     export class Processor<Context = any> {
         public _handler: IHandler<Context>;
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _methodAnnotations: thrift.IMethodAnnotations = {
+            peg: {
+                annotations: {},
+                fieldAnnotations: {}
+            },
+            pong: {
+                annotations: {},
+                fieldAnnotations: {}
+            }
+        };
         constructor(handler: IHandler<Context>) {
             this._handler = handler;
         }

@@ -44,8 +44,17 @@ import {
     incrementFieldsSet,
 } from './utils'
 
+import {
+    renderAnnotations,
+    renderFieldAnnotations,
+} from '../annotations'
+
 export function renderClass(node: UnionDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
     const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(node, identifiers)
+
+    const annotations: ts.PropertyDeclaration = renderAnnotations(node.annotations)
+
+    const fieldAnnotations: ts.PropertyDeclaration = renderFieldAnnotations(node.fields)
 
     /**
      * After creating the properties on our class for the struct fields we must create
@@ -89,6 +98,8 @@ export function renderClass(node: UnionDefinition, identifiers: IIdentifierMap):
         ], // heritage
         [
             ...fields,
+            annotations,
+            fieldAnnotations,
             ctor,
             createStaticReadMethod(node),
             createStaticWriteMethod(node),

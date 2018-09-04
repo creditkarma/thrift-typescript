@@ -83,6 +83,8 @@ export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
 export class User extends thrift.StructLike implements IUser {
     public name: string;
     public id: number;
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IUserArgs) {
         super();
         if (args.name != null) {
@@ -174,6 +176,8 @@ export namespace MyService {
     };
     export class GetUserArgs extends thrift.StructLike implements IGetUserArgs {
         public id: number;
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IGetUserArgsArgs) {
             super();
             if (args.id != null) {
@@ -257,6 +261,8 @@ export namespace MyService {
     };
     export class SaveUserArgs extends thrift.StructLike implements ISaveUserArgs {
         public user: IUser;
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: ISaveUserArgsArgs) {
             super();
             if (args.user != null) {
@@ -309,6 +315,8 @@ export namespace MyService {
         }
     };
     export class PingArgs extends thrift.StructLike implements IPingArgs {
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IPingArgsArgs = {}) {
             super();
         }
@@ -377,6 +385,8 @@ export namespace MyService {
     };
     export class GetUserResult extends thrift.StructLike implements IGetUserResult {
         public success?: IUser;
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IGetUserResultArgs = {}) {
             super();
             if (args.success != null) {
@@ -440,6 +450,8 @@ export namespace MyService {
     };
     export class SaveUserResult extends thrift.StructLike implements ISaveUserResult {
         public success?: void;
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: ISaveUserResultArgs = {}) {
             super();
             if (args.success != null) {
@@ -503,6 +515,8 @@ export namespace MyService {
     };
     export class PingResult extends thrift.StructLike implements IPingResult {
         public success?: void;
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IPingResultArgs = {}) {
             super();
             if (args.success != null) {

@@ -72,6 +72,8 @@ export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
 export class Code extends thrift.StructLike implements ICode {
     public status?: thrift.Int64 = thrift.Int64.fromDecimalString("200");
     public data?: Buffer = Buffer.from("data");
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ICodeArgs = {}) {
         super();
         if (args.status != null) {
@@ -175,6 +177,8 @@ export const MyExceptionCodec: thrift.IStructCodec<IMyExceptionArgs, IMyExceptio
 export class MyException extends thrift.StructLike implements IMyException {
     public description: string;
     public code?: ICode;
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyExceptionArgs) {
         super();
         if (args.description != null) {

@@ -50,6 +50,8 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
     }
 };
 export class MyUnion extends thrift.StructLike implements IMyUnion {
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyUnionArgs = {}) {
         super();
         let _fieldsSet: number = 0;

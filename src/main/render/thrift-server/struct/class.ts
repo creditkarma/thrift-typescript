@@ -57,6 +57,10 @@ import {
 export function renderClass(node: InterfaceWithFields, identifiers: IIdentifierMap): ts.ClassDeclaration {
     const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(node, identifiers)
 
+    const annotations: ts.PropertyDeclaration = renderAnnotations(node.annotations)
+
+    const fieldAnnotations: ts.PropertyDeclaration = renderFieldAnnotations(node.fields)
+
     /**
      * After creating the properties on our class for the struct fields we must create
      * a constructor that knows how to assign these values based on a passed args.
@@ -97,6 +101,8 @@ export function renderClass(node: InterfaceWithFields, identifiers: IIdentifierM
         ], // heritage
         [
             ...fields,
+            annotations,
+            fieldAnnotations,
             ctor,
             createStaticReadMethod(node),
             createStaticWriteMethod(node),
@@ -235,18 +241,9 @@ export function createInputParameter(): ts.ParameterDeclaration {
 }
 
 export function createFieldsForStruct(node: InterfaceWithFields, identifiers: IIdentifierMap): Array<ts.PropertyDeclaration> {
-    const userFields: Array<ts.PropertyDeclaration> = node.fields.map((field: FieldDefinition) => {
+    return node.fields.map((field: FieldDefinition) => {
         return renderFieldDeclarations(field, identifiers)
     })
-
-    const annotations: ts.PropertyDeclaration = renderAnnotations(node.annotations)
-    const fieldAnnotations: ts.PropertyDeclaration = renderFieldAnnotations(node.fields)
-
-    return [
-        ...userFields,
-        annotations,
-        fieldAnnotations,
-    ]
 }
 
 /**
