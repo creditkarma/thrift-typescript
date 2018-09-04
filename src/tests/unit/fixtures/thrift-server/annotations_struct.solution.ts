@@ -77,12 +77,18 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
 export class MyStruct extends thrift.StructLike implements IMyStruct {
     public id: number = 45;
     public bigID: thrift.Int64 = thrift.Int64.fromDecimalString("23948234");
-    public readonly _annotations: thrift.IThriftAnnotations = {
+    public readonly _annotations: {
+        [name: string]: string;
+    } = {
         foo: "bar",
         two: "three",
         alone: ""
     };
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {
+    public readonly _fieldAnnotations: {
+        [fieldName: string]: {
+            [name: string]: string;
+        };
+    } = {
         id: {
             foo: "bar",
             two: "three",

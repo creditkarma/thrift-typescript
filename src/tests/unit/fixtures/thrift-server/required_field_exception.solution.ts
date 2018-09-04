@@ -80,8 +80,14 @@ export const MyExceptionCodec: thrift.IStructCodec<IMyExceptionArgs, IMyExceptio
 export class MyException extends thrift.StructLike implements IMyException {
     public description: string;
     public code?: number;
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
+    public readonly _annotations: {
+        [name: string]: string;
+    } = {};
+    public readonly _fieldAnnotations: {
+        [fieldName: string]: {
+            [name: string]: string;
+        };
+    } = {};
     constructor(args: IMyExceptionArgs) {
         super();
         if (args.description != null) {
