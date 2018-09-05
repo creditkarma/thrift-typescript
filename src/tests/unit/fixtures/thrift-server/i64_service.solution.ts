@@ -79,6 +79,31 @@ export class Code extends thrift.StructLike implements ICode {
     }
 }
 export namespace MyService {
+    export const annotations: {
+        [name: string]: string;
+    } = {};
+    export const methodAnnotations: {
+        [methodName: string]: {
+            annotations: {
+                [name: string]: string;
+            };
+            fieldAnnotations: {
+                [fieldName: string]: {
+                    [name: string]: string;
+                };
+            };
+        };
+    } = {
+        peg: {
+            annotations: {},
+            fieldAnnotations: {}
+        },
+        pong: {
+            annotations: {},
+            fieldAnnotations: {}
+        }
+    };
+    export const methodNames: Array<string> = ["peg", "pong"];
     export interface IPegArgs {
         name: string;
     }
@@ -417,7 +442,7 @@ export namespace MyService {
         protected connection: thrift.IThriftConnection<Context>;
         public readonly _annotations: {
             [name: string]: string;
-        } = {};
+        } = annotations;
         public readonly _methodAnnotations: {
             [methodName: string]: {
                 annotations: {
@@ -429,17 +454,8 @@ export namespace MyService {
                     };
                 };
             };
-        } = {
-            peg: {
-                annotations: {},
-                fieldAnnotations: {}
-            },
-            pong: {
-                annotations: {},
-                fieldAnnotations: {}
-            }
-        };
-        public readonly _methodNames: Array<string> = ["peg", "pong"];
+        } = methodAnnotations;
+        public readonly _methodNames: Array<string> = methodNames;
         constructor(connection: thrift.IThriftConnection<Context>) {
             this._requestId = 0;
             this.transport = connection.Transport;
@@ -530,7 +546,7 @@ export namespace MyService {
         public _handler: IHandler<Context>;
         public readonly _annotations: {
             [name: string]: string;
-        } = {};
+        } = annotations;
         public readonly _methodAnnotations: {
             [methodName: string]: {
                 annotations: {
@@ -542,17 +558,8 @@ export namespace MyService {
                     };
                 };
             };
-        } = {
-            peg: {
-                annotations: {},
-                fieldAnnotations: {}
-            },
-            pong: {
-                annotations: {},
-                fieldAnnotations: {}
-            }
-        };
-        public readonly _methodNames: Array<string> = ["peg", "pong"];
+        } = methodAnnotations;
+        public readonly _methodNames: Array<string> = methodNames;
         constructor(handler: IHandler<Context>) {
             this._handler = handler;
         }

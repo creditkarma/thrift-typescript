@@ -14,11 +14,10 @@ import {
 } from './types'
 
 import {
-    collectAllAnnotations,
     collectAllMethods,
     createStructArgsName,
     createStructResultName,
-    renderMethodNames,
+    renderMethodNamesProperty,
 } from './utils'
 
 import {
@@ -55,8 +54,8 @@ import {
 } from '../types'
 
 import {
-    renderAnnotations,
-    renderMethodAnnotations,
+    renderMethodAnnotationsProperty,
+    renderServiceAnnotationsProperty,
 } from '../annotations'
 
 import {
@@ -100,11 +99,11 @@ export function renderProcessor(service: ServiceDefinition, identifiers: IIdenti
         undefined,
     )
 
-    const annotations: ts.PropertyDeclaration = renderAnnotations(collectAllAnnotations(service, identifiers))
+    const annotations: ts.PropertyDeclaration = renderServiceAnnotationsProperty()
 
-    const methodAnnotations: ts.PropertyDeclaration = renderMethodAnnotations(collectAllMethods(service, identifiers))
+    const methodAnnotations: ts.PropertyDeclaration = renderMethodAnnotationsProperty()
 
-    const methodNames: ts.PropertyDeclaration = renderMethodNames(service, identifiers)
+    const methodNames: ts.PropertyDeclaration = renderMethodNamesProperty()
 
     const ctor: ts.ConstructorDeclaration = createClassConstructor(
         [

@@ -71,6 +71,37 @@ export function renderAnnotations(annotations?: Annotations): ts.PropertyDeclara
     )
 }
 
+export function renderServiceAnnotations(annotations: Annotations): ts.VariableStatement {
+    return ts.createVariableStatement(
+        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+        ts.createVariableDeclarationList(
+            [
+                ts.createVariableDeclaration(
+                    ts.createIdentifier('annotations'),
+                    thriftAnnotationType(),
+                    renderAnnotationValue(annotations),
+                ),
+            ],
+            ts.NodeFlags.Const,
+        ),
+    )
+}
+
+export function renderServiceAnnotationsProperty(): ts.PropertyDeclaration {
+    return ts.createProperty(
+        undefined,
+        [
+            ts.createToken(ts.SyntaxKind.PublicKeyword),
+            ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
+        ],
+        COMMON_IDENTIFIERS.annotations,
+        undefined,
+        thriftAnnotationType(),
+        // ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IFieldAnnotations, undefined),
+        ts.createIdentifier('annotations'),
+    )
+}
+
 function renderFieldAnnotationValue(fields: Array<FieldDefinition>): ts.ObjectLiteralExpression {
     return ts.createObjectLiteral(
         fields.filter((field: FieldDefinition) => {
@@ -190,7 +221,24 @@ function methodAnnotationType(): ts.TypeNode {
     ])
 }
 
-export function renderMethodAnnotations(functions: Array<FunctionDefinition>): ts.PropertyDeclaration {
+export function renderMethodAnnotations(functions: Array<FunctionDefinition>): ts.VariableStatement {
+    return ts.createVariableStatement(
+        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+        ts.createVariableDeclarationList(
+            [
+                ts.createVariableDeclaration(
+                    ts.createIdentifier('methodAnnotations'),
+                    methodAnnotationType(),
+                    // ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IMethodAnnotations, undefined),
+                    renderMethodAnnotationValue(functions),
+                ),
+            ],
+            ts.NodeFlags.Const,
+        ),
+    )
+}
+
+export function renderMethodAnnotationsProperty(): ts.PropertyDeclaration {
     return ts.createProperty(
         undefined,
         [
@@ -200,7 +248,7 @@ export function renderMethodAnnotations(functions: Array<FunctionDefinition>): t
         COMMON_IDENTIFIERS.methodAnnotations,
         undefined,
         methodAnnotationType(),
-        // ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IMethodAnnotations, undefined),
-        renderMethodAnnotationValue(functions),
+        // ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IFieldAnnotations, undefined),
+        ts.createIdentifier('methodAnnotations'),
     )
 }

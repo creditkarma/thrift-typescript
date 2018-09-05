@@ -1,4 +1,25 @@
 export namespace ParentService {
+    export const annotations: {
+        [name: string]: string;
+    } = {};
+    export const methodAnnotations: {
+        [methodName: string]: {
+            annotations: {
+                [name: string]: string;
+            };
+            fieldAnnotations: {
+                [fieldName: string]: {
+                    [name: string]: string;
+                };
+            };
+        };
+    } = {
+        ping: {
+            annotations: {},
+            fieldAnnotations: {}
+        }
+    };
+    export const methodNames: Array<string> = ["ping"];
     export interface IPingArgs {
         status: number;
     }
@@ -177,7 +198,7 @@ export namespace ParentService {
         protected connection: thrift.IThriftConnection<Context>;
         public readonly _annotations: {
             [name: string]: string;
-        } = {};
+        } = annotations;
         public readonly _methodAnnotations: {
             [methodName: string]: {
                 annotations: {
@@ -189,13 +210,8 @@ export namespace ParentService {
                     };
                 };
             };
-        } = {
-            ping: {
-                annotations: {},
-                fieldAnnotations: {}
-            }
-        };
-        public readonly _methodNames: Array<string> = ["ping"];
+        } = methodAnnotations;
+        public readonly _methodNames: Array<string> = methodNames;
         constructor(connection: thrift.IThriftConnection<Context>) {
             this._requestId = 0;
             this.transport = connection.Transport;
@@ -249,7 +265,7 @@ export namespace ParentService {
         public _handler: IHandler<Context>;
         public readonly _annotations: {
             [name: string]: string;
-        } = {};
+        } = annotations;
         public readonly _methodAnnotations: {
             [methodName: string]: {
                 annotations: {
@@ -261,13 +277,8 @@ export namespace ParentService {
                     };
                 };
             };
-        } = {
-            ping: {
-                annotations: {},
-                fieldAnnotations: {}
-            }
-        };
-        public readonly _methodNames: Array<string> = ["ping"];
+        } = methodAnnotations;
+        public readonly _methodNames: Array<string> = methodNames;
         constructor(handler: IHandler<Context>) {
             this._handler = handler;
         }
@@ -323,6 +334,35 @@ export namespace ParentService {
     }
 }
 export namespace ChildService {
+    export const annotations: {
+        [name: string]: string;
+    } = {};
+    export const methodAnnotations: {
+        [methodName: string]: {
+            annotations: {
+                [name: string]: string;
+            };
+            fieldAnnotations: {
+                [fieldName: string]: {
+                    [name: string]: string;
+                };
+            };
+        };
+    } = {
+        ping: {
+            annotations: {},
+            fieldAnnotations: {}
+        },
+        peg: {
+            annotations: {},
+            fieldAnnotations: {}
+        },
+        pong: {
+            annotations: {},
+            fieldAnnotations: {}
+        }
+    };
+    export const methodNames: Array<string> = ["ping", "peg", "pong"];
     export interface IPegArgs {
         name: string;
     }
@@ -661,7 +701,7 @@ export namespace ChildService {
         protected connection: thrift.IThriftConnection<Context>;
         public readonly _annotations: {
             [name: string]: string;
-        } = {};
+        } = annotations;
         public readonly _methodAnnotations: {
             [methodName: string]: {
                 annotations: {
@@ -673,21 +713,8 @@ export namespace ChildService {
                     };
                 };
             };
-        } = {
-            ping: {
-                annotations: {},
-                fieldAnnotations: {}
-            },
-            peg: {
-                annotations: {},
-                fieldAnnotations: {}
-            },
-            pong: {
-                annotations: {},
-                fieldAnnotations: {}
-            }
-        };
-        public readonly _methodNames: Array<string> = ["ping", "peg", "pong"];
+        } = methodAnnotations;
+        public readonly _methodNames: Array<string> = methodNames;
         constructor(connection: thrift.IThriftConnection<Context>) {
             super(connection);
             this._requestId = 0;
@@ -780,7 +807,7 @@ export namespace ChildService {
         public _handler: IHandler<Context>;
         public readonly _annotations: {
             [name: string]: string;
-        } = {};
+        } = annotations;
         public readonly _methodAnnotations: {
             [methodName: string]: {
                 annotations: {
@@ -792,21 +819,8 @@ export namespace ChildService {
                     };
                 };
             };
-        } = {
-            ping: {
-                annotations: {},
-                fieldAnnotations: {}
-            },
-            peg: {
-                annotations: {},
-                fieldAnnotations: {}
-            },
-            pong: {
-                annotations: {},
-                fieldAnnotations: {}
-            }
-        };
-        public readonly _methodNames: Array<string> = ["ping", "peg", "pong"];
+        } = methodAnnotations;
+        public readonly _methodNames: Array<string> = methodNames;
         constructor(handler: IHandler<Context>) {
             super({
                 ping: handler.ping

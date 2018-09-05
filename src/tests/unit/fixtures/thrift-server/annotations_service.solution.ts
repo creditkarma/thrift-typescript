@@ -119,6 +119,43 @@ export class User extends thrift.StructLike implements IUser {
     }
 }
 export namespace MyService {
+    export const annotations: {
+        [name: string]: string;
+    } = {
+        foo: "bar",
+        two: "three",
+        alone: ""
+    };
+    export const methodAnnotations: {
+        [methodName: string]: {
+            annotations: {
+                [name: string]: string;
+            };
+            fieldAnnotations: {
+                [fieldName: string]: {
+                    [name: string]: string;
+                };
+            };
+        };
+    } = {
+        getUser: {
+            annotations: {
+                foo: "bar",
+                two: "three",
+                lonely: ""
+            },
+            fieldAnnotations: {}
+        },
+        saveUser: {
+            annotations: {},
+            fieldAnnotations: {}
+        },
+        ping: {
+            annotations: {},
+            fieldAnnotations: {}
+        }
+    };
+    export const methodNames: Array<string> = ["getUser", "saveUser", "ping"];
     export interface IGetUserArgs {
         id: number;
     }
@@ -583,11 +620,7 @@ export namespace MyService {
         protected connection: thrift.IThriftConnection<Context>;
         public readonly _annotations: {
             [name: string]: string;
-        } = {
-            foo: "bar",
-            two: "three",
-            alone: ""
-        };
+        } = annotations;
         public readonly _methodAnnotations: {
             [methodName: string]: {
                 annotations: {
@@ -599,25 +632,8 @@ export namespace MyService {
                     };
                 };
             };
-        } = {
-            getUser: {
-                annotations: {
-                    foo: "bar",
-                    two: "three",
-                    lonely: ""
-                },
-                fieldAnnotations: {}
-            },
-            saveUser: {
-                annotations: {},
-                fieldAnnotations: {}
-            },
-            ping: {
-                annotations: {},
-                fieldAnnotations: {}
-            }
-        };
-        public readonly _methodNames: Array<string> = ["getUser", "saveUser", "ping"];
+        } = methodAnnotations;
+        public readonly _methodNames: Array<string> = methodNames;
         constructor(connection: thrift.IThriftConnection<Context>) {
             this._requestId = 0;
             this.transport = connection.Transport;
@@ -735,11 +751,7 @@ export namespace MyService {
         public _handler: IHandler<Context>;
         public readonly _annotations: {
             [name: string]: string;
-        } = {
-            foo: "bar",
-            two: "three",
-            alone: ""
-        };
+        } = annotations;
         public readonly _methodAnnotations: {
             [methodName: string]: {
                 annotations: {
@@ -751,25 +763,8 @@ export namespace MyService {
                     };
                 };
             };
-        } = {
-            getUser: {
-                annotations: {
-                    foo: "bar",
-                    two: "three",
-                    lonely: ""
-                },
-                fieldAnnotations: {}
-            },
-            saveUser: {
-                annotations: {},
-                fieldAnnotations: {}
-            },
-            ping: {
-                annotations: {},
-                fieldAnnotations: {}
-            }
-        };
-        public readonly _methodNames: Array<string> = ["getUser", "saveUser", "ping"];
+        } = methodAnnotations;
+        public readonly _methodNames: Array<string> = methodNames;
         constructor(handler: IHandler<Context>) {
             this._handler = handler;
         }

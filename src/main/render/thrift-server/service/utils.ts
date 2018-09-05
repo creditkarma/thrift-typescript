@@ -53,7 +53,30 @@ export function collectAllMethods(service: ServiceDefinition, identifiers: IIden
     }
 }
 
-export function renderMethodNames(service: ServiceDefinition, identifiers: IIdentifierMap): ts.PropertyDeclaration {
+export function renderMethodNames(service: ServiceDefinition, identifiers: IIdentifierMap): ts.VariableStatement {
+    return ts.createVariableStatement(
+        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+        ts.createVariableDeclarationList(
+            [
+                ts.createVariableDeclaration(
+                    ts.createIdentifier('methodNames'),
+                    ts.createTypeReferenceNode(
+                        'Array<string>',
+                        undefined,
+                    ),
+                    ts.createArrayLiteral([
+                        ...collectAllMethods(service, identifiers).map((next: FunctionDefinition) => {
+                            return ts.createLiteral(next.name.value)
+                        }),
+                    ]),
+                ),
+            ],
+            ts.NodeFlags.Const,
+        ),
+    )
+}
+
+export function renderMethodNamesProperty(): ts.PropertyDeclaration {
     return ts.createProperty(
         undefined,
         [ ts.createToken(ts.SyntaxKind.PublicKeyword), ts.createToken(ts.SyntaxKind.ReadonlyKeyword) ],
@@ -63,11 +86,7 @@ export function renderMethodNames(service: ServiceDefinition, identifiers: IIden
             'Array<string>',
             undefined,
         ),
-        ts.createArrayLiteral([
-            ...collectAllMethods(service, identifiers).map((next: FunctionDefinition) => {
-                return ts.createLiteral(next.name.value)
-            }),
-        ]),
+        ts.createIdentifier('methodNames'),
     )
 }
 
