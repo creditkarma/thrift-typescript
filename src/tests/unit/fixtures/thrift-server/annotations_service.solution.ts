@@ -581,6 +581,43 @@ export namespace MyService {
         protected transport: thrift.ITransportConstructor;
         protected protocol: thrift.IProtocolConstructor;
         protected connection: thrift.IThriftConnection<Context>;
+        public readonly _annotations: {
+            [name: string]: string;
+        } = {
+            foo: "bar",
+            two: "three",
+            alone: ""
+        };
+        public readonly _methodAnnotations: {
+            [methodName: string]: {
+                annotations: {
+                    [name: string]: string;
+                };
+                fieldAnnotations: {
+                    [fieldName: string]: {
+                        [name: string]: string;
+                    };
+                };
+            };
+        } = {
+            getUser: {
+                annotations: {
+                    foo: "bar",
+                    two: "three",
+                    lonely: ""
+                },
+                fieldAnnotations: {}
+            },
+            saveUser: {
+                annotations: {},
+                fieldAnnotations: {}
+            },
+            ping: {
+                annotations: {},
+                fieldAnnotations: {}
+            }
+        };
+        public readonly _methodNames: Array<string> = ["getUser", "saveUser", "ping"];
         constructor(connection: thrift.IThriftConnection<Context>) {
             this._requestId = 0;
             this.transport = connection.Transport;
@@ -696,6 +733,43 @@ export namespace MyService {
     }
     export class Processor<Context = any> {
         public _handler: IHandler<Context>;
+        public readonly _annotations: {
+            [name: string]: string;
+        } = {
+            foo: "bar",
+            two: "three",
+            alone: ""
+        };
+        public readonly _methodAnnotations: {
+            [methodName: string]: {
+                annotations: {
+                    [name: string]: string;
+                };
+                fieldAnnotations: {
+                    [fieldName: string]: {
+                        [name: string]: string;
+                    };
+                };
+            };
+        } = {
+            getUser: {
+                annotations: {
+                    foo: "bar",
+                    two: "three",
+                    lonely: ""
+                },
+                fieldAnnotations: {}
+            },
+            saveUser: {
+                annotations: {},
+                fieldAnnotations: {}
+            },
+            ping: {
+                annotations: {},
+                fieldAnnotations: {}
+            }
+        };
+        public readonly _methodNames: Array<string> = ["getUser", "saveUser", "ping"];
         constructor(handler: IHandler<Context>) {
             this._handler = handler;
         }

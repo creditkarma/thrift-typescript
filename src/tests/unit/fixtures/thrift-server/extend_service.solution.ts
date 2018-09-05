@@ -195,6 +195,7 @@ export namespace ParentService {
                 fieldAnnotations: {}
             }
         };
+        public readonly _methodNames: Array<string> = ["ping"];
         constructor(connection: thrift.IThriftConnection<Context>) {
             this._requestId = 0;
             this.transport = connection.Transport;
@@ -266,6 +267,7 @@ export namespace ParentService {
                 fieldAnnotations: {}
             }
         };
+        public readonly _methodNames: Array<string> = ["ping"];
         constructor(handler: IHandler<Context>) {
             this._handler = handler;
         }
@@ -672,6 +674,10 @@ export namespace ChildService {
                 };
             };
         } = {
+            ping: {
+                annotations: {},
+                fieldAnnotations: {}
+            },
             peg: {
                 annotations: {},
                 fieldAnnotations: {}
@@ -681,6 +687,7 @@ export namespace ChildService {
                 fieldAnnotations: {}
             }
         };
+        public readonly _methodNames: Array<string> = ["ping", "peg", "pong"];
         constructor(connection: thrift.IThriftConnection<Context>) {
             super(connection);
             this._requestId = 0;
@@ -786,6 +793,10 @@ export namespace ChildService {
                 };
             };
         } = {
+            ping: {
+                annotations: {},
+                fieldAnnotations: {}
+            },
             peg: {
                 annotations: {},
                 fieldAnnotations: {}
@@ -795,6 +806,7 @@ export namespace ChildService {
                 fieldAnnotations: {}
             }
         };
+        public readonly _methodNames: Array<string> = ["ping", "peg", "pong"];
         constructor(handler: IHandler<Context>) {
             super({
                 ping: handler.ping

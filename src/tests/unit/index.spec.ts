@@ -275,7 +275,7 @@ describe('Thrift TypeScript Generator', () => {
             assert.deepEqual(actual, expected)
         })
 
-        it('should correctly generate a basic service with annotations', () => {
+        it('should correctly generate a service with annotations', () => {
             const content: string = `
                 struct User {
                     1: required string name
@@ -283,12 +283,12 @@ describe('Thrift TypeScript Generator', () => {
                 }
 
                 service MyService {
-                    User getUser(1: i32 id)
+                    User getUser(1: i32 id) ( foo = "bar", two = "three", lonely )
                     void saveUser(1: User user)
                     void ping()
-                }
+                } ( foo = "bar", two = "three", alone )
             `
-            const expected: string = readSolution('basic_service', 'thrift-server')
+            const expected: string = readSolution('annotations_service', 'thrift-server')
             const actual: string = make(content)
 
             assert.deepEqual(actual, expected)
@@ -306,6 +306,23 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('extend_service', 'thrift-server')
+            const actual: string = make(content)
+
+            assert.deepEqual(actual, expected)
+        })
+
+        it('should correctly generate a service that extends another service with annotations', () => {
+            const content: string = `
+                service ParentService {
+                    string ping(1: i32 status) ( foo = "bar", two = "three", lonely )
+                } ( foo = "boo", two = "three", alone )
+
+                service ChildService extends ParentService {
+                    string peg(1: string name)
+                    string pong(1: optional string name)
+                } ( foo = "bar", four = "five", secured )
+            `
+            const expected: string = readSolution('annotations_extend_service', 'thrift-server')
             const actual: string = make(content)
 
             assert.deepEqual(actual, expected)

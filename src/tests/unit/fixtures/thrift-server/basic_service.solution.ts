@@ -609,6 +609,7 @@ export namespace MyService {
                 fieldAnnotations: {}
             }
         };
+        public readonly _methodNames: Array<string> = ["getUser", "saveUser", "ping"];
         constructor(connection: thrift.IThriftConnection<Context>) {
             this._requestId = 0;
             this.transport = connection.Transport;
@@ -752,6 +753,7 @@ export namespace MyService {
                 fieldAnnotations: {}
             }
         };
+        public readonly _methodNames: Array<string> = ["getUser", "saveUser", "ping"];
         constructor(handler: IHandler<Context>) {
             this._handler = handler;
         }

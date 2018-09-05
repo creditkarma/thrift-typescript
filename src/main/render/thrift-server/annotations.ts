@@ -3,7 +3,6 @@ import {
     Annotations,
     FieldDefinition,
     FunctionDefinition,
-    ServiceDefinition,
 } from '@creditkarma/thrift-parser'
 import * as ts from 'typescript'
 
@@ -11,6 +10,7 @@ import {
     COMMON_IDENTIFIERS,
     // THRIFT_IDENTIFIERS,
 } from './identifiers'
+
 import { createStringType } from './types'
 
 function renderAnnotationValue(annotations?: Annotations): ts.ObjectLiteralExpression {
@@ -125,9 +125,9 @@ export function renderFieldAnnotations(fields: Array<FieldDefinition>): ts.Prope
     )
 }
 
-function renderMethodAnnotationValue(service: ServiceDefinition): ts.ObjectLiteralExpression {
+function renderMethodAnnotationValue(functions: Array<FunctionDefinition>): ts.ObjectLiteralExpression {
     return ts.createObjectLiteral(
-        service.functions.map((func: FunctionDefinition) => {
+        functions.map((func: FunctionDefinition) => {
             return ts.createPropertyAssignment(
                 ts.createIdentifier(func.name.value),
                 ts.createObjectLiteral([
@@ -190,7 +190,7 @@ function methodAnnotationType(): ts.TypeNode {
     ])
 }
 
-export function renderMethodAnnotations(service: ServiceDefinition): ts.PropertyDeclaration {
+export function renderMethodAnnotations(functions: Array<FunctionDefinition>): ts.PropertyDeclaration {
     return ts.createProperty(
         undefined,
         [
@@ -201,6 +201,6 @@ export function renderMethodAnnotations(service: ServiceDefinition): ts.Property
         undefined,
         methodAnnotationType(),
         // ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IMethodAnnotations, undefined),
-        renderMethodAnnotationValue(service),
+        renderMethodAnnotationValue(functions),
     )
 }

@@ -462,6 +462,7 @@ export namespace MyService {
                 fieldAnnotations: {}
             }
         };
+        public readonly _methodNames: Array<string> = ["peg", "pong"];
         constructor(connection: thrift.IThriftConnection<Context>) {
             this._requestId = 0;
             this.transport = connection.Transport;
@@ -577,6 +578,7 @@ export namespace MyService {
                 fieldAnnotations: {}
             }
         };
+        public readonly _methodNames: Array<string> = ["peg", "pong"];
         constructor(handler: IHandler<Context>) {
             this._handler = handler;
         }

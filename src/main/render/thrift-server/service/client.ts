@@ -13,8 +13,11 @@ import {
 } from './types'
 
 import {
+    collectAllAnnotations,
+    collectAllMethods,
     createStructArgsName,
     createStructResultName,
+    renderMethodNames,
 } from './utils'
 
 import {
@@ -49,7 +52,11 @@ import {
     IIdentifierMap,
 } from '../../../types'
 
-import { renderAnnotations, renderMethodAnnotations } from '../annotations'
+import {
+    renderAnnotations,
+    renderMethodAnnotations,
+} from '../annotations'
+
 import {
     codecName,
     looseName,
@@ -87,9 +94,11 @@ export function renderClient(service: ServiceDefinition, identifiers: IIdentifie
         createConnectionType(),
     )
 
-    const annotations: ts.PropertyDeclaration = renderAnnotations(service.annotations)
+    const annotations: ts.PropertyDeclaration = renderAnnotations(collectAllAnnotations(service, identifiers))
 
-    const methodAnnotations: ts.PropertyDeclaration = renderMethodAnnotations(service)
+    const methodAnnotations: ts.PropertyDeclaration = renderMethodAnnotations(collectAllMethods(service, identifiers))
+
+    const methodNames: ts.PropertyDeclaration = renderMethodNames(service, identifiers)
 
     /**
      * constructor(connection: ThriftConnection) {
@@ -153,24 +162,24 @@ export function renderClient(service: ServiceDefinition, identifiers: IIdentifie
     })
 
     const heritage: Array<ts.HeritageClause> = (
-        (service.extends !== null) ?
-        [
-            ts.createHeritageClause(
-                ts.SyntaxKind.ExtendsKeyword,
-                [
-                    ts.createExpressionWithTypeArguments(
-                        [
-                            ts.createTypeReferenceNode(
-                                COMMON_IDENTIFIERS.Context,
-                                undefined,
-                            ),
-                        ],
-                        ts.createIdentifier(`${service.extends.value}.Client`),
-                    ),
-                ],
-            ),
-        ] :
-        []
+        (service.extends !== null)
+            ? [
+                ts.createHeritageClause(
+                    ts.SyntaxKind.ExtendsKeyword,
+                    [
+                        ts.createExpressionWithTypeArguments(
+                            [
+                                ts.createTypeReferenceNode(
+                                    COMMON_IDENTIFIERS.Context,
+                                    undefined,
+                                ),
+                            ],
+                            ts.createIdentifier(`${service.extends.value}.Client`),
+                        ),
+                    ],
+                ),
+            ]
+            : []
     )
 
     // export class <node.name> { ... }
@@ -193,6 +202,7 @@ export function renderClient(service: ServiceDefinition, identifiers: IIdentifie
             connection,
             annotations,
             methodAnnotations,
+            methodNames,
             ctor,
             incrementRequestIdMethod,
             ...baseMethods,

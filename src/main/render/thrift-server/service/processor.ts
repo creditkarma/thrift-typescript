@@ -14,12 +14,15 @@ import {
 } from './types'
 
 import {
+    collectAllAnnotations,
+    collectAllMethods,
     createStructArgsName,
     createStructResultName,
+    renderMethodNames,
 } from './utils'
 
 import {
-  IIdentifierMap,
+    IIdentifierMap,
 } from '../../../types'
 
 import {
@@ -51,9 +54,14 @@ import {
     typeNodeForFieldType,
 } from '../types'
 
-import { renderAnnotations, renderMethodAnnotations } from '../annotations'
 import {
-    codecName, strictName,
+    renderAnnotations,
+    renderMethodAnnotations,
+} from '../annotations'
+
+import {
+    codecName,
+    strictName,
 } from '../struct/utils'
 
 function objectLiteralForServiceFunctions(node: ThriftStatement): ts.ObjectLiteralExpression {
@@ -92,8 +100,11 @@ export function renderProcessor(service: ServiceDefinition, identifiers: IIdenti
         undefined,
     )
 
-    const annotations: ts.PropertyDeclaration = renderAnnotations(service.annotations)
-    const methodAnnotations: ts.PropertyDeclaration = renderMethodAnnotations(service)
+    const annotations: ts.PropertyDeclaration = renderAnnotations(collectAllAnnotations(service, identifiers))
+
+    const methodAnnotations: ts.PropertyDeclaration = renderMethodAnnotations(collectAllMethods(service, identifiers))
+
+    const methodNames: ts.PropertyDeclaration = renderMethodNames(service, identifiers)
 
     const ctor: ts.ConstructorDeclaration = createClassConstructor(
         [
@@ -151,6 +162,7 @@ export function renderProcessor(service: ServiceDefinition, identifiers: IIdenti
             handler,
             annotations,
             methodAnnotations,
+            methodNames,
             ctor,
             processMethod,
             ...processFunctions,
@@ -688,28 +700,6 @@ function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
             ], true),
         ],
     )
-}
-
-function functionsForService(node: ThriftStatement): Array<FunctionDefinition> {
-    switch (node.type) {
-        case SyntaxType.ServiceDefinition:
-            return node.functions
-
-        default:
-            throw new TypeError(`A service can only extend another service. Found: ${node.type}`)
-    }
-}
-
-function collectAllMethods(service: ServiceDefinition, identifiers: IIdentifierMap): Array<FunctionDefinition> {
-    if (service.extends !== null) {
-        const inheritedMethods: Array<FunctionDefinition> = functionsForService(identifiers[service.extends.value].definition)
-        return [
-            ...inheritedMethods,
-            ...service.functions,
-        ]
-    } else {
-        return service.functions
-    }
 }
 
 /**
