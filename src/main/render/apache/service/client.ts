@@ -407,31 +407,6 @@ function createArgumentsObject(def: FunctionDefinition): Array<ts.Expression> {
     }
 }
 
-// public recv_{{name}}(input: TProtocol, mtype: Thrift.MessageType, rseqid: number): void {
-//     const noop = () => null
-//     let callback = this._reqs[rseqid] || noop
-//     delete this._reqs[rseqid]
-//     if (mtype === Thrift.MessageType.EXCEPTION) {
-//         const x = new Thrift.TApplicationException()
-//         x.read(input)
-//         input.readMessageEnd()
-//         return callback(x)
-//     }
-//     const result = new {{ServiceName}}{{nameTitleCase}}Result()
-//     result.read(input)
-//     input.readMessageEnd()
-//     // Dont check if
-//     {{#throws}}if (result.{{throwName}} != null) {
-//         return callback(result.{{throwName}})
-//     }
-//     {{/throws}}
-//     {{^isVoid}}
-//     if (result.success != null) {
-//         return callback(undefined, result.success)
-//     }
-//     {{/isVoid}}
-//     return callback(new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, "{{name}} failed: unknown result"))
-// }
 function createRecvMethodForDefinition(service: ServiceDefinition, def: FunctionDefinition): ts.MethodDeclaration {
     return ts.createMethod(
         undefined, // decorators
@@ -490,42 +465,52 @@ function createRecvMethodForDefinition(service: ServiceDefinition, def: Function
                 ),
             ),
 
-            // if (mtype === Thrift.MessageType.EXCEPTION) {
-            //     const x = new Thrift.TApplicationException()
-            //     x.read(input)
-            //     input.readMessageEnd()
-            //     return callback(x)
-            // }
-            ...createExceptionHandler(def),
-
-            // const result = new {{ServiceName}}{{nameTitleCase}}Result()
-            ...createNewResultInstance(def),
-
-            // input.readMessageEnd()
-            createMethodCallStatement(
-                COMMON_IDENTIFIERS.input,
-                'readMessageEnd',
-            ),
-
-            // {{#throws}}if (result.{{throwName}} != null) {
-            //     return callback(result.{{throwName}})
-            // }
-            ...def.throws.map((next: FieldDefinition): ts.IfStatement => {
-                return ts.createIf(
-                    createNotNullCheck(`result.${next.name.value}`),
-                    ts.createBlock([
-                        ts.createReturn(
+            ts.createIf(
+                ts.createBinary(
+                    ts.createIdentifier('mtype'),
+                    ts.SyntaxKind.EqualsEqualsEqualsToken,
+                    MESSAGE_TYPE.EXCEPTION,
+                ),
+                ts.createBlock([
+                    createConstStatement(
+                        ts.createIdentifier('x'),
+                        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TApplicationException, undefined),
+                        ts.createNew(
+                            THRIFT_IDENTIFIERS.TApplicationException,
+                            undefined,
+                            [],
+                        ),
+                    ),
+                    createMethodCallStatement(
+                        ts.createIdentifier('x'),
+                        'read',
+                        [ COMMON_IDENTIFIERS.input ],
+                    ),
+                    createMethodCallStatement(
+                        COMMON_IDENTIFIERS.input,
+                        'readMessageEnd',
+                    ),
+                    ts.createReturn(
                         ts.createCall(
                             COMMON_IDENTIFIERS.callback,
                             undefined,
-                            [ ts.createIdentifier(`result.${next.name.value}`) ],
+                            [ ts.createIdentifier('x') ],
                         ),
-                        ),
-                    ], true),
-                )
-            }),
+                    ),
+                ], true),
+                ts.createBlock([
+                    // const result = new {{ServiceName}}{{nameTitleCase}}Result()
+                    ...createNewResultInstance(def),
 
-            createResultHandler(def),
+                    // input.readMessageEnd()
+                    createMethodCallStatement(
+                        COMMON_IDENTIFIERS.input,
+                        'readMessageEnd',
+                    ),
+
+                    createResultHandler(def),
+                ], true),
+            ),
         ], true),
     )
 }
@@ -556,62 +541,23 @@ function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
     }
 }
 
-function createExceptionHandler(def: FunctionDefinition): Array<ts.Statement> {
-    return [
-        ts.createIf(
-            ts.createBinary(
-                ts.createIdentifier('mtype'),
-                ts.SyntaxKind.EqualsEqualsEqualsToken,
-                MESSAGE_TYPE.EXCEPTION,
-            ),
-            ts.createBlock([
-                createConstStatement(
-                    ts.createIdentifier('x'),
-                    ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TApplicationException, undefined),
-                    ts.createNew(
-                        THRIFT_IDENTIFIERS.TApplicationException,
-                        undefined,
-                        [],
-                    ),
-                ),
-                createMethodCallStatement(
-                    ts.createIdentifier('x'),
-                    'read',
-                    [ COMMON_IDENTIFIERS.input ],
-                ),
-                createMethodCallStatement(
-                    COMMON_IDENTIFIERS.input,
-                    'readMessageEnd',
-                ),
-                ts.createReturn(
-                    ts.createCall(
-                        COMMON_IDENTIFIERS.callback,
-                        undefined,
-                        [ ts.createIdentifier('x') ],
-                    ),
-                ),
-            ], true),
+function undefinedReturn(): ts.Statement {
+    return ts.createReturn(
+        ts.createCall(
+            COMMON_IDENTIFIERS.callback,
+            undefined,
+            [
+                COMMON_IDENTIFIERS.undefined,
+            ],
         ),
-    ]
+    )
 }
 
-function createResultHandler(def: FunctionDefinition): ts.Statement {
+function createResultReturn(def: FunctionDefinition): ts.Statement {
     if (def.returnType.type === SyntaxType.VoidKeyword) {
-        return ts.createReturn(
-            ts.createCall(
-                COMMON_IDENTIFIERS.callback,
-                undefined,
-                [
-                    COMMON_IDENTIFIERS.undefined,
-                ],
-            ),
-        )
+        return undefinedReturn()
+
     } else {
-        // {{^isVoid}}
-        // if (result.success != null) {
-        //     return callback(undefined, result.success)
-        // }
-        // {{/isVoid}}
         return ts.createIf(
             createNotNullCheck(
                 ts.createIdentifier('result.success'),
@@ -644,6 +590,52 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
                 ),
             ], true),
         )
+    }
+}
+
+function createElseForExceptions(throwDef: FieldDefinition, remaining: Array<FieldDefinition>, funcDef: FunctionDefinition): ts.Statement {
+    if (remaining.length > 0) {
+        const [ next, ...tail ] = remaining
+        return ts.createIf(
+            createNotNullCheck(`result.${next.name.value}`),
+            createThenForException(next),
+            createElseForExceptions(next, tail, funcDef),
+        )
+    } else {
+        return ts.createBlock([
+            createResultReturn(funcDef),
+        ], true)
+    }
+}
+
+function createThenForException(throwDef: FieldDefinition): ts.Statement {
+    return ts.createBlock([
+        ts.createReturn(
+            ts.createCall(
+                COMMON_IDENTIFIERS.callback,
+                undefined,
+                [ ts.createIdentifier(`result.${throwDef.name.value}`) ],
+            ),
+        ),
+    ], true)
+}
+
+function createIfForExceptions(exps: Array<FieldDefinition>, funcDef: FunctionDefinition): ts.IfStatement {
+    const [ throwDef, ...tail ] = exps
+
+    return ts.createIf(
+        createNotNullCheck(`result.${throwDef.name.value}`),
+        createThenForException(throwDef),
+        createElseForExceptions(throwDef, tail, funcDef),
+    )
+}
+
+function createResultHandler(def: FunctionDefinition): ts.Statement {
+    if (def.throws.length > 0) {
+        return createIfForExceptions(def.throws, def)
+
+    } else {
+        return createResultReturn(def)
     }
 }
 
