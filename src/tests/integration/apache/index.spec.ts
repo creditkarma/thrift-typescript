@@ -166,4 +166,17 @@ describe('Thrift TypeScript', () => {
             assert.deepEqual(response, new Map([['key_1', 'value_1'], ['key_2', 'value_2']]))
         })
     })
+
+    it('should correctly handle service methods that throw multiple exceptions', async () => {
+        return thriftClient.throw(1).then(() => {
+            throw new Error('Should reject')
+        }, (err: any) => {
+            assert.equal(err.message, 'test one')
+            return thriftClient.throw(2).then(() => {
+                throw new Error('Should reject')
+            }, (err: any) => {
+                assert.equal(err.whatHappened, 'test two')
+            })
+        })
+    })
 })
