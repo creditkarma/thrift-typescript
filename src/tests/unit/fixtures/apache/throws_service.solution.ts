@@ -194,12 +194,16 @@ export namespace MyService {
                 input.readMessageEnd();
                 return callback(x);
             }
-            const result: PingResult = PingResult.read(input);
-            input.readMessageEnd();
-            if (result.exp != null) {
-                return callback(result.exp);
+            else {
+                const result: PingResult = PingResult.read(input);
+                input.readMessageEnd();
+                if (result.exp != null) {
+                    return callback(result.exp);
+                }
+                else {
+                    return callback(undefined);
+                }
             }
-            return callback(undefined);
         }
     }
     export interface IHandler {

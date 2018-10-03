@@ -195,13 +195,15 @@ export namespace MyService {
                 input.readMessageEnd();
                 return callback(x);
             }
-            const result: AddResult = AddResult.read(input);
-            input.readMessageEnd();
-            if (result.success != null) {
-                return callback(undefined, result.success);
-            }
             else {
-                return callback(new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, "add failed: unknown result"));
+                const result: AddResult = AddResult.read(input);
+                input.readMessageEnd();
+                if (result.success != null) {
+                    return callback(undefined, result.success);
+                }
+                else {
+                    return callback(new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, "add failed: unknown result"));
+                }
             }
         }
     }

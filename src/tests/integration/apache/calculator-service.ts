@@ -15,6 +15,8 @@ import {
     Operation,
     Work,
     CommonStruct,
+    ExceptionOne,
+    ExceptionTwo,
 } from './codegen/calculator'
 
 import {
@@ -116,6 +118,13 @@ export function createCalculatorServer(): Server {
         },
         fetchThing(): CommonStruct {
             return new SharedStruct({ key: 5, value: 'test' })
+        },
+        throw(num: number): void {
+            if (num === 1) {
+                throw new ExceptionOne({ message: 'test one' })
+            } else {
+                throw new ExceptionTwo({ whatHappened: 'test two' })
+            }
         }
     }
 

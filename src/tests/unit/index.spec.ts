@@ -64,7 +64,7 @@ describe('Thrift TypeScript Generator', () => {
     //     })
     // })
 
-    describe('Thrift Server v2', () => {
+    describe('Thrift Server', () => {
         it('should correctly generate a struct', () => {
             const content: string = `
                 struct MyStruct {
@@ -282,6 +282,31 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('throws_service', 'thrift-server')
+            const actual: string = make(content)
+
+            assert.deepEqual(actual, expected)
+        })
+
+        it('should correctly generate a service that throws multiple possible exceptions', () => {
+            const content: string = `
+                exception ServiceException {
+                    1: string message
+                }
+
+                exception AuthException {
+                    1: string message
+                    2: i32 code
+                }
+
+                exception UnknownException {
+                    1: string message
+                }
+
+                service MyService {
+                    string peg(1: string name) throws (1: ServiceException exp, 2: AuthException authExp, 3: UnknownException unknownExp)
+                }
+            `
+            const expected: string = readSolution('throws_multi_service', 'thrift-server')
             const actual: string = make(content)
 
             assert.deepEqual(actual, expected)
@@ -582,7 +607,32 @@ describe('Thrift TypeScript Generator', () => {
                     void ping() throws (1: MyException exp)
                 }
             `
-            const expected: string = readSolution('throw_service')
+            const expected: string = readSolution('throws_service')
+            const actual: string = make(content, 'apache')
+
+            assert.deepEqual(actual, expected)
+        })
+
+        it('should correctly generate a service that throws multiple possible exceptions', () => {
+            const content: string = `
+                exception ServiceException {
+                    1: string message
+                }
+
+                exception AuthException {
+                    1: string message
+                    2: i32 code
+                }
+
+                exception UnknownException {
+                    1: string message
+                }
+
+                service MyService {
+                    string peg(1: string name) throws (1: ServiceException exp, 2: AuthException authExp, 3: UnknownException unknownExp)
+                }
+            `
+            const expected: string = readSolution('throws_multi_service')
             const actual: string = make(content, 'apache')
 
             assert.deepEqual(actual, expected)

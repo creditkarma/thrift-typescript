@@ -124,8 +124,10 @@ export namespace MyService {
                 input.readMessageEnd();
                 return callback(x);
             }
-            input.readMessageEnd();
-            return callback(undefined);
+            else {
+                input.readMessageEnd();
+                return callback(undefined);
+            }
         }
     }
     export interface IHandler {

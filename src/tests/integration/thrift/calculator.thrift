@@ -38,6 +38,14 @@ union Choice {
   2: LastName lastName
 }
 
+exception ExceptionOne {
+    1: string message
+}
+
+exception ExceptionTwo {
+    1: string whatHappened
+}
+
 service Calculator extends shared.SharedService {
 
    void ping(),
@@ -63,6 +71,8 @@ service Calculator extends shared.SharedService {
    map<string,string> listToMap(1: list<list<string>> arg)
 
    common.CommonStruct fetchThing()
+
+   void throw(1: i32 num) throws (1: ExceptionOne exp1, 2: ExceptionTwo exp2)
 
    oneway void zip()
 

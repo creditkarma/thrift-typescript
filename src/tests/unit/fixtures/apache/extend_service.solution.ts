@@ -158,13 +158,15 @@ export namespace ParentService {
                 input.readMessageEnd();
                 return callback(x);
             }
-            const result: PingResult = PingResult.read(input);
-            input.readMessageEnd();
-            if (result.success != null) {
-                return callback(undefined, result.success);
-            }
             else {
-                return callback(new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, "ping failed: unknown result"));
+                const result: PingResult = PingResult.read(input);
+                input.readMessageEnd();
+                if (result.success != null) {
+                    return callback(undefined, result.success);
+                }
+                else {
+                    return callback(new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, "ping failed: unknown result"));
+                }
             }
         }
     }
@@ -388,13 +390,15 @@ export namespace ChildService {
                 input.readMessageEnd();
                 return callback(x);
             }
-            const result: PegResult = PegResult.read(input);
-            input.readMessageEnd();
-            if (result.success != null) {
-                return callback(undefined, result.success);
-            }
             else {
-                return callback(new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, "peg failed: unknown result"));
+                const result: PegResult = PegResult.read(input);
+                input.readMessageEnd();
+                if (result.success != null) {
+                    return callback(undefined, result.success);
+                }
+                else {
+                    return callback(new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, "peg failed: unknown result"));
+                }
             }
         }
     }

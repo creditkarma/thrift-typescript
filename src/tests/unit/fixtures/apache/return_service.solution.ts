@@ -228,16 +228,20 @@ export namespace MyService {
                 input.readMessageEnd();
                 return callback(x);
             }
-            const result: PingResult = PingResult.read(input);
-            input.readMessageEnd();
-            if (result.exp != null) {
-                return callback(result.exp);
-            }
-            if (result.success != null) {
-                return callback(undefined, result.success);
-            }
             else {
-                return callback(new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, "ping failed: unknown result"));
+                const result: PingResult = PingResult.read(input);
+                input.readMessageEnd();
+                if (result.exp != null) {
+                    return callback(result.exp);
+                }
+                else {
+                    if (result.success != null) {
+                        return callback(undefined, result.success);
+                    }
+                    else {
+                        return callback(new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, "ping failed: unknown result"));
+                    }
+                }
             }
         }
     }
