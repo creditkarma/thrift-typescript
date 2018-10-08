@@ -483,13 +483,15 @@ export namespace MyService {
                             input.readMessageEnd();
                             return Promise.reject(err);
                         }
-                        const result: IPegResult = PegResultCodec.decode(input);
-                        input.readMessageEnd();
-                        if (result.success != null) {
-                            return Promise.resolve(result.success);
-                        }
                         else {
-                            return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "peg failed: unknown result"));
+                            const result: IPegResult = PegResultCodec.decode(input);
+                            input.readMessageEnd();
+                            if (result.success != null) {
+                                return Promise.resolve(result.success);
+                            }
+                            else {
+                                return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "peg failed: unknown result"));
+                            }
                         }
                     }
                     else {
@@ -519,13 +521,15 @@ export namespace MyService {
                             input.readMessageEnd();
                             return Promise.reject(err);
                         }
-                        const result: IPongResult = PongResultCodec.decode(input);
-                        input.readMessageEnd();
-                        if (result.success != null) {
-                            return Promise.resolve(result.success);
-                        }
                         else {
-                            return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "pong failed: unknown result"));
+                            const result: IPongResult = PongResultCodec.decode(input);
+                            input.readMessageEnd();
+                            if (result.success != null) {
+                                return Promise.resolve(result.success);
+                            }
+                            else {
+                                return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "pong failed: unknown result"));
+                            }
                         }
                     }
                     else {

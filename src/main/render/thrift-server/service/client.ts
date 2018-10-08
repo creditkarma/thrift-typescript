@@ -424,33 +424,51 @@ function createBaseMethodForDefinition(def: FunctionDefinition, identifiers: IId
                                                 //     proto.readMessageEnd()
                                                 //     return callback(x)
                                                 // }
-                                                createExceptionHandler(),
-
-                                                // const result = new {{ServiceName}}{{nameTitleCase}}Result()
-                                                ...createNewResultInstance(def),
-
-                                                // proto.readMessageEnd()
-                                                createMethodCallStatement(
-                                                    COMMON_IDENTIFIERS.input,
-                                                    'readMessageEnd',
-                                                ),
-
-                                                // {{#throws}}if (result.{{throwName}} != null) {
-                                                //     return callback(result.{{throwName}})
-                                                // }
-                                                ...def.throws.map((next: FieldDefinition): ts.IfStatement => {
-                                                    return ts.createIf(
-                                                        createNotNullCheck(`result.${next.name.value}`),
-                                                        ts.createBlock([
-                                                            ts.createReturn(
-                                                                rejectPromiseWith(
-                                                                    ts.createIdentifier(`result.${next.name.value}`),
-                                                                ),
+                                                ts.createIf(
+                                                    ts.createBinary(
+                                                        COMMON_IDENTIFIERS.messageType,
+                                                        ts.SyntaxKind.EqualsEqualsEqualsToken,
+                                                        MESSAGE_TYPE.EXCEPTION,
+                                                    ),
+                                                    ts.createBlock([
+                                                        createConstStatement(
+                                                            COMMON_IDENTIFIERS.err,
+                                                            ts.createTypeReferenceNode(
+                                                                THRIFT_IDENTIFIERS.TApplicationException,
+                                                                undefined,
                                                             ),
-                                                        ], true),
-                                                    )
-                                                }),
-                                                createResultHandler(def),
+                                                            ts.createCall(
+                                                                ts.createPropertyAccess(
+                                                                    THRIFT_IDENTIFIERS.TApplicationExceptionCodec,
+                                                                    ts.createIdentifier('decode'),
+                                                                ),
+                                                                undefined,
+                                                                [
+                                                                    COMMON_IDENTIFIERS.input,
+                                                                ],
+                                                            ),
+                                                        ),
+                                                        createMethodCallStatement(
+                                                            COMMON_IDENTIFIERS.input,
+                                                            'readMessageEnd',
+                                                        ),
+                                                        ts.createReturn(
+                                                            rejectPromiseWith(COMMON_IDENTIFIERS.err),
+                                                        ),
+                                                    ], true),
+                                                    ts.createBlock([
+                                                        // const result = new {{ServiceName}}{{nameTitleCase}}Result()
+                                                        ...createNewResultInstance(def),
+
+                                                        // proto.readMessageEnd()
+                                                        createMethodCallStatement(
+                                                            COMMON_IDENTIFIERS.input,
+                                                            'readMessageEnd',
+                                                        ),
+
+                                                        createResultHandler(def),
+                                                    ], true),
+                                                ),
                                             ], true),
                                             ts.createBlock([
                                                 ts.createReturn(
@@ -540,42 +558,6 @@ function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
     ]
 }
 
-function createExceptionHandler(): ts.Statement {
-    return ts.createIf(
-        ts.createBinary(
-            COMMON_IDENTIFIERS.messageType,
-            ts.SyntaxKind.EqualsEqualsEqualsToken,
-            MESSAGE_TYPE.EXCEPTION,
-        ),
-        ts.createBlock([
-            createConstStatement(
-                COMMON_IDENTIFIERS.err,
-                ts.createTypeReferenceNode(
-                    THRIFT_IDENTIFIERS.TApplicationException,
-                    undefined,
-                ),
-                ts.createCall(
-                    ts.createPropertyAccess(
-                        THRIFT_IDENTIFIERS.TApplicationExceptionCodec,
-                        ts.createIdentifier('decode'),
-                    ),
-                    undefined,
-                    [
-                        COMMON_IDENTIFIERS.input,
-                    ],
-                ),
-            ),
-            createMethodCallStatement(
-                COMMON_IDENTIFIERS.input,
-                'readMessageEnd',
-            ),
-            ts.createReturn(
-                rejectPromiseWith(COMMON_IDENTIFIERS.err),
-            ),
-        ], true),
-    )
-}
-
 function resolvePromiseWith(result: ts.Expression): ts.CallExpression {
     return ts.createCall(
         ts.createPropertyAccess(
@@ -598,7 +580,7 @@ function rejectPromiseWith(result: ts.Expression): ts.CallExpression {
     )
 }
 
-function createResultHandler(def: FunctionDefinition): ts.Statement {
+function createResultReturn(def: FunctionDefinition): ts.Statement {
     if (def.returnType.type === SyntaxType.VoidKeyword) {
         return ts.createReturn(
             resolvePromiseWith(ts.createIdentifier('result.success')),
@@ -630,6 +612,48 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
                 ),
             ], true),
         )
+    }
+}
+
+function createElseForExceptions(throwDef: FieldDefinition, remaining: Array<FieldDefinition>, funcDef: FunctionDefinition): ts.Statement {
+    if (remaining.length > 0) {
+        const [ next, ...tail ] = remaining
+        return ts.createIf(
+            createNotNullCheck(`result.${next.name.value}`),
+            createThenForException(next),
+            createElseForExceptions(next, tail, funcDef),
+        )
+    } else {
+        return createResultReturn(funcDef)
+    }
+}
+
+function createThenForException(throwDef: FieldDefinition): ts.Statement {
+    return ts.createBlock([
+        ts.createReturn(
+            rejectPromiseWith(
+                ts.createIdentifier(`result.${throwDef.name.value}`),
+            ),
+        ),
+    ], true)
+}
+
+function createIfForExceptions(exps: Array<FieldDefinition>, funcDef: FunctionDefinition): ts.IfStatement {
+    const [ throwDef, ...tail ] = exps
+
+    return ts.createIf(
+        createNotNullCheck(`result.${throwDef.name.value}`),
+        createThenForException(throwDef),
+        createElseForExceptions(throwDef, tail, funcDef),
+    )
+}
+
+function createResultHandler(def: FunctionDefinition): ts.Statement {
+    if (def.throws.length > 0) {
+        return createIfForExceptions(def.throws, def)
+
+    } else {
+        return createResultReturn(def)
     }
 }
 

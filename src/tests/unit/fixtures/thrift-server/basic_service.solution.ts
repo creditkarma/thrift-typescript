@@ -653,13 +653,15 @@ export namespace MyService {
                             input.readMessageEnd();
                             return Promise.reject(err);
                         }
-                        const result: IGetUserResult = GetUserResultCodec.decode(input);
-                        input.readMessageEnd();
-                        if (result.success != null) {
-                            return Promise.resolve(result.success);
-                        }
                         else {
-                            return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "getUser failed: unknown result"));
+                            const result: IGetUserResult = GetUserResultCodec.decode(input);
+                            input.readMessageEnd();
+                            if (result.success != null) {
+                                return Promise.resolve(result.success);
+                            }
+                            else {
+                                return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "getUser failed: unknown result"));
+                            }
                         }
                     }
                     else {
@@ -689,9 +691,11 @@ export namespace MyService {
                             input.readMessageEnd();
                             return Promise.reject(err);
                         }
-                        const result: ISaveUserResult = SaveUserResultCodec.decode(input);
-                        input.readMessageEnd();
-                        return Promise.resolve(result.success);
+                        else {
+                            const result: ISaveUserResult = SaveUserResultCodec.decode(input);
+                            input.readMessageEnd();
+                            return Promise.resolve(result.success);
+                        }
                     }
                     else {
                         return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.WRONG_METHOD_NAME, "Received a response to an unknown RPC function: " + fieldName));
@@ -720,9 +724,11 @@ export namespace MyService {
                             input.readMessageEnd();
                             return Promise.reject(err);
                         }
-                        const result: IPingResult = PingResultCodec.decode(input);
-                        input.readMessageEnd();
-                        return Promise.resolve(result.success);
+                        else {
+                            const result: IPingResult = PingResultCodec.decode(input);
+                            input.readMessageEnd();
+                            return Promise.resolve(result.success);
+                        }
                     }
                     else {
                         return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.WRONG_METHOD_NAME, "Received a response to an unknown RPC function: " + fieldName));

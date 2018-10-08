@@ -1,6 +1,7 @@
 import * as ts from 'typescript'
 
 import {
+    // ExceptionDefinition,
     FieldDefinition,
     FunctionDefinition,
     ServiceDefinition,
@@ -187,44 +188,6 @@ function createSuperCall(node: ServiceDefinition, identifiers: IIdentifierMap): 
     }
 }
 
-// public process_{{name}}(requestId: number, input: TProtocol, output: TProtocol, context: Context): Promise<Buffer> {
-//     return new Promise<{{typeName}}>((resolve, reject) => {
-//         try {
-//             resolve(
-//                 const args = new {{ServiceName}}{{nameTitleCase}}Args()
-//                 args.read(input)
-//                 input.readMessageEnd()
-//                 this._handler.{{name}}({{#args}}args.{{fieldName}}, {{/args}}context)
-//             )
-//         } catch (e) {
-//             reject(e)
-//         }
-//     }).then((data: {{typeName}}) => {
-//         const result = new {{ServiceName}}{{nameTitleCase}}Result({success: data})
-//         output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, requestId)
-//         ResultCodec.encode(result, output)
-//         output.writeMessageEnd()
-//         return output.flush()
-//     }).catch((err: Error) => {
-//         let result
-//         {{#hasThrows}}{{#throws}}if (err instanceof {{throwType}}) {
-//             result = new {{ServiceName}}{{nameTitleCase}}Result()
-//             result.populate({{{throwName}}: err as {{throwType}}})
-//             output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, requestId)
-//         } else {{/throws}}{
-//             result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
-//             output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, requestId)
-//         }
-//         {{/hasThrows}}
-//         {{^hasThrows}}
-//         result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
-//         output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, requestId)
-//         {{/hasThrows}}
-//         ErrorCodec.encode(result, output)
-//         output.writeMessageEnd()
-//         return output.flush()
-//     })
-// }
 function createProcessFunctionMethod(
     service: ServiceDefinition,
     funcDef: FunctionDefinition,
@@ -431,122 +394,148 @@ function createArgsVariable(funcDef: FunctionDefinition): Array<ts.Statement> {
     }
 }
 
+function createElseForExceptions(exp: FieldDefinition, remaining: Array<FieldDefinition>, funcDef: FunctionDefinition): ts.Statement {
+    if (remaining.length > 0) {
+        const [ next, ...tail ] = remaining
+        return ts.createIf(
+            ts.createBinary(
+                COMMON_IDENTIFIERS.err,
+                ts.SyntaxKind.InstanceOfKeyword,
+                constructorNameForFieldType(next.fieldType),
+            ),
+            createThenForException(next, funcDef),
+            createElseForExceptions(next, tail, funcDef),
+        )
+    } else {
+        return ts.createBlock([
+            // const result: Thrift.TApplicationException = new thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
+            createConstStatement(
+                COMMON_IDENTIFIERS.result,
+                ts.createTypeReferenceNode(
+                    THRIFT_IDENTIFIERS.TApplicationException,
+                    undefined,
+                ),
+                createApplicationException(
+                    'UNKNOWN',
+                    ts.createIdentifier('err.message'),
+                ),
+            ),
+            // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, requestId)
+            createMethodCallStatement(
+                COMMON_IDENTIFIERS.output,
+                'writeMessageBegin',
+                [
+                    ts.createLiteral(funcDef.name.value),
+                    MESSAGE_TYPE.EXCEPTION,
+                    ts.createIdentifier('requestId'),
+                ],
+            ),
+            // thrift.TApplicationExceptionCodec.encode(result, output)
+            createMethodCallStatement(
+                THRIFT_IDENTIFIERS.TApplicationExceptionCodec,
+                'encode',
+                [
+                    COMMON_IDENTIFIERS.result,
+                    COMMON_IDENTIFIERS.output,
+                ],
+            ),
+            // output.writeMessageEnd()
+            createMethodCallStatement(
+                COMMON_IDENTIFIERS.output,
+                'writeMessageEnd',
+            ),
+            // return output.flush()
+            ts.createReturn(
+                ts.createCall(
+                    ts.createPropertyAccess(
+                        COMMON_IDENTIFIERS.output,
+                        'flush',
+                    ),
+                    undefined,
+                    [],
+                ),
+            ),
+        ], true)
+    }
+}
+
+function createThenForException(throwDef: FieldDefinition, funcDef: FunctionDefinition): ts.Statement {
+    return ts.createBlock([
+        // const result: {{throwType}} = new {{ServiceName}}{{nameTitleCase}}Result({{{throwName}}: err as {{throwType}}});
+        createConstStatement(
+            COMMON_IDENTIFIERS.result,
+            ts.createTypeReferenceNode(
+                ts.createIdentifier(
+                    strictName(createStructResultName(funcDef)),
+                ),
+                undefined,
+            ),
+            ts.createObjectLiteral(
+                [
+                    ts.createPropertyAssignment(
+                        ts.createIdentifier(throwDef.name.value),
+                        COMMON_IDENTIFIERS.err,
+                    ),
+                ],
+            ),
+        ),
+        // output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, requestId)
+        createMethodCallStatement(
+            COMMON_IDENTIFIERS.output,
+            'writeMessageBegin',
+            [
+                ts.createLiteral(funcDef.name.value),
+                MESSAGE_TYPE.REPLY,
+                ts.createIdentifier('requestId'),
+            ],
+        ),
+        // StructCodec.encode(result, output)
+        createMethodCallStatement(
+            ts.createIdentifier(codecName(createStructResultName(funcDef))),
+            'encode',
+            [
+                COMMON_IDENTIFIERS.result,
+                COMMON_IDENTIFIERS.output,
+            ],
+        ),
+        // output.writeMessageEnd()
+        createMethodCallStatement(
+            COMMON_IDENTIFIERS.output,
+            'writeMessageEnd',
+        ),
+        // return output.flush()
+        ts.createReturn(
+            ts.createCall(
+                ts.createPropertyAccess(
+                    COMMON_IDENTIFIERS.output,
+                    'flush',
+                ),
+                undefined,
+                [],
+            ),
+        ),
+    ], true)
+}
+
+function createIfForExceptions(exps: Array<FieldDefinition>, funcDef: FunctionDefinition): ts.Statement {
+    const [ throwDef, ...tail ] = exps
+
+    return ts.createIf(
+        ts.createBinary(
+            COMMON_IDENTIFIERS.err,
+            ts.SyntaxKind.InstanceOfKeyword,
+            constructorNameForFieldType(throwDef.fieldType),
+        ),
+        createThenForException(throwDef, funcDef),
+        createElseForExceptions(throwDef, tail, funcDef),
+    )
+}
+
 function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statement> {
     if (funcDef.throws.length > 0) {
-        return funcDef.throws.map((throwDef: FieldDefinition): ts.IfStatement => {
-            // if (err instanceof {{throwType}}) {
-            return ts.createIf(
-                ts.createBinary(
-                    COMMON_IDENTIFIERS.err,
-                    ts.SyntaxKind.InstanceOfKeyword,
-                    constructorNameForFieldType(throwDef.fieldType),
-                ),
-                ts.createBlock([
-                    // const result: {{throwType}} = new {{ServiceName}}{{nameTitleCase}}Result({{{throwName}}: err as {{throwType}}});
-                    createConstStatement(
-                        COMMON_IDENTIFIERS.result,
-                        ts.createTypeReferenceNode(
-                            ts.createIdentifier(
-                                strictName(createStructResultName(funcDef)),
-                            ),
-                            undefined,
-                        ),
-                        ts.createObjectLiteral(
-                            [
-                                ts.createPropertyAssignment(
-                                    ts.createIdentifier(throwDef.name.value),
-                                    COMMON_IDENTIFIERS.err,
-                                ),
-                            ],
-                        ),
-                    ),
-                    // output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, requestId)
-                    createMethodCallStatement(
-                        COMMON_IDENTIFIERS.output,
-                        'writeMessageBegin',
-                        [
-                            ts.createLiteral(funcDef.name.value),
-                            MESSAGE_TYPE.REPLY,
-                            ts.createIdentifier('requestId'),
-                        ],
-                    ),
-                    // StructCodec.encode(result, output)
-                    createMethodCallStatement(
-                        ts.createIdentifier(codecName(createStructResultName(funcDef))),
-                        'encode',
-                        [
-                            COMMON_IDENTIFIERS.result,
-                            COMMON_IDENTIFIERS.output,
-                        ],
-                    ),
-                    // output.writeMessageEnd()
-                    createMethodCallStatement(
-                        COMMON_IDENTIFIERS.output,
-                        'writeMessageEnd',
-                    ),
-                    // return output.flush()
-                    ts.createReturn(
-                        ts.createCall(
-                            ts.createPropertyAccess(
-                                COMMON_IDENTIFIERS.output,
-                                'flush',
-                            ),
-                            undefined,
-                            [],
-                        ),
-                    ),
-                ], true),
-                ts.createBlock([
-                    // const result: Thrift.TApplicationException = new thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
-                    createConstStatement(
-                        COMMON_IDENTIFIERS.result,
-                        ts.createTypeReferenceNode(
-                            THRIFT_IDENTIFIERS.TApplicationException,
-                            undefined,
-                        ),
-                        createApplicationException(
-                            'UNKNOWN',
-                            ts.createIdentifier('err.message'),
-                        ),
-                    ),
-                    // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, requestId)
-                    createMethodCallStatement(
-                        COMMON_IDENTIFIERS.output,
-                        'writeMessageBegin',
-                        [
-                            ts.createLiteral(funcDef.name.value),
-                            MESSAGE_TYPE.EXCEPTION,
-                            ts.createIdentifier('requestId'),
-                        ],
-                    ),
-                    // thrift.TApplicationExceptionCodec.encode(result, output)
-                    createMethodCallStatement(
-                        THRIFT_IDENTIFIERS.TApplicationExceptionCodec,
-                        'encode',
-                        [
-                            COMMON_IDENTIFIERS.result,
-                            COMMON_IDENTIFIERS.output,
-                        ],
-                    ),
-                    // output.writeMessageEnd()
-                    createMethodCallStatement(
-                        COMMON_IDENTIFIERS.output,
-                        'writeMessageEnd',
-                    ),
-                    // return output.flush()
-                    ts.createReturn(
-                        ts.createCall(
-                            ts.createPropertyAccess(
-                                COMMON_IDENTIFIERS.output,
-                                'flush',
-                            ),
-                            undefined,
-                            [],
-                        ),
-                    ),
-                ], true),
-            )
-        })
+        // if (err instanceof {{throwType}}) {
+        return [ createIfForExceptions(funcDef.throws, funcDef) ]
+
     } else {
         return [
             // const result: Thrift.TApplicationException = new thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
