@@ -550,23 +550,10 @@ export namespace MyService {
             return PingResultCodec.encode(this, output);
         }
     }
-    export class Client<Context = any> {
-        protected _requestId: number;
-        protected transport: thrift.ITransportConstructor;
-        protected protocol: thrift.IProtocolConstructor;
-        protected connection: thrift.IThriftConnection<Context>;
+    export class Client<Context = any> extends thrift.ThriftClient<Context> {
         public readonly _annotations: thrift.IThriftAnnotations = annotations;
         public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
         public readonly _methodNames: Array<string> = methodNames;
-        constructor(connection: thrift.IThriftConnection<Context>) {
-            this._requestId = 0;
-            this.transport = connection.Transport;
-            this.protocol = connection.Protocol;
-            this.connection = connection;
-        }
-        protected incrementRequestId(): number {
-            return this._requestId += 1;
-        }
         public getUser(id: number, context?: Context): Promise<IUser> {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
@@ -677,14 +664,10 @@ export namespace MyService {
         saveUser(user: IUser, context?: Context): void | Promise<void>;
         ping(context?: Context): void | Promise<void>;
     }
-    export class Processor<Context = any> {
-        public _handler: IHandler<Context>;
+    export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
         public readonly _annotations: thrift.IThriftAnnotations = annotations;
         public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
         public readonly _methodNames: Array<string> = methodNames;
-        constructor(handler: IHandler<Context>) {
-            this._handler = handler;
-        }
         public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
             return new Promise<Buffer>((resolve, reject): void => {
                 const metadata: thrift.IThriftMessage = input.readMessageBegin();

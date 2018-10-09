@@ -166,23 +166,10 @@ export namespace ParentService {
             return PingResultCodec.encode(this, output);
         }
     }
-    export class Client<Context = any> {
-        protected _requestId: number;
-        protected transport: thrift.ITransportConstructor;
-        protected protocol: thrift.IProtocolConstructor;
-        protected connection: thrift.IThriftConnection<Context>;
+    export class Client<Context = any> extends thrift.ThriftClient<Context> {
         public readonly _annotations: thrift.IThriftAnnotations = annotations;
         public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
         public readonly _methodNames: Array<string> = methodNames;
-        constructor(connection: thrift.IThriftConnection<Context>) {
-            this._requestId = 0;
-            this.transport = connection.Transport;
-            this.protocol = connection.Protocol;
-            this.connection = connection;
-        }
-        protected incrementRequestId(): number {
-            return this._requestId += 1;
-        }
         public ping(status: number, context?: Context): Promise<string> {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
@@ -225,14 +212,10 @@ export namespace ParentService {
     export interface IHandler<Context = any> {
         ping(status: number, context?: Context): string | Promise<string>;
     }
-    export class Processor<Context = any> {
-        public _handler: IHandler<Context>;
+    export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
         public readonly _annotations: thrift.IThriftAnnotations = annotations;
         public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
         public readonly _methodNames: Array<string> = methodNames;
-        constructor(handler: IHandler<Context>) {
-            this._handler = handler;
-        }
         public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
             return new Promise<Buffer>((resolve, reject): void => {
                 const metadata: thrift.IThriftMessage = input.readMessageBegin();
@@ -609,22 +592,11 @@ export namespace ChildService {
         }
     }
     export class Client<Context = any> extends ParentService.Client<Context> {
-        protected _requestId: number;
-        protected transport: thrift.ITransportConstructor;
-        protected protocol: thrift.IProtocolConstructor;
-        protected connection: thrift.IThriftConnection<Context>;
         public readonly _annotations: thrift.IThriftAnnotations = annotations;
         public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
         public readonly _methodNames: Array<string> = methodNames;
         constructor(connection: thrift.IThriftConnection<Context>) {
             super(connection);
-            this._requestId = 0;
-            this.transport = connection.Transport;
-            this.protocol = connection.Protocol;
-            this.connection = connection;
-        }
-        protected incrementRequestId(): number {
-            return this._requestId += 1;
         }
         public peg(name: string, context?: Context): Promise<string> {
             const writer: thrift.TTransport = new this.transport();
@@ -709,7 +681,6 @@ export namespace ChildService {
     }
     export type IHandler<Context = any> = ILocalHandler<Context> & ParentService.IHandler<Context>;
     export class Processor<Context = any> extends ParentService.Processor<Context> {
-        public _handler: IHandler<Context>;
         public readonly _annotations: thrift.IThriftAnnotations = annotations;
         public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
         public readonly _methodNames: Array<string> = methodNames;

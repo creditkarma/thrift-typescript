@@ -3,6 +3,7 @@ import * as ts from 'typescript'
 import {
     FieldDefinition,
     FunctionDefinition,
+    Identifier,
     ServiceDefinition,
     SyntaxType,
 } from '@creditkarma/thrift-parser'
@@ -27,18 +28,14 @@ import {
 
 import {
     createApplicationException,
-    createAssignmentStatement,
-    createClassConstructor,
     createConstStatement,
     createFunctionParameter,
     createMethodCallStatement,
     createNotNullCheck,
-    createProtectedProperty,
 } from '../utils'
 
 import {
     createAnyType,
-    createNumberType,
     typeNodeForFieldType,
 } from '../types'
 
@@ -55,105 +52,48 @@ import {
     renderServiceAnnotationsProperty,
 } from '../annotations'
 
+import { createClassConstructor } from '../../shared/utils'
 import {
     codecName,
     looseName,
     strictName,
 } from '../struct/utils'
 
+function extendsAbstract(): ts.HeritageClause {
+    return ts.createHeritageClause(
+        ts.SyntaxKind.ExtendsKeyword,
+        [
+            ts.createExpressionWithTypeArguments(
+                [ ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined) ],
+                THRIFT_IDENTIFIERS.ThriftClient,
+            ),
+        ],
+    )
+}
+
+function extendsService(service: Identifier): ts.HeritageClause {
+    return ts.createHeritageClause(
+        ts.SyntaxKind.ExtendsKeyword,
+        [
+            ts.createExpressionWithTypeArguments(
+                [
+                    ts.createTypeReferenceNode(
+                        COMMON_IDENTIFIERS.Context,
+                        undefined,
+                    ),
+                ],
+                ts.createIdentifier(`${service.value}.Client`),
+            ),
+        ],
+    )
+}
+
 export function renderClient(service: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
-    // private _requestId: number;
-    const requestId: ts.PropertyDeclaration = createProtectedProperty(
-        '_requestId',
-        createNumberType(),
-    )
-
-    // public transport: TTransport;
-    const transport: ts.PropertyDeclaration = createProtectedProperty(
-        'transport',
-        ts.createTypeReferenceNode(
-            THRIFT_IDENTIFIERS.TransportConstructor,
-            undefined,
-        ),
-    )
-
-    // public protocol: new (trans: TTransport) => TProtocol;
-    const protocol: ts.PropertyDeclaration = createProtectedProperty(
-        'protocol',
-        ts.createTypeReferenceNode(
-            THRIFT_IDENTIFIERS.ProtocolConstructor,
-            undefined,
-        ),
-    )
-
-    // private send: (data: Buffer, requestId: number, context: Context) => void;
-    const connection: ts.PropertyDeclaration = createProtectedProperty(
-        'connection',
-        createConnectionType(),
-    )
-
     const annotations: ts.PropertyDeclaration = renderServiceAnnotationsProperty()
 
     const methodAnnotations: ts.PropertyDeclaration = renderMethodAnnotationsProperty()
 
     const methodNames: ts.PropertyDeclaration = renderMethodNamesProperty()
-
-    /**
-     * constructor(connection: ThriftConnection) {
-     *   super(connection)
-     *   this._requestId = 0;
-     *   this.transport = connection.Transport;
-     *   this.protocol = connection.Protocol;
-     *   this.connection = connection;
-     * }
-     */
-    const ctor: ts.ConstructorDeclaration = createClassConstructor(
-        [
-            createFunctionParameter(
-                'connection',
-                createConnectionType(),
-            ),
-        ], // parameters
-        [
-            ...createSuperCall(service),
-            createAssignmentStatement(
-                ts.createIdentifier('this._requestId'),
-                ts.createLiteral(0),
-            ),
-            createAssignmentStatement(
-                ts.createIdentifier('this.transport'),
-                ts.createIdentifier('connection.Transport'),
-            ),
-            createAssignmentStatement(
-                ts.createIdentifier('this.protocol'),
-                ts.createIdentifier('connection.Protocol'),
-            ),
-            createAssignmentStatement(
-                ts.createIdentifier('this.connection'),
-                COMMON_IDENTIFIERS.connection,
-            ),
-        ], // body
-    )
-
-    const incrementRequestIdMethod: ts.MethodDeclaration = ts.createMethod(
-        undefined,
-        [ ts.createToken(ts.SyntaxKind.ProtectedKeyword) ],
-        undefined,
-        'incrementRequestId',
-        undefined,
-        undefined,
-        [],
-        createNumberType(),
-        ts.createBlock([
-            ts.createReturn(
-                ts.createBinary(
-                    ts.createIdentifier('this._requestId'),
-                    ts.SyntaxKind.PlusEqualsToken,
-                    ts.createLiteral(1),
-                ),
-            ),
-        ], true),
-    )
 
     const baseMethods: Array<ts.MethodDeclaration> = service.functions.map((func: FunctionDefinition) => {
         return createBaseMethodForDefinition(func, identifiers)
@@ -161,23 +101,8 @@ export function renderClient(service: ServiceDefinition, identifiers: IIdentifie
 
     const heritage: Array<ts.HeritageClause> = (
         (service.extends !== null)
-            ? [
-                ts.createHeritageClause(
-                    ts.SyntaxKind.ExtendsKeyword,
-                    [
-                        ts.createExpressionWithTypeArguments(
-                            [
-                                ts.createTypeReferenceNode(
-                                    COMMON_IDENTIFIERS.Context,
-                                    undefined,
-                                ),
-                            ],
-                            ts.createIdentifier(`${service.extends.value}.Client`),
-                        ),
-                    ],
-                ),
-            ]
-            : []
+            ? [ extendsService(service.extends) ]
+            : [ extendsAbstract() ]
     )
 
     // export class <node.name> { ... }
@@ -194,34 +119,39 @@ export function renderClient(service: ServiceDefinition, identifiers: IIdentifie
         ], // type parameters
         heritage, // heritage
         [
-            requestId,
-            transport,
-            protocol,
-            connection,
             annotations,
             methodAnnotations,
             methodNames,
-            ctor,
-            incrementRequestIdMethod,
+            ...createCtor(service),
             ...baseMethods,
         ], // body
     )
 }
 
-function createSuperCall(node: ServiceDefinition): Array<ts.Statement> {
-    if (node.extends !== null) {
-        return [
-            ts.createStatement(ts.createCall(
-                ts.createSuper(),
-                [],
-                [
-                    COMMON_IDENTIFIERS.connection,
-                ],
-            )),
-        ]
+function createCtor(service: ServiceDefinition): Array<ts.ConstructorDeclaration> {
+    if (service.extends !== null) {
+        return [ createClassConstructor([
+            createFunctionParameter(
+                'connection',
+                createConnectionType(),
+            ),
+        ],
+        [
+            createSuperCall(),
+        ]) ]
     } else {
         return []
     }
+}
+
+function createSuperCall(): ts.Statement {
+    return ts.createStatement(ts.createCall(
+        ts.createSuper(),
+        [],
+        [
+            COMMON_IDENTIFIERS.connection,
+        ],
+    ))
 }
 
 // public {{name}}( {{#args}}{{fieldName}}: {{fieldType}}, {{/args}} ): Promise<{{typeName}}> {
