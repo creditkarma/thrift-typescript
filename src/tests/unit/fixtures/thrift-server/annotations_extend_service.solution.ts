@@ -1,23 +1,10 @@
 export namespace ParentService {
-    export const annotations: {
-        [name: string]: string;
-    } = {
+    export const annotations: thrift.IThriftAnnotations = {
         foo: "boo",
         two: "three",
         alone: ""
     };
-    export const methodAnnotations: {
-        [methodName: string]: {
-            annotations: {
-                [name: string]: string;
-            };
-            fieldAnnotations: {
-                [fieldName: string]: {
-                    [name: string]: string;
-                };
-            };
-        };
-    } = {
+    export const methodAnnotations: thrift.IMethodAnnotations = {
         ping: {
             annotations: {
                 foo: "bar",
@@ -91,14 +78,8 @@ export namespace ParentService {
     };
     export class PingArgs extends thrift.StructLike implements IPingArgs {
         public status: number;
-        public readonly _annotations: {
-            [name: string]: string;
-        } = {};
-        public readonly _fieldAnnotations: {
-            [fieldName: string]: {
-                [name: string]: string;
-            };
-        } = {};
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IPingArgsArgs) {
             super();
             if (args.status != null) {
@@ -174,14 +155,8 @@ export namespace ParentService {
     };
     export class PingResult extends thrift.StructLike implements IPingResult {
         public success?: string;
-        public readonly _annotations: {
-            [name: string]: string;
-        } = {};
-        public readonly _fieldAnnotations: {
-            [fieldName: string]: {
-                [name: string]: string;
-            };
-        } = {};
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IPingResultArgs = {}) {
             super();
             if (args.success != null) {
@@ -204,21 +179,8 @@ export namespace ParentService {
         protected transport: thrift.ITransportConstructor;
         protected protocol: thrift.IProtocolConstructor;
         protected connection: thrift.IThriftConnection<Context>;
-        public readonly _annotations: {
-            [name: string]: string;
-        } = annotations;
-        public readonly _methodAnnotations: {
-            [methodName: string]: {
-                annotations: {
-                    [name: string]: string;
-                };
-                fieldAnnotations: {
-                    [fieldName: string]: {
-                        [name: string]: string;
-                    };
-                };
-            };
-        } = methodAnnotations;
+        public readonly _annotations: thrift.IThriftAnnotations = annotations;
+        public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
         public readonly _methodNames: Array<string> = methodNames;
         constructor(connection: thrift.IThriftConnection<Context>) {
             this._requestId = 0;
@@ -247,13 +209,15 @@ export namespace ParentService {
                             input.readMessageEnd();
                             return Promise.reject(err);
                         }
-                        const result: IPingResult = PingResultCodec.decode(input);
-                        input.readMessageEnd();
-                        if (result.success != null) {
-                            return Promise.resolve(result.success);
-                        }
                         else {
-                            return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "ping failed: unknown result"));
+                            const result: IPingResult = PingResultCodec.decode(input);
+                            input.readMessageEnd();
+                            if (result.success != null) {
+                                return Promise.resolve(result.success);
+                            }
+                            else {
+                                return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "ping failed: unknown result"));
+                            }
                         }
                     }
                     else {
@@ -271,21 +235,8 @@ export namespace ParentService {
     }
     export class Processor<Context = any> {
         public _handler: IHandler<Context>;
-        public readonly _annotations: {
-            [name: string]: string;
-        } = annotations;
-        public readonly _methodAnnotations: {
-            [methodName: string]: {
-                annotations: {
-                    [name: string]: string;
-                };
-                fieldAnnotations: {
-                    [fieldName: string]: {
-                        [name: string]: string;
-                    };
-                };
-            };
-        } = methodAnnotations;
+        public readonly _annotations: thrift.IThriftAnnotations = annotations;
+        public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
         public readonly _methodNames: Array<string> = methodNames;
         constructor(handler: IHandler<Context>) {
             this._handler = handler;
@@ -342,27 +293,14 @@ export namespace ParentService {
     }
 }
 export namespace ChildService {
-    export const annotations: {
-        [name: string]: string;
-    } = {
+    export const annotations: thrift.IThriftAnnotations = {
         foo: "bar",
         two: "three",
         alone: "",
         four: "five",
         secured: ""
     };
-    export const methodAnnotations: {
-        [methodName: string]: {
-            annotations: {
-                [name: string]: string;
-            };
-            fieldAnnotations: {
-                [fieldName: string]: {
-                    [name: string]: string;
-                };
-            };
-        };
-    } = {
+    export const methodAnnotations: thrift.IMethodAnnotations = {
         ping: {
             annotations: {
                 foo: "bar",
@@ -444,14 +382,8 @@ export namespace ChildService {
     };
     export class PegArgs extends thrift.StructLike implements IPegArgs {
         public name: string;
-        public readonly _annotations: {
-            [name: string]: string;
-        } = {};
-        public readonly _fieldAnnotations: {
-            [fieldName: string]: {
-                [name: string]: string;
-            };
-        } = {};
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IPegArgsArgs) {
             super();
             if (args.name != null) {
@@ -527,14 +459,8 @@ export namespace ChildService {
     };
     export class PongArgs extends thrift.StructLike implements IPongArgs {
         public name?: string;
-        public readonly _annotations: {
-            [name: string]: string;
-        } = {};
-        public readonly _fieldAnnotations: {
-            [fieldName: string]: {
-                [name: string]: string;
-            };
-        } = {};
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IPongArgsArgs = {}) {
             super();
             if (args.name != null) {
@@ -607,14 +533,8 @@ export namespace ChildService {
     };
     export class PegResult extends thrift.StructLike implements IPegResult {
         public success?: string;
-        public readonly _annotations: {
-            [name: string]: string;
-        } = {};
-        public readonly _fieldAnnotations: {
-            [fieldName: string]: {
-                [name: string]: string;
-            };
-        } = {};
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IPegResultArgs = {}) {
             super();
             if (args.success != null) {
@@ -687,14 +607,8 @@ export namespace ChildService {
     };
     export class PongResult extends thrift.StructLike implements IPongResult {
         public success?: string;
-        public readonly _annotations: {
-            [name: string]: string;
-        } = {};
-        public readonly _fieldAnnotations: {
-            [fieldName: string]: {
-                [name: string]: string;
-            };
-        } = {};
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IPongResultArgs = {}) {
             super();
             if (args.success != null) {
@@ -717,21 +631,8 @@ export namespace ChildService {
         protected transport: thrift.ITransportConstructor;
         protected protocol: thrift.IProtocolConstructor;
         protected connection: thrift.IThriftConnection<Context>;
-        public readonly _annotations: {
-            [name: string]: string;
-        } = annotations;
-        public readonly _methodAnnotations: {
-            [methodName: string]: {
-                annotations: {
-                    [name: string]: string;
-                };
-                fieldAnnotations: {
-                    [fieldName: string]: {
-                        [name: string]: string;
-                    };
-                };
-            };
-        } = methodAnnotations;
+        public readonly _annotations: thrift.IThriftAnnotations = annotations;
+        public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
         public readonly _methodNames: Array<string> = methodNames;
         constructor(connection: thrift.IThriftConnection<Context>) {
             super(connection);
@@ -761,13 +662,15 @@ export namespace ChildService {
                             input.readMessageEnd();
                             return Promise.reject(err);
                         }
-                        const result: IPegResult = PegResultCodec.decode(input);
-                        input.readMessageEnd();
-                        if (result.success != null) {
-                            return Promise.resolve(result.success);
-                        }
                         else {
-                            return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "peg failed: unknown result"));
+                            const result: IPegResult = PegResultCodec.decode(input);
+                            input.readMessageEnd();
+                            if (result.success != null) {
+                                return Promise.resolve(result.success);
+                            }
+                            else {
+                                return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "peg failed: unknown result"));
+                            }
                         }
                     }
                     else {
@@ -797,13 +700,15 @@ export namespace ChildService {
                             input.readMessageEnd();
                             return Promise.reject(err);
                         }
-                        const result: IPongResult = PongResultCodec.decode(input);
-                        input.readMessageEnd();
-                        if (result.success != null) {
-                            return Promise.resolve(result.success);
-                        }
                         else {
-                            return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "pong failed: unknown result"));
+                            const result: IPongResult = PongResultCodec.decode(input);
+                            input.readMessageEnd();
+                            if (result.success != null) {
+                                return Promise.resolve(result.success);
+                            }
+                            else {
+                                return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "pong failed: unknown result"));
+                            }
                         }
                     }
                     else {
@@ -823,21 +728,8 @@ export namespace ChildService {
     export type IHandler<Context = any> = ILocalHandler<Context> & ParentService.IHandler<Context>;
     export class Processor<Context = any> extends ParentService.Processor<Context> {
         public _handler: IHandler<Context>;
-        public readonly _annotations: {
-            [name: string]: string;
-        } = annotations;
-        public readonly _methodAnnotations: {
-            [methodName: string]: {
-                annotations: {
-                    [name: string]: string;
-                };
-                fieldAnnotations: {
-                    [fieldName: string]: {
-                        [name: string]: string;
-                    };
-                };
-            };
-        } = methodAnnotations;
+        public readonly _annotations: thrift.IThriftAnnotations = annotations;
+        public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
         public readonly _methodNames: Array<string> = methodNames;
         constructor(handler: IHandler<Context>) {
             super({

@@ -137,14 +137,8 @@ export class MyStruct extends thrift.StructLike implements IMyStruct {
     public word: string;
     public field1?: number;
     public blob?: Buffer = Buffer.from("binary");
-    public readonly _annotations: {
-        [name: string]: string;
-    } = {};
-    public readonly _fieldAnnotations: {
-        [fieldName: string]: {
-            [name: string]: string;
-        };
-    } = {};
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyStructArgs) {
         super();
         if (args.id != null) {

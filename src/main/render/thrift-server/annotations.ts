@@ -8,10 +8,8 @@ import * as ts from 'typescript'
 
 import {
     COMMON_IDENTIFIERS,
-    // THRIFT_IDENTIFIERS,
+    THRIFT_IDENTIFIERS,
 } from './identifiers'
-
-import { createStringType } from './types'
 
 function renderAnnotationValue(annotations?: Annotations): ts.ObjectLiteralExpression {
     return ts.createObjectLiteral(
@@ -31,31 +29,6 @@ function renderAnnotationValue(annotations?: Annotations): ts.ObjectLiteralExpre
     )
 }
 
-/**
- * export interface IThriftAnnotations {
- *     [name: string]: string
- * }
- */
-function thriftAnnotationType(): ts.TypeNode {
-    return ts.createTypeLiteralNode([
-        ts.createIndexSignature(
-            undefined,
-            undefined,
-            [
-                ts.createParameter(
-                    undefined,
-                    undefined,
-                    undefined,
-                    'name',
-                    undefined,
-                    createStringType(),
-                ),
-            ],
-            createStringType(),
-        ),
-    ])
-}
-
 export function renderAnnotations(annotations?: Annotations): ts.PropertyDeclaration {
     return ts.createProperty(
         undefined,
@@ -65,8 +38,7 @@ export function renderAnnotations(annotations?: Annotations): ts.PropertyDeclara
         ],
         COMMON_IDENTIFIERS.annotations,
         undefined,
-        thriftAnnotationType(),
-        // ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IThriftAnnotations, undefined),
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IThriftAnnotations, undefined),
         renderAnnotationValue(annotations),
     )
 }
@@ -78,7 +50,7 @@ export function renderServiceAnnotations(annotations: Annotations): ts.VariableS
             [
                 ts.createVariableDeclaration(
                     ts.createIdentifier('annotations'),
-                    thriftAnnotationType(),
+                    ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IThriftAnnotations, undefined),
                     renderAnnotationValue(annotations),
                 ),
             ],
@@ -96,8 +68,7 @@ export function renderServiceAnnotationsProperty(): ts.PropertyDeclaration {
         ],
         COMMON_IDENTIFIERS.annotations,
         undefined,
-        thriftAnnotationType(),
-        // ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IFieldAnnotations, undefined),
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IThriftAnnotations, undefined),
         ts.createIdentifier('annotations'),
     )
 }
@@ -116,31 +87,6 @@ function renderFieldAnnotationValue(fields: Array<FieldDefinition>): ts.ObjectLi
     )
 }
 
-/**
- * export interface IFieldAnnotations {
- *     [fieldName: string]: IThriftAnnotations
- * }
- */
-function fieldAnnotationType(): ts.TypeNode {
-    return ts.createTypeLiteralNode([
-        ts.createIndexSignature(
-            undefined,
-            undefined,
-            [
-                ts.createParameter(
-                    undefined,
-                    undefined,
-                    undefined,
-                    'fieldName',
-                    undefined,
-                    createStringType(),
-                ),
-            ],
-            thriftAnnotationType(),
-        ),
-    ])
-}
-
 export function renderFieldAnnotations(fields: Array<FieldDefinition>): ts.PropertyDeclaration {
     return ts.createProperty(
         undefined,
@@ -150,8 +96,7 @@ export function renderFieldAnnotations(fields: Array<FieldDefinition>): ts.Prope
         ],
         COMMON_IDENTIFIERS.fieldAnnotations,
         undefined,
-        fieldAnnotationType(),
-        // ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IFieldAnnotations, undefined),
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IFieldAnnotations, undefined),
         renderFieldAnnotationValue(fields),
     )
 }
@@ -171,54 +116,10 @@ function renderMethodAnnotationValue(functions: Array<FunctionDefinition>): ts.O
                         renderFieldAnnotationValue(func.fields),
                     ),
                 ], true),
-                // renderAnnotationValue(func.annotations),
             )
         }),
         true,
     )
-}
-
-/**
- * export interface IMethodAnnotations {
- *     [methodName: string]: {
- *         annotations: IThriftAnnotations
- *         fieldAnnotations: IFieldAnnotations,
- *     }
- * }
- */
-function methodAnnotationType(): ts.TypeNode {
-    return ts.createTypeLiteralNode([
-        ts.createIndexSignature(
-            undefined,
-            undefined,
-            [
-                ts.createParameter(
-                    undefined,
-                    undefined,
-                    undefined,
-                    'methodName',
-                    undefined,
-                    createStringType(),
-                ),
-            ],
-            ts.createTypeLiteralNode([
-                ts.createPropertySignature(
-                    undefined,
-                    'annotations',
-                    undefined,
-                    thriftAnnotationType(),
-                    undefined,
-                ),
-                ts.createPropertySignature(
-                    undefined,
-                    'fieldAnnotations',
-                    undefined,
-                    fieldAnnotationType(),
-                    undefined,
-                ),
-            ]),
-        ),
-    ])
 }
 
 export function renderMethodAnnotations(functions: Array<FunctionDefinition>): ts.VariableStatement {
@@ -228,8 +129,7 @@ export function renderMethodAnnotations(functions: Array<FunctionDefinition>): t
             [
                 ts.createVariableDeclaration(
                     ts.createIdentifier('methodAnnotations'),
-                    methodAnnotationType(),
-                    // ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IMethodAnnotations, undefined),
+                    ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IMethodAnnotations, undefined),
                     renderMethodAnnotationValue(functions),
                 ),
             ],
@@ -247,8 +147,7 @@ export function renderMethodAnnotationsProperty(): ts.PropertyDeclaration {
         ],
         COMMON_IDENTIFIERS.methodAnnotations,
         undefined,
-        methodAnnotationType(),
-        // ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IFieldAnnotations, undefined),
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IMethodAnnotations, undefined),
         ts.createIdentifier('methodAnnotations'),
     )
 }

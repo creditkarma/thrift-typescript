@@ -80,14 +80,8 @@ export const OtherStructCodec: thrift.IStructCodec<IOtherStructArgs, IOtherStruc
 export class OtherStruct extends thrift.StructLike implements IOtherStruct {
     public id: thrift.Int64;
     public name: Buffer = Buffer.from("John");
-    public readonly _annotations: {
-        [name: string]: string;
-    } = {};
-    public readonly _fieldAnnotations: {
-        [fieldName: string]: {
-            [name: string]: string;
-        };
-    } = {};
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IOtherStructArgs) {
         super();
         if (args.id != null) {
@@ -421,14 +415,8 @@ export class MyStruct extends thrift.StructLike implements IMyStruct {
     public intList: Array<thrift.Int64>;
     public listList: Array<Array<IOtherStruct>>;
     public listListString: Array<Array<string>>;
-    public readonly _annotations: {
-        [name: string]: string;
-    } = {};
-    public readonly _fieldAnnotations: {
-        [fieldName: string]: {
-            [name: string]: string;
-        };
-    } = {};
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyStructArgs) {
         super();
         if (args.idList != null) {

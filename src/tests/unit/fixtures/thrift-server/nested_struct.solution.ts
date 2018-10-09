@@ -80,14 +80,8 @@ export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
 export class User extends thrift.StructLike implements IUser {
     public name: string;
     public age?: thrift.Int64 = thrift.Int64.fromDecimalString("45");
-    public readonly _annotations: {
-        [name: string]: string;
-    } = {};
-    public readonly _fieldAnnotations: {
-        [fieldName: string]: {
-            [name: string]: string;
-        };
-    } = {};
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IUserArgs) {
         super();
         if (args.name != null) {
@@ -197,14 +191,8 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
 export class MyStruct extends thrift.StructLike implements IMyStruct {
     public name: string;
     public user: IUser;
-    public readonly _annotations: {
-        [name: string]: string;
-    } = {};
-    public readonly _fieldAnnotations: {
-        [fieldName: string]: {
-            [name: string]: string;
-        };
-    } = {};
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyStructArgs) {
         super();
         if (args.name != null) {

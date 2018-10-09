@@ -92,14 +92,8 @@ export const OptionCodec: thrift.IStructCodec<IOptionArgs, IOption> = {
 export class Option extends thrift.StructLike implements IOption {
     public option1?: Buffer;
     public option2?: thrift.Int64;
-    public readonly _annotations: {
-        [name: string]: string;
-    } = {};
-    public readonly _fieldAnnotations: {
-        [fieldName: string]: {
-            [name: string]: string;
-        };
-    } = {};
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IOptionArgs = {}) {
         super();
         let _fieldsSet: number = 0;
@@ -224,14 +218,8 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
 export class MyUnion extends thrift.StructLike implements IMyUnion {
     public name?: string;
     public option?: IOption;
-    public readonly _annotations: {
-        [name: string]: string;
-    } = {};
-    public readonly _fieldAnnotations: {
-        [fieldName: string]: {
-            [name: string]: string;
-        };
-    } = {};
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyUnionArgs = {}) {
         super();
         let _fieldsSet: number = 0;
