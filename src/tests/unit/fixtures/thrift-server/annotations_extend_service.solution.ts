@@ -221,9 +221,14 @@ export namespace ParentService {
         ping(status: number, context?: Context): string | Promise<string>;
     }
     export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
+        protected readonly _handler: IHandler<Context>;
         public readonly _annotations: thrift.IThriftAnnotations = annotations;
         public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
         public readonly _methodNames: Array<string> = methodNames;
+        constructor(handler: IHandler<Context>) {
+            super();
+            this._handler = handler;
+        }
         public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
             return new Promise<Buffer>((resolve, reject): void => {
                 const metadata: thrift.IThriftMessage = input.readMessageBegin();
@@ -699,6 +704,7 @@ export namespace ChildService {
     }
     export type IHandler<Context = any> = ILocalHandler<Context> & ParentService.IHandler<Context>;
     export class Processor<Context = any> extends ParentService.Processor<Context> {
+        protected readonly _handler: IHandler<Context>;
         public readonly _annotations: thrift.IThriftAnnotations = annotations;
         public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
         public readonly _methodNames: Array<string> = methodNames;

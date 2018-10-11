@@ -120,6 +120,20 @@ export function extendsAbstract(): ts.HeritageClause {
 }
 
 export function renderProcessor(service: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
+    const handler: ts.PropertyDeclaration = ts.createProperty(
+        undefined,
+        [
+            ts.createToken(ts.SyntaxKind.ProtectedKeyword),
+            ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
+        ],
+        COMMON_IDENTIFIERS._handler,
+        undefined,
+        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.IHandler, [
+            ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined),
+        ]),
+        undefined,
+    )
+
     const annotations: ts.PropertyDeclaration = renderServiceAnnotationsProperty()
 
     const methodAnnotations: ts.PropertyDeclaration = renderMethodAnnotationsProperty()
@@ -153,19 +167,20 @@ export function renderProcessor(service: ServiceDefinition, identifiers: IIdenti
         ], // type parameters
         heritage, // heritage
         [
+            handler,
             annotations,
             methodAnnotations,
             methodNames,
-            ...createCtor(service, identifiers),
+            createCtor(service, identifiers),
             processMethod,
             ...processFunctions,
         ], // body
     )
 }
 
-function createCtor(service: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.ConstructorDeclaration> {
+function createCtor(service: ServiceDefinition, identifiers: IIdentifierMap): ts.ConstructorDeclaration {
     if (service.extends !== null) {
-        return [ createClassConstructor([
+        return createClassConstructor([
             createFunctionParameter(
                 'handler',
                 createHandlerType(service),
@@ -177,9 +192,25 @@ function createCtor(service: ServiceDefinition, identifiers: IIdentifierMap): Ar
                 ts.createIdentifier('this._handler'),
                 ts.createIdentifier('handler'),
             ),
-        ]) ]
+        ])
     } else {
-        return []
+        return createClassConstructor([
+            createFunctionParameter(
+                'handler',
+                createHandlerType(service),
+            ),
+        ],
+        [
+            ts.createStatement(ts.createCall(
+                ts.createSuper(),
+                [],
+                [],
+            )),
+            createAssignmentStatement(
+                ts.createIdentifier('this._handler'),
+                ts.createIdentifier('handler'),
+            ),
+        ])
     }
 }
 
