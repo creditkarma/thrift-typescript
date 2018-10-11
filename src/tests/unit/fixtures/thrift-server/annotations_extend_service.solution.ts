@@ -1,8 +1,16 @@
 export namespace ParentService {
-    export const annotations: thrift.IThriftAnnotations = {};
+    export const annotations: thrift.IThriftAnnotations = {
+        foo: "boo",
+        two: "three",
+        alone: ""
+    };
     export const methodAnnotations: thrift.IMethodAnnotations = {
         ping: {
-            annotations: {},
+            annotations: {
+                foo: "bar",
+                two: "three",
+                lonely: ""
+            },
             fieldAnnotations: {}
         }
     };
@@ -273,10 +281,20 @@ export namespace ParentService {
     }
 }
 export namespace ChildService {
-    export const annotations: thrift.IThriftAnnotations = {};
+    export const annotations: thrift.IThriftAnnotations = {
+        foo: "bar",
+        two: "three",
+        alone: "",
+        four: "five",
+        secured: ""
+    };
     export const methodAnnotations: thrift.IMethodAnnotations = {
         ping: {
-            annotations: {},
+            annotations: {
+                foo: "bar",
+                two: "three",
+                lonely: ""
+            },
             fieldAnnotations: {}
         },
         peg: {

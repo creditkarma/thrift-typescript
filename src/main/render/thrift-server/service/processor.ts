@@ -4,6 +4,7 @@ import {
     // ExceptionDefinition,
     FieldDefinition,
     FunctionDefinition,
+    Identifier,
     ServiceDefinition,
     SyntaxType,
     ThriftStatement,
@@ -15,12 +16,14 @@ import {
 } from './types'
 
 import {
+    collectAllMethods,
     createStructArgsName,
     createStructResultName,
+    renderMethodNamesProperty,
 } from './utils'
 
 import {
-  IIdentifierMap,
+    IIdentifierMap,
 } from '../../../types'
 
 import {
@@ -53,7 +56,13 @@ import {
 } from '../types'
 
 import {
-    codecName, strictName,
+    renderMethodAnnotationsProperty,
+    renderServiceAnnotationsProperty,
+} from '../annotations'
+
+import {
+    codecName,
+    strictName,
 } from '../struct/utils'
 
 function objectLiteralForServiceFunctions(node: ThriftStatement): ts.ObjectLiteralExpression {
@@ -74,59 +83,72 @@ function objectLiteralForServiceFunctions(node: ThriftStatement): ts.ObjectLiter
     }
 }
 
-function handlerType(node: ServiceDefinition): ts.TypeNode {
+function createHandlerType(node: ServiceDefinition): ts.TypeNode {
     return ts.createTypeReferenceNode(
         COMMON_IDENTIFIERS.IHandler,
         [ ts.createTypeReferenceNode('Context', undefined) ],
     )
 }
 
-export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
-    // private _handler
+export function extendsService(service: Identifier): ts.HeritageClause {
+    return ts.createHeritageClause(
+        ts.SyntaxKind.ExtendsKeyword,
+        [
+            ts.createExpressionWithTypeArguments(
+                [ ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined) ],
+                ts.createIdentifier(`${service.value}.Processor`),
+            ),
+        ],
+    )
+}
+
+export function extendsAbstract(): ts.HeritageClause {
+    return ts.createHeritageClause(
+        ts.SyntaxKind.ExtendsKeyword,
+        [
+            ts.createExpressionWithTypeArguments(
+                [
+                    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined),
+                    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.IHandler, [
+                        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined),
+                    ]),
+                ],
+                THRIFT_IDENTIFIERS.ThriftProcessor,
+            ),
+        ],
+    )
+}
+
+export function renderProcessor(service: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
     const handler: ts.PropertyDeclaration = ts.createProperty(
         undefined,
-        [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
-        '_handler',
+        [
+            ts.createToken(ts.SyntaxKind.ProtectedKeyword),
+            ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
+        ],
+        COMMON_IDENTIFIERS._handler,
         undefined,
-        handlerType(node),
+        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.IHandler, [
+            ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined),
+        ]),
         undefined,
     )
 
-    const ctor: ts.ConstructorDeclaration = createClassConstructor(
-        [
-            createFunctionParameter(
-                ts.createIdentifier('handler'),
-                handlerType(node),
-            ),
-        ],
-        [
-            ...createSuperCall(node, identifiers),
-            createAssignmentStatement(
-                ts.createIdentifier('this._handler'),
-                ts.createIdentifier('handler'),
-            ),
-        ],
-    )
+    const annotations: ts.PropertyDeclaration = renderServiceAnnotationsProperty()
 
-    const processMethod: ts.MethodDeclaration = createProcessMethod(node, identifiers)
-    const processFunctions: Array<ts.MethodDeclaration> = node.functions.map((next: FunctionDefinition) => {
-        return createProcessFunctionMethod(node, next, identifiers)
+    const methodAnnotations: ts.PropertyDeclaration = renderMethodAnnotationsProperty()
+
+    const methodNames: ts.PropertyDeclaration = renderMethodNamesProperty()
+
+    const processMethod: ts.MethodDeclaration = createProcessMethod(service, identifiers)
+    const processFunctions: Array<ts.MethodDeclaration> = service.functions.map((next: FunctionDefinition) => {
+        return createProcessFunctionMethod(service, next, identifiers)
     })
 
     const heritage: Array<ts.HeritageClause> = (
-        (node.extends !== null) ?
-        [
-            ts.createHeritageClause(
-            ts.SyntaxKind.ExtendsKeyword,
-            [
-                ts.createExpressionWithTypeArguments(
-                    [ ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined) ],
-                    ts.createIdentifier(`${node.extends.value}.Processor`),
-                ),
-            ],
-            ),
-        ] :
-        []
+        (service.extends !== null) ?
+            [ extendsService(service.extends) ] :
+            [ extendsAbstract() ]
     )
 
     // export class <node.name> { ... }
@@ -146,29 +168,62 @@ export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifie
         heritage, // heritage
         [
             handler,
-            ctor,
+            annotations,
+            methodAnnotations,
+            methodNames,
+            createCtor(service, identifiers),
             processMethod,
             ...processFunctions,
         ], // body
     )
 }
 
-function createSuperCall(node: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    if (node.extends !== null) {
-        return [
+function createCtor(service: ServiceDefinition, identifiers: IIdentifierMap): ts.ConstructorDeclaration {
+    if (service.extends !== null) {
+        return createClassConstructor([
+            createFunctionParameter(
+                'handler',
+                createHandlerType(service),
+            ),
+        ],
+        [
+            createSuperCall(service.extends, identifiers),
+            createAssignmentStatement(
+                ts.createIdentifier('this._handler'),
+                ts.createIdentifier('handler'),
+            ),
+        ])
+    } else {
+        return createClassConstructor([
+            createFunctionParameter(
+                'handler',
+                createHandlerType(service),
+            ),
+        ],
+        [
             ts.createStatement(ts.createCall(
                 ts.createSuper(),
                 [],
-                [
-                    objectLiteralForServiceFunctions(
-                        identifiers[node.extends.value].definition,
-                    ),
-                ],
+                [],
             )),
-        ]
-    } else {
-        return []
+            createAssignmentStatement(
+                ts.createIdentifier('this._handler'),
+                ts.createIdentifier('handler'),
+            ),
+        ])
     }
+}
+
+function createSuperCall(service: Identifier, identifiers: IIdentifierMap): ts.Statement {
+    return ts.createStatement(ts.createCall(
+        ts.createSuper(),
+        [],
+        [
+            objectLiteralForServiceFunctions(
+                identifiers[service.value].definition,
+            ),
+        ],
+    ))
 }
 
 function createProcessFunctionMethod(
@@ -671,28 +726,6 @@ function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
             ], true),
         ],
     )
-}
-
-function functionsForService(node: ThriftStatement): Array<FunctionDefinition> {
-    switch (node.type) {
-        case SyntaxType.ServiceDefinition:
-            return node.functions
-
-        default:
-            throw new TypeError(`A service can only extend another service. Found: ${node.type}`)
-    }
-}
-
-function collectAllMethods(service: ServiceDefinition, identifiers: IIdentifierMap): Array<FunctionDefinition> {
-    if (service.extends !== null) {
-        const inheritedMethods: Array<FunctionDefinition> = functionsForService(identifiers[service.extends.value].definition)
-        return [
-            ...inheritedMethods,
-            ...service.functions,
-        ]
-    } else {
-        return service.functions
-    }
 }
 
 /**

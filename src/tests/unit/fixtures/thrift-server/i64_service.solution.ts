@@ -53,6 +53,8 @@ export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
 };
 export class Code extends thrift.StructLike implements ICode {
     public status?: thrift.Int64;
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ICodeArgs = {}) {
         super();
         if (args.status != null) {
@@ -71,6 +73,18 @@ export class Code extends thrift.StructLike implements ICode {
     }
 }
 export namespace MyService {
+    export const annotations: thrift.IThriftAnnotations = {};
+    export const methodAnnotations: thrift.IMethodAnnotations = {
+        peg: {
+            annotations: {},
+            fieldAnnotations: {}
+        },
+        pong: {
+            annotations: {},
+            fieldAnnotations: {}
+        }
+    };
+    export const methodNames: Array<string> = ["peg", "pong"];
     export interface IPegArgs {
         name: string;
     }
@@ -134,6 +148,8 @@ export namespace MyService {
     };
     export class PegArgs extends thrift.StructLike implements IPegArgs {
         public name: string;
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IPegArgsArgs) {
             super();
             if (args.name != null) {
@@ -209,6 +225,8 @@ export namespace MyService {
     };
     export class PongArgs extends thrift.StructLike implements IPongArgs {
         public code?: ICode;
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IPongArgsArgs = {}) {
             super();
             if (args.code != null) {
@@ -281,6 +299,8 @@ export namespace MyService {
     };
     export class PegResult extends thrift.StructLike implements IPegResult {
         public success?: string;
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IPegResultArgs = {}) {
             super();
             if (args.success != null) {
@@ -353,6 +373,8 @@ export namespace MyService {
     };
     export class PongResult extends thrift.StructLike implements IPongResult {
         public success?: thrift.Int64;
+        public readonly _annotations: thrift.IThriftAnnotations = {};
+        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IPongResultArgs = {}) {
             super();
             if (args.success != null) {
@@ -370,20 +392,10 @@ export namespace MyService {
             return PongResultCodec.encode(this, output);
         }
     }
-    export class Client<Context = any> {
-        protected _requestId: number;
-        protected transport: thrift.ITransportConstructor;
-        protected protocol: thrift.IProtocolConstructor;
-        protected connection: thrift.IThriftConnection<Context>;
-        constructor(connection: thrift.IThriftConnection<Context>) {
-            this._requestId = 0;
-            this.transport = connection.Transport;
-            this.protocol = connection.Protocol;
-            this.connection = connection;
-        }
-        protected incrementRequestId(): number {
-            return this._requestId += 1;
-        }
+    export class Client<Context = any> extends thrift.ThriftClient<Context> {
+        public readonly _annotations: thrift.IThriftAnnotations = annotations;
+        public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
+        public readonly _methodNames: Array<string> = methodNames;
         public peg(name: string, context?: Context): Promise<string> {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
@@ -465,9 +477,13 @@ export namespace MyService {
         peg(name: string, context?: Context): string | Promise<string>;
         pong(code?: ICode, context?: Context): thrift.Int64 | Promise<thrift.Int64>;
     }
-    export class Processor<Context = any> {
-        public _handler: IHandler<Context>;
+    export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
+        protected readonly _handler: IHandler<Context>;
+        public readonly _annotations: thrift.IThriftAnnotations = annotations;
+        public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
+        public readonly _methodNames: Array<string> = methodNames;
         constructor(handler: IHandler<Context>) {
+            super();
             this._handler = handler;
         }
         public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {

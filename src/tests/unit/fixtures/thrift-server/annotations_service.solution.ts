@@ -113,10 +113,18 @@ export class User extends thrift.StructLike implements IUser {
     }
 }
 export namespace MyService {
-    export const annotations: thrift.IThriftAnnotations = {};
+    export const annotations: thrift.IThriftAnnotations = {
+        foo: "bar",
+        two: "three",
+        alone: ""
+    };
     export const methodAnnotations: thrift.IMethodAnnotations = {
         getUser: {
-            annotations: {},
+            annotations: {
+                foo: "bar",
+                two: "three",
+                lonely: ""
+            },
             fieldAnnotations: {}
         },
         saveUser: {

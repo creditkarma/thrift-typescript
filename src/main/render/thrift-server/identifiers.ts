@@ -3,6 +3,11 @@ import * as ts from 'typescript'
 export * from '../shared/identifiers'
 
 export const THRIFT_IDENTIFIERS = {
+    ThriftClient: ts.createIdentifier('thrift.ThriftClient'),
+    ThriftProcessor: ts.createIdentifier('thrift.ThriftProcessor'),
+    IThriftAnnotations: ts.createIdentifier('thrift.IThriftAnnotations'),
+    IFieldAnnotations: ts.createIdentifier('thrift.IFieldAnnotations'),
+    IMethodAnnotations: ts.createIdentifier('thrift.IMethodAnnotations'),
     IStructCodec: ts.createIdentifier('thrift.IStructCodec'),
     IThriftConnection: ts.createIdentifier('thrift.IThriftConnection'),
     ProtocolConstructor: ts.createIdentifier('thrift.IProtocolConstructor'),

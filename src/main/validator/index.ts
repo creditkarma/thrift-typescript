@@ -179,6 +179,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                     fieldType: statement.fieldType,
                     initializer: validateValue(statement.fieldType, statement.initializer),
                     comments: statement.comments,
+                    annotations: statement.annotations,
                     loc: statement.loc,
                 }
 
@@ -188,6 +189,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                     name: statement.name,
                     fields: validateFields(statement.fields),
                     comments: statement.comments,
+                    annotations: statement.annotations,
                     loc: statement.loc,
                 }
 
@@ -197,6 +199,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                     name: statement.name,
                     fields: validateFields(statement.fields),
                     comments: statement.comments,
+                    annotations: statement.annotations,
                     loc: statement.loc,
                 }
 
@@ -206,6 +209,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                     name: statement.name,
                     fields: validateFields(statement.fields),
                     comments: statement.comments,
+                    annotations: statement.annotations,
                     loc: statement.loc,
                 }
 
@@ -220,6 +224,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                             null
                     ),
                     comments: statement.comments,
+                    annotations: statement.annotations,
                     loc: statement.loc,
                 }
 
@@ -556,6 +561,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                         null
                 ),
                 comments: field.comments,
+                annotations: field.annotations,
                 loc: field.loc,
             }
         })
@@ -591,6 +597,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                 ),
                 modifiers: func.modifiers,
                 comments: func.comments,
+                annotations: func.annotations,
                 loc: func.loc,
             }
         })

@@ -30,6 +30,8 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
     }
 };
 export class MyStruct extends thrift.StructLike implements IMyStruct {
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyStructArgs = {}) {
         super();
     }

@@ -15,6 +15,11 @@ import {
 } from '../../../types'
 
 import {
+    renderAnnotations,
+    renderFieldAnnotations,
+} from '../annotations'
+
+import {
     COMMON_IDENTIFIERS,
     THRIFT_IDENTIFIERS,
 } from '../identifiers'
@@ -51,6 +56,10 @@ import {
 
 export function renderClass(node: InterfaceWithFields, identifiers: IIdentifierMap): ts.ClassDeclaration {
     const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(node, identifiers)
+
+    const annotations: ts.PropertyDeclaration = renderAnnotations(node.annotations)
+
+    const fieldAnnotations: ts.PropertyDeclaration = renderFieldAnnotations(node.fields)
 
     /**
      * After creating the properties on our class for the struct fields we must create
@@ -92,6 +101,8 @@ export function renderClass(node: InterfaceWithFields, identifiers: IIdentifierM
         ], // heritage
         [
             ...fields,
+            annotations,
+            fieldAnnotations,
             ctor,
             createStaticReadMethod(node),
             createStaticWriteMethod(node),
