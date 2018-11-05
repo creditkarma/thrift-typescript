@@ -85,7 +85,7 @@ workflows:
               tags:
                 only: /.*/
 
-        - publpublish_fix:
+        - publish_fix:
             requires:
               - test_node_6
               - test_node_8
