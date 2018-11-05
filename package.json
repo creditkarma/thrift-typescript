@@ -26,10 +26,9 @@
         "test:unit": "NODE_ENV=test mocha --opts mocha.opts",
         "test:integration": "NODE_ENV=test mocha --opts mocha.integration.opts",
         "coverage": "NODE_ENV=test nyc mocha --opts mocha.cover.opts",
-        "release:patch": "npm version patch && npm run release:publish",
-        "release:minor": "npm version minor && npm run release:publish",
-        "release:major": "npm version major && npm run release:publish",
-        "release:publish": "git push --follow-tags"
+        "release:patch": "npm version patch",
+        "release:minor": "npm version minor",
+        "release:major": "npm version major"
     },
     "keywords": [
         "thrift",
