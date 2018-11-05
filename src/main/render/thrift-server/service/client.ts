@@ -49,6 +49,7 @@ import {
     IIdentifierMap,
 } from '../../../types'
 
+import { createStringType } from '../../shared/types'
 import {
     codecName,
     looseName,
@@ -56,6 +57,18 @@ import {
 } from '../struct/utils'
 
 export function renderClient(node: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
+    const serviceName: ts.PropertyDeclaration = ts.createProperty(
+        undefined,
+        [
+            ts.createToken(ts.SyntaxKind.PublicKeyword),
+            ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
+        ],
+        COMMON_IDENTIFIERS.serviceName,
+        undefined,
+        createStringType(),
+        COMMON_IDENTIFIERS.serviceName,
+    )
+
     // private _requestId: number;
     const requestId: ts.PropertyDeclaration = createProtectedProperty(
         '_requestId',
@@ -182,6 +195,7 @@ export function renderClient(node: ServiceDefinition, identifiers: IIdentifierMa
         ], // type parameters
         heritage, // heritage
         [
+            serviceName,
             requestId,
             transport,
             protocol,

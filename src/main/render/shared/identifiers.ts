@@ -1,6 +1,7 @@
 import * as ts from 'typescript'
 
 export const COMMON_IDENTIFIERS = {
+    serviceName: ts.createIdentifier('serviceName'),
     break: ts.createIdentifier('break'),
     success: ts.createIdentifier('success'),
     handler: ts.createIdentifier('handler'),

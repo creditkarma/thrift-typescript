@@ -6,6 +6,7 @@ import * as ts from 'typescript'
 import {
     FieldDefinition,
     FunctionDefinition,
+    FunctionType,
     ServiceDefinition,
     StructDefinition,
     SyntaxType,
@@ -13,9 +14,22 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
+    renderHandlerInterface,
+} from '../../shared/service'
+
+import {
     createStructArgsName,
     createStructResultName,
+    renderServiceName,
 } from './utils'
+
+import {
+    renderClient,
+} from './client'
+
+import {
+    renderProcessor,
+} from './processor'
 
 import {
     renderStruct,
@@ -25,11 +39,32 @@ import {
     IIdentifierMap,
 } from '../../../types'
 
+import { typeNodeForFieldType } from '../types'
+
 function emptyLocation(): TextLocation {
     return {
         start: { line: 0, column: 0, index: 0 },
         end: { line: 0, column: 0, index: 0 },
     }
+}
+
+export function renderService(service: ServiceDefinition, identifiers: IIdentifierMap): ts.ModuleDeclaration {
+    return ts.createModuleDeclaration(
+        undefined,
+        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+        ts.createIdentifier(service.name.value),
+        ts.createModuleBlock([
+            renderServiceName(service),
+            ...renderArgsStruct(service, identifiers),
+            ...renderResultStruct(service, identifiers),
+            renderClient(service, identifiers),
+            ...renderHandlerInterface(service, (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
+                return typeNodeForFieldType(fieldType, identifiers, loose)
+            }),
+            renderProcessor(service, identifiers),
+        ]),
+        ts.NodeFlags.Namespace,
+    )
 }
 
 export function renderArgsStruct(service: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {

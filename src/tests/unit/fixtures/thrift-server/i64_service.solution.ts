@@ -71,6 +71,7 @@ export class Code extends thrift.StructLike implements ICode {
     }
 }
 export namespace MyService {
+    export const serviceName: string = "MyService";
     export interface IPegArgs {
         name: string;
     }
@@ -371,6 +372,7 @@ export namespace MyService {
         }
     }
     export class Client<Context = any> {
+        public readonly serviceName: string = serviceName;
         protected _requestId: number;
         protected transport: thrift.ITransportConstructor;
         protected protocol: thrift.IProtocolConstructor;
@@ -466,6 +468,7 @@ export namespace MyService {
         pong(code?: ICode, context?: Context): thrift.Int64 | Promise<thrift.Int64>;
     }
     export class Processor<Context = any> {
+        public readonly serviceName: string = serviceName;
         public _handler: IHandler<Context>;
         constructor(handler: IHandler<Context>) {
             this._handler = handler;

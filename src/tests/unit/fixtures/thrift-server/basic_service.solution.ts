@@ -111,6 +111,7 @@ export class User extends thrift.StructLike implements IUser {
     }
 }
 export namespace MyService {
+    export const serviceName: string = "MyService";
     export interface IGetUserArgs {
         id: number;
     }
@@ -521,6 +522,7 @@ export namespace MyService {
         }
     }
     export class Client<Context = any> {
+        public readonly serviceName: string = serviceName;
         protected _requestId: number;
         protected transport: thrift.ITransportConstructor;
         protected protocol: thrift.IProtocolConstructor;
@@ -645,6 +647,7 @@ export namespace MyService {
         ping(context?: Context): void | Promise<void>;
     }
     export class Processor<Context = any> {
+        public readonly serviceName: string = serviceName;
         public _handler: IHandler<Context>;
         constructor(handler: IHandler<Context>) {
             this._handler = handler;

@@ -238,6 +238,7 @@ export class UnknownException extends thrift.StructLike implements IUnknownExcep
     }
 }
 export namespace MyService {
+    export const serviceName: string = "MyService";
     export interface IPegArgs {
         name: string;
     }
@@ -463,6 +464,7 @@ export namespace MyService {
         }
     }
     export class Client<Context = any> {
+        public readonly serviceName: string = serviceName;
         protected _requestId: number;
         protected transport: thrift.ITransportConstructor;
         protected protocol: thrift.IProtocolConstructor;
@@ -528,6 +530,7 @@ export namespace MyService {
         peg(name: string, context?: Context): string | Promise<string>;
     }
     export class Processor<Context = any> {
+        public readonly serviceName: string = serviceName;
         public _handler: IHandler<Context>;
         constructor(handler: IHandler<Context>) {
             this._handler = handler;

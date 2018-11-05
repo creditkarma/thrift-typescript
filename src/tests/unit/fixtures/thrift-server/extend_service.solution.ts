@@ -1,4 +1,5 @@
 export namespace ParentService {
+    export const serviceName: string = "ParentService";
     export interface IPingArgs {
         status: number;
     }
@@ -155,6 +156,7 @@ export namespace ParentService {
         }
     }
     export class Client<Context = any> {
+        public readonly serviceName: string = serviceName;
         protected _requestId: number;
         protected transport: thrift.ITransportConstructor;
         protected protocol: thrift.IProtocolConstructor;
@@ -211,6 +213,7 @@ export namespace ParentService {
         ping(status: number, context?: Context): string | Promise<string>;
     }
     export class Processor<Context = any> {
+        public readonly serviceName: string = serviceName;
         public _handler: IHandler<Context>;
         constructor(handler: IHandler<Context>) {
             this._handler = handler;
@@ -267,6 +270,7 @@ export namespace ParentService {
     }
 }
 export namespace ChildService {
+    export const serviceName: string = "ChildService";
     export interface IPegArgs {
         name: string;
     }
@@ -567,6 +571,7 @@ export namespace ChildService {
         }
     }
     export class Client<Context = any> extends ParentService.Client<Context> {
+        public readonly serviceName: string = serviceName;
         protected _requestId: number;
         protected transport: thrift.ITransportConstructor;
         protected protocol: thrift.IProtocolConstructor;
@@ -664,6 +669,7 @@ export namespace ChildService {
     }
     export type IHandler<Context = any> = ILocalHandler<Context> & ParentService.IHandler<Context>;
     export class Processor<Context = any> extends ParentService.Processor<Context> {
+        public readonly serviceName: string = serviceName;
         public _handler: IHandler<Context>;
         constructor(handler: IHandler<Context>) {
             super({

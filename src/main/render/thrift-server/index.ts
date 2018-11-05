@@ -13,16 +13,7 @@ import {
 
 import { renderException as _renderException } from './exception'
 
-import {
-    renderArgsStruct,
-    renderClient,
-    renderProcessor,
-    renderResultStruct,
-} from './service'
-
-import {
-    renderHandlerInterface,
-} from '../shared/service'
+import { renderService as _renderService } from './service'
 
 import { fileUsesThrift } from '../shared/includes'
 import { renderConst as _renderConst } from './const'
@@ -87,23 +78,7 @@ export function renderUnion(statement: UnionDefinition, identifiers: IIdentifier
 }
 
 export function renderService(statement: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return [
-        ts.createModuleDeclaration(
-            undefined,
-            [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
-            ts.createIdentifier(statement.name.value),
-            ts.createModuleBlock([
-                ...renderArgsStruct(statement, identifiers),
-                ...renderResultStruct(statement, identifiers),
-                renderClient(statement, identifiers),
-                ...renderHandlerInterface(statement, (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
-                    return typeNodeForFieldType(fieldType, identifiers, loose)
-                }),
-                renderProcessor(statement, identifiers),
-            ]),
-            ts.NodeFlags.Namespace,
-        ),
-    ]
+    return [ _renderService(statement, identifiers) ]
 }
 
 export const renderer: IRenderer = {

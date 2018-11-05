@@ -82,6 +82,18 @@ function handlerType(node: ServiceDefinition): ts.TypeNode {
 }
 
 export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
+    const serviceName: ts.PropertyDeclaration = ts.createProperty(
+        undefined,
+        [
+            ts.createToken(ts.SyntaxKind.PublicKeyword),
+            ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
+        ],
+        COMMON_IDENTIFIERS.serviceName,
+        undefined,
+        createStringType(),
+        COMMON_IDENTIFIERS.serviceName,
+    )
+
     // private _handler
     const handler: ts.PropertyDeclaration = ts.createProperty(
         undefined,
@@ -145,6 +157,7 @@ export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifie
         ], // type parameters
         heritage, // heritage
         [
+            serviceName,
             handler,
             ctor,
             processMethod,
