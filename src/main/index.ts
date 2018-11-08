@@ -39,6 +39,8 @@ import {
     saveFiles,
 } from './utils'
 
+import { DEFAULT_OPTIONS } from './options'
+
 /**
  * This function is mostly for testing purposes. It does not support includes.
  * Given a string of Thrift IDL it will return a string of TypeScript. If the
@@ -52,7 +54,11 @@ export function make(
     target: CompileTarget = 'thrift-server',
 ): string {
     const parsedFile: IParsedFile = parseSource(source)
-    const resolvedAST: IResolvedFile = resolveFile('', parsedFile)
+    const resolvedAST: IResolvedFile = resolveFile(
+        '',
+        parsedFile,
+        DEFAULT_OPTIONS,
+    )
     const validAST: IResolvedFile = validateFile(resolvedAST)
     return print(
         processStatements(
@@ -97,6 +103,7 @@ export function generate(options: IMakeOptions): void {
         const resolvedFile: IResolvedFile = resolveFile(
             outDir,
             parsedFile,
+            options,
             resolvedCache,
         )
         return acc.concat(flattenResolvedFile(resolvedFile).map(validateFile))

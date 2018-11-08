@@ -37,6 +37,9 @@ export interface IMakeOptions {
 
     // What core libs are you compiling for?
     target: CompileTarget
+
+    // What namespace do we fallback to? Set to 'none' to not fallback.
+    fallbackNamespace: string
 }
 
 export interface IRenderer {

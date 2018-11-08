@@ -1,24 +1,27 @@
 {
-    "extends": "tslint:recommended",
+    "extends": [
+        "tslint:recommended",
+        "tslint-config-prettier",
+        "tslint-plugin-prettier"
+    ],
     "linterOptions": {
         "exclude": ["src/tests/**/*.ts"]
     },
     "rules": {
         "max-classes-per-file": false,
+        "prettier": true,
+        "no-string-literal": false,
         "variable-name": false,
         "max-line-length": false,
+        "jsdoc-format": false,
         "object-literal-sort-keys": false,
-        "no-console": [false],
+        "no-console": false,
         "no-var-requires": false,
-        "semicolon": [true, "never"],
-        "array-type": [true, "generic"],
-        "quotemark": [true, "single", "avoid-escape"],
-        "trailing-comma": [
+        "array-type": [
             true,
-            {
-                "multiline": "always",
-                "singleline": "never"
-            }
-        ]
+            "generic"
+        ],
+        "semicolon": false,
+        "quotemark": false
     }
 }
