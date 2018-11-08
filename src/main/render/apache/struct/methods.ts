@@ -1,8 +1,14 @@
 import { SyntaxType } from '@creditkarma/thrift-parser'
 
 export type ReadMethodName =
-    'readString' | 'readBinary' | 'readDouble' | 'readI16' |
-    'readI32' | 'readI64' | 'readByte' | 'readBool'
+    | 'readString'
+    | 'readBinary'
+    | 'readDouble'
+    | 'readI16'
+    | 'readI32'
+    | 'readI64'
+    | 'readByte'
+    | 'readBool'
 
 export interface IReadMap {
     [name: string]: ReadMethodName
@@ -21,8 +27,14 @@ export const READ_METHODS: IReadMap = {
 }
 
 export type WriteMethodName =
-    'writeString' | 'writeBinary' | 'writeDouble' | 'writeI16' |
-    'writeI32' | 'writeI64' | 'writeByte' | 'writeBool'
+    | 'writeString'
+    | 'writeBinary'
+    | 'writeDouble'
+    | 'writeI16'
+    | 'writeI32'
+    | 'writeI64'
+    | 'writeByte'
+    | 'writeBool'
 
 export interface IWriteMap {
     [name: string]: WriteMethodName

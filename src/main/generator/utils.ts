@@ -1,7 +1,12 @@
 import * as path from 'path'
 import * as ts from 'typescript'
 
-import { IRenderedFile, IRenderedFileMap, IResolvedIdentifier, IResolvedIncludeMap } from '../types'
+import {
+    IRenderedFile,
+    IRenderedFileMap,
+    IResolvedIdentifier,
+    IResolvedIncludeMap,
+} from '../types'
 
 /**
  * import { Thrift, TProtocol, TTransport, Int64 } from 'thrift';
@@ -13,7 +18,10 @@ export function createThriftImports(): ts.ImportDeclaration {
     return ts.createImportDeclaration(
         undefined,
         undefined,
-        ts.createImportClause(undefined, ts.createNamespaceImport(ts.createIdentifier('thrift'))),
+        ts.createImportClause(
+            undefined,
+            ts.createNamespaceImport(ts.createIdentifier('thrift')),
+        ),
         ts.createLiteral('thrift'),
     )
 }
@@ -33,7 +41,8 @@ export function createImportsForIncludes(
 ): Array<ts.ImportDeclaration> {
     const imports: Array<ts.ImportDeclaration> = []
     for (const name of Object.keys(resolved)) {
-        const resolvedIncludes: Array<IResolvedIdentifier> = resolved[name].identifiers
+        const resolvedIncludes: Array<IResolvedIdentifier> =
+            resolved[name].identifiers
         const includeFile: IRenderedFile = includes[name]
 
         if (resolvedIncludes != null && includeFile != null) {
@@ -44,17 +53,22 @@ export function createImportsForIncludes(
                     ts.createImportClause(
                         undefined,
                         ts.createNamedImports(
-                            resolvedIncludes.map((next: IResolvedIdentifier) => {
-                                return ts.createImportSpecifier(
-                                    ts.createIdentifier(next.name),
-                                    ts.createIdentifier(next.resolvedName),
-                                )
-                            }),
+                            resolvedIncludes.map(
+                                (next: IResolvedIdentifier) => {
+                                    return ts.createImportSpecifier(
+                                        ts.createIdentifier(next.name),
+                                        ts.createIdentifier(next.resolvedName),
+                                    )
+                                },
+                            ),
                         ),
                     ),
                     ts.createLiteral(
                         `./${path.join(
-                            path.relative(path.dirname(currentPath), path.dirname(includeFile.outPath)),
+                            path.relative(
+                                path.dirname(currentPath),
+                                path.dirname(includeFile.outPath),
+                            ),
                             path.basename(includeFile.outPath, '.ts'),
                         )}`,
                     ),

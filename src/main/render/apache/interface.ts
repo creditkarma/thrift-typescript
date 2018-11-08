@@ -34,7 +34,9 @@ export function interfaceNameForClass(statement: InterfaceWithFields): string {
  *   field1?: boolean
  * }
  */
-export function renderInterface(statement: InterfaceWithFields): ts.InterfaceDeclaration {
+export function renderInterface(
+    statement: InterfaceWithFields,
+): ts.InterfaceDeclaration {
     const signatures = statement.fields.map((field: FieldDefinition) => {
         return ts.createPropertySignature(
             undefined,
@@ -47,7 +49,7 @@ export function renderInterface(statement: InterfaceWithFields): ts.InterfaceDec
 
     return ts.createInterfaceDeclaration(
         undefined,
-        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+        [ts.createToken(ts.SyntaxKind.ExportKeyword)],
         interfaceNameForClass(statement),
         [],
         [],

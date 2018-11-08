@@ -1,4 +1,9 @@
-import { NamespaceDefinition, SyntaxType, ThriftDocument, ThriftStatement } from '@creditkarma/thrift-parser'
+import {
+    NamespaceDefinition,
+    SyntaxType,
+    ThriftDocument,
+    ThriftStatement,
+} from '@creditkarma/thrift-parser'
 import * as path from 'path'
 
 import { INamespace, INamespaceMap } from '../types'
@@ -25,7 +30,9 @@ function emptyNamespace(outPath: string = ''): INamespace {
 function getNamesapce(outPath: string, namespaces: INamespaceMap): INamespace {
     return namespaces.js != null
         ? namespaces.js
-        : namespaces.java != null ? namespaces.java : emptyNamespace(outPath)
+        : namespaces.java != null
+        ? namespaces.java
+        : emptyNamespace(outPath)
 }
 
 /**
@@ -33,7 +40,10 @@ function getNamesapce(outPath: string, namespaces: INamespaceMap): INamespace {
  *
  * @param thrift
  */
-export function resolveNamespace(outPath: string, thrift: ThriftDocument): INamespace {
+export function resolveNamespace(
+    outPath: string,
+    thrift: ThriftDocument,
+): INamespace {
     const statements: Array<NamespaceDefinition> = thrift.body.filter(
         (next: ThriftStatement): next is NamespaceDefinition => {
             return next.type === SyntaxType.NamespaceDefinition

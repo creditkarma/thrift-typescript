@@ -6,14 +6,9 @@ import {
     UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
-import {
-    IIdentifierMap,
-} from '../../../types'
+import { IIdentifierMap } from '../../../types'
 
-import {
-    COMMON_IDENTIFIERS,
-    THRIFT_IDENTIFIERS,
-} from '../identifiers'
+import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
 import {
     createClassConstructor,
@@ -44,17 +39,24 @@ import {
     incrementFieldsSet,
 } from './utils'
 
-import {
-    renderAnnotations,
-    renderFieldAnnotations,
-} from '../annotations'
+import { renderAnnotations, renderFieldAnnotations } from '../annotations'
 
-export function renderClass(node: UnionDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
-    const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(node, identifiers)
+export function renderClass(
+    node: UnionDefinition,
+    identifiers: IIdentifierMap,
+): ts.ClassDeclaration {
+    const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(
+        node,
+        identifiers,
+    )
 
-    const annotations: ts.PropertyDeclaration = renderAnnotations(node.annotations)
+    const annotations: ts.PropertyDeclaration = renderAnnotations(
+        node.annotations,
+    )
 
-    const fieldAnnotations: ts.PropertyDeclaration = renderFieldAnnotations(node.fields)
+    const fieldAnnotations: ts.PropertyDeclaration = renderFieldAnnotations(
+        node.fields,
+    )
 
     /**
      * After creating the properties on our class for the struct fields we must create
@@ -69,15 +71,20 @@ export function renderClass(node: UnionDefinition, identifiers: IIdentifierMap):
      * If a required argument is not on the passed 'args' argument we need to throw on error.
      * Optional fields we must allow to be null or undefined.
      */
-    const fieldAssignments: Array<ts.IfStatement> = node.fields.map((next: FieldDefinition) => {
-        return createFieldAssignment(next, identifiers)
-    })
+    const fieldAssignments: Array<ts.IfStatement> = node.fields.map(
+        (next: FieldDefinition) => {
+            return createFieldAssignment(next, identifiers)
+        },
+    )
 
-    const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(node, identifiers)
+    const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(
+        node,
+        identifiers,
+    )
 
     // Build the constructor body
     const ctor: ts.ConstructorDeclaration = createClassConstructor(
-        [ argsParameter ],
+        [argsParameter],
         [
             createSuperCall(),
             createFieldIncrementer(),
@@ -89,13 +96,10 @@ export function renderClass(node: UnionDefinition, identifiers: IIdentifierMap):
     // export class <node.name> { ... }
     return ts.createClassDeclaration(
         undefined,
-        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+        [ts.createToken(ts.SyntaxKind.ExportKeyword)],
         classNameForStruct(node),
         [],
-        [
-            extendsAbstract(),
-            implementsInterface(node),
-        ], // heritage
+        [extendsAbstract(), implementsInterface(node)], // heritage
         [
             ...fields,
             annotations,
@@ -122,7 +126,10 @@ export function createInputParameter(): ts.ParameterDeclaration {
     )
 }
 
-export function createFieldsForStruct(node: InterfaceWithFields, identifiers: IIdentifierMap): Array<ts.PropertyDeclaration> {
+export function createFieldsForStruct(
+    node: InterfaceWithFields,
+    identifiers: IIdentifierMap,
+): Array<ts.PropertyDeclaration> {
     return node.fields.map((field: FieldDefinition) => {
         return renderFieldDeclarations(field, identifiers)
     })
@@ -144,11 +151,11 @@ export function createFieldsForStruct(node: InterfaceWithFields, identifiers: II
  *
  * This function creates the 'this.id = args.id' bit.
  */
-export function assignmentForField(field: FieldDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return [
-        incrementFieldsSet(),
-        ..._assignmentForField(field, identifiers),
-    ]
+export function assignmentForField(
+    field: FieldDefinition,
+    identifiers: IIdentifierMap,
+): Array<ts.Statement> {
+    return [incrementFieldsSet(), ..._assignmentForField(field, identifiers)]
 }
 
 /**
@@ -164,19 +171,22 @@ export function assignmentForField(field: FieldDefinition, identifiers: IIdentif
  *   throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
  * }
  */
-export function createFieldAssignment(field: FieldDefinition, identifiers: IIdentifierMap): ts.IfStatement {
+export function createFieldAssignment(
+    field: FieldDefinition,
+    identifiers: IIdentifierMap,
+): ts.IfStatement {
     const hasValue: ts.BinaryExpression = createNotNullCheck(
-        ts.createPropertyAccess(
-            COMMON_IDENTIFIERS.args,
-            `${field.name.value}`,
-        ),
+        ts.createPropertyAccess(COMMON_IDENTIFIERS.args, `${field.name.value}`),
     )
-    const thenAssign: Array<ts.Statement> = assignmentForField(field, identifiers)
+    const thenAssign: Array<ts.Statement> = assignmentForField(
+        field,
+        identifiers,
+    )
     const elseThrow: ts.Statement | undefined = throwForField(field)
 
     return ts.createIf(
         hasValue,
-        ts.createBlock([ ...thenAssign ], true),
-        (elseThrow === undefined) ? undefined : ts.createBlock([ elseThrow ], true),
+        ts.createBlock([...thenAssign], true),
+        elseThrow === undefined ? undefined : ts.createBlock([elseThrow], true),
     )
 }

@@ -19,10 +19,7 @@ import {
     ExceptionTwo,
 } from './codegen/calculator'
 
-import {
-    SharedStruct,
-    SharedUnion,
-} from './codegen/shared'
+import { SharedStruct, SharedUnion } from './codegen/shared'
 
 import { Server } from 'net'
 
@@ -43,10 +40,17 @@ export function createCalculatorServer(): Server {
         https: false,
         headers: {
             Host: ADD_SERVER_CONFIG.hostName,
-        }
+        },
     }
-    const connection: HttpConnection = createHttpConnection(ADD_SERVER_CONFIG.hostName, ADD_SERVER_CONFIG.port, options)
-    const thriftClient: AddService.Client = createHttpClient(AddService.Client, connection)
+    const connection: HttpConnection = createHttpConnection(
+        ADD_SERVER_CONFIG.hostName,
+        ADD_SERVER_CONFIG.port,
+        options,
+    )
+    const thriftClient: AddService.Client = createHttpClient(
+        AddService.Client,
+        connection,
+    )
 
     // Handler: Implement the hello service
     const myServiceHandler: Calculator.IHandler = {
@@ -111,10 +115,13 @@ export function createCalculatorServer(): Server {
             return Array.from(map.values())
         },
         listToMap(list: Array<Array<string>>): Map<string, string> {
-            return list.reduce((acc: Map<string, string>, next: Array<string>) => {
-                acc.set(next[0], next[1])
-                return acc
-            }, new Map())
+            return list.reduce(
+                (acc: Map<string, string>, next: Array<string>) => {
+                    acc.set(next[0], next[1])
+                    return acc
+                },
+                new Map(),
+            )
         },
         fetchThing(): CommonStruct {
             return new SharedStruct({ key: 5, value: 'test' })
@@ -125,7 +132,7 @@ export function createCalculatorServer(): Server {
             } else {
                 throw new ExceptionTwo({ whatHappened: 'test two' })
             }
-        }
+        },
     }
 
     // ServiceOptions: The I/O stack for the service

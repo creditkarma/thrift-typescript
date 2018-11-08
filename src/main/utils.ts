@@ -33,7 +33,10 @@ interface IFileCache {
 
 const fileCache: IFileCache = {}
 
-export function collectSourceFiles(sourceDir: string, options: IMakeOptions): Array<string> {
+export function collectSourceFiles(
+    sourceDir: string,
+    options: IMakeOptions,
+): Array<string> {
     if (options.files && options.files.length > 0) {
         return options.files
     } else {
@@ -52,11 +55,17 @@ export function parseThriftString(source: string): ThriftDocument {
     }
 }
 
-export function dedupResolvedFiles(files: Array<IResolvedFile>): Array<IResolvedFile> {
-    return Array.from(files.reduce((acc: Map<string, IResolvedFile>, next: IResolvedFile) => {
-        acc.set(`${next.path}/${next.name}`, next)
-        return acc
-    }, new Map()).values())
+export function dedupResolvedFiles(
+    files: Array<IResolvedFile>,
+): Array<IResolvedFile> {
+    return Array.from(
+        files
+            .reduce((acc: Map<string, IResolvedFile>, next: IResolvedFile) => {
+                acc.set(`${next.path}/${next.name}`, next)
+                return acc
+            }, new Map())
+            .values(),
+    )
 }
 
 function collectNamespaces(
@@ -93,7 +102,9 @@ function collectNamespaces(
     }
 }
 
-export function organizeByNamespace(files: Array<IResolvedFile>): Array<INamespaceFile> {
+export function organizeByNamespace(
+    files: Array<IResolvedFile>,
+): Array<INamespaceFile> {
     return Array.from(collectNamespaces(files).values())
 }
 
@@ -101,7 +112,7 @@ export function organizeByNamespace(files: Array<IResolvedFile>): Array<INamespa
  * Once identifiers have been resolved it's easier to deal with files in a flattened state
  */
 export function flattenResolvedFile(file: IResolvedFile): Array<IResolvedFile> {
-    let result: Array<IResolvedFile> = [ file ]
+    let result: Array<IResolvedFile> = [file]
     for (const key in file.includes) {
         if (file.includes.hasOwnProperty(key)) {
             const include = file.includes[key].file
@@ -111,18 +122,27 @@ export function flattenResolvedFile(file: IResolvedFile): Array<IResolvedFile> {
     return result
 }
 
-export function saveFiles(rootDir: string, outDir: string, files: Array<IRenderedFile>): void {
+export function saveFiles(
+    rootDir: string,
+    outDir: string,
+    files: Array<IRenderedFile>,
+): void {
     files.forEach((next: IRenderedFile) => {
         mkdir(path.dirname(next.outPath))
         try {
             fs.writeFileSync(next.outPath, print(next.statements, true))
         } catch (err) {
-            throw new Error(`Unable to save generated files to: ${next.outPath}`)
+            throw new Error(
+                `Unable to save generated files to: ${next.outPath}`,
+            )
         }
     })
 }
 
-export function readThriftFile(file: string, searchPaths: Array<string>): IThriftFile {
+export function readThriftFile(
+    file: string,
+    searchPaths: Array<string>,
+): IThriftFile {
     for (const sourcePath of searchPaths) {
         const filePath: string = path.resolve(sourcePath, file)
         if (fileCache[filePath] !== undefined) {
@@ -150,10 +170,12 @@ function collectIncludes(thrift: ThriftDocument): Array<IIncludeData> {
         },
     )
 
-    return statements.map((next: IncludeDefinition): IIncludeData => ({
-        path: next.path.value,
-        base: path.basename(next.path.value).replace('.thrift', ''),
-    }))
+    return statements.map(
+        (next: IncludeDefinition): IIncludeData => ({
+            path: next.path.value,
+            base: path.basename(next.path.value).replace('.thrift', ''),
+        }),
+    )
 }
 
 function parseInclude(
@@ -165,7 +187,7 @@ function parseInclude(
     if (!cache[include.path]) {
         cache[include.path] = parseFile(
             sourceDir,
-            readThriftFile(include.path, [ currentPath, sourceDir ]),
+            readThriftFile(include.path, [currentPath, sourceDir]),
         )
     }
 
@@ -183,11 +205,17 @@ function parseInclude(
  * @param sourceDir
  * @param file
  */
-export function parseFile(sourceDir: string, file: IThriftFile, cache: IIncludeCache = {}): IParsedFile {
+export function parseFile(
+    sourceDir: string,
+    file: IThriftFile,
+    cache: IIncludeCache = {},
+): IParsedFile {
     const ast: ThriftDocument = parseThriftString(file.source)
-    const includes: Array<IParsedFile> = collectIncludes(ast).map((next: IIncludeData): IParsedFile => {
-        return parseInclude(file.path, sourceDir, next, cache)
-    })
+    const includes: Array<IParsedFile> = collectIncludes(ast).map(
+        (next: IIncludeData): IParsedFile => {
+            return parseInclude(file.path, sourceDir, next, cache)
+        },
+    )
 
     return {
         name: file.name,
@@ -208,7 +236,9 @@ export function parseSource(source: string): IParsedFile {
     }
 }
 
-function includeListForMap(includes: IResolvedIncludeMap): Array<IResolvedFile> {
+function includeListForMap(
+    includes: IResolvedIncludeMap,
+): Array<IResolvedFile> {
     const includeList: Array<IResolvedFile> = []
     for (const name of Object.keys(includes)) {
         includeList.push(includes[name].file)

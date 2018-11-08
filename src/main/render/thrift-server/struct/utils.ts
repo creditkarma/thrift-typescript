@@ -5,20 +5,18 @@ import {
     InterfaceWithFields,
 } from '@creditkarma/thrift-parser'
 
-import {
-    COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS,
-} from '../identifiers'
+import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
-import {
-    throwProtocolException,
-} from '../utils'
+import { throwProtocolException } from '../utils'
 
 type NameMapping = (name: string) => string
 
 function splitPath(path: string): Array<string> {
-    return path.split('.').filter((next: string): boolean => {
-        return next.trim() !== ''
-    })
+    return path.split('.').filter(
+        (next: string): boolean => {
+            return next.trim() !== ''
+        },
+    )
 }
 
 function makeNameForNode(name: string, mapping: NameMapping): string {
@@ -71,38 +69,25 @@ export function codecName(name: string): string {
 }
 
 export function extendsAbstract(): ts.HeritageClause {
-    return ts.createHeritageClause(
-        ts.SyntaxKind.ExtendsKeyword,
-        [
-            ts.createExpressionWithTypeArguments(
-                [],
-                THRIFT_IDENTIFIERS.StructLike,
-            ),
-        ],
-    )
+    return ts.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
+        ts.createExpressionWithTypeArguments([], THRIFT_IDENTIFIERS.StructLike),
+    ])
 }
 
-export function implementsInterface(node: InterfaceWithFields): ts.HeritageClause {
-    return ts.createHeritageClause(
-        ts.SyntaxKind.ImplementsKeyword,
-        [
-            ts.createExpressionWithTypeArguments(
-                [],
-                ts.createIdentifier(
-                    strictNameForStruct(node),
-                ),
-            ),
-        ],
-    )
+export function implementsInterface(
+    node: InterfaceWithFields,
+): ts.HeritageClause {
+    return ts.createHeritageClause(ts.SyntaxKind.ImplementsKeyword, [
+        ts.createExpressionWithTypeArguments(
+            [],
+            ts.createIdentifier(strictNameForStruct(node)),
+        ),
+    ])
 }
 
 export function createSuperCall(): ts.Statement {
     return ts.createStatement(
-        ts.createCall(
-            COMMON_IDENTIFIERS.super,
-            undefined,
-            [],
-        ),
+        ts.createCall(COMMON_IDENTIFIERS.super, undefined, []),
     )
 }
 
@@ -113,7 +98,9 @@ export function createSuperCall(): ts.Statement {
  *
  * throw new thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
  */
-export function throwForField(field: FieldDefinition): ts.ThrowStatement | undefined {
+export function throwForField(
+    field: FieldDefinition,
+): ts.ThrowStatement | undefined {
     if (field.requiredness === 'required' && field.defaultValue === null) {
         return throwProtocolException(
             'UNKNOWN',

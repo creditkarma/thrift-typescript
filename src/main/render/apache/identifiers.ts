@@ -13,7 +13,9 @@ export const THRIFT_IDENTIFIERS = {
     Thrift: ts.createIdentifier('thrift.Thrift'),
     Thrift_Type: ts.createIdentifier('thrift.Thrift.Type'),
     MessageType: ts.createIdentifier('thrift.Thrift.MessageType'),
-    TApplicationException: ts.createIdentifier('thrift.Thrift.TApplicationException'),
+    TApplicationException: ts.createIdentifier(
+        'thrift.Thrift.TApplicationException',
+    ),
     TProtocolException: ts.createIdentifier('thrift.Thrift.TProtocolException'),
     TStructLike: ts.createIdentifier('thrift.TStructLike'),
 }
@@ -41,25 +43,61 @@ export const MESSAGE_TYPE = {
 }
 
 export const PROTOCOL_EXCEPTION = {
-    UNKNOWN: ts.createIdentifier('thrift.Thrift.TProtocolExceptionType.UNKNOWN'),
-    INVALID_DATA: ts.createIdentifier('thrift.Thrift.TProtocolExceptionType.INVALID_DATA'),
-    NEGATIVE_SIZE: ts.createIdentifier('thrift.Thrift.TProtocolExceptionType.NEGATIVE_SIZE'),
-    SIZE_LIMIT: ts.createIdentifier('thrift.Thrift.TProtocolExceptionType.SIZE_LIMIT'),
-    BAD_VERSION: ts.createIdentifier('thrift.Thrift.TProtocolExceptionType.BAD_VERSION'),
-    NOT_IMPLEMENTED: ts.createIdentifier('thrift.Thrift.TProtocolExceptionType.NOT_IMPLEMENTED'),
-    DEPTH_LIMIT: ts.createIdentifier('thrift.Thrift.TProtocolExceptionType.DEPTH_LIMIT'),
+    UNKNOWN: ts.createIdentifier(
+        'thrift.Thrift.TProtocolExceptionType.UNKNOWN',
+    ),
+    INVALID_DATA: ts.createIdentifier(
+        'thrift.Thrift.TProtocolExceptionType.INVALID_DATA',
+    ),
+    NEGATIVE_SIZE: ts.createIdentifier(
+        'thrift.Thrift.TProtocolExceptionType.NEGATIVE_SIZE',
+    ),
+    SIZE_LIMIT: ts.createIdentifier(
+        'thrift.Thrift.TProtocolExceptionType.SIZE_LIMIT',
+    ),
+    BAD_VERSION: ts.createIdentifier(
+        'thrift.Thrift.TProtocolExceptionType.BAD_VERSION',
+    ),
+    NOT_IMPLEMENTED: ts.createIdentifier(
+        'thrift.Thrift.TProtocolExceptionType.NOT_IMPLEMENTED',
+    ),
+    DEPTH_LIMIT: ts.createIdentifier(
+        'thrift.Thrift.TProtocolExceptionType.DEPTH_LIMIT',
+    ),
 }
 
 export const APPLICATION_EXCEPTION = {
-    UNKNOWN: ts.createIdentifier('thrift.Thrift.TApplicationExceptionType.UNKNOWN'),
-    UNKNOWN_METHOD: ts.createIdentifier('thrift.Thrift.TApplicationExceptionType.UNKNOWN_METHOD'),
-    INVALID_MESSAGE_TYPE: ts.createIdentifier('thrift.Thrift.TApplicationExceptionType.INVALID_MESSAGE_TYPE'),
-    WRONG_METHOD_NAME: ts.createIdentifier('thrift.Thrift.TApplicationExceptionType.WRONG_METHOD_NAME'),
-    BAD_SEQUENCE_ID: ts.createIdentifier('thrift.Thrift.TApplicationExceptionType.BAD_SEQUENCE_ID'),
-    MISSING_RESULT: ts.createIdentifier('thrift.Thrift.TApplicationExceptionType.MISSING_RESULT'),
-    INTERNAL_ERROR: ts.createIdentifier('thrift.Thrift.TApplicationExceptionType.INTERNAL_ERROR'),
-    PROTOCOL_ERROR: ts.createIdentifier('thrift.Thrift.TApplicationExceptionType.PROTOCOL_ERROR'),
-    INVALID_TRANSFORM: ts.createIdentifier('thrift.Thrift.TApplicationExceptionType.INVALID_TRANSFORM'),
-    INVALID_PROTOCOL: ts.createIdentifier('thrift.Thrift.TApplicationExceptionType.INVALID_PROTOCOL'),
-    UNSUPPORTED_CLIENT_TYPE: ts.createIdentifier('thrift.Thrift.TApplicationExceptionType.UNSUPPORTED_CLIENT_TYPE'),
+    UNKNOWN: ts.createIdentifier(
+        'thrift.Thrift.TApplicationExceptionType.UNKNOWN',
+    ),
+    UNKNOWN_METHOD: ts.createIdentifier(
+        'thrift.Thrift.TApplicationExceptionType.UNKNOWN_METHOD',
+    ),
+    INVALID_MESSAGE_TYPE: ts.createIdentifier(
+        'thrift.Thrift.TApplicationExceptionType.INVALID_MESSAGE_TYPE',
+    ),
+    WRONG_METHOD_NAME: ts.createIdentifier(
+        'thrift.Thrift.TApplicationExceptionType.WRONG_METHOD_NAME',
+    ),
+    BAD_SEQUENCE_ID: ts.createIdentifier(
+        'thrift.Thrift.TApplicationExceptionType.BAD_SEQUENCE_ID',
+    ),
+    MISSING_RESULT: ts.createIdentifier(
+        'thrift.Thrift.TApplicationExceptionType.MISSING_RESULT',
+    ),
+    INTERNAL_ERROR: ts.createIdentifier(
+        'thrift.Thrift.TApplicationExceptionType.INTERNAL_ERROR',
+    ),
+    PROTOCOL_ERROR: ts.createIdentifier(
+        'thrift.Thrift.TApplicationExceptionType.PROTOCOL_ERROR',
+    ),
+    INVALID_TRANSFORM: ts.createIdentifier(
+        'thrift.Thrift.TApplicationExceptionType.INVALID_TRANSFORM',
+    ),
+    INVALID_PROTOCOL: ts.createIdentifier(
+        'thrift.Thrift.TApplicationExceptionType.INVALID_PROTOCOL',
+    ),
+    UNSUPPORTED_CLIENT_TYPE: ts.createIdentifier(
+        'thrift.Thrift.TApplicationExceptionType.UNSUPPORTED_CLIENT_TYPE',
+    ),
 }

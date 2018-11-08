@@ -1,17 +1,10 @@
 import * as ts from 'typescript'
 
-import {
-    UnionDefinition,
-} from '@creditkarma/thrift-parser'
+import { UnionDefinition } from '@creditkarma/thrift-parser'
 
-import {
-    createLetStatement,
-    throwProtocolException,
-} from '../utils'
+import { createLetStatement, throwProtocolException } from '../utils'
 
-import {
-    createNumberType,
-} from '../types'
+import { createNumberType } from '../types'
 
 export const RETURN_NAME: string = '_returnValue'
 export const INCREMENTER: string = '_fieldsSet'
@@ -28,9 +21,7 @@ export function createFieldIncrementer(): ts.VariableStatement {
 // _fieldsSet++;
 export function incrementFieldsSet(): ts.ExpressionStatement {
     return ts.createStatement(
-        ts.createPostfixIncrement(
-            ts.createIdentifier(INCREMENTER),
-        ),
+        ts.createPostfixIncrement(ts.createIdentifier(INCREMENTER)),
     )
 }
 
@@ -49,24 +40,30 @@ export function createFieldValidation(node: UnionDefinition): ts.IfStatement {
             ts.SyntaxKind.GreaterThanToken,
             ts.createLiteral(1),
         ),
-        ts.createBlock([
-            throwProtocolException(
-                'INVALID_DATA',
-                'TUnion cannot have more than one value',
-            ),
-        ], true),
+        ts.createBlock(
+            [
+                throwProtocolException(
+                    'INVALID_DATA',
+                    'TUnion cannot have more than one value',
+                ),
+            ],
+            true,
+        ),
         ts.createIf(
             ts.createBinary(
                 ts.createIdentifier(INCREMENTER),
                 ts.SyntaxKind.LessThanToken,
                 ts.createLiteral(1),
             ),
-            ts.createBlock([
-                throwProtocolException(
-                    'INVALID_DATA',
-                    'TUnion must have one value set',
-                ),
-            ], true),
+            ts.createBlock(
+                [
+                    throwProtocolException(
+                        'INVALID_DATA',
+                        'TUnion must have one value set',
+                    ),
+                ],
+                true,
+            ),
         ),
     )
 }

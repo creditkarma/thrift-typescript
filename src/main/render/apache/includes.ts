@@ -43,27 +43,30 @@ export function renderIncludes(
     const imports: Array<ts.ImportDeclaration> = []
 
     for (const name of Object.keys(resolved)) {
-        const resolvedIncludes: Array<IResolvedIdentifier> = resolved[name].identifiers
+        const resolvedIncludes: Array<IResolvedIdentifier> =
+            resolved[name].identifiers
         const includeFile: IResolvedFile = resolved[name].file
 
         if (resolvedIncludes != null && includeFile != null) {
             const includePath: string = includeFile.namespace.path
-            imports.push(ts.createImportDeclaration(
-                undefined,
-                undefined,
-                ts.createImportClause(
+            imports.push(
+                ts.createImportDeclaration(
                     undefined,
-                    ts.createNamespaceImport(ts.createIdentifier(name)),
+                    undefined,
+                    ts.createImportClause(
+                        undefined,
+                        ts.createNamespaceImport(ts.createIdentifier(name)),
+                    ),
+                    ts.createLiteral(
+                        `./${path.join(
+                            path.relative(
+                                path.dirname(currentPath),
+                                path.dirname(includePath),
+                            ),
+                        )}`,
+                    ),
                 ),
-                ts.createLiteral(
-                    `./${path.join(
-                        path.relative(
-                            path.dirname(currentPath),
-                            path.dirname(includePath),
-                        ),
-                    )}`,
-                ),
-            ))
+            )
         }
     }
 

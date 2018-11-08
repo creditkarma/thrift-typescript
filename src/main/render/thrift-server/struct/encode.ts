@@ -11,15 +11,9 @@ import {
     SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-import {
-    COMMON_IDENTIFIERS,
-    THRIFT_IDENTIFIERS,
-} from '../identifiers'
+import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
-import {
-    WRITE_METHODS,
-    WriteMethodName,
-} from './methods'
+import { WRITE_METHODS, WriteMethodName } from './methods'
 
 import {
     createConstStatement,
@@ -38,43 +32,53 @@ import {
     typeNodeForFieldType,
 } from '../types'
 
-import {
-    IIdentifierMap,
-    IResolvedIdentifier,
-} from '../../../types'
+import { IIdentifierMap, IResolvedIdentifier } from '../../../types'
 
-import {
-    codecName,
-    looseNameForStruct,
-    throwForField,
-} from './utils'
+import { codecName, looseNameForStruct, throwForField } from './utils'
 
-export function createTempVariables(node: InterfaceWithFields, identifiers: IIdentifierMap): Array<ts.VariableStatement> {
-    const structFields: Array<FieldDefinition> = node.fields.filter((next: FieldDefinition): boolean => {
-        return next.fieldType.type !== SyntaxType.VoidKeyword
-    })
+export function createTempVariables(
+    node: InterfaceWithFields,
+    identifiers: IIdentifierMap,
+): Array<ts.VariableStatement> {
+    const structFields: Array<FieldDefinition> = node.fields.filter(
+        (next: FieldDefinition): boolean => {
+            return next.fieldType.type !== SyntaxType.VoidKeyword
+        },
+    )
 
     if (structFields.length > 0) {
-        return [ createConstStatement(
-            COMMON_IDENTIFIERS.obj,
-            undefined,
-            ts.createObjectLiteral(
-                node.fields.map((next: FieldDefinition): ts.ObjectLiteralElementLike => {
-                    return ts.createPropertyAssignment(
-                        next.name.value,
-                        getInitializerForField('args', next, true),
-                    )
-                }),
-                true, // multiline
+        return [
+            createConstStatement(
+                COMMON_IDENTIFIERS.obj,
+                undefined,
+                ts.createObjectLiteral(
+                    node.fields.map(
+                        (
+                            next: FieldDefinition,
+                        ): ts.ObjectLiteralElementLike => {
+                            return ts.createPropertyAssignment(
+                                next.name.value,
+                                getInitializerForField('args', next, true),
+                            )
+                        },
+                    ),
+                    true, // multiline
+                ),
             ),
-        ) ]
+        ]
     } else {
         return []
     }
 }
 
-export function createEncodeMethod(node: InterfaceWithFields, identifiers: IIdentifierMap): ts.MethodDeclaration {
-    const tempVariables: Array<ts.VariableStatement> = createTempVariables(node, identifiers)
+export function createEncodeMethod(
+    node: InterfaceWithFields,
+    identifiers: IIdentifierMap,
+): ts.MethodDeclaration {
+    const tempVariables: Array<ts.VariableStatement> = createTempVariables(
+        node,
+        identifiers,
+    )
 
     return ts.createMethod(
         undefined,
@@ -100,16 +104,19 @@ export function createEncodeMethod(node: InterfaceWithFields, identifiers: IIden
             ),
         ],
         createVoidType(),
-        ts.createBlock([
-            ...tempVariables,
-            writeStructBegin(node.name.value),
-            ...node.fields.filter(isNotVoid).map((field) => {
-                return createWriteForField(node, field, identifiers)
-            }),
-            writeFieldStop(),
-            writeStructEnd(),
-            ts.createReturn(),
-        ], true),
+        ts.createBlock(
+            [
+                ...tempVariables,
+                writeStructBegin(node.name.value),
+                ...node.fields.filter(isNotVoid).map((field) => {
+                    return createWriteForField(node, field, identifiers)
+                }),
+                writeFieldStop(),
+                writeStructEnd(),
+                ts.createReturn(),
+            ],
+            true,
+        ),
     )
 }
 
@@ -120,8 +127,14 @@ export function createEncodeMethod(node: InterfaceWithFields, identifiers: IIden
  *
  * If field is optional and has a default value write the default if value not set.
  */
-export function createWriteForField(node: InterfaceWithFields, field: FieldDefinition, identifiers: IIdentifierMap): ts.IfStatement {
-    const isFieldNull: ts.BinaryExpression = createNotNullCheck(`obj.${field.name.value}`)
+export function createWriteForField(
+    node: InterfaceWithFields,
+    field: FieldDefinition,
+    identifiers: IIdentifierMap,
+): ts.IfStatement {
+    const isFieldNull: ts.BinaryExpression = createNotNullCheck(
+        `obj.${field.name.value}`,
+    )
     const thenWrite: ts.Statement = createWriteForFieldType(
         node,
         field,
@@ -133,7 +146,7 @@ export function createWriteForField(node: InterfaceWithFields, field: FieldDefin
     return ts.createIf(
         isFieldNull,
         thenWrite, // Then block
-        (elseThrow === undefined) ? undefined : ts.createBlock([elseThrow], true),
+        elseThrow === undefined ? undefined : ts.createBlock([elseThrow], true),
     )
 }
 
@@ -168,10 +181,16 @@ export function writeValueForIdentifier(
 ): Array<ts.Expression> {
     switch (id.definition.type) {
         case SyntaxType.ConstDefinition:
-            throw new TypeError(`Identifier[${id.definition.name.value}] is a value being used as a type`)
+            throw new TypeError(
+                `Identifier[${
+                    id.definition.name.value
+                }] is a value being used as a type`,
+            )
 
         case SyntaxType.ServiceDefinition:
-            throw new TypeError(`Service[${id.definition.name.value}] is being used as a type`)
+            throw new TypeError(
+                `Service[${id.definition.name.value}] is being used as a type`,
+            )
 
         case SyntaxType.StructDefinition:
         case SyntaxType.UnionDefinition:
@@ -180,12 +199,17 @@ export function writeValueForIdentifier(
                 createMethodCall(
                     ts.createIdentifier(codecName(id.resolvedName)),
                     'encode',
-                    [ fieldName, COMMON_IDENTIFIERS.output ],
+                    [fieldName, COMMON_IDENTIFIERS.output],
                 ),
             ]
 
         case SyntaxType.EnumDefinition:
-            return [ writeMethodForName(WRITE_METHODS[SyntaxType.I32Keyword], fieldName) ]
+            return [
+                writeMethodForName(
+                    WRITE_METHODS[SyntaxType.I32Keyword],
+                    fieldName,
+                ),
+            ]
 
         case SyntaxType.TypedefDefinition:
             return writeValueForType(
@@ -223,7 +247,7 @@ export function writeValueForType(
          * SetType | MapType | ListType
          */
         case SyntaxType.SetType:
-            return  [
+            return [
                 writeSetBegin(fieldType, fieldName, identifiers),
                 forEach(node, fieldType, fieldName, identifiers),
                 writeSetEnd(),
@@ -237,7 +261,7 @@ export function writeValueForType(
             ]
 
         case SyntaxType.ListType:
-            return  [
+            return [
                 writeListBegin(fieldType, fieldName, identifiers),
                 forEach(node, fieldType, fieldName, identifiers),
                 writeListEnd(),
@@ -259,7 +283,9 @@ export function writeValueForType(
         case SyntaxType.I16Keyword:
         case SyntaxType.I32Keyword:
         case SyntaxType.I64Keyword:
-            return [ writeMethodForName(WRITE_METHODS[fieldType.type], fieldName) ]
+            return [
+                writeMethodForName(WRITE_METHODS[fieldType.type], fieldName),
+            ]
 
         case SyntaxType.VoidKeyword:
             return []
@@ -270,8 +296,11 @@ export function writeValueForType(
     }
 }
 
-function writeMethodForName(methodName: WriteMethodName, fieldName: ts.Identifier): ts.CallExpression {
-    return createMethodCall('output', methodName, [ fieldName ])
+function writeMethodForName(
+    methodName: WriteMethodName,
+    fieldName: ts.Identifier,
+): ts.CallExpression {
+    return createMethodCall('output', methodName, [fieldName])
 }
 
 function writeValueForField(
@@ -280,7 +309,9 @@ function writeValueForField(
     fieldName: ts.Identifier,
     identifiers: IIdentifierMap,
 ): Array<ts.ExpressionStatement> {
-    return writeValueForType(node, fieldType, fieldName, identifiers).map(ts.createStatement)
+    return writeValueForType(node, fieldType, fieldName, identifiers).map(
+        ts.createStatement,
+    )
 }
 
 /**
@@ -319,12 +350,16 @@ function forEach(
     // If map we have to handle key type as well as value type
     if (fieldType.type === SyntaxType.MapType) {
         const key: ts.Identifier = ts.createUniqueName('key')
-        forEachParameters.push(createFunctionParameter(
-            key,
-            typeNodeForFieldType(fieldType.keyType, identifiers, true),
-        ))
+        forEachParameters.push(
+            createFunctionParameter(
+                key,
+                typeNodeForFieldType(fieldType.keyType, identifiers, true),
+            ),
+        )
 
-        forEachStatements.unshift(...writeValueForField(node, fieldType.keyType, key, identifiers))
+        forEachStatements.unshift(
+            ...writeValueForField(node, fieldType.keyType, key, identifiers),
+        )
     }
 
     return createMethodCall(fieldName, 'forEach', [
@@ -404,7 +439,10 @@ export function writeSetEnd(): ts.CallExpression {
 }
 
 // output.writeFieldBegin(<field.name>, <field.fieldType>, <field.fieldID>)
-export function writeFieldBegin(field: FieldDefinition, identifiers: IIdentifierMap): ts.ExpressionStatement {
+export function writeFieldBegin(
+    field: FieldDefinition,
+    identifiers: IIdentifierMap,
+): ts.ExpressionStatement {
     if (field.fieldID !== null) {
         return createMethodCallStatement('output', 'writeFieldBegin', [
             ts.createLiteral(field.name.value),

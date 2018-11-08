@@ -14,10 +14,7 @@ import {
     THRIFT_TYPES,
 } from '../identifiers'
 
-import {
-    createNumberType,
-    thriftTypeForFieldType,
-} from '../types'
+import { createNumberType, thriftTypeForFieldType } from '../types'
 
 import {
     createConstStatement,
@@ -29,9 +26,7 @@ import {
     throwProtocolException,
 } from '../utils'
 
-import {
-    IIdentifierMap,
-} from '../../../types'
+import { IIdentifierMap } from '../../../types'
 
 import {
     createCheckForFields,
@@ -52,7 +47,10 @@ import {
     RETURN_NAME,
 } from './utils'
 
-export function createDecodeMethod(node: UnionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
+export function createDecodeMethod(
+    node: UnionDefinition,
+    identifiers: IIdentifierMap,
+): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
     const returnVariable: ts.VariableStatement = createLetStatement(
         ts.createIdentifier(RETURN_NAME),
@@ -75,10 +73,7 @@ export function createDecodeMethod(node: UnionDefinition, identifiers: IIdentifi
      */
     const ret: ts.VariableStatement = createConstStatement(
         'ret',
-        ts.createTypeReferenceNode(
-            THRIFT_IDENTIFIERS.IThriftField,
-            undefined,
-        ),
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IThriftField, undefined),
         readFieldBegin(),
     )
 
@@ -100,35 +95,31 @@ export function createDecodeMethod(node: UnionDefinition, identifiers: IIdentifi
      * }
      */
     const checkStop: ts.IfStatement = ts.createIf(
-        createEqualsCheck(
-            COMMON_IDENTIFIERS.fieldType,
-            THRIFT_TYPES.STOP,
-        ),
-        ts.createBlock([
-            ts.createBreak(),
-        ], true),
+        createEqualsCheck(COMMON_IDENTIFIERS.fieldType, THRIFT_TYPES.STOP),
+        ts.createBlock([ts.createBreak()], true),
     )
 
     const whileLoop: ts.WhileStatement = ts.createWhile(
         ts.createLiteral(true),
-        ts.createBlock([
-            ret,
-            fieldType,
-            fieldId,
-            checkStop,
-            ts.createSwitch(
-                COMMON_IDENTIFIERS.fieldId, // what to switch on
-                ts.createCaseBlock([
-                    ...node.fields.map((next: FieldDefinition) => {
-                        return createCaseForField(node, next, identifiers)
-                    }),
-                    ts.createDefaultClause([
-                        createSkipBlock(),
+        ts.createBlock(
+            [
+                ret,
+                fieldType,
+                fieldId,
+                checkStop,
+                ts.createSwitch(
+                    COMMON_IDENTIFIERS.fieldId, // what to switch on
+                    ts.createCaseBlock([
+                        ...node.fields.map((next: FieldDefinition) => {
+                            return createCaseForField(node, next, identifiers)
+                        }),
+                        ts.createDefaultClause([createSkipBlock()]),
                     ]),
-                ]),
-            ),
-            readFieldEnd(),
-        ], true),
+                ),
+                readFieldEnd(),
+            ],
+            true,
+        ),
     )
 
     return ts.createMethod(
@@ -138,37 +129,42 @@ export function createDecodeMethod(node: UnionDefinition, identifiers: IIdentifi
         COMMON_IDENTIFIERS.decode,
         undefined,
         undefined,
-        [ inputParameter ],
+        [inputParameter],
         ts.createTypeReferenceNode(
             ts.createIdentifier(strictNameForStruct(node)),
             undefined,
         ), // return type
-        ts.createBlock([
-            fieldsSet,
-            returnVariable,
-            readStructBegin(),
-            whileLoop,
-            readStructEnd(),
-            createFieldValidation(node),
-            ts.createIf(
-                ts.createBinary(
-                    ts.createIdentifier(RETURN_NAME),
-                    ts.SyntaxKind.ExclamationEqualsEqualsToken,
-                    ts.createNull(),
-                ),
-                ts.createBlock([
-                    ts.createReturn(
+        ts.createBlock(
+            [
+                fieldsSet,
+                returnVariable,
+                readStructBegin(),
+                whileLoop,
+                readStructEnd(),
+                createFieldValidation(node),
+                ts.createIf(
+                    ts.createBinary(
                         ts.createIdentifier(RETURN_NAME),
+                        ts.SyntaxKind.ExclamationEqualsEqualsToken,
+                        ts.createNull(),
                     ),
-                ], true),
-                ts.createBlock([
-                    throwProtocolException(
-                        'UNKNOWN',
-                        'Unable to read data for TUnion',
+                    ts.createBlock(
+                        [ts.createReturn(ts.createIdentifier(RETURN_NAME))],
+                        true,
                     ),
-                ], true),
-            ),
-        ], true),
+                    ts.createBlock(
+                        [
+                            throwProtocolException(
+                                'UNKNOWN',
+                                'Unable to read data for TUnion',
+                            ),
+                        ],
+                        true,
+                    ),
+                ),
+            ],
+            true,
+        ),
     )
 }
 
@@ -185,39 +181,47 @@ export function createDecodeMethod(node: UnionDefinition, identifiers: IIdentifi
  *   break;
  * }
  */
-export function createCaseForField(node: UnionDefinition, field: FieldDefinition, identifiers: IIdentifierMap): ts.CaseClause {
+export function createCaseForField(
+    node: UnionDefinition,
+    field: FieldDefinition,
+    identifiers: IIdentifierMap,
+): ts.CaseClause {
     const fieldAlias: ts.Identifier = ts.createUniqueName('value')
     const checkType: ts.IfStatement = ts.createIf(
         createEqualsCheck(
             COMMON_IDENTIFIERS.fieldType,
             thriftTypeForFieldType(field.fieldType, identifiers),
         ),
-        ts.createBlock([
-            incrementFieldsSet(),
-            ...readValueForFieldType(
-                field.fieldType,
-                fieldAlias,
-                identifiers,
-            ),
-            ...endReadForField(node, fieldAlias, field),
-        ], true),
+        ts.createBlock(
+            [
+                incrementFieldsSet(),
+                ...readValueForFieldType(
+                    field.fieldType,
+                    fieldAlias,
+                    identifiers,
+                ),
+                ...endReadForField(node, fieldAlias, field),
+            ],
+            true,
+        ),
         createSkipBlock(),
     )
 
     if (field.fieldID !== null) {
-        return ts.createCaseClause(
-            ts.createLiteral(field.fieldID.value),
-            [
-                checkType,
-                ts.createBreak(),
-            ],
-        )
+        return ts.createCaseClause(ts.createLiteral(field.fieldID.value), [
+            checkType,
+            ts.createBreak(),
+        ])
     } else {
         throw new Error(`FieldID on line ${field.loc.start.line} is null`)
     }
 }
 
-export function endReadForField(node: UnionDefinition, fieldName: ts.Identifier, field: FieldDefinition): Array<ts.Statement> {
+export function endReadForField(
+    node: UnionDefinition,
+    fieldName: ts.Identifier,
+    field: FieldDefinition,
+): Array<ts.Statement> {
     switch (field.fieldType.type) {
         case SyntaxType.VoidKeyword:
             return []
@@ -239,7 +243,9 @@ export function endReadForField(node: UnionDefinition, fieldName: ts.Identifier,
     }
 }
 
-export function metadataTypeForFieldType(fieldType: ContainerType): ts.TypeNode {
+export function metadataTypeForFieldType(
+    fieldType: ContainerType,
+): ts.TypeNode {
     switch (fieldType.type) {
         case SyntaxType.MapType:
             return ts.createTypeReferenceNode(
@@ -265,37 +271,47 @@ export function metadataTypeForFieldType(fieldType: ContainerType): ts.TypeNode 
     }
 }
 
-export function createReturnForStruct(struct: InterfaceWithFields): ts.Statement {
+export function createReturnForStruct(
+    struct: InterfaceWithFields,
+): ts.Statement {
     if (hasRequiredField(struct)) {
         return ts.createIf(
             createCheckForFields(struct.fields),
-            ts.createBlock([
-                ts.createReturn(
-                    ts.createObjectLiteral(
-                        struct.fields.map((next: FieldDefinition): ts.ObjectLiteralElementLike => {
-                            return ts.createPropertyAssignment(
-                                next.name.value,
-                                getInitializerForField('_args', next),
-                            )
-                        }),
-                        true, // multiline
+            ts.createBlock(
+                [
+                    ts.createReturn(
+                        ts.createObjectLiteral(
+                            struct.fields.map(
+                                (
+                                    next: FieldDefinition,
+                                ): ts.ObjectLiteralElementLike => {
+                                    return ts.createPropertyAssignment(
+                                        next.name.value,
+                                        getInitializerForField('_args', next),
+                                    )
+                                },
+                            ),
+                            true, // multiline
+                        ),
                     ),
-                ),
-            ], true),
-            ts.createBlock([
-                throwProtocolException(
-                    'UNKNOWN',
-                    `Unable to read ${struct.name.value} from input`,
-                ),
-            ], true),
+                ],
+                true,
+            ),
+            ts.createBlock(
+                [
+                    throwProtocolException(
+                        'UNKNOWN',
+                        `Unable to read ${struct.name.value} from input`,
+                    ),
+                ],
+                true,
+            ),
         )
     } else {
         return ts.createReturn(
-            ts.createNew(
-                ts.createIdentifier(struct.name.value),
-                undefined,
-                [ COMMON_IDENTIFIERS._args ],
-            ),
+            ts.createNew(ts.createIdentifier(struct.name.value), undefined, [
+                COMMON_IDENTIFIERS._args,
+            ]),
         )
     }
 }

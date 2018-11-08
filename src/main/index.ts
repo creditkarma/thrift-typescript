@@ -47,11 +47,20 @@ import {
  *
  * @param source
  */
-export function make(source: string, target: CompileTarget = 'thrift-server'): string {
+export function make(
+    source: string,
+    target: CompileTarget = 'thrift-server',
+): string {
     const parsedFile: IParsedFile = parseSource(source)
     const resolvedAST: IResolvedFile = resolveFile('', parsedFile)
     const validAST: IResolvedFile = validateFile(resolvedAST)
-    return print(processStatements(validAST.body, validAST.identifiers, rendererForTarget(target)))
+    return print(
+        processStatements(
+            validAST.body,
+            validAST.identifiers,
+            rendererForTarget(target),
+        ),
+    )
 }
 
 /**
@@ -73,25 +82,38 @@ export function generate(options: IMakeOptions): void {
     const resolvedCache: IResolvedCache = {}
     const renderedCache: IRenderedCache = {}
 
-    const validatedFiles: Array<IResolvedFile> = collectSourceFiles(sourceDir, options).reduce(
-        (acc: Array<IResolvedFile>, next: string): Array<IResolvedFile> => {
-            const thriftFile: IThriftFile = readThriftFile(next, [sourceDir])
-            const parsedFile: IParsedFile = parseFile(sourceDir, thriftFile, includeCache)
-            const resolvedFile: IResolvedFile = resolveFile(outDir, parsedFile, resolvedCache)
-            return acc.concat(flattenResolvedFile(resolvedFile).map(validateFile))
-        },
-        [],
-    )
+    const validatedFiles: Array<IResolvedFile> = collectSourceFiles(
+        sourceDir,
+        options,
+    ).reduce((acc: Array<IResolvedFile>, next: string): Array<
+        IResolvedFile
+    > => {
+        const thriftFile: IThriftFile = readThriftFile(next, [sourceDir])
+        const parsedFile: IParsedFile = parseFile(
+            sourceDir,
+            thriftFile,
+            includeCache,
+        )
+        const resolvedFile: IResolvedFile = resolveFile(
+            outDir,
+            parsedFile,
+            resolvedCache,
+        )
+        return acc.concat(flattenResolvedFile(resolvedFile).map(validateFile))
+    }, [])
 
-    const dedupedFiles: Array<IResolvedFile> = dedupResolvedFiles(validatedFiles)
+    const dedupedFiles: Array<IResolvedFile> = dedupResolvedFiles(
+        validatedFiles,
+    )
     const invalidFiles: Array<IResolvedFile> = collectInvalidFiles(dedupedFiles)
 
     if (invalidFiles.length > 0) {
         printErrors(invalidFiles)
         process.exitCode = 1
-
     } else {
-        const namespaces: Array<INamespaceFile> = organizeByNamespace(dedupedFiles)
+        const namespaces: Array<INamespaceFile> = organizeByNamespace(
+            dedupedFiles,
+        )
         const renderedFiles: Array<IRenderedFile> = namespaces.map(
             (next: INamespaceFile): IRenderedFile => {
                 return generateFile(
