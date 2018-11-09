@@ -5,6 +5,6 @@ export const DEFAULT_OPTIONS: IMakeOptions = Object.freeze({
     outDir: './codegen',
     sourceDir: './thrift',
     target: 'apache',
-    files: (Object.freeze([]) as unknown as Array<string>),
+    files: (Object.freeze([]) as unknown) as Array<string>,
     fallbackNamespace: 'java',
 } as IMakeOptions)

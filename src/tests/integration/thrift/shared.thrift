@@ -1,11 +1,5 @@
-namespace cpp shared
-namespace d share // "shared" would collide with the eponymous D keyword.
-namespace dart shared
 namespace java shared
-namespace perl shared
-namespace php shared
-namespace haxe shared
-namespace netcore shared
+namespace js shared
 
 const i32 SHARED_INT = 45
 

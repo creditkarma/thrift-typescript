@@ -9,7 +9,6 @@ import {
 } from 'thrift'
 
 import {
-    AddService,
     Calculator,
     Choice,
     Operation,
@@ -18,6 +17,8 @@ import {
     ExceptionOne,
     ExceptionTwo,
 } from './codegen/calculator'
+
+import { AddService } from './codegen/add-service'
 
 import { SharedStruct, SharedUnion } from './codegen/shared'
 
