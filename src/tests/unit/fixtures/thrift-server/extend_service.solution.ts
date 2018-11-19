@@ -1,4 +1,5 @@
 export namespace ParentService {
+    export const serviceName: string = "ParentService";
     export const annotations: thrift.IThriftAnnotations = {};
     export const methodAnnotations: thrift.IMethodAnnotations = {
         ping: {
@@ -167,6 +168,7 @@ export namespace ParentService {
         }
     }
     export class Client<Context = any> extends thrift.ThriftClient<Context> {
+        public readonly _serviceName: string = serviceName;
         public readonly _annotations: thrift.IThriftAnnotations = annotations;
         public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
         public readonly _methodNames: Array<string> = methodNames;
@@ -214,6 +216,7 @@ export namespace ParentService {
     }
     export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
         protected readonly _handler: IHandler<Context>;
+        public readonly _serviceName: string = serviceName;
         public readonly _annotations: thrift.IThriftAnnotations = annotations;
         public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
         public readonly _methodNames: Array<string> = methodNames;
@@ -273,6 +276,7 @@ export namespace ParentService {
     }
 }
 export namespace ChildService {
+    export const serviceName: string = "ChildService";
     export const annotations: thrift.IThriftAnnotations = {};
     export const methodAnnotations: thrift.IMethodAnnotations = {
         ping: {
@@ -597,6 +601,7 @@ export namespace ChildService {
         }
     }
     export class Client<Context = any> extends ParentService.Client<Context> {
+        public readonly _serviceName: string = serviceName;
         public readonly _annotations: thrift.IThriftAnnotations = annotations;
         public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
         public readonly _methodNames: Array<string> = methodNames;
@@ -687,6 +692,7 @@ export namespace ChildService {
     export type IHandler<Context = any> = ILocalHandler<Context> & ParentService.IHandler<Context>;
     export class Processor<Context = any> extends ParentService.Processor<Context> {
         protected readonly _handler: IHandler<Context>;
+        public readonly _serviceName: string = serviceName;
         public readonly _annotations: thrift.IThriftAnnotations = annotations;
         public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
         public readonly _methodNames: Array<string> = methodNames;

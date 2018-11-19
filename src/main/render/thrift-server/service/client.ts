@@ -17,6 +17,7 @@ import {
     createStructArgsName,
     createStructResultName,
     renderMethodNamesProperty,
+    renderServiceNameProperty,
 } from './utils'
 
 import {
@@ -89,6 +90,8 @@ function extendsService(service: Identifier): ts.HeritageClause {
 }
 
 export function renderClient(service: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
+    const serviceName: ts.PropertyDeclaration = renderServiceNameProperty()
+
     const annotations: ts.PropertyDeclaration = renderServiceAnnotationsProperty()
 
     const methodAnnotations: ts.PropertyDeclaration = renderMethodAnnotationsProperty()
@@ -119,6 +122,7 @@ export function renderClient(service: ServiceDefinition, identifiers: IIdentifie
         ], // type parameters
         heritage, // heritage
         [
+            serviceName,
             annotations,
             methodAnnotations,
             methodNames,

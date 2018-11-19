@@ -20,6 +20,7 @@ import {
     createStructArgsName,
     createStructResultName,
     renderMethodNamesProperty,
+    renderServiceNameProperty,
 } from './utils'
 
 import {
@@ -134,6 +135,8 @@ export function renderProcessor(service: ServiceDefinition, identifiers: IIdenti
         undefined,
     )
 
+    const serviceName: ts.PropertyDeclaration = renderServiceNameProperty()
+
     const annotations: ts.PropertyDeclaration = renderServiceAnnotationsProperty()
 
     const methodAnnotations: ts.PropertyDeclaration = renderMethodAnnotationsProperty()
@@ -168,6 +171,7 @@ export function renderProcessor(service: ServiceDefinition, identifiers: IIdenti
         heritage, // heritage
         [
             handler,
+            serviceName,
             annotations,
             methodAnnotations,
             methodNames,

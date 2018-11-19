@@ -113,6 +113,7 @@ export class User extends thrift.StructLike implements IUser {
     }
 }
 export namespace MyService {
+    export const serviceName: string = "MyService";
     export const annotations: thrift.IThriftAnnotations = {
         foo: "bar",
         two: "three",
@@ -559,6 +560,7 @@ export namespace MyService {
         }
     }
     export class Client<Context = any> extends thrift.ThriftClient<Context> {
+        public readonly _serviceName: string = serviceName;
         public readonly _annotations: thrift.IThriftAnnotations = annotations;
         public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
         public readonly _methodNames: Array<string> = methodNames;
@@ -674,6 +676,7 @@ export namespace MyService {
     }
     export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
         protected readonly _handler: IHandler<Context>;
+        public readonly _serviceName: string = serviceName;
         public readonly _annotations: thrift.IThriftAnnotations = annotations;
         public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
         public readonly _methodNames: Array<string> = methodNames;
