@@ -485,6 +485,7 @@ export function loopOverContainer(
             const valueParam: ts.Identifier = ts.createUniqueName('value')
             const valueConst: ts.Identifier = ts.createUniqueName('value')
             const keyName: ts.Identifier = ts.createUniqueName('key')
+            const keyConst: ts.Identifier = ts.createUniqueName('key')
             return [
                 ts.createStatement(ts.createCall(
                     ts.createPropertyAccess(
@@ -512,7 +513,8 @@ export function loopOverContainer(
                             ts.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
                             ts.createBlock([
                                 ...assignmentForFieldType(field, fieldType.valueType, valueConst, valueParam, identifiers),
-                                createMethodCallStatement(saveName, 'set', [ keyName, valueConst ]),
+                                ...assignmentForFieldType(field, fieldType.keyType, keyConst, keyName, identifiers),
+                                createMethodCallStatement(saveName, 'set', [ keyConst, valueConst ]),
                             ], true),
                         ),
                     ],

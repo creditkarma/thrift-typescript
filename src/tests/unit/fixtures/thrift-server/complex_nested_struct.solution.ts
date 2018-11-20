@@ -114,6 +114,7 @@ export interface IMyStruct {
     intList: Array<thrift.Int64>;
     listList: Array<Array<IOtherStruct>>;
     listListString: Array<Array<string>>;
+    i64KeyedMap: Map<thrift.Int64, thrift.Int64>;
 }
 export interface IMyStructArgs {
     idList: Array<IOtherStructArgs>;
@@ -123,6 +124,7 @@ export interface IMyStructArgs {
     intList: Array<number | thrift.Int64>;
     listList: Array<Array<IOtherStructArgs>>;
     listListString: Array<Array<string>>;
+    i64KeyedMap: Map<number | thrift.Int64, number | thrift.Int64>;
 }
 export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
     encode(args: IMyStructArgs, output: thrift.TProtocol): void {
@@ -133,7 +135,8 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
             idSet: args.idSet,
             intList: args.intList,
             listList: args.listList,
-            listListString: args.listListString
+            listListString: args.listListString,
+            i64KeyedMap: args.i64KeyedMap
         };
         output.writeStructBegin("MyStruct");
         if (obj.idList != null) {
@@ -234,6 +237,19 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[listListString] is unset!");
         }
+        if (obj.i64KeyedMap != null) {
+            output.writeFieldBegin("i64KeyedMap", thrift.TType.MAP, 8);
+            output.writeMapBegin(thrift.TType.I64, thrift.TType.I64, obj.i64KeyedMap.size);
+            obj.i64KeyedMap.forEach((value_15: number | thrift.Int64, key_3: number | thrift.Int64): void => {
+                output.writeI64(key_3);
+                output.writeI64(value_15);
+            });
+            output.writeMapEnd();
+            output.writeFieldEnd();
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[i64KeyedMap] is unset!");
+        }
         output.writeFieldStop();
         output.writeStructEnd();
         return;
@@ -251,15 +267,15 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.TType.LIST) {
-                        const value_15: Array<IOtherStruct> = new Array<IOtherStruct>();
+                        const value_16: Array<IOtherStruct> = new Array<IOtherStruct>();
                         const metadata_1: thrift.IThriftList = input.readListBegin();
                         const size_1: number = metadata_1.size;
                         for (let i_1: number = 0; i_1 < size_1; i_1++) {
-                            const value_16: IOtherStruct = OtherStructCodec.decode(input);
-                            value_15.push(value_16);
+                            const value_17: IOtherStruct = OtherStructCodec.decode(input);
+                            value_16.push(value_17);
                         }
                         input.readListEnd();
-                        _args.idList = value_15;
+                        _args.idList = value_16;
                     }
                     else {
                         input.skip(fieldType);
@@ -267,16 +283,16 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
                     break;
                 case 2:
                     if (fieldType === thrift.TType.MAP) {
-                        const value_17: Map<string, IOtherStruct> = new Map<string, IOtherStruct>();
+                        const value_18: Map<string, IOtherStruct> = new Map<string, IOtherStruct>();
                         const metadata_2: thrift.IThriftMap = input.readMapBegin();
                         const size_2: number = metadata_2.size;
                         for (let i_2: number = 0; i_2 < size_2; i_2++) {
-                            const key_3: string = input.readString();
-                            const value_18: IOtherStruct = OtherStructCodec.decode(input);
-                            value_17.set(key_3, value_18);
+                            const key_4: string = input.readString();
+                            const value_19: IOtherStruct = OtherStructCodec.decode(input);
+                            value_18.set(key_4, value_19);
                         }
                         input.readMapEnd();
-                        _args.idMap = value_17;
+                        _args.idMap = value_18;
                     }
                     else {
                         input.skip(fieldType);
@@ -284,23 +300,23 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
                     break;
                 case 3:
                     if (fieldType === thrift.TType.MAP) {
-                        const value_19: Map<string, Array<IOtherStruct>> = new Map<string, Array<IOtherStruct>>();
+                        const value_20: Map<string, Array<IOtherStruct>> = new Map<string, Array<IOtherStruct>>();
                         const metadata_3: thrift.IThriftMap = input.readMapBegin();
                         const size_3: number = metadata_3.size;
                         for (let i_3: number = 0; i_3 < size_3; i_3++) {
-                            const key_4: string = input.readString();
-                            const value_20: Array<IOtherStruct> = new Array<IOtherStruct>();
+                            const key_5: string = input.readString();
+                            const value_21: Array<IOtherStruct> = new Array<IOtherStruct>();
                             const metadata_4: thrift.IThriftList = input.readListBegin();
                             const size_4: number = metadata_4.size;
                             for (let i_4: number = 0; i_4 < size_4; i_4++) {
-                                const value_21: IOtherStruct = OtherStructCodec.decode(input);
-                                value_20.push(value_21);
+                                const value_22: IOtherStruct = OtherStructCodec.decode(input);
+                                value_21.push(value_22);
                             }
                             input.readListEnd();
-                            value_19.set(key_4, value_20);
+                            value_20.set(key_5, value_21);
                         }
                         input.readMapEnd();
-                        _args.idMapList = value_19;
+                        _args.idMapList = value_20;
                     }
                     else {
                         input.skip(fieldType);
@@ -308,15 +324,15 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
                     break;
                 case 4:
                     if (fieldType === thrift.TType.SET) {
-                        const value_22: Set<IOtherStruct> = new Set<IOtherStruct>();
+                        const value_23: Set<IOtherStruct> = new Set<IOtherStruct>();
                         const metadata_5: thrift.IThriftSet = input.readSetBegin();
                         const size_5: number = metadata_5.size;
                         for (let i_5: number = 0; i_5 < size_5; i_5++) {
-                            const value_23: IOtherStruct = OtherStructCodec.decode(input);
-                            value_22.add(value_23);
+                            const value_24: IOtherStruct = OtherStructCodec.decode(input);
+                            value_23.add(value_24);
                         }
                         input.readSetEnd();
-                        _args.idSet = value_22;
+                        _args.idSet = value_23;
                     }
                     else {
                         input.skip(fieldType);
@@ -324,15 +340,15 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
                     break;
                 case 5:
                     if (fieldType === thrift.TType.LIST) {
-                        const value_24: Array<thrift.Int64> = new Array<thrift.Int64>();
+                        const value_25: Array<thrift.Int64> = new Array<thrift.Int64>();
                         const metadata_6: thrift.IThriftList = input.readListBegin();
                         const size_6: number = metadata_6.size;
                         for (let i_6: number = 0; i_6 < size_6; i_6++) {
-                            const value_25: thrift.Int64 = input.readI64();
-                            value_24.push(value_25);
+                            const value_26: thrift.Int64 = input.readI64();
+                            value_25.push(value_26);
                         }
                         input.readListEnd();
-                        _args.intList = value_24;
+                        _args.intList = value_25;
                     }
                     else {
                         input.skip(fieldType);
@@ -340,22 +356,22 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
                     break;
                 case 6:
                     if (fieldType === thrift.TType.LIST) {
-                        const value_26: Array<Array<IOtherStruct>> = new Array<Array<IOtherStruct>>();
+                        const value_27: Array<Array<IOtherStruct>> = new Array<Array<IOtherStruct>>();
                         const metadata_7: thrift.IThriftList = input.readListBegin();
                         const size_7: number = metadata_7.size;
                         for (let i_7: number = 0; i_7 < size_7; i_7++) {
-                            const value_27: Array<IOtherStruct> = new Array<IOtherStruct>();
+                            const value_28: Array<IOtherStruct> = new Array<IOtherStruct>();
                             const metadata_8: thrift.IThriftList = input.readListBegin();
                             const size_8: number = metadata_8.size;
                             for (let i_8: number = 0; i_8 < size_8; i_8++) {
-                                const value_28: IOtherStruct = OtherStructCodec.decode(input);
-                                value_27.push(value_28);
+                                const value_29: IOtherStruct = OtherStructCodec.decode(input);
+                                value_28.push(value_29);
                             }
                             input.readListEnd();
-                            value_26.push(value_27);
+                            value_27.push(value_28);
                         }
                         input.readListEnd();
-                        _args.listList = value_26;
+                        _args.listList = value_27;
                     }
                     else {
                         input.skip(fieldType);
@@ -363,22 +379,39 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
                     break;
                 case 7:
                     if (fieldType === thrift.TType.LIST) {
-                        const value_29: Array<Array<string>> = new Array<Array<string>>();
+                        const value_30: Array<Array<string>> = new Array<Array<string>>();
                         const metadata_9: thrift.IThriftList = input.readListBegin();
                         const size_9: number = metadata_9.size;
                         for (let i_9: number = 0; i_9 < size_9; i_9++) {
-                            const value_30: Array<string> = new Array<string>();
+                            const value_31: Array<string> = new Array<string>();
                             const metadata_10: thrift.IThriftList = input.readListBegin();
                             const size_10: number = metadata_10.size;
                             for (let i_10: number = 0; i_10 < size_10; i_10++) {
-                                const value_31: string = input.readString();
-                                value_30.push(value_31);
+                                const value_32: string = input.readString();
+                                value_31.push(value_32);
                             }
                             input.readListEnd();
-                            value_29.push(value_30);
+                            value_30.push(value_31);
                         }
                         input.readListEnd();
-                        _args.listListString = value_29;
+                        _args.listListString = value_30;
+                    }
+                    else {
+                        input.skip(fieldType);
+                    }
+                    break;
+                case 8:
+                    if (fieldType === thrift.TType.MAP) {
+                        const value_33: Map<thrift.Int64, thrift.Int64> = new Map<thrift.Int64, thrift.Int64>();
+                        const metadata_11: thrift.IThriftMap = input.readMapBegin();
+                        const size_11: number = metadata_11.size;
+                        for (let i_11: number = 0; i_11 < size_11; i_11++) {
+                            const key_6: thrift.Int64 = input.readI64();
+                            const value_34: thrift.Int64 = input.readI64();
+                            value_33.set(key_6, value_34);
+                        }
+                        input.readMapEnd();
+                        _args.i64KeyedMap = value_33;
                     }
                     else {
                         input.skip(fieldType);
@@ -391,7 +424,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
             input.readFieldEnd();
         }
         input.readStructEnd();
-        if (_args.idList !== undefined && _args.idMap !== undefined && _args.idMapList !== undefined && _args.idSet !== undefined && _args.intList !== undefined && _args.listList !== undefined && _args.listListString !== undefined) {
+        if (_args.idList !== undefined && _args.idMap !== undefined && _args.idMapList !== undefined && _args.idSet !== undefined && _args.intList !== undefined && _args.listList !== undefined && _args.listListString !== undefined && _args.i64KeyedMap !== undefined) {
             return {
                 idList: _args.idList,
                 idMap: _args.idMap,
@@ -399,7 +432,8 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
                 idSet: _args.idSet,
                 intList: _args.intList,
                 listList: _args.listList,
-                listListString: _args.listListString
+                listListString: _args.listListString,
+                i64KeyedMap: _args.i64KeyedMap
             };
         }
         else {
@@ -415,98 +449,113 @@ export class MyStruct extends thrift.StructLike implements IMyStruct {
     public intList: Array<thrift.Int64>;
     public listList: Array<Array<IOtherStruct>>;
     public listListString: Array<Array<string>>;
+    public i64KeyedMap: Map<thrift.Int64, thrift.Int64>;
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyStructArgs) {
         super();
         if (args.idList != null) {
-            const value_32: Array<IOtherStruct> = new Array<IOtherStruct>();
-            args.idList.forEach((value_39: IOtherStructArgs): void => {
-                const value_40: IOtherStruct = new OtherStruct(value_39);
-                value_32.push(value_40);
+            const value_35: Array<IOtherStruct> = new Array<IOtherStruct>();
+            args.idList.forEach((value_43: IOtherStructArgs): void => {
+                const value_44: IOtherStruct = new OtherStruct(value_43);
+                value_35.push(value_44);
             });
-            this.idList = value_32;
+            this.idList = value_35;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[idList] is unset!");
         }
         if (args.idMap != null) {
-            const value_33: Map<string, IOtherStruct> = new Map<string, IOtherStruct>();
-            args.idMap.forEach((value_41: IOtherStructArgs, key_5: string): void => {
-                const value_42: IOtherStruct = new OtherStruct(value_41);
-                value_33.set(key_5, value_42);
+            const value_36: Map<string, IOtherStruct> = new Map<string, IOtherStruct>();
+            args.idMap.forEach((value_45: IOtherStructArgs, key_7: string): void => {
+                const value_46: IOtherStruct = new OtherStruct(value_45);
+                const key_8: string = key_7;
+                value_36.set(key_8, value_46);
             });
-            this.idMap = value_33;
+            this.idMap = value_36;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[idMap] is unset!");
         }
         if (args.idMapList != null) {
-            const value_34: Map<string, Array<IOtherStruct>> = new Map<string, Array<IOtherStruct>>();
-            args.idMapList.forEach((value_43: Array<IOtherStructArgs>, key_6: string): void => {
-                const value_44: Array<IOtherStruct> = new Array<IOtherStruct>();
-                value_43.forEach((value_45: IOtherStructArgs): void => {
-                    const value_46: IOtherStruct = new OtherStruct(value_45);
-                    value_44.push(value_46);
+            const value_37: Map<string, Array<IOtherStruct>> = new Map<string, Array<IOtherStruct>>();
+            args.idMapList.forEach((value_47: Array<IOtherStructArgs>, key_9: string): void => {
+                const value_48: Array<IOtherStruct> = new Array<IOtherStruct>();
+                value_47.forEach((value_49: IOtherStructArgs): void => {
+                    const value_50: IOtherStruct = new OtherStruct(value_49);
+                    value_48.push(value_50);
                 });
-                value_34.set(key_6, value_44);
+                const key_10: string = key_9;
+                value_37.set(key_10, value_48);
             });
-            this.idMapList = value_34;
+            this.idMapList = value_37;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[idMapList] is unset!");
         }
         if (args.idSet != null) {
-            const value_35: Set<IOtherStruct> = new Set<IOtherStruct>();
-            args.idSet.forEach((value_47: IOtherStructArgs): void => {
-                const value_48: IOtherStruct = new OtherStruct(value_47);
-                value_35.add(value_48);
+            const value_38: Set<IOtherStruct> = new Set<IOtherStruct>();
+            args.idSet.forEach((value_51: IOtherStructArgs): void => {
+                const value_52: IOtherStruct = new OtherStruct(value_51);
+                value_38.add(value_52);
             });
-            this.idSet = value_35;
+            this.idSet = value_38;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[idSet] is unset!");
         }
         if (args.intList != null) {
-            const value_36: Array<thrift.Int64> = new Array<thrift.Int64>();
-            args.intList.forEach((value_49: number | thrift.Int64): void => {
-                const value_50: thrift.Int64 = (typeof value_49 === "number" ? new thrift.Int64(value_49) : value_49);
-                value_36.push(value_50);
+            const value_39: Array<thrift.Int64> = new Array<thrift.Int64>();
+            args.intList.forEach((value_53: number | thrift.Int64): void => {
+                const value_54: thrift.Int64 = (typeof value_53 === "number" ? new thrift.Int64(value_53) : value_53);
+                value_39.push(value_54);
             });
-            this.intList = value_36;
+            this.intList = value_39;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[intList] is unset!");
         }
         if (args.listList != null) {
-            const value_37: Array<Array<IOtherStruct>> = new Array<Array<IOtherStruct>>();
-            args.listList.forEach((value_51: Array<IOtherStructArgs>): void => {
-                const value_52: Array<IOtherStruct> = new Array<IOtherStruct>();
-                value_51.forEach((value_53: IOtherStructArgs): void => {
-                    const value_54: IOtherStruct = new OtherStruct(value_53);
-                    value_52.push(value_54);
+            const value_40: Array<Array<IOtherStruct>> = new Array<Array<IOtherStruct>>();
+            args.listList.forEach((value_55: Array<IOtherStructArgs>): void => {
+                const value_56: Array<IOtherStruct> = new Array<IOtherStruct>();
+                value_55.forEach((value_57: IOtherStructArgs): void => {
+                    const value_58: IOtherStruct = new OtherStruct(value_57);
+                    value_56.push(value_58);
                 });
-                value_37.push(value_52);
+                value_40.push(value_56);
             });
-            this.listList = value_37;
+            this.listList = value_40;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[listList] is unset!");
         }
         if (args.listListString != null) {
-            const value_38: Array<Array<string>> = new Array<Array<string>>();
-            args.listListString.forEach((value_55: Array<string>): void => {
-                const value_56: Array<string> = new Array<string>();
-                value_55.forEach((value_57: string): void => {
-                    const value_58: string = value_57;
-                    value_56.push(value_58);
+            const value_41: Array<Array<string>> = new Array<Array<string>>();
+            args.listListString.forEach((value_59: Array<string>): void => {
+                const value_60: Array<string> = new Array<string>();
+                value_59.forEach((value_61: string): void => {
+                    const value_62: string = value_61;
+                    value_60.push(value_62);
                 });
-                value_38.push(value_56);
+                value_41.push(value_60);
             });
-            this.listListString = value_38;
+            this.listListString = value_41;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[listListString] is unset!");
+        }
+        if (args.i64KeyedMap != null) {
+            const value_42: Map<thrift.Int64, thrift.Int64> = new Map<thrift.Int64, thrift.Int64>();
+            args.i64KeyedMap.forEach((value_63: number | thrift.Int64, key_11: number | thrift.Int64): void => {
+                const value_64: thrift.Int64 = (typeof value_63 === "number" ? new thrift.Int64(value_63) : value_63);
+                const key_12: thrift.Int64 = (typeof key_11 === "number" ? new thrift.Int64(key_11) : key_11);
+                value_42.set(key_12, value_64);
+            });
+            this.i64KeyedMap = value_42;
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[i64KeyedMap] is unset!");
         }
     }
     public static read(input: thrift.TProtocol): MyStruct {
