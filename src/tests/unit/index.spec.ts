@@ -94,9 +94,9 @@ describe('Thrift TypeScript Generator', () => {
         it('should correctly generate a struct with annotations', () => {
             const content: string = `
                 struct MyStruct {
-                    1: required i32 id = 45 ( foo = "bar", two = "three", lonely )
+                    1: required i32 id = 45 ( foo = "bar", two = "three", lonely, dot.foo = "bar", dot.lonely )
                     2: required i64 bigID = 23948234
-                } ( foo = "bar", two = "three", alone )
+                } ( foo = "bar", two = "three", alone, dot.foo = "bar", dot.lonely )
             `
             const expected: string = readSolution('annotations_struct', 'thrift-server')
             const actual: string = make(content)
@@ -161,9 +161,9 @@ describe('Thrift TypeScript Generator', () => {
         it('should correctly generate a union with annotations', () => {
             const content: string = `
                 union MyUnion {
-                    1: i32 field1 ( foo = "bar", two = "three", lonely )
+                    1: i32 field1 ( foo = "bar", two = "three", lonely, dot.foo = "bar", dot.lonely )
                     2: i64 field2
-                } ( foo = "bar", two = "three", alone )
+                } ( foo = "bar", two = "three", alone, dot.foo = "bar", dot.lonely )
             `
             const expected: string = readSolution('annotations_union', 'thrift-server')
             const actual: string = make(content)
@@ -215,9 +215,9 @@ describe('Thrift TypeScript Generator', () => {
         it('should correctly generate an exception with annotations', () => {
             const content: string = `
                 exception MyException {
-                    1: string message ( foo = "bar", two = "three", lonely )
+                    1: string message ( foo = "bar", two = "three", lonely, dot.foo = "bar", dot.lonely )
                     2: i32 code = 200
-                } ( foo = "bar", two = "three", alone )
+                } ( foo = "bar", two = "three", alone, dot.foo = "bar", dot.lonely )
             `
             const expected: string = readSolution('annotations_exception', 'thrift-server')
             const actual: string = make(content)
@@ -283,10 +283,10 @@ describe('Thrift TypeScript Generator', () => {
                 }
 
                 service MyService {
-                    User getUser(1: i32 id) ( foo = "bar", two = "three", lonely )
+                    User getUser(1: i32 id) ( foo = "bar", two = "three", lonely, dot.foo = "bar", dot.lonely )
                     void saveUser(1: User user)
                     void ping()
-                } ( foo = "bar", two = "three", alone )
+                } ( foo = "bar", two = "three", alone, dot.foo = "bar", dot.lonely )
             `
             const expected: string = readSolution('annotations_service', 'thrift-server')
             const actual: string = make(content)

@@ -11,13 +11,17 @@ import {
     THRIFT_IDENTIFIERS,
 } from './identifiers'
 
+const validIdentifierPattern = /^[a-z$_][0-9a-z$_]*$/i
+
 function renderAnnotationValue(annotations?: Annotations): ts.ObjectLiteralExpression {
     return ts.createObjectLiteral(
         (
             annotations !== undefined
                 ? annotations.annotations.map((annotation: Annotation) => {
+                    const name = annotation.name.value
+                    const identifier = validIdentifierPattern.test(name) ? name : `'${annotation.name.value}'`
                     return ts.createPropertyAssignment(
-                        ts.createIdentifier(annotation.name.value),
+                        identifier,
                         annotation.value !== undefined
                             ? ts.createLiteral(annotation.value.value)
                             : ts.createLiteral(''),
