@@ -19,7 +19,7 @@ function renderAnnotationValue(annotations?: Annotations): ts.ObjectLiteralExpre
             annotations !== undefined
                 ? annotations.annotations.map((annotation: Annotation) => {
                     const name = annotation.name.value
-                    const identifier = validIdentifierPattern.test(name) ? name : `'${annotation.name.value}'`
+                    const identifier = validIdentifierPattern.test(name) ? name : `'${name}'`
                     return ts.createPropertyAssignment(
                         identifier,
                         annotation.value !== undefined
