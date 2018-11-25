@@ -117,14 +117,18 @@ export namespace MyService {
     export const annotations: thrift.IThriftAnnotations = {
         foo: "bar",
         two: "three",
-        alone: ""
+        alone: "",
+        'dot.foo': "bar",
+        'dot.lonely': ""
     };
     export const methodAnnotations: thrift.IMethodAnnotations = {
         getUser: {
             annotations: {
                 foo: "bar",
                 two: "three",
-                lonely: ""
+                lonely: "",
+                'dot.foo': "bar",
+                'dot.lonely': ""
             },
             fieldAnnotations: {}
         },
