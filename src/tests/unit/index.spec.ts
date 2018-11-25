@@ -137,6 +137,7 @@ describe('Thrift TypeScript Generator', () => {
                     5: required list<i64> intList
                     6: required list<list<OtherStruct>> listList
                     7: required list<list<string>> listListString
+                    8: required map<i64, i64> i64KeyedMap
                 }
             `
             const expected: string = readSolution('complex_nested_struct', 'thrift-server')
