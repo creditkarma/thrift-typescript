@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+<a name="3.0.2"></a>
+# [3.0.2](https://github.com/creditkarma/thrift-typescript/compare/v3.0.1...v3.0.2) (2018-11-26)
+
+### Bug Fixes
+
+* Fix an issue where annotations that weren't valid JavaScript identifiers produced invalid TypeScript ([c504b4](https://github.com/creditkarma/thrift-typescript/commit/c504b4))
+* Fix an issue where i64 types could not be used as keys in maps ([5e1581](https://github.com/creditkarma/thrift-typescript/commit/5e1581))
+
 <a name="3.0.0"></a>
 # [3.0.0](https://github.com/creditkarma/thrift-typescript/compare/v2.0.8...v3.0.0) (2018-10-11)
 
