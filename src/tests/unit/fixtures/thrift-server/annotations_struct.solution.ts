@@ -80,13 +80,17 @@ export class MyStruct extends thrift.StructLike implements IMyStruct {
     public readonly _annotations: thrift.IThriftAnnotations = {
         foo: "bar",
         two: "three",
-        alone: ""
+        alone: "",
+        'dot.foo': "bar",
+        'dot.lonely': ""
     };
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {
         id: {
             foo: "bar",
             two: "three",
-            lonely: ""
+            lonely: "",
+            'dot.foo': "bar",
+            'dot.lonely': ""
         }
     };
     constructor(args: IMyStructArgs) {

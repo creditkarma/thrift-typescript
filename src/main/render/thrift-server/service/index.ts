@@ -16,6 +16,7 @@ import {
     createStructArgsName,
     createStructResultName,
     renderMethodNames,
+    renderServiceName,
 } from './utils'
 
 import { renderStruct } from '../struct'
@@ -51,9 +52,8 @@ export function renderService(
         [ts.createToken(ts.SyntaxKind.ExportKeyword)],
         ts.createIdentifier(service.name.value),
         ts.createModuleBlock([
-            renderServiceAnnotations(
-                collectAllAnnotations(service, identifiers),
-            ),
+            renderServiceName(service),
+            renderServiceAnnotations(collectAllAnnotations(service, identifiers)),
             renderMethodAnnotations(collectAllMethods(service, identifiers)),
             renderMethodNames(service, identifiers),
             ...renderArgsStruct(service, identifiers),

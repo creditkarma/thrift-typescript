@@ -9,7 +9,16 @@ import {
     SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-import { DefinitionType, IIdentifierMap } from '../../../types'
+import {
+    DefinitionType,
+    IIdentifierMap,
+} from '../../../types'
+
+import {
+    COMMON_IDENTIFIERS,
+} from '../identifiers'
+
+import { createStringType } from '../../shared/types'
 
 export function capitalize(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1)
@@ -37,10 +46,37 @@ export function createStructResultName(
 //     }
 // }
 
-export function collectAllMethods(
-    service: ServiceDefinition,
-    identifiers: IIdentifierMap,
-): Array<FunctionDefinition> {
+export function renderServiceName(service: ServiceDefinition): ts.VariableStatement {
+    return ts.createVariableStatement(
+        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+        ts.createVariableDeclarationList(
+            [
+                ts.createVariableDeclaration(
+                    COMMON_IDENTIFIERS.serviceName,
+                    createStringType(),
+                    ts.createLiteral(service.name.value),
+                ),
+            ],
+            ts.NodeFlags.Const,
+        ),
+    )
+}
+
+export function renderServiceNameProperty(): ts.PropertyDeclaration {
+    return ts.createProperty(
+        undefined,
+        [
+            ts.createToken(ts.SyntaxKind.PublicKeyword),
+            ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
+        ],
+        COMMON_IDENTIFIERS._servicename,
+        undefined,
+        createStringType(),
+        COMMON_IDENTIFIERS.serviceName,
+    )
+}
+
+export function collectAllMethods(service: ServiceDefinition, identifiers: IIdentifierMap): Array<FunctionDefinition> {
     if (service.extends === null) {
         return service.functions
     } else {

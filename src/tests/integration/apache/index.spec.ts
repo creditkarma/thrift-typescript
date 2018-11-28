@@ -19,7 +19,10 @@ import {
     Work,
 } from './codegen/calculator'
 
-import { SharedStruct } from './codegen/shared'
+import {
+    SharedStruct,
+    SharedUnion,
+} from './codegen/shared'
 
 import { createCalculatorServer } from './calculator-service'
 import { createAddServer } from './add-service'
@@ -132,9 +135,15 @@ describe('Thrift TypeScript', () => {
         })
     })
 
-    it('should correctly call endpoint that returns struct', async () => {
+    it('should correctly call endpoint that returns a struct', async () => {
         return thriftClient.getStruct(5).then((val: SharedStruct) => {
             assert.deepEqual(val, new SharedStruct({ key: 5, value: 'test' }))
+        })
+    })
+
+    it('should correctly call endpoint that returns a union', async () => {
+        return thriftClient.getUnion(1).then((val: SharedUnion) => {
+            assert.deepEqual(val, new SharedUnion({ option1: 'foo' }))
         })
     })
 

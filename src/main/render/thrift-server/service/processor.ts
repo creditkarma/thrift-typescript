@@ -17,6 +17,7 @@ import {
     createStructArgsName,
     createStructResultName,
     renderMethodNamesProperty,
+    renderServiceNameProperty,
 } from './utils'
 
 import { IIdentifierMap } from '../../../types'
@@ -136,6 +137,8 @@ export function renderProcessor(
         undefined,
     )
 
+    const serviceName: ts.PropertyDeclaration = renderServiceNameProperty()
+
     const annotations: ts.PropertyDeclaration = renderServiceAnnotationsProperty()
 
     const methodAnnotations: ts.PropertyDeclaration = renderMethodAnnotationsProperty()
@@ -172,6 +175,7 @@ export function renderProcessor(
         heritage, // heritage
         [
             handler,
+            serviceName,
             annotations,
             methodAnnotations,
             methodNames,

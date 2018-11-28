@@ -95,13 +95,17 @@ export class MyUnion extends thrift.StructLike implements IMyUnion {
     public readonly _annotations: thrift.IThriftAnnotations = {
         foo: "bar",
         two: "three",
-        alone: ""
+        alone: "",
+        'dot.foo': "bar",
+        'dot.lonely': ""
     };
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {
         field1: {
             foo: "bar",
             two: "three",
-            lonely: ""
+            lonely: "",
+            'dot.foo': "bar",
+            'dot.lonely': ""
         }
     };
     constructor(args: IMyUnionArgs = {}) {
