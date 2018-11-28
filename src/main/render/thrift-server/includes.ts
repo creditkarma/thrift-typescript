@@ -8,7 +8,9 @@ import {
     IResolvedIdentifier,
 } from '../../types'
 
-const THRIFT_LIBRARY: ts.LiteralExpression = ts.createLiteral('@creditkarma/thrift-server-core')
+const THRIFT_LIBRARY: ts.LiteralExpression = ts.createLiteral(
+    '@creditkarma/thrift-server-core',
+)
 
 /**
  * import * as thrift from 'thrift';

@@ -64,7 +64,10 @@ function extendsService(service: Identifier): ts.HeritageClause {
     ])
 }
 
-export function renderClient(service: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
+export function renderClient(
+    service: ServiceDefinition,
+    identifiers: IIdentifierMap,
+): ts.ClassDeclaration {
     const serviceName: ts.PropertyDeclaration = renderServiceNameProperty()
 
     const annotations: ts.PropertyDeclaration = renderServiceAnnotationsProperty()

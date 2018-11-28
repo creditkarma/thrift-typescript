@@ -531,38 +531,69 @@ export function loopOverContainer(
             const keyName: ts.Identifier = ts.createUniqueName('key')
             const keyConst: ts.Identifier = ts.createUniqueName('key')
             return [
-                ts.createStatement(ts.createCall(
-                    ts.createPropertyAccess(
-                        readName,
-                        ts.createIdentifier('forEach'),
-                    ),
-                    undefined,
-                    [
-                        ts.createArrowFunction(
-                            undefined,
-                            undefined,
-                            [
-                                createFunctionParameter(
-                                    valueParam, // param name
-                                    typeNodeForFieldType(fieldType.valueType, identifiers, true), // param type
-                                    undefined,
-                                ),
-                                createFunctionParameter(
-                                    keyName, // param name
-                                    typeNodeForFieldType(fieldType.keyType, identifiers, true), // param type
-                                    undefined,
-                                ),
-                            ],
-                            createVoidType(),
-                            ts.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
-                            ts.createBlock([
-                                ...assignmentForFieldType(field, fieldType.valueType, valueConst, valueParam, identifiers),
-                                ...assignmentForFieldType(field, fieldType.keyType, keyConst, keyName, identifiers),
-                                createMethodCallStatement(saveName, 'set', [ keyConst, valueConst ]),
-                            ], true),
+                ts.createStatement(
+                    ts.createCall(
+                        ts.createPropertyAccess(
+                            readName,
+                            ts.createIdentifier('forEach'),
                         ),
-                    ],
-                )),
+                        undefined,
+                        [
+                            ts.createArrowFunction(
+                                undefined,
+                                undefined,
+                                [
+                                    createFunctionParameter(
+                                        valueParam, // param name
+                                        typeNodeForFieldType(
+                                            fieldType.valueType,
+                                            identifiers,
+                                            true,
+                                        ), // param type
+                                        undefined,
+                                    ),
+                                    createFunctionParameter(
+                                        keyName, // param name
+                                        typeNodeForFieldType(
+                                            fieldType.keyType,
+                                            identifiers,
+                                            true,
+                                        ), // param type
+                                        undefined,
+                                    ),
+                                ],
+                                createVoidType(),
+                                ts.createToken(
+                                    ts.SyntaxKind.EqualsGreaterThanToken,
+                                ),
+                                ts.createBlock(
+                                    [
+                                        ...assignmentForFieldType(
+                                            field,
+                                            fieldType.valueType,
+                                            valueConst,
+                                            valueParam,
+                                            identifiers,
+                                        ),
+                                        ...assignmentForFieldType(
+                                            field,
+                                            fieldType.keyType,
+                                            keyConst,
+                                            keyName,
+                                            identifiers,
+                                        ),
+                                        createMethodCallStatement(
+                                            saveName,
+                                            'set',
+                                            [keyConst, valueConst],
+                                        ),
+                                    ],
+                                    true,
+                                ),
+                            ),
+                        ],
+                    ),
+                ),
             ]
         }
 

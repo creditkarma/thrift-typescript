@@ -11,23 +11,23 @@ import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from './identifiers'
 const validIdentifierPattern = /^[a-z$_][0-9a-z$_]*$/i
 
 function renderAnnotationValue(
-    annotations?: Annotations
+    annotations?: Annotations,
 ): ts.ObjectLiteralExpression {
     return ts.createObjectLiteral(
-        (
-            annotations !== undefined
-                ? annotations.annotations.map((annotation: Annotation) => {
-                    const name = annotation.name.value
-                    const identifier = validIdentifierPattern.test(name) ? name : `'${name}'`
-                    return ts.createPropertyAssignment(
-                        identifier,
-                        annotation.value !== undefined
-                            ? ts.createLiteral(annotation.value.value)
-                            : ts.createLiteral(''),
-                    )
-                })
-                : []
-        ),
+        annotations !== undefined
+            ? annotations.annotations.map((annotation: Annotation) => {
+                  const name = annotation.name.value
+                  const identifier = validIdentifierPattern.test(name)
+                      ? name
+                      : `'${name}'`
+                  return ts.createPropertyAssignment(
+                      identifier,
+                      annotation.value !== undefined
+                          ? ts.createLiteral(annotation.value.value)
+                          : ts.createLiteral(''),
+                  )
+              })
+            : [],
         true,
     )
 }

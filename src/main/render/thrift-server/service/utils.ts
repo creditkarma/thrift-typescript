@@ -9,14 +9,9 @@ import {
     SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-import {
-    DefinitionType,
-    IIdentifierMap,
-} from '../../../types'
+import { DefinitionType, IIdentifierMap } from '../../../types'
 
-import {
-    COMMON_IDENTIFIERS,
-} from '../identifiers'
+import { COMMON_IDENTIFIERS } from '../identifiers'
 
 import { createStringType } from '../../shared/types'
 
@@ -46,9 +41,11 @@ export function createStructResultName(
 //     }
 // }
 
-export function renderServiceName(service: ServiceDefinition): ts.VariableStatement {
+export function renderServiceName(
+    service: ServiceDefinition,
+): ts.VariableStatement {
     return ts.createVariableStatement(
-        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+        [ts.createToken(ts.SyntaxKind.ExportKeyword)],
         ts.createVariableDeclarationList(
             [
                 ts.createVariableDeclaration(
@@ -76,7 +73,10 @@ export function renderServiceNameProperty(): ts.PropertyDeclaration {
     )
 }
 
-export function collectAllMethods(service: ServiceDefinition, identifiers: IIdentifierMap): Array<FunctionDefinition> {
+export function collectAllMethods(
+    service: ServiceDefinition,
+    identifiers: IIdentifierMap,
+): Array<FunctionDefinition> {
     if (service.extends === null) {
         return service.functions
     } else {

@@ -53,7 +53,9 @@ export function renderService(
         ts.createIdentifier(service.name.value),
         ts.createModuleBlock([
             renderServiceName(service),
-            renderServiceAnnotations(collectAllAnnotations(service, identifiers)),
+            renderServiceAnnotations(
+                collectAllAnnotations(service, identifiers),
+            ),
             renderMethodAnnotations(collectAllMethods(service, identifiers)),
             renderMethodNames(service, identifiers),
             ...renderArgsStruct(service, identifiers),
