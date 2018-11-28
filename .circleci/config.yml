@@ -1,11 +1,11 @@
 defaults: &defaults
   working_directory: ~/thrift-typescript
   docker:
-    - image: circleci/node:6.12.3
+    - image: circleci/node:8.9.3
 
 version: 2
 jobs:
-  test_node_6:
+  test_node_8:
     <<: *defaults
     steps:
       - checkout
@@ -20,10 +20,10 @@ jobs:
           paths:
             - ./node_modules
 
-  test_node_8:
+  test_node_10:
     <<: *defaults
     docker:
-      - image: circleci/node:8.9.3
+      - image: circleci/node:10.14.0
     steps:
       - checkout
       - run:
@@ -75,20 +75,20 @@ workflows:
   version: 2
   build_publish:
       jobs:
-        - test_node_6:
+        - test_node_8:
             filters:
               tags:
                 only: /.*/
 
-        - test_node_8:
+        - test_node_10:
             filters:
               tags:
                 only: /.*/
 
         - publish:
             requires:
-              - test_node_6
               - test_node_8
+              - test_node_10
             filters:
               tags:
                 only: /^(v){1}[0-9]+(\.[0-9]+){2}$/
@@ -97,8 +97,8 @@ workflows:
 
         - prerelease:
             requires:
-              - test_node_6
               - test_node_8
+              - test_node_10
             filters:
               tags:
                 only: /^(v){1}[0-9]+(\.[0-9]+){2}(-)[0-9]+$/
