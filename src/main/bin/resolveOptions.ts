@@ -3,6 +3,27 @@ import { lstatSync } from 'fs'
 import { DEFAULT_OPTIONS } from '../options'
 import { IMakeOptions } from '../types'
 
+function deepCopy<T extends object>(obj: T): T {
+    const newObj: any = Array.isArray(obj) ? [] : {}
+
+    for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            const value: any = obj[key]
+            if (typeof value === 'object') {
+                if (value === null) {
+                    newObj[key] = null
+                } else {
+                    newObj[key] = deepCopy(value)
+                }
+            } else {
+                newObj[key] = value
+            }
+        }
+    }
+
+    return newObj
+}
+
 /**
  * --rootDir
  * --outDir
@@ -11,7 +32,7 @@ import { IMakeOptions } from '../types'
 export function resolveOptions(args: Array<string>): IMakeOptions {
     const len: number = args.length
     let index: number = 0
-    const options: IMakeOptions = Object.assign({}, DEFAULT_OPTIONS)
+    const options: IMakeOptions = deepCopy(DEFAULT_OPTIONS)
 
     while (index < len) {
         const next: string = args[index]
