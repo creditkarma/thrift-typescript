@@ -276,117 +276,117 @@ describe('Thrift TypeScript Generator', () => {
             assert.deepEqual(actual, expected)
         })
 
-        // it('should correctly generate a service with annotations', () => {
-        //     const content: string = `
-        //         struct User {
-        //             1: required string name
-        //             2: required i32 id
-        //         }
+        it('should correctly generate a service with annotations', () => {
+            const content: string = `
+                struct User {
+                    1: required string name
+                    2: required i32 id
+                }
 
-        //         service MyService {
-        //             User getUser(1: i32 id) ( foo = "bar", two = "three", lonely, dot.foo = "bar", dot.lonely )
-        //             void saveUser(1: User user)
-        //             void ping()
-        //         } ( foo = "bar", two = "three", alone, dot.foo = "bar", dot.lonely )
-        //     `
-        //     const expected: string = readSolution('annotations_service', 'thrift-server')
-        //     const actual: string = make(content)
+                service MyService {
+                    User getUser(1: i32 id) ( foo = "bar", two = "three", lonely, dot.foo = "bar", dot.lonely )
+                    void saveUser(1: User user)
+                    void ping()
+                } ( foo = "bar", two = "three", alone, dot.foo = "bar", dot.lonely )
+            `
+            const expected: string = readSolution('annotations_service', 'thrift-server')
+            const actual: string = make(content)
 
-        //     assert.deepEqual(actual, expected)
-        // })
+            assert.deepEqual(actual, expected)
+        })
 
-        // it('should correctly generate a service that extends another service', () => {
-        //     const content: string = `
-        //         service ParentService {
-        //             string ping(1: i32 status)
-        //         }
+        it('should correctly generate a service that extends another service', () => {
+            const content: string = `
+                service ParentService {
+                    string ping(1: i32 status)
+                }
 
-        //         service ChildService extends ParentService {
-        //             string peg(1: string name)
-        //             string pong(1: optional string name)
-        //         }
-        //     `
-        //     const expected: string = readSolution('extend_service', 'thrift-server')
-        //     const actual: string = make(content)
+                service ChildService extends ParentService {
+                    string peg(1: string name)
+                    string pong(1: optional string name)
+                }
+            `
+            const expected: string = readSolution('extend_service', 'thrift-server')
+            const actual: string = make(content)
 
-        //     assert.deepEqual(actual, expected)
-        // })
+            assert.deepEqual(actual, expected)
+        })
 
-        // it('should correctly generate a service that extends another service with annotations', () => {
-        //     const content: string = `
-        //         service ParentService {
-        //             string ping(1: i32 status) ( foo = "bar", two = "three", lonely )
-        //         } ( foo = "boo", two = "three", alone )
+        it('should correctly generate a service that extends another service with annotations', () => {
+            const content: string = `
+                service ParentService {
+                    string ping(1: i32 status) ( foo = "bar", two = "three", lonely )
+                } ( foo = "boo", two = "three", alone )
 
-        //         service ChildService extends ParentService {
-        //             string peg(1: string name)
-        //             string pong(1: optional string name)
-        //         } ( foo = "bar", four = "five", secured )
-        //     `
-        //     const expected: string = readSolution('annotations_extend_service', 'thrift-server')
-        //     const actual: string = make(content)
+                service ChildService extends ParentService {
+                    string peg(1: string name)
+                    string pong(1: optional string name)
+                } ( foo = "bar", four = "five", secured )
+            `
+            const expected: string = readSolution('annotations_extend_service', 'thrift-server')
+            const actual: string = make(content)
 
-        //     assert.deepEqual(actual, expected)
-        // })
+            assert.deepEqual(actual, expected)
+        })
 
-        // it('should correctly generate a service that handles i64', () => {
-        //     const content: string = `
-        //         struct Code {
-        //             1: i64 status
-        //         }
+        it('should correctly generate a service that handles i64', () => {
+            const content: string = `
+                struct Code {
+                    1: i64 status
+                }
 
-        //         service MyService {
-        //             string peg(1: string name)
-        //             i64 pong(1: optional Code code)
-        //         }
-        //     `
-        //     const expected: string = readSolution('i64_service', 'thrift-server')
-        //     const actual: string = make(content)
+                service MyService {
+                    string peg(1: string name)
+                    i64 pong(1: optional Code code)
+                }
+            `
+            const expected: string = readSolution('i64_service', 'thrift-server')
+            const actual: string = make(content)
 
-        //     assert.deepEqual(actual, expected)
-        // })
+            assert.deepEqual(actual, expected)
+        })
 
-        // it('should correctly generate a service that throws', () => {
-        //     const content: string = `
-        //         exception ServiceException {
-        //             1: string message
-        //         }
+        it('should correctly generate a service that throws', () => {
+            const content: string = `
+                exception ServiceException {
+                    1: string message
+                }
 
-        //         service MyService {
-        //             string peg(1: string name) throws (1: ServiceException exp)
-        //             string pong(1: optional string name)
-        //         }
-        //     `
-        //     const expected: string = readSolution('throws_service', 'thrift-server')
-        //     const actual: string = make(content)
+                service MyService {
+                    string peg(1: string name) throws (1: ServiceException exp)
+                    string pong(1: optional string name)
+                }
+            `
+            const expected: string = readSolution('throws_service', 'thrift-server')
+            const actual: string = make(content)
 
-        //     assert.deepEqual(actual, expected)
-        // })
+            assert.deepEqual(actual, expected)
+        })
 
-        // it('should correctly generate a service that throws multiple possible exceptions', () => {
-        //     const content: string = `
-        //         exception ServiceException {
-        //             1: string message
-        //         }
+        it('should correctly generate a service that throws multiple possible exceptions', () => {
+            const content: string = `
+                exception ServiceException {
+                    1: string message
+                }
 
-        //         exception AuthException {
-        //             1: string message
-        //             2: i32 code
-        //         }
+                exception AuthException {
+                    1: string message
+                    2: i32 code
+                }
 
-        //         exception UnknownException {
-        //             1: string message
-        //         }
+                exception UnknownException {
+                    1: string message
+                }
 
-        //         service MyService {
-        //             string peg(1: string name) throws (1: ServiceException exp, 2: AuthException authExp, 3: UnknownException unknownExp)
-        //         }
-        //     `
-        //     const expected: string = readSolution('throws_multi_service', 'thrift-server')
-        //     const actual: string = make(content)
+                service MyService {
+                    string peg(1: string name) throws (1: ServiceException exp, 2: AuthException authExp, 3: UnknownException unknownExp)
+                }
+            `
+            const expected: string = readSolution('throws_multi_service', 'thrift-server')
+            const actual: string = make(content)
 
-        //     assert.deepEqual(actual, expected)
-        // })
+            assert.deepEqual(actual, expected)
+        })
     })
 
     describe('Apache', () => {
