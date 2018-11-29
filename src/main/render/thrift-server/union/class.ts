@@ -27,6 +27,7 @@ import {
     extendsAbstract,
     implementsInterface,
     throwForField,
+    tokens,
 } from '../struct/utils'
 
 import {
@@ -49,7 +50,7 @@ import {
     renderFieldAnnotations,
 } from '../annotations'
 
-export function renderClass(node: UnionDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
+export function renderClass(node: UnionDefinition, identifiers: IIdentifierMap, isExported: boolean): ts.ClassDeclaration {
     const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(node, identifiers)
 
     const annotations: ts.PropertyDeclaration = renderAnnotations(node.annotations)
@@ -89,7 +90,7 @@ export function renderClass(node: UnionDefinition, identifiers: IIdentifierMap):
     // export class <node.name> { ... }
     return ts.createClassDeclaration(
         undefined,
-        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+        tokens(isExported),
         classNameForStruct(node),
         [],
         [

@@ -20,10 +20,10 @@ import {
     renderClass,
 } from './class'
 
-export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function renderUnion(node: UnionDefinition, identifiers: IIdentifierMap, isExported: boolean = true): Array<ts.Statement> {
     return [
-        ...renderInterface(node, identifiers),
-        renderCodec(node, identifiers),
-        renderClass(node, identifiers),
+        ...renderInterface(node, identifiers, isExported),
+        renderCodec(node, identifiers, isExported),
+        renderClass(node, identifiers, isExported),
     ]
 }

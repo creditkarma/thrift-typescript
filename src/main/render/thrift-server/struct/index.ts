@@ -22,8 +22,8 @@ import {
 
 export function renderStruct(node: InterfaceWithFields, identifiers: IIdentifierMap): Array<ts.Statement> {
     return [
-        ...renderInterface(node, identifiers),
-        renderCodec(node, identifiers),
-        renderClass(node, identifiers),
+        ...renderInterface(node, identifiers, true),
+        renderCodec(node, identifiers, true),
+        renderClass(node, identifiers, true),
     ]
 }

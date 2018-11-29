@@ -52,9 +52,10 @@ import {
     implementsInterface,
     looseNameForStruct,
     throwForField,
+    tokens,
 } from './utils'
 
-export function renderClass(node: InterfaceWithFields, identifiers: IIdentifierMap): ts.ClassDeclaration {
+export function renderClass(node: InterfaceWithFields, identifiers: IIdentifierMap, isExported: boolean): ts.ClassDeclaration {
     const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(node, identifiers)
 
     const annotations: ts.PropertyDeclaration = renderAnnotations(node.annotations)
@@ -92,7 +93,7 @@ export function renderClass(node: InterfaceWithFields, identifiers: IIdentifierM
     // export class <node.name> { ... }
     return ts.createClassDeclaration(
         undefined,
-        [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+        tokens(isExported),
         classNameForStruct(node),
         [],
         [
