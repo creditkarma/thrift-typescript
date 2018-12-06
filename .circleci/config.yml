@@ -37,23 +37,6 @@ jobs:
           paths:
             - ./node_modules
 
-  publish:
-    <<: *defaults
-    steps:
-      - checkout
-      - run:
-          name: Generate .npmrc File
-          command: 'echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc'
-      - run:
-          name: Install NPM Dependencies
-          command: npm install
-      - run:
-          name: Build Publish Assets
-          command: npm run build
-      - run:
-          name: Publish to NPM
-          command: npm publish --access public
-
   publish_fix:
     <<: *defaults
     steps:
