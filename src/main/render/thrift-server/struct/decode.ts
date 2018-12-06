@@ -37,7 +37,7 @@ import {
 } from '../utils'
 
 import {
-    IIdentifierMap,
+    IRenderState,
     IResolvedIdentifier,
 } from '../../../types'
 
@@ -63,7 +63,7 @@ export function createTempVariables(node: InterfaceWithFields): Array<ts.Variabl
     }
 }
 
-export function createDecodeMethod(node: InterfaceWithFields, identifiers: IIdentifierMap): ts.MethodDeclaration {
+export function createDecodeMethod(node: InterfaceWithFields, state: IRenderState): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
     const tempVariables: Array<ts.VariableStatement> = createTempVariables(node)
 
@@ -119,7 +119,7 @@ export function createDecodeMethod(node: InterfaceWithFields, identifiers: IIden
                 COMMON_IDENTIFIERS.fieldId, // what to switch on
                 ts.createCaseBlock([
                     ...node.fields.map((next: FieldDefinition) => {
-                        return createCaseForField(next, identifiers)
+                        return createCaseForField(next, state)
                     }),
                     ts.createDefaultClause([
                         createSkipBlock(),
@@ -149,7 +149,7 @@ export function createDecodeMethod(node: InterfaceWithFields, identifiers: IIden
             readStructBegin(),
             whileLoop,
             readStructEnd(),
-            createReturnForStruct(node),
+            createReturnForStruct(node, state),
         ], true),
     )
 }
@@ -194,18 +194,18 @@ export function createCheckForFields(fields: Array<FieldDefinition>): ts.BinaryE
  *   break;
  * }
  */
-export function createCaseForField(field: FieldDefinition, identifiers: IIdentifierMap): ts.CaseClause {
+export function createCaseForField(field: FieldDefinition, state: IRenderState): ts.CaseClause {
     const fieldAlias: ts.Identifier = ts.createUniqueName('value')
     const checkType: ts.IfStatement = ts.createIf(
         createEqualsCheck(
             COMMON_IDENTIFIERS.fieldType,
-            thriftTypeForFieldType(field.fieldType, identifiers),
+            thriftTypeForFieldType(field.fieldType, state),
         ),
         ts.createBlock([
             ...readValueForFieldType(
                 field.fieldType,
                 fieldAlias,
-                identifiers,
+                state,
             ),
             ...endReadForField(fieldAlias, field),
         ], true),
@@ -240,12 +240,12 @@ export function endReadForField(fieldName: ts.Identifier, field: FieldDefinition
     }
 }
 
-export function createReturnForStruct(node: InterfaceWithFields): ts.Statement {
+export function createReturnForStruct(node: InterfaceWithFields, state: IRenderState): ts.Statement {
     if (hasRequiredField(node)) {
         return ts.createIf(
             createCheckForFields(node.fields),
             ts.createBlock([
-                createReturnValue(node),
+                createReturnValue(node, state),
             ], true),
             ts.createBlock([
                 throwProtocolException(
@@ -255,17 +255,17 @@ export function createReturnForStruct(node: InterfaceWithFields): ts.Statement {
             ], true),
         )
     } else {
-        return createReturnValue(node)
+        return createReturnValue(node, state)
     }
 }
 
-function createReturnValue(node: InterfaceWithFields): ts.ReturnStatement {
+function createReturnValue(node: InterfaceWithFields, state: IRenderState): ts.ReturnStatement {
     return ts.createReturn(
         ts.createObjectLiteral(
             node.fields.map((next: FieldDefinition): ts.ObjectLiteralElementLike => {
                 return ts.createPropertyAssignment(
                     next.name.value,
-                    getInitializerForField('_args', next),
+                    getInitializerForField('_args', next, state),
                 )
             }),
             true, // multiline
@@ -277,7 +277,7 @@ export function readValueForIdentifier(
     id: IResolvedIdentifier,
     fieldType: FunctionType,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Statement> {
     switch (id.definition.type) {
         case SyntaxType.ConstDefinition:
@@ -293,7 +293,7 @@ export function readValueForIdentifier(
                 // const field: type =
                 createConstStatement(
                     fieldName,
-                    typeNodeForFieldType(fieldType, identifiers),
+                    typeNodeForFieldType(fieldType, state),
                     ts.createCall(
                         ts.createPropertyAccess(
                             ts.createIdentifier(codecName(id.resolvedName)),
@@ -311,13 +311,13 @@ export function readValueForIdentifier(
             return [
                 createConstStatement(
                     fieldName,
-                    typeNodeForFieldType(fieldType, identifiers),
+                    typeNodeForFieldType(fieldType, state),
                     createMethodCall('input', READ_METHODS[SyntaxType.I32Keyword]),
                 ),
             ]
 
         case SyntaxType.TypedefDefinition:
-            return readValueForFieldType(id.definition.definitionType, fieldName, identifiers)
+            return readValueForFieldType(id.definition.definitionType, fieldName, state)
 
         default:
             const msg: never = id.definition
@@ -328,15 +328,15 @@ export function readValueForIdentifier(
 export function readValueForFieldType(
     fieldType: FunctionType,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Statement> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return readValueForIdentifier(
-                identifiers[fieldType.value],
+                state.identifiers[fieldType.value],
                 fieldType,
                 fieldName,
-                identifiers,
+                state,
             )
 
         /**
@@ -359,7 +359,7 @@ export function readValueForFieldType(
             return [
                 createConstStatement(
                     fieldName,
-                    typeNodeForFieldType(fieldType, identifiers),
+                    typeNodeForFieldType(fieldType, state),
                     createMethodCall('input', READ_METHODS[fieldType.type]),
                 ),
             ]
@@ -373,45 +373,45 @@ export function readValueForFieldType(
             return [
                 createConstStatement(
                     fieldName,
-                    typeNodeForFieldType(fieldType, identifiers),
+                    typeNodeForFieldType(fieldType, state),
                     ts.createNew(
                         COMMON_IDENTIFIERS.Map, // class name
                         [
-                            typeNodeForFieldType(fieldType.keyType, identifiers),
-                            typeNodeForFieldType(fieldType.valueType, identifiers),
+                            typeNodeForFieldType(fieldType.keyType, state),
+                            typeNodeForFieldType(fieldType.valueType, state),
                         ],
                         [],
                     ),
                 ),
-                ...loopOverContainer(fieldType, fieldName, identifiers),
+                ...loopOverContainer(fieldType, fieldName, state),
             ]
 
         case SyntaxType.ListType:
             return [
                 createConstStatement(
                     fieldName,
-                    typeNodeForFieldType(fieldType, identifiers),
+                    typeNodeForFieldType(fieldType, state),
                     ts.createNew(
                         COMMON_IDENTIFIERS.Array, // class name
-                        [ typeNodeForFieldType(fieldType.valueType, identifiers) ],
+                        [ typeNodeForFieldType(fieldType.valueType, state) ],
                         [],
                     ),
                 ),
-                ...loopOverContainer(fieldType, fieldName, identifiers),
+                ...loopOverContainer(fieldType, fieldName, state),
             ]
 
         case SyntaxType.SetType:
             return [
                 createConstStatement(
                     fieldName,
-                    typeNodeForFieldType(fieldType, identifiers),
+                    typeNodeForFieldType(fieldType, state),
                     ts.createNew(
                         COMMON_IDENTIFIERS.Set, // class name
-                        [ typeNodeForFieldType(fieldType.valueType, identifiers) ],
+                        [ typeNodeForFieldType(fieldType.valueType, state) ],
                         [],
                     ),
                 ),
-                ...loopOverContainer(fieldType, fieldName, identifiers),
+                ...loopOverContainer(fieldType, fieldName, state),
             ]
 
         case SyntaxType.VoidKeyword:
@@ -446,7 +446,7 @@ export function readValueForFieldType(
  *   input.readMapEnd();
  * }
  */
-function loopOverContainer(fieldType: ContainerType, fieldName: ts.Identifier, identifiers: IIdentifierMap): Array<ts.Statement> {
+function loopOverContainer(fieldType: ContainerType, fieldName: ts.Identifier, state: IRenderState): Array<ts.Statement> {
     const incrementer: ts.Identifier = ts.createUniqueName('i')
     const metadata: ts.Identifier = ts.createUniqueName('metadata')
     const size: ts.Identifier = ts.createUniqueName('size')
@@ -474,7 +474,7 @@ function loopOverContainer(fieldType: ContainerType, fieldName: ts.Identifier, i
             ts.createLessThan(incrementer, size),
             ts.createPostfixIncrement(incrementer),
             ts.createBlock(
-                loopBody(fieldType, fieldName, identifiers),
+                loopBody(fieldType, fieldName, state),
                 true,
             ),
         ),
@@ -508,27 +508,27 @@ export function metadataTypeForFieldType(fieldType: ContainerType): ts.TypeNode 
     }
 }
 
-function loopBody(fieldType: ContainerType, fieldName: ts.Identifier, identifiers: IIdentifierMap): Array<ts.Statement> {
+function loopBody(fieldType: ContainerType, fieldName: ts.Identifier, state: IRenderState): Array<ts.Statement> {
     const value: ts.Identifier = ts.createUniqueName('value')
 
     switch (fieldType.type) {
         case SyntaxType.MapType:
             const key: ts.Identifier = ts.createUniqueName('key')
             return [
-                ...readValueForFieldType(fieldType.keyType, key, identifiers),
-                ...readValueForFieldType(fieldType.valueType, value, identifiers),
+                ...readValueForFieldType(fieldType.keyType, key, state),
+                ...readValueForFieldType(fieldType.valueType, value, state),
                 createMethodCallStatement(fieldName, 'set', [ key, value ]),
             ]
 
         case SyntaxType.ListType:
             return [
-                ...readValueForFieldType(fieldType.valueType, value, identifiers),
+                ...readValueForFieldType(fieldType.valueType, value, state),
                 createMethodCallStatement(fieldName, 'push', [ value ]),
             ]
 
         case SyntaxType.SetType:
             return [
-                ...readValueForFieldType(fieldType.valueType, value, identifiers),
+                ...readValueForFieldType(fieldType.valueType, value, state),
                 createMethodCallStatement(fieldName, 'add', [ value ]),
             ]
     }

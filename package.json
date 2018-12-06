@@ -12,7 +12,7 @@
     ],
     "scripts": {
         "clean": "rimraf ./coverage ./dist ./**/codegen",
-        "clean-all": "npm run clean && rimraf ./node_modules package-lock.json",
+        "clean-all": "npm run clean -- ./node_modules package-lock.json",
         "codegen": "node ./dist/main/bin/index.js --sourceDir ./src/tests/integration/thrift --outDir ./src/tests/integration/apache/codegen",
         "prebuild": "npm run clean",
         "build": "npm run lint && tsc",
@@ -45,7 +45,7 @@
     "dependencies": {
         "@creditkarma/thrift-parser": "~1.1.4",
         "glob": "^7.1.2",
-        "typescript": "~3.0.3"
+        "typescript": "3.2.x"
     },
     "devDependencies": {
         "@types/chai": "^4.1.5",

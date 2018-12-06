@@ -36,7 +36,7 @@ import {
 } from '../struct'
 
 import {
-    IIdentifierMap,
+    IRenderState,
 } from '../../../types'
 
 import { typeNodeForFieldType } from '../types'
@@ -48,26 +48,26 @@ function emptyLocation(): TextLocation {
     }
 }
 
-export function renderService(service: ServiceDefinition, identifiers: IIdentifierMap): ts.ModuleDeclaration {
+export function renderService(service: ServiceDefinition, state: IRenderState): ts.ModuleDeclaration {
     return ts.createModuleDeclaration(
         undefined,
         [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
         ts.createIdentifier(service.name.value),
         ts.createModuleBlock([
             renderServiceName(service),
-            ...renderArgsStruct(service, identifiers),
-            ...renderResultStruct(service, identifiers),
-            renderClient(service, identifiers),
+            ...renderArgsStruct(service, state),
+            ...renderResultStruct(service, state),
+            renderClient(service, state),
             ...renderHandlerInterface(service, (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
-                return typeNodeForFieldType(fieldType, identifiers, loose)
+                return typeNodeForFieldType(fieldType, state, loose)
             }),
-            renderProcessor(service, identifiers),
+            renderProcessor(service, state),
         ]),
         ts.NodeFlags.Namespace,
     )
 }
 
-export function renderArgsStruct(service: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function renderArgsStruct(service: ServiceDefinition, state: IRenderState): Array<ts.Statement> {
     return service.functions.reduce((
         acc: Array<ts.Statement>,
         func: FunctionDefinition,
@@ -89,12 +89,12 @@ export function renderArgsStruct(service: ServiceDefinition, identifiers: IIdent
 
         return [
             ...acc,
-            ...renderStruct(argsStruct, identifiers),
+            ...renderStruct(argsStruct, state),
         ]
     }, [])
 }
 
-export function renderResultStruct(service: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function renderResultStruct(service: ServiceDefinition, state: IRenderState): Array<ts.Statement> {
     return service.functions.reduce((
         acc: Array<ts.Statement>,
         func: FunctionDefinition,
@@ -147,7 +147,7 @@ export function renderResultStruct(service: ServiceDefinition, identifiers: IIde
 
         return [
             ...acc,
-            ...renderStruct(resultStruct, identifiers),
+            ...renderStruct(resultStruct, state),
         ]
     }, [])
 }

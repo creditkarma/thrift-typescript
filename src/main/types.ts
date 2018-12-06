@@ -13,7 +13,9 @@ import {
     UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
-export type CompileTarget = 'apache' | 'thrift-server'
+export type CompileTarget = 'apache' | 'thrift-server' | 'thrift-server-interfaces'
+
+export type Int64Type = 'Int64' | 'string' | 'number'
 
 /**
  * The compiler options for our codegen. These can be provided to the generator
@@ -37,6 +39,14 @@ export interface IMakeOptions {
 
     // What core libs are you compiling for?
     target: CompileTarget
+
+    // What type should we render i64 as. Only for use with 'interfaces'
+    i64Type: Int64Type
+}
+
+export interface IRenderState {
+    options: IMakeOptions
+    identifiers: IIdentifierMap
 }
 
 export interface IRenderer {
@@ -47,31 +57,31 @@ export interface IRenderer {
 
     renderConst(
         statement: ConstDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        state: IRenderState): Array<ts.Statement>
 
     renderTypeDef(
         statement: TypedefDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        state: IRenderState): Array<ts.Statement>
 
     renderEnum(
         statement: EnumDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        state: IRenderState): Array<ts.Statement>
 
     renderStruct(
         statement: StructDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        state: IRenderState): Array<ts.Statement>
 
     renderException(
         statement: ExceptionDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        state: IRenderState): Array<ts.Statement>
 
     renderUnion(
         statement: UnionDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        state: IRenderState): Array<ts.Statement>
 
     renderService(
         statement: ServiceDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        state: IRenderState): Array<ts.Statement>
 }
 
 /**
@@ -84,11 +94,11 @@ export interface IRenderer {
  *
  */
 
-export interface IRenderState {
-    includeCache: IIncludeCache
-    resolvedCache: IResolvedCache
-    renderedCache: IRenderedCache
-}
+// export interface IRenderState {
+//     includeCache: IIncludeCache
+//     resolvedCache: IResolvedCache
+//     renderedCache: IRenderedCache
+// }
 
 export interface IThriftFile {
     name: string

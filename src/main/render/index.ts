@@ -7,6 +7,10 @@ import {
 } from './thrift-server'
 
 import {
+    renderer as InterfaceRenderer,
+} from './interfaces'
+
+import {
     CompileTarget,
     IRenderer,
 } from '../types'
@@ -18,6 +22,9 @@ export function rendererForTarget(target: CompileTarget = 'apache'): IRenderer {
 
         case 'thrift-server':
             return ThriftRenderer
+
+        case 'thrift-server-interfaces':
+            return InterfaceRenderer
 
         default:
             const msg: never = target

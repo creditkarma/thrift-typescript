@@ -12,10 +12,6 @@ export enum Operation {
 }
 export import IJankyOperation = exceptions.IInvalidOperation;
 export import IJankyOperationArgs = exceptions.IInvalidOperationArgs;
-export import JankyOperation = exceptions.InvalidOperation;
-export import JankyOperationCodec = exceptions.InvalidOperationCodec;
 export import IJankyResult = exceptions.IInvalidResult;
 export import IJankyResultArgs = exceptions.IInvalidResultArgs;
-export import JankyResult = exceptions.InvalidResult;
-export import JankyResultCodec = exceptions.InvalidResultCodec;
 export import SomethingToDo = Operation;

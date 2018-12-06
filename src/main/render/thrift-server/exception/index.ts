@@ -5,13 +5,18 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-    IIdentifierMap,
+    IRenderState,
 } from '../../../types'
 
 import {
     renderStruct,
+    renderStructInterfaces,
 } from '../struct'
 
-export function renderException(node: ExceptionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return renderStruct(node, identifiers)
+export function renderException(node: ExceptionDefinition, state: IRenderState): Array<ts.Statement> {
+    return renderStruct(node, state)
+}
+
+export function renderExceptionInterfaces(node: ExceptionDefinition, state: IRenderState): Array<ts.Statement> {
+    return renderStructInterfaces(node, state)
 }

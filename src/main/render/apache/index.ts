@@ -37,9 +37,9 @@ import { renderStruct as _renderStruct } from './struct'
 import { renderUnion as _renderUnion } from './union'
 
 import {
-    IIdentifierMap,
     INamespaceFile,
     IRenderer,
+    IRenderState,
 } from '../../types'
 import { typeNodeForFieldType } from './types'
 
@@ -62,51 +62,51 @@ export function renderIncludes(
         return includes
 }
 
-export function renderConst(statement: ConstDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function renderConst(statement: ConstDefinition, state: IRenderState): Array<ts.Statement> {
     return [ _renderConst(statement, typeNodeForFieldType) ]
 }
 
-export function renderTypeDef(statement: TypedefDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return _renderTypeDef(statement, typeNodeForFieldType, identifiers)
+export function renderTypeDef(statement: TypedefDefinition, state: IRenderState): Array<ts.Statement> {
+    return _renderTypeDef(statement, typeNodeForFieldType, state.identifiers)
 }
 
-export function renderEnum(statement: EnumDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function renderEnum(statement: EnumDefinition, state: IRenderState): Array<ts.Statement> {
     return [ _renderEnum(statement) ]
 }
 
-export function renderStruct(statement: StructDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function renderStruct(statement: StructDefinition, state: IRenderState): Array<ts.Statement> {
     return [
         renderInterface(statement),
-        _renderStruct(statement, identifiers),
+        _renderStruct(statement, state.identifiers),
     ]
 }
 
-export function renderException(statement: ExceptionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function renderException(statement: ExceptionDefinition, state: IRenderState): Array<ts.Statement> {
     return [
         renderInterface(statement),
-        _renderException(statement, identifiers),
+        _renderException(statement, state.identifiers),
     ]
 }
 
-export function renderUnion(statement: UnionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function renderUnion(statement: UnionDefinition, state: IRenderState): Array<ts.Statement> {
     return [
         renderInterface(statement),
-        _renderUnion(statement, identifiers),
+        _renderUnion(statement, state.identifiers),
     ]
 }
 
-export function renderService(statement: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function renderService(statement: ServiceDefinition, state: IRenderState): Array<ts.Statement> {
     return [
         ts.createModuleDeclaration(
             undefined,
             [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
             ts.createIdentifier(statement.name.value),
             ts.createModuleBlock([
-                ...renderArgsStruct(statement, identifiers),
-                ...renderResultStruct(statement, identifiers),
+                ...renderArgsStruct(statement, state.identifiers),
+                ...renderResultStruct(statement, state.identifiers),
                 renderClient(statement),
                 ...renderHandlerInterface(statement),
-                renderProcessor(statement, identifiers),
+                renderProcessor(statement, state.identifiers),
             ]),
             ts.NodeFlags.Namespace,
         ),

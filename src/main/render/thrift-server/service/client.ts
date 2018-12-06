@@ -46,7 +46,7 @@ import {
 } from '../values'
 
 import {
-    IIdentifierMap,
+    IRenderState,
 } from '../../../types'
 
 import { createStringType } from '../../shared/types'
@@ -56,7 +56,7 @@ import {
     strictName,
 } from '../struct/utils'
 
-export function renderClient(node: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
+export function renderClient(node: ServiceDefinition, state: IRenderState): ts.ClassDeclaration {
     const serviceName: ts.PropertyDeclaration = ts.createProperty(
         undefined,
         [
@@ -157,7 +157,7 @@ export function renderClient(node: ServiceDefinition, identifiers: IIdentifierMa
     )
 
     const baseMethods: Array<ts.MethodDeclaration> = node.functions.map((func: FunctionDefinition) => {
-        return createBaseMethodForDefinition(func, identifiers)
+        return createBaseMethodForDefinition(func, state)
     })
 
     const heritage: Array<ts.HeritageClause> = (
@@ -236,7 +236,7 @@ function createSuperCall(node: ServiceDefinition): Array<ts.Statement> {
 //         this.send_{{name}}( {{#args}}{{fieldName}}, {{/args}} )
 //     })
 // }
-function createBaseMethodForDefinition(def: FunctionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
+function createBaseMethodForDefinition(def: FunctionDefinition, state: IRenderState): ts.MethodDeclaration {
     return ts.createMethod(
         undefined, // decorators
         [ ts.createToken(ts.SyntaxKind.PublicKeyword) ], // modifiers
@@ -246,7 +246,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition, identifiers: IId
         undefined, // type parameters
         [
             ...def.fields.map((field: FieldDefinition) => {
-                return createParametersForField(field, identifiers)
+                return createParametersForField(field, state)
             }),
             createFunctionParameter(
                 COMMON_IDENTIFIERS.context,
@@ -257,7 +257,7 @@ function createBaseMethodForDefinition(def: FunctionDefinition, identifiers: IId
         ], // parameters
         ts.createTypeReferenceNode(
             'Promise',
-            [ typeNodeForFieldType(def.returnType, identifiers) ],
+            [ typeNodeForFieldType(def.returnType, state) ],
         ), // return type
         ts.createBlock([
             createConstStatement(
@@ -656,14 +656,14 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
     }
 }
 
-function createParametersForField(field: FieldDefinition, identifiers: IIdentifierMap): ts.ParameterDeclaration {
+function createParametersForField(field: FieldDefinition, state: IRenderState): ts.ParameterDeclaration {
     const defaultValue = (field.defaultValue !== null) ?
-        renderValue(field.fieldType, field.defaultValue) :
+        renderValue(field.fieldType, field.defaultValue, state) :
         undefined
 
     return createFunctionParameter(
         field.name.value,
-        typeNodeForFieldType(field.fieldType, identifiers, true),
+        typeNodeForFieldType(field.fieldType, state, true),
         defaultValue,
         (field.requiredness === 'optional'),
     )

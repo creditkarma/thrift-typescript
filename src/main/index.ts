@@ -7,9 +7,11 @@ import {
     IIncludeCache,
     IMakeOptions,
     INamespaceFile,
+    Int64Type,
     IParsedFile,
     IRenderedCache,
     IRenderedFile,
+    IRenderState,
     IResolvedCache,
     IResolvedFile,
     IThriftFile,
@@ -31,6 +33,7 @@ import {
     collectInvalidFiles,
     collectSourceFiles,
     dedupResolvedFiles,
+    deepMerge,
     flattenResolvedFile,
     organizeByNamespace,
     parseFile,
@@ -38,6 +41,8 @@ import {
     readThriftFile,
     saveFiles,
 } from './utils'
+
+import { DEFAULT_OPTIONS } from './defaults'
 
 /**
  * This function is mostly for testing purposes. It does not support includes.
@@ -47,11 +52,15 @@ import {
  *
  * @param source
  */
-export function make(source: string, target: CompileTarget = 'thrift-server'): string {
+export function make(source: string, target: CompileTarget = 'thrift-server', i64Type: Int64Type = 'number'): string {
     const parsedFile: IParsedFile = parseSource(source)
     const resolvedAST: IResolvedFile = resolveFile('', parsedFile)
     const validAST: IResolvedFile = validateFile(resolvedAST)
-    return print(processStatements(validAST.body, validAST.identifiers, rendererForTarget(target)))
+    const state: IRenderState = {
+        identifiers: validAST.identifiers,
+        options: deepMerge(DEFAULT_OPTIONS, { target, i64Type }),
+    }
+    return print(processStatements(validAST.body, state, rendererForTarget(target)))
 }
 
 /**
@@ -94,14 +103,15 @@ export function generate(options: IMakeOptions): void {
         const namespaces: Array<INamespaceFile> = organizeByNamespace(dedupedFiles)
         const renderedFiles: Array<IRenderedFile> = namespaces.map(
             (next: INamespaceFile): IRenderedFile => {
-                return generateFile(
-                    rendererForTarget(options.target),
+                return generateFile({
+                    renderer: rendererForTarget(options.target),
                     rootDir,
                     outDir,
                     sourceDir,
-                    next,
-                    renderedCache,
-                )
+                    resolvedFile: next,
+                    options,
+                    cache: renderedCache,
+                })
             },
         )
 

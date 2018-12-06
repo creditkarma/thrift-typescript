@@ -30,7 +30,7 @@ import {
 } from '../utils'
 
 import {
-    IIdentifierMap,
+    IRenderState,
 } from '../../../types'
 
 import {
@@ -52,7 +52,7 @@ import {
     RETURN_NAME,
 } from './utils'
 
-export function createDecodeMethod(node: UnionDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
+export function createDecodeMethod(node: UnionDefinition, state: IRenderState): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
     const returnVariable: ts.VariableStatement = createLetStatement(
         ts.createIdentifier(RETURN_NAME),
@@ -120,7 +120,7 @@ export function createDecodeMethod(node: UnionDefinition, identifiers: IIdentifi
                 COMMON_IDENTIFIERS.fieldId, // what to switch on
                 ts.createCaseBlock([
                     ...node.fields.map((next: FieldDefinition) => {
-                        return createCaseForField(node, next, identifiers)
+                        return createCaseForField(node, next, state)
                     }),
                     ts.createDefaultClause([
                         createSkipBlock(),
@@ -185,19 +185,19 @@ export function createDecodeMethod(node: UnionDefinition, identifiers: IIdentifi
  *   break;
  * }
  */
-export function createCaseForField(node: UnionDefinition, field: FieldDefinition, identifiers: IIdentifierMap): ts.CaseClause {
+export function createCaseForField(node: UnionDefinition, field: FieldDefinition, state: IRenderState): ts.CaseClause {
     const fieldAlias: ts.Identifier = ts.createUniqueName('value')
     const checkType: ts.IfStatement = ts.createIf(
         createEqualsCheck(
             COMMON_IDENTIFIERS.fieldType,
-            thriftTypeForFieldType(field.fieldType, identifiers),
+            thriftTypeForFieldType(field.fieldType, state),
         ),
         ts.createBlock([
             incrementFieldsSet(),
             ...readValueForFieldType(
                 field.fieldType,
                 fieldAlias,
-                identifiers,
+                state,
             ),
             ...endReadForField(node, fieldAlias, field),
         ], true),
@@ -265,7 +265,7 @@ export function metadataTypeForFieldType(fieldType: ContainerType): ts.TypeNode 
     }
 }
 
-export function createReturnForStruct(struct: InterfaceWithFields): ts.Statement {
+export function createReturnForStruct(struct: InterfaceWithFields, state: IRenderState): ts.Statement {
     if (hasRequiredField(struct)) {
         return ts.createIf(
             createCheckForFields(struct.fields),
@@ -275,7 +275,7 @@ export function createReturnForStruct(struct: InterfaceWithFields): ts.Statement
                         struct.fields.map((next: FieldDefinition): ts.ObjectLiteralElementLike => {
                             return ts.createPropertyAssignment(
                                 next.name.value,
-                                getInitializerForField('_args', next),
+                                getInitializerForField('_args', next, state),
                             )
                         }),
                         true, // multiline

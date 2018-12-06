@@ -6,7 +6,7 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-    IIdentifierMap,
+    IRenderState,
     IResolvedIdentifier,
 } from '../../types'
 
@@ -94,7 +94,7 @@ export function applicationException(exceptionType: TApplicationException): ts.I
     }
 }
 
-function thriftTypeForIdentifier(id: IResolvedIdentifier, identifiers: IIdentifierMap): ts.Identifier {
+function thriftTypeForIdentifier(id: IResolvedIdentifier, state: IRenderState): ts.Identifier {
     switch (id.definition.type) {
         case SyntaxType.ConstDefinition:
             throw new TypeError(`Identifier ${id.definition.name.value} is a value being used as a type`)
@@ -113,7 +113,7 @@ function thriftTypeForIdentifier(id: IResolvedIdentifier, identifiers: IIdentifi
         case SyntaxType.TypedefDefinition:
             return thriftTypeForFieldType(
                 id.definition.definitionType,
-                identifiers,
+                state,
             )
 
         default:
@@ -132,12 +132,12 @@ function thriftTypeForIdentifier(id: IResolvedIdentifier, identifiers: IIdentifi
  * @todo Clean up so that we can use the strictNullChecks compiler flag which
  * would allow us to use a map and get the same safety as the switch.
  */
-export function thriftTypeForFieldType(fieldType: FunctionType, identifiers: IIdentifierMap): ts.Identifier {
+export function thriftTypeForFieldType(fieldType: FunctionType, state: IRenderState): ts.Identifier {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return thriftTypeForIdentifier(
-                identifiers[fieldType.value],
-                identifiers,
+                state.identifiers[fieldType.value],
+                state,
             )
 
         case SyntaxType.SetType:
@@ -234,30 +234,30 @@ function typeNodeForIdentifier(id: IResolvedIdentifier, name: string, loose: boo
     }
 }
 
-export function typeNodeForFieldType(fieldType: FunctionType, identifiers: IIdentifierMap, loose: boolean = false): ts.TypeNode {
+export function typeNodeForFieldType(fieldType: FunctionType, state: IRenderState, loose: boolean = false): ts.TypeNode {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
-            return typeNodeForIdentifier(identifiers[fieldType.value], fieldType.value, loose)
+            return typeNodeForIdentifier(state.identifiers[fieldType.value], fieldType.value, loose)
 
         case SyntaxType.SetType:
             return ts.createTypeReferenceNode(
                 'Set',
-                [ typeNodeForFieldType(fieldType.valueType, identifiers, loose) ],
+                [ typeNodeForFieldType(fieldType.valueType, state, loose) ],
             )
 
         case SyntaxType.MapType:
             return ts.createTypeReferenceNode(
                 'Map',
                 [
-                    typeNodeForFieldType(fieldType.keyType, identifiers, loose),
-                    typeNodeForFieldType(fieldType.valueType, identifiers, loose),
+                    typeNodeForFieldType(fieldType.keyType, state, loose),
+                    typeNodeForFieldType(fieldType.valueType, state, loose),
                 ],
             )
 
         case SyntaxType.ListType:
             return ts.createTypeReferenceNode(
                 'Array',
-                [ typeNodeForFieldType(fieldType.valueType, identifiers, loose) ],
+                [ typeNodeForFieldType(fieldType.valueType, state, loose) ],
             )
 
         case SyntaxType.StringKeyword:
@@ -267,7 +267,13 @@ export function typeNodeForFieldType(fieldType: FunctionType, identifiers: IIden
             return createBooleanType()
 
         case SyntaxType.I64Keyword:
-            if (loose === true) {
+            if (state.options.target === 'thrift-server-interfaces') {
+                if (state.options.i64Type === 'string') {
+                    return createStringType()
+                } else {
+                    return createNumberType()
+                }
+            } else if (loose === true) {
                 return ts.createUnionTypeNode([
                     createNumberType(),
                     ts.createTypeReferenceNode(

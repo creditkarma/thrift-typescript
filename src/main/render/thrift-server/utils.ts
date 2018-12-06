@@ -32,6 +32,10 @@ import {
     THRIFT_IDENTIFIERS,
 } from './identifiers'
 
+import {
+    IRenderState,
+} from '../../types'
+
 export * from '../shared/utils'
 
 export function coerceType(valueName: ts.Identifier, fieldType: FunctionType): ts.Expression {
@@ -71,7 +75,7 @@ export function coerceType(valueName: ts.Identifier, fieldType: FunctionType): t
     }
 }
 
-export function getInitializerForField(objName: string, field: FieldDefinition, loose: boolean = false): ts.Expression {
+export function getInitializerForField(objName: string, field: FieldDefinition, state: IRenderState, loose: boolean = false): ts.Expression {
     const valueName: ts.Identifier = ts.createIdentifier(`${objName}.${field.name.value}`)
 
     if (field.defaultValue !== null && field.defaultValue !== undefined) {
@@ -82,7 +86,7 @@ export function getInitializerForField(objName: string, field: FieldDefinition, 
                     coerceType(valueName, field.fieldType) :
                     valueName
             ),
-            renderValue(field.fieldType, field.defaultValue),
+            renderValue(field.fieldType, field.defaultValue, state),
         ))
 
     } else {

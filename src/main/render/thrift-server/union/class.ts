@@ -7,7 +7,7 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
-    IIdentifierMap,
+    IRenderState,
 } from '../../../types'
 
 import {
@@ -44,8 +44,8 @@ import {
     incrementFieldsSet,
 } from './utils'
 
-export function renderClass(node: UnionDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
-    const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(node, identifiers)
+export function renderClass(node: UnionDefinition, state: IRenderState): ts.ClassDeclaration {
+    const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(node, state)
 
     /**
      * After creating the properties on our class for the struct fields we must create
@@ -61,10 +61,10 @@ export function renderClass(node: UnionDefinition, identifiers: IIdentifierMap):
      * Optional fields we must allow to be null or undefined.
      */
     const fieldAssignments: Array<ts.IfStatement> = node.fields.map((next: FieldDefinition) => {
-        return createFieldAssignment(next, identifiers)
+        return createFieldAssignment(next, state)
     })
 
-    const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(node, identifiers)
+    const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(node, state)
 
     // Build the constructor body
     const ctor: ts.ConstructorDeclaration = createClassConstructor(
@@ -111,9 +111,9 @@ export function createInputParameter(): ts.ParameterDeclaration {
     )
 }
 
-export function createFieldsForStruct(node: InterfaceWithFields, identifiers: IIdentifierMap): Array<ts.PropertyDeclaration> {
+export function createFieldsForStruct(node: InterfaceWithFields, state: IRenderState): Array<ts.PropertyDeclaration> {
     return node.fields.map((field: FieldDefinition) => {
-        return renderFieldDeclarations(field, identifiers)
+        return renderFieldDeclarations(field, state)
     })
 }
 
@@ -133,10 +133,10 @@ export function createFieldsForStruct(node: InterfaceWithFields, identifiers: II
  *
  * This function creates the 'this.id = args.id' bit.
  */
-export function assignmentForField(field: FieldDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function assignmentForField(field: FieldDefinition, state: IRenderState): Array<ts.Statement> {
     return [
         incrementFieldsSet(),
-        ..._assignmentForField(field, identifiers),
+        ..._assignmentForField(field, state),
     ]
 }
 
@@ -153,14 +153,14 @@ export function assignmentForField(field: FieldDefinition, identifiers: IIdentif
  *   throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
  * }
  */
-export function createFieldAssignment(field: FieldDefinition, identifiers: IIdentifierMap): ts.IfStatement {
+export function createFieldAssignment(field: FieldDefinition, state: IRenderState): ts.IfStatement {
     const hasValue: ts.BinaryExpression = createNotNullCheck(
         ts.createPropertyAccess(
             COMMON_IDENTIFIERS.args,
             `${field.name.value}`,
         ),
     )
-    const thenAssign: Array<ts.Statement> = assignmentForField(field, identifiers)
+    const thenAssign: Array<ts.Statement> = assignmentForField(field, state)
     const elseThrow: ts.Statement | undefined = throwForField(field)
 
     return ts.createIf(

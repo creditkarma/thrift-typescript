@@ -21,11 +21,16 @@ import {
 } from './decode'
 
 import {
-    IIdentifierMap,
+    IRenderState,
 } from '../../../types'
-import { codecNameForStruct, looseNameForStruct, strictNameForStruct } from './utils'
 
-export function renderCodec(node: InterfaceWithFields, identifiers: IIdentifierMap): ts.Statement {
+import {
+    codecNameForStruct,
+    looseNameForStruct,
+    strictNameForStruct,
+} from './utils'
+
+export function renderCodec(node: InterfaceWithFields, state: IRenderState): ts.Statement {
     return ts.createVariableStatement(
         [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
         createConst(
@@ -44,8 +49,8 @@ export function renderCodec(node: InterfaceWithFields, identifiers: IIdentifierM
                 ],
             ),
             ts.createObjectLiteral([
-                createEncodeMethod(node, identifiers),
-                createDecodeMethod(node, identifiers),
+                createEncodeMethod(node, state),
+                createDecodeMethod(node, state),
             ], true),
         ),
     )

@@ -12,6 +12,7 @@ import {
     renderValue,
 } from './values'
 
+import { IRenderState } from '../../types'
 import {
     createConst,
 } from './utils'
@@ -25,13 +26,13 @@ import {
  * // typescript
  * const myConst: number = 45
  */
-export function renderConst(node: ConstDefinition, typeMapping: TypeMapping): ts.Statement {
+export function renderConst(node: ConstDefinition, typeMapping: TypeMapping, state: IRenderState): ts.Statement {
     return ts.createVariableStatement(
         [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
         createConst(
             node.name.value,
             typeMapping(node.fieldType),
-            renderValue(node.fieldType, node.initializer),
+            renderValue(node.fieldType, node.initializer, state),
         ),
     )
 }

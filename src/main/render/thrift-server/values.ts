@@ -22,13 +22,17 @@ import {
     propertyAccessForIdentifier,
 } from './utils'
 
-export function renderValue(fieldType: FunctionType, node: ConstValue): ts.Expression {
+import {
+    IRenderState,
+} from '../../types'
+
+export function renderValue(fieldType: FunctionType, node: ConstValue, state: IRenderState): ts.Expression {
     switch (node.type) {
         case SyntaxType.Identifier:
             return ts.createIdentifier(node.value)
 
         case SyntaxType.IntConstant:
-            return renderIntConstant(node, fieldType)
+            return renderIntConstant(node, state, fieldType)
 
         case SyntaxType.DoubleConstant:
             return renderDoubleConstant(node)
@@ -46,10 +50,10 @@ export function renderValue(fieldType: FunctionType, node: ConstValue): ts.Expre
 
         case SyntaxType.ConstList:
             if (fieldType.type === SyntaxType.ListType) {
-                return renderList(fieldType, node)
+                return renderList(fieldType, node, state)
 
             } else if (fieldType.type === SyntaxType.SetType) {
-                return renderSet(fieldType, node)
+                return renderSet(fieldType, node, state)
 
             } else {
                 throw new TypeError(`Type list | set expected`)
@@ -57,7 +61,7 @@ export function renderValue(fieldType: FunctionType, node: ConstValue): ts.Expre
 
         case SyntaxType.ConstMap:
             if (fieldType.type === SyntaxType.MapType) {
-                return renderMap(fieldType, node)
+                return renderMap(fieldType, node, state)
 
             } else {
                 throw new TypeError(`Type map expected`)
@@ -69,20 +73,29 @@ export function renderValue(fieldType: FunctionType, node: ConstValue): ts.Expre
     }
 }
 
-export function renderIntConstant(node: IntConstant, fieldType?: FunctionType): ts.Expression {
+export function renderIntConstant(node: IntConstant, state: IRenderState, fieldType?: FunctionType): ts.Expression {
     switch (node.value.type) {
         case SyntaxType.IntegerLiteral:
             if (fieldType && fieldType.type === SyntaxType.I64Keyword) {
-                return ts.createCall(
-                    ts.createPropertyAccess(
-                        COMMON_IDENTIFIERS.Int64,
-                        ts.createIdentifier('fromDecimalString'),
-                    ),
-                    undefined,
-                    [
-                        ts.createLiteral(node.value.value),
-                    ],
-                )
+                if (state.options.target === 'thrift-server-interfaces') {
+                    if (state.options.i64Type === 'string') {
+                        return ts.createLiteral(`${node.value.value}`)
+                    } else {
+                        return ts.createLiteral(parseInt(node.value.value, 10))
+                    }
+
+                } else {
+                    return ts.createCall(
+                        ts.createPropertyAccess(
+                            COMMON_IDENTIFIERS.Int64,
+                            ts.createIdentifier('fromDecimalString'),
+                        ),
+                        undefined,
+                        [
+                            ts.createLiteral(node.value.value),
+                        ],
+                    )
+                }
 
             } else {
                 return ts.createLiteral(parseInt(node.value.value, 10))
@@ -91,15 +104,24 @@ export function renderIntConstant(node: IntConstant, fieldType?: FunctionType): 
         case SyntaxType.HexLiteral:
             // The Int64 constructor accepts hex literals as strings
             if (fieldType && fieldType.type === SyntaxType.I64Keyword) {
-                return ts.createNew(
-                    COMMON_IDENTIFIERS.Int64,
-                    undefined,
-                    [
-                        ts.createLiteral(node.value.value),
-                    ],
-                )
+                if (state.options.target === 'thrift-server-interfaces') {
+                    if (state.options.i64Type === 'string') {
+                        return ts.createLiteral(`${parseInt(node.value.value, 16)}`)
+                    } else {
+                        return ts.createLiteral(parseInt(node.value.value, 16))
+                    }
+
+                } else {
+                    return ts.createNew(
+                        COMMON_IDENTIFIERS.Int64,
+                        undefined,
+                        [
+                            ts.createLiteral(node.value.value),
+                        ],
+                    )
+                }
             } else {
-                return ts.createLiteral(parseInt(node.value.value, 10))
+                return ts.createLiteral(parseInt(node.value.value, 16))
             }
 
         default:
@@ -122,11 +144,11 @@ export function renderDoubleConstant(node: DoubleConstant): ts.Expression {
     }
 }
 
-function renderMap(fieldType: MapType, node: ConstMap): ts.NewExpression {
+function renderMap(fieldType: MapType, node: ConstMap, state: IRenderState): ts.NewExpression {
     const values = node.properties.map(({ name, initializer }) => {
         return ts.createArrayLiteral([
-            renderValue(fieldType.keyType, name),
-            renderValue(fieldType.valueType, initializer),
+            renderValue(fieldType.keyType, name, state),
+            renderValue(fieldType.valueType, initializer, state),
         ])
     })
 
@@ -137,9 +159,9 @@ function renderMap(fieldType: MapType, node: ConstMap): ts.NewExpression {
     )
 }
 
-function renderSet(fieldType: SetType, node: ConstList): ts.NewExpression {
+function renderSet(fieldType: SetType, node: ConstList, state: IRenderState): ts.NewExpression {
     const values: Array<ts.Expression> = node.elements.map((value: ConstValue) => {
-        return renderValue(fieldType.valueType, value)
+        return renderValue(fieldType.valueType, value, state)
     })
 
     return ts.createNew(
@@ -149,9 +171,9 @@ function renderSet(fieldType: SetType, node: ConstList): ts.NewExpression {
     )
 }
 
-function renderList(fieldType: ListType, node: ConstList): ts.ArrayLiteralExpression {
+function renderList(fieldType: ListType, node: ConstList, state: IRenderState): ts.ArrayLiteralExpression {
     const values: Array<ts.Expression> = node.elements.map((value: ConstValue) => {
-        return renderValue(fieldType.valueType, value)
+        return renderValue(fieldType.valueType, value, state)
     })
 
     return ts.createArrayLiteral(values)

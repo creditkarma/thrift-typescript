@@ -1,6 +1,8 @@
 import { lstatSync } from 'fs'
 
+import { DEFAULT_OPTIONS } from '../defaults'
 import { IMakeOptions } from '../types'
+import { deepCopy } from '../utils'
 
 /**
  * --rootDir
@@ -10,13 +12,7 @@ import { IMakeOptions } from '../types'
 export function resolveOptions(args: Array<string>): IMakeOptions {
     const len: number = args.length
     let index: number = 0
-    const options: IMakeOptions = {
-        rootDir: '.',
-        outDir: './codegen',
-        sourceDir: './thrift',
-        target: 'apache',
-        files: [],
-    }
+    const options = deepCopy(DEFAULT_OPTIONS)
 
     while (index < len) {
         const next: string = args[index]
@@ -47,7 +43,7 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                 index += 2
                 break
 
-            case '--target':
+            case '--target': {
                 const option = args[index + 1]
                 if (option === 'apache' || option === 'thrift-server') {
                     options.target = option
@@ -56,10 +52,26 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                 }
                 index += 2
                 break
+            }
+
+            case '--i64Type': {
+                const option = args[index + 1]
+                if (option === 'string' || option === 'number' || option === 'Int64') {
+                    options.i64Type = option
+                } else {
+                    throw new Error(`Unsupported i64Type: ${option}`)
+                }
+                index += 2
+                break
+            }
 
             default:
                 if (next.startsWith('--')) {
                     throw new Error(`Unknown option provided to generator "${next}"`)
+
+                } else if (next.trim() === '') {
+                    index += 1
+
                 } else {
                     // Assume option is a file to render
                     options.files.push(next)

@@ -2,10 +2,12 @@ import * as ts from 'typescript'
 
 import {
     IIdentifierMap,
+    IMakeOptions,
     INamespaceFile,
     IRenderedCache,
     IRenderedFile,
     IRenderer,
+    IRenderState,
 } from '../types'
 
 import { processStatements } from './iterator'
@@ -14,6 +16,16 @@ import { processStatements } from './iterator'
  * Export this directly is useful for generating code without generating files
  */
 export { processStatements } from './iterator'
+
+export interface IGenerateOptions {
+    renderer: IRenderer
+    rootDir: string
+    outDir: string
+    sourceDir: string
+    resolvedFile: INamespaceFile
+    options: IMakeOptions
+    cache?: IRenderedCache
+}
 
 /**
  * The generator is the primary interface for generating TypeScript code from
@@ -26,21 +38,23 @@ export { processStatements } from './iterator'
  *
  * @param options
  */
-export function generateFile(
-    renderer: IRenderer,
-    rootDir: string,
-    outDir: string,
-    sourceDir: string,
-    resolvedFile: INamespaceFile,
-    cache: IRenderedCache = {},
-): IRenderedFile {
+export function generateFile({
+    renderer,
+    rootDir,
+    outDir,
+    sourceDir,
+    resolvedFile,
+    options,
+    cache = {},
+}: IGenerateOptions): IRenderedFile {
     const cacheKey: string = resolvedFile.namespace.path
 
     if (cacheKey === '/' || cache[cacheKey] === undefined) {
         const identifiers: IIdentifierMap = resolvedFile.identifiers
+        const state: IRenderState = { options, identifiers }
         const statements: Array<ts.Statement> = [
             ...renderer.renderIncludes(outDir, resolvedFile.namespace.path, resolvedFile),
-            ...processStatements(resolvedFile.body, identifiers, renderer),
+            ...processStatements(resolvedFile.body, state, renderer),
         ]
 
         cache[cacheKey] = {

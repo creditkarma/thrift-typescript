@@ -10,7 +10,7 @@ import {
 } from '../types'
 
 import {
-    IIdentifierMap,
+    IRenderState,
 } from '../../../types'
 
 import {
@@ -30,13 +30,13 @@ export function renderOptional(field: FieldDefinition, loose: boolean = false): 
     }
 }
 
-function strictInterface(node: InterfaceWithFields, identifiers: IIdentifierMap): ts.InterfaceDeclaration {
+function strictInterface(node: InterfaceWithFields, state: IRenderState): ts.InterfaceDeclaration {
     const signatures = node.fields.map((field: FieldDefinition) => {
         return ts.createPropertySignature(
             undefined,
             field.name.value,
             renderOptional(field),
-            typeNodeForFieldType(field.fieldType, identifiers),
+            typeNodeForFieldType(field.fieldType, state),
             undefined,
         )
     })
@@ -53,13 +53,13 @@ function strictInterface(node: InterfaceWithFields, identifiers: IIdentifierMap)
     )
 }
 
-function looseInterface(node: InterfaceWithFields, identifiers: IIdentifierMap): ts.InterfaceDeclaration {
+function looseInterface(node: InterfaceWithFields, state: IRenderState): ts.InterfaceDeclaration {
     const signatures = node.fields.map((field: FieldDefinition) => {
         return ts.createPropertySignature(
             undefined,
             field.name.value,
             renderOptional(field, true),
-            typeNodeForFieldType(field.fieldType, identifiers, true),
+            typeNodeForFieldType(field.fieldType, state, true),
             undefined,
         )
     })
@@ -98,9 +98,9 @@ function looseInterface(node: InterfaceWithFields, identifiers: IIdentifierMap):
  *   field1?: number | thrift.Int64
  * }
  */
-export function renderInterface(node: InterfaceWithFields, identifiers: IIdentifierMap): Array<ts.InterfaceDeclaration> {
+export function renderInterface(node: InterfaceWithFields, state: IRenderState): Array<ts.InterfaceDeclaration> {
     return [
-        strictInterface(node, identifiers),
-        looseInterface(node, identifiers),
+        strictInterface(node, state),
+        looseInterface(node, state),
     ]
 }

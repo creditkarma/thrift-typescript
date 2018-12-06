@@ -9,6 +9,8 @@ import {
     renderIntConstant,
 } from './values'
 
+import { IRenderState } from '../../types'
+
 /**
  * EXAMPE
  *
@@ -24,7 +26,7 @@ import {
  *   TWO
  * }
  */
-export function renderEnum(node: EnumDefinition): ts.Statement {
+export function renderEnum(node: EnumDefinition, state: IRenderState): ts.Statement {
     return ts.createEnumDeclaration(
         undefined, // decorators
         [ ts.createToken(ts.SyntaxKind.ExportKeyword) ], // modifiers
@@ -34,7 +36,7 @@ export function renderEnum(node: EnumDefinition): ts.Statement {
                 field.name.value,
                 (
                     (field.initializer !== null) ?
-                        renderIntConstant(field.initializer) :
+                        renderIntConstant(field.initializer, state) :
                         undefined
                 ),
             )

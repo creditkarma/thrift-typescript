@@ -21,6 +21,7 @@ import {
 
 import {
   IIdentifierMap,
+  IRenderState,
 } from '../../../types'
 
 import {
@@ -53,7 +54,8 @@ import {
 } from '../types'
 
 import {
-    codecName, strictName,
+    codecName,
+    strictName,
 } from '../struct/utils'
 
 function objectLiteralForServiceFunctions(node: ThriftStatement): ts.ObjectLiteralExpression {
@@ -81,7 +83,7 @@ function handlerType(node: ServiceDefinition): ts.TypeNode {
     )
 }
 
-export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifierMap): ts.ClassDeclaration {
+export function renderProcessor(node: ServiceDefinition, state: IRenderState): ts.ClassDeclaration {
     const serviceName: ts.PropertyDeclaration = ts.createProperty(
         undefined,
         [
@@ -112,7 +114,7 @@ export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifie
             ),
         ],
         [
-            ...createSuperCall(node, identifiers),
+            ...createSuperCall(node, state),
             createAssignmentStatement(
                 ts.createIdentifier('this._handler'),
                 ts.createIdentifier('handler'),
@@ -120,9 +122,9 @@ export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifie
         ],
     )
 
-    const processMethod: ts.MethodDeclaration = createProcessMethod(node, identifiers)
+    const processMethod: ts.MethodDeclaration = createProcessMethod(node, state)
     const processFunctions: Array<ts.MethodDeclaration> = node.functions.map((next: FunctionDefinition) => {
-        return createProcessFunctionMethod(node, next, identifiers)
+        return createProcessFunctionMethod(node, next, state)
     })
 
     const heritage: Array<ts.HeritageClause> = (
@@ -166,7 +168,7 @@ export function renderProcessor(node: ServiceDefinition, identifiers: IIdentifie
     )
 }
 
-function createSuperCall(node: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+function createSuperCall(node: ServiceDefinition, state: IRenderState): Array<ts.Statement> {
     if (node.extends !== null) {
         return [
             ts.createStatement(ts.createCall(
@@ -174,7 +176,7 @@ function createSuperCall(node: ServiceDefinition, identifiers: IIdentifierMap): 
                 [],
                 [
                     objectLiteralForServiceFunctions(
-                        identifiers[node.extends.value].definition,
+                        state.identifiers[node.extends.value].definition,
                     ),
                 ],
             )),
@@ -187,7 +189,7 @@ function createSuperCall(node: ServiceDefinition, identifiers: IIdentifierMap): 
 function createProcessFunctionMethod(
     service: ServiceDefinition,
     funcDef: FunctionDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     return createPublicMethod(
         ts.createIdentifier(`process_${funcDef.name.value}`),
@@ -207,7 +209,7 @@ function createProcessFunctionMethod(
                 createMethodCall(
                     createMethodCall(
                         createPromise(
-                            typeNodeForFieldType(funcDef.returnType, identifiers),
+                            typeNodeForFieldType(funcDef.returnType, state),
                             createVoidType(),
                             [
                                 // try {
@@ -263,7 +265,7 @@ function createProcessFunctionMethod(
                                 [
                                     createFunctionParameter(
                                         ts.createIdentifier('data'),
-                                        typeNodeForFieldType(funcDef.returnType, identifiers),
+                                        typeNodeForFieldType(funcDef.returnType, state),
                                     ),
                                 ],
                                 ts.createTypeReferenceNode(
@@ -598,7 +600,7 @@ function createExceptionHandlers(funcDef: FunctionDefinition): Array<ts.Statemen
 //         ...skip logic
 //     }
 // }
-function createProcessMethod(service: ServiceDefinition, identifiers: IIdentifierMap): ts.MethodDeclaration {
+function createProcessMethod(service: ServiceDefinition, state: IRenderState): ts.MethodDeclaration {
     return createPublicMethod(
         COMMON_IDENTIFIERS.process,
         [
@@ -650,7 +652,7 @@ function createProcessMethod(service: ServiceDefinition, identifiers: IIdentifie
                                 COMMON_IDENTIFIERS.fieldName,
                             ),
                         ),
-                        createMethodCallForFname(service, identifiers),
+                        createMethodCallForFname(service, state),
                     ],
                 ),
             ),
@@ -732,11 +734,11 @@ function collectAllMethods(service: ServiceDefinition, identifiers: IIdentifierM
  *     ...skip logic
  * }
  */
-function createMethodCallForFname(service: ServiceDefinition, identifiers: IIdentifierMap): ts.SwitchStatement {
+function createMethodCallForFname(service: ServiceDefinition, state: IRenderState): ts.SwitchStatement {
     return ts.createSwitch(
         ts.createIdentifier('methodName'),
         ts.createCaseBlock([
-            ...collectAllMethods(service, identifiers).map(createMethodCallForFunction),
+            ...collectAllMethods(service, state.identifiers).map(createMethodCallForFunction),
             ts.createDefaultClause([
                 ts.createBlock([
                     // input.skip(Thrift.Type.STRUCT)
