@@ -44,6 +44,7 @@ import {
 import {
     createAnyType,
     createNumberType,
+    createStringType,
     typeNodeForFieldType,
 } from '../../shared/types'
 
@@ -52,6 +53,18 @@ import {
 } from '../../shared/values'
 
 export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
+    const serviceName: ts.PropertyDeclaration = ts.createProperty(
+        undefined,
+        [
+            ts.createToken(ts.SyntaxKind.PublicKeyword),
+            ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
+        ],
+        COMMON_IDENTIFIERS._serviceName,
+        undefined,
+        createStringType(),
+        ts.createLiteral(node.name.value),
+    )
+
     // private _requestId: number;
     const requestId: ts.PropertyDeclaration = createProtectedProperty(
         '_requestId',
@@ -188,6 +201,7 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
         ], // type parameters
         heritage, // heritage
         [
+            serviceName,
             requestId,
             transport,
             protocol,

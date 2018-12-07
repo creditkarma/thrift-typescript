@@ -301,6 +301,7 @@ export namespace MyService {
         }
     }
     export class Client<Context = any> {
+        public readonly _serviceName: string = "MyService";
         protected _requestId: number;
         protected transport: thrift.ITransportConstructor;
         protected protocol: thrift.IProtocolConstructor;
@@ -419,6 +420,7 @@ export namespace MyService {
         status(code: string, context?: Context): void | Promise<void>;
     }
     export class Processor<Context = any> {
+        public readonly _serviceName: string = "MyService";
         public _handler: IHandler<Context>;
         constructor(handler: IHandler<Context>) {
             this._handler = handler;
