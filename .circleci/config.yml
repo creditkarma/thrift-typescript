@@ -37,7 +37,7 @@ jobs:
           name: Publish to NPM
           command: npm publish --tag fix --access public
 
-  publish_fix:
+  publish_next:
     <<: *defaults
     steps:
       - checkout
