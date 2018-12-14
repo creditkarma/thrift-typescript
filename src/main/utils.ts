@@ -170,11 +170,7 @@ export function flattenResolvedFile(file: IResolvedFile): Array<IResolvedFile> {
 export function saveFiles(rootDir: string, outDir: string, files: Array<IRenderedFile>): void {
     files.forEach((next: IRenderedFile) => {
         mkdir(path.dirname(next.outPath))
-        try {
-            fs.writeFileSync(next.outPath, print(next.statements, true))
-        } catch (err) {
-            throw new Error(`Unable to save generated files to: ${next.outPath}`)
-        }
+        fs.writeFileSync(next.outPath, print(next.statements, true))
     })
 }
 

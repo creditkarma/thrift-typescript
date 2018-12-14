@@ -53,7 +53,7 @@ export function generateFile({
         const identifiers: IIdentifierMap = resolvedFile.identifiers
         const state: IRenderState = { options, identifiers }
         const statements: Array<ts.Statement> = [
-            ...renderer.renderIncludes(outDir, resolvedFile.namespace.path, resolvedFile),
+            ...renderer.renderIncludes(outDir, resolvedFile.namespace.path, resolvedFile, state),
             ...processStatements(resolvedFile.body, state, renderer),
         ]
 

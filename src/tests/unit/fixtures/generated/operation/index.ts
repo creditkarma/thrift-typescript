@@ -18,4 +18,5 @@ export import IJankyResult = exceptions.IInvalidResult;
 export import IJankyResultArgs = exceptions.IInvalidResultArgs;
 export import JankyResult = exceptions.InvalidResult;
 export import JankyResultCodec = exceptions.InvalidResultCodec;
+export type Response = number;
 export import SomethingToDo = Operation;

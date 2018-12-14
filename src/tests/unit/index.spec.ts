@@ -23,7 +23,7 @@ function readGeneratedSolution(name: string, location: string = 'generated'): st
 }
 
 describe('Thrift TypeScript Generator', () => {
-    describe('Thrift Server Generated', () => {
+    describe('Thrift Server Interfaces Generated', () => {
         before(() => {
             generate({
                 rootDir: __dirname,
@@ -62,6 +62,12 @@ describe('Thrift TypeScript Generator', () => {
         it('should correctly generate a service using includes', () => {
             const actual: string = readGenerated('calculator', 'generated-interfaces')
             const expected: string = readGeneratedSolution('calculator', 'generated-interfaces')
+            assert.deepEqual(actual, expected)
+        })
+
+        it('should correctly generate a service using includes', () => {
+            const actual: string = readGenerated('lonely', 'generated-interfaces')
+            const expected: string = readGeneratedSolution('lonely', 'generated-interfaces')
             assert.deepEqual(actual, expected)
         })
     })

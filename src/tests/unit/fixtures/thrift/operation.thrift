@@ -5,6 +5,7 @@ include "exceptions.thrift"
 
 typedef exceptions.InvalidOperation JankyOperation
 typedef exceptions.InvalidResult JankyResult
+typedef i32 Response
 
 /**
  * You can define enums, which are just 32 bit integers. Values are optional

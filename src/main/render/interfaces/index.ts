@@ -36,8 +36,9 @@ export function renderIncludes(
     outPath: string,
     currentPath: string,
     resolvedFile: INamespaceFile,
+    state: IRenderState,
 ): Array<ts.Statement> {
-    return _renderIncludes(outPath, currentPath, resolvedFile)
+    return _renderIncludes(outPath, currentPath, resolvedFile, state)
 }
 
 export function renderConst(statement: ConstDefinition, state: IRenderState): Array<ts.Statement> {

@@ -46,7 +46,9 @@ import { typeNodeForFieldType } from './types'
 export function renderIncludes(
     outPath: string,
     currentPath: string,
-    resolvedFile: INamespaceFile): Array<ts.Statement> {
+    resolvedFile: INamespaceFile,
+    state: IRenderState,
+): Array<ts.Statement> {
         const includes: Array<ts.Statement> = [
             ..._renderIncludes(outPath, currentPath, resolvedFile.includes),
         ]

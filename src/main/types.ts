@@ -53,7 +53,8 @@ export interface IRenderer {
     renderIncludes(
         outPath: string,
         currentPath: string,
-        resolvedFile: INamespaceFile): Array<ts.Statement>
+        resolvedFile: INamespaceFile,
+        state: IRenderState): Array<ts.Statement>
 
     renderConst(
         statement: ConstDefinition,
