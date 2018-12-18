@@ -30,6 +30,14 @@ function makeNameForNode(name: string, mapping: NameMapping): string {
     }
 }
 
+export function tokens(isExported: boolean): Array<ts.Token<ts.SyntaxKind.ExportKeyword>> {
+    if (isExported) {
+        return [ ts.createToken(ts.SyntaxKind.ExportKeyword) ]
+    } else {
+        return []
+    }
+}
+
 export function looseNameForStruct(node: InterfaceWithFields): string {
     return looseName(node.name.value)
 }

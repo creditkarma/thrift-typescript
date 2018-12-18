@@ -25,11 +25,11 @@ export function capitalize(str: string): string {
 }
 
 export function createStructArgsName(def: FunctionDefinition | FieldDefinition): string {
-    return `${capitalize(def.name.value)}Args`
+    return `${capitalize(def.name.value)}__Args`
 }
 
 export function createStructResultName(def: FunctionDefinition | FieldDefinition): string {
-    return `${capitalize(def.name.value)}Result`
+    return `${capitalize(def.name.value)}__Result`
 }
 
 // function functionsForService(node: ThriftStatement): Array<FunctionDefinition> {
