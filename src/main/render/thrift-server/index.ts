@@ -27,6 +27,7 @@ import { renderUnion as _renderUnion } from './union'
 
 import {
     IIdentifierMap,
+    IMakeOptions,
     INamespaceFile,
     IRenderer,
 } from '../../types'
@@ -37,10 +38,11 @@ export function renderIncludes(
     outPath: string,
     currentPath: string,
     resolvedFile: INamespaceFile,
+    options: IMakeOptions,
 ): Array<ts.Statement> {
     if (fileUsesThrift(resolvedFile)) {
         return [
-            renderThriftImports(),
+            renderThriftImports(options.library),
             ..._renderIncludes(outPath, currentPath, resolvedFile),
         ]
     } else {

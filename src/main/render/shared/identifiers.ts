@@ -1,6 +1,7 @@
 import * as ts from 'typescript'
 
 export const COMMON_IDENTIFIERS = {
+    thrift: ts.createIdentifier('thrift'),
     serviceName: ts.createIdentifier('serviceName'),
     _servicename: ts.createIdentifier('_serviceName'),
     fieldAnnotations: ts.createIdentifier('_fieldAnnotations'),

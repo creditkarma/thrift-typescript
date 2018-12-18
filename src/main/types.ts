@@ -37,13 +37,19 @@ export interface IMakeOptions {
 
     // What core libs are you compiling for?
     target: CompileTarget
+
+    // What is the library to import thrift from
+    // Defaults to 'thrift' for target = 'apache'
+    // Defaults to '@creditkarma/thrift-server-core' for target = 'thrift-server'
+    library: string
 }
 
 export interface IRenderer {
     renderIncludes(
         outPath: string,
         currentPath: string,
-        resolvedFile: INamespaceFile): Array<ts.Statement>
+        resolvedFile: INamespaceFile,
+        options: IMakeOptions): Array<ts.Statement>
 
     renderConst(
         statement: ConstDefinition,

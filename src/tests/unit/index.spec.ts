@@ -31,6 +31,7 @@ describe('Thrift TypeScript Generator', () => {
                 sourceDir: 'fixtures/thrift',
                 target: 'thrift-server',
                 files: [],
+                library: 'test-lib',
             })
         })
 

@@ -16,6 +16,7 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
         sourceDir: './thrift',
         target: 'apache',
         files: [],
+        library: '',
     }
 
     while (index < len) {
@@ -66,6 +67,14 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                     index += 1
                 }
         }
+    }
+
+    if (options.target === 'thrift-server' && options.library === '') {
+        options.library = '@creditkarma/thrift-server-core'
+    }
+
+    if (options.target === 'apache' && options.library === '') {
+        options.library = 'thrift'
     }
 
     return options

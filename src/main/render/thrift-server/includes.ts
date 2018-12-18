@@ -8,7 +8,7 @@ import {
     IResolvedIdentifier,
 } from '../../types'
 
-const THRIFT_LIBRARY: ts.LiteralExpression = ts.createLiteral('@creditkarma/thrift-server-core')
+const DEFAULT_THRIFT_LIB: string = '@creditkarma/thrift-server-core'
 
 /**
  * import * as thrift from 'thrift';
@@ -16,7 +16,7 @@ const THRIFT_LIBRARY: ts.LiteralExpression = ts.createLiteral('@creditkarma/thri
  * I would really like this to only import what is being used by the file we're
  * generating. We'll need to keep track of what each files uses.
  */
-export function renderThriftImports(): ts.ImportDeclaration {
+export function renderThriftImports(thriftLib: string = DEFAULT_THRIFT_LIB): ts.ImportDeclaration {
     return ts.createImportDeclaration(
         undefined,
         undefined,
@@ -26,7 +26,7 @@ export function renderThriftImports(): ts.ImportDeclaration {
                 ts.createIdentifier('thrift'),
             ),
         ),
-        THRIFT_LIBRARY,
+        ts.createLiteral(thriftLib),
     )
 }
 

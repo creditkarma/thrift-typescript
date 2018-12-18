@@ -2,6 +2,7 @@ import * as ts from 'typescript'
 
 import {
     IIdentifierMap,
+    IMakeOptions,
     INamespaceFile,
     IRenderedCache,
     IRenderedFile,
@@ -33,13 +34,14 @@ export function generateFile(
     sourceDir: string,
     resolvedFile: INamespaceFile,
     cache: IRenderedCache = {},
+    options: IMakeOptions,
 ): IRenderedFile {
     const cacheKey: string = resolvedFile.namespace.path
 
     if (cacheKey === '/' || cache[cacheKey] === undefined) {
         const identifiers: IIdentifierMap = resolvedFile.identifiers
         const statements: Array<ts.Statement> = [
-            ...renderer.renderIncludes(outDir, resolvedFile.namespace.path, resolvedFile),
+            ...renderer.renderIncludes(outDir, resolvedFile.namespace.path, resolvedFile, options),
             ...processStatements(resolvedFile.body, identifiers, renderer),
         ]
 

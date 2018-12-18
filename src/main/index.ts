@@ -101,6 +101,7 @@ export function generate(options: IMakeOptions): void {
                     sourceDir,
                     next,
                     renderedCache,
+                    options,
                 )
             },
         )
