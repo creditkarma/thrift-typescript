@@ -75,12 +75,12 @@ workflows:
   version: 2
   build_publish:
       jobs:
-        - test_node_6:
+        - test_node_8:
             filters:
               tags:
                 only: /.*/
 
-        - test_node_8:
+        - test_node_10:
             filters:
               tags:
                 only: /.*/
