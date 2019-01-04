@@ -29,9 +29,9 @@ export function constToTypeString(constValue: ConstValue): string {
             return `Array<${constToTypeString(constValue.elements[0])}>`
 
         case SyntaxType.ConstMap:
-            return `Map<${constToTypeString(constValue.properties[0].name)},${constToTypeString(
-                constValue.properties[0].initializer,
-            )}>`
+            return `Map<${constToTypeString(
+                constValue.properties[0].name,
+            )},${constToTypeString(constValue.properties[0].initializer)}>`
 
         default:
             const msg: never = constValue
@@ -54,7 +54,9 @@ export function fieldTypeToString(fieldType: FunctionType): string {
             return `Set<${fieldTypeToString(fieldType.valueType)}>`
 
         case SyntaxType.MapType:
-            return `Map<${fieldTypeToString(fieldType.keyType)},${fieldTypeToString(fieldType.valueType)}>`
+            return `Map<${fieldTypeToString(
+                fieldType.keyType,
+            )},${fieldTypeToString(fieldType.valueType)}>`
 
         case SyntaxType.ListType:
             return `Array<${fieldTypeToString(fieldType.valueType)}>`

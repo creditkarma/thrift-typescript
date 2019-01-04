@@ -41,7 +41,12 @@ export function generateFile(
     if (cacheKey === '/' || cache[cacheKey] === undefined) {
         const identifiers: IIdentifierMap = resolvedFile.identifiers
         const statements: Array<ts.Statement> = [
-            ...renderer.renderIncludes(outDir, resolvedFile.namespace.path, resolvedFile, options),
+            ...renderer.renderIncludes(
+                outDir,
+                resolvedFile.namespace.path,
+                resolvedFile,
+                options,
+            ),
             ...processStatements(resolvedFile.body, identifiers, renderer),
         ]
 

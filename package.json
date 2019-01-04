@@ -14,12 +14,13 @@
         "clean": "rimraf ./coverage ./dist ./**/codegen",
         "clean-all": "npm run clean && rimraf ./node_modules package-lock.json",
         "codegen": "node ./dist/main/bin/index.js --sourceDir ./src/tests/integration/thrift --outDir ./src/tests/integration/apache/codegen",
-        "prebuild": "npm run clean",
-        "build": "npm run lint && tsc",
+        "prebuild": "npm run clean && npm run lint && npm run format",
+        "build": "tsc",
         "prebuild:test": "npm run build && npm run codegen",
         "build:test": "tsc -p tsconfig.test.json",
         "build:watch": "tsc --watch",
         "lint": "tslint --fix 'src/**/*.ts'",
+        "format": "prettier --write 'src/**/*.ts'",
         "move:fixtures": "rimraf dist/tests/unit/fixtures && cp -r src/tests/unit/fixtures dist/tests/unit/fixtures",
         "pretest": "npm run build:test && npm run move:fixtures",
         "test": "npm run lint && npm run test:unit && npm run test:integration",
@@ -58,10 +59,13 @@
         "chai": "^4.2.0",
         "mocha": "^5.2.0",
         "nyc": "^13.0.1",
+        "prettier": "^1.15.3",
         "rimraf": "^2.6.2",
         "source-map-support": "^0.5.9",
         "thrift": "^0.11.0",
-        "tslint": "^5.11.0"
+        "tslint": "^5.11.0",
+        "tslint-config-prettier": "^1.17.0",
+        "tslint-plugin-prettier": "^2.0.0"
     },
     "nyc": {
         "include": [

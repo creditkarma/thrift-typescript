@@ -1,7 +1,11 @@
 {
-    "extends": "tslint:recommended",
+    "extends": [
+        "tslint:recommended",
+        "tslint-config-prettier",
+        "tslint-plugin-prettier"
+    ],
     "linterOptions": {
-        "exclude": ["src/tests/**/*.ts"]
+        "exclude": ["src/tests/unit/fixtures/**/*.ts"]
     },
     "rules": {
         "max-classes-per-file": false,

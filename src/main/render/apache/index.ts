@@ -12,9 +12,7 @@ import {
 
 import { renderException as _renderException } from './exception'
 
-import {
-    renderInterface,
-} from './interface'
+import { renderInterface } from './interface'
 
 import {
     renderArgsStruct,
@@ -50,59 +48,74 @@ export function renderIncludes(
     resolvedFile: INamespaceFile,
     options: IMakeOptions,
 ): Array<ts.Statement> {
-        const includes: Array<ts.Statement> = [
-            ..._renderIncludes(outPath, currentPath, resolvedFile.includes),
-        ]
+    const includes: Array<ts.Statement> = [
+        ..._renderIncludes(outPath, currentPath, resolvedFile.includes),
+    ]
 
-        if (fileUsesThrift(resolvedFile)) {
-            includes.unshift(renderThriftImports(options.library))
-        }
+    if (fileUsesThrift(resolvedFile)) {
+        includes.unshift(renderThriftImports(options.library))
+    }
 
-        if (fileUsesInt64(resolvedFile)) {
-            includes.unshift(renderInt64Import())
-        }
+    if (fileUsesInt64(resolvedFile)) {
+        includes.unshift(renderInt64Import())
+    }
 
-        return includes
+    return includes
 }
 
-export function renderConst(statement: ConstDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return [ _renderConst(statement, typeNodeForFieldType) ]
+export function renderConst(
+    statement: ConstDefinition,
+    identifiers: IIdentifierMap,
+): Array<ts.Statement> {
+    return [_renderConst(statement, typeNodeForFieldType)]
 }
 
-export function renderTypeDef(statement: TypedefDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function renderTypeDef(
+    statement: TypedefDefinition,
+    identifiers: IIdentifierMap,
+): Array<ts.Statement> {
     return _renderTypeDef(statement, typeNodeForFieldType, identifiers)
 }
 
-export function renderEnum(statement: EnumDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return [ _renderEnum(statement) ]
+export function renderEnum(
+    statement: EnumDefinition,
+    identifiers: IIdentifierMap,
+): Array<ts.Statement> {
+    return [_renderEnum(statement)]
 }
 
-export function renderStruct(statement: StructDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return [
-        renderInterface(statement),
-        _renderStruct(statement, identifiers),
-    ]
+export function renderStruct(
+    statement: StructDefinition,
+    identifiers: IIdentifierMap,
+): Array<ts.Statement> {
+    return [renderInterface(statement), _renderStruct(statement, identifiers)]
 }
 
-export function renderException(statement: ExceptionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function renderException(
+    statement: ExceptionDefinition,
+    identifiers: IIdentifierMap,
+): Array<ts.Statement> {
     return [
         renderInterface(statement),
         _renderException(statement, identifiers),
     ]
 }
 
-export function renderUnion(statement: UnionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return [
-        renderInterface(statement),
-        _renderUnion(statement, identifiers),
-    ]
+export function renderUnion(
+    statement: UnionDefinition,
+    identifiers: IIdentifierMap,
+): Array<ts.Statement> {
+    return [renderInterface(statement), _renderUnion(statement, identifiers)]
 }
 
-export function renderService(statement: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function renderService(
+    statement: ServiceDefinition,
+    identifiers: IIdentifierMap,
+): Array<ts.Statement> {
     return [
         ts.createModuleDeclaration(
             undefined,
-            [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+            [ts.createToken(ts.SyntaxKind.ExportKeyword)],
             ts.createIdentifier(statement.name.value),
             ts.createModuleBlock([
                 ...renderArgsStruct(statement, identifiers),

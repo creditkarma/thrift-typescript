@@ -19,17 +19,14 @@ import {
     Work,
 } from './codegen/calculator'
 
-import {
-    SharedStruct,
-    SharedUnion,
-} from './codegen/shared'
+import { SharedStruct, SharedUnion } from './codegen/shared'
 
-import { createCalculatorServer } from './calculator-service'
 import { createAddServer } from './add-service'
+import { createCalculatorServer } from './calculator-service'
 
 import {
-    CALC_SERVER_CONFIG,
     ADD_SERVER_CONFIG,
+    CALC_SERVER_CONFIG,
     // SERVER_CONFIG,
 } from './config'
 
@@ -40,10 +37,17 @@ describe('Thrift TypeScript', () => {
         https: false,
         headers: {
             Host: CALC_SERVER_CONFIG.hostName,
-        }
+        },
     }
-    const connection: HttpConnection = createHttpConnection(CALC_SERVER_CONFIG.hostName, CALC_SERVER_CONFIG.port, options)
-    const thriftClient: Calculator.Client = createHttpClient(Calculator.Client, connection)
+    const connection: HttpConnection = createHttpConnection(
+        CALC_SERVER_CONFIG.hostName,
+        CALC_SERVER_CONFIG.port,
+        options,
+    )
+    const thriftClient: Calculator.Client = createHttpClient(
+        Calculator.Client,
+        connection,
+    )
     let calcService: net.Server
     let addService: net.Server
 
@@ -52,16 +56,23 @@ describe('Thrift TypeScript', () => {
     })
 
     // Allow servers to spin up
-    before((done) => {
+    before(done => {
         addService = createAddServer().listen(ADD_SERVER_CONFIG.port, () => {
-            calcService = createCalculatorServer().listen(CALC_SERVER_CONFIG.port, () => {
-                console.log(`Thrift server listening at http://${CALC_SERVER_CONFIG.hostName}:${CALC_SERVER_CONFIG.port}`)
-                done()
-            })
+            calcService = createCalculatorServer().listen(
+                CALC_SERVER_CONFIG.port,
+                () => {
+                    console.log(
+                        `Thrift server listening at http://${
+                            CALC_SERVER_CONFIG.hostName
+                        }:${CALC_SERVER_CONFIG.port}`,
+                    )
+                    done()
+                },
+            )
         })
     })
 
-    after((done) => {
+    after(done => {
         calcService.close()
         addService.close()
         done()
@@ -96,8 +107,12 @@ describe('Thrift TypeScript', () => {
     })
 
     it('should call an endpoint with union arguments', async () => {
-        const firstName: Choice = new Choice({ firstName: new FirstName({ name: 'Louis' })})
-        const lastName: Choice = new Choice({ lastName: new LastName({ name: 'Smith' })})
+        const firstName: Choice = new Choice({
+            firstName: new FirstName({ name: 'Louis' }),
+        })
+        const lastName: Choice = new Choice({
+            lastName: new LastName({ name: 'Smith' }),
+        })
 
         return Promise.all([
             thriftClient.checkName(firstName),
@@ -132,18 +147,16 @@ describe('Thrift TypeScript', () => {
     it('should corrently call endpoint with binary data', async () => {
         const word: string = 'test_binary'
         const data: Buffer = Buffer.from(word, 'utf-8')
-        return thriftClient.echoBinary(data)
-            .then((response: string) => {
-                assert.equal(response, word)
-            })
+        return thriftClient.echoBinary(data).then((response: string) => {
+            assert.equal(response, word)
+        })
     })
 
     it('should corrently call endpoint that string data', async () => {
         const word: string = 'test_string'
-        return thriftClient.echoString(word)
-            .then((response: string) => {
-                assert.equal(response, word)
-            })
+        return thriftClient.echoString(word).then((response: string) => {
+            assert.equal(response, word)
+        })
     })
 
     it('should correctly call endpoint with optional parameters', async () => {
@@ -157,33 +170,48 @@ describe('Thrift TypeScript', () => {
     })
 
     it('should correctly call endpoint with lists as parameters', async () => {
-        return thriftClient.mapOneList([1, 2, 3, 4]).then((val: Array<number>) => {
-            assert.deepEqual(val, [2, 3, 4, 5])
-        })
+        return thriftClient
+            .mapOneList([1, 2, 3, 4])
+            .then((val: Array<number>) => {
+                assert.deepEqual(val, [2, 3, 4, 5])
+            })
     })
 
     it('should correctly call endpoint with maps as parameters', async () => {
-        return thriftClient.mapValues(new Map([['key1', 6], ['key2', 5]])).then((response: Array<number>) => {
-            assert.deepEqual(response, [6, 5])
-        })
+        return thriftClient
+            .mapValues(new Map([['key1', 6], ['key2', 5]]))
+            .then((response: Array<number>) => {
+                assert.deepEqual(response, [6, 5])
+            })
     })
 
     it('should correctly call endpoint that returns a map', async () => {
-        return thriftClient.listToMap([['key_1', 'value_1'], ['key_2', 'value_2']]).then((response: Map<string, string>) => {
-            assert.deepEqual(response, new Map([['key_1', 'value_1'], ['key_2', 'value_2']]))
-        })
+        return thriftClient
+            .listToMap([['key_1', 'value_1'], ['key_2', 'value_2']])
+            .then((response: Map<string, string>) => {
+                assert.deepEqual(
+                    response,
+                    new Map([['key_1', 'value_1'], ['key_2', 'value_2']]),
+                )
+            })
     })
 
     it('should correctly handle service methods that throw multiple exceptions', async () => {
-        return thriftClient.throw(1).then(() => {
-            throw new Error('Should reject')
-        }, (err: any) => {
-            assert.equal(err.message, 'test one')
-            return thriftClient.throw(2).then(() => {
+        return thriftClient.throw(1).then(
+            () => {
                 throw new Error('Should reject')
-            }, (err: any) => {
-                assert.equal(err.whatHappened, 'test two')
-            })
-        })
+            },
+            (err1: any) => {
+                assert.equal(err1.message, 'test one')
+                return thriftClient.throw(2).then(
+                    () => {
+                        throw new Error('Should reject')
+                    },
+                    (err2: any) => {
+                        assert.equal(err2.whatHappened, 'test two')
+                    },
+                )
+            },
+        )
     })
 })

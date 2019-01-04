@@ -28,9 +28,7 @@ import {
     IResolvedIncludeMap,
 } from '../types'
 
-import {
-    resolveNamespace,
-} from './utils'
+import { resolveNamespace } from './utils'
 
 /**
  * The job of the resolver is to traverse the AST and find all of the Identifiers. In order to
@@ -86,23 +84,30 @@ import {
  * @param thrift
  * @param includes
  */
-export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IResolvedCache = {}): IResolvedFile {
+export function resolveFile(
+    outPath: string,
+    parsedFile: IParsedFile,
+    cache: IResolvedCache = {},
+): IResolvedFile {
     const cacheKey: string = `${parsedFile.path}/${parsedFile.name}`
 
     if (cacheKey === '/' || !cache[cacheKey]) {
         const identifiers: IIdentifierMap = {}
         const resolvedIncludes: IResolvedIncludeMap = {}
         const namespace: INamespace = resolveNamespace(outPath, parsedFile.ast)
-        const includes: Array<IResolvedFile> =
-            parsedFile.includes.map((next: IParsedFile): IResolvedFile => {
+        const includes: Array<IResolvedFile> = parsedFile.includes.map(
+            (next: IParsedFile): IResolvedFile => {
                 return resolveFile(outPath, next)
-            })
+            },
+        )
 
-        const includeMap: IResolvedFileMap =
-            includes.reduce((acc: IResolvedFileMap, next: IResolvedFile): IResolvedFileMap => {
+        const includeMap: IResolvedFileMap = includes.reduce(
+            (acc: IResolvedFileMap, next: IResolvedFile): IResolvedFileMap => {
                 acc[next.name] = next
                 return acc
-            }, {})
+            },
+            {},
+        )
 
         for (const include of includes) {
             resolvedIncludes[include.name] = {
@@ -129,8 +134,12 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                  * case.
                  */
                 case SyntaxType.Identifier:
-                    const id: IResolvedIdentifier = identifiers[fieldType.value]
-                    if (id !== undefined && id.definition.type === SyntaxType.TypedefDefinition) {
+                    const id: IResolvedIdentifier =
+                        identifiers[fieldType.value]
+                    if (
+                        id !== undefined &&
+                        id.definition.type === SyntaxType.TypedefDefinition
+                    ) {
                         return id.definition.definitionType
                     } else {
                         return {
@@ -203,11 +212,10 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                 fieldID: field.fieldID,
                 fieldType: resolveFunctionType(field.fieldType),
                 requiredness: field.requiredness,
-                defaultValue: (
-                    (field.defaultValue !== null) ?
-                        resolveValue(field.defaultValue) :
-                        null
-                ),
+                defaultValue:
+                    field.defaultValue !== null
+                        ? resolveValue(field.defaultValue)
+                        : null,
                 comments: field.comments,
                 annotations: field.annotations,
                 loc: field.loc,
@@ -231,18 +239,21 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                     return {
                         type: SyntaxType.ServiceDefinition,
                         name: statement.name,
-                        extends: (
-                            statement.extends !== null ?
-                                {
-                                    type: SyntaxType.Identifier,
-                                    value: resolveName(statement.extends.value),
-                                    loc: statement.extends.loc,
-                                } :
-                                null
+                        extends:
+                            statement.extends !== null
+                                ? {
+                                      type: SyntaxType.Identifier,
+                                      value: resolveName(
+                                          statement.extends.value,
+                                      ),
+                                      loc: statement.extends.loc,
+                                  }
+                                : null,
+                        functions: statement.functions.map(
+                            (next: FunctionDefinition) => {
+                                return resolveFunction(next)
+                            },
                         ),
-                        functions: statement.functions.map((next: FunctionDefinition) => {
-                            return resolveFunction(next)
-                        }),
                         comments: statement.comments,
                         annotations: statement.annotations,
                         loc: statement.loc,
@@ -282,7 +293,9 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                     return {
                         type: SyntaxType.TypedefDefinition,
                         name: statement.name,
-                        definitionType: resolveFieldType(statement.definitionType),
+                        definitionType: resolveFieldType(
+                            statement.definitionType,
+                        ),
                         comments: statement.comments,
                         annotations: statement.annotations,
                         loc: statement.loc,
@@ -293,7 +306,10 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
             }
         }
 
-        function containsIdentifier(pathName: string, resolvedName: string): boolean {
+        function containsIdentifier(
+            pathName: string,
+            resolvedName: string,
+        ): boolean {
             for (const include of resolvedIncludes[pathName].identifiers) {
                 if (include.resolvedName === resolvedName) {
                     return true
@@ -302,10 +318,13 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
             return false
         }
 
-        function definitionForTypeDef(statement: TypedefDefinition): DefinitionType {
+        function definitionForTypeDef(
+            statement: TypedefDefinition,
+        ): DefinitionType {
             switch (statement.definitionType.type) {
                 case SyntaxType.Identifier:
-                    return identifiers[statement.definitionType.value].definition
+                    return identifiers[statement.definitionType.value]
+                        .definition
 
                 default:
                     return statement
@@ -347,7 +366,7 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
             const parts: Array<string> = name.split('.')
 
             if (parts.length > 1) {
-                const [ pathname, base, ...tail ] = parts
+                const [pathname, base, ...tail] = parts
 
                 /**
                  * In this case we are dealing with an Identifier that is defined in
@@ -356,7 +375,8 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                  */
                 if (resolvedIncludes[pathname] !== undefined) {
                     const resolvedName: string = `${pathname}.${base}`
-                    const baseIdentifier: IResolvedIdentifier = includeMap[pathname].identifiers[base]
+                    const baseIdentifier: IResolvedIdentifier =
+                        includeMap[pathname].identifiers[base]
 
                     identifiers[resolvedName] = {
                         name: baseIdentifier.name,
@@ -373,39 +393,49 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
                             definition: baseIdentifier.definition,
                         }
 
-                        resolvedIncludes[pathname].identifiers.push(resolvedIdentifier)
+                        resolvedIncludes[pathname].identifiers.push(
+                            resolvedIdentifier,
+                        )
                     }
 
                     if (tail.length > 0) {
                         return `${resolvedName}.${tail.join('.')}`
-
                     } else {
                         return resolvedName
                     }
 
-                /**
-                 * This case handles assignment to values
-                 *
-                 * ```
-                 * enum MyEnum {
-                 *   ONE,
-                 *   TWO
-                 * }
-                 *
-                 * typedef OtherName = MyEnum
-                 *
-                 * const OtherName TEST = OtherName.ONE
-                 * ```
-                 *
-                 * We need to resolve 'OtherName' in the value assignement
-                 */
+                    /**
+                     * This case handles assignment to values
+                     *
+                     * ```
+                     * enum MyEnum {
+                     *   ONE,
+                     *   TWO
+                     * }
+                     *
+                     * typedef OtherName = MyEnum
+                     *
+                     * const OtherName TEST = OtherName.ONE
+                     * ```
+                     *
+                     * We need to resolve 'OtherName' in the value assignement
+                     */
                 } else {
                     const id: IResolvedIdentifier = identifiers[pathname]
 
                     if (id !== undefined) {
-                        if (id.definition.type === SyntaxType.TypedefDefinition) {
-                            if (id.definition.definitionType.type === SyntaxType.Identifier) {
-                                return [ id.definition.definitionType.value, base, ...tail ].join('.')
+                        if (
+                            id.definition.type === SyntaxType.TypedefDefinition
+                        ) {
+                            if (
+                                id.definition.definitionType.type ===
+                                SyntaxType.Identifier
+                            ) {
+                                return [
+                                    id.definition.definitionType.value,
+                                    base,
+                                    ...tail,
+                                ].join('.')
                             }
                         }
                     }
@@ -425,7 +455,9 @@ export function resolveFile(outPath: string, parsedFile: IParsedFile, cache: IRe
             includes: resolvedIncludes,
             identifiers,
             body: parsedFile.ast.body.map((statement: ThriftStatement) => {
-                const resolvedStatement: ThriftStatement = resolveStatement(statement)
+                const resolvedStatement: ThriftStatement = resolveStatement(
+                    statement,
+                )
                 addIdentiferForStatement(resolvedStatement)
                 return resolvedStatement
             }),

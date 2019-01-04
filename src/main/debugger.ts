@@ -1,11 +1,7 @@
 import { TextLocation } from '@creditkarma/thrift-parser'
 import * as os from 'os'
 
-import {
-    ErrorType,
-    IResolvedFile,
-    IThriftError,
-} from './types'
+import { ErrorType, IResolvedFile, IThriftError } from './types'
 
 interface IFormattedError {
     sourceLine: string
@@ -52,13 +48,14 @@ function errorType(type: ErrorType): string {
 
 function printErrorForFile(file: IResolvedFile): void {
     const sourceLines: Array<string> = file.source.split(os.EOL)
-    const formattedErrors: Array<IFormattedError> =
-        file.errors.map((next: IThriftError): IFormattedError => {
+    const formattedErrors: Array<IFormattedError> = file.errors.map(
+        (next: IThriftError): IFormattedError => {
             return formatError(next)
-        })
+        },
+    )
 
     function getSourceLine(lineNumber: number): string {
-        return sourceLines[(lineNumber - 1)]
+        return sourceLines[lineNumber - 1]
     }
 
     function formatError(err: IThriftError): IFormattedError {
@@ -72,22 +69,30 @@ function printErrorForFile(file: IResolvedFile): void {
         }
     }
 
-    console.log(`Error generating file '${file.path}/${file.name}.thrift': ${file.errors.length} errors found:`)
-    formattedErrors.forEach((err: IFormattedError): void => {
-        const prefix: string = `${err.line} | `
+    console.log(
+        `Error generating file '${file.path}/${file.name}.thrift': ${
+            file.errors.length
+        } errors found:`,
+    )
+    formattedErrors.forEach(
+        (err: IFormattedError): void => {
+            const prefix: string = `${err.line} | `
 
-        console.log()
-        console.log(`${errorType(err.type)}\n`)
-        console.log(`Message: ${err.message}`)
-        console.log()
-        console.log(`${prefix}${err.sourceLine}`)
-        console.log(padStart(prefix.length, err.locIndicator))
-        console.log()
-    })
+            console.log()
+            console.log(`${errorType(err.type)}\n`)
+            console.log(`Message: ${err.message}`)
+            console.log()
+            console.log(`${prefix}${err.sourceLine}`)
+            console.log(padStart(prefix.length, err.locIndicator))
+            console.log()
+        },
+    )
 }
 
 export function printErrors(files: Array<IResolvedFile>): void {
-    files.forEach((next: IResolvedFile): void => {
-        printErrorForFile(next)
-    })
+    files.forEach(
+        (next: IResolvedFile): void => {
+            printErrorForFile(next)
+        },
+    )
 }

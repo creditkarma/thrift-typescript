@@ -49,35 +49,43 @@ export interface IRenderer {
         outPath: string,
         currentPath: string,
         resolvedFile: INamespaceFile,
-        options: IMakeOptions): Array<ts.Statement>
+        options: IMakeOptions,
+    ): Array<ts.Statement>
 
     renderConst(
         statement: ConstDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        identifiers?: IIdentifierMap,
+    ): Array<ts.Statement>
 
     renderTypeDef(
         statement: TypedefDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        identifiers?: IIdentifierMap,
+    ): Array<ts.Statement>
 
     renderEnum(
         statement: EnumDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        identifiers?: IIdentifierMap,
+    ): Array<ts.Statement>
 
     renderStruct(
         statement: StructDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        identifiers?: IIdentifierMap,
+    ): Array<ts.Statement>
 
     renderException(
         statement: ExceptionDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        identifiers?: IIdentifierMap,
+    ): Array<ts.Statement>
 
     renderUnion(
         statement: UnionDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        identifiers?: IIdentifierMap,
+    ): Array<ts.Statement>
 
     renderService(
         statement: ServiceDefinition,
-        identifiers?: IIdentifierMap): Array<ts.Statement>
+        identifiers?: IIdentifierMap,
+    ): Array<ts.Statement>
 }
 
 /**

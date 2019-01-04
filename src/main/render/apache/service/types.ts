@@ -1,19 +1,15 @@
 import * as ts from 'typescript'
 
-import {
-    createNumberType,
-    createVoidType,
-} from '../types'
+import { createNumberType, createVoidType } from '../types'
 
-import {
-    createFunctionParameter,
-} from '../utils'
+import { createFunctionParameter } from '../utils'
 
-import {
-    THRIFT_IDENTIFIERS,
-} from '../identifiers'
+import { THRIFT_IDENTIFIERS } from '../identifiers'
 
-export const TProtocolType: ts.TypeNode = ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined)
+export const TProtocolType: ts.TypeNode = ts.createTypeReferenceNode(
+    THRIFT_IDENTIFIERS.TProtocol,
+    undefined,
+)
 
 export function createProtocolType(): ts.ConstructorTypeNode {
     return ts.createConstructorTypeNode(
@@ -21,7 +17,10 @@ export function createProtocolType(): ts.ConstructorTypeNode {
         [
             createFunctionParameter(
                 'trans',
-                ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TTransport, undefined),
+                ts.createTypeReferenceNode(
+                    THRIFT_IDENTIFIERS.TTransport,
+                    undefined,
+                ),
             ),
         ],
         TProtocolType,

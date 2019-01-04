@@ -58,7 +58,10 @@ export function processStatements(
     identifiers: IIdentifierMap,
     renderer: IRenderer,
 ): Array<ts.Statement> {
-    return statements.reduce((acc: Array<ts.Statement>, next: ThriftStatement) => {
-        return [...acc, ...renderStatement(next, identifiers, renderer)]
-    }, [])
+    return statements.reduce(
+        (acc: Array<ts.Statement>, next: ThriftStatement) => {
+            return [...acc, ...renderStatement(next, identifiers, renderer)]
+        },
+        [],
+    )
 }

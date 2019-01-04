@@ -7,9 +7,7 @@ import {
     TypedefDefinition,
 } from '@creditkarma/thrift-parser'
 
-import {
-    INamespaceFile,
-} from '../../types'
+import { INamespaceFile } from '../../types'
 
 function constUsesThrift(statement: ConstDefinition): boolean {
     return statement.fieldType.type === SyntaxType.I64Keyword

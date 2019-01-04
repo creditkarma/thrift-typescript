@@ -12,18 +12,11 @@ import {
     SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-import {
-    TApplicationException,
-    TProtocolException,
-} from './types'
+import { TApplicationException, TProtocolException } from './types'
 
-import {
-    renderValue,
-} from './values'
+import { renderValue } from './values'
 
-import {
-    createNotNullCheck,
-} from './utils'
+import { createNotNullCheck } from './utils'
 
 import {
     APPLICATION_EXCEPTION,
@@ -34,63 +27,71 @@ import {
 
 export * from '../shared/utils'
 
-export function coerceType(valueName: ts.Identifier, fieldType: FunctionType): ts.Expression {
+export function coerceType(
+    valueName: ts.Identifier,
+    fieldType: FunctionType,
+): ts.Expression {
     switch (fieldType.type) {
         case SyntaxType.I64Keyword:
-            return ts.createParen(ts.createConditional(
-                ts.createBinary(
-                    ts.createTypeOf(valueName),
-                    ts.SyntaxKind.EqualsEqualsEqualsToken,
-                    ts.createLiteral('number'),
+            return ts.createParen(
+                ts.createConditional(
+                    ts.createBinary(
+                        ts.createTypeOf(valueName),
+                        ts.SyntaxKind.EqualsEqualsEqualsToken,
+                        ts.createLiteral('number'),
+                    ),
+                    ts.createNew(COMMON_IDENTIFIERS.Int64, undefined, [
+                        valueName,
+                    ]),
+                    valueName,
                 ),
-                ts.createNew(
-                    COMMON_IDENTIFIERS.Int64,
-                    undefined,
-                    [ valueName ],
-                ),
-                valueName,
-            ))
+            )
 
         case SyntaxType.BinaryKeyword:
-            return ts.createParen(ts.createConditional(
-                ts.createBinary(
-                    ts.createTypeOf(valueName),
-                    ts.SyntaxKind.EqualsEqualsEqualsToken,
-                    ts.createLiteral('string'),
+            return ts.createParen(
+                ts.createConditional(
+                    ts.createBinary(
+                        ts.createTypeOf(valueName),
+                        ts.SyntaxKind.EqualsEqualsEqualsToken,
+                        ts.createLiteral('string'),
+                    ),
+                    ts.createCall(
+                        ts.createIdentifier('Buffer.from'),
+                        undefined,
+                        [valueName],
+                    ),
+                    valueName,
                 ),
-                ts.createCall(
-                    ts.createIdentifier('Buffer.from'),
-                    undefined,
-                    [ valueName ],
-                ),
-                valueName,
-            ))
+            )
 
         default:
             return valueName
     }
 }
 
-export function getInitializerForField(objName: string, field: FieldDefinition, loose: boolean = false): ts.Expression {
-    const valueName: ts.Identifier = ts.createIdentifier(`${objName}.${field.name.value}`)
+export function getInitializerForField(
+    objName: string,
+    field: FieldDefinition,
+    loose: boolean = false,
+): ts.Expression {
+    const valueName: ts.Identifier = ts.createIdentifier(
+        `${objName}.${field.name.value}`,
+    )
 
     if (field.defaultValue !== null && field.defaultValue !== undefined) {
-        return ts.createParen(ts.createConditional(
-            createNotNullCheck(valueName),
-            (
-                (loose === true) ?
-                    coerceType(valueName, field.fieldType) :
-                    valueName
+        return ts.createParen(
+            ts.createConditional(
+                createNotNullCheck(valueName),
+                loose === true
+                    ? coerceType(valueName, field.fieldType)
+                    : valueName,
+                renderValue(field.fieldType, field.defaultValue),
             ),
-            renderValue(field.fieldType, field.defaultValue),
-        ))
-
-    } else {
-        return (
-            (loose === true) ?
-                coerceType(valueName, field.fieldType) :
-                valueName
         )
+    } else {
+        return loose === true
+            ? coerceType(valueName, field.fieldType)
+            : valueName
     }
 }
 
@@ -104,7 +105,7 @@ export function createProtocolException(
 ): ts.NewExpression {
     const errCtor = THRIFT_IDENTIFIERS.TProtocolException
     const errType = PROTOCOL_EXCEPTION[type]
-    const errArgs = [ errType, ts.createLiteral(message) ]
+    const errArgs = [errType, ts.createLiteral(message)]
     return ts.createNew(errCtor, undefined, errArgs)
 }
 
@@ -123,7 +124,7 @@ export function createApplicationException(
     const errType = APPLICATION_EXCEPTION[type]
     const errArgs = [
         errType,
-        (typeof message === 'string' ? ts.createLiteral(message) : message),
+        typeof message === 'string' ? ts.createLiteral(message) : message,
     ]
     return ts.createNew(errCtor, undefined, errArgs)
 }

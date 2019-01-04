@@ -29,13 +29,19 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                     if (lstatSync(options.rootDir).isDirectory()) {
                         index += 2
                         break
-
                     } else {
-                        throw new Error(`Provided root directory "${options.rootDir}" isn't a directory`)
+                        throw new Error(
+                            `Provided root directory "${
+                                options.rootDir
+                            }" isn't a directory`,
+                        )
                     }
-
                 } catch (e) {
-                    throw new Error(`Provided root directory "${options.rootDir}" doesn't exist`)
+                    throw new Error(
+                        `Provided root directory "${
+                            options.rootDir
+                        }" doesn't exist`,
+                    )
                 }
 
             case '--sourceDir':
@@ -65,7 +71,9 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
 
             default:
                 if (next.startsWith('--')) {
-                    throw new Error(`Unknown option provided to generator "${next}"`)
+                    throw new Error(
+                        `Unknown option provided to generator "${next}"`,
+                    )
                 } else {
                     // Assume option is a file to render
                     options.files.push(next)

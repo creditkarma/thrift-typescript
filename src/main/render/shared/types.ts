@@ -1,15 +1,13 @@
 import * as ts from 'typescript'
 
-import {
-    FunctionType,
-    SyntaxType,
-} from '@creditkarma/thrift-parser'
+import { FunctionType, SyntaxType } from '@creditkarma/thrift-parser'
 
-import {
-    COMMON_IDENTIFIERS,
-} from './identifiers'
+import { COMMON_IDENTIFIERS } from './identifiers'
 
-export type TypeMapping = (fieldType: FunctionType, loose?: boolean) => ts.TypeNode
+export type TypeMapping = (
+    fieldType: FunctionType,
+    loose?: boolean,
+) => ts.TypeNode
 
 export function createVoidType(): ts.TypeNode {
     return ts.createKeywordTypeNode(ts.SyntaxKind.VoidKeyword)
@@ -31,7 +29,10 @@ export function createBooleanType(): ts.KeywordTypeNode {
     return ts.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword)
 }
 
-export function createTypeProperty(name: string, type: ts.TypeNode): ts.PropertySignature {
+export function createTypeProperty(
+    name: string,
+    type: ts.TypeNode,
+): ts.PropertySignature {
     return ts.createPropertySignature(
         undefined, // modifiers
         name, // name of property
@@ -41,7 +42,9 @@ export function createTypeProperty(name: string, type: ts.TypeNode): ts.Property
     )
 }
 
-export function constructorNameForFieldType(fieldType: FunctionType): ts.Identifier {
+export function constructorNameForFieldType(
+    fieldType: FunctionType,
+): ts.Identifier {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return ts.createIdentifier(fieldType.value)

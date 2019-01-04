@@ -14,17 +14,21 @@ import { COMMON_IDENTIFIERS } from './identifiers'
  *
  * createNotNull(obj, prop) => 'obj && (obj.prop != null)'
  */
-export function createNotNullCheck(obj: string | ts.Expression ): ts.BinaryExpression {
+export function createNotNullCheck(
+    obj: string | ts.Expression,
+): ts.BinaryExpression {
     return ts.createBinary(
-        ((typeof obj === 'string') ? ts.createIdentifier(obj) : obj),
+        typeof obj === 'string' ? ts.createIdentifier(obj) : obj,
         ts.SyntaxKind.ExclamationEqualsToken,
         ts.createNull(),
     )
 }
 
-export function createNullCheck(obj: string | ts.Expression ): ts.BinaryExpression {
+export function createNullCheck(
+    obj: string | ts.Expression,
+): ts.BinaryExpression {
     return ts.createBinary(
-        ((typeof obj === 'string') ? ts.createIdentifier(obj) : obj),
+        typeof obj === 'string' ? ts.createIdentifier(obj) : obj,
         ts.SyntaxKind.EqualsEqualsToken,
         ts.createNull(),
     )
@@ -37,8 +41,15 @@ export function createNullCheck(obj: string | ts.Expression ): ts.BinaryExpressi
  *
  * createNotEquals(left, right) => 'left !== right'
  */
-export function createNotEqualsCheck(left: ts.Expression, right: ts.Expression): ts.BinaryExpression {
-    return ts.createBinary(left, ts.SyntaxKind.ExclamationEqualsEqualsToken, right)
+export function createNotEqualsCheck(
+    left: ts.Expression,
+    right: ts.Expression,
+): ts.BinaryExpression {
+    return ts.createBinary(
+        left,
+        ts.SyntaxKind.ExclamationEqualsEqualsToken,
+        right,
+    )
 }
 
 /**
@@ -48,7 +59,10 @@ export function createNotEqualsCheck(left: ts.Expression, right: ts.Expression):
  *
  * createEquals(left, right) => 'left === right'
  */
-export function createEqualsCheck(left: ts.Expression, right: ts.Expression): ts.BinaryExpression {
+export function createEqualsCheck(
+    left: ts.Expression,
+    right: ts.Expression,
+): ts.BinaryExpression {
     return ts.createBinary(left, ts.SyntaxKind.EqualsEqualsEqualsToken, right)
 }
 
@@ -72,7 +86,7 @@ export function createPublicMethod(
 ): ts.MethodDeclaration {
     return ts.createMethod(
         undefined,
-        [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
+        [ts.createToken(ts.SyntaxKind.PublicKeyword)],
         undefined,
         name,
         undefined,
@@ -86,7 +100,10 @@ export function createPublicMethod(
 /**
  * Create assignment of one ts.Expression to another
  */
-export function createAssignmentStatement(left: ts.Expression, right: ts.Expression): ts.ExpressionStatement {
+export function createAssignmentStatement(
+    left: ts.Expression,
+    right: ts.Expression,
+): ts.ExpressionStatement {
     return ts.createStatement(ts.createAssignment(left, right))
 }
 
@@ -117,9 +134,10 @@ export function createConst(
     type?: ts.TypeNode,
     initializer?: ts.Expression,
 ): ts.VariableDeclarationList {
-    return ts.createVariableDeclarationList([
-        ts.createVariableDeclaration(name, type, initializer),
-    ], ts.NodeFlags.Const)
+    return ts.createVariableDeclarationList(
+        [ts.createVariableDeclaration(name, type, initializer)],
+        ts.NodeFlags.Const,
+    )
 }
 
 export function createLet(
@@ -127,15 +145,20 @@ export function createLet(
     type?: ts.TypeNode,
     initializer?: ts.Expression,
 ): ts.VariableDeclarationList {
-    return ts.createVariableDeclarationList([
-        ts.createVariableDeclaration(name, type, initializer),
-    ], ts.NodeFlags.Let)
+    return ts.createVariableDeclarationList(
+        [ts.createVariableDeclaration(name, type, initializer)],
+        ts.NodeFlags.Let,
+    )
 }
 
-export function createPrivateProperty(name: string | ts.Identifier, type?: ts.TypeNode, initializer?: ts.Expression): ts.PropertyDeclaration {
+export function createPrivateProperty(
+    name: string | ts.Identifier,
+    type?: ts.TypeNode,
+    initializer?: ts.Expression,
+): ts.PropertyDeclaration {
     return ts.createProperty(
         undefined,
-        [ ts.createToken(ts.SyntaxKind.PrivateKeyword) ],
+        [ts.createToken(ts.SyntaxKind.PrivateKeyword)],
         name,
         undefined,
         type,
@@ -143,10 +166,14 @@ export function createPrivateProperty(name: string | ts.Identifier, type?: ts.Ty
     )
 }
 
-export function createProtectedProperty(name: string | ts.Identifier, type?: ts.TypeNode, initializer?: ts.Expression): ts.PropertyDeclaration {
+export function createProtectedProperty(
+    name: string | ts.Identifier,
+    type?: ts.TypeNode,
+    initializer?: ts.Expression,
+): ts.PropertyDeclaration {
     return ts.createProperty(
         undefined,
-        [ ts.createToken(ts.SyntaxKind.ProtectedKeyword) ],
+        [ts.createToken(ts.SyntaxKind.ProtectedKeyword)],
         name,
         undefined,
         type,
@@ -154,10 +181,14 @@ export function createProtectedProperty(name: string | ts.Identifier, type?: ts.
     )
 }
 
-export function createPublicProperty(name: string | ts.Identifier, type?: ts.TypeNode, initializer?: ts.Expression) {
+export function createPublicProperty(
+    name: string | ts.Identifier,
+    type?: ts.TypeNode,
+    initializer?: ts.Expression,
+) {
     return ts.createProperty(
         undefined,
-        [ ts.createToken(ts.SyntaxKind.PublicKeyword) ],
+        [ts.createToken(ts.SyntaxKind.PublicKeyword)],
         name,
         undefined,
         type,
@@ -169,11 +200,13 @@ export function createCallStatement(
     obj: ts.Expression,
     args: Array<ts.Expression> = [],
 ): ts.ExpressionStatement {
-    return ts.createStatement(ts.createCall(
-        (typeof obj === 'string' ? ts.createIdentifier(obj) : obj),
-        undefined,
-        args,
-    ))
+    return ts.createStatement(
+        ts.createCall(
+            typeof obj === 'string' ? ts.createIdentifier(obj) : obj,
+            undefined,
+            args,
+        ),
+    )
 }
 
 export function createMethodCallStatement(
@@ -206,14 +239,17 @@ export function createMethodCall(
  *
  * propertyAccessForIdentifier('test', 'this') => 'test.this'
  */
-export function propertyAccessForIdentifier(obj: string | ts.Expression, prop: string | ts.Identifier): ts.PropertyAccessExpression {
+export function propertyAccessForIdentifier(
+    obj: string | ts.Expression,
+    prop: string | ts.Identifier,
+): ts.PropertyAccessExpression {
     switch (obj) {
         case 'this':
             return ts.createPropertyAccess(ts.createThis(), prop)
 
         default:
             return ts.createPropertyAccess(
-                (typeof obj === 'string' ? ts.createIdentifier(obj) : obj),
+                typeof obj === 'string' ? ts.createIdentifier(obj) : obj,
                 prop,
             )
     }
@@ -229,14 +265,16 @@ export function createFunctionParameter(
         undefined,
         undefined,
         undefined,
-        (typeof name === 'string' ? ts.createIdentifier(name) : name),
-        (isOptional ? ts.createToken(ts.SyntaxKind.QuestionToken) : undefined),
+        typeof name === 'string' ? ts.createIdentifier(name) : name,
+        isOptional ? ts.createToken(ts.SyntaxKind.QuestionToken) : undefined,
         typeNode,
         initializer,
     )
 }
 
-export function renderOptional(value: FieldRequired | null): ts.Token<ts.SyntaxKind.QuestionToken> | undefined {
+export function renderOptional(
+    value: FieldRequired | null,
+): ts.Token<ts.SyntaxKind.QuestionToken> | undefined {
     if (value !== 'required') {
         return ts.createToken(ts.SyntaxKind.QuestionToken)
     } else {
@@ -260,19 +298,19 @@ export function createPromise(
 ): ts.NewExpression {
     return ts.createNew(
         COMMON_IDENTIFIERS.Promise,
-        [ type ],
-        [ ts.createArrowFunction(
-            undefined,
-            undefined,
-            [
-                createFunctionParameter('resolve', undefined),
-                createFunctionParameter('reject', undefined),
-            ],
-            returnType,
-            undefined,
-            ts.createBlock([
-                ...body,
-            ], true),
-        ) ],
+        [type],
+        [
+            ts.createArrowFunction(
+                undefined,
+                undefined,
+                [
+                    createFunctionParameter('resolve', undefined),
+                    createFunctionParameter('reject', undefined),
+                ],
+                returnType,
+                undefined,
+                ts.createBlock([...body], true),
+            ),
+        ],
     )
 }

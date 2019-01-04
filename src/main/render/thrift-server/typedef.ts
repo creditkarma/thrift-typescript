@@ -1,25 +1,12 @@
 import * as ts from 'typescript'
 
-import {
-    SyntaxType,
-    TypedefDefinition,
-} from '@creditkarma/thrift-parser'
+import { SyntaxType, TypedefDefinition } from '@creditkarma/thrift-parser'
 
-import {
-    TypeMapping,
-} from './types'
+import { TypeMapping } from './types'
 
-import {
-    IIdentifierMap,
-    IResolvedIdentifier,
-} from '../../types'
+import { IIdentifierMap, IResolvedIdentifier } from '../../types'
 
-import {
-    className,
-    codecName,
-    looseName,
-    strictName,
-} from './struct/utils'
+import { className, codecName, looseName, strictName } from './struct/utils'
 
 function renderTypeDefForIdentifier(
     id: IResolvedIdentifier,
@@ -33,25 +20,25 @@ function renderTypeDefForIdentifier(
             return [
                 ts.createImportEqualsDeclaration(
                     undefined,
-                    [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+                    [ts.createToken(ts.SyntaxKind.ExportKeyword)],
                     ts.createIdentifier(strictName(node.name.value)),
                     ts.createIdentifier(`${id.pathName}.${strictName(id.name)}`),
                 ),
                 ts.createImportEqualsDeclaration(
                     undefined,
-                    [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+                    [ts.createToken(ts.SyntaxKind.ExportKeyword)],
                     ts.createIdentifier(looseName(node.name.value)),
                     ts.createIdentifier(`${id.pathName}.${looseName(id.name)}`),
                 ),
                 ts.createImportEqualsDeclaration(
                     undefined,
-                    [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+                    [ts.createToken(ts.SyntaxKind.ExportKeyword)],
                     ts.createIdentifier(className(node.name.value)),
                     ts.createIdentifier(`${id.pathName}.${className(id.name)}`),
                 ),
                 ts.createImportEqualsDeclaration(
                     undefined,
-                    [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+                    [ts.createToken(ts.SyntaxKind.ExportKeyword)],
                     ts.createIdentifier(codecName(node.name.value)),
                     ts.createIdentifier(codecName(id.resolvedName)),
                 ),
@@ -61,7 +48,7 @@ function renderTypeDefForIdentifier(
             return [
                 ts.createImportEqualsDeclaration(
                     undefined,
-                    [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+                    [ts.createToken(ts.SyntaxKind.ExportKeyword)],
                     ts.createIdentifier(node.name.value),
                     ts.createIdentifier(id.resolvedName),
                 ),
@@ -76,13 +63,17 @@ export function renderTypeDef(
 ): Array<ts.Statement> {
     switch (node.definitionType.type) {
         case SyntaxType.Identifier:
-            return renderTypeDefForIdentifier(identifiers[node.definitionType.value], node, typeMapping)
+            return renderTypeDefForIdentifier(
+                identifiers[node.definitionType.value],
+                node,
+                typeMapping,
+            )
 
         default:
             return [
                 ts.createTypeAliasDeclaration(
                     undefined,
-                    [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+                    [ts.createToken(ts.SyntaxKind.ExportKeyword)],
                     node.name.value,
                     undefined,
                     typeMapping(node.definitionType),

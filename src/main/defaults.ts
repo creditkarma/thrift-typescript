@@ -1,0 +1,33 @@
+import { IMakeOptions } from './types'
+import { deepMerge } from './utils'
+
+export const DEFAULT_APACHE_LIB = 'thrift'
+
+export const DEFAULT_THRIFT_SERVER_LIB = '@creditkarma/thrift-server-core'
+
+export const DEFAULT_OPTIONS: IMakeOptions = {
+    rootDir: '.',
+    outDir: './codegen',
+    sourceDir: './thrift',
+    target: 'apache',
+    files: [],
+    library: DEFAULT_APACHE_LIB,
+}
+
+export function mergeWithDefaults(
+    options: Partial<IMakeOptions>,
+): IMakeOptions {
+    console.log('options: ', options)
+    if (
+        options.target &&
+        (options.library === undefined || options.library.trim() === '')
+    ) {
+        options.library =
+            options.target === 'apache'
+                ? DEFAULT_APACHE_LIB
+                : DEFAULT_THRIFT_SERVER_LIB
+    }
+    console.log('options: ', options)
+
+    return deepMerge(DEFAULT_OPTIONS, options)
+}

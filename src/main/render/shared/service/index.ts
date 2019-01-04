@@ -8,16 +8,15 @@ import {
 
 import { COMMON_IDENTIFIERS } from '../identifiers'
 
-import {
-    createAnyType,
-    TypeMapping,
-} from '../types'
+import { createAnyType, TypeMapping } from '../types'
 
-import {
-    createFunctionParameter,
-} from '../utils'
+import { createFunctionParameter } from '../utils'
 
-function funcToMethodReducer(acc: Array<ts.MethodSignature>, func: FunctionDefinition, typeMapping: TypeMapping): Array<ts.MethodSignature> {
+function funcToMethodReducer(
+    acc: Array<ts.MethodSignature>,
+    func: FunctionDefinition,
+    typeMapping: TypeMapping,
+): Array<ts.MethodSignature> {
     return acc.concat([
         ts.createMethodSignature(
             undefined,
@@ -27,7 +26,7 @@ function funcToMethodReducer(acc: Array<ts.MethodSignature>, func: FunctionDefin
                         field.name.value,
                         typeMapping(field.fieldType),
                         undefined,
-                        (field.requiredness === 'optional'),
+                        field.requiredness === 'optional',
                     )
                 }),
                 createFunctionParameter(
@@ -39,10 +38,9 @@ function funcToMethodReducer(acc: Array<ts.MethodSignature>, func: FunctionDefin
             ],
             ts.createUnionTypeNode([
                 typeMapping(func.returnType),
-                ts.createTypeReferenceNode(
-                    COMMON_IDENTIFIERS.Promise,
-                    [ typeMapping(func.returnType) ],
-                ),
+                ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Promise, [
+                    typeMapping(func.returnType),
+                ]),
             ]),
             func.name.value,
             undefined,
@@ -62,17 +60,22 @@ function funcToMethodReducer(acc: Array<ts.MethodSignature>, func: FunctionDefin
  *   add(a: number, b: number, context: Context): number
  * }
  */
-export function renderHandlerInterface(service: ServiceDefinition, typeMapping: TypeMapping): Array<ts.Statement> {
-    const signatures: Array<ts.MethodSignature> =
-        service.functions.reduce((acc: Array<ts.MethodSignature>, next: FunctionDefinition) => {
+export function renderHandlerInterface(
+    service: ServiceDefinition,
+    typeMapping: TypeMapping,
+): Array<ts.Statement> {
+    const signatures: Array<ts.MethodSignature> = service.functions.reduce(
+        (acc: Array<ts.MethodSignature>, next: FunctionDefinition) => {
             return funcToMethodReducer(acc, next, typeMapping)
-        }, [])
+        },
+        [],
+    )
 
     if (service.extends !== null) {
         return [
             ts.createInterfaceDeclaration(
                 undefined,
-                [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+                [ts.createToken(ts.SyntaxKind.ExportKeyword)],
                 COMMON_IDENTIFIERS.ILocalHandler,
                 [
                     ts.createTypeParameterDeclaration(
@@ -86,7 +89,7 @@ export function renderHandlerInterface(service: ServiceDefinition, typeMapping: 
             ),
             ts.createTypeAliasDeclaration(
                 undefined,
-                [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+                [ts.createToken(ts.SyntaxKind.ExportKeyword)],
                 COMMON_IDENTIFIERS.IHandler,
                 [
                     ts.createTypeParameterDeclaration(
@@ -98,15 +101,13 @@ export function renderHandlerInterface(service: ServiceDefinition, typeMapping: 
                 ts.createIntersectionTypeNode([
                     ts.createTypeReferenceNode(
                         COMMON_IDENTIFIERS.ILocalHandler,
-                        [
-                            ts.createTypeReferenceNode('Context', undefined),
-                        ],
+                        [ts.createTypeReferenceNode('Context', undefined)],
                     ),
                     ts.createTypeReferenceNode(
-                        ts.createIdentifier(`${service.extends.value}.IHandler`),
-                        [
-                            ts.createTypeReferenceNode('Context', undefined),
-                        ],
+                        ts.createIdentifier(
+                            `${service.extends.value}.IHandler`,
+                        ),
+                        [ts.createTypeReferenceNode('Context', undefined)],
                     ),
                 ]),
             ),
@@ -115,7 +116,7 @@ export function renderHandlerInterface(service: ServiceDefinition, typeMapping: 
         return [
             ts.createInterfaceDeclaration(
                 undefined,
-                [ ts.createToken(ts.SyntaxKind.ExportKeyword) ],
+                [ts.createToken(ts.SyntaxKind.ExportKeyword)],
                 COMMON_IDENTIFIERS.IHandler,
                 [
                     ts.createTypeParameterDeclaration(

@@ -50,36 +50,66 @@ export function renderIncludes(
     }
 }
 
-export function renderConst(statement: ConstDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return [ _renderConst(statement, (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
-        return typeNodeForFieldType(fieldType, identifiers, loose)
-    }) ]
+export function renderConst(
+    statement: ConstDefinition,
+    identifiers: IIdentifierMap,
+): Array<ts.Statement> {
+    return [
+        _renderConst(
+            statement,
+            (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
+                return typeNodeForFieldType(fieldType, identifiers, loose)
+            },
+        ),
+    ]
 }
 
-export function renderTypeDef(statement: TypedefDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return _renderTypeDef(statement, (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
-        return typeNodeForFieldType(fieldType, identifiers, loose)
-    }, identifiers)
+export function renderTypeDef(
+    statement: TypedefDefinition,
+    identifiers: IIdentifierMap,
+): Array<ts.Statement> {
+    return _renderTypeDef(
+        statement,
+        (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
+            return typeNodeForFieldType(fieldType, identifiers, loose)
+        },
+        identifiers,
+    )
 }
 
-export function renderEnum(statement: EnumDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return [ _renderEnum(statement) ]
+export function renderEnum(
+    statement: EnumDefinition,
+    identifiers: IIdentifierMap,
+): Array<ts.Statement> {
+    return [_renderEnum(statement)]
 }
 
-export function renderStruct(statement: StructDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function renderStruct(
+    statement: StructDefinition,
+    identifiers: IIdentifierMap,
+): Array<ts.Statement> {
     return _renderStruct(statement, identifiers)
 }
 
-export function renderException(statement: ExceptionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function renderException(
+    statement: ExceptionDefinition,
+    identifiers: IIdentifierMap,
+): Array<ts.Statement> {
     return _renderException(statement, identifiers)
 }
 
-export function renderUnion(statement: UnionDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
+export function renderUnion(
+    statement: UnionDefinition,
+    identifiers: IIdentifierMap,
+): Array<ts.Statement> {
     return _renderUnion(statement, identifiers)
 }
 
-export function renderService(statement: ServiceDefinition, identifiers: IIdentifierMap): Array<ts.Statement> {
-    return [ _renderService(statement, identifiers) ]
+export function renderService(
+    statement: ServiceDefinition,
+    identifiers: IIdentifierMap,
+): Array<ts.Statement> {
+    return [_renderService(statement, identifiers)]
 }
 
 export const renderer: IRenderer = {

@@ -1,14 +1,8 @@
 import * as ts from 'typescript'
 
-import {
-    FunctionType,
-    SyntaxType,
-} from '@creditkarma/thrift-parser'
+import { FunctionType, SyntaxType } from '@creditkarma/thrift-parser'
 
-import {
-    IIdentifierMap,
-    IResolvedIdentifier,
-} from '../../types'
+import { IIdentifierMap, IResolvedIdentifier } from '../../types'
 
 import {
     APPLICATION_EXCEPTION,
@@ -27,17 +21,30 @@ import {
 export * from '../shared/types'
 
 export type TProtocolException =
-    'UNKNOWN' | 'INVALID_DATA' | 'NEGATIVE_SIZE' |
-    'SIZE_LIMIT' | 'BAD_VERSION' | 'NOT_IMPLEMENTED' |
-    'DEPTH_LIMIT'
+    | 'UNKNOWN'
+    | 'INVALID_DATA'
+    | 'NEGATIVE_SIZE'
+    | 'SIZE_LIMIT'
+    | 'BAD_VERSION'
+    | 'NOT_IMPLEMENTED'
+    | 'DEPTH_LIMIT'
 
 export type TApplicationException =
-    'UNKNOWN' | 'UNKNOWN_METHOD' | 'INVALID_MESSAGE_TYPE' |
-    'WRONG_METHOD_NAME' | 'BAD_SEQUENCE_ID' | 'MISSING_RESULT' |
-    'INTERNAL_ERROR' | 'PROTOCOL_ERROR' | 'INVALID_TRANSFORM' |
-    'INVALID_PROTOCOL' | 'UNSUPPORTED_CLIENT_TYPE'
+    | 'UNKNOWN'
+    | 'UNKNOWN_METHOD'
+    | 'INVALID_MESSAGE_TYPE'
+    | 'WRONG_METHOD_NAME'
+    | 'BAD_SEQUENCE_ID'
+    | 'MISSING_RESULT'
+    | 'INTERNAL_ERROR'
+    | 'PROTOCOL_ERROR'
+    | 'INVALID_TRANSFORM'
+    | 'INVALID_PROTOCOL'
+    | 'UNSUPPORTED_CLIENT_TYPE'
 
-export function protocolException(exceptionType: TProtocolException): ts.Identifier {
+export function protocolException(
+    exceptionType: TProtocolException,
+): ts.Identifier {
     switch (exceptionType) {
         case 'UNKNOWN':
             return PROTOCOL_EXCEPTION.UNKNOWN
@@ -59,7 +66,9 @@ export function protocolException(exceptionType: TProtocolException): ts.Identif
     }
 }
 
-export function applicationException(exceptionType: TApplicationException): ts.Identifier {
+export function applicationException(
+    exceptionType: TApplicationException,
+): ts.Identifier {
     switch (exceptionType) {
         case 'UNKNOWN':
             return APPLICATION_EXCEPTION.UNKNOWN
@@ -89,13 +98,22 @@ export function applicationException(exceptionType: TApplicationException): ts.I
     }
 }
 
-function thriftTypeForIdentifier(id: IResolvedIdentifier, identifiers: IIdentifierMap): ts.Identifier {
+function thriftTypeForIdentifier(
+    id: IResolvedIdentifier,
+    identifiers: IIdentifierMap,
+): ts.Identifier {
     switch (id.definition.type) {
         case SyntaxType.ConstDefinition:
-            throw new TypeError(`Identifier ${id.definition.name.value} is a value being used as a type`)
+            throw new TypeError(
+                `Identifier ${
+                    id.definition.name.value
+                } is a value being used as a type`,
+            )
 
         case SyntaxType.ServiceDefinition:
-            throw new TypeError(`Service ${id.definition.name.value} is being used as a type`)
+            throw new TypeError(
+                `Service ${id.definition.name.value} is being used as a type`,
+            )
 
         case SyntaxType.StructDefinition:
         case SyntaxType.UnionDefinition:
@@ -127,7 +145,10 @@ function thriftTypeForIdentifier(id: IResolvedIdentifier, identifiers: IIdentifi
  * @todo Clean up so that we can use the strictNullChecks compiler flag which
  * would allow us to use a map and get the same safety as the switch.
  */
-export function thriftTypeForFieldType(fieldType: FunctionType, identifiers: IIdentifierMap): ts.Identifier {
+export function thriftTypeForFieldType(
+    fieldType: FunctionType,
+    identifiers: IIdentifierMap,
+): ts.Identifier {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return thriftTypeForIdentifier(
@@ -203,28 +224,29 @@ export function thriftTypeForFieldType(fieldType: FunctionType, identifiers: IId
  *
  * SyntaxType.VoidKeyword
  */
-export function typeNodeForFieldType(fieldType: FunctionType, loose: boolean = false): ts.TypeNode {
+export function typeNodeForFieldType(
+    fieldType: FunctionType,
+    loose: boolean = false,
+): ts.TypeNode {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return ts.createTypeReferenceNode(fieldType.value, undefined)
 
         case SyntaxType.SetType:
-            return ts.createTypeReferenceNode(
-                'Set',
-                [ typeNodeForFieldType(fieldType.valueType) ],
-            )
+            return ts.createTypeReferenceNode('Set', [
+                typeNodeForFieldType(fieldType.valueType),
+            ])
 
         case SyntaxType.MapType:
-            return ts.createTypeReferenceNode(
-                'Map',
-                [ typeNodeForFieldType(fieldType.keyType), typeNodeForFieldType(fieldType.valueType) ],
-            )
+            return ts.createTypeReferenceNode('Map', [
+                typeNodeForFieldType(fieldType.keyType),
+                typeNodeForFieldType(fieldType.valueType),
+            ])
 
         case SyntaxType.ListType:
-            return ts.createTypeReferenceNode(
-                'Array',
-                [ typeNodeForFieldType(fieldType.valueType) ],
-            )
+            return ts.createTypeReferenceNode('Array', [
+                typeNodeForFieldType(fieldType.valueType),
+            ])
 
         case SyntaxType.StringKeyword:
             return createStringType()
@@ -242,11 +264,17 @@ export function typeNodeForFieldType(fieldType: FunctionType, loose: boolean = f
                     ),
                 ])
             } else {
-                return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Node_Int64, undefined)
+                return ts.createTypeReferenceNode(
+                    COMMON_IDENTIFIERS.Node_Int64,
+                    undefined,
+                )
             }
 
         case SyntaxType.BinaryKeyword:
-            return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Buffer, undefined)
+            return ts.createTypeReferenceNode(
+                COMMON_IDENTIFIERS.Buffer,
+                undefined,
+            )
 
         case SyntaxType.DoubleKeyword:
         case SyntaxType.I8Keyword:
