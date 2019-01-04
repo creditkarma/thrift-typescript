@@ -74,15 +74,16 @@ export function make(source: string, target: CompileTarget = 'thrift-server', i6
  *
  * @param options
  */
-export function generate(options: IMakeOptions): void {
-    const rootDir: string = path.resolve(process.cwd(), options.rootDir)
-    const outDir: string = path.resolve(rootDir, options.outDir)
-    const sourceDir: string = path.resolve(rootDir, options.sourceDir)
+export function generate(options: Partial<IMakeOptions>): void {
+    const mergedOptions: IMakeOptions = deepMerge(DEFAULT_OPTIONS, options)
+    const rootDir: string = path.resolve(process.cwd(), mergedOptions.rootDir)
+    const outDir: string = path.resolve(rootDir, mergedOptions.outDir)
+    const sourceDir: string = path.resolve(rootDir, mergedOptions.sourceDir)
     const includeCache: IIncludeCache = {}
     const resolvedCache: IResolvedCache = {}
     const renderedCache: IRenderedCache = {}
 
-    const validatedFiles: Array<IResolvedFile> = collectSourceFiles(sourceDir, options).reduce(
+    const validatedFiles: Array<IResolvedFile> = collectSourceFiles(sourceDir, mergedOptions).reduce(
         (acc: Array<IResolvedFile>, next: string): Array<IResolvedFile> => {
             const thriftFile: IThriftFile = readThriftFile(next, [sourceDir])
             const parsedFile: IParsedFile = parseFile(sourceDir, thriftFile, includeCache)
@@ -104,12 +105,12 @@ export function generate(options: IMakeOptions): void {
         const renderedFiles: Array<IRenderedFile> = namespaces.map(
             (next: INamespaceFile): IRenderedFile => {
                 return generateFile({
-                    renderer: rendererForTarget(options.target),
+                    renderer: rendererForTarget(mergedOptions.target),
                     rootDir,
                     outDir,
                     sourceDir,
                     resolvedFile: next,
-                    options,
+                    options: mergedOptions,
                     cache: renderedCache,
                 })
             },

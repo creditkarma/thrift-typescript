@@ -25,10 +25,7 @@
         "test": "npm run lint && npm run test:unit && npm run test:integration",
         "test:unit": "NODE_ENV=test mocha --opts mocha.opts",
         "test:integration": "NODE_ENV=test mocha --opts mocha.integration.opts",
-        "coverage": "NODE_ENV=test nyc mocha --opts mocha.cover.opts",
-        "release:patch": "npm version patch",
-        "release:minor": "npm version minor",
-        "release:major": "npm version major"
+        "coverage": "NODE_ENV=test nyc mocha --opts mocha.cover.opts"
     },
     "keywords": [
         "thrift",
