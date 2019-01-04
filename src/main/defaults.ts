@@ -17,7 +17,6 @@ export const DEFAULT_OPTIONS: IMakeOptions = {
 export function mergeWithDefaults(
     options: Partial<IMakeOptions>,
 ): IMakeOptions {
-    console.log('options: ', options)
     if (
         options.target &&
         (options.library === undefined || options.library.trim() === '')
@@ -27,7 +26,6 @@ export function mergeWithDefaults(
                 ? DEFAULT_APACHE_LIB
                 : DEFAULT_THRIFT_SERVER_LIB
     }
-    console.log('options: ', options)
 
     return deepMerge(DEFAULT_OPTIONS, options)
 }
