@@ -26,11 +26,7 @@
         "test": "npm run lint && npm run test:unit && npm run test:integration",
         "test:unit": "NODE_ENV=test mocha --opts mocha.opts",
         "test:integration": "NODE_ENV=test mocha --opts mocha.integration.opts",
-        "coverage": "NODE_ENV=test nyc mocha --opts mocha.cover.opts",
-        "release:patch": "npm version patch && npm run release:publish",
-        "release:minor": "npm version minor && npm run release:publish",
-        "release:major": "npm version major && npm run release:publish",
-        "release:publish": "git push --follow-tags"
+        "coverage": "NODE_ENV=test nyc mocha --opts mocha.cover.opts"
     },
     "keywords": [
         "thrift",
@@ -47,7 +43,7 @@
     "dependencies": {
         "@creditkarma/thrift-parser": "~1.1.4",
         "glob": "^7.1.2",
-        "typescript": "3.1.x"
+        "typescript": "3.2.x"
     },
     "devDependencies": {
         "@types/chai": "^4.1.5",

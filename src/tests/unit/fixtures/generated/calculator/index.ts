@@ -2876,6 +2876,10 @@ export namespace Calculator {
         }
     }
     export class Client<Context = any> extends shared.SharedService.Client<Context> {
+        public static readonly serviceName: string = serviceName;
+        public static readonly annotations: thrift.IThriftAnnotations = annotations;
+        public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
+        public static readonly methodNames: Array<string> = methodNames;
         public readonly _serviceName: string = serviceName;
         public readonly _annotations: thrift.IThriftAnnotations = annotations;
         public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
@@ -3431,6 +3435,10 @@ export namespace Calculator {
     export type IHandler<Context = any> = ILocalHandler<Context> & shared.SharedService.IHandler<Context>;
     export class Processor<Context = any> extends shared.SharedService.Processor<Context> {
         protected readonly _handler: IHandler<Context>;
+        public static readonly serviceName: string = serviceName;
+        public static readonly annotations: thrift.IThriftAnnotations = annotations;
+        public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
+        public static readonly methodNames: Array<string> = methodNames;
         public readonly _serviceName: string = serviceName;
         public readonly _annotations: thrift.IThriftAnnotations = annotations;
         public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;

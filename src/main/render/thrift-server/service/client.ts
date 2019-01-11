@@ -14,7 +14,9 @@ import {
     createStructArgsName,
     createStructResultName,
     renderMethodNamesProperty,
+    renderMethodNamesStaticProperty,
     renderServiceNameProperty,
+    renderServiceNameStaticProperty,
 } from './utils'
 
 import {
@@ -40,7 +42,9 @@ import { IIdentifierMap } from '../../../types'
 
 import {
     renderMethodAnnotationsProperty,
+    renderMethodAnnotationsStaticProperty,
     renderServiceAnnotationsProperty,
+    renderServiceAnnotationsStaticProperty,
 } from '../annotations'
 
 import { createClassConstructor } from '../../shared/utils'
@@ -68,12 +72,14 @@ export function renderClient(
     service: ServiceDefinition,
     identifiers: IIdentifierMap,
 ): ts.ClassDeclaration {
+    const staticServiceName: ts.PropertyDeclaration = renderServiceNameStaticProperty()
+    const staticAnnotations: ts.PropertyDeclaration = renderServiceAnnotationsStaticProperty()
+    const staticMethodAnnotations: ts.PropertyDeclaration = renderMethodAnnotationsStaticProperty()
+    const staticMethodNames: ts.PropertyDeclaration = renderMethodNamesStaticProperty()
+
     const serviceName: ts.PropertyDeclaration = renderServiceNameProperty()
-
     const annotations: ts.PropertyDeclaration = renderServiceAnnotationsProperty()
-
     const methodAnnotations: ts.PropertyDeclaration = renderMethodAnnotationsProperty()
-
     const methodNames: ts.PropertyDeclaration = renderMethodNamesProperty()
 
     const baseMethods: Array<ts.MethodDeclaration> = service.functions.map(
@@ -101,6 +107,10 @@ export function renderClient(
         ], // type parameters
         heritage, // heritage
         [
+            staticServiceName,
+            staticAnnotations,
+            staticMethodAnnotations,
+            staticMethodNames,
             serviceName,
             annotations,
             methodAnnotations,

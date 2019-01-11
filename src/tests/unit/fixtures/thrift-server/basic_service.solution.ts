@@ -552,6 +552,10 @@ export namespace MyService {
         }
     }
     export class Client<Context = any> extends thrift.ThriftClient<Context> {
+        public static readonly serviceName: string = serviceName;
+        public static readonly annotations: thrift.IThriftAnnotations = annotations;
+        public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
+        public static readonly methodNames: Array<string> = methodNames;
         public readonly _serviceName: string = serviceName;
         public readonly _annotations: thrift.IThriftAnnotations = annotations;
         public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
@@ -668,6 +672,10 @@ export namespace MyService {
     }
     export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
         protected readonly _handler: IHandler<Context>;
+        public static readonly serviceName: string = serviceName;
+        public static readonly annotations: thrift.IThriftAnnotations = annotations;
+        public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
+        public static readonly methodNames: Array<string> = methodNames;
         public readonly _serviceName: string = serviceName;
         public readonly _annotations: thrift.IThriftAnnotations = annotations;
         public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
