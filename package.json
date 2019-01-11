@@ -1,79 +1,79 @@
 {
-    "name": "@creditkarma/thrift-typescript",
-    "version": "3.0.5",
-    "description": "Generate TypeScript from Thrift IDL files",
-    "main": "./dist/main/index.js",
-    "types": "./dist/main/index.d.ts",
-    "bin": {
-        "thrift-typescript": "./dist/main/bin/index.js"
-    },
-    "files": [
-        "dist/main"
+  "name": "@creditkarma/thrift-typescript",
+  "version": "3.1.0-0",
+  "description": "Generate TypeScript from Thrift IDL files",
+  "main": "./dist/main/index.js",
+  "types": "./dist/main/index.d.ts",
+  "bin": {
+    "thrift-typescript": "./dist/main/bin/index.js"
+  },
+  "files": [
+    "dist/main"
+  ],
+  "scripts": {
+    "clean": "rimraf ./coverage ./dist ./**/codegen",
+    "clean-all": "npm run clean && rimraf ./node_modules package-lock.json",
+    "codegen": "node ./dist/main/bin/index.js --sourceDir ./src/tests/integration/thrift --outDir ./src/tests/integration/apache/codegen",
+    "prebuild": "npm run clean && npm run lint && npm run format",
+    "build": "tsc",
+    "prebuild:test": "npm run build && npm run codegen",
+    "build:test": "tsc -p tsconfig.test.json",
+    "build:watch": "tsc --watch",
+    "lint": "tslint --fix 'src/**/*.ts'",
+    "format": "prettier --write 'src/**/*.ts'",
+    "move:fixtures": "rimraf dist/tests/unit/fixtures && cp -r src/tests/unit/fixtures dist/tests/unit/fixtures",
+    "pretest": "npm run build:test && npm run move:fixtures",
+    "test": "npm run lint && npm run test:unit && npm run test:integration",
+    "test:unit": "NODE_ENV=test mocha --opts mocha.opts",
+    "test:integration": "NODE_ENV=test mocha --opts mocha.integration.opts",
+    "coverage": "NODE_ENV=test nyc mocha --opts mocha.cover.opts"
+  },
+  "keywords": [
+    "thrift",
+    "typescript",
+    "code generator",
+    "rpc"
+  ],
+  "author": "Credit Karma",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/creditkarma/thrift-typescript"
+  },
+  "dependencies": {
+    "@creditkarma/thrift-parser": "~1.1.4",
+    "glob": "^7.1.2",
+    "typescript": "3.2.x"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.5",
+    "@types/glob": "^7.1.0",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^8.0.32",
+    "@types/rimraf": "^2.0.2",
+    "@types/thrift": "^0.10.7",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "nyc": "^13.0.1",
+    "prettier": "^1.15.3",
+    "rimraf": "^2.6.2",
+    "source-map-support": "^0.5.9",
+    "thrift": "^0.11.0",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.17.0",
+    "tslint-plugin-prettier": "^2.0.0"
+  },
+  "nyc": {
+    "include": [
+      "src/*.ts",
+      "src/**/*.ts"
     ],
-    "scripts": {
-        "clean": "rimraf ./coverage ./dist ./**/codegen",
-        "clean-all": "npm run clean && rimraf ./node_modules package-lock.json",
-        "codegen": "node ./dist/main/bin/index.js --sourceDir ./src/tests/integration/thrift --outDir ./src/tests/integration/apache/codegen",
-        "prebuild": "npm run clean && npm run lint && npm run format",
-        "build": "tsc",
-        "prebuild:test": "npm run build && npm run codegen",
-        "build:test": "tsc -p tsconfig.test.json",
-        "build:watch": "tsc --watch",
-        "lint": "tslint --fix 'src/**/*.ts'",
-        "format": "prettier --write 'src/**/*.ts'",
-        "move:fixtures": "rimraf dist/tests/unit/fixtures && cp -r src/tests/unit/fixtures dist/tests/unit/fixtures",
-        "pretest": "npm run build:test && npm run move:fixtures",
-        "test": "npm run lint && npm run test:unit && npm run test:integration",
-        "test:unit": "NODE_ENV=test mocha --opts mocha.opts",
-        "test:integration": "NODE_ENV=test mocha --opts mocha.integration.opts",
-        "coverage": "NODE_ENV=test nyc mocha --opts mocha.cover.opts"
-    },
-    "keywords": [
-        "thrift",
-        "typescript",
-        "code generator",
-        "rpc"
+    "exclude": [
+      "src/tests/**"
     ],
-    "author": "Credit Karma",
-    "license": "Apache-2.0",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/creditkarma/thrift-typescript"
-    },
-    "dependencies": {
-        "@creditkarma/thrift-parser": "~1.1.4",
-        "glob": "^7.1.2",
-        "typescript": "3.2.x"
-    },
-    "devDependencies": {
-        "@types/chai": "^4.1.5",
-        "@types/glob": "^7.1.0",
-        "@types/mocha": "^5.2.5",
-        "@types/node": "^8.0.32",
-        "@types/rimraf": "^2.0.2",
-        "@types/thrift": "^0.10.7",
-        "chai": "^4.2.0",
-        "mocha": "^5.2.0",
-        "nyc": "^13.0.1",
-        "prettier": "^1.15.3",
-        "rimraf": "^2.6.2",
-        "source-map-support": "^0.5.9",
-        "thrift": "^0.11.0",
-        "tslint": "^5.11.0",
-        "tslint-config-prettier": "^1.17.0",
-        "tslint-plugin-prettier": "^2.0.0"
-    },
-    "nyc": {
-        "include": [
-            "src/*.ts",
-            "src/**/*.ts"
-        ],
-        "exclude": [
-            "src/tests/**"
-        ],
-        "extension": [
-            ".ts"
-        ],
-        "all": true
-    }
+    "extension": [
+      ".ts"
+    ],
+    "all": true
+  }
 }
