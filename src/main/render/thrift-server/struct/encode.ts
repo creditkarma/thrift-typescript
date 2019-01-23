@@ -32,7 +32,11 @@ import {
     typeNodeForFieldType,
 } from '../types'
 
-import { IIdentifierMap, IResolvedIdentifier } from '../../../types'
+import {
+    IIdentifierMap,
+    IRenderState,
+    IResolvedIdentifier,
+} from '../../../types'
 
 import { codecName, looseNameForStruct, throwForField } from './utils'
 
@@ -73,11 +77,11 @@ export function createTempVariables(
 
 export function createEncodeMethod(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     const tempVariables: Array<ts.VariableStatement> = createTempVariables(
         node,
-        identifiers,
+        state.identifiers,
     )
 
     return ts.createMethod(
@@ -91,7 +95,7 @@ export function createEncodeMethod(
             createFunctionParameter(
                 COMMON_IDENTIFIERS.args,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(looseNameForStruct(node)),
+                    ts.createIdentifier(looseNameForStruct(node, state)),
                     undefined,
                 ),
             ),
@@ -109,7 +113,7 @@ export function createEncodeMethod(
                 ...tempVariables,
                 writeStructBegin(node.name.value),
                 ...node.fields.filter(isNotVoid).map((field) => {
-                    return createWriteForField(node, field, identifiers)
+                    return createWriteForField(node, field, state.identifiers)
                 }),
                 writeFieldStop(),
                 writeStructEnd(),

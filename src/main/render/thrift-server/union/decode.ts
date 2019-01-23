@@ -26,7 +26,7 @@ import {
     throwProtocolException,
 } from '../utils'
 
-import { IIdentifierMap } from '../../../types'
+import { IIdentifierMap, IRenderState } from '../../../types'
 
 import {
     createCheckForFields,
@@ -49,14 +49,14 @@ import {
 
 export function createDecodeMethod(
     node: UnionDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
     const returnVariable: ts.VariableStatement = createLetStatement(
         ts.createIdentifier(RETURN_NAME),
         ts.createUnionTypeNode([
             ts.createTypeReferenceNode(
-                ts.createIdentifier(strictNameForStruct(node)),
+                ts.createIdentifier(strictNameForStruct(node, state)),
                 undefined,
             ),
             ts.createNull(),
@@ -111,7 +111,11 @@ export function createDecodeMethod(
                     COMMON_IDENTIFIERS.fieldId, // what to switch on
                     ts.createCaseBlock([
                         ...node.fields.map((next: FieldDefinition) => {
-                            return createCaseForField(node, next, identifiers)
+                            return createCaseForField(
+                                node,
+                                next,
+                                state.identifiers,
+                            )
                         }),
                         ts.createDefaultClause([createSkipBlock()]),
                     ]),
@@ -131,7 +135,7 @@ export function createDecodeMethod(
         undefined,
         [inputParameter],
         ts.createTypeReferenceNode(
-            ts.createIdentifier(strictNameForStruct(node)),
+            ts.createIdentifier(strictNameForStruct(node, state)),
             undefined,
         ), // return type
         ts.createBlock(

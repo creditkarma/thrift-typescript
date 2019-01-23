@@ -1,4 +1,4 @@
-export type MyUnion = IMyUnionWithField1 | IMyUnionWithField2
+export type MyUnion = IMyUnionWithField1 | IMyUnionWithField2;
 export interface IMyUnionWithField1 {
     field1: number;
     field2?: void;

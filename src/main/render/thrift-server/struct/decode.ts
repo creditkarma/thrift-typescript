@@ -36,7 +36,11 @@ import {
     throwProtocolException,
 } from '../utils'
 
-import { IIdentifierMap, IResolvedIdentifier } from '../../../types'
+import {
+    IIdentifierMap,
+    IRenderState,
+    IResolvedIdentifier,
+} from '../../../types'
 
 import { READ_METHODS } from './methods'
 
@@ -60,7 +64,7 @@ export function createTempVariables(
 
 export function createDecodeMethod(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
     const tempVariables: Array<ts.VariableStatement> = createTempVariables(node)
@@ -110,7 +114,7 @@ export function createDecodeMethod(
                     COMMON_IDENTIFIERS.fieldId, // what to switch on
                     ts.createCaseBlock([
                         ...node.fields.map((next: FieldDefinition) => {
-                            return createCaseForField(next, identifiers)
+                            return createCaseForField(next, state.identifiers)
                         }),
                         ts.createDefaultClause([createSkipBlock()]),
                     ]),
@@ -130,7 +134,7 @@ export function createDecodeMethod(
         undefined,
         [inputParameter],
         ts.createTypeReferenceNode(
-            ts.createIdentifier(strictNameForStruct(node)),
+            ts.createIdentifier(strictNameForStruct(node, state)),
             undefined,
         ), // return type
         ts.createBlock(

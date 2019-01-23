@@ -37,7 +37,7 @@ import {
 
 import { createVoidType, typeNodeForFieldType } from '../types'
 
-import { IIdentifierMap } from '../../../types'
+import { IIdentifierMap, IRenderState } from '../../../types'
 
 import {
     createFieldIncrementer,
@@ -49,7 +49,7 @@ import { looseNameForStruct, throwForField } from '../struct/utils'
 
 export function createEncodeMethod(
     node: UnionDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     return ts.createMethod(
         undefined,
@@ -62,7 +62,7 @@ export function createEncodeMethod(
             createFunctionParameter(
                 COMMON_IDENTIFIERS.args,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(looseNameForStruct(node)),
+                    ts.createIdentifier(looseNameForStruct(node, state)),
                     undefined,
                 ),
             ),
@@ -78,10 +78,10 @@ export function createEncodeMethod(
         ts.createBlock(
             [
                 createFieldIncrementer(),
-                ...createTempVariables(node, identifiers),
+                ...createTempVariables(node, state.identifiers),
                 writeStructBegin(node.name.value),
                 ...node.fields.filter(isNotVoid).map((field) => {
-                    return createWriteForField(node, field, identifiers)
+                    return createWriteForField(node, field, state.identifiers)
                 }),
                 writeFieldStop(),
                 writeStructEnd(),

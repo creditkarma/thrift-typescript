@@ -3,10 +3,12 @@ import * as ts from 'typescript'
 import {
     FieldDefinition,
     InterfaceWithFields,
+    SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
+import { IRenderState } from '../../../types'
 import { throwProtocolException } from '../utils'
 
 type NameMapping = (name: string) => string
@@ -28,6 +30,20 @@ function makeNameForNode(name: string, mapping: NameMapping): string {
     }
 }
 
+export function renderOptional(
+    field: FieldDefinition,
+    loose: boolean = false,
+): ts.Token<ts.SyntaxKind.QuestionToken> | undefined {
+    if (
+        field.requiredness !== 'required' ||
+        (loose && field.defaultValue !== null)
+    ) {
+        return ts.createToken(ts.SyntaxKind.QuestionToken)
+    } else {
+        return undefined
+    }
+}
+
 export function tokens(
     isExported: boolean,
 ): Array<ts.Token<ts.SyntaxKind.ExportKeyword>> {
@@ -38,16 +54,36 @@ export function tokens(
     }
 }
 
-export function looseNameForStruct(node: InterfaceWithFields): string {
-    return looseName(node.name.value)
+export function looseNameForStruct(
+    node: InterfaceWithFields,
+    state: IRenderState,
+): string {
+    if (
+        node.type === SyntaxType.UnionDefinition &&
+        state.options.strictUnions
+    ) {
+        return className(node.name.value)
+    } else {
+        return looseName(node.name.value)
+    }
 }
 
 export function classNameForStruct(node: InterfaceWithFields): string {
     return className(node.name.value)
 }
 
-export function strictNameForStruct(node: InterfaceWithFields): string {
-    return strictName(node.name.value)
+export function strictNameForStruct(
+    node: InterfaceWithFields,
+    state: IRenderState,
+): string {
+    if (
+        node.type === SyntaxType.UnionDefinition &&
+        state.options.strictUnions
+    ) {
+        return className(node.name.value)
+    } else {
+        return strictName(node.name.value)
+    }
 }
 
 export function codecNameForStruct(node: InterfaceWithFields): string {
@@ -86,11 +122,12 @@ export function extendsAbstract(): ts.HeritageClause {
 
 export function implementsInterface(
     node: InterfaceWithFields,
+    state: IRenderState,
 ): ts.HeritageClause {
     return ts.createHeritageClause(ts.SyntaxKind.ImplementsKeyword, [
         ts.createExpressionWithTypeArguments(
             [],
-            ts.createIdentifier(strictNameForStruct(node)),
+            ts.createIdentifier(strictNameForStruct(node, state)),
         ),
     ])
 }

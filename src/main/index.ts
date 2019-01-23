@@ -55,9 +55,11 @@ import { DEFAULT_OPTIONS } from './options'
 export function make(
     source: string,
     target: CompileTarget = 'thrift-server',
+    strictUnions: boolean = false,
 ): string {
     const options: IMakeOptions = mergeWithDefaults({
         target,
+        strictUnions,
     })
     const parsedFile: IParsedFile = parseSource(source)
     const resolvedAST: IResolvedFile = resolveFile(

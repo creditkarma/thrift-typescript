@@ -9,7 +9,11 @@ import {
     SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap, IResolvedIdentifier } from '../../../types'
+import {
+    IIdentifierMap,
+    IRenderState,
+    IResolvedIdentifier,
+} from '../../../types'
 
 import { renderAnnotations, renderFieldAnnotations } from '../annotations'
 
@@ -43,12 +47,12 @@ import {
 
 export function renderClass(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
     isExported: boolean,
 ): ts.ClassDeclaration {
     const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(
         node,
-        identifiers,
+        state.identifiers,
     )
 
     const annotations: ts.PropertyDeclaration = renderAnnotations(
@@ -74,13 +78,13 @@ export function renderClass(
      */
     const fieldAssignments: Array<ts.IfStatement> = node.fields.map(
         (field: FieldDefinition) => {
-            return createFieldAssignment(field, identifiers)
+            return createFieldAssignment(field, state.identifiers)
         },
     )
 
     const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(
         node,
-        identifiers,
+        state,
     )
 
     // Build the constructor body
@@ -95,14 +99,14 @@ export function renderClass(
         tokens(isExported),
         classNameForStruct(node),
         [],
-        [extendsAbstract(), implementsInterface(node)], // heritage
+        [extendsAbstract(), implementsInterface(node, state)], // heritage
         [
             ...fields,
             annotations,
             fieldAnnotations,
             ctor,
             createStaticReadMethod(node),
-            createStaticWriteMethod(node),
+            createStaticWriteMethod(node, state),
             createWriteMethod(node),
         ],
     )
@@ -140,6 +144,7 @@ export function createWriteMethod(
 
 export function createStaticWriteMethod(
     node: InterfaceWithFields,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     return ts.createMethod(
         undefined,
@@ -155,7 +160,7 @@ export function createStaticWriteMethod(
             createFunctionParameter(
                 COMMON_IDENTIFIERS.args,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(looseNameForStruct(node)),
+                    ts.createIdentifier(looseNameForStruct(node, state)),
                     undefined,
                 ),
             ),
@@ -754,18 +759,18 @@ function createDefaultInitializer(
 
 export function createArgsParameterForStruct(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.ParameterDeclaration {
     return createFunctionParameter(
         COMMON_IDENTIFIERS.args, // param name
-        createArgsTypeForStruct(node, identifiers), // param type
+        createArgsTypeForStruct(node, state), // param type
         createDefaultInitializer(node),
     )
 }
 
 function createArgsTypeForStruct(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.TypeNode {
     // return ts.createTypeLiteralNode(
     //     node.fields.map((field: FieldDefinition): ts.TypeElement => {
@@ -779,7 +784,7 @@ function createArgsTypeForStruct(
     //     })
     // )
     return ts.createTypeReferenceNode(
-        ts.createIdentifier(looseNameForStruct(node)),
+        ts.createIdentifier(looseNameForStruct(node, state)),
         undefined,
     )
 }

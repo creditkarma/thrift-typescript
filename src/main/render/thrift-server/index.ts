@@ -23,7 +23,7 @@ import {
 import { renderService as _renderService } from './service'
 import { renderStruct as _renderStruct } from './struct'
 import { renderTypeDef as _renderTypeDef } from './typedef'
-import { renderUnion as _renderUnion } from './union'
+import { renderStrictUnion, renderUnion as _renderUnion } from './union'
 
 import {
     IMakeOptions,
@@ -88,28 +88,32 @@ export function renderStruct(
     statement: StructDefinition,
     state: IRenderState,
 ): Array<ts.Statement> {
-    return _renderStruct(statement, state.identifiers)
+    return _renderStruct(statement, state)
 }
 
 export function renderException(
     statement: ExceptionDefinition,
     state: IRenderState,
 ): Array<ts.Statement> {
-    return _renderException(statement, state.identifiers)
+    return _renderException(statement, state)
 }
 
 export function renderUnion(
     statement: UnionDefinition,
     state: IRenderState,
 ): Array<ts.Statement> {
-    return _renderUnion(statement, state.identifiers)
+    if (state.options.strictUnions) {
+        return renderStrictUnion(statement, state)
+    } else {
+        return _renderUnion(statement, state)
+    }
 }
 
 export function renderService(
     statement: ServiceDefinition,
     state: IRenderState,
 ): Array<ts.Statement> {
-    return [_renderService(statement, state.identifiers)]
+    return [_renderService(statement, state)]
 }
 
 export const renderer: IRenderer = {

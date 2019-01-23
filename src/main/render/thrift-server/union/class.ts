@@ -6,7 +6,7 @@ import {
     UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap } from '../../../types'
+import { IIdentifierMap, IRenderState } from '../../../types'
 
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
@@ -44,12 +44,12 @@ import { renderAnnotations, renderFieldAnnotations } from '../annotations'
 
 export function renderClass(
     node: UnionDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
     isExported: boolean,
 ): ts.ClassDeclaration {
     const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(
         node,
-        identifiers,
+        state.identifiers,
     )
 
     const annotations: ts.PropertyDeclaration = renderAnnotations(
@@ -75,13 +75,13 @@ export function renderClass(
      */
     const fieldAssignments: Array<ts.IfStatement> = node.fields.map(
         (next: FieldDefinition) => {
-            return createFieldAssignment(next, identifiers)
+            return createFieldAssignment(next, state.identifiers)
         },
     )
 
     const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(
         node,
-        identifiers,
+        state,
     )
 
     // Build the constructor body
@@ -101,14 +101,14 @@ export function renderClass(
         tokens(isExported),
         classNameForStruct(node),
         [],
-        [extendsAbstract(), implementsInterface(node)], // heritage
+        [extendsAbstract(), implementsInterface(node, state)], // heritage
         [
             ...fields,
             annotations,
             fieldAnnotations,
             ctor,
             createStaticReadMethod(node),
-            createStaticWriteMethod(node),
+            createStaticWriteMethod(node, state),
             createWriteMethod(node),
         ],
     )
