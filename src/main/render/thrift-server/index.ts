@@ -25,7 +25,12 @@ import { renderStruct as _renderStruct } from './struct'
 import { renderTypeDef as _renderTypeDef } from './typedef'
 import { renderUnion as _renderUnion } from './union'
 
-import { IIdentifierMap, INamespaceFile, IRenderer } from '../../types'
+import {
+    IIdentifierMap,
+    IMakeOptions,
+    INamespaceFile,
+    IRenderer,
+} from '../../types'
 
 import { typeNodeForFieldType } from './types'
 
@@ -33,10 +38,11 @@ export function renderIncludes(
     outPath: string,
     currentPath: string,
     resolvedFile: INamespaceFile,
+    options: IMakeOptions,
 ): Array<ts.Statement> {
     if (fileUsesThrift(resolvedFile)) {
         return [
-            renderThriftImports(),
+            renderThriftImports(options.library),
             ..._renderIncludes(outPath, currentPath, resolvedFile),
         ]
     } else {

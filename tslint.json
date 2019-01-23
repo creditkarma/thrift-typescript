@@ -5,7 +5,7 @@
         "tslint-plugin-prettier"
     ],
     "linterOptions": {
-        "exclude": ["src/tests/**/*.ts"]
+        "exclude": ["src/tests/unit/fixtures/**/*.ts"]
     },
     "rules": {
         "max-classes-per-file": false,

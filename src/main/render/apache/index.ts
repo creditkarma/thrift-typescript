@@ -34,20 +34,26 @@ import {
 import { renderStruct as _renderStruct } from './struct'
 import { renderUnion as _renderUnion } from './union'
 
-import { IIdentifierMap, INamespaceFile, IRenderer } from '../../types'
+import {
+    IIdentifierMap,
+    IMakeOptions,
+    INamespaceFile,
+    IRenderer,
+} from '../../types'
 import { typeNodeForFieldType } from './types'
 
 export function renderIncludes(
     outPath: string,
     currentPath: string,
     resolvedFile: INamespaceFile,
+    options: IMakeOptions,
 ): Array<ts.Statement> {
     const includes: Array<ts.Statement> = [
         ..._renderIncludes(outPath, currentPath, resolvedFile.includes),
     ]
 
     if (fileUsesThrift(resolvedFile)) {
-        includes.unshift(renderThriftImports())
+        includes.unshift(renderThriftImports(options.library))
     }
 
     if (fileUsesInt64(resolvedFile)) {

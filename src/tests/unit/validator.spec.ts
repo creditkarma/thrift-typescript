@@ -1,17 +1,17 @@
 import { assert } from 'chai'
-import * as path from 'path'
 import * as fs from 'fs'
+import * as path from 'path'
 
-import { resolveFile } from '../../main/resolver'
-import { validateFile } from '../../main/validator'
-import { parseSource, parseThriftString } from '../../main/utils'
-import {
-    IResolvedFile,
-    IParsedFile,
-    IThriftError,
-    ErrorType,
-} from '../../main/types'
 import { DEFAULT_OPTIONS } from '../../main/options'
+import { resolveFile } from '../../main/resolver'
+import {
+    ErrorType,
+    IParsedFile,
+    IResolvedFile,
+    IThriftError,
+} from '../../main/types'
+import { parseSource, parseThriftString } from '../../main/utils'
+import { validateFile } from '../../main/validator'
 
 function loadSolution(name: string): any {
     return JSON.parse(

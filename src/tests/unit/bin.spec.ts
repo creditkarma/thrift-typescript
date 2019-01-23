@@ -13,6 +13,7 @@ describe('resolveOptions', () => {
             target: 'apache',
             files: [],
             fallbackNamespace: 'java',
+            library: 'thrift',
         })
     })
 
@@ -33,6 +34,7 @@ describe('resolveOptions', () => {
             target: 'apache',
             files: ['test.thrift', 'test-two.thrift'],
             fallbackNamespace: 'scala',
+            library: 'thrift',
         })
     })
 })

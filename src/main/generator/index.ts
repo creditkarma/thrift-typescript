@@ -2,6 +2,7 @@ import * as ts from 'typescript'
 
 import {
     IIdentifierMap,
+    IMakeOptions,
     INamespaceFile,
     IRenderedCache,
     IRenderedFile,
@@ -28,11 +29,10 @@ export { processStatements } from './iterator'
  */
 export function generateFile(
     renderer: IRenderer,
-    rootDir: string,
     outDir: string,
-    sourceDir: string,
     resolvedFile: INamespaceFile,
     cache: IRenderedCache = {},
+    options: IMakeOptions,
 ): IRenderedFile {
     const cacheKey: string = resolvedFile.namespace.path
 
@@ -43,6 +43,7 @@ export function generateFile(
                 outDir,
                 resolvedFile.namespace.path,
                 resolvedFile,
+                options,
             ),
             ...processStatements(resolvedFile.body, identifiers, renderer),
         ]

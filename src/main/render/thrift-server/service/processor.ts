@@ -17,7 +17,9 @@ import {
     createStructArgsName,
     createStructResultName,
     renderMethodNamesProperty,
+    renderMethodNamesStaticProperty,
     renderServiceNameProperty,
+    renderServiceNameStaticProperty,
 } from './utils'
 
 import { IIdentifierMap } from '../../../types'
@@ -53,7 +55,9 @@ import {
 
 import {
     renderMethodAnnotationsProperty,
+    renderMethodAnnotationsStaticProperty,
     renderServiceAnnotationsProperty,
+    renderServiceAnnotationsStaticProperty,
 } from '../annotations'
 
 import { codecName, strictName } from '../struct/utils'
@@ -137,12 +141,14 @@ export function renderProcessor(
         undefined,
     )
 
+    const staticServiceName: ts.PropertyDeclaration = renderServiceNameStaticProperty()
+    const staticAnnotations: ts.PropertyDeclaration = renderServiceAnnotationsStaticProperty()
+    const staticMethodAnnotations: ts.PropertyDeclaration = renderMethodAnnotationsStaticProperty()
+    const staticMethodNames: ts.PropertyDeclaration = renderMethodNamesStaticProperty()
+
     const serviceName: ts.PropertyDeclaration = renderServiceNameProperty()
-
     const annotations: ts.PropertyDeclaration = renderServiceAnnotationsProperty()
-
     const methodAnnotations: ts.PropertyDeclaration = renderMethodAnnotationsProperty()
-
     const methodNames: ts.PropertyDeclaration = renderMethodNamesProperty()
 
     const processMethod: ts.MethodDeclaration = createProcessMethod(
@@ -175,6 +181,10 @@ export function renderProcessor(
         heritage, // heritage
         [
             handler,
+            staticServiceName,
+            staticAnnotations,
+            staticMethodAnnotations,
+            staticMethodNames,
             serviceName,
             annotations,
             methodAnnotations,
@@ -378,9 +388,7 @@ function createProcessFunctionMethod(
                                                     funcDef.name.value,
                                                 ),
                                                 MESSAGE_TYPE.REPLY,
-                                                ts.createIdentifier(
-                                                    'requestId',
-                                                ),
+                                                COMMON_IDENTIFIERS.requestId,
                                             ],
                                         ),
                                         // StructCodec.encode(result, output)

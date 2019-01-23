@@ -1,21 +1,21 @@
 import {
+    createHttpClient,
+    createHttpConnection,
     createWebServer,
+    HttpConnection,
     Int64,
     TBinaryProtocol,
     TBufferedTransport,
-    HttpConnection,
-    createHttpConnection,
-    createHttpClient,
 } from 'thrift'
 
 import {
     Calculator,
     Choice,
-    Operation,
-    Work,
     CommonStruct,
     ExceptionOne,
     ExceptionTwo,
+    Operation,
+    Work,
 } from './codegen/calculator'
 
 import { AddService } from './codegen/add-service'
@@ -55,7 +55,9 @@ export function createCalculatorServer(): Server {
 
     // Handler: Implement the hello service
     const myServiceHandler: Calculator.IHandler = {
-        ping(): void {},
+        ping(): void {
+            return
+        },
         add(a: number, b: number): Promise<number> {
             return thriftClient.add(a, b)
         },
@@ -76,7 +78,9 @@ export function createCalculatorServer(): Server {
                     throw new Error(`Unsupported operation: ${work.op}`)
             }
         },
-        zip(): void {},
+        zip(): void {
+            return
+        },
         getStruct(key: number): SharedStruct {
             return new SharedStruct({ key, value: 'test' })
         },

@@ -21,12 +21,12 @@ import {
 
 import { SharedStruct, SharedUnion } from './codegen/shared'
 
-import { createCalculatorServer } from './calculator-service'
 import { createAddServer } from './add-service'
+import { createCalculatorServer } from './calculator-service'
 
 import {
-    CALC_SERVER_CONFIG,
     ADD_SERVER_CONFIG,
+    CALC_SERVER_CONFIG,
     // SERVER_CONFIG,
 } from './config'
 
@@ -201,14 +201,14 @@ describe('Thrift TypeScript', () => {
             () => {
                 throw new Error('Should reject')
             },
-            (err: any) => {
-                assert.equal(err.message, 'test one')
+            (err1: any) => {
+                assert.equal(err1.message, 'test one')
                 return thriftClient.throw(2).then(
                     () => {
                         throw new Error('Should reject')
                     },
-                    (err: any) => {
-                        assert.equal(err.whatHappened, 'test two')
+                    (err2: any) => {
+                        assert.equal(err2.whatHappened, 'test two')
                     },
                 )
             },

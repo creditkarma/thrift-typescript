@@ -9,21 +9,25 @@ import {
 
 import { COMMON_IDENTIFIERS } from '../shared/identifiers'
 
+const DEFAULT_THRIFT_LIB: string = 'thrift'
+
 /**
  * import { Thrift, TProtocol, TTransport, Int64 } from 'thrift';
  *
  * I would really like this to only import what is being used by the file we're
  * generating. We'll need to keep track of what each files uses.
  */
-export function renderThriftImports(): ts.ImportDeclaration {
+export function renderThriftImports(
+    thriftLib: string = DEFAULT_THRIFT_LIB,
+): ts.ImportDeclaration {
     return ts.createImportDeclaration(
         undefined,
         undefined,
         ts.createImportClause(
             undefined,
-            ts.createNamespaceImport(ts.createIdentifier('thrift')),
+            ts.createNamespaceImport(COMMON_IDENTIFIERS.thrift),
         ),
-        ts.createLiteral('thrift'),
+        ts.createLiteral(thriftLib),
     )
 }
 

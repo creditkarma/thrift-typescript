@@ -1,8 +1,8 @@
 import {
     createWebServer,
+    Int64,
     TBinaryProtocol,
     TBufferedTransport,
-    Int64,
 } from 'thrift'
 
 import { AddService } from './codegen/add-service'
@@ -12,7 +12,9 @@ import { Server } from 'net'
 export function createAddServer(): Server {
     // Handler: Implement the hello service
     const myServiceHandler: AddService.IHandler = {
-        ping(): void {},
+        ping(): void {
+            return
+        },
         add(a: number, b: number): number {
             return a + b
         },

@@ -1,7 +1,11 @@
 defaults: &defaults
   working_directory: ~/thrift-typescript
   docker:
+<<<<<<< HEAD
     - image: circleci/node:8.9.3
+=======
+    - image: circleci/node:8.9.4
+>>>>>>> origin/master
 
 version: 2
 jobs:
@@ -23,7 +27,11 @@ jobs:
   test_node_10:
     <<: *defaults
     docker:
+<<<<<<< HEAD
       - image: circleci/node:10.14.0
+=======
+      - image: circleci/node:10.9.0
+>>>>>>> origin/master
     steps:
       - checkout
       - run:
@@ -54,7 +62,7 @@ jobs:
           name: Publish to NPM
           command: npm publish --access public
 
-  prerelease:
+  publish_next:
     <<: *defaults
     steps:
       - checkout
@@ -95,7 +103,7 @@ workflows:
               branches:
                 ignore: /.*/
 
-        - prerelease:
+        - publish_next:
             requires:
               - test_node_8
               - test_node_10

@@ -9,7 +9,7 @@ import { typeNodeForFieldType } from '../types'
 
 import { IIdentifierMap } from '../../../types'
 
-import { looseNameForStruct, strictNameForStruct } from './utils'
+import { looseNameForStruct, strictNameForStruct, tokens } from './utils'
 
 export function renderOptional(
     field: FieldDefinition,
@@ -28,6 +28,7 @@ export function renderOptional(
 function strictInterface(
     node: InterfaceWithFields,
     identifiers: IIdentifierMap,
+    isExported: boolean,
 ): ts.InterfaceDeclaration {
     const signatures = node.fields.map((field: FieldDefinition) => {
         return ts.createPropertySignature(
@@ -41,7 +42,7 @@ function strictInterface(
 
     return ts.createInterfaceDeclaration(
         undefined,
-        [ts.createToken(ts.SyntaxKind.ExportKeyword)],
+        tokens(isExported),
         ts.createIdentifier(strictNameForStruct(node)),
         [],
         [],
@@ -52,6 +53,7 @@ function strictInterface(
 function looseInterface(
     node: InterfaceWithFields,
     identifiers: IIdentifierMap,
+    isExported: boolean,
 ): ts.InterfaceDeclaration {
     const signatures = node.fields.map((field: FieldDefinition) => {
         return ts.createPropertySignature(
@@ -65,7 +67,7 @@ function looseInterface(
 
     return ts.createInterfaceDeclaration(
         undefined,
-        [ts.createToken(ts.SyntaxKind.ExportKeyword)],
+        tokens(isExported),
         ts.createIdentifier(looseNameForStruct(node)),
         [],
         [],
@@ -98,9 +100,10 @@ function looseInterface(
 export function renderInterface(
     node: InterfaceWithFields,
     identifiers: IIdentifierMap,
+    isExported: boolean,
 ): Array<ts.InterfaceDeclaration> {
     return [
-        strictInterface(node, identifiers),
-        looseInterface(node, identifiers),
+        strictInterface(node, identifiers, isExported),
+        looseInterface(node, identifiers, isExported),
     ]
 }

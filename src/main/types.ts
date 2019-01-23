@@ -40,6 +40,11 @@ export interface IMakeOptions {
 
     // What namespace do we fallback to? Set to 'none' to not fallback.
     fallbackNamespace: string
+
+    // What is the library to import thrift from
+    // Defaults to 'thrift' for target = 'apache'
+    // Defaults to '@creditkarma/thrift-server-core' for target = 'thrift-server'
+    library: string
 }
 
 export interface IRenderer {
@@ -47,6 +52,7 @@ export interface IRenderer {
         outPath: string,
         currentPath: string,
         resolvedFile: INamespaceFile,
+        options: IMakeOptions,
     ): Array<ts.Statement>
 
     renderConst(

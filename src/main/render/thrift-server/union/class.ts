@@ -22,6 +22,7 @@ import {
     extendsAbstract,
     implementsInterface,
     throwForField,
+    tokens,
 } from '../struct/utils'
 
 import {
@@ -44,6 +45,7 @@ import { renderAnnotations, renderFieldAnnotations } from '../annotations'
 export function renderClass(
     node: UnionDefinition,
     identifiers: IIdentifierMap,
+    isExported: boolean,
 ): ts.ClassDeclaration {
     const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(
         node,
@@ -96,7 +98,7 @@ export function renderClass(
     // export class <node.name> { ... }
     return ts.createClassDeclaration(
         undefined,
-        [ts.createToken(ts.SyntaxKind.ExportKeyword)],
+        tokens(isExported),
         classNameForStruct(node),
         [],
         [extendsAbstract(), implementsInterface(node)], // heritage

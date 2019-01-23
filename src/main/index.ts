@@ -27,6 +27,8 @@ import { rendererForTarget } from './render'
 
 import { printErrors } from './debugger'
 
+import { mergeWithDefaults } from './defaults'
+
 import {
     collectInvalidFiles,
     collectSourceFiles,
@@ -80,17 +82,18 @@ export function make(
  *
  * @param options
  */
-export function generate(options: IMakeOptions): void {
-    const rootDir: string = path.resolve(process.cwd(), options.rootDir)
-    const outDir: string = path.resolve(rootDir, options.outDir)
-    const sourceDir: string = path.resolve(rootDir, options.sourceDir)
+export function generate(options: Partial<IMakeOptions>): void {
+    const mergedOptions: IMakeOptions = mergeWithDefaults(options)
+    const rootDir: string = path.resolve(process.cwd(), mergedOptions.rootDir)
+    const outDir: string = path.resolve(rootDir, mergedOptions.outDir)
+    const sourceDir: string = path.resolve(rootDir, mergedOptions.sourceDir)
     const includeCache: IIncludeCache = {}
     const resolvedCache: IResolvedCache = {}
     const renderedCache: IRenderedCache = {}
 
     const validatedFiles: Array<IResolvedFile> = collectSourceFiles(
         sourceDir,
-        options,
+        mergedOptions,
     ).reduce((acc: Array<IResolvedFile>, next: string): Array<
         IResolvedFile
     > => {
@@ -103,7 +106,7 @@ export function generate(options: IMakeOptions): void {
         const resolvedFile: IResolvedFile = resolveFile(
             outDir,
             parsedFile,
-            options,
+            mergedOptions,
             resolvedCache,
         )
         return acc.concat(flattenResolvedFile(resolvedFile).map(validateFile))
@@ -112,6 +115,7 @@ export function generate(options: IMakeOptions): void {
     const dedupedFiles: Array<IResolvedFile> = dedupResolvedFiles(
         validatedFiles,
     )
+
     const invalidFiles: Array<IResolvedFile> = collectInvalidFiles(dedupedFiles)
 
     if (invalidFiles.length > 0) {
@@ -124,12 +128,11 @@ export function generate(options: IMakeOptions): void {
         const renderedFiles: Array<IRenderedFile> = namespaces.map(
             (next: INamespaceFile): IRenderedFile => {
                 return generateFile(
-                    rendererForTarget(options.target),
-                    rootDir,
+                    rendererForTarget(mergedOptions.target),
                     outDir,
-                    sourceDir,
                     next,
                     renderedCache,
+                    mergedOptions,
                 )
             },
         )

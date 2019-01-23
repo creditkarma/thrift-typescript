@@ -426,9 +426,7 @@ function createProcessFunctionMethod(
                                                     funcDef.name.value,
                                                 ),
                                                 MESSAGE_TYPE.REPLY,
-                                                ts.createIdentifier(
-                                                    'requestId',
-                                                ),
+                                                COMMON_IDENTIFIERS.requestId,
                                             ],
                                         ),
                                         // result.write(output)

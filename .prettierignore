@@ -1,1 +1,1 @@
-src/tests/unit/fixtures/
+src/tests/unit/fixtures/**/*.ts

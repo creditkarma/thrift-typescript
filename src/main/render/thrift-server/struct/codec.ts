@@ -15,14 +15,16 @@ import {
     codecNameForStruct,
     looseNameForStruct,
     strictNameForStruct,
+    tokens,
 } from './utils'
 
 export function renderCodec(
     node: InterfaceWithFields,
     identifiers: IIdentifierMap,
+    isExported: boolean,
 ): ts.Statement {
     return ts.createVariableStatement(
-        [ts.createToken(ts.SyntaxKind.ExportKeyword)],
+        tokens(isExported),
         createConst(
             ts.createIdentifier(codecNameForStruct(node)),
             ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IStructCodec, [

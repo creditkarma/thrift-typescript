@@ -41,7 +41,7 @@ export function renderAnnotations(
             ts.createToken(ts.SyntaxKind.PublicKeyword),
             ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
         ],
-        COMMON_IDENTIFIERS.annotations,
+        COMMON_IDENTIFIERS._annotations,
         undefined,
         ts.createTypeReferenceNode(
             THRIFT_IDENTIFIERS.IThriftAnnotations,
@@ -79,13 +79,31 @@ export function renderServiceAnnotationsProperty(): ts.PropertyDeclaration {
             ts.createToken(ts.SyntaxKind.PublicKeyword),
             ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
         ],
+        COMMON_IDENTIFIERS._annotations,
+        undefined,
+        ts.createTypeReferenceNode(
+            THRIFT_IDENTIFIERS.IThriftAnnotations,
+            undefined,
+        ),
+        COMMON_IDENTIFIERS.annotations,
+    )
+}
+
+export function renderServiceAnnotationsStaticProperty(): ts.PropertyDeclaration {
+    return ts.createProperty(
+        undefined,
+        [
+            ts.createToken(ts.SyntaxKind.PublicKeyword),
+            ts.createToken(ts.SyntaxKind.StaticKeyword),
+            ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
+        ],
         COMMON_IDENTIFIERS.annotations,
         undefined,
         ts.createTypeReferenceNode(
             THRIFT_IDENTIFIERS.IThriftAnnotations,
             undefined,
         ),
-        ts.createIdentifier('annotations'),
+        COMMON_IDENTIFIERS.annotations,
     )
 }
 
@@ -116,7 +134,7 @@ export function renderFieldAnnotations(
             ts.createToken(ts.SyntaxKind.PublicKeyword),
             ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
         ],
-        COMMON_IDENTIFIERS.fieldAnnotations,
+        COMMON_IDENTIFIERS._fieldAnnotations,
         undefined,
         ts.createTypeReferenceNode(
             THRIFT_IDENTIFIERS.IFieldAnnotations,
@@ -160,7 +178,7 @@ export function renderMethodAnnotations(
         ts.createVariableDeclarationList(
             [
                 ts.createVariableDeclaration(
-                    ts.createIdentifier('methodAnnotations'),
+                    COMMON_IDENTIFIERS.methodAnnotations,
                     ts.createTypeReferenceNode(
                         THRIFT_IDENTIFIERS.IMethodAnnotations,
                         undefined,
@@ -180,12 +198,30 @@ export function renderMethodAnnotationsProperty(): ts.PropertyDeclaration {
             ts.createToken(ts.SyntaxKind.PublicKeyword),
             ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
         ],
+        COMMON_IDENTIFIERS._methodAnnotations,
+        undefined,
+        ts.createTypeReferenceNode(
+            THRIFT_IDENTIFIERS.IMethodAnnotations,
+            undefined,
+        ),
+        COMMON_IDENTIFIERS.methodAnnotations,
+    )
+}
+
+export function renderMethodAnnotationsStaticProperty(): ts.PropertyDeclaration {
+    return ts.createProperty(
+        undefined,
+        [
+            ts.createToken(ts.SyntaxKind.PublicKeyword),
+            ts.createToken(ts.SyntaxKind.StaticKeyword),
+            ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
+        ],
         COMMON_IDENTIFIERS.methodAnnotations,
         undefined,
         ts.createTypeReferenceNode(
             THRIFT_IDENTIFIERS.IMethodAnnotations,
             undefined,
         ),
-        ts.createIdentifier('methodAnnotations'),
+        COMMON_IDENTIFIERS.methodAnnotations,
     )
 }

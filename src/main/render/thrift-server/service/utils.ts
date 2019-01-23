@@ -22,13 +22,13 @@ export function capitalize(str: string): string {
 export function createStructArgsName(
     def: FunctionDefinition | FieldDefinition,
 ): string {
-    return `${capitalize(def.name.value)}Args`
+    return `${capitalize(def.name.value)}__Args`
 }
 
 export function createStructResultName(
     def: FunctionDefinition | FieldDefinition,
 ): string {
-    return `${capitalize(def.name.value)}Result`
+    return `${capitalize(def.name.value)}__Result`
 }
 
 // function functionsForService(node: ThriftStatement): Array<FunctionDefinition> {
@@ -66,7 +66,22 @@ export function renderServiceNameProperty(): ts.PropertyDeclaration {
             ts.createToken(ts.SyntaxKind.PublicKeyword),
             ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
         ],
-        COMMON_IDENTIFIERS._servicename,
+        COMMON_IDENTIFIERS._serviceName,
+        undefined,
+        createStringType(),
+        COMMON_IDENTIFIERS.serviceName,
+    )
+}
+
+export function renderServiceNameStaticProperty(): ts.PropertyDeclaration {
+    return ts.createProperty(
+        undefined,
+        [
+            ts.createToken(ts.SyntaxKind.PublicKeyword),
+            ts.createToken(ts.SyntaxKind.StaticKeyword),
+            ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
+        ],
+        COMMON_IDENTIFIERS.serviceName,
         undefined,
         createStringType(),
         COMMON_IDENTIFIERS.serviceName,
@@ -110,7 +125,7 @@ export function renderMethodNames(
         ts.createVariableDeclarationList(
             [
                 ts.createVariableDeclaration(
-                    ts.createIdentifier('methodNames'),
+                    COMMON_IDENTIFIERS.methodNames,
                     ts.createTypeReferenceNode('Array<string>', undefined),
                     ts.createArrayLiteral([
                         ...collectAllMethods(service, identifiers).map(
@@ -133,10 +148,25 @@ export function renderMethodNamesProperty(): ts.PropertyDeclaration {
             ts.createToken(ts.SyntaxKind.PublicKeyword),
             ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
         ],
-        '_methodNames',
+        COMMON_IDENTIFIERS._methodNames,
         undefined,
         ts.createTypeReferenceNode('Array<string>', undefined),
-        ts.createIdentifier('methodNames'),
+        COMMON_IDENTIFIERS.methodNames,
+    )
+}
+
+export function renderMethodNamesStaticProperty(): ts.PropertyDeclaration {
+    return ts.createProperty(
+        undefined,
+        [
+            ts.createToken(ts.SyntaxKind.PublicKeyword),
+            ts.createToken(ts.SyntaxKind.StaticKeyword),
+            ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
+        ],
+        COMMON_IDENTIFIERS.methodNames,
+        undefined,
+        ts.createTypeReferenceNode('Array<string>', undefined),
+        COMMON_IDENTIFIERS.methodNames,
     )
 }
 

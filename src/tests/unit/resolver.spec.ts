@@ -1,11 +1,12 @@
 import { assert } from 'chai'
-import * as path from 'path'
 import * as fs from 'fs'
+import * as path from 'path'
 
 import { resolveFile } from '../../main/resolver'
 import { parseThriftString } from '../../main/utils'
-import { IResolvedFile, IParsedFile } from '../../main/types'
+
 import { DEFAULT_OPTIONS } from '../../main/options'
+import { IParsedFile, IResolvedFile } from '../../main/types'
 
 function loadSolution(name: string): any {
     return JSON.parse(

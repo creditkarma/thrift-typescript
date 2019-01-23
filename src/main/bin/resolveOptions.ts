@@ -69,6 +69,11 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                 index += 2
                 break
 
+            case '--library':
+                options.library = args[index + 1]
+                index += 2
+                break
+
             case '--target':
                 const option = args[index + 1]
                 if (option === 'apache' || option === 'thrift-server') {
@@ -95,6 +100,14 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                     index += 1
                 }
         }
+    }
+
+    if (options.target === 'thrift-server' && options.library === '') {
+        options.library = '@creditkarma/thrift-server-core'
+    }
+
+    if (options.target === 'apache' && options.library === '') {
+        options.library = 'thrift'
     }
 
     return options
