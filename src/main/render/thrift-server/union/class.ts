@@ -6,7 +6,7 @@ import {
     UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap, IRenderState } from '../../../types'
+import { IRenderState } from '../../../types'
 
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
@@ -49,7 +49,7 @@ export function renderClass(
 ): ts.ClassDeclaration {
     const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(
         node,
-        state.identifiers,
+        state,
     )
 
     const annotations: ts.PropertyDeclaration = renderAnnotations(
@@ -75,7 +75,7 @@ export function renderClass(
      */
     const fieldAssignments: Array<ts.IfStatement> = node.fields.map(
         (next: FieldDefinition) => {
-            return createFieldAssignment(next, state.identifiers)
+            return createFieldAssignment(next, state)
         },
     )
 
@@ -130,10 +130,10 @@ export function createInputParameter(): ts.ParameterDeclaration {
 
 export function createFieldsForStruct(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.PropertyDeclaration> {
     return node.fields.map((field: FieldDefinition) => {
-        return renderFieldDeclarations(field, identifiers)
+        return renderFieldDeclarations(field, state)
     })
 }
 
@@ -155,9 +155,9 @@ export function createFieldsForStruct(
  */
 export function assignmentForField(
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Statement> {
-    return [incrementFieldsSet(), ..._assignmentForField(field, identifiers)]
+    return [incrementFieldsSet(), ..._assignmentForField(field, state)]
 }
 
 /**
@@ -175,15 +175,12 @@ export function assignmentForField(
  */
 export function createFieldAssignment(
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.IfStatement {
     const hasValue: ts.BinaryExpression = createNotNullCheck(
         ts.createPropertyAccess(COMMON_IDENTIFIERS.args, `${field.name.value}`),
     )
-    const thenAssign: Array<ts.Statement> = assignmentForField(
-        field,
-        identifiers,
-    )
+    const thenAssign: Array<ts.Statement> = assignmentForField(field, state)
     const elseThrow: ts.Statement | undefined = throwForField(field)
 
     return ts.createIf(

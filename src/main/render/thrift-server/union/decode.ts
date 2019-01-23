@@ -26,7 +26,7 @@ import {
     throwProtocolException,
 } from '../utils'
 
-import { IIdentifierMap, IRenderState } from '../../../types'
+import { IRenderState } from '../../../types'
 
 import {
     createCheckForFields,
@@ -111,11 +111,7 @@ export function createDecodeMethod(
                     COMMON_IDENTIFIERS.fieldId, // what to switch on
                     ts.createCaseBlock([
                         ...node.fields.map((next: FieldDefinition) => {
-                            return createCaseForField(
-                                node,
-                                next,
-                                state.identifiers,
-                            )
+                            return createCaseForField(node, next, state)
                         }),
                         ts.createDefaultClause([createSkipBlock()]),
                     ]),
@@ -188,22 +184,18 @@ export function createDecodeMethod(
 export function createCaseForField(
     node: UnionDefinition,
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.CaseClause {
     const fieldAlias: ts.Identifier = ts.createUniqueName('value')
     const checkType: ts.IfStatement = ts.createIf(
         createEqualsCheck(
             COMMON_IDENTIFIERS.fieldType,
-            thriftTypeForFieldType(field.fieldType, identifiers),
+            thriftTypeForFieldType(field.fieldType, state.identifiers),
         ),
         ts.createBlock(
             [
                 incrementFieldsSet(),
-                ...readValueForFieldType(
-                    field.fieldType,
-                    fieldAlias,
-                    identifiers,
-                ),
+                ...readValueForFieldType(field.fieldType, fieldAlias, state),
                 ...endReadForField(node, fieldAlias, field),
             ],
             true,

@@ -62,18 +62,14 @@ export function renderService(
             renderMethodNames(service, state.identifiers),
             ...renderArgsStruct(service, state),
             ...renderResultStruct(service, state),
-            renderClient(service, state.identifiers),
+            renderClient(service, state),
             ...renderHandlerInterface(
                 service,
                 (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
-                    return typeNodeForFieldType(
-                        fieldType,
-                        state.identifiers,
-                        loose,
-                    )
+                    return typeNodeForFieldType(fieldType, state, loose)
                 },
             ),
-            renderProcessor(service, state.identifiers),
+            renderProcessor(service, state),
         ]),
         ts.NodeFlags.Namespace,
     )

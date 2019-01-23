@@ -9,10 +9,14 @@ import { IMakeOptions } from '../types'
 import { deepCopy } from '../utils'
 
 /**
+ * Options:
+ *
  * --rootDir
  * --outDir
  * --removeComments
- * --strict
+ * --strictUnions
+ * --fallbackNamespace
+ * --library
  */
 export function resolveOptions(args: Array<string>): IMakeOptions {
     const len: number = args.length
@@ -68,8 +72,13 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                 options.library = args[index + 1]
                 index += 2
 
-            case '--fallback-namespace':
+            case '--fallbackNamespace':
                 options.fallbackNamespace = args[index + 1]
+                index += 2
+                break
+
+            case '--strictUnions':
+                options.strictUnions = args[index + 1] === 'true'
                 index += 2
                 break
 

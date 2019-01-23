@@ -26,7 +26,7 @@ function strictInterface(
             undefined,
             field.name.value,
             renderOptional(field),
-            typeNodeForFieldType(field.fieldType, state.identifiers),
+            typeNodeForFieldType(field.fieldType, state),
             undefined,
         )
     })
@@ -51,7 +51,7 @@ function looseInterface(
             undefined,
             field.name.value,
             renderOptional(field, true),
-            typeNodeForFieldType(field.fieldType, state.identifiers, true),
+            typeNodeForFieldType(field.fieldType, state, true),
             undefined,
         )
     })

@@ -2,7 +2,7 @@ import * as ts from 'typescript'
 
 import { FunctionType, SyntaxType } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap, IResolvedIdentifier } from '../../types'
+import { IIdentifierMap, IRenderState, IResolvedIdentifier } from '../../types'
 
 import {
     APPLICATION_EXCEPTION,
@@ -229,6 +229,7 @@ export function thriftTypeForFieldType(
 function typeNodeForIdentifier(
     id: IResolvedIdentifier,
     name: string,
+    state: IRenderState,
     loose: boolean = false,
 ): ts.TypeNode {
     switch (id.definition.type) {
@@ -237,12 +238,16 @@ function typeNodeForIdentifier(
         case SyntaxType.UnionDefinition:
             if (loose) {
                 return ts.createTypeReferenceNode(
-                    ts.createIdentifier(looseName(name)),
+                    ts.createIdentifier(
+                        looseName(name, id.definition.type, state),
+                    ),
                     undefined,
                 )
             } else {
                 return ts.createTypeReferenceNode(
-                    ts.createIdentifier(strictName(name)),
+                    ts.createIdentifier(
+                        strictName(name, id.definition.type, state),
+                    ),
                     undefined,
                 )
             }
@@ -257,31 +262,32 @@ function typeNodeForIdentifier(
 
 export function typeNodeForFieldType(
     fieldType: FunctionType,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
     loose: boolean = false,
 ): ts.TypeNode {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return typeNodeForIdentifier(
-                identifiers[fieldType.value],
+                state.identifiers[fieldType.value],
                 fieldType.value,
+                state,
                 loose,
             )
 
         case SyntaxType.SetType:
             return ts.createTypeReferenceNode('Set', [
-                typeNodeForFieldType(fieldType.valueType, identifiers, loose),
+                typeNodeForFieldType(fieldType.valueType, state, loose),
             ])
 
         case SyntaxType.MapType:
             return ts.createTypeReferenceNode('Map', [
-                typeNodeForFieldType(fieldType.keyType, identifiers, loose),
-                typeNodeForFieldType(fieldType.valueType, identifiers, loose),
+                typeNodeForFieldType(fieldType.keyType, state, loose),
+                typeNodeForFieldType(fieldType.valueType, state, loose),
             ])
 
         case SyntaxType.ListType:
             return ts.createTypeReferenceNode('Array', [
-                typeNodeForFieldType(fieldType.valueType, identifiers, loose),
+                typeNodeForFieldType(fieldType.valueType, state, loose),
             ])
 
         case SyntaxType.StringKeyword:

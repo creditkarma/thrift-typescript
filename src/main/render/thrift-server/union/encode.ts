@@ -37,7 +37,7 @@ import {
 
 import { createVoidType, typeNodeForFieldType } from '../types'
 
-import { IIdentifierMap, IRenderState } from '../../../types'
+import { IRenderState } from '../../../types'
 
 import {
     createFieldIncrementer,
@@ -81,7 +81,7 @@ export function createEncodeMethod(
                 ...createTempVariables(node, state.identifiers),
                 writeStructBegin(node.name.value),
                 ...node.fields.filter(isNotVoid).map((field) => {
-                    return createWriteForField(node, field, state.identifiers)
+                    return createWriteForField(node, field, state)
                 }),
                 writeFieldStop(),
                 writeStructEnd(),
@@ -103,7 +103,7 @@ export function createEncodeMethod(
 export function createWriteForField(
     node: UnionDefinition,
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.IfStatement {
     const isFieldNull: ts.BinaryExpression = createNotNullCheck(
         `obj.${field.name.value}`,
@@ -112,7 +112,7 @@ export function createWriteForField(
         node,
         field,
         ts.createIdentifier(`obj.${field.name.value}`),
-        identifiers,
+        state,
     )
     const elseThrow: ts.Statement | undefined = throwForField(field)
 
@@ -137,18 +137,13 @@ export function createWriteForFieldType(
     node: UnionDefinition,
     field: FieldDefinition,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.Block {
     return ts.createBlock(
         [
             incrementFieldsSet(),
-            writeFieldBegin(field, identifiers),
-            ...writeValueForField(
-                node,
-                field.fieldType,
-                fieldName,
-                identifiers,
-            ),
+            writeFieldBegin(field, state.identifiers),
+            ...writeValueForField(node, field.fieldType, fieldName, state),
             writeFieldEnd(),
         ],
         true,
@@ -159,16 +154,16 @@ export function writeValueForType(
     node: UnionDefinition,
     fieldType: FunctionType,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Expression> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return writeValueForIdentifier(
-                identifiers[fieldType.value],
+                state.identifiers[fieldType.value],
                 node,
                 fieldType,
                 fieldName,
-                identifiers,
+                state,
             )
 
         /**
@@ -178,22 +173,22 @@ export function writeValueForType(
          */
         case SyntaxType.SetType:
             return [
-                writeSetBegin(fieldType, fieldName, identifiers),
-                forEach(node, fieldType, fieldName, identifiers),
+                writeSetBegin(fieldType, fieldName, state.identifiers),
+                forEach(node, fieldType, fieldName, state),
                 writeSetEnd(),
             ]
 
         case SyntaxType.MapType:
             return [
-                writeMapBegin(fieldType, fieldName, identifiers),
-                forEach(node, fieldType, fieldName, identifiers),
+                writeMapBegin(fieldType, fieldName, state.identifiers),
+                forEach(node, fieldType, fieldName, state),
                 writeMapEnd(),
             ]
 
         case SyntaxType.ListType:
             return [
-                writeListBegin(fieldType, fieldName, identifiers),
-                forEach(node, fieldType, fieldName, identifiers),
+                writeListBegin(fieldType, fieldName, state.identifiers),
+                forEach(node, fieldType, fieldName, state),
                 writeListEnd(),
             ]
 
@@ -237,9 +232,9 @@ function writeValueForField(
     node: UnionDefinition,
     fieldType: FunctionType,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.ExpressionStatement> {
-    return writeValueForType(node, fieldType, fieldName, identifiers).map(
+    return writeValueForType(node, fieldType, fieldName, state).map(
         ts.createStatement,
     )
 }
@@ -263,18 +258,18 @@ function forEach(
     node: UnionDefinition,
     fieldType: ContainerType,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.CallExpression {
     const value: ts.Identifier = ts.createUniqueName('value')
     const forEachParameters: Array<ts.ParameterDeclaration> = [
         createFunctionParameter(
             value,
-            typeNodeForFieldType(fieldType.valueType, identifiers),
+            typeNodeForFieldType(fieldType.valueType, state),
         ),
     ]
 
     const forEachStatements: Array<ts.Statement> = [
-        ...writeValueForField(node, fieldType.valueType, value, identifiers),
+        ...writeValueForField(node, fieldType.valueType, value, state),
     ]
 
     // If map we have to handle key type as well as value type
@@ -283,12 +278,12 @@ function forEach(
         forEachParameters.push(
             createFunctionParameter(
                 key,
-                typeNodeForFieldType(fieldType.keyType, identifiers),
+                typeNodeForFieldType(fieldType.keyType, state),
             ),
         )
 
         forEachStatements.unshift(
-            ...writeValueForField(node, fieldType.keyType, key, identifiers),
+            ...writeValueForField(node, fieldType.keyType, key, state),
         )
     }
 

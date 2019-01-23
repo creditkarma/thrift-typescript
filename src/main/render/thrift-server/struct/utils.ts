@@ -64,7 +64,7 @@ export function looseNameForStruct(
     ) {
         return className(node.name.value)
     } else {
-        return looseName(node.name.value)
+        return looseName(node.name.value, node.type, state)
     }
 }
 
@@ -82,7 +82,7 @@ export function strictNameForStruct(
     ) {
         return className(node.name.value)
     } else {
-        return strictName(node.name.value)
+        return strictName(node.name.value, node.type, state)
     }
 }
 
@@ -96,16 +96,32 @@ export function className(name: string): string {
     })
 }
 
-export function looseName(name: string): string {
-    return makeNameForNode(name, (part: string) => {
-        return `I${part}Args`
-    })
+export function looseName(
+    name: string,
+    type: SyntaxType,
+    state: IRenderState,
+): string {
+    if (type === SyntaxType.UnionDefinition && state.options.strictUnions) {
+        return className(name)
+    } else {
+        return makeNameForNode(name, (part: string) => {
+            return `I${part}Args`
+        })
+    }
 }
 
-export function strictName(name: string): string {
-    return makeNameForNode(name, (part: string) => {
-        return `I${part}`
-    })
+export function strictName(
+    name: string,
+    type: SyntaxType,
+    state: IRenderState,
+): string {
+    if (type === SyntaxType.UnionDefinition && state.options.strictUnions) {
+        return className(name)
+    } else {
+        return makeNameForNode(name, (part: string) => {
+            return `I${part}`
+        })
+    }
 }
 
 export function codecName(name: string): string {

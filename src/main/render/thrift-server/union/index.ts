@@ -2,7 +2,7 @@ import * as ts from 'typescript'
 
 import { FieldDefinition, UnionDefinition } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap, IRenderState } from '../../../types'
+import { IRenderState } from '../../../types'
 
 import { renderInterface } from '../struct/interface'
 import { className, tokens } from '../struct/utils'
@@ -38,7 +38,7 @@ function capitalize(str: string): string {
 
 function renderUnions(
     node: UnionDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
     isExported: boolean,
 ): Array<ts.Statement> {
     return [
@@ -64,7 +64,7 @@ function renderUnions(
                             undefined,
                             field.name.value,
                             undefined,
-                            typeNodeForFieldType(field.fieldType, identifiers),
+                            typeNodeForFieldType(field.fieldType, state),
                             undefined,
                         )
                     } else {
@@ -99,7 +99,7 @@ export function renderStrictUnion(
     isExported: boolean = true,
 ): Array<ts.Statement> {
     return [
-        ...renderUnions(node, state.identifiers, isExported),
+        ...renderUnions(node, state, isExported),
         renderCodec(node, state, isExported),
     ]
 }

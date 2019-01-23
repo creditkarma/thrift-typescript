@@ -58,7 +58,7 @@ export function renderConst(
         _renderConst(
             statement,
             (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
-                return typeNodeForFieldType(fieldType, state.identifiers, loose)
+                return typeNodeForFieldType(fieldType, state, loose)
             },
         ),
     ]
@@ -71,9 +71,9 @@ export function renderTypeDef(
     return _renderTypeDef(
         statement,
         (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
-            return typeNodeForFieldType(fieldType, state.identifiers, loose)
+            return typeNodeForFieldType(fieldType, state, loose)
         },
-        state.identifiers,
+        state,
     )
 }
 
