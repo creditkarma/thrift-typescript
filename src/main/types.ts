@@ -42,6 +42,14 @@ export interface IMakeOptions {
     // Defaults to 'thrift' for target = 'apache'
     // Defaults to '@creditkarma/thrift-server-core' for target = 'thrift-server'
     library: string
+
+    // Should we render strict unions?
+    strictUnions: boolean
+}
+
+export interface IRenderState {
+    identifiers: IIdentifierMap
+    options: IMakeOptions
 }
 
 export interface IRenderer {
@@ -54,37 +62,37 @@ export interface IRenderer {
 
     renderConst(
         statement: ConstDefinition,
-        identifiers?: IIdentifierMap,
+        state: IRenderState,
     ): Array<ts.Statement>
 
     renderTypeDef(
         statement: TypedefDefinition,
-        identifiers?: IIdentifierMap,
+        state: IRenderState,
     ): Array<ts.Statement>
 
     renderEnum(
         statement: EnumDefinition,
-        identifiers?: IIdentifierMap,
+        state: IRenderState,
     ): Array<ts.Statement>
 
     renderStruct(
         statement: StructDefinition,
-        identifiers?: IIdentifierMap,
+        state: IRenderState,
     ): Array<ts.Statement>
 
     renderException(
         statement: ExceptionDefinition,
-        identifiers?: IIdentifierMap,
+        state: IRenderState,
     ): Array<ts.Statement>
 
     renderUnion(
         statement: UnionDefinition,
-        identifiers?: IIdentifierMap,
+        state: IRenderState,
     ): Array<ts.Statement>
 
     renderService(
         statement: ServiceDefinition,
-        identifiers?: IIdentifierMap,
+        state: IRenderState,
     ): Array<ts.Statement>
 }
 
@@ -97,12 +105,6 @@ export interface IRenderer {
  *
  *
  */
-
-export interface IRenderState {
-    includeCache: IIncludeCache
-    resolvedCache: IResolvedCache
-    renderedCache: IRenderedCache
-}
 
 export interface IThriftFile {
     name: string

@@ -22,7 +22,9 @@ function renderTypeDefForIdentifier(
                     undefined,
                     [ts.createToken(ts.SyntaxKind.ExportKeyword)],
                     ts.createIdentifier(strictName(node.name.value)),
-                    ts.createIdentifier(`${id.pathName}.${strictName(id.name)}`),
+                    ts.createIdentifier(
+                        `${id.pathName}.${strictName(id.name)}`,
+                    ),
                 ),
                 ts.createImportEqualsDeclaration(
                     undefined,

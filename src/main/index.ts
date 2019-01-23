@@ -10,6 +10,7 @@ import {
     IParsedFile,
     IRenderedCache,
     IRenderedFile,
+    IRenderState,
     IResolvedCache,
     IResolvedFile,
     IThriftFile,
@@ -53,15 +54,18 @@ export function make(
     source: string,
     target: CompileTarget = 'thrift-server',
 ): string {
+    const options: IMakeOptions = mergeWithDefaults({
+        target,
+    })
     const parsedFile: IParsedFile = parseSource(source)
     const resolvedAST: IResolvedFile = resolveFile('', parsedFile)
     const validAST: IResolvedFile = validateFile(resolvedAST)
+    const state: IRenderState = {
+        options,
+        identifiers: validAST.identifiers,
+    }
     return print(
-        processStatements(
-            validAST.body,
-            validAST.identifiers,
-            rendererForTarget(target),
-        ),
+        processStatements(validAST.body, state, rendererForTarget(target)),
     )
 }
 
@@ -108,9 +112,7 @@ export function generate(options: Partial<IMakeOptions>): void {
     const dedupedFiles: Array<IResolvedFile> = dedupResolvedFiles(
         validatedFiles,
     )
-    const invalidFiles: Array<IResolvedFile> = collectInvalidFiles(
-        dedupedFiles,
-    )
+    const invalidFiles: Array<IResolvedFile> = collectInvalidFiles(dedupedFiles)
 
     if (invalidFiles.length > 0) {
         printErrors(invalidFiles)
@@ -123,12 +125,10 @@ export function generate(options: Partial<IMakeOptions>): void {
             (next: INamespaceFile): IRenderedFile => {
                 return generateFile(
                     rendererForTarget(mergedOptions.target),
-                    rootDir,
                     outDir,
-                    sourceDir,
                     next,
-                    renderedCache,
                     mergedOptions,
+                    renderedCache,
                 )
             },
         )

@@ -12,6 +12,7 @@ export const DEFAULT_OPTIONS: IMakeOptions = {
     target: 'apache',
     files: [],
     library: DEFAULT_APACHE_LIB,
+    strictUnions: false,
 }
 
 export function mergeWithDefaults(

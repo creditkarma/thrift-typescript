@@ -130,12 +130,12 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
         createBaseMethodForDefinition,
     )
     const sendMethods: Array<ts.MethodDeclaration> = node.functions.map(
-        next => {
+        (next) => {
             return createSendMethodForDefinition(node, next)
         },
     )
     const recvMethods: Array<ts.MethodDeclaration> = node.functions.map(
-        next => {
+        (next) => {
             return createRecvMethodForDefinition(node, next)
         },
     )
@@ -449,9 +449,7 @@ function createArgumentsObject(def: FunctionDefinition): Array<ts.Expression> {
         return [
             ts.createObjectLiteral(
                 def.fields.map((next: FieldDefinition) => {
-                    return ts.createShorthandPropertyAssignment(
-                        next.name.value,
-                    )
+                    return ts.createShorthandPropertyAssignment(next.name.value)
                 }),
             ),
         ]

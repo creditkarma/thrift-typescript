@@ -134,8 +134,7 @@ export function resolveFile(
                  * case.
                  */
                 case SyntaxType.Identifier:
-                    const id: IResolvedIdentifier =
-                        identifiers[fieldType.value]
+                    const id: IResolvedIdentifier = identifiers[fieldType.value]
                     if (
                         id !== undefined &&
                         id.definition.type === SyntaxType.TypedefDefinition

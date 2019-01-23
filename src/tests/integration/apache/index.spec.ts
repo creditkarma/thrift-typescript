@@ -56,7 +56,7 @@ describe('Thrift TypeScript', () => {
     })
 
     // Allow servers to spin up
-    before(done => {
+    before((done) => {
         addService = createAddServer().listen(ADD_SERVER_CONFIG.port, () => {
             calcService = createCalculatorServer().listen(
                 CALC_SERVER_CONFIG.port,
@@ -72,7 +72,7 @@ describe('Thrift TypeScript', () => {
         })
     })
 
-    after(done => {
+    after((done) => {
         calcService.close()
         addService.close()
         done()

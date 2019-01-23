@@ -1,23 +1,19 @@
 import { lstatSync } from 'fs'
 
+import { DEFAULT_OPTIONS, DEFAULT_APACHE_LIB, DEFAULT_THRIFT_SERVER_LIB } from '../defaults'
 import { IMakeOptions } from '../types'
+import { deepCopy } from '../utils'
 
 /**
  * --rootDir
  * --outDir
  * --removeComments
+ * --strict
  */
 export function resolveOptions(args: Array<string>): IMakeOptions {
     const len: number = args.length
     let index: number = 0
-    const options: IMakeOptions = {
-        rootDir: '.',
-        outDir: './codegen',
-        sourceDir: './thrift',
-        target: 'apache',
-        files: [],
-        library: '',
-    }
+    const options: IMakeOptions = deepCopy(DEFAULT_OPTIONS)
 
     while (index < len) {
         const next: string = args[index]
@@ -54,11 +50,6 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                 index += 2
                 break
 
-            case '--library':
-                options.library = args[index + 1]
-                index += 2
-                break
-
             case '--target':
                 const option = args[index + 1]
                 if (option === 'apache' || option === 'thrift-server') {
@@ -66,6 +57,11 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                 } else {
                     throw new Error(`Unsupported target: ${option}`)
                 }
+                index += 2
+                break
+
+            case '--library':
+                options.library = args[index + 1]
                 index += 2
                 break
 
@@ -83,11 +79,11 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
     }
 
     if (options.target === 'thrift-server' && options.library === '') {
-        options.library = '@creditkarma/thrift-server-core'
+        options.library = DEFAULT_THRIFT_SERVER_LIB
     }
 
     if (options.target === 'apache' && options.library === '') {
-        options.library = 'thrift'
+        options.library = DEFAULT_APACHE_LIB
     }
 
     return options

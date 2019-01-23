@@ -55,7 +55,7 @@ export function createWriteMethod(
 ): ts.MethodDeclaration {
     const fieldWrites: Array<ts.IfStatement> = struct.fields
         .filter(isNotVoid)
-        .map(field => {
+        .map((field) => {
             return createWriteForField(struct, field, identifiers)
         })
     const inputParameter: ts.ParameterDeclaration = createFunctionParameter(

@@ -1,7 +1,4 @@
-import {
-    FieldDefinition,
-    FunctionDefinition,
-} from '@creditkarma/thrift-parser'
+import { FieldDefinition, FunctionDefinition } from '@creditkarma/thrift-parser'
 
 export function capitalize(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1)

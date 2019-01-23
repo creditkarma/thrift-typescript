@@ -73,9 +73,7 @@ export function createReadMethod(
     identifiers: IIdentifierMap,
 ): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
-    const tempVariable: Array<ts.VariableStatement> = createTempVariable(
-        struct,
-    )
+    const tempVariable: Array<ts.VariableStatement> = createTempVariable(struct)
 
     /**
      * cosnt ret: { fieldName: string; fieldType: Thrift.Type; fieldId: number; } = input.readFieldBegin()

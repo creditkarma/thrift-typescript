@@ -135,9 +135,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
         const newBody: Array<ThriftStatement> = []
         while (!isAtEnd()) {
             try {
-                newBody.push(
-                    validateStatement(resolvedFile.body[currentIndex]),
-                )
+                newBody.push(validateStatement(resolvedFile.body[currentIndex]))
             } catch (e) {
                 errors.push(createValidationError(e.message, e.loc))
             }
@@ -154,7 +152,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
 
     function getIdentifier(
         loc: TextLocation,
-        ...names: Array<string>,
+        ...names: Array<string>
     ): IResolvedIdentifier {
         for (const name of names) {
             if (resolvedFile.identifiers[name]) {

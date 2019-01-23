@@ -108,7 +108,7 @@ export function createEncodeMethod(
             [
                 ...tempVariables,
                 writeStructBegin(node.name.value),
-                ...node.fields.filter(isNotVoid).map(field => {
+                ...node.fields.filter(isNotVoid).map((field) => {
                     return createWriteForField(node, field, identifiers)
                 }),
                 writeFieldStop(),

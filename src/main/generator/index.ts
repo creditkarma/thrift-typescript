@@ -7,6 +7,7 @@ import {
     IRenderedCache,
     IRenderedFile,
     IRenderer,
+    IRenderState,
 } from '../types'
 
 import { processStatements } from './iterator'
@@ -29,17 +30,16 @@ export { processStatements } from './iterator'
  */
 export function generateFile(
     renderer: IRenderer,
-    rootDir: string,
     outDir: string,
-    sourceDir: string,
     resolvedFile: INamespaceFile,
-    cache: IRenderedCache = {},
     options: IMakeOptions,
+    cache: IRenderedCache = {},
 ): IRenderedFile {
     const cacheKey: string = resolvedFile.namespace.path
 
     if (cacheKey === '/' || cache[cacheKey] === undefined) {
         const identifiers: IIdentifierMap = resolvedFile.identifiers
+        const state: IRenderState = { options, identifiers }
         const statements: Array<ts.Statement> = [
             ...renderer.renderIncludes(
                 outDir,
@@ -47,7 +47,7 @@ export function generateFile(
                 resolvedFile,
                 options,
             ),
-            ...processStatements(resolvedFile.body, identifiers, renderer),
+            ...processStatements(resolvedFile.body, state, renderer),
         ]
 
         cache[cacheKey] = {
