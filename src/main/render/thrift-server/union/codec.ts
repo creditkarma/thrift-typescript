@@ -11,7 +11,6 @@ import { createEncodeMethod } from './encode'
 import { createDecodeMethod } from './decode'
 
 import { IIdentifierMap } from '../../../types'
-
 import {
     codecNameForStruct,
     looseNameForStruct,

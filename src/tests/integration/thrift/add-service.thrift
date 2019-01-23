@@ -1,11 +1,5 @@
-namespace cpp calculator
-namespace d calculator
-namespace dart calculator
-namespace java calculator
-namespace php calculator
-namespace perl calculator
-namespace haxe calculator
-namespace netcore calculator
+namespace java add-service
+namespace js add-service
 
 service AddService {
 

@@ -19,6 +19,7 @@ import {
 import {
     DefinitionType,
     IIdentifierMap,
+    IMakeOptions,
     INamespace,
     IParsedFile,
     IResolvedCache,
@@ -87,6 +88,7 @@ import { resolveNamespace } from './utils'
 export function resolveFile(
     outPath: string,
     parsedFile: IParsedFile,
+    options: IMakeOptions,
     cache: IResolvedCache = {},
 ): IResolvedFile {
     const cacheKey: string = `${parsedFile.path}/${parsedFile.name}`
@@ -94,10 +96,14 @@ export function resolveFile(
     if (cacheKey === '/' || !cache[cacheKey]) {
         const identifiers: IIdentifierMap = {}
         const resolvedIncludes: IResolvedIncludeMap = {}
-        const namespace: INamespace = resolveNamespace(outPath, parsedFile.ast)
+        const namespace: INamespace = resolveNamespace(
+            outPath,
+            parsedFile.ast,
+            options,
+        )
         const includes: Array<IResolvedFile> = parsedFile.includes.map(
             (next: IParsedFile): IResolvedFile => {
-                return resolveFile(outPath, next)
+                return resolveFile(outPath, next, options, cache)
             },
         )
 

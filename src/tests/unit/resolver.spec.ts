@@ -3,8 +3,10 @@ import * as fs from 'fs'
 import * as path from 'path'
 
 import { resolveFile } from '../../main/resolver'
-import { IParsedFile, IResolvedFile } from '../../main/types'
 import { parseThriftString } from '../../main/utils'
+
+import { DEFAULT_OPTIONS } from '../../main/options'
+import { IParsedFile, IResolvedFile } from '../../main/types'
 
 function loadSolution(name: string): any {
     return JSON.parse(
@@ -48,7 +50,11 @@ describe('Thrift TypeScript Resolver', () => {
             ],
             ast: parseThriftString(content),
         }
-        const actual: IResolvedFile = resolveFile('', mockParsedFile)
+        const actual: IResolvedFile = resolveFile(
+            '',
+            mockParsedFile,
+            DEFAULT_OPTIONS,
+        )
         const expected: IResolvedFile = loadSolution('imported-id-types')
 
         assert.deepEqual(
@@ -86,7 +92,11 @@ describe('Thrift TypeScript Resolver', () => {
             ],
             ast: parseThriftString(content),
         }
-        const actual: IResolvedFile = resolveFile('', mockParsedFile)
+        const actual: IResolvedFile = resolveFile(
+            '',
+            mockParsedFile,
+            DEFAULT_OPTIONS,
+        )
         const expected: IResolvedFile = loadSolution('imported-id-values')
 
         assert.deepEqual(

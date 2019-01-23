@@ -2,14 +2,8 @@ include "shared.thrift"
 include "common/common.thrift"
 include "operation.thrift"
 
-namespace cpp calculator
-namespace d calculator
-namespace dart calculator
 namespace java calculator
-namespace php calculator
-namespace perl calculator
-namespace haxe calculator
-namespace netcore calculator
+namespace js calculator
 
 typedef i32 MyInteger
 typedef operation.Operation Operation

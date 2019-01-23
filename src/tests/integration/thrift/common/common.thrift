@@ -1,11 +1,5 @@
-namespace cpp common
-namespace d common
-namespace dart common
 namespace java common
-namespace php common
-namespace perl common
-namespace haxe common
-namespace netcore common
+namespace js common
 
 include "shared.thrift"
 

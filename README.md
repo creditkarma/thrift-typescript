@@ -37,6 +37,7 @@ The available options are:
 * --outDir: The directory to save generated files to. Will be created if it doesn't exist. Defaults to 'codegen'.
 * --sourceDir: The directory to search for source Thrift files. Defaults to 'thrift'.
 * --target: The core library to generate for, either 'apache' or 'thrift-server'. Defaults to 'apache'.
+* --fallback-namespace: The namespace to fallback to if no 'js' namespace exists. Defaults to 'java'. Set to 'none' to use no namespace.
 
 All other fields are assumed to be source files.
 
@@ -62,6 +63,7 @@ generate({
     files: [
         'simple.thrift'
     ],
+    fallbackNamespace: 'java',
 })
 ```
 

@@ -2,6 +2,7 @@ import { assert } from 'chai'
 import * as fs from 'fs'
 import * as path from 'path'
 
+import { DEFAULT_OPTIONS } from '../../main/options'
 import { resolveFile } from '../../main/resolver'
 import {
     ErrorType,
@@ -33,7 +34,11 @@ describe('Thrift TypeScript Validator', () => {
             }
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = [
             {
@@ -65,7 +70,11 @@ describe('Thrift TypeScript Validator', () => {
             }
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = []
 
@@ -83,7 +92,11 @@ describe('Thrift TypeScript Validator', () => {
             }
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = [
             {
@@ -119,7 +132,11 @@ describe('Thrift TypeScript Validator', () => {
             }
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = []
 
@@ -131,7 +148,11 @@ describe('Thrift TypeScript Validator', () => {
             const list<string> TEST = [ 32, 41, 65 ]
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = [
             {
@@ -160,7 +181,11 @@ describe('Thrift TypeScript Validator', () => {
             const list<i32> TEST = [ 32, 41, 65 ]
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = []
 
@@ -172,7 +197,11 @@ describe('Thrift TypeScript Validator', () => {
             const list<list<string>> TEST = [ [ 32, 41, 65 ], [ 2, 3 ] ]
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = [
             {
@@ -201,7 +230,11 @@ describe('Thrift TypeScript Validator', () => {
             const list<list<i32>> TEST = [ [ 32, 41, 65 ], [ 2, 3 ] ]
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = []
 
@@ -213,7 +246,11 @@ describe('Thrift TypeScript Validator', () => {
             const set<string> TEST = [ 32, 41, 65 ]
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = [
             {
@@ -242,7 +279,11 @@ describe('Thrift TypeScript Validator', () => {
             const set<i32> TEST = [ 32, 41, 65 ]
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = []
 
@@ -254,7 +295,11 @@ describe('Thrift TypeScript Validator', () => {
             const map<string,string> TEST = { 'one': 1, 'two': 2 }
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = [
             {
@@ -283,7 +328,11 @@ describe('Thrift TypeScript Validator', () => {
             const map<string,string> TEST = { 'one': 'value one', 'two': 'value two' }
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = []
 
@@ -295,7 +344,11 @@ describe('Thrift TypeScript Validator', () => {
             const map<string,map<string,string>> TEST = { 'one': { 'a': 1 }, 'two': { 'b': 4 } }
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = [
             {
@@ -324,7 +377,11 @@ describe('Thrift TypeScript Validator', () => {
             const map<string,map<string,string>> TEST = { 'one': { 'a': 'blah' }, 'two': { 'b': 'blam' } }
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = []
 
@@ -339,7 +396,11 @@ describe('Thrift TypeScript Validator', () => {
             }
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = [
             {
@@ -370,7 +431,11 @@ describe('Thrift TypeScript Validator', () => {
             }
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = [
             {
@@ -402,7 +467,11 @@ describe('Thrift TypeScript Validator', () => {
             }
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = []
 
@@ -416,7 +485,11 @@ describe('Thrift TypeScript Validator', () => {
             }
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = [
             {
@@ -452,7 +525,11 @@ describe('Thrift TypeScript Validator', () => {
             }
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = [
             {
@@ -487,7 +564,11 @@ describe('Thrift TypeScript Validator', () => {
             const TestEnum test = 1
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = []
 
@@ -505,7 +586,11 @@ describe('Thrift TypeScript Validator', () => {
             const TestEnum test = 6
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = [
             {
@@ -537,7 +622,11 @@ describe('Thrift TypeScript Validator', () => {
             }
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: IResolvedFile = loadSolution('missing-ids')
 
@@ -582,7 +671,11 @@ describe('Thrift TypeScript Validator', () => {
             ],
             ast: parseThriftString(content),
         }
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: IResolvedFile = loadSolution('include-types')
 
@@ -600,7 +693,11 @@ describe('Thrift TypeScript Validator', () => {
             }
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = []
 
@@ -614,7 +711,11 @@ describe('Thrift TypeScript Validator', () => {
             }
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = [
             {
@@ -645,7 +746,11 @@ describe('Thrift TypeScript Validator', () => {
             }
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = []
 
@@ -659,7 +764,11 @@ describe('Thrift TypeScript Validator', () => {
             }
         `
         const parsedFile: IParsedFile = parseSource(content)
-        const resolvedFile: IResolvedFile = resolveFile('', parsedFile)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
         const validatedFile: IResolvedFile = validateFile(resolvedFile)
         const expected: Array<IThriftError> = [
             {

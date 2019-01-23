@@ -1,6 +1,10 @@
 import { lstatSync } from 'fs'
 
-import { DEFAULT_OPTIONS, DEFAULT_APACHE_LIB, DEFAULT_THRIFT_SERVER_LIB } from '../defaults'
+import {
+    DEFAULT_APACHE_LIB,
+    DEFAULT_OPTIONS,
+    DEFAULT_THRIFT_SERVER_LIB,
+} from '../defaults'
 import { IMakeOptions } from '../types'
 import { deepCopy } from '../utils'
 
@@ -62,6 +66,10 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
 
             case '--library':
                 options.library = args[index + 1]
+                index += 2
+
+            case '--fallback-namespace':
+                options.fallbackNamespace = args[index + 1]
                 index += 2
                 break
 

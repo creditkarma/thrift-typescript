@@ -13,6 +13,7 @@ export const DEFAULT_OPTIONS: IMakeOptions = {
     files: [],
     library: DEFAULT_APACHE_LIB,
     strictUnions: false,
+    fallbackNamespace: 'java',
 }
 
 export function mergeWithDefaults(

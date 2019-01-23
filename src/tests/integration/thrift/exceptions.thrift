@@ -1,11 +1,5 @@
-namespace cpp exceptions
-namespace d exceptions
-namespace dart exceptions
 namespace java exceptions
-namespace perl exceptions
-namespace php exceptions
-namespace haxe exceptions
-namespace netcore exceptions
+namespace js exceptions
 
 include "shared.thrift"
 
