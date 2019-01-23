@@ -63,9 +63,7 @@ export function createDecodeMethod(
     identifiers: IIdentifierMap,
 ): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
-    const tempVariables: Array<ts.VariableStatement> = createTempVariables(
-        node,
-    )
+    const tempVariables: Array<ts.VariableStatement> = createTempVariables(node)
 
     /**
      * cosnt ret: { fieldName: string; fieldType: Thrift.Type; fieldId: number; } = input.readFieldBegin()

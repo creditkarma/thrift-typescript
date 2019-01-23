@@ -81,7 +81,9 @@ function objectLiteralForServiceFunctions(
 
         default:
             throw new TypeError(
-                `A service can only extend another service. Found: ${node.type}`,
+                `A service can only extend another service. Found: ${
+                    node.type
+                }`,
             )
     }
 }
@@ -386,7 +388,7 @@ function createProcessFunctionMethod(
                                                     funcDef.name.value,
                                                 ),
                                                 MESSAGE_TYPE.REPLY,
-                                                ts.createIdentifier('requestId'),
+                                                COMMON_IDENTIFIERS.requestId,
                                             ],
                                         ),
                                         // StructCodec.encode(result, output)

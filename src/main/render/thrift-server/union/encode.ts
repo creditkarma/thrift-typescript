@@ -80,7 +80,7 @@ export function createEncodeMethod(
                 createFieldIncrementer(),
                 ...createTempVariables(node, identifiers),
                 writeStructBegin(node.name.value),
-                ...node.fields.filter(isNotVoid).map(field => {
+                ...node.fields.filter(isNotVoid).map((field) => {
                     return createWriteForField(node, field, identifiers)
                 }),
                 writeFieldStop(),

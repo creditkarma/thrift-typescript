@@ -64,10 +64,7 @@ export function renderStruct(
     )
 
     // Build the `read` method
-    const readMethod: ts.MethodDeclaration = createReadMethod(
-        node,
-        identifiers,
-    )
+    const readMethod: ts.MethodDeclaration = createReadMethod(node, identifiers)
 
     // Build the `write` method
     const writeMethod: ts.MethodDeclaration = createWriteMethod(

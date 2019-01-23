@@ -23,7 +23,7 @@ jobs:
   test_node_10:
     <<: *defaults
     docker:
-      - image: circleci/node:10.9.0
+      - image: circleci/node:10.14.0
     steps:
       - checkout
       - run:

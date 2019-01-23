@@ -152,7 +152,9 @@ function objectLiteralForServiceFunctions(
 
         default:
             throw new TypeError(
-                `A service can only extend another service. Found: ${node.type}`,
+                `A service can only extend another service. Found: ${
+                    node.type
+                }`,
             )
     }
 }
@@ -230,7 +232,9 @@ export function renderProcessor(
                   ts.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
                       ts.createExpressionWithTypeArguments(
                           [],
-                          ts.createIdentifier(`${node.extends.value}.Processor`),
+                          ts.createIdentifier(
+                              `${node.extends.value}.Processor`,
+                          ),
                       ),
                   ]),
               ]
@@ -376,7 +380,9 @@ function createProcessFunctionMethod(
                                 [
                                     createFunctionParameter(
                                         COMMON_IDENTIFIERS.data,
-                                        typeNodeForFieldType(funcDef.returnType),
+                                        typeNodeForFieldType(
+                                            funcDef.returnType,
+                                        ),
                                     ),
                                 ],
                                 createVoidType(),
@@ -420,7 +426,7 @@ function createProcessFunctionMethod(
                                                     funcDef.name.value,
                                                 ),
                                                 MESSAGE_TYPE.REPLY,
-                                                ts.createIdentifier('requestId'),
+                                                COMMON_IDENTIFIERS.requestId,
                                             ],
                                         ),
                                         // result.write(output)
@@ -789,7 +795,9 @@ function functionsForService(node: ThriftStatement): Array<FunctionDefinition> {
 
         default:
             throw new TypeError(
-                `A service can only extend another service. Found: ${node.type}`,
+                `A service can only extend another service. Found: ${
+                    node.type
+                }`,
             )
     }
 }
