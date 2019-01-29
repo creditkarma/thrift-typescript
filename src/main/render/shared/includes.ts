@@ -47,7 +47,17 @@ function statementUsesInt64(statement: ThriftStatement): boolean {
     switch (statement.type) {
         case SyntaxType.ServiceDefinition:
             return statement.functions.some((func: FunctionDefinition) => {
-                return func.returnType.type === SyntaxType.I64Keyword
+                if (func.returnType.type === SyntaxType.I64Keyword) {
+                    return true
+                }
+
+                for (const field of func.fields) {
+                    if (field.fieldType.type === SyntaxType.I64Keyword) {
+                        return true
+                    }
+                }
+
+                return false
             })
 
         case SyntaxType.StructDefinition:
