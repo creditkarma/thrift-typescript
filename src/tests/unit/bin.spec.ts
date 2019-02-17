@@ -14,6 +14,7 @@ describe('resolveOptions', () => {
             files: [],
             fallbackNamespace: 'java',
             library: 'thrift',
+            filePerType: false,
         })
     })
 
@@ -35,6 +36,7 @@ describe('resolveOptions', () => {
             files: ['test.thrift', 'test-two.thrift'],
             fallbackNamespace: 'scala',
             library: 'thrift',
+            filePerType: false,
         })
     })
 })
