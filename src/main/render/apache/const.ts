@@ -6,6 +6,7 @@ import { TypeMapping } from './types'
 
 import { renderValue } from './values'
 
+import ResolverFile from '../../resolver/file'
 import { createConst } from './utils'
 
 /**
@@ -20,13 +21,14 @@ import { createConst } from './utils'
 export function renderConst(
     node: ConstDefinition,
     typeMapping: TypeMapping,
+    file: ResolverFile,
 ): ts.Statement {
     return ts.createVariableStatement(
         [ts.createToken(ts.SyntaxKind.ExportKeyword)],
         createConst(
             node.name.value,
             typeMapping(node.fieldType),
-            renderValue(node.fieldType, node.initializer),
+            renderValue(node.fieldType, node.initializer, file),
         ),
     )
 }

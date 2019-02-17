@@ -8,4 +8,5 @@ export const DEFAULT_OPTIONS: IMakeOptions = Object.freeze({
     files: (Object.freeze([]) as unknown) as Array<string>,
     fallbackNamespace: 'java',
     library: '',
+    filePerType: false,
 } as IMakeOptions)

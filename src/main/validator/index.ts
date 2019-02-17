@@ -17,11 +17,12 @@ import {
 
 import {
     ErrorType,
-    IResolvedFile,
     IResolvedIdentifier,
     IThriftError,
+    IValidatedFile,
 } from '../types'
 
+import ResolverFile from '../resolver/file'
 import { constToTypeString, fieldTypeToString } from './utils'
 
 /**
@@ -125,7 +126,7 @@ function typeMismatch(
  *
  * @param resolvedFile
  */
-export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
+export function validateFile(resolvedFile: ResolverFile): IValidatedFile {
     const bodySize: number = resolvedFile.body.length
     let currentIndex: number = 0
 
@@ -155,8 +156,10 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
         ...names: Array<string>
     ): IResolvedIdentifier {
         for (const name of names) {
-            if (resolvedFile.identifiers[name]) {
-                return resolvedFile.identifiers[name]
+            try {
+                return resolvedFile.resolveIdentifier(name)
+            } catch (e) {
+                // check next name
             }
         }
 
@@ -696,14 +699,13 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
         )
     }
 
+    const validStatements = validateStatements()
+
+    resolvedFile.updateStatements(validStatements)
+
     return {
-        name: resolvedFile.name,
-        path: resolvedFile.path,
-        source: resolvedFile.source,
-        namespace: resolvedFile.namespace,
-        includes: resolvedFile.includes,
-        identifiers: resolvedFile.identifiers,
-        body: validateStatements(),
+        file: resolvedFile,
+        validStatements,
         errors,
     }
 }

@@ -26,8 +26,6 @@ import {
     throwProtocolException,
 } from '../utils'
 
-import { IIdentifierMap } from '../../../types'
-
 import {
     createCheckForFields,
     createInputParameter,
@@ -39,6 +37,7 @@ import {
     readValueForFieldType,
 } from '../struct/decode'
 
+import ResolverFile from '../../../resolver/file'
 import { strictNameForStruct } from '../struct/utils'
 import {
     createFieldIncrementer,
@@ -49,7 +48,7 @@ import {
 
 export function createDecodeMethod(
     node: UnionDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
     const returnVariable: ts.VariableStatement = createLetStatement(
@@ -111,7 +110,7 @@ export function createDecodeMethod(
                     COMMON_IDENTIFIERS.fieldId, // what to switch on
                     ts.createCaseBlock([
                         ...node.fields.map((next: FieldDefinition) => {
-                            return createCaseForField(node, next, identifiers)
+                            return createCaseForField(node, next, file)
                         }),
                         ts.createDefaultClause([createSkipBlock()]),
                     ]),
@@ -184,22 +183,18 @@ export function createDecodeMethod(
 export function createCaseForField(
     node: UnionDefinition,
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.CaseClause {
     const fieldAlias: ts.Identifier = ts.createUniqueName('value')
     const checkType: ts.IfStatement = ts.createIf(
         createEqualsCheck(
             COMMON_IDENTIFIERS.fieldType,
-            thriftTypeForFieldType(field.fieldType, identifiers),
+            thriftTypeForFieldType(field.fieldType, file),
         ),
         ts.createBlock(
             [
                 incrementFieldsSet(),
-                ...readValueForFieldType(
-                    field.fieldType,
-                    fieldAlias,
-                    identifiers,
-                ),
+                ...readValueForFieldType(field.fieldType, fieldAlias, file),
                 ...endReadForField(node, fieldAlias, field),
             ],
             true,
@@ -273,6 +268,7 @@ export function metadataTypeForFieldType(
 
 export function createReturnForStruct(
     struct: InterfaceWithFields,
+    file: ResolverFile,
 ): ts.Statement {
     if (hasRequiredField(struct)) {
         return ts.createIf(
@@ -287,7 +283,11 @@ export function createReturnForStruct(
                                 ): ts.ObjectLiteralElementLike => {
                                     return ts.createPropertyAssignment(
                                         next.name.value,
-                                        getInitializerForField('_args', next),
+                                        getInitializerForField(
+                                            '_args',
+                                            next,
+                                            file,
+                                        ),
                                     )
                                 },
                             ),

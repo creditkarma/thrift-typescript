@@ -6,8 +6,6 @@ import {
     SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap } from '../../../types'
-
 import {
     createAssignmentStatement,
     createClassConstructor,
@@ -27,14 +25,18 @@ import { typeNodeForFieldType } from '../types'
 
 import { interfaceNameForClass } from '../interface'
 
+import ResolverFile from '../../../resolver/file'
 import { createReadMethod } from './read'
 import { createWriteMethod } from './write'
 
 export function renderStruct(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.ClassDeclaration {
-    const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(node)
+    const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(
+        node,
+        file,
+    )
 
     /**
      * After creating the properties on our class for the struct fields we must create
@@ -64,13 +66,10 @@ export function renderStruct(
     )
 
     // Build the `read` method
-    const readMethod: ts.MethodDeclaration = createReadMethod(node, identifiers)
+    const readMethod: ts.MethodDeclaration = createReadMethod(node, file)
 
     // Build the `write` method
-    const writeMethod: ts.MethodDeclaration = createWriteMethod(
-        node,
-        identifiers,
-    )
+    const writeMethod: ts.MethodDeclaration = createWriteMethod(node, file)
 
     // export class <node.name> { ... }
     return ts.createClassDeclaration(
@@ -85,8 +84,9 @@ export function renderStruct(
 
 export function createFieldsForStruct(
     node: InterfaceWithFields,
+    file: ResolverFile,
 ): Array<ts.PropertyDeclaration> {
-    return node.fields.map(renderFieldDeclarations)
+    return node.fields.map((field) => renderFieldDeclarations(field, file))
 }
 
 export function createArgsTypeForStruct(
@@ -224,10 +224,11 @@ export function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
  */
 export function renderFieldDeclarations(
     field: FieldDefinition,
+    file: ResolverFile,
 ): ts.PropertyDeclaration {
     const defaultValue =
         field.defaultValue !== null
-            ? renderValue(field.fieldType, field.defaultValue)
+            ? renderValue(field.fieldType, field.defaultValue, file)
             : undefined
 
     return ts.createProperty(
@@ -235,7 +236,7 @@ export function renderFieldDeclarations(
         [ts.createToken(ts.SyntaxKind.PublicKeyword)],
         ts.createIdentifier(field.name.value),
         renderOptional(field.requiredness),
-        typeNodeForFieldType(field.fieldType),
+        typeNodeForFieldType(field.fieldType, file),
         defaultValue,
     )
 }

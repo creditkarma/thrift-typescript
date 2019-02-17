@@ -33,6 +33,7 @@ import {
     createPublicProperty,
 } from '../utils'
 
+import ResolverFile from '../../../resolver/file'
 import {
     createAnyType,
     createNumberType,
@@ -40,7 +41,10 @@ import {
     typeNodeForFieldType,
 } from '../types'
 
-export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
+export function renderClient(
+    node: ServiceDefinition,
+    file: ResolverFile,
+): ts.ClassDeclaration {
     // public _seqid: number;
     const seqid: ts.PropertyDeclaration = createPublicProperty(
         '_seqid',
@@ -127,11 +131,11 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
     )
 
     const baseMethods: Array<ts.MethodDeclaration> = node.functions.map(
-        createBaseMethodForDefinition,
+        (method) => createBaseMethodForDefinition(method, file),
     )
     const sendMethods: Array<ts.MethodDeclaration> = node.functions.map(
         (next) => {
-            return createSendMethodForDefinition(node, next)
+            return createSendMethodForDefinition(node, next, file)
         },
     )
     const recvMethods: Array<ts.MethodDeclaration> = node.functions.map(
@@ -207,6 +211,7 @@ function createSuperCall(node: ServiceDefinition): Array<ts.Statement> {
 // }
 function createBaseMethodForDefinition(
     def: FunctionDefinition,
+    file: ResolverFile,
 ): ts.MethodDeclaration {
     return ts.createMethod(
         undefined, // decorators
@@ -215,9 +220,9 @@ function createBaseMethodForDefinition(
         def.name.value, // name
         undefined, // question token
         undefined, // type parameters
-        def.fields.map(createParametersForField), // parameters
+        def.fields.map((field) => createParametersForField(field, file)), // parameters
         ts.createTypeReferenceNode('Promise', [
-            typeNodeForFieldType(def.returnType),
+            typeNodeForFieldType(def.returnType, file),
         ]), // return type
         ts.createBlock(
             [
@@ -234,7 +239,7 @@ function createBaseMethodForDefinition(
                 // return new Promise<type>((resolve, reject) => { ... })
                 ts.createReturn(
                     createPromise(
-                        typeNodeForFieldType(def.returnType),
+                        typeNodeForFieldType(def.returnType, file),
                         createVoidType(),
                         [
                             // this._reqs[this.seqid()] = (error, result) =>
@@ -347,6 +352,7 @@ function createBaseMethodForDefinition(
 function createSendMethodForDefinition(
     service: ServiceDefinition,
     def: FunctionDefinition,
+    file: ResolverFile,
 ): ts.MethodDeclaration {
     return ts.createMethod(
         undefined, // decorators
@@ -360,13 +366,13 @@ function createSendMethodForDefinition(
                 const returnType: ts.TypeNode =
                     field.requiredness === 'optional'
                         ? ts.createUnionTypeNode([
-                              typeNodeForFieldType(field.fieldType),
+                              typeNodeForFieldType(field.fieldType, file),
                               ts.createTypeReferenceNode(
                                   ts.createIdentifier('undefined'),
                                   undefined,
                               ),
                           ])
-                        : typeNodeForFieldType(field.fieldType)
+                        : typeNodeForFieldType(field.fieldType, file)
 
                 return createFunctionParameter(
                     ts.createIdentifier(field.name.value),
@@ -701,15 +707,16 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
 
 function createParametersForField(
     field: FieldDefinition,
+    file: ResolverFile,
 ): ts.ParameterDeclaration {
     const defaultValue =
         field.defaultValue !== null
-            ? renderValue(field.fieldType, field.defaultValue)
+            ? renderValue(field.fieldType, field.defaultValue, file)
             : undefined
 
     return createFunctionParameter(
         field.name.value,
-        typeNodeForFieldType(field.fieldType),
+        typeNodeForFieldType(field.fieldType, file),
         defaultValue,
         field.requiredness === 'optional',
     )

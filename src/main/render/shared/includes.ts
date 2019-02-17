@@ -6,8 +6,7 @@ import {
     ThriftStatement,
     TypedefDefinition,
 } from '@creditkarma/thrift-parser'
-
-import { INamespaceFile } from '../../types'
+import ResolverNamespace from '../../resolver/namespace'
 
 function constUsesThrift(statement: ConstDefinition): boolean {
     return statement.fieldType.type === SyntaxType.I64Keyword
@@ -85,20 +84,24 @@ function statementUsesInt64(statement: ThriftStatement): boolean {
     }
 }
 
-export function fileUsesThrift(resolvedFile: INamespaceFile): boolean {
-    for (const statement of resolvedFile.body) {
-        if (statementUsesThrift(statement)) {
-            return true
+export function fileUsesThrift(namespace: ResolverNamespace): boolean {
+    for (const file of namespace.files.values()) {
+        for (const statement of file.body) {
+            if (statementUsesThrift(statement)) {
+                return true
+            }
         }
     }
 
     return false
 }
 
-export function fileUsesInt64(resolvedFile: INamespaceFile): boolean {
-    for (const statement of resolvedFile.body) {
-        if (statementUsesInt64(statement)) {
-            return true
+export function fileUsesInt64(namespace: ResolverNamespace): boolean {
+    for (const file of namespace.files.values()) {
+        for (const statement of file.body) {
+            if (statementUsesInt64(statement)) {
+                return true
+            }
         }
     }
 

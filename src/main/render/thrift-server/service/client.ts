@@ -38,8 +38,6 @@ import { createAnyType, typeNodeForFieldType } from '../types'
 
 import { renderValue } from '../values'
 
-import { IIdentifierMap } from '../../../types'
-
 import {
     renderMethodAnnotationsProperty,
     renderMethodAnnotationsStaticProperty,
@@ -47,6 +45,7 @@ import {
     renderServiceAnnotationsStaticProperty,
 } from '../annotations'
 
+import ResolverFile from '../../../resolver/file'
 import { createClassConstructor } from '../../shared/utils'
 import { codecName, looseName, strictName } from '../struct/utils'
 
@@ -70,7 +69,7 @@ function extendsService(service: Identifier): ts.HeritageClause {
 
 export function renderClient(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.ClassDeclaration {
     const staticServiceName: ts.PropertyDeclaration = renderServiceNameStaticProperty()
     const staticAnnotations: ts.PropertyDeclaration = renderServiceAnnotationsStaticProperty()
@@ -84,7 +83,7 @@ export function renderClient(
 
     const baseMethods: Array<ts.MethodDeclaration> = service.functions.map(
         (func: FunctionDefinition) => {
-            return createBaseMethodForDefinition(func, identifiers)
+            return createBaseMethodForDefinition(func, file)
         },
     )
 
@@ -157,7 +156,7 @@ function createSuperCall(): ts.Statement {
 // }
 function createBaseMethodForDefinition(
     def: FunctionDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.MethodDeclaration {
     return ts.createMethod(
         undefined, // decorators
@@ -168,7 +167,7 @@ function createBaseMethodForDefinition(
         undefined, // type parameters
         [
             ...def.fields.map((field: FieldDefinition) => {
-                return createParametersForField(field, identifiers)
+                return createParametersForField(field, file)
             }),
             createFunctionParameter(
                 COMMON_IDENTIFIERS.context,
@@ -178,7 +177,7 @@ function createBaseMethodForDefinition(
             ),
         ], // parameters
         ts.createTypeReferenceNode('Promise', [
-            typeNodeForFieldType(def.returnType, identifiers),
+            typeNodeForFieldType(def.returnType, file),
         ]), // return type
         ts.createBlock(
             [
@@ -625,16 +624,16 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
 
 function createParametersForField(
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.ParameterDeclaration {
     const defaultValue =
         field.defaultValue !== null
-            ? renderValue(field.fieldType, field.defaultValue)
+            ? renderValue(field.fieldType, field.defaultValue, file)
             : undefined
 
     return createFunctionParameter(
         field.name.value,
-        typeNodeForFieldType(field.fieldType, identifiers, true),
+        typeNodeForFieldType(field.fieldType, file, true),
         defaultValue,
         field.requiredness === 'optional',
     )

@@ -14,6 +14,8 @@ import {
 import { renderException as _renderException } from './exception'
 
 import { fileUsesThrift } from '../shared/includes'
+import renderAsNamespace from '../shared/namespace'
+import renderReExport from '../shared/reexport'
 import { renderConst as _renderConst } from './const'
 import { renderEnum as _renderEnum } from './enum'
 import {
@@ -25,91 +27,89 @@ import { renderStruct as _renderStruct } from './struct'
 import { renderTypeDef as _renderTypeDef } from './typedef'
 import { renderUnion as _renderUnion } from './union'
 
-import {
-    IIdentifierMap,
-    IMakeOptions,
-    INamespaceFile,
-    IRenderer,
-} from '../../types'
+import { IMakeOptions, IRenderer } from '../../types'
 
+import ResolverFile from '../../resolver/file'
+import ResolverNamespace from '../../resolver/namespace'
 import { typeNodeForFieldType } from './types'
 
 export function renderIncludes(
-    outPath: string,
-    currentPath: string,
-    resolvedFile: INamespaceFile,
+    namespace: ResolverNamespace,
+    files: Array<ResolverFile>,
     options: IMakeOptions,
+    namespaceInclude?: string,
 ): Array<ts.Statement> {
-    if (fileUsesThrift(resolvedFile)) {
+    if (fileUsesThrift(namespace)) {
         return [
             renderThriftImports(options.library),
-            ..._renderIncludes(outPath, currentPath, resolvedFile),
+            ..._renderIncludes(namespace, files, namespaceInclude),
         ]
     } else {
-        return _renderIncludes(outPath, currentPath, resolvedFile)
+        return _renderIncludes(namespace, files, namespaceInclude)
     }
 }
 
 export function renderConst(
     statement: ConstDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<ts.Statement> {
     return [
         _renderConst(
             statement,
             (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
-                return typeNodeForFieldType(fieldType, identifiers, loose)
+                return typeNodeForFieldType(fieldType, file, loose)
             },
+            file,
         ),
     ]
 }
 
 export function renderTypeDef(
     statement: TypedefDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<ts.Statement> {
     return _renderTypeDef(
         statement,
         (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
-            return typeNodeForFieldType(fieldType, identifiers, loose)
+            return typeNodeForFieldType(fieldType, file, loose)
         },
-        identifiers,
+        file,
     )
 }
 
 export function renderEnum(
     statement: EnumDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<ts.Statement> {
     return [_renderEnum(statement)]
 }
 
 export function renderStruct(
     statement: StructDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<ts.Statement> {
-    return _renderStruct(statement, identifiers)
+    return _renderStruct(statement, file)
 }
 
 export function renderException(
     statement: ExceptionDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<ts.Statement> {
-    return _renderException(statement, identifiers)
+    return _renderException(statement, file)
 }
 
 export function renderUnion(
     statement: UnionDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<ts.Statement> {
-    return _renderUnion(statement, identifiers)
+    return _renderUnion(statement, file)
 }
 
 export function renderService(
     statement: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<ts.Statement> {
-    return [_renderService(statement, identifiers)]
+    return _renderService(statement, file)
 }
 
 export const renderer: IRenderer = {
@@ -121,4 +121,6 @@ export const renderer: IRenderer = {
     renderException,
     renderUnion,
     renderService,
+    renderAsNamespace,
+    renderReExport,
 }
