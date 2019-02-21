@@ -10,7 +10,7 @@ import { createEncodeMethod } from './encode'
 
 import { createDecodeMethod } from './decode'
 
-import { IIdentifierMap } from '../../../types'
+import { IRenderState } from '../../../types'
 import {
     codecNameForStruct,
     looseNameForStruct,
@@ -20,7 +20,7 @@ import {
 
 export function renderCodec(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
     isExported: boolean,
 ): ts.Statement {
     return ts.createVariableStatement(
@@ -29,18 +29,18 @@ export function renderCodec(
             ts.createIdentifier(codecNameForStruct(node)),
             ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IStructCodec, [
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(looseNameForStruct(node)),
+                    ts.createIdentifier(looseNameForStruct(node, state)),
                     undefined,
                 ),
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(strictNameForStruct(node)),
+                    ts.createIdentifier(strictNameForStruct(node, state)),
                     undefined,
                 ),
             ]),
             ts.createObjectLiteral(
                 [
-                    createEncodeMethod(node, identifiers),
-                    createDecodeMethod(node, identifiers),
+                    createEncodeMethod(node, state),
+                    createDecodeMethod(node, state),
                 ],
                 true,
             ),

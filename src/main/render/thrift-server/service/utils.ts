@@ -31,16 +31,6 @@ export function createStructResultName(
     return `${capitalize(def.name.value)}__Result`
 }
 
-// function functionsForService(node: ThriftStatement): Array<FunctionDefinition> {
-//     switch (node.type) {
-//         case SyntaxType.ServiceDefinition:
-//             return node.functions
-
-//         default:
-//             throw new TypeError(`A service can only extend another service. Found: ${node.type}`)
-//     }
-// }
-
 export function renderServiceName(
     service: ServiceDefinition,
 ): ts.VariableStatement {

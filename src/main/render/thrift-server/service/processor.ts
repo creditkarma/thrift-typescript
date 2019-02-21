@@ -22,7 +22,7 @@ import {
     renderServiceNameStaticProperty,
 } from './utils'
 
-import { IIdentifierMap } from '../../../types'
+import { IIdentifierMap, IRenderState } from '../../../types'
 
 import {
     COMMON_IDENTIFIERS,
@@ -125,7 +125,7 @@ export function extendsAbstract(): ts.HeritageClause {
 
 export function renderProcessor(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.ClassDeclaration {
     const handler: ts.PropertyDeclaration = ts.createProperty(
         undefined,
@@ -153,11 +153,11 @@ export function renderProcessor(
 
     const processMethod: ts.MethodDeclaration = createProcessMethod(
         service,
-        identifiers,
+        state.identifiers,
     )
     const processFunctions: Array<ts.MethodDeclaration> = service.functions.map(
         (next: FunctionDefinition) => {
-            return createProcessFunctionMethod(service, next, identifiers)
+            return createProcessFunctionMethod(service, next, state)
         },
     )
 
@@ -189,7 +189,7 @@ export function renderProcessor(
             annotations,
             methodAnnotations,
             methodNames,
-            createCtor(service, identifiers),
+            createCtor(service, state.identifiers),
             processMethod,
             ...processFunctions,
         ], // body
@@ -245,7 +245,7 @@ function createSuperCall(
 function createProcessFunctionMethod(
     service: ServiceDefinition,
     funcDef: FunctionDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     return createPublicMethod(
         ts.createIdentifier(`process_${funcDef.name.value}`),
@@ -265,10 +265,7 @@ function createProcessFunctionMethod(
                 createMethodCall(
                     createMethodCall(
                         createPromise(
-                            typeNodeForFieldType(
-                                funcDef.returnType,
-                                identifiers,
-                            ),
+                            typeNodeForFieldType(funcDef.returnType, state),
                             createVoidType(),
                             [
                                 // try {
@@ -281,7 +278,10 @@ function createProcessFunctionMethod(
                                 ts.createTry(
                                     ts.createBlock(
                                         [
-                                            ...createArgsVariable(funcDef),
+                                            ...createArgsVariable(
+                                                funcDef,
+                                                state,
+                                            ),
                                             // input.readMessageEnd();
                                             createMethodCallStatement(
                                                 COMMON_IDENTIFIERS.input,
@@ -346,7 +346,7 @@ function createProcessFunctionMethod(
                                         ts.createIdentifier('data'),
                                         typeNodeForFieldType(
                                             funcDef.returnType,
-                                            identifiers,
+                                            state,
                                         ),
                                     ),
                                 ],
@@ -366,6 +366,8 @@ function createProcessFunctionMethod(
                                                         createStructResultName(
                                                             funcDef,
                                                         ),
+                                                        SyntaxType.StructDefinition,
+                                                        state,
                                                     ),
                                                 ),
                                                 undefined,
@@ -451,7 +453,7 @@ function createProcessFunctionMethod(
                             ts.createBlock(
                                 [
                                     // if (def.throws.length > 0)
-                                    ...createExceptionHandlers(funcDef),
+                                    ...createExceptionHandlers(funcDef, state),
                                 ],
                                 true,
                             ),
@@ -463,7 +465,10 @@ function createProcessFunctionMethod(
     )
 }
 
-function createArgsVariable(funcDef: FunctionDefinition): Array<ts.Statement> {
+function createArgsVariable(
+    funcDef: FunctionDefinition,
+    state: IRenderState,
+): Array<ts.Statement> {
     if (funcDef.fields.length > 0) {
         // const args: type: StructType = StructCodec.decode(input)
         return [
@@ -471,7 +476,11 @@ function createArgsVariable(funcDef: FunctionDefinition): Array<ts.Statement> {
                 COMMON_IDENTIFIERS.args,
                 ts.createTypeReferenceNode(
                     ts.createIdentifier(
-                        strictName(createStructArgsName(funcDef)),
+                        strictName(
+                            createStructArgsName(funcDef),
+                            SyntaxType.StructDefinition,
+                            state,
+                        ),
                     ),
                     undefined,
                 ),
@@ -496,6 +505,7 @@ function createElseForExceptions(
     exp: FieldDefinition,
     remaining: Array<FieldDefinition>,
     funcDef: FunctionDefinition,
+    state: IRenderState,
 ): ts.Statement {
     if (remaining.length > 0) {
         const [next, ...tail] = remaining
@@ -505,8 +515,8 @@ function createElseForExceptions(
                 ts.SyntaxKind.InstanceOfKeyword,
                 constructorNameForFieldType(next.fieldType),
             ),
-            createThenForException(next, funcDef),
-            createElseForExceptions(next, tail, funcDef),
+            createThenForException(next, funcDef, state),
+            createElseForExceptions(next, tail, funcDef, state),
         )
     } else {
         return ts.createBlock(
@@ -564,6 +574,7 @@ function createElseForExceptions(
 function createThenForException(
     throwDef: FieldDefinition,
     funcDef: FunctionDefinition,
+    state: IRenderState,
 ): ts.Statement {
     return ts.createBlock(
         [
@@ -572,7 +583,11 @@ function createThenForException(
                 COMMON_IDENTIFIERS.result,
                 ts.createTypeReferenceNode(
                     ts.createIdentifier(
-                        strictName(createStructResultName(funcDef)),
+                        strictName(
+                            createStructResultName(funcDef),
+                            SyntaxType.StructDefinition,
+                            state,
+                        ),
                     ),
                     undefined,
                 ),
@@ -620,6 +635,7 @@ function createThenForException(
 function createIfForExceptions(
     exps: Array<FieldDefinition>,
     funcDef: FunctionDefinition,
+    state: IRenderState,
 ): ts.Statement {
     const [throwDef, ...tail] = exps
 
@@ -629,17 +645,18 @@ function createIfForExceptions(
             ts.SyntaxKind.InstanceOfKeyword,
             constructorNameForFieldType(throwDef.fieldType),
         ),
-        createThenForException(throwDef, funcDef),
-        createElseForExceptions(throwDef, tail, funcDef),
+        createThenForException(throwDef, funcDef, state),
+        createElseForExceptions(throwDef, tail, funcDef, state),
     )
 }
 
 function createExceptionHandlers(
     funcDef: FunctionDefinition,
+    state: IRenderState,
 ): Array<ts.Statement> {
     if (funcDef.throws.length > 0) {
         // if (err instanceof {{throwType}}) {
-        return [createIfForExceptions(funcDef.throws, funcDef)]
+        return [createIfForExceptions(funcDef.throws, funcDef, state)]
     } else {
         return [
             // const result: Thrift.TApplicationException = new thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)

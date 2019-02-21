@@ -4,7 +4,7 @@ import { ConstDefinition } from '@creditkarma/thrift-parser'
 
 import { TypeMapping } from './types'
 
-import { renderValue } from './values'
+import { renderValue } from './initializers'
 
 import { createConst } from './utils'
 

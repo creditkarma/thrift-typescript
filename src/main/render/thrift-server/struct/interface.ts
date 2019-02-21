@@ -7,27 +7,18 @@ import {
 
 import { typeNodeForFieldType } from '../types'
 
-import { IIdentifierMap } from '../../../types'
+import { IRenderState } from '../../../types'
 
-import { looseNameForStruct, strictNameForStruct, tokens } from './utils'
-
-export function renderOptional(
-    field: FieldDefinition,
-    loose: boolean = false,
-): ts.Token<ts.SyntaxKind.QuestionToken> | undefined {
-    if (
-        field.requiredness !== 'required' ||
-        (loose && field.defaultValue !== null)
-    ) {
-        return ts.createToken(ts.SyntaxKind.QuestionToken)
-    } else {
-        return undefined
-    }
-}
+import {
+    looseNameForStruct,
+    renderOptional,
+    strictNameForStruct,
+    tokens,
+} from './utils'
 
 function strictInterface(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
     isExported: boolean,
 ): ts.InterfaceDeclaration {
     const signatures = node.fields.map((field: FieldDefinition) => {
@@ -35,7 +26,7 @@ function strictInterface(
             undefined,
             field.name.value,
             renderOptional(field),
-            typeNodeForFieldType(field.fieldType, identifiers),
+            typeNodeForFieldType(field.fieldType, state),
             undefined,
         )
     })
@@ -43,7 +34,7 @@ function strictInterface(
     return ts.createInterfaceDeclaration(
         undefined,
         tokens(isExported),
-        ts.createIdentifier(strictNameForStruct(node)),
+        ts.createIdentifier(strictNameForStruct(node, state)),
         [],
         [],
         signatures,
@@ -52,7 +43,7 @@ function strictInterface(
 
 function looseInterface(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
     isExported: boolean,
 ): ts.InterfaceDeclaration {
     const signatures = node.fields.map((field: FieldDefinition) => {
@@ -60,7 +51,7 @@ function looseInterface(
             undefined,
             field.name.value,
             renderOptional(field, true),
-            typeNodeForFieldType(field.fieldType, identifiers, true),
+            typeNodeForFieldType(field.fieldType, state, true),
             undefined,
         )
     })
@@ -68,7 +59,7 @@ function looseInterface(
     return ts.createInterfaceDeclaration(
         undefined,
         tokens(isExported),
-        ts.createIdentifier(looseNameForStruct(node)),
+        ts.createIdentifier(looseNameForStruct(node, state)),
         [],
         [],
         signatures,
@@ -99,11 +90,11 @@ function looseInterface(
  */
 export function renderInterface(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
     isExported: boolean,
 ): Array<ts.InterfaceDeclaration> {
     return [
-        strictInterface(node, identifiers, isExported),
-        looseInterface(node, identifiers, isExported),
+        strictInterface(node, state, isExported),
+        looseInterface(node, state, isExported),
     ]
 }

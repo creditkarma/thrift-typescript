@@ -1,6 +1,9 @@
 import * as ts from 'typescript'
 
 export const COMMON_IDENTIFIERS = {
+    __type: ts.createIdentifier('__type'),
+    _fieldsSet: ts.createIdentifier('_fieldsSet'),
+    _returnValue: ts.createIdentifier('_returnValue'),
     thrift: ts.createIdentifier('thrift'),
     methodNames: ts.createIdentifier('methodNames'),
     _methodNames: ts.createIdentifier('_methodNames'),

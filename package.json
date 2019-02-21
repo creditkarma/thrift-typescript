@@ -54,7 +54,7 @@
         "@types/thrift": "^0.10.7",
         "chai": "^4.2.0",
         "mocha": "^5.2.0",
-        "nyc": "^13.0.1",
+        "nyc": "^13.3.0",
         "prettier": "^1.15.3",
         "rimraf": "^2.6.2",
         "source-map-support": "^0.5.9",

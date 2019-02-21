@@ -40,7 +40,6 @@ export function renderThriftImports(
  * @param resolved A hash of include name to a list of ids used from this include
  */
 export function renderIncludes(
-    outPath: string,
     currentPath: string,
     resolved: IResolvedIncludeMap,
 ): Array<ts.ImportDeclaration> {

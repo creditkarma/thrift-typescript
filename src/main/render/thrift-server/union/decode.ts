@@ -26,7 +26,7 @@ import {
     throwProtocolException,
 } from '../utils'
 
-import { IIdentifierMap } from '../../../types'
+import { IRenderState } from '../../../types'
 
 import {
     createCheckForFields,
@@ -39,29 +39,47 @@ import {
     readValueForFieldType,
 } from '../struct/decode'
 
+import { createAnyType } from '../../shared/types'
 import { strictNameForStruct } from '../struct/utils'
 import {
     createFieldIncrementer,
     createFieldValidation,
     incrementFieldsSet,
-    RETURN_NAME,
 } from './utils'
+
+function createReturnVariable(
+    node: UnionDefinition,
+    state: IRenderState,
+): ts.VariableStatement {
+    if (state.options.strictUnions) {
+        return createLetStatement(
+            COMMON_IDENTIFIERS._returnValue,
+            createAnyType(),
+            ts.createNull(),
+        )
+    } else {
+        return createLetStatement(
+            COMMON_IDENTIFIERS._returnValue,
+            ts.createUnionTypeNode([
+                ts.createTypeReferenceNode(
+                    ts.createIdentifier(strictNameForStruct(node, state)),
+                    undefined,
+                ),
+                ts.createNull(),
+            ]),
+            ts.createNull(),
+        )
+    }
+}
 
 export function createDecodeMethod(
     node: UnionDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
-    const returnVariable: ts.VariableStatement = createLetStatement(
-        ts.createIdentifier(RETURN_NAME),
-        ts.createUnionTypeNode([
-            ts.createTypeReferenceNode(
-                ts.createIdentifier(strictNameForStruct(node)),
-                undefined,
-            ),
-            ts.createNull(),
-        ]),
-        ts.createNull(),
+    const returnVariable: ts.VariableStatement = createReturnVariable(
+        node,
+        state,
     )
 
     const fieldsSet: ts.VariableStatement = createFieldIncrementer()
@@ -111,7 +129,7 @@ export function createDecodeMethod(
                     COMMON_IDENTIFIERS.fieldId, // what to switch on
                     ts.createCaseBlock([
                         ...node.fields.map((next: FieldDefinition) => {
-                            return createCaseForField(node, next, identifiers)
+                            return createCaseForField(node, next, state)
                         }),
                         ts.createDefaultClause([createSkipBlock()]),
                     ]),
@@ -131,7 +149,7 @@ export function createDecodeMethod(
         undefined,
         [inputParameter],
         ts.createTypeReferenceNode(
-            ts.createIdentifier(strictNameForStruct(node)),
+            ts.createIdentifier(strictNameForStruct(node, state)),
             undefined,
         ), // return type
         ts.createBlock(
@@ -144,12 +162,12 @@ export function createDecodeMethod(
                 createFieldValidation(node),
                 ts.createIf(
                     ts.createBinary(
-                        ts.createIdentifier(RETURN_NAME),
+                        COMMON_IDENTIFIERS._returnValue,
                         ts.SyntaxKind.ExclamationEqualsEqualsToken,
                         ts.createNull(),
                     ),
                     ts.createBlock(
-                        [ts.createReturn(ts.createIdentifier(RETURN_NAME))],
+                        [createReturnForFields(node.fields, state)],
                         true,
                     ),
                     ts.createBlock(
@@ -168,6 +186,53 @@ export function createDecodeMethod(
     )
 }
 
+function createUnionObjectForField(
+    field: FieldDefinition,
+): ts.ObjectLiteralExpression {
+    return ts.createObjectLiteral(
+        [
+            ts.createPropertyAssignment(
+                COMMON_IDENTIFIERS.__type,
+                ts.createLiteral(field.name.value),
+            ),
+            ts.createPropertyAssignment(
+                ts.createIdentifier(field.name.value),
+                ts.createPropertyAccess(
+                    COMMON_IDENTIFIERS._returnValue,
+                    field.name.value,
+                ),
+            ),
+        ],
+        true,
+    )
+}
+
+function createReturnForFields(
+    fields: Array<FieldDefinition>,
+    state: IRenderState,
+): ts.Statement {
+    if (state.options.strictUnions) {
+        const [head, ...tail] = fields
+        if (tail.length > 0) {
+            return ts.createIf(
+                ts.createPropertyAccess(
+                    COMMON_IDENTIFIERS._returnValue,
+                    head.name.value,
+                ),
+                ts.createBlock(
+                    [ts.createReturn(createUnionObjectForField(head))],
+                    true,
+                ),
+                ts.createBlock([createReturnForFields(tail, state)]),
+            )
+        } else {
+            return ts.createReturn(createUnionObjectForField(head))
+        }
+    } else {
+        return ts.createReturn(COMMON_IDENTIFIERS._returnValue)
+    }
+}
+
 /**
  * EXAMPLE
  *
@@ -184,23 +249,19 @@ export function createDecodeMethod(
 export function createCaseForField(
     node: UnionDefinition,
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.CaseClause {
     const fieldAlias: ts.Identifier = ts.createUniqueName('value')
     const checkType: ts.IfStatement = ts.createIf(
         createEqualsCheck(
             COMMON_IDENTIFIERS.fieldType,
-            thriftTypeForFieldType(field.fieldType, identifiers),
+            thriftTypeForFieldType(field.fieldType, state.identifiers),
         ),
         ts.createBlock(
             [
                 incrementFieldsSet(),
-                ...readValueForFieldType(
-                    field.fieldType,
-                    fieldAlias,
-                    identifiers,
-                ),
-                ...endReadForField(node, fieldAlias, field),
+                ...readValueForFieldType(field.fieldType, fieldAlias, state),
+                ...endReadForField(fieldAlias, field),
             ],
             true,
         ),
@@ -218,7 +279,6 @@ export function createCaseForField(
 }
 
 export function endReadForField(
-    node: UnionDefinition,
     fieldName: ts.Identifier,
     field: FieldDefinition,
 ): Array<ts.Statement> {
@@ -230,7 +290,7 @@ export function endReadForField(
             return [
                 ts.createStatement(
                     ts.createAssignment(
-                        ts.createIdentifier(RETURN_NAME),
+                        COMMON_IDENTIFIERS._returnValue,
                         ts.createObjectLiteral([
                             ts.createPropertyAssignment(
                                 field.name.value,

@@ -4,15 +4,13 @@ import { UnionDefinition } from '@creditkarma/thrift-parser'
 
 import { createLetStatement, throwProtocolException } from '../utils'
 
+import { COMMON_IDENTIFIERS } from '../../shared/identifiers'
 import { createNumberType } from '../types'
-
-export const RETURN_NAME: string = '_returnValue'
-export const INCREMENTER: string = '_fieldsSet'
 
 // let _fieldsSet: number = 0;
 export function createFieldIncrementer(): ts.VariableStatement {
     return createLetStatement(
-        INCREMENTER,
+        COMMON_IDENTIFIERS._fieldsSet,
         createNumberType(),
         ts.createLiteral(0),
     )
@@ -21,7 +19,7 @@ export function createFieldIncrementer(): ts.VariableStatement {
 // _fieldsSet++;
 export function incrementFieldsSet(): ts.ExpressionStatement {
     return ts.createStatement(
-        ts.createPostfixIncrement(ts.createIdentifier(INCREMENTER)),
+        ts.createPostfixIncrement(COMMON_IDENTIFIERS._fieldsSet),
     )
 }
 
@@ -36,7 +34,7 @@ export function incrementFieldsSet(): ts.ExpressionStatement {
 export function createFieldValidation(node: UnionDefinition): ts.IfStatement {
     return ts.createIf(
         ts.createBinary(
-            ts.createIdentifier(INCREMENTER),
+            COMMON_IDENTIFIERS._fieldsSet,
             ts.SyntaxKind.GreaterThanToken,
             ts.createLiteral(1),
         ),
@@ -51,7 +49,7 @@ export function createFieldValidation(node: UnionDefinition): ts.IfStatement {
         ),
         ts.createIf(
             ts.createBinary(
-                ts.createIdentifier(INCREMENTER),
+                COMMON_IDENTIFIERS._fieldsSet,
                 ts.SyntaxKind.LessThanToken,
                 ts.createLiteral(1),
             ),

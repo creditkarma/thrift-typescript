@@ -6,7 +6,7 @@ import {
     UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap } from '../../../types'
+import { IRenderState } from '../../../types'
 
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
@@ -44,12 +44,12 @@ import { renderAnnotations, renderFieldAnnotations } from '../annotations'
 
 export function renderClass(
     node: UnionDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
     isExported: boolean,
 ): ts.ClassDeclaration {
     const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(
         node,
-        identifiers,
+        state,
     )
 
     const annotations: ts.PropertyDeclaration = renderAnnotations(
@@ -75,13 +75,13 @@ export function renderClass(
      */
     const fieldAssignments: Array<ts.IfStatement> = node.fields.map(
         (next: FieldDefinition) => {
-            return createFieldAssignment(next, identifiers)
+            return createFieldAssignment(next, state)
         },
     )
 
     const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(
         node,
-        identifiers,
+        state,
     )
 
     // Build the constructor body
@@ -101,14 +101,14 @@ export function renderClass(
         tokens(isExported),
         classNameForStruct(node),
         [],
-        [extendsAbstract(), implementsInterface(node)], // heritage
+        [extendsAbstract(), implementsInterface(node, state)], // heritage
         [
             ...fields,
             annotations,
             fieldAnnotations,
             ctor,
             createStaticReadMethod(node),
-            createStaticWriteMethod(node),
+            createStaticWriteMethod(node, state),
             createWriteMethod(node),
         ],
     )
@@ -130,10 +130,10 @@ export function createInputParameter(): ts.ParameterDeclaration {
 
 export function createFieldsForStruct(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.PropertyDeclaration> {
     return node.fields.map((field: FieldDefinition) => {
-        return renderFieldDeclarations(field, identifiers)
+        return renderFieldDeclarations(field, state)
     })
 }
 
@@ -155,9 +155,9 @@ export function createFieldsForStruct(
  */
 export function assignmentForField(
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Statement> {
-    return [incrementFieldsSet(), ..._assignmentForField(field, identifiers)]
+    return [incrementFieldsSet(), ..._assignmentForField(field, state)]
 }
 
 /**
@@ -175,15 +175,12 @@ export function assignmentForField(
  */
 export function createFieldAssignment(
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.IfStatement {
     const hasValue: ts.BinaryExpression = createNotNullCheck(
         ts.createPropertyAccess(COMMON_IDENTIFIERS.args, `${field.name.value}`),
     )
-    const thenAssign: Array<ts.Statement> = assignmentForField(
-        field,
-        identifiers,
-    )
+    const thenAssign: Array<ts.Statement> = assignmentForField(field, state)
     const elseThrow: ts.Statement | undefined = throwForField(field)
 
     return ts.createIf(

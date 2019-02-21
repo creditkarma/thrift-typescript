@@ -14,7 +14,7 @@ import {
 
 import { TApplicationException, TProtocolException } from './types'
 
-import { renderValue } from './values'
+import { renderValue } from './initializers'
 
 import { createNotNullCheck } from './utils'
 

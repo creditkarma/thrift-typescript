@@ -9,7 +9,7 @@ import {
     SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap, IResolvedIdentifier } from '../../../types'
+import { IRenderState, IResolvedIdentifier } from '../../../types'
 
 import { renderAnnotations, renderFieldAnnotations } from '../annotations'
 
@@ -25,7 +25,7 @@ import {
     hasRequiredField,
 } from '../utils'
 
-import { renderValue } from '../values'
+import { renderValue } from '../initializers'
 
 import { createVoidType, typeNodeForFieldType } from '../types'
 
@@ -43,12 +43,12 @@ import {
 
 export function renderClass(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
     isExported: boolean,
 ): ts.ClassDeclaration {
     const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(
         node,
-        identifiers,
+        state,
     )
 
     const annotations: ts.PropertyDeclaration = renderAnnotations(
@@ -74,13 +74,13 @@ export function renderClass(
      */
     const fieldAssignments: Array<ts.IfStatement> = node.fields.map(
         (field: FieldDefinition) => {
-            return createFieldAssignment(field, identifiers)
+            return createFieldAssignment(field, state)
         },
     )
 
     const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(
         node,
-        identifiers,
+        state,
     )
 
     // Build the constructor body
@@ -95,14 +95,14 @@ export function renderClass(
         tokens(isExported),
         classNameForStruct(node),
         [],
-        [extendsAbstract(), implementsInterface(node)], // heritage
+        [extendsAbstract(), implementsInterface(node, state)], // heritage
         [
             ...fields,
             annotations,
             fieldAnnotations,
             ctor,
             createStaticReadMethod(node),
-            createStaticWriteMethod(node),
+            createStaticWriteMethod(node, state),
             createWriteMethod(node),
         ],
     )
@@ -140,6 +140,7 @@ export function createWriteMethod(
 
 export function createStaticWriteMethod(
     node: InterfaceWithFields,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     return ts.createMethod(
         undefined,
@@ -155,7 +156,7 @@ export function createStaticWriteMethod(
             createFunctionParameter(
                 COMMON_IDENTIFIERS.args,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(looseNameForStruct(node)),
+                    ts.createIdentifier(looseNameForStruct(node, state)),
                     undefined,
                 ),
             ),
@@ -240,10 +241,10 @@ export function createInputParameter(): ts.ParameterDeclaration {
 
 export function createFieldsForStruct(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.PropertyDeclaration> {
     return node.fields.map((field: FieldDefinition) => {
-        return renderFieldDeclarations(field, identifiers)
+        return renderFieldDeclarations(field, state)
     })
 }
 
@@ -268,7 +269,7 @@ export function createFieldsForStruct(
  */
 export function renderFieldDeclarations(
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.PropertyDeclaration {
     const defaultValue: ts.Expression | undefined =
         field.defaultValue !== null
@@ -282,7 +283,7 @@ export function renderFieldDeclarations(
         field.requiredness === 'required'
             ? undefined
             : ts.createToken(ts.SyntaxKind.QuestionToken),
-        typeNodeForFieldType(field.fieldType, identifiers),
+        typeNodeForFieldType(field.fieldType, state),
         defaultValue,
     )
 }
@@ -291,18 +292,18 @@ export function defaultAssignment(
     saveName: ts.Identifier,
     readName: ts.Identifier,
     fieldType: FieldType,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.Statement {
     return createConstStatement(
         saveName,
-        typeNodeForFieldType(fieldType, identifiers),
+        typeNodeForFieldType(fieldType, state),
         coerceType(readName, fieldType),
     )
 }
 
 export function assignmentForField(
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Statement> {
     const valueName: ts.Identifier = ts.createUniqueName('value')
     return [
@@ -311,7 +312,7 @@ export function assignmentForField(
             field.fieldType,
             valueName,
             ts.createIdentifier(`args.${field.name.value}`),
-            identifiers,
+            state,
         ),
         ts.createStatement(
             ts.createAssignment(
@@ -328,7 +329,7 @@ export function assignmentForIdentifier(
     fieldType: FieldType,
     saveName: ts.Identifier,
     readName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Statement> {
     switch (id.definition.type) {
         case SyntaxType.ConstDefinition:
@@ -343,13 +344,14 @@ export function assignmentForIdentifier(
                 `Service ${id.definition.name.value} is being used as a type`,
             )
 
-        case SyntaxType.StructDefinition:
+        // Handle creating value for args.
         case SyntaxType.UnionDefinition:
+        case SyntaxType.StructDefinition:
         case SyntaxType.ExceptionDefinition:
             return [
                 createConstStatement(
                     saveName,
-                    typeNodeForFieldType(fieldType, identifiers),
+                    typeNodeForFieldType(fieldType, state),
                     ts.createNew(
                         ts.createIdentifier(className(id.resolvedName)),
                         undefined,
@@ -359,9 +361,7 @@ export function assignmentForIdentifier(
             ]
 
         case SyntaxType.EnumDefinition:
-            return [
-                defaultAssignment(saveName, readName, fieldType, identifiers),
-            ]
+            return [defaultAssignment(saveName, readName, fieldType, state)]
 
         case SyntaxType.TypedefDefinition:
             return assignmentForFieldType(
@@ -369,7 +369,7 @@ export function assignmentForIdentifier(
                 id.definition.definitionType,
                 saveName,
                 readName,
-                identifiers,
+                state,
             )
 
         default:
@@ -383,17 +383,17 @@ export function assignmentForFieldType(
     fieldType: FunctionType,
     saveName: ts.Identifier,
     readName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Statement> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return assignmentForIdentifier(
                 field,
-                identifiers[fieldType.value],
+                state.identifiers[fieldType.value],
                 fieldType,
                 saveName,
                 readName,
-                identifiers,
+                state,
             )
 
         /**
@@ -412,9 +412,7 @@ export function assignmentForFieldType(
         case SyntaxType.I16Keyword:
         case SyntaxType.I32Keyword:
         case SyntaxType.I64Keyword: {
-            return [
-                defaultAssignment(saveName, readName, fieldType, identifiers),
-            ]
+            return [defaultAssignment(saveName, readName, fieldType, state)]
         }
 
         /**
@@ -426,18 +424,12 @@ export function assignmentForFieldType(
             return [
                 createConstStatement(
                     saveName,
-                    typeNodeForFieldType(fieldType, identifiers),
+                    typeNodeForFieldType(fieldType, state),
                     ts.createNew(
                         COMMON_IDENTIFIERS.Map, // class name
                         [
-                            typeNodeForFieldType(
-                                fieldType.keyType,
-                                identifiers,
-                            ),
-                            typeNodeForFieldType(
-                                fieldType.valueType,
-                                identifiers,
-                            ),
+                            typeNodeForFieldType(fieldType.keyType, state),
+                            typeNodeForFieldType(fieldType.valueType, state),
                         ],
                         [],
                     ),
@@ -447,7 +439,7 @@ export function assignmentForFieldType(
                     fieldType,
                     saveName,
                     readName,
-                    identifiers,
+                    state,
                 ),
             ]
         }
@@ -456,15 +448,10 @@ export function assignmentForFieldType(
             return [
                 createConstStatement(
                     saveName,
-                    typeNodeForFieldType(fieldType, identifiers),
+                    typeNodeForFieldType(fieldType, state),
                     ts.createNew(
                         COMMON_IDENTIFIERS.Array, // class name
-                        [
-                            typeNodeForFieldType(
-                                fieldType.valueType,
-                                identifiers,
-                            ),
-                        ],
+                        [typeNodeForFieldType(fieldType.valueType, state)],
                         [],
                     ),
                 ),
@@ -473,7 +460,7 @@ export function assignmentForFieldType(
                     fieldType,
                     saveName,
                     readName,
-                    identifiers,
+                    state,
                 ),
             ]
         }
@@ -482,15 +469,10 @@ export function assignmentForFieldType(
             return [
                 createConstStatement(
                     saveName,
-                    typeNodeForFieldType(fieldType, identifiers),
+                    typeNodeForFieldType(fieldType, state),
                     ts.createNew(
                         COMMON_IDENTIFIERS.Set, // class name
-                        [
-                            typeNodeForFieldType(
-                                fieldType.valueType,
-                                identifiers,
-                            ),
-                        ],
+                        [typeNodeForFieldType(fieldType.valueType, state)],
                         [],
                     ),
                 ),
@@ -499,7 +481,7 @@ export function assignmentForFieldType(
                     fieldType,
                     saveName,
                     readName,
-                    identifiers,
+                    state,
                 ),
             ]
         }
@@ -524,7 +506,7 @@ export function loopOverContainer(
     fieldType: ContainerType,
     saveName: ts.Identifier,
     readName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Statement> {
     switch (fieldType.type) {
         case SyntaxType.MapType: {
@@ -549,7 +531,7 @@ export function loopOverContainer(
                                         valueParam, // param name
                                         typeNodeForFieldType(
                                             fieldType.valueType,
-                                            identifiers,
+                                            state,
                                             true,
                                         ), // param type
                                         undefined,
@@ -558,7 +540,7 @@ export function loopOverContainer(
                                         keyName, // param name
                                         typeNodeForFieldType(
                                             fieldType.keyType,
-                                            identifiers,
+                                            state,
                                             true,
                                         ), // param type
                                         undefined,
@@ -575,14 +557,14 @@ export function loopOverContainer(
                                             fieldType.valueType,
                                             valueConst,
                                             valueParam,
-                                            identifiers,
+                                            state,
                                         ),
                                         ...assignmentForFieldType(
                                             field,
                                             fieldType.keyType,
                                             keyConst,
                                             keyName,
-                                            identifiers,
+                                            state,
                                         ),
                                         createMethodCallStatement(
                                             saveName,
@@ -619,7 +601,7 @@ export function loopOverContainer(
                                         valueParam, // param name
                                         typeNodeForFieldType(
                                             fieldType.valueType,
-                                            identifiers,
+                                            state,
                                             true,
                                         ), // param type
                                         undefined,
@@ -636,7 +618,7 @@ export function loopOverContainer(
                                             fieldType.valueType,
                                             valueConst,
                                             valueParam,
-                                            identifiers,
+                                            state,
                                         ),
                                         createMethodCallStatement(
                                             saveName,
@@ -673,7 +655,7 @@ export function loopOverContainer(
                                         valueParam, // param name
                                         typeNodeForFieldType(
                                             fieldType.valueType,
-                                            identifiers,
+                                            state,
                                             true,
                                         ), // param type
                                         undefined,
@@ -690,7 +672,7 @@ export function loopOverContainer(
                                             fieldType.valueType,
                                             valueConst,
                                             valueParam,
-                                            identifiers,
+                                            state,
                                         ),
                                         createMethodCallStatement(
                                             saveName,
@@ -724,15 +706,12 @@ export function loopOverContainer(
  */
 export function createFieldAssignment(
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.IfStatement {
     const hasValue: ts.BinaryExpression = createNotNullCheck(
         ts.createPropertyAccess(COMMON_IDENTIFIERS.args, `${field.name.value}`),
     )
-    const thenAssign: Array<ts.Statement> = assignmentForField(
-        field,
-        identifiers,
-    )
+    const thenAssign: Array<ts.Statement> = assignmentForField(field, state)
     const elseThrow: ts.Statement | undefined = throwForField(field)
 
     return ts.createIf(
@@ -754,18 +733,18 @@ function createDefaultInitializer(
 
 export function createArgsParameterForStruct(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.ParameterDeclaration {
     return createFunctionParameter(
         COMMON_IDENTIFIERS.args, // param name
-        createArgsTypeForStruct(node, identifiers), // param type
+        createArgsTypeForStruct(node, state), // param type
         createDefaultInitializer(node),
     )
 }
 
 function createArgsTypeForStruct(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.TypeNode {
     // return ts.createTypeLiteralNode(
     //     node.fields.map((field: FieldDefinition): ts.TypeElement => {
@@ -779,7 +758,7 @@ function createArgsTypeForStruct(
     //     })
     // )
     return ts.createTypeReferenceNode(
-        ts.createIdentifier(looseNameForStruct(node)),
+        ts.createIdentifier(looseNameForStruct(node, state)),
         undefined,
     )
 }

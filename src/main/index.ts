@@ -10,6 +10,7 @@ import {
     IParsedFile,
     IRenderedCache,
     IRenderedFile,
+    IRenderState,
     IResolvedCache,
     IResolvedFile,
     IThriftFile,
@@ -54,7 +55,12 @@ import { DEFAULT_OPTIONS } from './options'
 export function make(
     source: string,
     target: CompileTarget = 'thrift-server',
+    strictUnions: boolean = false,
 ): string {
+    const options: IMakeOptions = mergeWithDefaults({
+        target,
+        strictUnions,
+    })
     const parsedFile: IParsedFile = parseSource(source)
     const resolvedAST: IResolvedFile = resolveFile(
         '',
@@ -62,12 +68,12 @@ export function make(
         DEFAULT_OPTIONS,
     )
     const validAST: IResolvedFile = validateFile(resolvedAST)
+    const state: IRenderState = {
+        options,
+        identifiers: validAST.identifiers,
+    }
     return print(
-        processStatements(
-            validAST.body,
-            validAST.identifiers,
-            rendererForTarget(target),
-        ),
+        processStatements(validAST.body, state, rendererForTarget(target)),
     )
 }
 
@@ -129,10 +135,9 @@ export function generate(options: Partial<IMakeOptions>): void {
             (next: INamespaceFile): IRenderedFile => {
                 return generateFile(
                     rendererForTarget(mergedOptions.target),
-                    outDir,
                     next,
-                    renderedCache,
                     mergedOptions,
+                    renderedCache,
                 )
             },
         )
