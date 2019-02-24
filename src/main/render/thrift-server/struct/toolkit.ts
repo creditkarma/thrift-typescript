@@ -1,6 +1,6 @@
 import * as ts from 'typescript'
 
-import { UnionDefinition } from '@creditkarma/thrift-parser'
+import { InterfaceWithFields } from '@creditkarma/thrift-parser'
 
 import { createConst } from '../utils'
 
@@ -12,21 +12,21 @@ import { createDecodeMethod } from './decode'
 
 import { IRenderState } from '../../../types'
 import {
-    codecNameForStruct,
     looseNameForStruct,
     strictNameForStruct,
     tokens,
-} from '../struct/utils'
+    toolkitNameForStruct,
+} from './utils'
 
-export function renderCodec(
-    node: UnionDefinition,
+export function renderToolkit(
+    node: InterfaceWithFields,
     state: IRenderState,
     isExported: boolean,
 ): ts.Statement {
     return ts.createVariableStatement(
         tokens(isExported),
         createConst(
-            ts.createIdentifier(codecNameForStruct(node)),
+            ts.createIdentifier(toolkitNameForStruct(node)),
             ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IStructCodec, [
                 ts.createTypeReferenceNode(
                     ts.createIdentifier(looseNameForStruct(node, state)),

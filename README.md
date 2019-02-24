@@ -37,7 +37,8 @@ The available options are:
 * --outDir: The directory to save generated files to. Will be created if it doesn't exist. Defaults to 'codegen'.
 * --sourceDir: The directory to search for source Thrift files. Defaults to 'thrift'.
 * --target: The core library to generate for, either 'apache' or 'thrift-server'. Defaults to 'apache'.
-* --fallback-namespace: The namespace to fallback to if no 'js' namespace exists. Defaults to 'java'. Set to 'none' to use no namespace.
+* --strictUnions: Should we generate strict unions (Only available for target = 'thrift-server'. More on this below). Defaults to undefined.
+* --fallbackNamespace: The namespace to fallback to if no 'js' namespace exists. Defaults to 'java'. Set to 'none' to use no namespace.
 
 All other fields are assumed to be source files.
 
@@ -447,6 +448,91 @@ export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> {
 It's just an object that knows how to read the given object from a Thrift Protocol or write the given object to a Thrift Protocol.
 
 The codec will always follow this naming convention, just appending `Codec` onto the end of your struct name.
+
+### Strict Unions
+
+This is an option only available when generating for `thrift-server`. This option will generate Thrift unions as TypeScript unions. This changes the codegen if a few significant ways.
+
+Back with our example union definition:
+
+```c
+union MyUnion {
+    1: string option1
+    2: i32 option2
+}
+```
+
+When compiling with the `--strictUnions` flag we now generate TypeScript like this:
+
+```typescript
+enum MyUnionType {
+    MyUnionWithOption1 = "option1",
+    MyUnionWithOption2 = "option2"
+}
+type MyUnion = IMyUnionWithOption1 | IMyUnionWithOption2
+interface IMyUnionWithOption1 {
+    __type: MyUnionType.MyUnionWithOption1
+    option1: string
+    option2?: void
+}
+interface IMyUnionWithOption2 {
+    __type: MyUnionType.MyUnionWithOption2
+    option1?: void
+    option2: number
+}
+type MyUnionArgs = IMyUnionWithOption1Args | IMyUnionWithOption2Args
+interface IMyUnionWithOption1Args {
+    option1: string
+    option2?: void
+}
+interface IMyUnionWithOption2Args {
+    option1?: void
+    option2: number
+}
+```
+
+This output is more complex, but it allows us to do a number of things. It allows us to take advantage of discriminated unions in our application code:
+
+```typescript
+function processUnion(union: MyUnion) {
+    switch (union.__type) {
+        case MyUnionType.MyUnionWithOption1:
+            // Do something
+        case MyUnionType.MyUnionWithOption2:
+            // Do something
+        default:
+            const _exhaustiveCheck: never = union
+            throw new Error(`Non-exhaustive match for type: ${_exhaustiveCheck}`)
+    }
+}
+```
+
+It also provides compile-time checks that we are definition one and only one value for a union. Instead of a struct with optional fields we are defining a union of interfaces that each have one required field and any other fields must be of type `void`.
+
+This allows you to do things like check `union.option2 !== undefined` without a compiler error, but will give a compiler error if you try to use a value that shouldn't exist of a given union.
+
+Using this form will require that you prove to the compiler that one (and only one) field is set for your unions.
+
+In addition to the changed types output, the `--strictUnions` flag changes the output of the `Codec` object. The `Codec` object will have one additional method `create`. The `create` method takes one of the loose interfaces and coerces it into the strict interface (including the `__type` property).
+
+For the example `MyUnion` that would be defined as:
+
+```typescript
+const MyUnionCodec: thrift.IStructToolkit<IUserArgs, IUser> { = {
+    create(args: MyUnionArgs): MyUnion {
+        // ...
+    },
+    encode(obj: IUserArgs, output: thrift.TProtocol): void {
+        // ...
+    },
+    decode(input: thrift.TProtocol): IUser {
+        // ...
+    }
+}
+```
+
+Note: In a future breaking release all the `Codec` objects will be renamed to `Toolkit` as they will provide more utilities for working with defined Thrift objects.
+
 
 ## Apache Thrift
 

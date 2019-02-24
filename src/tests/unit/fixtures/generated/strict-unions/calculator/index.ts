@@ -323,16 +323,69 @@ export class LastName extends thrift.StructLike implements ILastName {
         return LastNameCodec.encode(this, output);
     }
 }
-export interface IChoice {
-    firstName?: IFirstName;
-    lastName?: ILastName;
+export enum ChoiceType {
+    ChoiceWithFirstName = "firstName",
+    ChoiceWithLastName = "lastName"
 }
-export interface IChoiceArgs {
-    firstName?: IFirstNameArgs;
-    lastName?: ILastNameArgs;
+export type Choice = IChoiceWithFirstName | IChoiceWithLastName;
+export interface IChoiceWithFirstName {
+    __type: ChoiceType.ChoiceWithFirstName;
+    firstName: IFirstName;
+    lastName?: void;
 }
-export const ChoiceCodec: thrift.IStructCodec<IChoiceArgs, IChoice> = {
-    encode(args: IChoiceArgs, output: thrift.TProtocol): void {
+export interface IChoiceWithLastName {
+    __type: ChoiceType.ChoiceWithLastName;
+    firstName?: void;
+    lastName: ILastName;
+}
+export type ChoiceArgs = IChoiceWithFirstNameArgs | IChoiceWithLastNameArgs;
+export interface IChoiceWithFirstNameArgs {
+    firstName: IFirstNameArgs;
+    lastName?: void;
+}
+export interface IChoiceWithLastNameArgs {
+    firstName?: void;
+    lastName: ILastNameArgs;
+}
+export const ChoiceCodec: thrift.IStructToolkit<ChoiceArgs, Choice> = {
+    create(args: ChoiceArgs): Choice {
+        let _fieldsSet: number = 0;
+        let _returnValue: any = null;
+        if (args.firstName != null) {
+            _fieldsSet++;
+            const value_13: IFirstName = new FirstName(args.firstName);
+            _returnValue = { firstName: value_13 };
+        }
+        if (args.lastName != null) {
+            _fieldsSet++;
+            const value_14: ILastName = new LastName(args.lastName);
+            _returnValue = { lastName: value_14 };
+        }
+        if (_fieldsSet > 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
+        }
+        else if (_fieldsSet < 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
+        }
+        if (_returnValue !== null) {
+            if (_returnValue.firstName) {
+                return {
+                    __type: ChoiceType.ChoiceWithFirstName,
+                    firstName: _returnValue.firstName
+                };
+            }
+            else {
+                return {
+                    __type: ChoiceType.ChoiceWithLastName,
+                    lastName: _returnValue.lastName
+                };
+            }
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read data for TUnion");
+        }
+    },
+    encode(args: ChoiceArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
             firstName: args.firstName,
@@ -361,9 +414,9 @@ export const ChoiceCodec: thrift.IStructCodec<IChoiceArgs, IChoice> = {
         }
         return;
     },
-    decode(input: thrift.TProtocol): IChoice {
+    decode(input: thrift.TProtocol): Choice {
         let _fieldsSet: number = 0;
-        let _returnValue: IChoice | null = null;
+        let _returnValue: any = null;
         input.readStructBegin();
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
@@ -376,8 +429,8 @@ export const ChoiceCodec: thrift.IStructCodec<IChoiceArgs, IChoice> = {
                 case 1:
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
-                        const value_13: IFirstName = FirstNameCodec.decode(input);
-                        _returnValue = { firstName: value_13 };
+                        const value_15: IFirstName = FirstNameCodec.decode(input);
+                        _returnValue = { firstName: value_15 };
                     }
                     else {
                         input.skip(fieldType);
@@ -386,8 +439,8 @@ export const ChoiceCodec: thrift.IStructCodec<IChoiceArgs, IChoice> = {
                 case 2:
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
-                        const value_14: ILastName = LastNameCodec.decode(input);
-                        _returnValue = { lastName: value_14 };
+                        const value_16: ILastName = LastNameCodec.decode(input);
+                        _returnValue = { lastName: value_16 };
                     }
                     else {
                         input.skip(fieldType);
@@ -407,48 +460,24 @@ export const ChoiceCodec: thrift.IStructCodec<IChoiceArgs, IChoice> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
-            return _returnValue;
+            if (_returnValue.firstName) {
+                return {
+                    __type: ChoiceType.ChoiceWithFirstName,
+                    firstName: _returnValue.firstName
+                };
+            }
+            else {
+                return {
+                    __type: ChoiceType.ChoiceWithLastName,
+                    lastName: _returnValue.lastName
+                };
+            }
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read data for TUnion");
         }
     }
 };
-export class Choice extends thrift.StructLike implements IChoice {
-    public firstName?: IFirstName;
-    public lastName?: ILastName;
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
-    constructor(args: IChoiceArgs = {}) {
-        super();
-        let _fieldsSet: number = 0;
-        if (args.firstName != null) {
-            _fieldsSet++;
-            const value_15: IFirstName = new FirstName(args.firstName);
-            this.firstName = value_15;
-        }
-        if (args.lastName != null) {
-            _fieldsSet++;
-            const value_16: ILastName = new LastName(args.lastName);
-            this.lastName = value_16;
-        }
-        if (_fieldsSet > 1) {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
-        }
-        else if (_fieldsSet < 1) {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
-        }
-    }
-    public static read(input: thrift.TProtocol): Choice {
-        return new Choice(ChoiceCodec.decode(input));
-    }
-    public static write(args: IChoiceArgs, output: thrift.TProtocol): void {
-        return ChoiceCodec.encode(args, output);
-    }
-    public write(output: thrift.TProtocol): void {
-        return ChoiceCodec.encode(this, output);
-    }
-}
 export namespace Calculator {
     export const serviceName: string = "Calculator";
     export const annotations: thrift.IThriftAnnotations = {};
@@ -1193,10 +1222,10 @@ export namespace Calculator {
         }
     }
     export interface ICheckName__Args {
-        choice: IChoice;
+        choice: Choice;
     }
     export interface ICheckName__ArgsArgs {
-        choice: IChoiceArgs;
+        choice: ChoiceArgs;
     }
     export const CheckName__ArgsCodec: thrift.IStructCodec<ICheckName__ArgsArgs, ICheckName__Args> = {
         encode(args: ICheckName__ArgsArgs, output: thrift.TProtocol): void {
@@ -1229,7 +1258,7 @@ export namespace Calculator {
                 switch (fieldId) {
                     case 1:
                         if (fieldType === thrift.TType.STRUCT) {
-                            const value_37: IChoice = ChoiceCodec.decode(input);
+                            const value_37: Choice = ChoiceCodec.decode(input);
                             _args.choice = value_37;
                         }
                         else {
@@ -1254,13 +1283,13 @@ export namespace Calculator {
         }
     };
     export class CheckName__Args extends thrift.StructLike implements ICheckName__Args {
-        public choice: IChoice;
+        public choice: Choice;
         public readonly _annotations: thrift.IThriftAnnotations = {};
         public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: ICheckName__ArgsArgs) {
             super();
             if (args.choice != null) {
-                const value_38: IChoice = new Choice(args.choice);
+                const value_38: Choice = ChoiceCodec.create(args.choice);
                 this.choice = value_38;
             }
             else {
@@ -3154,7 +3183,7 @@ export namespace Calculator {
                 }
             });
         }
-        public checkName(choice: IChoiceArgs, context?: Context): Promise<string> {
+        public checkName(choice: ChoiceArgs, context?: Context): Promise<string> {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("checkName", thrift.MessageType.CALL, this.incrementRequestId());
@@ -3424,7 +3453,7 @@ export namespace Calculator {
         calculate(logid: number, work: IWork, context?: Context): number | Promise<number>;
         echoBinary(word: Buffer, context?: Context): string | Promise<string>;
         echoString(word: string, context?: Context): string | Promise<string>;
-        checkName(choice: IChoice, context?: Context): string | Promise<string>;
+        checkName(choice: Choice, context?: Context): string | Promise<string>;
         checkOptional(type?: string, context?: Context): string | Promise<string>;
         mapOneList(arg: Array<number>, context?: Context): Array<number> | Promise<Array<number>>;
         mapValues(arg: Map<string, number>, context?: Context): Array<number> | Promise<Array<number>>;

@@ -72,8 +72,8 @@ export function strictNameForStruct(
     return strictName(node.name.value, node.type, state)
 }
 
-export function codecNameForStruct(node: InterfaceWithFields): string {
-    return codecName(node.name.value)
+export function toolkitNameForStruct(node: InterfaceWithFields): string {
+    return toolkitName(node.name.value)
 }
 
 export function className(name: string): string {
@@ -110,7 +110,8 @@ export function strictName(
     }
 }
 
-export function codecName(name: string): string {
+// TODO: This will be renamed to Toolkit in a breaking release
+export function toolkitName(name: string): string {
     return makeNameForNode(name, (part: string) => {
         return `${part}Codec`
     })

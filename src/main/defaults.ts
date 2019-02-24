@@ -11,7 +11,7 @@ export const DEFAULT_OPTIONS: IMakeOptions = {
     sourceDir: './thrift',
     target: 'apache',
     files: [],
-    library: DEFAULT_APACHE_LIB,
+    library: '',
     strictUnions: false,
     fallbackNamespace: 'java',
 }

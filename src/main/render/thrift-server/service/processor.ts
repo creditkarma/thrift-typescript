@@ -60,7 +60,7 @@ import {
     renderServiceAnnotationsStaticProperty,
 } from '../annotations'
 
-import { codecName, strictName } from '../struct/utils'
+import { strictName, toolkitName } from '../struct/utils'
 
 function objectLiteralForServiceFunctions(
     node: ThriftStatement,
@@ -396,7 +396,7 @@ function createProcessFunctionMethod(
                                         // StructCodec.encode(result, output)
                                         createMethodCallStatement(
                                             ts.createIdentifier(
-                                                codecName(
+                                                toolkitName(
                                                     createStructResultName(
                                                         funcDef,
                                                     ),
@@ -487,7 +487,7 @@ function createArgsVariable(
                 ts.createCall(
                     ts.createPropertyAccess(
                         ts.createIdentifier(
-                            codecName(createStructArgsName(funcDef)),
+                            toolkitName(createStructArgsName(funcDef)),
                         ),
                         ts.createIdentifier('decode'),
                     ),
@@ -610,7 +610,9 @@ function createThenForException(
             ),
             // StructCodec.encode(result, output)
             createMethodCallStatement(
-                ts.createIdentifier(codecName(createStructResultName(funcDef))),
+                ts.createIdentifier(
+                    toolkitName(createStructResultName(funcDef)),
+                ),
                 'encode',
                 [COMMON_IDENTIFIERS.result, COMMON_IDENTIFIERS.output],
             ),

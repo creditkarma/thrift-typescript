@@ -76,48 +76,76 @@ describe('Thrift TypeScript Generator', () => {
     })
 
     describe('Thrift Server v2 Generated w Strict Unions', () => {
-        // before(() => {
-        //     generate({
-        //         rootDir: __dirname,
-        //         outDir: 'generated/strict-unions',
-        //         sourceDir: 'fixtures/thrift',
-        //         target: 'thrift-server',
-        //         files: [],
-        //         library: 'test-lib',
-        //         strictUnions: true,
-        //     })
-        // })
-        // it('should correctly generate typedefs for includes', () => {
-        //     const actual: string = readGenerated(
-        //         'operation',
-        //         'generated/strict-unions',
-        //     )
-        //     const expected: string = readGeneratedSolution(
-        //         'operation',
-        //         'generated/strict-unions',
-        //     )
-        //     assert.deepEqual(actual, expected)
-        // })
-        // it('should correctly generate a struct using includes', () => {
-        //     const actual: string = readGenerated('common')
-        //     const expected: string = readGeneratedSolution('common')
-        //     assert.deepEqual(actual, expected)
-        // })
-        // it('should correctly generate an exception using includes', () => {
-        //     const actual: string = readGenerated('exceptions')
-        //     const expected: string = readGeneratedSolution('exceptions')
-        //     assert.deepEqual(actual, expected)
-        // })
-        // it('should correctly generate a service', () => {
-        //     const actual: string = readGenerated('shared')
-        //     const expected: string = readGeneratedSolution('shared')
-        //     assert.deepEqual(actual, expected)
-        // })
-        // it('should correctly generate a service using includes', () => {
-        //     const actual: string = readGenerated('calculator')
-        //     const expected: string = readGeneratedSolution('calculator')
-        //     assert.deepEqual(actual, expected)
-        // })
+        before(() => {
+            generate({
+                rootDir: __dirname,
+                outDir: 'generated/strict-unions',
+                sourceDir: 'fixtures/thrift',
+                target: 'thrift-server',
+                files: [],
+                library: 'test-lib',
+                strictUnions: true,
+            })
+        })
+        it('should correctly generate typedefs for includes', () => {
+            const actual: string = readGenerated(
+                'operation',
+                'generated/strict-unions',
+            )
+            const expected: string = readGeneratedSolution(
+                'operation',
+                'generated/strict-unions',
+            )
+            assert.deepEqual(actual, expected)
+        })
+
+        it('should correctly generate a struct using includes', () => {
+            const actual: string = readGenerated(
+                'common',
+                'generated/strict-unions',
+            )
+            const expected: string = readGeneratedSolution(
+                'common',
+                'generated/strict-unions',
+            )
+            assert.deepEqual(actual, expected)
+        })
+
+        it('should correctly generate an exception using includes', () => {
+            const actual: string = readGenerated(
+                'exceptions',
+                'generated/strict-unions',
+            )
+            const expected: string = readGeneratedSolution(
+                'exceptions',
+                'generated/strict-unions',
+            )
+            assert.deepEqual(actual, expected)
+        })
+
+        it('should correctly generate a service', () => {
+            const actual: string = readGenerated(
+                'shared',
+                'generated/strict-unions',
+            )
+            const expected: string = readGeneratedSolution(
+                'shared',
+                'generated/strict-unions',
+            )
+            assert.deepEqual(actual, expected)
+        })
+
+        it('should correctly generate a service using includes', () => {
+            const actual: string = readGenerated(
+                'calculator',
+                'generated/strict-unions',
+            )
+            const expected: string = readGeneratedSolution(
+                'calculator',
+                'generated/strict-unions',
+            )
+            assert.deepEqual(actual, expected)
+        })
     })
 
     describe('Thrift Server w/ Strict Unions', () => {
@@ -134,54 +162,50 @@ describe('Thrift TypeScript Generator', () => {
             )
             const actual: string = make(content, 'thrift-server', true)
 
-            console.log('actual: ', actual)
+            assert.deepEqual(actual, expected)
+        })
+
+        it('should correctly generate a union with a union field', () => {
+            const content: string = `
+                union InnerUnion {
+                    1: string name
+                    2: i32 id
+                }
+
+                union MyUnion {
+                    1: InnerUnion user
+                    2: string field2
+                }
+            `
+            const expected: string = readSolution(
+                'nested_union.strict_union',
+                'thrift-server',
+            )
+            const actual: string = make(content, 'thrift-server', true)
 
             assert.deepEqual(actual, expected)
         })
 
-        // it('should correctly generate a union with a union field', () => {
-        //     const content: string = `
-        //         union InnerUnion {
-        //             1: string name
-        //             2: i32 id
-        //         }
+        it('should correctly generate a service using a union', () => {
+            const content: string = `
+                union MyUnion {
+                    1: i32 field1
+                    2: i64 field2
+                }
 
-        //         union MyUnion {
-        //             1: InnerUnion user
-        //             2: string field2
-        //         }
-        //     `
-        //     const expected: string = readSolution(
-        //         'nested_union.strict_union',
-        //         'thrift-server',
-        //     )
-        //     const actual: string = make(content, 'thrift-server', true)
+                service MyService {
+                    string getUser(1: MyUnion arg1)
+                    void ping()
+                }
+            `
+            const expected: string = readSolution(
+                'basic_service.strict_union',
+                'thrift-server',
+            )
+            const actual: string = make(content, 'thrift-server', true)
 
-        //     assert.deepEqual(actual, expected)
-        // })
-
-        // it('should correctly generate a service using a union', () => {
-        //     const content: string = `
-        //         union MyUnion {
-        //             1: i32 field1
-        //             2: i64 field2
-        //         }
-
-        //         service MyService {
-        //             User getUser(1: MyUnion arg1)
-        //             void ping()
-        //         }
-        //     `
-        //     const expected: string = readSolution(
-        //         'basic_service.strict_union',
-        //         'thrift-server',
-        //     )
-        //     const actual: string = make(content, 'thrift-server', true)
-
-        //     console.log('actual: ', actual)
-
-        //     assert.deepEqual(actual, expected)
-        // })
+            assert.deepEqual(actual, expected)
+        })
     })
 
     describe('Thrift Server', () => {
@@ -283,11 +307,11 @@ describe('Thrift TypeScript Generator', () => {
 
         it('should correctly generate a union', () => {
             const content: string = `
-                union MyUnion {
-                    1: i32 field1
-                    2: i64 field2
-                }
-            `
+                    union MyUnion {
+                        1: i32 field1
+                        2: i64 field2
+                    }
+                `
             const expected: string = readSolution(
                 'basic_union',
                 'thrift-server',

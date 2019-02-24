@@ -193,37 +193,69 @@ export class SharedStruct extends thrift.StructLike implements ISharedStruct {
         return SharedStructCodec.encode(this, output);
     }
 }
-export type SharedUnion = ISharedUnionWithOption1 | ISharedUnionWithOption2;
 export enum SharedUnionType {
     SharedUnionWithOption1 = "option1",
     SharedUnionWithOption2 = "option2"
 }
+export type SharedUnion = ISharedUnionWithOption1 | ISharedUnionWithOption2;
 export interface ISharedUnionWithOption1 {
     __type: SharedUnionType.SharedUnionWithOption1;
     option1: string;
     option2?: void;
 }
-export class SharedUnionWithOption1 implements ISharedUnionWithOption1 {
-    public readonly __type: SharedUnionType.SharedUnionWithOption1;
-    public option1: string;
-    constructor(args: ISharedUnionWithOption1) {
-
-    }
-}
 export interface ISharedUnionWithOption2 {
-    __type: "option2";
+    __type: SharedUnionType.SharedUnionWithOption2;
     option1?: void;
     option2: string;
 }
-export class SharedUnionWithOption2 implements ISharedUnionWithOption2 {
-    public readonly __type: SharedUnionType.SharedUnionWithOption2;
-    public option2: string;
-    constructor(args: ISharedUnionWithOption2) {
-
-    }
+export type SharedUnionArgs = ISharedUnionWithOption1Args | ISharedUnionWithOption2Args;
+export interface ISharedUnionWithOption1Args {
+    option1: string;
+    option2?: void;
 }
-export const SharedUnionCodec: thrift.IStructCodec<SharedUnion, SharedUnion> = {
-    encode(args: SharedUnion, output: thrift.TProtocol): void {
+export interface ISharedUnionWithOption2Args {
+    option1?: void;
+    option2: string;
+}
+export const SharedUnionCodec: thrift.IStructToolkit<SharedUnionArgs, SharedUnion> = {
+    create(args: SharedUnionArgs): SharedUnion {
+        let _fieldsSet: number = 0;
+        let _returnValue: any = null;
+        if (args.option1 != null) {
+            _fieldsSet++;
+            const value_7: string = args.option1;
+            _returnValue = { option1: value_7 };
+        }
+        if (args.option2 != null) {
+            _fieldsSet++;
+            const value_8: string = args.option2;
+            _returnValue = { option2: value_8 };
+        }
+        if (_fieldsSet > 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");
+        }
+        else if (_fieldsSet < 1) {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
+        }
+        if (_returnValue !== null) {
+            if (_returnValue.option1) {
+                return {
+                    __type: SharedUnionType.SharedUnionWithOption1,
+                    option1: _returnValue.option1
+                };
+            }
+            else {
+                return {
+                    __type: SharedUnionType.SharedUnionWithOption2,
+                    option2: _returnValue.option2
+                };
+            }
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read data for TUnion");
+        }
+    },
+    encode(args: SharedUnionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
             option1: args.option1,
@@ -252,9 +284,9 @@ export const SharedUnionCodec: thrift.IStructCodec<SharedUnion, SharedUnion> = {
         }
         return;
     },
-    decode(input: thrift.TProtocol): ISharedUnion {
+    decode(input: thrift.TProtocol): SharedUnion {
         let _fieldsSet: number = 0;
-        let _returnValue: ISharedUnion | null = null;
+        let _returnValue: any = null;
         input.readStructBegin();
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
@@ -267,8 +299,8 @@ export const SharedUnionCodec: thrift.IStructCodec<SharedUnion, SharedUnion> = {
                 case 1:
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
-                        const value_7: string = input.readString();
-                        _returnValue = { option1: value_7 };
+                        const value_9: string = input.readString();
+                        _returnValue = { option1: value_9 };
                     }
                     else {
                         input.skip(fieldType);
@@ -277,8 +309,8 @@ export const SharedUnionCodec: thrift.IStructCodec<SharedUnion, SharedUnion> = {
                 case 2:
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
-                        const value_8: string = input.readString();
-                        _returnValue = { option2: value_8 };
+                        const value_10: string = input.readString();
+                        _returnValue = { option2: value_10 };
                     }
                     else {
                         input.skip(fieldType);
@@ -298,7 +330,18 @@ export const SharedUnionCodec: thrift.IStructCodec<SharedUnion, SharedUnion> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
-            return _returnValue;
+            if (_returnValue.option1) {
+                return {
+                    __type: SharedUnionType.SharedUnionWithOption1,
+                    option1: _returnValue.option1
+                };
+            }
+            else {
+                return {
+                    __type: SharedUnionType.SharedUnionWithOption2,
+                    option2: _returnValue.option2
+                };
+            }
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read data for TUnion");
@@ -564,10 +607,10 @@ export namespace SharedService {
         }
     }
     export interface IGetUnion__Result {
-        success?: ISharedUnion;
+        success?: SharedUnion;
     }
     export interface IGetUnion__ResultArgs {
-        success?: ISharedUnionArgs;
+        success?: SharedUnionArgs;
     }
     export const GetUnion__ResultCodec: thrift.IStructCodec<IGetUnion__ResultArgs, IGetUnion__Result> = {
         encode(args: IGetUnion__ResultArgs, output: thrift.TProtocol): void {
@@ -597,7 +640,7 @@ export namespace SharedService {
                 switch (fieldId) {
                     case 0:
                         if (fieldType === thrift.TType.STRUCT) {
-                            const value_17: ISharedUnion = SharedUnionCodec.decode(input);
+                            const value_17: SharedUnion = SharedUnionCodec.decode(input);
                             _args.success = value_17;
                         }
                         else {
@@ -617,13 +660,13 @@ export namespace SharedService {
         }
     };
     export class GetUnion__Result extends thrift.StructLike implements IGetUnion__Result {
-        public success?: ISharedUnion;
+        public success?: SharedUnion;
         public readonly _annotations: thrift.IThriftAnnotations = {};
         public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
         constructor(args: IGetUnion__ResultArgs = {}) {
             super();
             if (args.success != null) {
-                const value_18: ISharedUnion = new SharedUnion(args.success);
+                const value_18: SharedUnion = SharedUnionCodec.create(args.success);
                 this.success = value_18;
             }
         }
@@ -684,7 +727,7 @@ export namespace SharedService {
                 }
             });
         }
-        public getUnion(index: number, context?: Context): Promise<ISharedUnion> {
+        public getUnion(index: number, context?: Context): Promise<SharedUnion> {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("getUnion", thrift.MessageType.CALL, this.incrementRequestId());
@@ -725,7 +768,7 @@ export namespace SharedService {
     }
     export interface IHandler<Context = any> {
         getStruct(key: number, context?: Context): ISharedStruct | Promise<ISharedStruct>;
-        getUnion(index: number, context?: Context): ISharedUnion | Promise<ISharedUnion>;
+        getUnion(index: number, context?: Context): SharedUnion | Promise<SharedUnion>;
     }
     export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
         protected readonly _handler: IHandler<Context>;
@@ -795,7 +838,7 @@ export namespace SharedService {
             });
         }
         public process_getUnion(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
-            return new Promise<ISharedUnion>((resolve, reject): void => {
+            return new Promise<SharedUnion>((resolve, reject): void => {
                 try {
                     const args: IGetUnion__Args = GetUnion__ArgsCodec.decode(input);
                     input.readMessageEnd();
@@ -804,7 +847,7 @@ export namespace SharedService {
                 catch (err) {
                     reject(err);
                 }
-            }).then((data: ISharedUnion): Buffer => {
+            }).then((data: SharedUnion): Buffer => {
                 const result: IGetUnion__Result = { success: data };
                 output.writeMessageBegin("getUnion", thrift.MessageType.REPLY, requestId);
                 GetUnion__ResultCodec.encode(result, output);

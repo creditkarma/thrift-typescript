@@ -9,6 +9,7 @@ export const THRIFT_IDENTIFIERS = {
     IFieldAnnotations: ts.createIdentifier('thrift.IFieldAnnotations'),
     IMethodAnnotations: ts.createIdentifier('thrift.IMethodAnnotations'),
     IStructCodec: ts.createIdentifier('thrift.IStructCodec'),
+    IStructToolkit: ts.createIdentifier('thrift.IStructToolkit'),
     IThriftConnection: ts.createIdentifier('thrift.IThriftConnection'),
     ProtocolConstructor: ts.createIdentifier('thrift.IProtocolConstructor'),
     TransportConstructor: ts.createIdentifier('thrift.ITransportConstructor'),

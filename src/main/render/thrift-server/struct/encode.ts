@@ -38,7 +38,7 @@ import {
     IResolvedIdentifier,
 } from '../../../types'
 
-import { codecName, looseNameForStruct, throwForField } from './utils'
+import { looseNameForStruct, throwForField, toolkitName } from './utils'
 
 export function createTempVariables(
     node: InterfaceWithFields,
@@ -201,7 +201,7 @@ export function writeValueForIdentifier(
         case SyntaxType.ExceptionDefinition:
             return [
                 createMethodCall(
-                    ts.createIdentifier(codecName(id.resolvedName)),
+                    ts.createIdentifier(toolkitName(id.resolvedName)),
                     'encode',
                     [fieldName, COMMON_IDENTIFIERS.output],
                 ),

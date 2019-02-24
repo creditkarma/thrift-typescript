@@ -40,7 +40,7 @@ import { IRenderState, IResolvedIdentifier } from '../../../types'
 
 import { READ_METHODS } from './methods'
 
-import { codecName, strictNameForStruct } from './utils'
+import { strictNameForStruct, toolkitName } from './utils'
 
 export function createTempVariables(
     node: InterfaceWithFields,
@@ -304,7 +304,7 @@ export function readValueForIdentifier(
                     typeNodeForFieldType(fieldType, state),
                     ts.createCall(
                         ts.createPropertyAccess(
-                            ts.createIdentifier(codecName(id.resolvedName)),
+                            ts.createIdentifier(toolkitName(id.resolvedName)),
                             COMMON_IDENTIFIERS.decode,
                         ),
                         undefined,

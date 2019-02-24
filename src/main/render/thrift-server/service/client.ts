@@ -48,7 +48,7 @@ import {
 } from '../annotations'
 
 import { createClassConstructor } from '../../shared/utils'
-import { codecName, looseName, strictName } from '../struct/utils'
+import { looseName, strictName, toolkitName } from '../struct/utils'
 
 function extendsAbstract(): ts.HeritageClause {
     return ts.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
@@ -243,7 +243,7 @@ function createBaseMethodForDefinition(
                 ),
                 // args.write(output)
                 createMethodCallStatement(
-                    ts.createIdentifier(codecName(createStructArgsName(def))),
+                    ts.createIdentifier(toolkitName(createStructArgsName(def))),
                     'encode',
                     [COMMON_IDENTIFIERS.args, COMMON_IDENTIFIERS.output],
                 ),
@@ -515,7 +515,9 @@ function createNewResultInstance(
             ),
             ts.createCall(
                 ts.createPropertyAccess(
-                    ts.createIdentifier(codecName(createStructResultName(def))),
+                    ts.createIdentifier(
+                        toolkitName(createStructResultName(def)),
+                    ),
                     ts.createIdentifier('decode'),
                 ),
                 undefined,

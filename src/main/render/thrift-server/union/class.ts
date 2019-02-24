@@ -10,23 +10,17 @@ import { IRenderState } from '../../../types'
 
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
-import {
-    createClassConstructor,
-    createFunctionParameter,
-    createNotNullCheck,
-} from '../utils'
+import { createClassConstructor, createFunctionParameter } from '../utils'
 
 import {
     classNameForStruct,
     createSuperCall,
     extendsAbstract,
     implementsInterface,
-    throwForField,
     tokens,
 } from '../struct/utils'
 
 import {
-    assignmentForField as _assignmentForField,
     createArgsParameterForStruct,
     createStaticReadMethod,
     createStaticWriteMethod,
@@ -34,10 +28,12 @@ import {
     renderFieldDeclarations,
 } from '../struct/class'
 
+import { assignmentForField as _assignmentForField } from '../struct/reader'
+
 import {
+    createFieldAssignment,
     createFieldIncrementer,
     createFieldValidation,
-    incrementFieldsSet,
 } from './utils'
 
 import { renderAnnotations, renderFieldAnnotations } from '../annotations'
@@ -135,57 +131,4 @@ export function createFieldsForStruct(
     return node.fields.map((field: FieldDefinition) => {
         return renderFieldDeclarations(field, state)
     })
-}
-
-/**
- * This actually creates the assignment for some field in the args argument to the corresponding field
- * in our struct class
- *
- * interface IStructArgs {
- *   id: number;
- * }
- *
- * constructor(args: IStructArgs) {
- *   if (args.id !== null && args.id !== undefined) {
- *     this.id = args.id;
- *   }
- * }
- *
- * This function creates the 'this.id = args.id' bit.
- */
-export function assignmentForField(
-    field: FieldDefinition,
-    state: IRenderState,
-): Array<ts.Statement> {
-    return [incrementFieldsSet(), ..._assignmentForField(field, state)]
-}
-
-/**
- * Assign field if contained in args:
- *
- * if (args && args.<field.name> != null) {
- *   this.<field.name> = args.<field.name>
- * }
- *
- * If field is required throw an error:
- *
- * else {
- *   throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
- * }
- */
-export function createFieldAssignment(
-    field: FieldDefinition,
-    state: IRenderState,
-): ts.IfStatement {
-    const hasValue: ts.BinaryExpression = createNotNullCheck(
-        ts.createPropertyAccess(COMMON_IDENTIFIERS.args, `${field.name.value}`),
-    )
-    const thenAssign: Array<ts.Statement> = assignmentForField(field, state)
-    const elseThrow: ts.Statement | undefined = throwForField(field)
-
-    return ts.createIf(
-        hasValue,
-        ts.createBlock([...thenAssign], true),
-        elseThrow === undefined ? undefined : ts.createBlock([elseThrow], true),
-    )
 }

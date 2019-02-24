@@ -6,7 +6,7 @@ import { IRenderState } from '../../../types'
 
 import { renderInterface } from './interface'
 
-import { renderCodec } from './codec'
+import { renderToolkit } from './toolkit'
 
 import { renderClass } from './class'
 
@@ -16,7 +16,7 @@ export function renderStruct(
 ): Array<ts.Statement> {
     return [
         ...renderInterface(node, state, true),
-        renderCodec(node, state, true),
+        renderToolkit(node, state, true),
         renderClass(node, state, true),
     ]
 }

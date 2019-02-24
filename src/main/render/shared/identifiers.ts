@@ -23,6 +23,7 @@ export const COMMON_IDENTIFIERS = {
     this: ts.createIdentifier('this'),
     flush: ts.createIdentifier('flush'),
     process: ts.createIdentifier('process'),
+    create: ts.createIdentifier('create'),
     decode: ts.createIdentifier('decode'),
     encode: ts.createIdentifier('encode'),
     read: ts.createIdentifier('read'),

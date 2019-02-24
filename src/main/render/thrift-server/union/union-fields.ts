@@ -8,6 +8,46 @@ import { createVoidType } from '../../shared/types'
 import { className, tokens } from '../struct/utils'
 import { typeNodeForFieldType } from '../types'
 
+export function renderUnionTypes(
+    node: UnionDefinition,
+    isExported: boolean,
+): ts.Statement {
+    return ts.createEnumDeclaration(
+        undefined, // decorators
+        tokens(isExported), // modifiers
+        renderUnionTypeName(node.name.value, true), // enum name
+        node.fields.map((field: FieldDefinition) => {
+            return ts.createEnumMember(
+                fieldTypeName(node.name.value, field.name.value, true),
+                ts.createLiteral(field.name.value),
+            )
+        }),
+    )
+}
+
+export function fieldTypeAccess(
+    node: UnionDefinition,
+    field: FieldDefinition,
+): string {
+    return `${renderUnionTypeName(node.name.value, true)}.${fieldTypeName(
+        node.name.value,
+        field.name.value,
+        true,
+    )}`
+}
+
+export function unionTypeName(name: string, strict: boolean): string {
+    if (strict) {
+        return className(name)
+    } else {
+        return `${className(name)}Args`
+    }
+}
+
+export function renderUnionTypeName(name: string, strict: boolean): string {
+    return `${unionTypeName(name, strict)}Type`
+}
+
 function capitalize(str: string): string {
     if (str.length > 0) {
         const head: string = str[0]
@@ -18,24 +58,82 @@ function capitalize(str: string): string {
     }
 }
 
-function fieldInterfaceName(
-    node: UnionDefinition,
-    field: FieldDefinition,
+export function fieldTypeName(
+    nodeName: string,
+    fieldName: string,
     strict: boolean,
 ): string {
     if (strict) {
-        return `I${node.name.value}With${capitalize(field.name.value)}`
+        return `${nodeName}With${capitalize(fieldName)}`
     } else {
-        return `I${node.name.value}With${capitalize(field.name.value)}Args`
+        return `${nodeName}With${capitalize(fieldName)}Args`
     }
 }
 
-function unionTypeName(node: UnionDefinition, strict: boolean): string {
+export function fieldInterfaceName(
+    nodeName: string,
+    fieldName: string,
+    strict: boolean,
+): string {
     if (strict) {
-        return className(node.name.value)
+        return `I${fieldTypeName(nodeName, fieldName, strict)}`
     } else {
-        return `${className(node.name.value)}Args`
+        return `I${fieldTypeName(nodeName, fieldName, strict)}`
     }
+}
+
+function renderInterfaceForField(
+    node: UnionDefinition,
+    field: FieldDefinition,
+    state: IRenderState,
+    strict: boolean,
+    isExported: boolean,
+): ts.InterfaceDeclaration {
+    const signatures = node.fields.map((next: FieldDefinition) => {
+        if (field.name.value === next.name.value) {
+            return ts.createPropertySignature(
+                undefined,
+                field.name.value,
+                undefined,
+                typeNodeForFieldType(next.fieldType, state, !strict),
+                undefined,
+            )
+        } else {
+            return ts.createPropertySignature(
+                undefined,
+                next.name.value,
+                ts.createToken(ts.SyntaxKind.QuestionToken),
+                createVoidType(),
+                undefined,
+            )
+        }
+    })
+
+    if (strict) {
+        signatures.unshift(
+            ts.createPropertySignature(
+                undefined,
+                COMMON_IDENTIFIERS.__type,
+                undefined,
+                ts.createTypeReferenceNode(
+                    ts.createIdentifier(fieldTypeAccess(node, field)),
+                    undefined,
+                ),
+                undefined,
+            ),
+        )
+    }
+
+    return ts.createInterfaceDeclaration(
+        undefined,
+        tokens(isExported),
+        ts.createIdentifier(
+            fieldInterfaceName(node.name.value, field.name.value, strict),
+        ),
+        [],
+        [],
+        signatures,
+    )
 }
 
 export function renderUnionsForFields(
@@ -48,12 +146,16 @@ export function renderUnionsForFields(
         ts.createTypeAliasDeclaration(
             undefined,
             tokens(isExported),
-            unionTypeName(node, strict),
+            unionTypeName(node.name.value, strict),
             undefined,
             ts.createUnionTypeNode([
                 ...node.fields.map((next: FieldDefinition) => {
                     return ts.createTypeReferenceNode(
-                        fieldInterfaceName(node, next, strict),
+                        fieldInterfaceName(
+                            node.name.value,
+                            next.name.value,
+                            strict,
+                        ),
                         undefined,
                     )
                 }),
@@ -61,52 +163,7 @@ export function renderUnionsForFields(
         ),
         ...node.fields.map(
             (next: FieldDefinition): ts.InterfaceDeclaration => {
-                const signatures = node.fields.map((field: FieldDefinition) => {
-                    if (field.name.value === next.name.value) {
-                        return ts.createPropertySignature(
-                            undefined,
-                            field.name.value,
-                            undefined,
-                            typeNodeForFieldType(
-                                field.fieldType,
-                                state,
-                                !strict,
-                            ),
-                            undefined,
-                        )
-                    } else {
-                        return ts.createPropertySignature(
-                            undefined,
-                            field.name.value,
-                            ts.createToken(ts.SyntaxKind.QuestionToken),
-                            createVoidType(),
-                            undefined,
-                        )
-                    }
-                })
-
-                if (strict) {
-                    signatures.unshift(
-                        ts.createPropertySignature(
-                            undefined,
-                            COMMON_IDENTIFIERS.__type,
-                            undefined,
-                            ts.createLiteralTypeNode(
-                                ts.createLiteral(next.name.value),
-                            ),
-                            undefined,
-                        ),
-                    )
-                }
-
-                return ts.createInterfaceDeclaration(
-                    undefined,
-                    tokens(isExported),
-                    ts.createIdentifier(fieldInterfaceName(node, next, strict)),
-                    [],
-                    [],
-                    signatures,
-                )
+                return renderInterfaceForField(node, next, state, strict, true)
             },
         ),
     ]

@@ -9,9 +9,13 @@ export import ICommonStruct = shared.ISharedStruct;
 export import ICommonStructArgs = shared.ISharedStructArgs;
 export import CommonStruct = shared.SharedStruct;
 export import CommonStructCodec = shared.SharedStructCodec;
-export import ICommonUnion = shared.ISharedUnion;
-export import ICommonUnionArgs = shared.ISharedUnionArgs;
+export import CommonUnionType = shared.SharedUnionType;
 export import CommonUnion = shared.SharedUnion;
+export import ICommonUnionWithOption1 = shared.ISharedUnionWithOption1;
+export import ICommonUnionWithOption2 = shared.ISharedUnionWithOption2;
+export import CommonUnionArgs = shared.SharedUnionArgs;
+export import ICommonUnionWithOption1Args = shared.ISharedUnionWithOption1Args;
+export import ICommonUnionWithOption2Args = shared.ISharedUnionWithOption2Args;
 export import CommonUnionCodec = shared.SharedUnionCodec;
 export import COMMON_INT = shared.SHARED_INT;
 export interface IAuthException {

@@ -6,11 +6,11 @@ import { IRenderState } from '../../../types'
 
 import { renderInterface } from '../struct/interface'
 
-import { renderCodec } from './codec'
+import { renderToolkit } from './toolkit'
 
 import { renderClass } from './class'
 
-import { renderUnionsForFields } from './union-fields'
+import { renderUnionsForFields, renderUnionTypes } from './union-fields'
 
 export function renderUnion(
     node: UnionDefinition,
@@ -19,7 +19,7 @@ export function renderUnion(
 ): Array<ts.Statement> {
     return [
         ...renderInterface(node, state, isExported),
-        renderCodec(node, state, isExported),
+        renderToolkit(node, state, isExported),
         renderClass(node, state, isExported),
     ]
 }
@@ -30,8 +30,9 @@ export function renderStrictUnion(
     isExported: boolean = true,
 ): Array<ts.Statement> {
     return [
+        renderUnionTypes(node, isExported),
         ...renderUnionsForFields(node, state, isExported, true),
         ...renderUnionsForFields(node, state, isExported, false),
-        renderCodec(node, state, isExported),
+        renderToolkit(node, state, isExported),
     ]
 }

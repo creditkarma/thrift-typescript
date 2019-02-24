@@ -78,8 +78,8 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                 break
 
             case '--strictUnions':
-                options.strictUnions = args[index + 1] === 'true'
-                index += 2
+                options.strictUnions = true
+                index += 1
                 break
 
             default:
