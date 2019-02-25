@@ -279,7 +279,7 @@ union MyUnion {
 }
 ```
 
-Generated TypeScript (with 'strictUnions' set to 'false'):
+Generated TypeScript (without strict unions):
 
 ```typescript
 export interface IMyUnion = {
@@ -451,7 +451,7 @@ The codec will always follow this naming convention, just appending `Codec` onto
 
 ### Strict Unions
 
-This is an option only available when generating for `thrift-server`. This option will generate Thrift unions as TypeScript unions. This changes the codegen if a few significant ways.
+This is an option only available when generating for `thrift-server`. This option will generate Thrift unions as TypeScript unions. This changes the codegen in a few significant ways.
 
 Back with our example union definition:
 
@@ -491,7 +491,9 @@ interface IMyUnionWithOption2Args {
 }
 ```
 
-This output is more complex, but it allows us to do a number of things. It allows us to take advantage of discriminated unions in our application code:
+The `enum` represents all potential values of the `__type` property attached to each variation of our union. Instead of generating one `interface` with optional properties we generate one interface for each field where that field is required our resulting `type` is then the union of multiple interfaces each with only one property. This provides compile-time guarantees that we are setting one and only one field for the union.
+
+This output is more complex, but it allows us to do a number of things. The most significant of which may be that it allows us to take advantage of discriminated unions in our application code:
 
 ```typescript
 function processUnion(union: MyUnion) {
@@ -507,9 +509,7 @@ function processUnion(union: MyUnion) {
 }
 ```
 
-It also provides compile-time checks that we are definition one and only one value for a union. Instead of a struct with optional fields we are defining a union of interfaces that each have one required field and any other fields must be of type `void`.
-
-This allows you to do things like check `union.option2 !== undefined` without a compiler error, but will give a compiler error if you try to use a value that shouldn't exist of a given union.
+The fact that each interface we generate defines one required field and some n number of optional `void` fields we can do things like check `union.option2 !== undefined` without a compiler error, but we will get a compiler error if you try to use a value that shouldn't exist on a given union.
 
 Using this form will require that you prove to the compiler that one (and only one) field is set for your unions.
 
