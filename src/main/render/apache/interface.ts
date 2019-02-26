@@ -7,6 +7,7 @@ import {
 
 import { typeNodeForFieldType } from './types'
 
+import ResolverFile from '../../resolver/file'
 import { renderOptional } from './utils'
 
 /**
@@ -36,13 +37,14 @@ export function interfaceNameForClass(statement: InterfaceWithFields): string {
  */
 export function renderInterface(
     statement: InterfaceWithFields,
+    file: ResolverFile,
 ): ts.InterfaceDeclaration {
     const signatures = statement.fields.map((field: FieldDefinition) => {
         return ts.createPropertySignature(
             undefined,
             field.name.value,
             renderOptional(field.requiredness),
-            typeNodeForFieldType(field.fieldType, true),
+            typeNodeForFieldType(field.fieldType, file, true),
             undefined,
         )
     })

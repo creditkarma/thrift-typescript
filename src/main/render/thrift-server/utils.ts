@@ -18,6 +18,7 @@ import { renderValue } from './values'
 
 import { createNotNullCheck } from './utils'
 
+import ResolverFile from '../../resolver/file'
 import {
     APPLICATION_EXCEPTION,
     COMMON_IDENTIFIERS,
@@ -72,6 +73,7 @@ export function coerceType(
 export function getInitializerForField(
     objName: string,
     field: FieldDefinition,
+    file: ResolverFile,
     loose: boolean = false,
 ): ts.Expression {
     const valueName: ts.Identifier = ts.createIdentifier(
@@ -85,7 +87,7 @@ export function getInitializerForField(
                 loose === true
                     ? coerceType(valueName, field.fieldType)
                     : valueName,
-                renderValue(field.fieldType, field.defaultValue),
+                renderValue(field.fieldType, field.defaultValue, file),
             ),
         )
     } else {

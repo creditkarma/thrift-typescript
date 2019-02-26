@@ -25,8 +25,6 @@ import {
     createPublicMethod,
 } from '../utils'
 
-import { IIdentifierMap } from '../../../types'
-
 import {
     constructorNameForFieldType,
     createNumberType,
@@ -35,6 +33,7 @@ import {
     typeNodeForFieldType,
 } from '../types'
 
+import ResolverFile from '../../../resolver/file'
 import {
     COMMON_IDENTIFIERS,
     MESSAGE_TYPE,
@@ -45,6 +44,7 @@ import {
 function funcToMethodReducer(
     acc: Array<ts.MethodSignature>,
     func: FunctionDefinition,
+    file: ResolverFile,
 ): Array<ts.MethodSignature> {
     return acc.concat([
         ts.createMethodSignature(
@@ -53,16 +53,16 @@ function funcToMethodReducer(
                 ...func.fields.map((field: FieldDefinition) => {
                     return createFunctionParameter(
                         field.name.value,
-                        typeNodeForFieldType(field.fieldType),
+                        typeNodeForFieldType(field.fieldType, file),
                         undefined,
                         field.requiredness === 'optional',
                     )
                 }),
             ],
             ts.createUnionTypeNode([
-                typeNodeForFieldType(func.returnType),
+                typeNodeForFieldType(func.returnType, file),
                 ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Promise, [
-                    typeNodeForFieldType(func.returnType),
+                    typeNodeForFieldType(func.returnType, file),
                 ]),
             ]),
             func.name.value,
@@ -84,10 +84,11 @@ function funcToMethodReducer(
  */
 export function renderHandlerInterface(
     service: ServiceDefinition,
+    file: ResolverFile,
 ): Array<ts.Statement> {
     const signatures: Array<ts.MethodSignature> = service.functions.reduce(
-        funcToMethodReducer,
-        [],
+        (acc, method) => funcToMethodReducer(acc, method, file),
+        [] as Array<ts.MethodSignature>,
     )
 
     if (service.extends !== null) {
@@ -165,7 +166,7 @@ function handlerType(node: ServiceDefinition): ts.TypeNode {
 
 function createSuperCall(
     node: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<ts.Statement> {
     if (node.extends !== null) {
         return [
@@ -175,7 +176,8 @@ function createSuperCall(
                     [],
                     [
                         objectLiteralForServiceFunctions(
-                            identifiers[node.extends.value].definition,
+                            file.resolveIdentifier(node.extends.value)
+                                .definition,
                         ),
                     ],
                 ),
@@ -188,7 +190,7 @@ function createSuperCall(
 
 export function renderProcessor(
     node: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.ClassDeclaration {
     // private _handler
     const handler: ts.PropertyDeclaration = ts.createProperty(
@@ -208,7 +210,7 @@ export function renderProcessor(
             ),
         ],
         [
-            ...createSuperCall(node, identifiers),
+            ...createSuperCall(node, file),
             createAssignmentStatement(
                 ts.createIdentifier('this._handler'),
                 COMMON_IDENTIFIERS.handler,
@@ -216,13 +218,10 @@ export function renderProcessor(
         ],
     )
 
-    const processMethod: ts.MethodDeclaration = createProcessMethod(
-        node,
-        identifiers,
-    )
+    const processMethod: ts.MethodDeclaration = createProcessMethod(node, file)
     const processFunctions: Array<ts.MethodDeclaration> = node.functions.map(
         (next: FunctionDefinition) => {
-            return createProcessFunctionMethod(node, next)
+            return createProcessFunctionMethod(node, next, file)
         },
     )
 
@@ -292,6 +291,7 @@ export function renderProcessor(
 function createProcessFunctionMethod(
     service: ServiceDefinition,
     funcDef: FunctionDefinition,
+    file: ResolverFile,
 ): ts.MethodDeclaration {
     return createPublicMethod(
         ts.createIdentifier(`process_${funcDef.name.value}`),
@@ -307,7 +307,7 @@ function createProcessFunctionMethod(
                 createMethodCall(
                     createMethodCall(
                         createPromise(
-                            typeNodeForFieldType(funcDef.returnType),
+                            typeNodeForFieldType(funcDef.returnType, file),
                             createVoidType(),
                             [
                                 // try {
@@ -382,6 +382,7 @@ function createProcessFunctionMethod(
                                         COMMON_IDENTIFIERS.data,
                                         typeNodeForFieldType(
                                             funcDef.returnType,
+                                            file,
                                         ),
                                     ),
                                 ],
@@ -719,7 +720,7 @@ function createExceptionHandlers(
 // }
 function createProcessMethod(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.MethodDeclaration {
     return createPublicMethod(
         COMMON_IDENTIFIERS.process,
@@ -760,7 +761,7 @@ function createProcessMethod(
                     COMMON_IDENTIFIERS.fname,
                 ),
             ),
-            createMethodCallForFname(service, identifiers),
+            createMethodCallForFname(service, file),
         ], // body
     )
 }
@@ -804,11 +805,11 @@ function functionsForService(node: ThriftStatement): Array<FunctionDefinition> {
 
 function collectAllMethods(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<FunctionDefinition> {
     if (service.extends !== null) {
         const inheritedMethods: Array<FunctionDefinition> = functionsForService(
-            identifiers[service.extends.value].definition,
+            file.resolveIdentifier(service.extends.value).definition,
         )
         return [...inheritedMethods, ...service.functions]
     } else {
@@ -842,12 +843,12 @@ function collectAllMethods(
  */
 function createMethodCallForFname(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.SwitchStatement {
     return ts.createSwitch(
         ts.createIdentifier('methodName'),
         ts.createCaseBlock([
-            ...collectAllMethods(service, identifiers).map(
+            ...collectAllMethods(service, file).map(
                 createMethodCallForFunction,
             ),
             ts.createDefaultClause([

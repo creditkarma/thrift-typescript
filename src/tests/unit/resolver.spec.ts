@@ -6,7 +6,9 @@ import { resolveFile } from '../../main/resolver'
 import { parseThriftString } from '../../main/utils'
 
 import { DEFAULT_OPTIONS } from '../../main/options'
-import { IParsedFile, IResolvedFile } from '../../main/types'
+import ResolverFile from '../../main/resolver/file'
+import ResolverSchema from '../../main/resolver/schema'
+import { IParsedFile } from '../../main/types'
 
 function loadSolution(name: string): any {
     return JSON.parse(
@@ -19,6 +21,29 @@ function loadSolution(name: string): any {
 
 function objectify(thrift: any): any {
     return JSON.parse(JSON.stringify(thrift))
+}
+
+function serializeSchema(schema: ResolverSchema) {
+    return {
+        files: [...schema.files.entries()].map(([fileName, file]) => ({
+            fileName,
+            body: file.body,
+            identifiers: [...file.identifiers.keys()].map((identifier) =>
+                file.resolveIdentifier(identifier),
+            ),
+            includes: [...file.includes.values()].map(
+                (include) => include.fileName,
+            ),
+        })),
+        namespaces: [...schema.namespaces.entries()].map(
+            ([name, namespace]) => ({
+                name,
+                files: [...namespace.files.values()].map(
+                    (file) => file.fileName,
+                ),
+            }),
+        ),
+    }
 }
 
 describe('Thrift TypeScript Resolver', () => {
@@ -50,17 +75,16 @@ describe('Thrift TypeScript Resolver', () => {
             ],
             ast: parseThriftString(content),
         }
-        const actual: IResolvedFile = resolveFile(
+        const resolvedFile: ResolverFile = resolveFile(
             '',
             mockParsedFile,
-            DEFAULT_OPTIONS,
+            new ResolverSchema(DEFAULT_OPTIONS),
         )
-        const expected: IResolvedFile = loadSolution('imported-id-types')
 
-        assert.deepEqual(
-            objectify(actual.identifiers),
-            objectify(expected.identifiers),
-        )
+        const actual = serializeSchema(resolvedFile.schema)
+        const expected = loadSolution('imported-id-types')
+
+        assert.deepEqual(objectify(actual), objectify(expected))
     })
 
     it('should find and resolve imported identifiers as values', () => {
@@ -92,16 +116,15 @@ describe('Thrift TypeScript Resolver', () => {
             ],
             ast: parseThriftString(content),
         }
-        const actual: IResolvedFile = resolveFile(
+        const resolvedFile: ResolverFile = resolveFile(
             '',
             mockParsedFile,
-            DEFAULT_OPTIONS,
+            new ResolverSchema(DEFAULT_OPTIONS),
         )
-        const expected: IResolvedFile = loadSolution('imported-id-values')
 
-        assert.deepEqual(
-            objectify(actual.identifiers),
-            objectify(expected.identifiers),
-        )
+        const actual = serializeSchema(resolvedFile.schema)
+        const expected = loadSolution('imported-id-values')
+
+        assert.deepEqual(objectify(actual), objectify(expected))
     })
 })

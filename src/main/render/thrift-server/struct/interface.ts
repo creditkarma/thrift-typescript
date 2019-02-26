@@ -7,8 +7,7 @@ import {
 
 import { typeNodeForFieldType } from '../types'
 
-import { IIdentifierMap } from '../../../types'
-
+import ResolverFile from '../../../resolver/file'
 import { looseNameForStruct, strictNameForStruct, tokens } from './utils'
 
 export function renderOptional(
@@ -27,7 +26,7 @@ export function renderOptional(
 
 function strictInterface(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
     isExported: boolean,
 ): ts.InterfaceDeclaration {
     const signatures = node.fields.map((field: FieldDefinition) => {
@@ -35,7 +34,7 @@ function strictInterface(
             undefined,
             field.name.value,
             renderOptional(field),
-            typeNodeForFieldType(field.fieldType, identifiers),
+            typeNodeForFieldType(field.fieldType, file),
             undefined,
         )
     })
@@ -52,7 +51,7 @@ function strictInterface(
 
 function looseInterface(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
     isExported: boolean,
 ): ts.InterfaceDeclaration {
     const signatures = node.fields.map((field: FieldDefinition) => {
@@ -60,7 +59,7 @@ function looseInterface(
             undefined,
             field.name.value,
             renderOptional(field, true),
-            typeNodeForFieldType(field.fieldType, identifiers, true),
+            typeNodeForFieldType(field.fieldType, file, true),
             undefined,
         )
     })
@@ -99,11 +98,11 @@ function looseInterface(
  */
 export function renderInterface(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
     isExported: boolean,
 ): Array<ts.InterfaceDeclaration> {
     return [
-        strictInterface(node, identifiers, isExported),
-        looseInterface(node, identifiers, isExported),
+        strictInterface(node, file, isExported),
+        looseInterface(node, file, isExported),
     ]
 }

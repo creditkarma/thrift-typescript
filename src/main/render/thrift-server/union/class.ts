@@ -6,8 +6,6 @@ import {
     UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap } from '../../../types'
-
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
 import {
@@ -40,16 +38,17 @@ import {
     incrementFieldsSet,
 } from './utils'
 
+import ResolverFile from '../../../resolver/file'
 import { renderAnnotations, renderFieldAnnotations } from '../annotations'
 
 export function renderClass(
     node: UnionDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
     isExported: boolean,
 ): ts.ClassDeclaration {
     const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(
         node,
-        identifiers,
+        file,
     )
 
     const annotations: ts.PropertyDeclaration = renderAnnotations(
@@ -75,13 +74,13 @@ export function renderClass(
      */
     const fieldAssignments: Array<ts.IfStatement> = node.fields.map(
         (next: FieldDefinition) => {
-            return createFieldAssignment(next, identifiers)
+            return createFieldAssignment(next, file)
         },
     )
 
     const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(
         node,
-        identifiers,
+        file,
     )
 
     // Build the constructor body
@@ -130,10 +129,10 @@ export function createInputParameter(): ts.ParameterDeclaration {
 
 export function createFieldsForStruct(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<ts.PropertyDeclaration> {
     return node.fields.map((field: FieldDefinition) => {
-        return renderFieldDeclarations(field, identifiers)
+        return renderFieldDeclarations(field, file)
     })
 }
 
@@ -155,9 +154,9 @@ export function createFieldsForStruct(
  */
 export function assignmentForField(
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<ts.Statement> {
-    return [incrementFieldsSet(), ..._assignmentForField(field, identifiers)]
+    return [incrementFieldsSet(), ..._assignmentForField(field, file)]
 }
 
 /**
@@ -175,15 +174,12 @@ export function assignmentForField(
  */
 export function createFieldAssignment(
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.IfStatement {
     const hasValue: ts.BinaryExpression = createNotNullCheck(
         ts.createPropertyAccess(COMMON_IDENTIFIERS.args, `${field.name.value}`),
     )
-    const thenAssign: Array<ts.Statement> = assignmentForField(
-        field,
-        identifiers,
-    )
+    const thenAssign: Array<ts.Statement> = assignmentForField(field, file)
     const elseThrow: ts.Statement | undefined = throwForField(field)
 
     return ts.createIf(

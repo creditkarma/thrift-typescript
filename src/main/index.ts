@@ -6,13 +6,11 @@ import {
     CompileTarget,
     IIncludeCache,
     IMakeOptions,
-    INamespaceFile,
     IParsedFile,
     IRenderedCache,
     IRenderedFile,
-    IResolvedCache,
-    IResolvedFile,
     IThriftFile,
+    IValidatedFile,
 } from './types'
 
 import { print } from './printer'
@@ -21,7 +19,7 @@ import { resolveFile } from './resolver'
 
 import { validateFile } from './validator'
 
-import { generateFile, processStatements } from './generator'
+import { generateFiles, processStatements } from './generator'
 
 import { rendererForTarget } from './render'
 
@@ -32,16 +30,16 @@ import { mergeWithDefaults } from './defaults'
 import {
     collectInvalidFiles,
     collectSourceFiles,
-    dedupResolvedFiles,
-    flattenResolvedFile,
-    organizeByNamespace,
     parseFile,
     parseSource,
     readThriftFile,
     saveFiles,
 } from './utils'
 
+import NamespaceGenerator from './generator/namespace'
 import { DEFAULT_OPTIONS } from './options'
+import ResolverNamespace from './resolver/namespace'
+import ResolverSchema from './resolver/schema'
 
 /**
  * This function is mostly for testing purposes. It does not support includes.
@@ -56,19 +54,22 @@ export function make(
     target: CompileTarget = 'thrift-server',
 ): string {
     const parsedFile: IParsedFile = parseSource(source)
-    const resolvedAST: IResolvedFile = resolveFile(
-        '',
-        parsedFile,
+    const schema = new ResolverSchema(DEFAULT_OPTIONS)
+
+    const resolvedFile = resolveFile('', parsedFile, schema)
+
+    validateFile(resolvedFile)
+
+    const generator = new NamespaceGenerator(
+        rendererForTarget(target),
+        resolvedFile.namespace,
+        '/example',
         DEFAULT_OPTIONS,
     )
-    const validAST: IResolvedFile = validateFile(resolvedAST)
-    return print(
-        processStatements(
-            validAST.body,
-            validAST.identifiers,
-            rendererForTarget(target),
-        ),
-    )
+
+    processStatements(resolvedFile.namespace, generator)
+
+    return print(generator.renderStatements())
 }
 
 /**
@@ -88,55 +89,39 @@ export function generate(options: Partial<IMakeOptions>): void {
     const outDir: string = path.resolve(rootDir, mergedOptions.outDir)
     const sourceDir: string = path.resolve(rootDir, mergedOptions.sourceDir)
     const includeCache: IIncludeCache = {}
-    const resolvedCache: IResolvedCache = {}
+    const schema: ResolverSchema = new ResolverSchema(mergedOptions)
     const renderedCache: IRenderedCache = {}
 
-    const validatedFiles: Array<IResolvedFile> = collectSourceFiles(
-        sourceDir,
-        mergedOptions,
-    ).reduce((acc: Array<IResolvedFile>, next: string): Array<
-        IResolvedFile
-    > => {
+    collectSourceFiles(sourceDir, mergedOptions).forEach((next: string) => {
         const thriftFile: IThriftFile = readThriftFile(next, [sourceDir])
         const parsedFile: IParsedFile = parseFile(
             sourceDir,
             thriftFile,
             includeCache,
         )
-        const resolvedFile: IResolvedFile = resolveFile(
-            outDir,
-            parsedFile,
-            mergedOptions,
-            resolvedCache,
-        )
-        return acc.concat(flattenResolvedFile(resolvedFile).map(validateFile))
-    }, [])
+        resolveFile(outDir, parsedFile, schema)
+    })
 
-    const dedupedFiles: Array<IResolvedFile> = dedupResolvedFiles(
-        validatedFiles,
-    )
-
-    const invalidFiles: Array<IResolvedFile> = collectInvalidFiles(dedupedFiles)
+    const invalidFiles: Array<IValidatedFile> = collectInvalidFiles(schema)
 
     if (invalidFiles.length > 0) {
         printErrors(invalidFiles)
         process.exitCode = 1
     } else {
-        const namespaces: Array<INamespaceFile> = organizeByNamespace(
-            dedupedFiles,
-        )
-        const renderedFiles: Array<IRenderedFile> = namespaces.map(
-            (next: INamespaceFile): IRenderedFile => {
-                return generateFile(
+        const renderedFiles: Array<IRenderedFile> = []
+
+        schema.namespaces.forEach((next: ResolverNamespace) => {
+            renderedFiles.push(
+                ...generateFiles(
                     rendererForTarget(mergedOptions.target),
                     outDir,
                     next,
                     renderedCache,
                     mergedOptions,
-                )
-            },
-        )
+                ),
+            )
+        })
 
-        saveFiles(rootDir, outDir, renderedFiles)
+        saveFiles(renderedFiles)
     }
 }

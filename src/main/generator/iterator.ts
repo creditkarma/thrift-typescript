@@ -1,8 +1,7 @@
-import * as ts from 'typescript'
-
 import { SyntaxType, ThriftStatement } from '@creditkarma/thrift-parser'
-
-import { IIdentifierMap, IRenderer } from '../types'
+import ResolverFile from '../resolver/file'
+import ResolverNamespace from '../resolver/namespace'
+import NamespaceGenerator from './namespace'
 
 /**
  * Given a Thrift declaration return the corresponding TypeScript statement
@@ -11,35 +10,34 @@ import { IIdentifierMap, IRenderer } from '../types'
  */
 export function renderStatement(
     statement: ThriftStatement,
-    identifiers: IIdentifierMap,
-    renderer: IRenderer,
-): Array<ts.Statement> {
+    generator: NamespaceGenerator,
+    file: ResolverFile,
+): void {
     switch (statement.type) {
         case SyntaxType.ConstDefinition:
-            return renderer.renderConst(statement, identifiers)
+            return generator.renderConst(statement, file)
 
         case SyntaxType.EnumDefinition:
-            return renderer.renderEnum(statement, identifiers)
+            return generator.renderEnum(statement, file)
 
         case SyntaxType.TypedefDefinition:
-            return renderer.renderTypeDef(statement, identifiers)
+            return generator.renderTypeDef(statement, file)
 
         case SyntaxType.StructDefinition:
-            return renderer.renderStruct(statement, identifiers)
+            return generator.renderStruct(statement, file)
 
         case SyntaxType.UnionDefinition:
-            return renderer.renderUnion(statement, identifiers)
+            return generator.renderUnion(statement, file)
 
         case SyntaxType.ExceptionDefinition:
-            return renderer.renderException(statement, identifiers)
+            return generator.renderException(statement, file)
 
         case SyntaxType.ServiceDefinition:
-            return renderer.renderService(statement, identifiers)
-
+            return generator.renderService(statement, file)
         case SyntaxType.NamespaceDefinition:
         case SyntaxType.CppIncludeDefinition:
         case SyntaxType.IncludeDefinition:
-            return []
+            return
 
         default:
             const msg: never = statement
@@ -54,14 +52,12 @@ export function renderStatement(
  * @param ast
  */
 export function processStatements(
-    statements: Array<ThriftStatement>,
-    identifiers: IIdentifierMap,
-    renderer: IRenderer,
-): Array<ts.Statement> {
-    return statements.reduce(
-        (acc: Array<ts.Statement>, next: ThriftStatement) => {
-            return [...acc, ...renderStatement(next, identifiers, renderer)]
-        },
-        [],
-    )
+    namespace: ResolverNamespace,
+    generator: NamespaceGenerator,
+) {
+    namespace.files.forEach((file) => {
+        file.body.forEach((next: ThriftStatement) => {
+            renderStatement(next, generator, file)
+        })
+    })
 }

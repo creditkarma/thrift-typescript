@@ -22,8 +22,6 @@ import {
     renderServiceNameStaticProperty,
 } from './utils'
 
-import { IIdentifierMap } from '../../../types'
-
 import {
     COMMON_IDENTIFIERS,
     MESSAGE_TYPE,
@@ -60,6 +58,7 @@ import {
     renderServiceAnnotationsStaticProperty,
 } from '../annotations'
 
+import ResolverFile from '../../../resolver/file'
 import { codecName, strictName } from '../struct/utils'
 
 function objectLiteralForServiceFunctions(
@@ -125,7 +124,7 @@ export function extendsAbstract(): ts.HeritageClause {
 
 export function renderProcessor(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.ClassDeclaration {
     const handler: ts.PropertyDeclaration = ts.createProperty(
         undefined,
@@ -153,11 +152,11 @@ export function renderProcessor(
 
     const processMethod: ts.MethodDeclaration = createProcessMethod(
         service,
-        identifiers,
+        file,
     )
     const processFunctions: Array<ts.MethodDeclaration> = service.functions.map(
         (next: FunctionDefinition) => {
-            return createProcessFunctionMethod(service, next, identifiers)
+            return createProcessFunctionMethod(service, next, file)
         },
     )
 
@@ -189,7 +188,7 @@ export function renderProcessor(
             annotations,
             methodAnnotations,
             methodNames,
-            createCtor(service, identifiers),
+            createCtor(service, file),
             processMethod,
             ...processFunctions,
         ], // body
@@ -198,13 +197,13 @@ export function renderProcessor(
 
 function createCtor(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.ConstructorDeclaration {
     if (service.extends !== null) {
         return createClassConstructor(
             [createFunctionParameter('handler', createHandlerType(service))],
             [
-                createSuperCall(service.extends, identifiers),
+                createSuperCall(service.extends, file),
                 createAssignmentStatement(
                     ts.createIdentifier('this._handler'),
                     ts.createIdentifier('handler'),
@@ -227,7 +226,7 @@ function createCtor(
 
 function createSuperCall(
     service: Identifier,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.Statement {
     return ts.createStatement(
         ts.createCall(
@@ -235,7 +234,7 @@ function createSuperCall(
             [],
             [
                 objectLiteralForServiceFunctions(
-                    identifiers[service.value].definition,
+                    file.resolveIdentifier(service.value).definition,
                 ),
             ],
         ),
@@ -245,7 +244,7 @@ function createSuperCall(
 function createProcessFunctionMethod(
     service: ServiceDefinition,
     funcDef: FunctionDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.MethodDeclaration {
     return createPublicMethod(
         ts.createIdentifier(`process_${funcDef.name.value}`),
@@ -265,10 +264,7 @@ function createProcessFunctionMethod(
                 createMethodCall(
                     createMethodCall(
                         createPromise(
-                            typeNodeForFieldType(
-                                funcDef.returnType,
-                                identifiers,
-                            ),
+                            typeNodeForFieldType(funcDef.returnType, file),
                             createVoidType(),
                             [
                                 // try {
@@ -346,7 +342,7 @@ function createProcessFunctionMethod(
                                         ts.createIdentifier('data'),
                                         typeNodeForFieldType(
                                             funcDef.returnType,
-                                            identifiers,
+                                            file,
                                         ),
                                     ),
                                 ],
@@ -702,7 +698,7 @@ function createExceptionHandlers(
 // }
 function createProcessMethod(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.MethodDeclaration {
     return createPublicMethod(
         COMMON_IDENTIFIERS.process,
@@ -755,7 +751,7 @@ function createProcessMethod(
                                 COMMON_IDENTIFIERS.fieldName,
                             ),
                         ),
-                        createMethodCallForFname(service, identifiers),
+                        createMethodCallForFname(service, file),
                     ],
                 ),
             ),
@@ -815,12 +811,12 @@ function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
  */
 function createMethodCallForFname(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.SwitchStatement {
     return ts.createSwitch(
         ts.createIdentifier('methodName'),
         ts.createCaseBlock([
-            ...collectAllMethods(service, identifiers).map(
+            ...collectAllMethods(service, file).map(
                 createMethodCallForFunction,
             ),
             ts.createDefaultClause([

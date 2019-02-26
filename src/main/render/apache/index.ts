@@ -4,6 +4,7 @@ import {
     ConstDefinition,
     EnumDefinition,
     ExceptionDefinition,
+    FunctionType,
     ServiceDefinition,
     StructDefinition,
     TypedefDefinition,
@@ -23,6 +24,8 @@ import {
 } from './service'
 
 import { fileUsesInt64, fileUsesThrift } from '../shared/includes'
+import renderAsNamespace from '../shared/namespace'
+import renderReExport from '../shared/reexport'
 import { renderTypeDef as _renderTypeDef } from '../shared/typedef'
 import { renderConst as _renderConst } from './const'
 import { renderEnum as _renderEnum } from './enum'
@@ -34,29 +37,26 @@ import {
 import { renderStruct as _renderStruct } from './struct'
 import { renderUnion as _renderUnion } from './union'
 
-import {
-    IIdentifierMap,
-    IMakeOptions,
-    INamespaceFile,
-    IRenderer,
-} from '../../types'
+import ResolverFile from '../../resolver/file'
+import ResolverNamespace from '../../resolver/namespace'
+import { IMakeOptions, IRenderer } from '../../types'
 import { typeNodeForFieldType } from './types'
 
 export function renderIncludes(
-    outPath: string,
-    currentPath: string,
-    resolvedFile: INamespaceFile,
+    namespace: ResolverNamespace,
+    files: Array<ResolverFile>,
     options: IMakeOptions,
+    namespaceInclude?: string,
 ): Array<ts.Statement> {
     const includes: Array<ts.Statement> = [
-        ..._renderIncludes(outPath, currentPath, resolvedFile.includes),
+        ..._renderIncludes(namespace, files, namespaceInclude),
     ]
 
-    if (fileUsesThrift(resolvedFile)) {
+    if (fileUsesThrift(namespace)) {
         includes.unshift(renderThriftImports(options.library))
     }
 
-    if (fileUsesInt64(resolvedFile)) {
+    if (fileUsesInt64(namespace)) {
         includes.unshift(renderInt64Import())
     }
 
@@ -65,67 +65,70 @@ export function renderIncludes(
 
 export function renderConst(
     statement: ConstDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<ts.Statement> {
-    return [_renderConst(statement, typeNodeForFieldType)]
+    return [
+        _renderConst(
+            statement,
+            (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
+                return typeNodeForFieldType(fieldType, file, loose)
+            },
+            file,
+        ),
+    ]
 }
 
 export function renderTypeDef(
     statement: TypedefDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<ts.Statement> {
-    return _renderTypeDef(statement, typeNodeForFieldType, identifiers)
+    return _renderTypeDef(
+        statement,
+        (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
+            return typeNodeForFieldType(fieldType, file, loose)
+        },
+        file,
+    )
 }
 
 export function renderEnum(
     statement: EnumDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<ts.Statement> {
     return [_renderEnum(statement)]
 }
 
 export function renderStruct(
     statement: StructDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<ts.Statement> {
-    return [renderInterface(statement), _renderStruct(statement, identifiers)]
+    return [renderInterface(statement, file), _renderStruct(statement, file)]
 }
 
 export function renderException(
     statement: ExceptionDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<ts.Statement> {
-    return [
-        renderInterface(statement),
-        _renderException(statement, identifiers),
-    ]
+    return [renderInterface(statement, file), _renderException(statement, file)]
 }
 
 export function renderUnion(
     statement: UnionDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<ts.Statement> {
-    return [renderInterface(statement), _renderUnion(statement, identifiers)]
+    return [renderInterface(statement, file), _renderUnion(statement, file)]
 }
 
 export function renderService(
     statement: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<ts.Statement> {
     return [
-        ts.createModuleDeclaration(
-            undefined,
-            [ts.createToken(ts.SyntaxKind.ExportKeyword)],
-            ts.createIdentifier(statement.name.value),
-            ts.createModuleBlock([
-                ...renderArgsStruct(statement, identifiers),
-                ...renderResultStruct(statement, identifiers),
-                renderClient(statement),
-                ...renderHandlerInterface(statement),
-                renderProcessor(statement, identifiers),
-            ]),
-            ts.NodeFlags.Namespace,
-        ),
+        ...renderArgsStruct(statement, file),
+        ...renderResultStruct(statement, file),
+        renderClient(statement, file),
+        ...renderHandlerInterface(statement, file),
+        renderProcessor(statement, file),
     ]
 }
 
@@ -138,4 +141,6 @@ export const renderer: IRenderer = {
     renderException,
     renderUnion,
     renderService,
+    renderAsNamespace,
+    renderReExport,
 }

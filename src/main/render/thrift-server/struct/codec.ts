@@ -10,7 +10,7 @@ import { createEncodeMethod } from './encode'
 
 import { createDecodeMethod } from './decode'
 
-import { IIdentifierMap } from '../../../types'
+import ResolverFile from '../../../resolver/file'
 import {
     codecNameForStruct,
     looseNameForStruct,
@@ -20,7 +20,7 @@ import {
 
 export function renderCodec(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
     isExported: boolean,
 ): ts.Statement {
     return ts.createVariableStatement(
@@ -39,8 +39,8 @@ export function renderCodec(
             ]),
             ts.createObjectLiteral(
                 [
-                    createEncodeMethod(node, identifiers),
-                    createDecodeMethod(node, identifiers),
+                    createEncodeMethod(node, file),
+                    createDecodeMethod(node, file),
                 ],
                 true,
             ),

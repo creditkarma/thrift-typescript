@@ -6,6 +6,8 @@ import { generate, make } from '../../main/index'
 
 import { CompileTarget } from '../../main/types'
 
+type FileList = Array<{ name: string; content: string }>
+
 function readSolution(name: string, target: CompileTarget = 'apache'): string {
     return fs.readFileSync(
         path.join(__dirname, `./fixtures/${target}/${name}.solution.ts`),
@@ -13,30 +15,70 @@ function readSolution(name: string, target: CompileTarget = 'apache'): string {
     )
 }
 
-function readGenerated(name: string): string {
-    return fs.readFileSync(
-        path.join(__dirname, `./generated/${name}/index.ts`),
-        'utf-8',
+function readDir(dir: string): FileList {
+    return fs
+        .readdirSync(dir)
+        .filter((file) => {
+            file.endsWith('.ts')
+        })
+        .map((name) => ({
+            name,
+            content: fs.readFileSync(path.join(dir, name), 'utf-8'),
+        }))
+}
+
+function readGenerated(
+    name: string,
+    target: CompileTarget = 'thrift-server',
+    multiFile = false,
+): FileList {
+    return readDir(
+        path.join(
+            __dirname,
+            `./${target}/${
+                multiFile ? 'generated-multi-file' : 'generated'
+            }/${name}`,
+        ),
     )
 }
 
 function readGeneratedSolution(
     name: string,
-    location: string = 'generated',
-): string {
-    const contents: string = fs.readFileSync(
-        path.join(__dirname, `./fixtures/${location}/${name}/index.ts`),
-        'utf-8',
+    target: CompileTarget = 'thrift-server',
+    multiFile = false,
+): FileList {
+    const files: FileList = readDir(
+        path.join(
+            __dirname,
+            `./fixtures/${target}/${
+                multiFile ? 'generated-multi-file' : 'generated'
+            }/${name}`,
+        ),
     )
-    return contents.replace('{{VERSION}}', process.env.npm_package_version!)
+
+    return files.map(({ name: fileName, content }) => ({
+        name: fileName,
+        content: content.replace(
+            '{{VERSION}}',
+            process.env.npm_package_version!,
+        ),
+    }))
 }
 
 describe('Thrift TypeScript Generator', () => {
+    const generatedTests: { [testName: string]: string } = {
+        operation: 'should correctly generate typedefs for includes',
+        common: 'should correctly generate a struct using includes',
+        exceptions: 'should correctly generate an exception using includes',
+        shared: 'should correctly generate a service',
+        calculator: 'should correctly generate a service using includes',
+    }
+
     describe('Thrift Server v2 Generated', () => {
         before(() => {
             generate({
                 rootDir: __dirname,
-                outDir: 'generated',
+                outDir: 'thrift-server/generated',
                 sourceDir: 'fixtures/thrift',
                 target: 'thrift-server',
                 files: [],
@@ -44,34 +86,92 @@ describe('Thrift TypeScript Generator', () => {
             })
         })
 
-        it('should correctly generate typedefs for includes', () => {
-            const actual: string = readGenerated('operation')
-            const expected: string = readGeneratedSolution('operation')
-            assert.deepEqual(actual, expected)
+        Object.keys(generatedTests).forEach((testName) => {
+            it(generatedTests[testName], () => {
+                const actual: FileList = readGenerated(testName)
+                const expected: FileList = readGeneratedSolution(testName)
+                assert.deepEqual(actual, expected)
+            })
+        })
+    })
+
+    describe('Thrift Server v2 Generated - filePerType = true', () => {
+        before(() => {
+            generate({
+                rootDir: __dirname,
+                outDir: 'thrift-server/generated-multi-file',
+                sourceDir: 'fixtures/thrift',
+                target: 'thrift-server',
+                files: [],
+                library: 'test-lib',
+                filePerType: true,
+            })
         })
 
-        it('should correctly generate a struct using includes', () => {
-            const actual: string = readGenerated('common')
-            const expected: string = readGeneratedSolution('common')
-            assert.deepEqual(actual, expected)
+        Object.keys(generatedTests).forEach((testName) => {
+            it(generatedTests[testName], () => {
+                const actual: FileList = readGenerated(
+                    testName,
+                    'thrift-server',
+                    true,
+                )
+                const expected: FileList = readGeneratedSolution(
+                    testName,
+                    'thrift-server',
+                    true,
+                )
+                assert.deepEqual(actual, expected)
+            })
+        })
+    })
+
+    describe('Apache Generated', () => {
+        before(() => {
+            generate({
+                rootDir: __dirname,
+                outDir: 'apache/generated',
+                sourceDir: 'fixtures/thrift',
+                target: 'apache',
+                files: [],
+                library: 'test-lib',
+            })
         })
 
-        it('should correctly generate an exception using includes', () => {
-            const actual: string = readGenerated('exceptions')
-            const expected: string = readGeneratedSolution('exceptions')
-            assert.deepEqual(actual, expected)
+        Object.keys(generatedTests).forEach((testName) => {
+            it(generatedTests[testName], () => {
+                const actual: FileList = readGenerated(testName, 'apache')
+                const expected: FileList = readGeneratedSolution(
+                    testName,
+                    'apache',
+                )
+                assert.deepEqual(actual, expected)
+            })
+        })
+    })
+
+    describe('Apache Generated - filePerType = true', () => {
+        before(() => {
+            generate({
+                rootDir: __dirname,
+                outDir: 'apache/generated-multi-file',
+                sourceDir: 'fixtures/thrift',
+                target: 'apache',
+                files: [],
+                library: 'test-lib',
+                filePerType: true,
+            })
         })
 
-        it('should correctly generate a service', () => {
-            const actual: string = readGenerated('shared')
-            const expected: string = readGeneratedSolution('shared')
-            assert.deepEqual(actual, expected)
-        })
-
-        it('should correctly generate a service using includes', () => {
-            const actual: string = readGenerated('calculator')
-            const expected: string = readGeneratedSolution('calculator')
-            assert.deepEqual(actual, expected)
+        Object.keys(generatedTests).forEach((testName) => {
+            it(generatedTests[testName], () => {
+                const actual: FileList = readGenerated(testName, 'apache', true)
+                const expected: FileList = readGeneratedSolution(
+                    testName,
+                    'apache',
+                    true,
+                )
+                assert.deepEqual(actual, expected)
+            })
         })
     })
 
