@@ -9,10 +9,12 @@ import * as __NAMESPACE__ from "./.";
 export interface ISharedUnionArgs {
     option1?: string;
     option2?: string;
+    option3?: Set<Int64>;
 }
 export class SharedUnion {
     public option1?: string;
     public option2?: string;
+    public option3?: Set<Int64>;
     constructor(args?: ISharedUnionArgs) {
         let _fieldsSet: number = 0;
         if (args != null) {
@@ -23,6 +25,10 @@ export class SharedUnion {
             if (args.option2 != null) {
                 _fieldsSet++;
                 this.option2 = args.option2;
+            }
+            if (args.option3 != null) {
+                _fieldsSet++;
+                this.option3 = args.option3;
             }
             if (_fieldsSet > 1) {
                 throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
@@ -38,6 +44,9 @@ export class SharedUnion {
     public static fromOption2(option2: string): SharedUnion {
         return new SharedUnion({ option2 });
     }
+    public static fromOption3(option3: Set<Int64>): SharedUnion {
+        return new SharedUnion({ option3 });
+    }
     public write(output: thrift.TProtocol): void {
         output.writeStructBegin("SharedUnion");
         if (this.option1 != null) {
@@ -48,6 +57,15 @@ export class SharedUnion {
         if (this.option2 != null) {
             output.writeFieldBegin("option2", thrift.Thrift.Type.STRING, 2);
             output.writeString(this.option2);
+            output.writeFieldEnd();
+        }
+        if (this.option3 != null) {
+            output.writeFieldBegin("option3", thrift.Thrift.Type.SET, 3);
+            output.writeSetBegin(thrift.Thrift.Type.I64, this.option3.size);
+            this.option3.forEach((value_1: Int64): void => {
+                output.writeI64(value_1);
+            });
+            output.writeSetEnd();
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -69,8 +87,8 @@ export class SharedUnion {
                 case 1:
                     if (fieldType === thrift.Thrift.Type.STRING) {
                         _fieldsSet++;
-                        const value_1: string = input.readString();
-                        _returnValue = SharedUnion.fromOption1(value_1);
+                        const value_2: string = input.readString();
+                        _returnValue = SharedUnion.fromOption1(value_2);
                     }
                     else {
                         input.skip(fieldType);
@@ -79,8 +97,25 @@ export class SharedUnion {
                 case 2:
                     if (fieldType === thrift.Thrift.Type.STRING) {
                         _fieldsSet++;
-                        const value_2: string = input.readString();
-                        _returnValue = SharedUnion.fromOption2(value_2);
+                        const value_3: string = input.readString();
+                        _returnValue = SharedUnion.fromOption2(value_3);
+                    }
+                    else {
+                        input.skip(fieldType);
+                    }
+                    break;
+                case 3:
+                    if (fieldType === thrift.Thrift.Type.SET) {
+                        _fieldsSet++;
+                        const value_4: Set<Int64> = new Set<Int64>();
+                        const metadata_1: thrift.TSet = input.readSetBegin();
+                        const size_1: number = metadata_1.size;
+                        for (let i_1: number = 0; i_1 < size_1; i_1++) {
+                            const value_5: Int64 = input.readI64();
+                            value_4.add(value_5);
+                        }
+                        input.readSetEnd();
+                        _returnValue = SharedUnion.fromOption3(value_4);
                     }
                     else {
                         input.skip(fieldType);

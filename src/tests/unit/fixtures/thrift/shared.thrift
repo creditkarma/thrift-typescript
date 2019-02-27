@@ -21,6 +21,7 @@ struct SharedStruct {
 union SharedUnion {
   1: string option1
   2: string option2
+  3: set<i64> option3
 }
 
 service SharedService {

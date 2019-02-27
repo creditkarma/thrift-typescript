@@ -8,17 +8,20 @@ import * as __NAMESPACE__ from "./.";
 export interface ISharedUnion {
     option1?: string;
     option2?: string;
+    option3?: Set<thrift.Int64>;
 }
 export interface ISharedUnionArgs {
     option1?: string;
     option2?: string;
+    option3?: Set<number | thrift.Int64>;
 }
 export const SharedUnionCodec: thrift.IStructCodec<ISharedUnionArgs, ISharedUnion> = {
     encode(args: ISharedUnionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
             option1: args.option1,
-            option2: args.option2
+            option2: args.option2,
+            option3: args.option3
         };
         output.writeStructBegin("SharedUnion");
         if (obj.option1 != null) {
@@ -31,6 +34,16 @@ export const SharedUnionCodec: thrift.IStructCodec<ISharedUnionArgs, ISharedUnio
             _fieldsSet++;
             output.writeFieldBegin("option2", thrift.TType.STRING, 2);
             output.writeString(obj.option2);
+            output.writeFieldEnd();
+        }
+        if (obj.option3 != null) {
+            _fieldsSet++;
+            output.writeFieldBegin("option3", thrift.TType.SET, 3);
+            output.writeSetBegin(thrift.TType.I64, obj.option3.size);
+            obj.option3.forEach((value_1: number | thrift.Int64): void => {
+                output.writeI64(value_1);
+            });
+            output.writeSetEnd();
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -58,8 +71,8 @@ export const SharedUnionCodec: thrift.IStructCodec<ISharedUnionArgs, ISharedUnio
                 case 1:
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
-                        const value_1: string = input.readString();
-                        _returnValue = { option1: value_1 };
+                        const value_2: string = input.readString();
+                        _returnValue = { option1: value_2 };
                     }
                     else {
                         input.skip(fieldType);
@@ -68,8 +81,25 @@ export const SharedUnionCodec: thrift.IStructCodec<ISharedUnionArgs, ISharedUnio
                 case 2:
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
-                        const value_2: string = input.readString();
-                        _returnValue = { option2: value_2 };
+                        const value_3: string = input.readString();
+                        _returnValue = { option2: value_3 };
+                    }
+                    else {
+                        input.skip(fieldType);
+                    }
+                    break;
+                case 3:
+                    if (fieldType === thrift.TType.SET) {
+                        _fieldsSet++;
+                        const value_4: Set<thrift.Int64> = new Set<thrift.Int64>();
+                        const metadata_1: thrift.IThriftSet = input.readSetBegin();
+                        const size_1: number = metadata_1.size;
+                        for (let i_1: number = 0; i_1 < size_1; i_1++) {
+                            const value_5: thrift.Int64 = input.readI64();
+                            value_4.add(value_5);
+                        }
+                        input.readSetEnd();
+                        _returnValue = { option3: value_4 };
                     }
                     else {
                         input.skip(fieldType);
@@ -99,6 +129,7 @@ export const SharedUnionCodec: thrift.IStructCodec<ISharedUnionArgs, ISharedUnio
 export class SharedUnion extends thrift.StructLike implements ISharedUnion {
     public option1?: string;
     public option2?: string;
+    public option3?: Set<thrift.Int64>;
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ISharedUnionArgs = {}) {
@@ -106,13 +137,22 @@ export class SharedUnion extends thrift.StructLike implements ISharedUnion {
         let _fieldsSet: number = 0;
         if (args.option1 != null) {
             _fieldsSet++;
-            const value_3: string = args.option1;
-            this.option1 = value_3;
+            const value_6: string = args.option1;
+            this.option1 = value_6;
         }
         if (args.option2 != null) {
             _fieldsSet++;
-            const value_4: string = args.option2;
-            this.option2 = value_4;
+            const value_7: string = args.option2;
+            this.option2 = value_7;
+        }
+        if (args.option3 != null) {
+            _fieldsSet++;
+            const value_8: Set<thrift.Int64> = new Set<thrift.Int64>();
+            args.option3.forEach((value_9: number | thrift.Int64): void => {
+                const value_10: thrift.Int64 = (typeof value_9 === "number" ? new thrift.Int64(value_9) : value_9);
+                value_8.add(value_10);
+            });
+            this.option3 = value_8;
         }
         if (_fieldsSet > 1) {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");

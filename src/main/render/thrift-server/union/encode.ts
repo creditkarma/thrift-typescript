@@ -262,7 +262,7 @@ function forEach(
     const forEachParameters: Array<ts.ParameterDeclaration> = [
         createFunctionParameter(
             value,
-            typeNodeForFieldType(fieldType.valueType, file),
+            typeNodeForFieldType(fieldType.valueType, file, true),
         ),
     ]
 
@@ -276,7 +276,7 @@ function forEach(
         forEachParameters.push(
             createFunctionParameter(
                 key,
-                typeNodeForFieldType(fieldType.keyType, file),
+                typeNodeForFieldType(fieldType.keyType, file, true),
             ),
         )
 

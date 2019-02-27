@@ -18,9 +18,7 @@ function readSolution(name: string, target: CompileTarget = 'apache'): string {
 function readDir(dir: string): FileList {
     return fs
         .readdirSync(dir)
-        .filter((file) => {
-            file.endsWith('.ts')
-        })
+        .filter((file) => file.endsWith('.ts'))
         .map((name) => ({
             name,
             content: fs.readFileSync(path.join(dir, name), 'utf-8'),
