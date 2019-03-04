@@ -14,6 +14,7 @@ describe('resolveOptions', () => {
             files: [],
             fallbackNamespace: 'java',
             library: 'thrift',
+            strictUnions: false,
         })
     })
 
@@ -21,7 +22,7 @@ describe('resolveOptions', () => {
         const result: IMakeOptions = resolveOptions([
             '--rootDir',
             'src',
-            '--fallback-namespace',
+            '--fallbackNamespace',
             'scala',
             'test.thrift',
             'test-two.thrift',
@@ -35,6 +36,7 @@ describe('resolveOptions', () => {
             files: ['test.thrift', 'test-two.thrift'],
             fallbackNamespace: 'scala',
             library: 'thrift',
+            strictUnions: false,
         })
     })
 })

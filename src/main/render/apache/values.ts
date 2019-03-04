@@ -146,7 +146,7 @@ function renderList(
 
 function renderBuffer(node: StringLiteral): ts.CallExpression {
     return ts.createCall(
-        propertyAccessForIdentifier('Buffer', 'from'),
+        propertyAccessForIdentifier(COMMON_IDENTIFIERS.Buffer, 'from'),
         undefined,
         [ts.createLiteral(node.value)],
     )

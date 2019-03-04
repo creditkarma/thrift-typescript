@@ -1,54 +1,47 @@
 import * as ts from 'typescript'
 
 import {
-    ContainerType,
     FieldDefinition,
-    FieldType,
-    FunctionType,
     InterfaceWithFields,
-    SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap, IResolvedIdentifier } from '../../../types'
+import { IRenderState } from '../../../types'
 
 import { renderAnnotations, renderFieldAnnotations } from '../annotations'
 
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
 import {
-    coerceType,
     createClassConstructor,
-    createConstStatement,
     createFunctionParameter,
-    createMethodCallStatement,
     createNotNullCheck,
     hasRequiredField,
 } from '../utils'
 
-import { renderValue } from '../values'
+import { renderValue } from '../initializers'
 
 import { createVoidType, typeNodeForFieldType } from '../types'
+import { assignmentForField } from './reader'
 
 import {
-    className,
     classNameForStruct,
-    codecNameForStruct,
     createSuperCall,
     extendsAbstract,
     implementsInterface,
     looseNameForStruct,
     throwForField,
     tokens,
+    toolkitNameForStruct,
 } from './utils'
 
 export function renderClass(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
     isExported: boolean,
 ): ts.ClassDeclaration {
     const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(
         node,
-        identifiers,
+        state,
     )
 
     const annotations: ts.PropertyDeclaration = renderAnnotations(
@@ -74,13 +67,13 @@ export function renderClass(
      */
     const fieldAssignments: Array<ts.IfStatement> = node.fields.map(
         (field: FieldDefinition) => {
-            return createFieldAssignment(field, identifiers)
+            return createFieldAssignment(field, state)
         },
     )
 
     const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(
         node,
-        identifiers,
+        state,
     )
 
     // Build the constructor body
@@ -95,14 +88,14 @@ export function renderClass(
         tokens(isExported),
         classNameForStruct(node),
         [],
-        [extendsAbstract(), implementsInterface(node)], // heritage
+        [extendsAbstract(), implementsInterface(node, state)], // heritage
         [
             ...fields,
             annotations,
             fieldAnnotations,
             ctor,
             createStaticReadMethod(node),
-            createStaticWriteMethod(node),
+            createStaticWriteMethod(node, state),
             createWriteMethod(node),
         ],
     )
@@ -125,7 +118,7 @@ export function createWriteMethod(
                 ts.createReturn(
                     ts.createCall(
                         ts.createPropertyAccess(
-                            ts.createIdentifier(codecNameForStruct(node)),
+                            ts.createIdentifier(toolkitNameForStruct(node)),
                             COMMON_IDENTIFIERS.encode,
                         ),
                         undefined,
@@ -140,6 +133,7 @@ export function createWriteMethod(
 
 export function createStaticWriteMethod(
     node: InterfaceWithFields,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     return ts.createMethod(
         undefined,
@@ -155,7 +149,7 @@ export function createStaticWriteMethod(
             createFunctionParameter(
                 COMMON_IDENTIFIERS.args,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(looseNameForStruct(node)),
+                    ts.createIdentifier(looseNameForStruct(node, state)),
                     undefined,
                 ),
             ),
@@ -167,7 +161,7 @@ export function createStaticWriteMethod(
                 ts.createReturn(
                     ts.createCall(
                         ts.createPropertyAccess(
-                            ts.createIdentifier(codecNameForStruct(node)),
+                            ts.createIdentifier(toolkitNameForStruct(node)),
                             COMMON_IDENTIFIERS.encode,
                         ),
                         undefined,
@@ -208,7 +202,7 @@ export function createStaticReadMethod(
                             ts.createCall(
                                 ts.createPropertyAccess(
                                     ts.createIdentifier(
-                                        codecNameForStruct(node),
+                                        toolkitNameForStruct(node),
                                     ),
                                     COMMON_IDENTIFIERS.decode,
                                 ),
@@ -240,10 +234,10 @@ export function createInputParameter(): ts.ParameterDeclaration {
 
 export function createFieldsForStruct(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.PropertyDeclaration> {
     return node.fields.map((field: FieldDefinition) => {
-        return renderFieldDeclarations(field, identifiers)
+        return renderFieldDeclarations(field, state)
     })
 }
 
@@ -268,7 +262,7 @@ export function createFieldsForStruct(
  */
 export function renderFieldDeclarations(
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.PropertyDeclaration {
     const defaultValue: ts.Expression | undefined =
         field.defaultValue !== null
@@ -282,431 +276,9 @@ export function renderFieldDeclarations(
         field.requiredness === 'required'
             ? undefined
             : ts.createToken(ts.SyntaxKind.QuestionToken),
-        typeNodeForFieldType(field.fieldType, identifiers),
+        typeNodeForFieldType(field.fieldType, state),
         defaultValue,
     )
-}
-
-export function defaultAssignment(
-    saveName: ts.Identifier,
-    readName: ts.Identifier,
-    fieldType: FieldType,
-    identifiers: IIdentifierMap,
-): ts.Statement {
-    return createConstStatement(
-        saveName,
-        typeNodeForFieldType(fieldType, identifiers),
-        coerceType(readName, fieldType),
-    )
-}
-
-export function assignmentForField(
-    field: FieldDefinition,
-    identifiers: IIdentifierMap,
-): Array<ts.Statement> {
-    const valueName: ts.Identifier = ts.createUniqueName('value')
-    return [
-        ...assignmentForFieldType(
-            field,
-            field.fieldType,
-            valueName,
-            ts.createIdentifier(`args.${field.name.value}`),
-            identifiers,
-        ),
-        ts.createStatement(
-            ts.createAssignment(
-                ts.createIdentifier(`this.${field.name.value}`),
-                valueName,
-            ),
-        ),
-    ]
-}
-
-export function assignmentForIdentifier(
-    field: FieldDefinition,
-    id: IResolvedIdentifier,
-    fieldType: FieldType,
-    saveName: ts.Identifier,
-    readName: ts.Identifier,
-    identifiers: IIdentifierMap,
-): Array<ts.Statement> {
-    switch (id.definition.type) {
-        case SyntaxType.ConstDefinition:
-            throw new TypeError(
-                `Identifier ${
-                    id.definition.name.value
-                } is a value being used as a type`,
-            )
-
-        case SyntaxType.ServiceDefinition:
-            throw new TypeError(
-                `Service ${id.definition.name.value} is being used as a type`,
-            )
-
-        case SyntaxType.StructDefinition:
-        case SyntaxType.UnionDefinition:
-        case SyntaxType.ExceptionDefinition:
-            return [
-                createConstStatement(
-                    saveName,
-                    typeNodeForFieldType(fieldType, identifiers),
-                    ts.createNew(
-                        ts.createIdentifier(className(id.resolvedName)),
-                        undefined,
-                        [readName],
-                    ),
-                ),
-            ]
-
-        case SyntaxType.EnumDefinition:
-            return [
-                defaultAssignment(saveName, readName, fieldType, identifiers),
-            ]
-
-        case SyntaxType.TypedefDefinition:
-            return assignmentForFieldType(
-                field,
-                id.definition.definitionType,
-                saveName,
-                readName,
-                identifiers,
-            )
-
-        default:
-            const msg: never = id.definition
-            throw new Error(`Non-exhaustive match for: ${msg}`)
-    }
-}
-
-export function assignmentForFieldType(
-    field: FieldDefinition,
-    fieldType: FunctionType,
-    saveName: ts.Identifier,
-    readName: ts.Identifier,
-    identifiers: IIdentifierMap,
-): Array<ts.Statement> {
-    switch (fieldType.type) {
-        case SyntaxType.Identifier:
-            return assignmentForIdentifier(
-                field,
-                identifiers[fieldType.value],
-                fieldType,
-                saveName,
-                readName,
-                identifiers,
-            )
-
-        /**
-         * Base types:
-         *
-         * SyntaxType.StringKeyword | SyntaxType.DoubleKeyword | SyntaxType.BoolKeyword |
-         * SyntaxType.I8Keyword | SyntaxType.I16Keyword | SyntaxType.I32Keyword |
-         * SyntaxType.I64Keyword | SyntaxType.BinaryKeyword | SyntaxType.ByteKeyword;
-         */
-        case SyntaxType.BoolKeyword:
-        case SyntaxType.ByteKeyword:
-        case SyntaxType.BinaryKeyword:
-        case SyntaxType.StringKeyword:
-        case SyntaxType.DoubleKeyword:
-        case SyntaxType.I8Keyword:
-        case SyntaxType.I16Keyword:
-        case SyntaxType.I32Keyword:
-        case SyntaxType.I64Keyword: {
-            return [
-                defaultAssignment(saveName, readName, fieldType, identifiers),
-            ]
-        }
-
-        /**
-         * Container types:
-         *
-         * SetType | MapType | ListType
-         */
-        case SyntaxType.MapType: {
-            return [
-                createConstStatement(
-                    saveName,
-                    typeNodeForFieldType(fieldType, identifiers),
-                    ts.createNew(
-                        COMMON_IDENTIFIERS.Map, // class name
-                        [
-                            typeNodeForFieldType(
-                                fieldType.keyType,
-                                identifiers,
-                            ),
-                            typeNodeForFieldType(
-                                fieldType.valueType,
-                                identifiers,
-                            ),
-                        ],
-                        [],
-                    ),
-                ),
-                ...loopOverContainer(
-                    field,
-                    fieldType,
-                    saveName,
-                    readName,
-                    identifiers,
-                ),
-            ]
-        }
-
-        case SyntaxType.ListType: {
-            return [
-                createConstStatement(
-                    saveName,
-                    typeNodeForFieldType(fieldType, identifiers),
-                    ts.createNew(
-                        COMMON_IDENTIFIERS.Array, // class name
-                        [
-                            typeNodeForFieldType(
-                                fieldType.valueType,
-                                identifiers,
-                            ),
-                        ],
-                        [],
-                    ),
-                ),
-                ...loopOverContainer(
-                    field,
-                    fieldType,
-                    saveName,
-                    readName,
-                    identifiers,
-                ),
-            ]
-        }
-
-        case SyntaxType.SetType: {
-            return [
-                createConstStatement(
-                    saveName,
-                    typeNodeForFieldType(fieldType, identifiers),
-                    ts.createNew(
-                        COMMON_IDENTIFIERS.Set, // class name
-                        [
-                            typeNodeForFieldType(
-                                fieldType.valueType,
-                                identifiers,
-                            ),
-                        ],
-                        [],
-                    ),
-                ),
-                ...loopOverContainer(
-                    field,
-                    fieldType,
-                    saveName,
-                    readName,
-                    identifiers,
-                ),
-            ]
-        }
-
-        case SyntaxType.VoidKeyword:
-            return [
-                createConstStatement(
-                    saveName,
-                    createVoidType(),
-                    COMMON_IDENTIFIERS.undefined,
-                ),
-            ]
-
-        default:
-            const msg: never = fieldType
-            throw new Error(`Non-exhaustive match for: ${msg}`)
-    }
-}
-
-export function loopOverContainer(
-    field: FieldDefinition,
-    fieldType: ContainerType,
-    saveName: ts.Identifier,
-    readName: ts.Identifier,
-    identifiers: IIdentifierMap,
-): Array<ts.Statement> {
-    switch (fieldType.type) {
-        case SyntaxType.MapType: {
-            const valueParam: ts.Identifier = ts.createUniqueName('value')
-            const valueConst: ts.Identifier = ts.createUniqueName('value')
-            const keyName: ts.Identifier = ts.createUniqueName('key')
-            const keyConst: ts.Identifier = ts.createUniqueName('key')
-            return [
-                ts.createStatement(
-                    ts.createCall(
-                        ts.createPropertyAccess(
-                            readName,
-                            ts.createIdentifier('forEach'),
-                        ),
-                        undefined,
-                        [
-                            ts.createArrowFunction(
-                                undefined,
-                                undefined,
-                                [
-                                    createFunctionParameter(
-                                        valueParam, // param name
-                                        typeNodeForFieldType(
-                                            fieldType.valueType,
-                                            identifiers,
-                                            true,
-                                        ), // param type
-                                        undefined,
-                                    ),
-                                    createFunctionParameter(
-                                        keyName, // param name
-                                        typeNodeForFieldType(
-                                            fieldType.keyType,
-                                            identifiers,
-                                            true,
-                                        ), // param type
-                                        undefined,
-                                    ),
-                                ],
-                                createVoidType(),
-                                ts.createToken(
-                                    ts.SyntaxKind.EqualsGreaterThanToken,
-                                ),
-                                ts.createBlock(
-                                    [
-                                        ...assignmentForFieldType(
-                                            field,
-                                            fieldType.valueType,
-                                            valueConst,
-                                            valueParam,
-                                            identifiers,
-                                        ),
-                                        ...assignmentForFieldType(
-                                            field,
-                                            fieldType.keyType,
-                                            keyConst,
-                                            keyName,
-                                            identifiers,
-                                        ),
-                                        createMethodCallStatement(
-                                            saveName,
-                                            'set',
-                                            [keyConst, valueConst],
-                                        ),
-                                    ],
-                                    true,
-                                ),
-                            ),
-                        ],
-                    ),
-                ),
-            ]
-        }
-
-        case SyntaxType.ListType: {
-            const valueParam: ts.Identifier = ts.createUniqueName('value')
-            const valueConst: ts.Identifier = ts.createUniqueName('value')
-            return [
-                ts.createStatement(
-                    ts.createCall(
-                        ts.createPropertyAccess(
-                            readName,
-                            ts.createIdentifier('forEach'),
-                        ),
-                        undefined,
-                        [
-                            ts.createArrowFunction(
-                                undefined,
-                                undefined,
-                                [
-                                    createFunctionParameter(
-                                        valueParam, // param name
-                                        typeNodeForFieldType(
-                                            fieldType.valueType,
-                                            identifiers,
-                                            true,
-                                        ), // param type
-                                        undefined,
-                                    ),
-                                ],
-                                createVoidType(),
-                                ts.createToken(
-                                    ts.SyntaxKind.EqualsGreaterThanToken,
-                                ),
-                                ts.createBlock(
-                                    [
-                                        ...assignmentForFieldType(
-                                            field,
-                                            fieldType.valueType,
-                                            valueConst,
-                                            valueParam,
-                                            identifiers,
-                                        ),
-                                        createMethodCallStatement(
-                                            saveName,
-                                            'push',
-                                            [valueConst],
-                                        ),
-                                    ],
-                                    true,
-                                ),
-                            ),
-                        ],
-                    ),
-                ),
-            ]
-        }
-
-        case SyntaxType.SetType: {
-            const valueParam: ts.Identifier = ts.createUniqueName('value')
-            const valueConst: ts.Identifier = ts.createUniqueName('value')
-            return [
-                ts.createStatement(
-                    ts.createCall(
-                        ts.createPropertyAccess(
-                            readName,
-                            ts.createIdentifier('forEach'),
-                        ),
-                        undefined,
-                        [
-                            ts.createArrowFunction(
-                                undefined,
-                                undefined,
-                                [
-                                    createFunctionParameter(
-                                        valueParam, // param name
-                                        typeNodeForFieldType(
-                                            fieldType.valueType,
-                                            identifiers,
-                                            true,
-                                        ), // param type
-                                        undefined,
-                                    ),
-                                ],
-                                createVoidType(),
-                                ts.createToken(
-                                    ts.SyntaxKind.EqualsGreaterThanToken,
-                                ),
-                                ts.createBlock(
-                                    [
-                                        ...assignmentForFieldType(
-                                            field,
-                                            fieldType.valueType,
-                                            valueConst,
-                                            valueParam,
-                                            identifiers,
-                                        ),
-                                        createMethodCallStatement(
-                                            saveName,
-                                            'add',
-                                            [valueConst],
-                                        ),
-                                    ],
-                                    true,
-                                ),
-                            ),
-                        ],
-                    ),
-                ),
-            ]
-        }
-    }
 }
 
 /**
@@ -724,15 +296,12 @@ export function loopOverContainer(
  */
 export function createFieldAssignment(
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.IfStatement {
     const hasValue: ts.BinaryExpression = createNotNullCheck(
         ts.createPropertyAccess(COMMON_IDENTIFIERS.args, `${field.name.value}`),
     )
-    const thenAssign: Array<ts.Statement> = assignmentForField(
-        field,
-        identifiers,
-    )
+    const thenAssign: Array<ts.Statement> = assignmentForField(field, state)
     const elseThrow: ts.Statement | undefined = throwForField(field)
 
     return ts.createIf(
@@ -754,18 +323,18 @@ function createDefaultInitializer(
 
 export function createArgsParameterForStruct(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.ParameterDeclaration {
     return createFunctionParameter(
         COMMON_IDENTIFIERS.args, // param name
-        createArgsTypeForStruct(node, identifiers), // param type
+        createArgsTypeForStruct(node, state), // param type
         createDefaultInitializer(node),
     )
 }
 
 function createArgsTypeForStruct(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.TypeNode {
     // return ts.createTypeLiteralNode(
     //     node.fields.map((field: FieldDefinition): ts.TypeElement => {
@@ -779,7 +348,7 @@ function createArgsTypeForStruct(
     //     })
     // )
     return ts.createTypeReferenceNode(
-        ts.createIdentifier(looseNameForStruct(node)),
+        ts.createIdentifier(looseNameForStruct(node, state)),
         undefined,
     )
 }

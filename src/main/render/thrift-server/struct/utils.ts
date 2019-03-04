@@ -3,10 +3,12 @@ import * as ts from 'typescript'
 import {
     FieldDefinition,
     InterfaceWithFields,
+    SyntaxType,
 } from '@creditkarma/thrift-parser'
 
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
+import { IRenderState } from '../../../types'
 import { throwProtocolException } from '../utils'
 
 type NameMapping = (name: string) => string
@@ -28,6 +30,20 @@ function makeNameForNode(name: string, mapping: NameMapping): string {
     }
 }
 
+export function renderOptional(
+    field: FieldDefinition,
+    loose: boolean = false,
+): ts.Token<ts.SyntaxKind.QuestionToken> | undefined {
+    if (
+        field.requiredness !== 'required' ||
+        (loose && field.defaultValue !== null)
+    ) {
+        return ts.createToken(ts.SyntaxKind.QuestionToken)
+    } else {
+        return undefined
+    }
+}
+
 export function tokens(
     isExported: boolean,
 ): Array<ts.Token<ts.SyntaxKind.ExportKeyword>> {
@@ -38,20 +54,26 @@ export function tokens(
     }
 }
 
-export function looseNameForStruct(node: InterfaceWithFields): string {
-    return looseName(node.name.value)
+export function looseNameForStruct(
+    node: InterfaceWithFields,
+    state: IRenderState,
+): string {
+    return looseName(node.name.value, node.type, state)
 }
 
 export function classNameForStruct(node: InterfaceWithFields): string {
     return className(node.name.value)
 }
 
-export function strictNameForStruct(node: InterfaceWithFields): string {
-    return strictName(node.name.value)
+export function strictNameForStruct(
+    node: InterfaceWithFields,
+    state: IRenderState,
+): string {
+    return strictName(node.name.value, node.type, state)
 }
 
-export function codecNameForStruct(node: InterfaceWithFields): string {
-    return codecName(node.name.value)
+export function toolkitNameForStruct(node: InterfaceWithFields): string {
+    return toolkitName(node.name.value)
 }
 
 export function className(name: string): string {
@@ -60,19 +82,36 @@ export function className(name: string): string {
     })
 }
 
-export function looseName(name: string): string {
-    return makeNameForNode(name, (part: string) => {
-        return `I${part}Args`
-    })
+export function looseName(
+    name: string,
+    type: SyntaxType,
+    state: IRenderState,
+): string {
+    if (type === SyntaxType.UnionDefinition && state.options.strictUnions) {
+        return `${className(name)}Args`
+    } else {
+        return makeNameForNode(name, (part: string) => {
+            return `I${part}Args`
+        })
+    }
 }
 
-export function strictName(name: string): string {
-    return makeNameForNode(name, (part: string) => {
-        return `I${part}`
-    })
+export function strictName(
+    name: string,
+    type: SyntaxType,
+    state: IRenderState,
+): string {
+    if (type === SyntaxType.UnionDefinition && state.options.strictUnions) {
+        return className(name)
+    } else {
+        return makeNameForNode(name, (part: string) => {
+            return `I${part}`
+        })
+    }
 }
 
-export function codecName(name: string): string {
+// TODO: This will be renamed to Toolkit in a breaking release
+export function toolkitName(name: string): string {
     return makeNameForNode(name, (part: string) => {
         return `${part}Codec`
     })
@@ -86,11 +125,12 @@ export function extendsAbstract(): ts.HeritageClause {
 
 export function implementsInterface(
     node: InterfaceWithFields,
+    state: IRenderState,
 ): ts.HeritageClause {
     return ts.createHeritageClause(ts.SyntaxKind.ImplementsKeyword, [
         ts.createExpressionWithTypeArguments(
             [],
-            ts.createIdentifier(strictNameForStruct(node)),
+            ts.createIdentifier(strictNameForStruct(node, state)),
         ),
     ])
 }

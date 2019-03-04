@@ -59,7 +59,7 @@ export function renderServiceAnnotations(
         ts.createVariableDeclarationList(
             [
                 ts.createVariableDeclaration(
-                    ts.createIdentifier('annotations'),
+                    COMMON_IDENTIFIERS.annotations,
                     ts.createTypeReferenceNode(
                         THRIFT_IDENTIFIERS.IThriftAnnotations,
                         undefined,

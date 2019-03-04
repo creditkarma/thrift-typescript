@@ -44,9 +44,6 @@ import {
     THRIFT_TYPES,
 } from './identifiers'
 
-const INCREMENTER: string = '_fieldsSet'
-const RETURN_NAME: string = '_returnValue'
-
 /**
  * There is a lot of duplication here of code with renderStruct. Need to revisit and clean this up.
  * Probably revisit how functions are defined in the struct rendering code so that it is easier
@@ -222,7 +219,7 @@ function createReadMethod(
 ): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
     const returnVariable: ts.VariableStatement = createLetStatement(
-        ts.createIdentifier(RETURN_NAME),
+        COMMON_IDENTIFIERS._returnValue,
         ts.createUnionTypeNode([
             ts.createTypeReferenceNode(
                 ts.createIdentifier(node.name.value),
@@ -321,12 +318,12 @@ function createReadMethod(
                 createFieldValidation(node, true),
                 ts.createIf(
                     ts.createBinary(
-                        ts.createIdentifier(RETURN_NAME),
+                        COMMON_IDENTIFIERS._returnValue,
                         ts.SyntaxKind.ExclamationEqualsEqualsToken,
                         ts.createNull(),
                     ),
                     ts.createBlock(
-                        [ts.createReturn(ts.createIdentifier(RETURN_NAME))],
+                        [ts.createReturn(COMMON_IDENTIFIERS._returnValue)],
                         true,
                     ),
                     ts.createBlock(
@@ -407,7 +404,7 @@ function endReadForField(
             return [
                 ts.createStatement(
                     ts.createAssignment(
-                        ts.createIdentifier(RETURN_NAME),
+                        COMMON_IDENTIFIERS._returnValue,
                         ts.createCall(
                             ts.createPropertyAccess(
                                 ts.createIdentifier(node.name.value),
@@ -436,7 +433,7 @@ export function createFieldValidation(
 ): ts.IfStatement {
     return ts.createIf(
         ts.createBinary(
-            ts.createIdentifier(INCREMENTER),
+            COMMON_IDENTIFIERS._fieldsSet,
             ts.SyntaxKind.GreaterThanToken,
             ts.createLiteral(1),
         ),
@@ -451,7 +448,7 @@ export function createFieldValidation(
         ),
         ts.createIf(
             ts.createBinary(
-                ts.createIdentifier(INCREMENTER),
+                COMMON_IDENTIFIERS._fieldsSet,
                 ts.SyntaxKind.LessThanToken,
                 ts.createLiteral(1),
             ),
@@ -471,7 +468,7 @@ export function createFieldValidation(
 // let fieldsSet: number = 0;
 export function createFieldIncrementer(): ts.VariableStatement {
     return createLetStatement(
-        INCREMENTER,
+        COMMON_IDENTIFIERS._fieldsSet,
         createNumberType(),
         ts.createLiteral(0),
     )
@@ -480,6 +477,6 @@ export function createFieldIncrementer(): ts.VariableStatement {
 // fieldsSet++;
 export function incrementFieldsSet(): ts.ExpressionStatement {
     return ts.createStatement(
-        ts.createPostfixIncrement(ts.createIdentifier(INCREMENTER)),
+        ts.createPostfixIncrement(COMMON_IDENTIFIERS._fieldsSet),
     )
 }

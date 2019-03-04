@@ -2,7 +2,7 @@ import * as ts from 'typescript'
 
 import { EnumDefinition, EnumMember } from '@creditkarma/thrift-parser'
 
-import { renderIntConstant } from './values'
+import { renderIntConstant } from './initializers'
 
 /**
  * EXAMPE

@@ -7,6 +7,7 @@ import {
     IResolvedFile,
     IResolvedIdentifier,
 } from '../../types'
+import { COMMON_IDENTIFIERS } from '../shared/identifiers'
 
 const DEFAULT_THRIFT_LIB: string = '@creditkarma/thrift-server-core'
 
@@ -24,7 +25,7 @@ export function renderThriftImports(
         undefined,
         ts.createImportClause(
             undefined,
-            ts.createNamespaceImport(ts.createIdentifier('thrift')),
+            ts.createNamespaceImport(COMMON_IDENTIFIERS.thrift),
         ),
         ts.createLiteral(thriftLib),
     )
@@ -55,7 +56,6 @@ function existInIdentifiers(
  * @param resolved A hash of include name to a list of ids used from this include
  */
 export function renderIncludes(
-    outPath: string,
     currentPath: string,
     resolvedFile: INamespaceFile,
 ): Array<ts.ImportDeclaration> {

@@ -2,21 +2,21 @@ import * as ts from 'typescript'
 
 import { InterfaceWithFields } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap } from '../../../types'
+import { IRenderState } from '../../../types'
 
 import { renderInterface } from './interface'
 
-import { renderCodec } from './codec'
+import { renderToolkit } from './toolkit'
 
 import { renderClass } from './class'
 
 export function renderStruct(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Statement> {
     return [
-        ...renderInterface(node, identifiers, true),
-        renderCodec(node, identifiers, true),
-        renderClass(node, identifiers, true),
+        ...renderInterface(node, state, true),
+        renderToolkit(node, state, true),
+        renderClass(node, state, true),
     ]
 }

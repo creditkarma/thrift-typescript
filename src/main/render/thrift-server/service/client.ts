@@ -36,9 +36,9 @@ import {
 
 import { createAnyType, typeNodeForFieldType } from '../types'
 
-import { renderValue } from '../values'
+import { renderValue } from '../initializers'
 
-import { IIdentifierMap } from '../../../types'
+import { IRenderState } from '../../../types'
 
 import {
     renderMethodAnnotationsProperty,
@@ -48,7 +48,7 @@ import {
 } from '../annotations'
 
 import { createClassConstructor } from '../../shared/utils'
-import { codecName, looseName, strictName } from '../struct/utils'
+import { looseName, strictName, toolkitName } from '../struct/utils'
 
 function extendsAbstract(): ts.HeritageClause {
     return ts.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
@@ -70,7 +70,7 @@ function extendsService(service: Identifier): ts.HeritageClause {
 
 export function renderClient(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.ClassDeclaration {
     const staticServiceName: ts.PropertyDeclaration = renderServiceNameStaticProperty()
     const staticAnnotations: ts.PropertyDeclaration = renderServiceAnnotationsStaticProperty()
@@ -84,7 +84,7 @@ export function renderClient(
 
     const baseMethods: Array<ts.MethodDeclaration> = service.functions.map(
         (func: FunctionDefinition) => {
-            return createBaseMethodForDefinition(func, identifiers)
+            return createBaseMethodForDefinition(func, state)
         },
     )
 
@@ -157,7 +157,7 @@ function createSuperCall(): ts.Statement {
 // }
 function createBaseMethodForDefinition(
     def: FunctionDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     return ts.createMethod(
         undefined, // decorators
@@ -168,7 +168,7 @@ function createBaseMethodForDefinition(
         undefined, // type parameters
         [
             ...def.fields.map((field: FieldDefinition) => {
-                return createParametersForField(field, identifiers)
+                return createParametersForField(field, state)
             }),
             createFunctionParameter(
                 COMMON_IDENTIFIERS.context,
@@ -178,7 +178,7 @@ function createBaseMethodForDefinition(
             ),
         ], // parameters
         ts.createTypeReferenceNode('Promise', [
-            typeNodeForFieldType(def.returnType, identifiers),
+            typeNodeForFieldType(def.returnType, state),
         ]), // return type
         ts.createBlock(
             [
@@ -225,7 +225,11 @@ function createBaseMethodForDefinition(
                     COMMON_IDENTIFIERS.args,
                     ts.createTypeReferenceNode(
                         ts.createIdentifier(
-                            looseName(createStructArgsName(def)),
+                            looseName(
+                                createStructArgsName(def),
+                                def.type,
+                                state,
+                            ),
                         ),
                         undefined,
                     ),
@@ -239,7 +243,7 @@ function createBaseMethodForDefinition(
                 ),
                 // args.write(output)
                 createMethodCallStatement(
-                    ts.createIdentifier(codecName(createStructArgsName(def))),
+                    ts.createIdentifier(toolkitName(createStructArgsName(def))),
                     'encode',
                     [COMMON_IDENTIFIERS.args, COMMON_IDENTIFIERS.output],
                 ),
@@ -402,6 +406,7 @@ function createBaseMethodForDefinition(
                                                                             // const result = new {{ServiceName}}{{nameTitleCase}}Result()
                                                                             ...createNewResultInstance(
                                                                                 def,
+                                                                                state,
                                                                             ),
 
                                                                             // proto.readMessageEnd()
@@ -495,17 +500,24 @@ function createConnectionSend(): ts.CallExpression {
 }
 
 // const result: GetUserResult = GetUserResultCodec.decode(input);
-function createNewResultInstance(def: FunctionDefinition): Array<ts.Statement> {
+function createNewResultInstance(
+    def: FunctionDefinition,
+    state: IRenderState,
+): Array<ts.Statement> {
     return [
         createConstStatement(
             COMMON_IDENTIFIERS.result,
             ts.createTypeReferenceNode(
-                ts.createIdentifier(strictName(createStructResultName(def))),
+                ts.createIdentifier(
+                    strictName(createStructResultName(def), def.type, state),
+                ),
                 undefined,
             ),
             ts.createCall(
                 ts.createPropertyAccess(
-                    ts.createIdentifier(codecName(createStructResultName(def))),
+                    ts.createIdentifier(
+                        toolkitName(createStructResultName(def)),
+                    ),
                     ts.createIdentifier('decode'),
                 ),
                 undefined,
@@ -625,7 +637,7 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
 
 function createParametersForField(
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.ParameterDeclaration {
     const defaultValue =
         field.defaultValue !== null
@@ -634,7 +646,7 @@ function createParametersForField(
 
     return createFunctionParameter(
         field.name.value,
-        typeNodeForFieldType(field.fieldType, identifiers, true),
+        typeNodeForFieldType(field.fieldType, state, true),
         defaultValue,
         field.requiredness === 'optional',
     )

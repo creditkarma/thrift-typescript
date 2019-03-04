@@ -1,33 +1,18 @@
 import { lstatSync } from 'fs'
 
-import { DEFAULT_OPTIONS } from '../options'
+import { DEFAULT_OPTIONS, defaultLibrary } from '../defaults'
 import { IMakeOptions } from '../types'
-
-function deepCopy<T extends object>(obj: T): T {
-    const newObj: any = Array.isArray(obj) ? [] : {}
-
-    for (const key in obj) {
-        if (obj.hasOwnProperty(key)) {
-            const value: any = obj[key]
-            if (typeof value === 'object') {
-                if (value === null) {
-                    newObj[key] = null
-                } else {
-                    newObj[key] = deepCopy(value)
-                }
-            } else {
-                newObj[key] = value
-            }
-        }
-    }
-
-    return newObj
-}
+import { deepCopy, deepMerge } from '../utils'
 
 /**
+ * Options:
+ *
  * --rootDir
  * --outDir
  * --removeComments
+ * --strictUnions
+ * --fallbackNamespace
+ * --library
  */
 export function resolveOptions(args: Array<string>): IMakeOptions {
     const len: number = args.length
@@ -69,11 +54,6 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                 index += 2
                 break
 
-            case '--library':
-                options.library = args[index + 1]
-                index += 2
-                break
-
             case '--target':
                 const option = args[index + 1]
                 if (option === 'apache' || option === 'thrift-server') {
@@ -84,9 +64,18 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                 index += 2
                 break
 
-            case '--fallback-namespace':
+            case '--library':
+                options.library = args[index + 1]
+                index += 2
+
+            case '--fallbackNamespace':
                 options.fallbackNamespace = args[index + 1]
                 index += 2
+                break
+
+            case '--strictUnions':
+                options.strictUnions = true
+                index += 1
                 break
 
             default:
@@ -102,13 +91,7 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
         }
     }
 
-    if (options.target === 'thrift-server' && options.library === '') {
-        options.library = '@creditkarma/thrift-server-core'
-    }
-
-    if (options.target === 'apache' && options.library === '') {
-        options.library = 'thrift'
-    }
-
-    return options
+    return deepMerge(options, {
+        library: defaultLibrary(options),
+    })
 }

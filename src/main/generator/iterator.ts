@@ -2,7 +2,7 @@ import * as ts from 'typescript'
 
 import { SyntaxType, ThriftStatement } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap, IRenderer } from '../types'
+import { IRenderer, IRenderState } from '../types'
 
 /**
  * Given a Thrift declaration return the corresponding TypeScript statement
@@ -11,30 +11,30 @@ import { IIdentifierMap, IRenderer } from '../types'
  */
 export function renderStatement(
     statement: ThriftStatement,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
     renderer: IRenderer,
 ): Array<ts.Statement> {
     switch (statement.type) {
         case SyntaxType.ConstDefinition:
-            return renderer.renderConst(statement, identifiers)
+            return renderer.renderConst(statement, state)
 
         case SyntaxType.EnumDefinition:
-            return renderer.renderEnum(statement, identifiers)
+            return renderer.renderEnum(statement, state)
 
         case SyntaxType.TypedefDefinition:
-            return renderer.renderTypeDef(statement, identifiers)
+            return renderer.renderTypeDef(statement, state)
 
         case SyntaxType.StructDefinition:
-            return renderer.renderStruct(statement, identifiers)
+            return renderer.renderStruct(statement, state)
 
         case SyntaxType.UnionDefinition:
-            return renderer.renderUnion(statement, identifiers)
+            return renderer.renderUnion(statement, state)
 
         case SyntaxType.ExceptionDefinition:
-            return renderer.renderException(statement, identifiers)
+            return renderer.renderException(statement, state)
 
         case SyntaxType.ServiceDefinition:
-            return renderer.renderService(statement, identifiers)
+            return renderer.renderService(statement, state)
 
         case SyntaxType.NamespaceDefinition:
         case SyntaxType.CppIncludeDefinition:
@@ -55,12 +55,12 @@ export function renderStatement(
  */
 export function processStatements(
     statements: Array<ThriftStatement>,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
     renderer: IRenderer,
 ): Array<ts.Statement> {
     return statements.reduce(
         (acc: Array<ts.Statement>, next: ThriftStatement) => {
-            return [...acc, ...renderStatement(next, identifiers, renderer)]
+            return [...acc, ...renderStatement(next, state, renderer)]
         },
         [],
     )

@@ -1,27 +1,22 @@
 import * as ts from 'typescript'
 
 import {
-    ContainerType,
     FieldDefinition,
     InterfaceWithFields,
     SyntaxType,
     UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
-import {
-    COMMON_IDENTIFIERS,
-    THRIFT_IDENTIFIERS,
-    THRIFT_TYPES,
-} from '../identifiers'
+import { COMMON_IDENTIFIERS } from '../identifiers'
 
-import { createNumberType, thriftTypeForFieldType } from '../types'
+import { thriftTypeForFieldType } from '../types'
+
+import { createFunctionParameter } from '../utils'
 
 import {
-    createConstStatement,
     createEqualsCheck,
     getInitializerForField,
     hasRequiredField,
-    propertyAccessForIdentifier,
     throwProtocolException,
 } from '../utils'
 
@@ -29,29 +24,35 @@ import { IRenderState } from '../../../types'
 
 import {
     createCheckForFields,
-    createInputParameter,
     createSkipBlock,
-    readFieldBegin,
-    readFieldEnd,
-    readStructBegin,
-    readStructEnd,
     readValueForFieldType,
 } from '../struct/decode'
 
 import { strictNameForStruct } from '../struct/utils'
-import { fieldTypeAccess } from './union-fields'
+import { fieldTypeAccess, unionTypeName } from './union-fields'
 import {
+    createFieldAssignment,
     createFieldIncrementer,
     createFieldValidation,
     createReturnVariable,
     incrementFieldsSet,
 } from './utils'
 
-export function createDecodeMethod(
+function createArgsParameter(node: UnionDefinition): ts.ParameterDeclaration {
+    return createFunctionParameter(
+        'args', // param name
+        ts.createTypeReferenceNode(
+            ts.createIdentifier(unionTypeName(node.name.value, false)),
+            undefined,
+        ),
+    )
+}
+
+export function createCreateMethod(
     node: UnionDefinition,
     state: IRenderState,
 ): ts.MethodDeclaration {
-    const inputParameter: ts.ParameterDeclaration = createInputParameter()
+    const inputParameter: ts.ParameterDeclaration = createArgsParameter(node)
     const returnVariable: ts.VariableStatement = createReturnVariable(
         node,
         state,
@@ -59,67 +60,17 @@ export function createDecodeMethod(
 
     const fieldsSet: ts.VariableStatement = createFieldIncrementer()
 
-    /**
-     * cosnt ret: { fieldName: string; fieldType: Thrift.Type; fieldId: number; } = input.readFieldBegin()
-     * const fieldType: Thrift.Type = ret.fieldType
-     * const fieldId: number = ret.fieldId
-     */
-    const ret: ts.VariableStatement = createConstStatement(
-        'ret',
-        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IThriftField, undefined),
-        readFieldBegin(),
-    )
-
-    const fieldType: ts.VariableStatement = createConstStatement(
-        'fieldType',
-        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.Thrift_Type, undefined),
-        propertyAccessForIdentifier('ret', 'fieldType'),
-    )
-
-    const fieldId: ts.VariableStatement = createConstStatement(
-        'fieldId',
-        createNumberType(),
-        propertyAccessForIdentifier('ret', 'fieldId'),
-    )
-
-    /**
-     * if (fieldType === Thrift.Type.STOP) {
-     *     break;
-     * }
-     */
-    const checkStop: ts.IfStatement = ts.createIf(
-        createEqualsCheck(COMMON_IDENTIFIERS.fieldType, THRIFT_TYPES.STOP),
-        ts.createBlock([ts.createBreak()], true),
-    )
-
-    const whileLoop: ts.WhileStatement = ts.createWhile(
-        ts.createLiteral(true),
-        ts.createBlock(
-            [
-                ret,
-                fieldType,
-                fieldId,
-                checkStop,
-                ts.createSwitch(
-                    COMMON_IDENTIFIERS.fieldId, // what to switch on
-                    ts.createCaseBlock([
-                        ...node.fields.map((next: FieldDefinition) => {
-                            return createCaseForField(node, next, state)
-                        }),
-                        ts.createDefaultClause([createSkipBlock()]),
-                    ]),
-                ),
-                readFieldEnd(),
-            ],
-            true,
-        ),
+    const fieldAssignments: Array<ts.IfStatement> = node.fields.map(
+        (next: FieldDefinition) => {
+            return createFieldAssignment(next, state)
+        },
     )
 
     return ts.createMethod(
         undefined,
         undefined,
         undefined,
-        COMMON_IDENTIFIERS.decode,
+        COMMON_IDENTIFIERS.create,
         undefined,
         undefined,
         [inputParameter],
@@ -131,9 +82,7 @@ export function createDecodeMethod(
             [
                 fieldsSet,
                 returnVariable,
-                readStructBegin(),
-                whileLoop,
-                readStructEnd(),
+                ...fieldAssignments,
                 createFieldValidation(node),
                 ts.createIf(
                     ts.createBinary(
@@ -200,7 +149,10 @@ function createReturnForFields(
                     [ts.createReturn(createUnionObjectForField(node, head))],
                     true,
                 ),
-                ts.createBlock([createReturnForFields(node, tail, state)]),
+                ts.createBlock(
+                    [createReturnForFields(node, tail, state)],
+                    true,
+                ),
             )
         } else {
             return ts.createReturn(createUnionObjectForField(node, head))
@@ -277,34 +229,6 @@ export function endReadForField(
                     ),
                 ),
             ]
-    }
-}
-
-export function metadataTypeForFieldType(
-    fieldType: ContainerType,
-): ts.TypeNode {
-    switch (fieldType.type) {
-        case SyntaxType.MapType:
-            return ts.createTypeReferenceNode(
-                THRIFT_IDENTIFIERS.IThriftMap,
-                undefined,
-            )
-
-        case SyntaxType.SetType:
-            return ts.createTypeReferenceNode(
-                THRIFT_IDENTIFIERS.IThriftSet,
-                undefined,
-            )
-
-        case SyntaxType.ListType:
-            return ts.createTypeReferenceNode(
-                THRIFT_IDENTIFIERS.IThriftList,
-                undefined,
-            )
-
-        default:
-            const msg: never = fieldType
-            throw new Error(`Non-exhaustive match for: ${msg}`)
     }
 }
 

@@ -1,6 +1,6 @@
 import * as ts from 'typescript'
 
-import { UnionDefinition } from '@creditkarma/thrift-parser'
+import { InterfaceWithFields } from '@creditkarma/thrift-parser'
 
 import { createConst } from '../utils'
 
@@ -10,37 +10,37 @@ import { createEncodeMethod } from './encode'
 
 import { createDecodeMethod } from './decode'
 
-import { IIdentifierMap } from '../../../types'
+import { IRenderState } from '../../../types'
 import {
-    codecNameForStruct,
     looseNameForStruct,
     strictNameForStruct,
     tokens,
-} from '../struct/utils'
+    toolkitNameForStruct,
+} from './utils'
 
-export function renderCodec(
-    node: UnionDefinition,
-    identifiers: IIdentifierMap,
+export function renderToolkit(
+    node: InterfaceWithFields,
+    state: IRenderState,
     isExported: boolean,
 ): ts.Statement {
     return ts.createVariableStatement(
         tokens(isExported),
         createConst(
-            ts.createIdentifier(codecNameForStruct(node)),
+            ts.createIdentifier(toolkitNameForStruct(node)),
             ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IStructCodec, [
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(looseNameForStruct(node)),
+                    ts.createIdentifier(looseNameForStruct(node, state)),
                     undefined,
                 ),
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(strictNameForStruct(node)),
+                    ts.createIdentifier(strictNameForStruct(node, state)),
                     undefined,
                 ),
             ]),
             ts.createObjectLiteral(
                 [
-                    createEncodeMethod(node, identifiers),
-                    createDecodeMethod(node, identifiers),
+                    createEncodeMethod(node, state),
+                    createDecodeMethod(node, state),
                 ],
                 true,
             ),

@@ -9,7 +9,6 @@ import { IIdentifierMap, IResolvedIdentifier } from '../../types'
 function renderTypeDefForIdentifier(
     id: IResolvedIdentifier,
     node: TypedefDefinition,
-    typeMapping: TypeMapping,
 ): Array<ts.Statement> {
     return [
         ts.createImportEqualsDeclaration(
@@ -31,7 +30,6 @@ export function renderTypeDef(
             return renderTypeDefForIdentifier(
                 identifiers[node.definitionType.value],
                 node,
-                typeMapping,
             )
 
         default:

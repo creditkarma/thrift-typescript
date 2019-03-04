@@ -23,19 +23,18 @@ import {
 import { renderService as _renderService } from './service'
 import { renderStruct as _renderStruct } from './struct'
 import { renderTypeDef as _renderTypeDef } from './typedef'
-import { renderUnion as _renderUnion } from './union'
+import { renderStrictUnion, renderUnion as _renderUnion } from './union'
 
 import {
-    IIdentifierMap,
     IMakeOptions,
     INamespaceFile,
     IRenderer,
+    IRenderState,
 } from '../../types'
 
 import { typeNodeForFieldType } from './types'
 
 export function renderIncludes(
-    outPath: string,
     currentPath: string,
     resolvedFile: INamespaceFile,
     options: IMakeOptions,
@@ -43,22 +42,22 @@ export function renderIncludes(
     if (fileUsesThrift(resolvedFile)) {
         return [
             renderThriftImports(options.library),
-            ..._renderIncludes(outPath, currentPath, resolvedFile),
+            ..._renderIncludes(currentPath, resolvedFile),
         ]
     } else {
-        return _renderIncludes(outPath, currentPath, resolvedFile)
+        return _renderIncludes(currentPath, resolvedFile)
     }
 }
 
 export function renderConst(
     statement: ConstDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Statement> {
     return [
         _renderConst(
             statement,
             (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
-                return typeNodeForFieldType(fieldType, identifiers, loose)
+                return typeNodeForFieldType(fieldType, state, loose)
             },
         ),
     ]
@@ -66,50 +65,54 @@ export function renderConst(
 
 export function renderTypeDef(
     statement: TypedefDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Statement> {
     return _renderTypeDef(
         statement,
         (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
-            return typeNodeForFieldType(fieldType, identifiers, loose)
+            return typeNodeForFieldType(fieldType, state, loose)
         },
-        identifiers,
+        state,
     )
 }
 
 export function renderEnum(
     statement: EnumDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Statement> {
     return [_renderEnum(statement)]
 }
 
 export function renderStruct(
     statement: StructDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Statement> {
-    return _renderStruct(statement, identifiers)
+    return _renderStruct(statement, state)
 }
 
 export function renderException(
     statement: ExceptionDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Statement> {
-    return _renderException(statement, identifiers)
+    return _renderException(statement, state)
 }
 
 export function renderUnion(
     statement: UnionDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Statement> {
-    return _renderUnion(statement, identifiers)
+    if (state.options.strictUnions) {
+        return renderStrictUnion(statement, state)
+    } else {
+        return _renderUnion(statement, state)
+    }
 }
 
 export function renderService(
     statement: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Statement> {
-    return [_renderService(statement, identifiers)]
+    return [_renderService(statement, state)]
 }
 
 export const renderer: IRenderer = {

@@ -32,9 +32,13 @@ import {
     typeNodeForFieldType,
 } from '../types'
 
-import { IIdentifierMap, IResolvedIdentifier } from '../../../types'
+import {
+    IIdentifierMap,
+    IRenderState,
+    IResolvedIdentifier,
+} from '../../../types'
 
-import { codecName, looseNameForStruct, throwForField } from './utils'
+import { looseNameForStruct, throwForField, toolkitName } from './utils'
 
 export function createTempVariables(
     node: InterfaceWithFields,
@@ -73,11 +77,11 @@ export function createTempVariables(
 
 export function createEncodeMethod(
     node: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     const tempVariables: Array<ts.VariableStatement> = createTempVariables(
         node,
-        identifiers,
+        state.identifiers,
     )
 
     return ts.createMethod(
@@ -91,7 +95,7 @@ export function createEncodeMethod(
             createFunctionParameter(
                 COMMON_IDENTIFIERS.args,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(looseNameForStruct(node)),
+                    ts.createIdentifier(looseNameForStruct(node, state)),
                     undefined,
                 ),
             ),
@@ -109,7 +113,7 @@ export function createEncodeMethod(
                 ...tempVariables,
                 writeStructBegin(node.name.value),
                 ...node.fields.filter(isNotVoid).map((field) => {
-                    return createWriteForField(node, field, identifiers)
+                    return createWriteForField(node, field, state)
                 }),
                 writeFieldStop(),
                 writeStructEnd(),
@@ -130,7 +134,7 @@ export function createEncodeMethod(
 export function createWriteForField(
     node: InterfaceWithFields,
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.IfStatement {
     const isFieldNull: ts.BinaryExpression = createNotNullCheck(
         `obj.${field.name.value}`,
@@ -139,7 +143,7 @@ export function createWriteForField(
         node,
         field,
         ts.createIdentifier(`obj.${field.name.value}`),
-        identifiers,
+        state,
     )
     const elseThrow: ts.Statement | undefined = throwForField(field)
 
@@ -163,11 +167,11 @@ export function createWriteForFieldType(
     node: InterfaceWithFields,
     field: FieldDefinition,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.Block {
     return ts.createBlock([
-        writeFieldBegin(field, identifiers),
-        ...writeValueForField(node, field.fieldType, fieldName, identifiers),
+        writeFieldBegin(field, state.identifiers),
+        ...writeValueForField(node, field.fieldType, fieldName, state),
         writeFieldEnd(),
     ])
 }
@@ -177,7 +181,7 @@ export function writeValueForIdentifier(
     node: InterfaceWithFields,
     fieldType: FunctionType,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Expression> {
     switch (id.definition.type) {
         case SyntaxType.ConstDefinition:
@@ -197,7 +201,7 @@ export function writeValueForIdentifier(
         case SyntaxType.ExceptionDefinition:
             return [
                 createMethodCall(
-                    ts.createIdentifier(codecName(id.resolvedName)),
+                    ts.createIdentifier(toolkitName(id.resolvedName)),
                     'encode',
                     [fieldName, COMMON_IDENTIFIERS.output],
                 ),
@@ -216,7 +220,7 @@ export function writeValueForIdentifier(
                 node,
                 id.definition.definitionType,
                 fieldName,
-                identifiers,
+                state,
             )
 
         default:
@@ -229,16 +233,16 @@ export function writeValueForType(
     node: InterfaceWithFields,
     fieldType: FunctionType,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Expression> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return writeValueForIdentifier(
-                identifiers[fieldType.value],
+                state.identifiers[fieldType.value],
                 node,
                 fieldType,
                 fieldName,
-                identifiers,
+                state,
             )
 
         /**
@@ -248,22 +252,22 @@ export function writeValueForType(
          */
         case SyntaxType.SetType:
             return [
-                writeSetBegin(fieldType, fieldName, identifiers),
-                forEach(node, fieldType, fieldName, identifiers),
+                writeSetBegin(fieldType, fieldName, state.identifiers),
+                forEach(node, fieldType, fieldName, state),
                 writeSetEnd(),
             ]
 
         case SyntaxType.MapType:
             return [
-                writeMapBegin(fieldType, fieldName, identifiers),
-                forEach(node, fieldType, fieldName, identifiers),
+                writeMapBegin(fieldType, fieldName, state.identifiers),
+                forEach(node, fieldType, fieldName, state),
                 writeMapEnd(),
             ]
 
         case SyntaxType.ListType:
             return [
-                writeListBegin(fieldType, fieldName, identifiers),
-                forEach(node, fieldType, fieldName, identifiers),
+                writeListBegin(fieldType, fieldName, state.identifiers),
+                forEach(node, fieldType, fieldName, state),
                 writeListEnd(),
             ]
 
@@ -307,9 +311,9 @@ function writeValueForField(
     node: InterfaceWithFields,
     fieldType: FunctionType,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.ExpressionStatement> {
-    return writeValueForType(node, fieldType, fieldName, identifiers).map(
+    return writeValueForType(node, fieldType, fieldName, state).map(
         ts.createStatement,
     )
 }
@@ -333,18 +337,18 @@ function forEach(
     node: InterfaceWithFields,
     fieldType: ContainerType,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.CallExpression {
     const value: ts.Identifier = ts.createUniqueName('value')
     const forEachParameters: Array<ts.ParameterDeclaration> = [
         createFunctionParameter(
             value,
-            typeNodeForFieldType(fieldType.valueType, identifiers, true),
+            typeNodeForFieldType(fieldType.valueType, state, true),
         ),
     ]
 
     const forEachStatements: Array<ts.Statement> = [
-        ...writeValueForField(node, fieldType.valueType, value, identifiers),
+        ...writeValueForField(node, fieldType.valueType, value, state),
     ]
 
     // If map we have to handle key type as well as value type
@@ -353,12 +357,12 @@ function forEach(
         forEachParameters.push(
             createFunctionParameter(
                 key,
-                typeNodeForFieldType(fieldType.keyType, identifiers, true),
+                typeNodeForFieldType(fieldType.keyType, state, true),
             ),
         )
 
         forEachStatements.unshift(
-            ...writeValueForField(node, fieldType.keyType, key, identifiers),
+            ...writeValueForField(node, fieldType.keyType, key, state),
         )
     }
 
