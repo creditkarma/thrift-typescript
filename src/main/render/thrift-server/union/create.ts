@@ -25,9 +25,6 @@ import { IRenderState } from '../../../types'
 import {
     createCheckForFields,
     createSkipBlock,
-    // readFieldEnd,
-    // readStructBegin,
-    // readStructEnd,
     readValueForFieldType,
 } from '../struct/decode'
 
