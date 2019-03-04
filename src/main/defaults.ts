@@ -10,24 +10,28 @@ export const DEFAULT_OPTIONS: IMakeOptions = {
     outDir: './codegen',
     sourceDir: './thrift',
     target: 'apache',
+    library: DEFAULT_APACHE_LIB,
     files: [],
-    library: '',
     strictUnions: false,
     fallbackNamespace: 'java',
+}
+
+export function defaultLibrary(options: Partial<IMakeOptions>): string {
+    if (
+        options.target === 'thrift-server' &&
+        (!options.library || options.library === DEFAULT_APACHE_LIB)
+    ) {
+        return DEFAULT_THRIFT_SERVER_LIB
+    } else if (options.library) {
+        return options.library
+    } else {
+        return DEFAULT_APACHE_LIB
+    }
 }
 
 export function mergeWithDefaults(
     options: Partial<IMakeOptions>,
 ): IMakeOptions {
-    if (
-        options.target &&
-        (options.library === undefined || options.library.trim() === '')
-    ) {
-        options.library =
-            options.target === 'apache'
-                ? DEFAULT_APACHE_LIB
-                : DEFAULT_THRIFT_SERVER_LIB
-    }
-
+    options.library = defaultLibrary(options)
     return deepMerge(DEFAULT_OPTIONS, options)
 }

@@ -1,12 +1,8 @@
 import { lstatSync } from 'fs'
 
-import {
-    DEFAULT_APACHE_LIB,
-    DEFAULT_OPTIONS,
-    DEFAULT_THRIFT_SERVER_LIB,
-} from '../defaults'
+import { DEFAULT_OPTIONS, defaultLibrary } from '../defaults'
 import { IMakeOptions } from '../types'
-import { deepCopy } from '../utils'
+import { deepCopy, deepMerge } from '../utils'
 
 /**
  * Options:
@@ -95,13 +91,7 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
         }
     }
 
-    if (options.target === 'thrift-server' && options.library === '') {
-        options.library = DEFAULT_THRIFT_SERVER_LIB
-    }
-
-    if (options.target === 'apache' && options.library === '') {
-        options.library = DEFAULT_APACHE_LIB
-    }
-
-    return options
+    return deepMerge(options, {
+        library: defaultLibrary(options),
+    })
 }
