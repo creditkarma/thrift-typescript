@@ -373,7 +373,7 @@ struct Profile {
 }
 ```
 
-There is something of a difference between how we want to handle things in TypeScript and how data is going to be sent over the wire. Because of this when we generate interfaces for these structs we generate two interfaces for each struct, one is an exact representation of the Thrift, the other is something looser that more represents how the data will be worked with in TypeScript.
+There is something of a difference between how we want to handle things in TypeScript and how data is going to be sent over the wire. Because of this when we generate interfaces for these structs we generate two interfaces for each struct, one is an exact representation of the Thrift, the other is something looser that more represents how the data will be worked with in the TypeScript application source.
 
 The main difference is that fields marked as `i64` can be represented as either `number` or an `Int64` object and `binary` can be represented as either a `string` or a `Buffer` object.
 
@@ -400,7 +400,7 @@ interface IProfileArgs {
 
 The names of loose interfaces just append `Args` onto the end of the interface name. The reason for this is these interfaces will most often be used as arguments in your code.
 
-Where are the loose interfaces used? The loose interfaces can be passed to client methods.
+Where are the loose interfaces used? The loose interfaces can be used anywhere you as the application developer are giving data to the generated code, either as the arguments to a client method or the return value of a service handler.
 
 If we had this service:
 
@@ -418,13 +418,17 @@ namespace ProfileService {
         constructor(connection: thrift.IThriftConnection<Context>) {
             // ...
         }
-        getProfileForUser(user: IUserArgs): Promise<Profile> {
+        getProfileForUser(user: IUserArgs, context?: Context): Promise<Profile> {
             // ...
         }
     }
-    // Handler, Processor
+    export interface IHandler<Context> {
+        getProfileForUser(user: IUser, context: Context): Promise<IProfileArgs>
+    }
 }
 ```
+
+As you can see from this sketch of generated types when data leave application code and crossed the boundary into the generated code you can pass loose values, when the data comes from generated code it will always be of the strict types.
 
 We can use a `User` object where the `id` is a `number` without having to wrap it in `Int64`. These conversions are handled for us, similarly `string` data can be passed to a `binary` field and the conversion to `Buffer` is handled under the hood. This are just convinience interfaces to make handling the Thrift objects in TypeScript a little easier. You will notice service methods always return an object of the more strict interface. Also, the more strict interface can always be passed where the loose interface is expected.
 

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+<a name="3.2.2"></a>
+# [3.2.2](https://github.com/creditkarma/thrift-typescript/compare/v3.1.1...v3.2.2) (2019-03-05)
+
+### Features
+
+* Add support for strict unions ([30c5d3](https://github.com/creditkarma/thrift-typescript/commit/30c5d3))
+* Allow service method returns types as defined by `IHandler` to be loose types ([44e474](https://github.com/creditkarma/thrift-typescript/commit/44e474))
+
 <a name="3.0.2"></a>
 # [3.0.2](https://github.com/creditkarma/thrift-typescript/compare/v3.0.1...v3.0.2) (2018-11-26)
 
