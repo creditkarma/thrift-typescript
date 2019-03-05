@@ -563,14 +563,14 @@ export namespace MyService {
                     reject(err);
                 }
             }).then((data: string): Buffer => {
-                const result: IPeg__Result = { success: data };
+                const result: IPeg__ResultArgs = { success: data };
                 output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
                 Peg__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
                 return output.flush();
             }).catch((err: Error): Buffer => {
                 if (err instanceof ServiceException) {
-                    const result: IPeg__Result = { exp: err };
+                    const result: IPeg__ResultArgs = { exp: err };
                     output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
                     Peg__ResultCodec.encode(result, output);
                     output.writeMessageEnd();
@@ -596,7 +596,7 @@ export namespace MyService {
                     reject(err);
                 }
             }).then((data: string): Buffer => {
-                const result: IPong__Result = { success: data };
+                const result: IPong__ResultArgs = { success: data };
                 output.writeMessageBegin("pong", thrift.MessageType.REPLY, requestId);
                 Pong__ResultCodec.encode(result, output);
                 output.writeMessageEnd();

@@ -15,9 +15,11 @@
         "clean-all": "npm run clean && rimraf ./node_modules package-lock.json",
         "codegen": "node ./dist/main/bin/index.js --sourceDir ./src/tests/integration/thrift --outDir ./src/tests/integration/apache/codegen",
         "prebuild": "npm run clean && npm run lint && npm run format",
-        "build": "tsc",
+        "build": "npm run build:only",
+        "build:only": "tsc",
         "prebuild:test": "npm run build && npm run codegen",
-        "build:test": "tsc -p tsconfig.test.json",
+        "build:test": "npm run build:test:only",
+        "build:test:only": "tsc -p tsconfig.test.json",
         "build:watch": "tsc --watch",
         "lint": "tslint --fix 'src/**/*.ts'",
         "format": "prettier --write 'src/**/*.ts'",
@@ -41,7 +43,7 @@
         "url": "https://github.com/creditkarma/thrift-typescript"
     },
     "dependencies": {
-        "@creditkarma/thrift-parser": "~1.1.4",
+        "@creditkarma/thrift-parser": "^1.1.5",
         "glob": "^7.1.2",
         "typescript": "3.2.x"
     },

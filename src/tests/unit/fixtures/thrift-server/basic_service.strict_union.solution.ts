@@ -577,7 +577,7 @@ export namespace MyService {
                     reject(err);
                 }
             }).then((data: string): Buffer => {
-                const result: IGetUser__Result = { success: data };
+                const result: IGetUser__ResultArgs = { success: data };
                 output.writeMessageBegin("getUser", thrift.MessageType.REPLY, requestId);
                 GetUser__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -600,7 +600,7 @@ export namespace MyService {
                     reject(err);
                 }
             }).then((data: void): Buffer => {
-                const result: IPing__Result = { success: data };
+                const result: IPing__ResultArgs = { success: data };
                 output.writeMessageBegin("ping", thrift.MessageType.REPLY, requestId);
                 Ping__ResultCodec.encode(result, output);
                 output.writeMessageEnd();

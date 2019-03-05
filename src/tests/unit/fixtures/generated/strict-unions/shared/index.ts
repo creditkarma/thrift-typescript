@@ -767,8 +767,8 @@ export namespace SharedService {
         }
     }
     export interface IHandler<Context = any> {
-        getStruct(key: number, context?: Context): ISharedStruct | Promise<ISharedStruct>;
-        getUnion(index: number, context?: Context): SharedUnion | Promise<SharedUnion>;
+        getStruct(key: number, context?: Context): ISharedStructArgs | Promise<ISharedStructArgs>;
+        getUnion(index: number, context?: Context): SharedUnionArgs | Promise<SharedUnionArgs>;
     }
     export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
         protected readonly _handler: IHandler<Context>;
@@ -814,7 +814,7 @@ export namespace SharedService {
             });
         }
         public process_getStruct(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
-            return new Promise<ISharedStruct>((resolve, reject): void => {
+            return new Promise<ISharedStructArgs>((resolve, reject): void => {
                 try {
                     const args: IGetStruct__Args = GetStruct__ArgsCodec.decode(input);
                     input.readMessageEnd();
@@ -823,8 +823,8 @@ export namespace SharedService {
                 catch (err) {
                     reject(err);
                 }
-            }).then((data: ISharedStruct): Buffer => {
-                const result: IGetStruct__Result = { success: data };
+            }).then((data: ISharedStructArgs): Buffer => {
+                const result: IGetStruct__ResultArgs = { success: data };
                 output.writeMessageBegin("getStruct", thrift.MessageType.REPLY, requestId);
                 GetStruct__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -838,7 +838,7 @@ export namespace SharedService {
             });
         }
         public process_getUnion(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
-            return new Promise<SharedUnion>((resolve, reject): void => {
+            return new Promise<SharedUnionArgs>((resolve, reject): void => {
                 try {
                     const args: IGetUnion__Args = GetUnion__ArgsCodec.decode(input);
                     input.readMessageEnd();
@@ -847,8 +847,8 @@ export namespace SharedService {
                 catch (err) {
                     reject(err);
                 }
-            }).then((data: SharedUnion): Buffer => {
-                const result: IGetUnion__Result = { success: data };
+            }).then((data: SharedUnionArgs): Buffer => {
+                const result: IGetUnion__ResultArgs = { success: data };
                 output.writeMessageBegin("getUnion", thrift.MessageType.REPLY, requestId);
                 GetUnion__ResultCodec.encode(result, output);
                 output.writeMessageEnd();

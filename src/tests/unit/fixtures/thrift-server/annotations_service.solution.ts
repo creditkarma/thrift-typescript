@@ -678,7 +678,7 @@ export namespace MyService {
         }
     }
     export interface IHandler<Context = any> {
-        getUser(id: number, context?: Context): IUser | Promise<IUser>;
+        getUser(id: number, context?: Context): IUserArgs | Promise<IUserArgs>;
         saveUser(user: IUser, context?: Context): void | Promise<void>;
         ping(context?: Context): void | Promise<void>;
     }
@@ -730,7 +730,7 @@ export namespace MyService {
             });
         }
         public process_getUser(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
-            return new Promise<IUser>((resolve, reject): void => {
+            return new Promise<IUserArgs>((resolve, reject): void => {
                 try {
                     const args: IGetUser__Args = GetUser__ArgsCodec.decode(input);
                     input.readMessageEnd();
@@ -739,8 +739,8 @@ export namespace MyService {
                 catch (err) {
                     reject(err);
                 }
-            }).then((data: IUser): Buffer => {
-                const result: IGetUser__Result = { success: data };
+            }).then((data: IUserArgs): Buffer => {
+                const result: IGetUser__ResultArgs = { success: data };
                 output.writeMessageBegin("getUser", thrift.MessageType.REPLY, requestId);
                 GetUser__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -764,7 +764,7 @@ export namespace MyService {
                     reject(err);
                 }
             }).then((data: void): Buffer => {
-                const result: ISaveUser__Result = { success: data };
+                const result: ISaveUser__ResultArgs = { success: data };
                 output.writeMessageBegin("saveUser", thrift.MessageType.REPLY, requestId);
                 SaveUser__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -787,7 +787,7 @@ export namespace MyService {
                     reject(err);
                 }
             }).then((data: void): Buffer => {
-                const result: IPing__Result = { success: data };
+                const result: IPing__ResultArgs = { success: data };
                 output.writeMessageBegin("ping", thrift.MessageType.REPLY, requestId);
                 Ping__ResultCodec.encode(result, output);
                 output.writeMessageEnd();

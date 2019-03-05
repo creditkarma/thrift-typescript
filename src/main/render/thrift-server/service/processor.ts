@@ -60,7 +60,7 @@ import {
     renderServiceAnnotationsStaticProperty,
 } from '../annotations'
 
-import { strictName, toolkitName } from '../struct/utils'
+import { looseName, strictName, toolkitName } from '../struct/utils'
 
 function objectLiteralForServiceFunctions(
     node: ThriftStatement,
@@ -265,7 +265,11 @@ function createProcessFunctionMethod(
                 createMethodCall(
                     createMethodCall(
                         createPromise(
-                            typeNodeForFieldType(funcDef.returnType, state),
+                            typeNodeForFieldType(
+                                funcDef.returnType,
+                                state,
+                                true,
+                            ),
                             createVoidType(),
                             [
                                 // try {
@@ -347,6 +351,7 @@ function createProcessFunctionMethod(
                                         typeNodeForFieldType(
                                             funcDef.returnType,
                                             state,
+                                            true,
                                         ),
                                     ),
                                 ],
@@ -362,7 +367,7 @@ function createProcessFunctionMethod(
                                             COMMON_IDENTIFIERS.result,
                                             ts.createTypeReferenceNode(
                                                 ts.createIdentifier(
-                                                    strictName(
+                                                    looseName(
                                                         createStructResultName(
                                                             funcDef,
                                                         ),
@@ -583,7 +588,7 @@ function createThenForException(
                 COMMON_IDENTIFIERS.result,
                 ts.createTypeReferenceNode(
                     ts.createIdentifier(
-                        strictName(
+                        looseName(
                             createStructResultName(funcDef),
                             SyntaxType.StructDefinition,
                             state,

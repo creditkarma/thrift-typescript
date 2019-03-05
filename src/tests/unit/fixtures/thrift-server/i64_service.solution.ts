@@ -481,7 +481,7 @@ export namespace MyService {
     }
     export interface IHandler<Context = any> {
         peg(name: string, context?: Context): string | Promise<string>;
-        pong(code?: ICode, context?: Context): thrift.Int64 | Promise<thrift.Int64>;
+        pong(code?: ICode, context?: Context): (number | thrift.Int64) | Promise<number | thrift.Int64>;
     }
     export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
         protected readonly _handler: IHandler<Context>;
@@ -537,7 +537,7 @@ export namespace MyService {
                     reject(err);
                 }
             }).then((data: string): Buffer => {
-                const result: IPeg__Result = { success: data };
+                const result: IPeg__ResultArgs = { success: data };
                 output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
                 Peg__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -551,7 +551,7 @@ export namespace MyService {
             });
         }
         public process_pong(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
-            return new Promise<thrift.Int64>((resolve, reject): void => {
+            return new Promise<number | thrift.Int64>((resolve, reject): void => {
                 try {
                     const args: IPong__Args = Pong__ArgsCodec.decode(input);
                     input.readMessageEnd();
@@ -560,8 +560,8 @@ export namespace MyService {
                 catch (err) {
                     reject(err);
                 }
-            }).then((data: thrift.Int64): Buffer => {
-                const result: IPong__Result = { success: data };
+            }).then((data: number | thrift.Int64): Buffer => {
+                const result: IPong__ResultArgs = { success: data };
                 output.writeMessageBegin("pong", thrift.MessageType.REPLY, requestId);
                 Pong__ResultCodec.encode(result, output);
                 output.writeMessageEnd();

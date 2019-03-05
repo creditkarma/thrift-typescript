@@ -37,9 +37,9 @@ function funcToMethodReducer(
                 ),
             ],
             ts.createUnionTypeNode([
-                typeMapping(func.returnType),
+                typeMapping(func.returnType, true),
                 ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Promise, [
-                    typeMapping(func.returnType),
+                    typeMapping(func.returnType, true),
                 ]),
             ]),
             func.name.value,

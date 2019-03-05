@@ -591,28 +591,28 @@ export namespace MyService {
                     reject(err);
                 }
             }).then((data: string): Buffer => {
-                const result: IPeg__Result = { success: data };
+                const result: IPeg__ResultArgs = { success: data };
                 output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
                 Peg__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
                 return output.flush();
             }).catch((err: Error): Buffer => {
                 if (err instanceof ServiceException) {
-                    const result: IPeg__Result = { exp: err };
+                    const result: IPeg__ResultArgs = { exp: err };
                     output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
                     Peg__ResultCodec.encode(result, output);
                     output.writeMessageEnd();
                     return output.flush();
                 }
                 else if (err instanceof AuthException) {
-                    const result: IPeg__Result = { authExp: err };
+                    const result: IPeg__ResultArgs = { authExp: err };
                     output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
                     Peg__ResultCodec.encode(result, output);
                     output.writeMessageEnd();
                     return output.flush();
                 }
                 else if (err instanceof UnknownException) {
-                    const result: IPeg__Result = { unknownExp: err };
+                    const result: IPeg__ResultArgs = { unknownExp: err };
                     output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
                     Peg__ResultCodec.encode(result, output);
                     output.writeMessageEnd();

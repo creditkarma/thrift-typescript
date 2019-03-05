@@ -276,7 +276,7 @@ export namespace ParentService {
                     reject(err);
                 }
             }).then((data: string): Buffer => {
-                const result: IPing__Result = { success: data };
+                const result: IPing__ResultArgs = { success: data };
                 output.writeMessageBegin("ping", thrift.MessageType.REPLY, requestId);
                 Ping__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -780,7 +780,7 @@ export namespace ChildService {
                     reject(err);
                 }
             }).then((data: string): Buffer => {
-                const result: IPeg__Result = { success: data };
+                const result: IPeg__ResultArgs = { success: data };
                 output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
                 Peg__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -804,7 +804,7 @@ export namespace ChildService {
                     reject(err);
                 }
             }).then((data: string): Buffer => {
-                const result: IPong__Result = { success: data };
+                const result: IPong__ResultArgs = { success: data };
                 output.writeMessageBegin("pong", thrift.MessageType.REPLY, requestId);
                 Pong__ResultCodec.encode(result, output);
                 output.writeMessageEnd();

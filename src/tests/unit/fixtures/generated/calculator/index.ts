@@ -3419,7 +3419,7 @@ export namespace Calculator {
     export interface ILocalHandler<Context = any> {
         ping(context?: Context): void | Promise<void>;
         add(num1: number, num2: number, context?: Context): number | Promise<number>;
-        addInt64(num1: thrift.Int64, num2: thrift.Int64, context?: Context): thrift.Int64 | Promise<thrift.Int64>;
+        addInt64(num1: thrift.Int64, num2: thrift.Int64, context?: Context): (number | thrift.Int64) | Promise<number | thrift.Int64>;
         addWithContext(num1: number, num2: number, context?: Context): number | Promise<number>;
         calculate(logid: number, work: IWork, context?: Context): number | Promise<number>;
         echoBinary(word: Buffer, context?: Context): string | Promise<string>;
@@ -3429,7 +3429,7 @@ export namespace Calculator {
         mapOneList(arg: Array<number>, context?: Context): Array<number> | Promise<Array<number>>;
         mapValues(arg: Map<string, number>, context?: Context): Array<number> | Promise<Array<number>>;
         listToMap(arg: Array<Array<string>>, context?: Context): Map<string, string> | Promise<Map<string, string>>;
-        fetchThing(context?: Context): common.ICommonStruct | Promise<common.ICommonStruct>;
+        fetchThing(context?: Context): common.ICommonStructArgs | Promise<common.ICommonStructArgs>;
         zip(context?: Context): void | Promise<void>;
     }
     export type IHandler<Context = any> = ILocalHandler<Context> & shared.SharedService.IHandler<Context>;
@@ -3545,7 +3545,7 @@ export namespace Calculator {
                     reject(err);
                 }
             }).then((data: void): Buffer => {
-                const result: IPing__Result = { success: data };
+                const result: IPing__ResultArgs = { success: data };
                 output.writeMessageBegin("ping", thrift.MessageType.REPLY, requestId);
                 Ping__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -3569,14 +3569,14 @@ export namespace Calculator {
                     reject(err);
                 }
             }).then((data: number): Buffer => {
-                const result: IAdd__Result = { success: data };
+                const result: IAdd__ResultArgs = { success: data };
                 output.writeMessageBegin("add", thrift.MessageType.REPLY, requestId);
                 Add__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
                 return output.flush();
             }).catch((err: Error): Buffer => {
                 if (err instanceof operation.JankyResult) {
-                    const result: IAdd__Result = { exp: err };
+                    const result: IAdd__ResultArgs = { exp: err };
                     output.writeMessageBegin("add", thrift.MessageType.REPLY, requestId);
                     Add__ResultCodec.encode(result, output);
                     output.writeMessageEnd();
@@ -3592,7 +3592,7 @@ export namespace Calculator {
             });
         }
         public process_addInt64(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
-            return new Promise<thrift.Int64>((resolve, reject): void => {
+            return new Promise<number | thrift.Int64>((resolve, reject): void => {
                 try {
                     const args: IAddInt64__Args = AddInt64__ArgsCodec.decode(input);
                     input.readMessageEnd();
@@ -3601,8 +3601,8 @@ export namespace Calculator {
                 catch (err) {
                     reject(err);
                 }
-            }).then((data: thrift.Int64): Buffer => {
-                const result: IAddInt64__Result = { success: data };
+            }).then((data: number | thrift.Int64): Buffer => {
+                const result: IAddInt64__ResultArgs = { success: data };
                 output.writeMessageBegin("addInt64", thrift.MessageType.REPLY, requestId);
                 AddInt64__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -3626,7 +3626,7 @@ export namespace Calculator {
                     reject(err);
                 }
             }).then((data: number): Buffer => {
-                const result: IAddWithContext__Result = { success: data };
+                const result: IAddWithContext__ResultArgs = { success: data };
                 output.writeMessageBegin("addWithContext", thrift.MessageType.REPLY, requestId);
                 AddWithContext__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -3650,14 +3650,14 @@ export namespace Calculator {
                     reject(err);
                 }
             }).then((data: number): Buffer => {
-                const result: ICalculate__Result = { success: data };
+                const result: ICalculate__ResultArgs = { success: data };
                 output.writeMessageBegin("calculate", thrift.MessageType.REPLY, requestId);
                 Calculate__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
                 return output.flush();
             }).catch((err: Error): Buffer => {
                 if (err instanceof operation.JankyOperation) {
-                    const result: ICalculate__Result = { ouch: err };
+                    const result: ICalculate__ResultArgs = { ouch: err };
                     output.writeMessageBegin("calculate", thrift.MessageType.REPLY, requestId);
                     Calculate__ResultCodec.encode(result, output);
                     output.writeMessageEnd();
@@ -3683,7 +3683,7 @@ export namespace Calculator {
                     reject(err);
                 }
             }).then((data: string): Buffer => {
-                const result: IEchoBinary__Result = { success: data };
+                const result: IEchoBinary__ResultArgs = { success: data };
                 output.writeMessageBegin("echoBinary", thrift.MessageType.REPLY, requestId);
                 EchoBinary__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -3707,7 +3707,7 @@ export namespace Calculator {
                     reject(err);
                 }
             }).then((data: string): Buffer => {
-                const result: IEchoString__Result = { success: data };
+                const result: IEchoString__ResultArgs = { success: data };
                 output.writeMessageBegin("echoString", thrift.MessageType.REPLY, requestId);
                 EchoString__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -3731,7 +3731,7 @@ export namespace Calculator {
                     reject(err);
                 }
             }).then((data: string): Buffer => {
-                const result: ICheckName__Result = { success: data };
+                const result: ICheckName__ResultArgs = { success: data };
                 output.writeMessageBegin("checkName", thrift.MessageType.REPLY, requestId);
                 CheckName__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -3755,7 +3755,7 @@ export namespace Calculator {
                     reject(err);
                 }
             }).then((data: string): Buffer => {
-                const result: ICheckOptional__Result = { success: data };
+                const result: ICheckOptional__ResultArgs = { success: data };
                 output.writeMessageBegin("checkOptional", thrift.MessageType.REPLY, requestId);
                 CheckOptional__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -3779,7 +3779,7 @@ export namespace Calculator {
                     reject(err);
                 }
             }).then((data: Array<number>): Buffer => {
-                const result: IMapOneList__Result = { success: data };
+                const result: IMapOneList__ResultArgs = { success: data };
                 output.writeMessageBegin("mapOneList", thrift.MessageType.REPLY, requestId);
                 MapOneList__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -3803,7 +3803,7 @@ export namespace Calculator {
                     reject(err);
                 }
             }).then((data: Array<number>): Buffer => {
-                const result: IMapValues__Result = { success: data };
+                const result: IMapValues__ResultArgs = { success: data };
                 output.writeMessageBegin("mapValues", thrift.MessageType.REPLY, requestId);
                 MapValues__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -3827,7 +3827,7 @@ export namespace Calculator {
                     reject(err);
                 }
             }).then((data: Map<string, string>): Buffer => {
-                const result: IListToMap__Result = { success: data };
+                const result: IListToMap__ResultArgs = { success: data };
                 output.writeMessageBegin("listToMap", thrift.MessageType.REPLY, requestId);
                 ListToMap__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -3841,7 +3841,7 @@ export namespace Calculator {
             });
         }
         public process_fetchThing(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
-            return new Promise<common.ICommonStruct>((resolve, reject): void => {
+            return new Promise<common.ICommonStructArgs>((resolve, reject): void => {
                 try {
                     input.readMessageEnd();
                     resolve(this._handler.fetchThing(context));
@@ -3849,8 +3849,8 @@ export namespace Calculator {
                 catch (err) {
                     reject(err);
                 }
-            }).then((data: common.ICommonStruct): Buffer => {
-                const result: IFetchThing__Result = { success: data };
+            }).then((data: common.ICommonStructArgs): Buffer => {
+                const result: IFetchThing__ResultArgs = { success: data };
                 output.writeMessageBegin("fetchThing", thrift.MessageType.REPLY, requestId);
                 FetchThing__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -3873,7 +3873,7 @@ export namespace Calculator {
                     reject(err);
                 }
             }).then((data: void): Buffer => {
-                const result: IZip__Result = { success: data };
+                const result: IZip__ResultArgs = { success: data };
                 output.writeMessageBegin("zip", thrift.MessageType.REPLY, requestId);
                 Zip__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
