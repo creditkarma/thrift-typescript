@@ -451,6 +451,8 @@ The codec will always follow this naming convention, just appending `Codec` onto
 
 ### Strict Unions
 
+*Note: Strict unions require `thrift-server` version `0.13.x` or higher.*
+
 This is an option only available when generating for `thrift-server`. This option will generate Thrift unions as TypeScript unions. This changes the codegen in a few significant ways.
 
 Back with our example union definition:
@@ -491,7 +493,9 @@ interface IMyUnionWithOption2Args {
 }
 ```
 
-The `enum` represents all potential values of the `__type` property attached to each variation of our union. Instead of generating one `interface` with optional properties we generate one interface for each field where that field is required our resulting `type` is then the union of multiple interfaces each with only one property. This provides compile-time guarantees that we are setting one and only one field for the union.
+The `enum` represents all potential values of the `__type` property attached to each variation of our union. Instead of generating one `interface` with optional properties we generate one interface for each field where that field is required. Our resulting `type` is then the union of multiple interfaces each with only one property. This provides compile-time guarantees that we are setting one and only one field for the union.
+
+The loose intefaces, the `Args` interfaces, behave much like the loose interfaces for structs. They allow you to use `number` in place of `Int64` or allow you to pass either `string` or `Buffer` for `binary` types. In addition, they also forgo the `__type` property. In the codegen we can tell what you are passing by the fields you set. This means in most instances you don't need to provide the `__type` property. You can use the loose interfaces as the return value for service functions or as the arguments for client methods.
 
 This output is more complex, but it allows us to do a number of things. The most significant of which may be that it allows us to take advantage of discriminated unions in our application code:
 
@@ -509,7 +513,7 @@ function processUnion(union: MyUnion) {
 }
 ```
 
-The fact that each interface we generate defines one required field and some n number of optional `void` fields we can do things like check `union.option2 !== undefined` without a compiler error, but we will get a compiler error if you try to use a value that shouldn't exist on a given union.
+The fact that each interface we generate defines one required field and some n number of optional `void` fields we can do things like check `union.option2 !== undefined` without a compiler error, but we will get a compiler error if you try to use a value that shouldn't exist on a given union. This expands the ways you can operate on unions to be more general.
 
 Using this form will require that you prove to the compiler that one (and only one) field is set for your unions.
 
@@ -531,7 +535,7 @@ const MyUnionCodec: thrift.IStructToolkit<IUserArgs, IUser> { = {
 }
 ```
 
-Note: In a future breaking release all the `Codec` objects will be renamed to `Toolkit` as they will provide more utilities for working with defined Thrift objects.
+*Note: In a future breaking release all the `Codec` objects will be renamed to `Toolkit` as they will provide more utilities for working with defined Thrift objects.*
 
 
 ## Apache Thrift
