@@ -9,12 +9,12 @@ export interface ICode {
     status?: thrift.Int64;
 }
 export interface ICodeArgs {
-    status?: number | thrift.Int64;
+    status?: number | string | thrift.Int64;
 }
 export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
     encode(args: ICodeArgs, output: thrift.TProtocol): void {
         const obj = {
-            status: (typeof args.status === "number" ? new thrift.Int64(args.status) : args.status)
+            status: (typeof args.status === "number" ? new thrift.Int64(args.status) : typeof args.status === "string" ? thrift.Int64.fromDecimalString(args.status) : args.status)
         };
         output.writeStructBegin("Code");
         if (obj.status != null) {
@@ -65,7 +65,7 @@ export class Code extends thrift.StructLike implements ICode {
     constructor(args: ICodeArgs = {}) {
         super();
         if (args.status != null) {
-            const value_2: thrift.Int64 = (typeof args.status === "number" ? new thrift.Int64(args.status) : args.status);
+            const value_2: thrift.Int64 = (typeof args.status === "number" ? new thrift.Int64(args.status) : typeof args.status === "string" ? thrift.Int64.fromDecimalString(args.status) : args.status);
             this.status = value_2;
         }
     }

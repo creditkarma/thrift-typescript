@@ -2,12 +2,12 @@ export interface ICode {
     status?: thrift.Int64;
 }
 export interface ICodeArgs {
-    status?: number | thrift.Int64;
+    status?: number | string | thrift.Int64;
 }
 export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
     encode(args: ICodeArgs, output: thrift.TProtocol): void {
         const obj = {
-            status: (typeof args.status === "number" ? new thrift.Int64(args.status) : args.status)
+            status: (typeof args.status === "number" ? new thrift.Int64(args.status) : typeof args.status === "string" ? thrift.Int64.fromDecimalString(args.status) : args.status)
         };
         output.writeStructBegin("Code");
         if (obj.status != null) {
@@ -58,7 +58,7 @@ export class Code extends thrift.StructLike implements ICode {
     constructor(args: ICodeArgs = {}) {
         super();
         if (args.status != null) {
-            const value_2: thrift.Int64 = (typeof args.status === "number" ? new thrift.Int64(args.status) : args.status);
+            const value_2: thrift.Int64 = (typeof args.status === "number" ? new thrift.Int64(args.status) : typeof args.status === "string" ? thrift.Int64.fromDecimalString(args.status) : args.status);
             this.status = value_2;
         }
     }
@@ -323,12 +323,12 @@ export namespace MyService {
         success?: thrift.Int64;
     }
     export interface IPong__ResultArgs {
-        success?: number | thrift.Int64;
+        success?: number | string | thrift.Int64;
     }
     export const Pong__ResultCodec: thrift.IStructCodec<IPong__ResultArgs, IPong__Result> = {
         encode(args: IPong__ResultArgs, output: thrift.TProtocol): void {
             const obj = {
-                success: (typeof args.success === "number" ? new thrift.Int64(args.success) : args.success)
+                success: (typeof args.success === "number" ? new thrift.Int64(args.success) : typeof args.success === "string" ? thrift.Int64.fromDecimalString(args.success) : args.success)
             };
             output.writeStructBegin("Pong__Result");
             if (obj.success != null) {
@@ -379,7 +379,7 @@ export namespace MyService {
         constructor(args: IPong__ResultArgs = {}) {
             super();
             if (args.success != null) {
-                const value_10: thrift.Int64 = (typeof args.success === "number" ? new thrift.Int64(args.success) : args.success);
+                const value_10: thrift.Int64 = (typeof args.success === "number" ? new thrift.Int64(args.success) : typeof args.success === "string" ? thrift.Int64.fromDecimalString(args.success) : args.success);
                 this.success = value_10;
             }
         }
@@ -481,7 +481,7 @@ export namespace MyService {
     }
     export interface IHandler<Context = any> {
         peg(name: string, context?: Context): string | Promise<string>;
-        pong(code?: ICode, context?: Context): (number | thrift.Int64) | Promise<number | thrift.Int64>;
+        pong(code?: ICode, context?: Context): (number | string | thrift.Int64) | Promise<number | string | thrift.Int64>;
     }
     export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
         protected readonly _handler: IHandler<Context>;
@@ -551,7 +551,7 @@ export namespace MyService {
             });
         }
         public process_pong(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
-            return new Promise<number | thrift.Int64>((resolve, reject): void => {
+            return new Promise<number | string | thrift.Int64>((resolve, reject): void => {
                 try {
                     const args: IPong__Args = Pong__ArgsCodec.decode(input);
                     input.readMessageEnd();
@@ -560,7 +560,7 @@ export namespace MyService {
                 catch (err) {
                     reject(err);
                 }
-            }).then((data: number | thrift.Int64): Buffer => {
+            }).then((data: number | string | thrift.Int64): Buffer => {
                 const result: IPong__ResultArgs = { success: data };
                 output.writeMessageBegin("pong", thrift.MessageType.REPLY, requestId);
                 Pong__ResultCodec.encode(result, output);

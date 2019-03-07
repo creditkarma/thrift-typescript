@@ -3,13 +3,13 @@ export interface IOtherStruct {
     name: Buffer;
 }
 export interface IOtherStructArgs {
-    id: number | thrift.Int64;
+    id: number | string | thrift.Int64;
     name?: string | Buffer;
 }
 export const OtherStructCodec: thrift.IStructCodec<IOtherStructArgs, IOtherStruct> = {
     encode(args: IOtherStructArgs, output: thrift.TProtocol): void {
         const obj = {
-            id: (typeof args.id === "number" ? new thrift.Int64(args.id) : args.id),
+            id: (typeof args.id === "number" ? new thrift.Int64(args.id) : typeof args.id === "string" ? thrift.Int64.fromDecimalString(args.id) : args.id),
             name: (args.name != null ? (typeof args.name === "string" ? Buffer.from(args.name) : args.name) : Buffer.from("John"))
         };
         output.writeStructBegin("OtherStruct");
@@ -85,7 +85,7 @@ export class OtherStruct extends thrift.StructLike implements IOtherStruct {
     constructor(args: IOtherStructArgs) {
         super();
         if (args.id != null) {
-            const value_3: thrift.Int64 = (typeof args.id === "number" ? new thrift.Int64(args.id) : args.id);
+            const value_3: thrift.Int64 = (typeof args.id === "number" ? new thrift.Int64(args.id) : typeof args.id === "string" ? thrift.Int64.fromDecimalString(args.id) : args.id);
             this.id = value_3;
         }
         else {
@@ -121,10 +121,10 @@ export interface IMyStructArgs {
     idMap: Map<string, IOtherStructArgs>;
     idMapList: Map<string, Array<IOtherStructArgs>>;
     idSet: Set<IOtherStructArgs>;
-    intList: Array<number | thrift.Int64>;
+    intList: Array<number | string | thrift.Int64>;
     listList: Array<Array<IOtherStructArgs>>;
     listListString: Array<Array<string>>;
-    i64KeyedMap: Map<number | thrift.Int64, number | thrift.Int64>;
+    i64KeyedMap: Map<number | string | thrift.Int64, number | string | thrift.Int64>;
 }
 export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
     encode(args: IMyStructArgs, output: thrift.TProtocol): void {
@@ -196,7 +196,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
         if (obj.intList != null) {
             output.writeFieldBegin("intList", thrift.TType.LIST, 5);
             output.writeListBegin(thrift.TType.I64, obj.intList.length);
-            obj.intList.forEach((value_10: number | thrift.Int64): void => {
+            obj.intList.forEach((value_10: number | string | thrift.Int64): void => {
                 output.writeI64(value_10);
             });
             output.writeListEnd();
@@ -240,7 +240,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
         if (obj.i64KeyedMap != null) {
             output.writeFieldBegin("i64KeyedMap", thrift.TType.MAP, 8);
             output.writeMapBegin(thrift.TType.I64, thrift.TType.I64, obj.i64KeyedMap.size);
-            obj.i64KeyedMap.forEach((value_15: number | thrift.Int64, key_3: number | thrift.Int64): void => {
+            obj.i64KeyedMap.forEach((value_15: number | string | thrift.Int64, key_3: number | string | thrift.Int64): void => {
                 output.writeI64(key_3);
                 output.writeI64(value_15);
             });
@@ -506,8 +506,8 @@ export class MyStruct extends thrift.StructLike implements IMyStruct {
         }
         if (args.intList != null) {
             const value_39: Array<thrift.Int64> = new Array<thrift.Int64>();
-            args.intList.forEach((value_53: number | thrift.Int64): void => {
-                const value_54: thrift.Int64 = (typeof value_53 === "number" ? new thrift.Int64(value_53) : value_53);
+            args.intList.forEach((value_53: number | string | thrift.Int64): void => {
+                const value_54: thrift.Int64 = (typeof value_53 === "number" ? new thrift.Int64(value_53) : typeof value_53 === "string" ? thrift.Int64.fromDecimalString(value_53) : value_53);
                 value_39.push(value_54);
             });
             this.intList = value_39;
@@ -547,9 +547,9 @@ export class MyStruct extends thrift.StructLike implements IMyStruct {
         }
         if (args.i64KeyedMap != null) {
             const value_42: Map<thrift.Int64, thrift.Int64> = new Map<thrift.Int64, thrift.Int64>();
-            args.i64KeyedMap.forEach((value_63: number | thrift.Int64, key_11: number | thrift.Int64): void => {
-                const value_64: thrift.Int64 = (typeof value_63 === "number" ? new thrift.Int64(value_63) : value_63);
-                const key_12: thrift.Int64 = (typeof key_11 === "number" ? new thrift.Int64(key_11) : key_11);
+            args.i64KeyedMap.forEach((value_63: number | string | thrift.Int64, key_11: number | string | thrift.Int64): void => {
+                const value_64: thrift.Int64 = (typeof value_63 === "number" ? new thrift.Int64(value_63) : typeof value_63 === "string" ? thrift.Int64.fromDecimalString(value_63) : value_63);
+                const key_12: thrift.Int64 = (typeof key_11 === "number" ? new thrift.Int64(key_11) : typeof key_11 === "string" ? thrift.Int64.fromDecimalString(key_11) : key_11);
                 value_42.set(key_12, value_64);
             });
             this.i64KeyedMap = value_42;

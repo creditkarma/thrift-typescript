@@ -714,14 +714,14 @@ export namespace Calculator {
         num2: thrift.Int64;
     }
     export interface IAddInt64__ArgsArgs {
-        num1: number | thrift.Int64;
-        num2: number | thrift.Int64;
+        num1: number | string | thrift.Int64;
+        num2: number | string | thrift.Int64;
     }
     export const AddInt64__ArgsCodec: thrift.IStructCodec<IAddInt64__ArgsArgs, IAddInt64__Args> = {
         encode(args: IAddInt64__ArgsArgs, output: thrift.TProtocol): void {
             const obj = {
-                num1: (typeof args.num1 === "number" ? new thrift.Int64(args.num1) : args.num1),
-                num2: (typeof args.num2 === "number" ? new thrift.Int64(args.num2) : args.num2)
+                num1: (typeof args.num1 === "number" ? new thrift.Int64(args.num1) : typeof args.num1 === "string" ? thrift.Int64.fromDecimalString(args.num1) : args.num1),
+                num2: (typeof args.num2 === "number" ? new thrift.Int64(args.num2) : typeof args.num2 === "string" ? thrift.Int64.fromDecimalString(args.num2) : args.num2)
             };
             output.writeStructBegin("AddInt64__Args");
             if (obj.num1 != null) {
@@ -799,14 +799,14 @@ export namespace Calculator {
         constructor(args: IAddInt64__ArgsArgs) {
             super();
             if (args.num1 != null) {
-                const value_23: thrift.Int64 = (typeof args.num1 === "number" ? new thrift.Int64(args.num1) : args.num1);
+                const value_23: thrift.Int64 = (typeof args.num1 === "number" ? new thrift.Int64(args.num1) : typeof args.num1 === "string" ? thrift.Int64.fromDecimalString(args.num1) : args.num1);
                 this.num1 = value_23;
             }
             else {
                 throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[num1] is unset!");
             }
             if (args.num2 != null) {
-                const value_24: thrift.Int64 = (typeof args.num2 === "number" ? new thrift.Int64(args.num2) : args.num2);
+                const value_24: thrift.Int64 = (typeof args.num2 === "number" ? new thrift.Int64(args.num2) : typeof args.num2 === "string" ? thrift.Int64.fromDecimalString(args.num2) : args.num2);
                 this.num2 = value_24;
             }
             else {
@@ -1958,12 +1958,12 @@ export namespace Calculator {
         success?: thrift.Int64;
     }
     export interface IAddInt64__ResultArgs {
-        success?: number | thrift.Int64;
+        success?: number | string | thrift.Int64;
     }
     export const AddInt64__ResultCodec: thrift.IStructCodec<IAddInt64__ResultArgs, IAddInt64__Result> = {
         encode(args: IAddInt64__ResultArgs, output: thrift.TProtocol): void {
             const obj = {
-                success: (typeof args.success === "number" ? new thrift.Int64(args.success) : args.success)
+                success: (typeof args.success === "number" ? new thrift.Int64(args.success) : typeof args.success === "string" ? thrift.Int64.fromDecimalString(args.success) : args.success)
             };
             output.writeStructBegin("AddInt64__Result");
             if (obj.success != null) {
@@ -2014,7 +2014,7 @@ export namespace Calculator {
         constructor(args: IAddInt64__ResultArgs = {}) {
             super();
             if (args.success != null) {
-                const value_69: thrift.Int64 = (typeof args.success === "number" ? new thrift.Int64(args.success) : args.success);
+                const value_69: thrift.Int64 = (typeof args.success === "number" ? new thrift.Int64(args.success) : typeof args.success === "string" ? thrift.Int64.fromDecimalString(args.success) : args.success);
                 this.success = value_69;
             }
         }
@@ -2990,7 +2990,7 @@ export namespace Calculator {
                 }
             });
         }
-        public addInt64(num1: number | thrift.Int64, num2: number | thrift.Int64, context?: Context): Promise<thrift.Int64> {
+        public addInt64(num1: number | string | thrift.Int64, num2: number | string | thrift.Int64, context?: Context): Promise<thrift.Int64> {
             const writer: thrift.TTransport = new this.transport();
             const output: thrift.TProtocol = new this.protocol(writer);
             output.writeMessageBegin("addInt64", thrift.MessageType.CALL, this.incrementRequestId());
@@ -3448,7 +3448,7 @@ export namespace Calculator {
     export interface ILocalHandler<Context = any> {
         ping(context?: Context): void | Promise<void>;
         add(num1: number, num2: number, context?: Context): number | Promise<number>;
-        addInt64(num1: thrift.Int64, num2: thrift.Int64, context?: Context): (number | thrift.Int64) | Promise<number | thrift.Int64>;
+        addInt64(num1: thrift.Int64, num2: thrift.Int64, context?: Context): (number | string | thrift.Int64) | Promise<number | string | thrift.Int64>;
         addWithContext(num1: number, num2: number, context?: Context): number | Promise<number>;
         calculate(logid: number, work: IWork, context?: Context): number | Promise<number>;
         echoBinary(word: Buffer, context?: Context): string | Promise<string>;
@@ -3621,7 +3621,7 @@ export namespace Calculator {
             });
         }
         public process_addInt64(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
-            return new Promise<number | thrift.Int64>((resolve, reject): void => {
+            return new Promise<number | string | thrift.Int64>((resolve, reject): void => {
                 try {
                     const args: IAddInt64__Args = AddInt64__ArgsCodec.decode(input);
                     input.readMessageEnd();
@@ -3630,7 +3630,7 @@ export namespace Calculator {
                 catch (err) {
                     reject(err);
                 }
-            }).then((data: number | thrift.Int64): Buffer => {
+            }).then((data: number | string | thrift.Int64): Buffer => {
                 const result: IAddInt64__ResultArgs = { success: data };
                 output.writeMessageBegin("addInt64", thrift.MessageType.REPLY, requestId);
                 AddInt64__ResultCodec.encode(result, output);
