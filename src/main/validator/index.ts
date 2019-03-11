@@ -135,7 +135,8 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
         const newBody: Array<ThriftStatement> = []
         while (!isAtEnd()) {
             try {
-                newBody.push(validateStatement(resolvedFile.body[currentIndex]))
+                const statement = validateStatement(resolvedFile.body[currentIndex])
+                newBody.push(statement)
             } catch (e) {
                 errors.push(createValidationError(e.message, e.loc))
             }
@@ -150,7 +151,30 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
         return currentIndex >= bodySize
     }
 
-    function getIdentifier(
+    function resolveValue(value: ConstValue): ConstValue {
+        if (
+            value.type === SyntaxType.Identifier &&
+            resolvedFile.identifiers[value.value]
+        ) {
+            const resolvedIdentifier = resolvedFile.identifiers[value.value]
+            if (
+                resolvedIdentifier.definition.type ===
+                SyntaxType.ConstDefinition
+            ) {
+                if (resolvedIdentifier.definition.initializer.type === SyntaxType.Identifier) {
+                    return resolveValue(resolvedIdentifier.definition.initializer)
+                } else {
+                    return resolvedIdentifier.definition.initializer
+                }
+            } else {
+                return value
+            }
+        } else {
+            return value
+        }
+    }
+
+    function requireIdentifier(
         loc: TextLocation,
         ...names: Array<string>
     ): IResolvedIdentifier {
@@ -250,7 +274,10 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
     }
 
     function validateExtends(id: Identifier): Identifier {
-        const resolvedID: IResolvedIdentifier = getIdentifier(id.loc, id.value)
+        const resolvedID: IResolvedIdentifier = requireIdentifier(
+            id.loc,
+            id.value,
+        )
         if (resolvedID.definition.type === SyntaxType.ServiceDefinition) {
             return id
         } else {
@@ -313,7 +340,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                 const baseName =
                     parts.length > 2 ? `${parts[0]}.${parts[1]}` : parts[0]
                 const accessName = parts[parts.length - 1]
-                const resolvedConst: IResolvedIdentifier = getIdentifier(
+                const resolvedConst: IResolvedIdentifier = requireIdentifier(
                     constValue.loc,
                     baseName,
                     constValue.value,
@@ -406,82 +433,104 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
         expectedType: FunctionType,
         value: ConstValue,
     ): ConstValue {
+        const resolvedValue: ConstValue = resolveValue(value)
         switch (expectedType.type) {
             case SyntaxType.VoidKeyword:
                 throw new ValidationError(
                     `Cannot assign value to type void`,
-                    value.loc,
+                    resolvedValue.loc,
                 )
 
             case SyntaxType.Identifier:
                 return validateTypeForIdentifier(
-                    getIdentifier(expectedType.loc, expectedType.value),
-                    value,
+                    requireIdentifier(expectedType.loc, expectedType.value),
+                    resolvedValue,
                 )
 
             case SyntaxType.StringKeyword:
-                if (value.type === SyntaxType.StringLiteral) {
+                if (resolvedValue.type === SyntaxType.StringLiteral) {
                     return value
                 } else {
-                    throw typeMismatch(expectedType, value, value.loc)
+                    throw typeMismatch(
+                        expectedType,
+                        resolvedValue,
+                        resolvedValue.loc,
+                    )
                 }
 
             case SyntaxType.BoolKeyword:
-                if (value.type === SyntaxType.BooleanLiteral) {
-                    return value
+                if (resolvedValue.type === SyntaxType.BooleanLiteral) {
+                    return resolvedValue
 
                     // Handle the case where the literal values 1 or 0 can be used to represent booleans
                 } else if (
-                    value.type === SyntaxType.IntConstant &&
-                    (value.value.value === '0' || value.value.value === '1')
+                    resolvedValue.type === SyntaxType.IntConstant &&
+                    (resolvedValue.value.value === '0' ||
+                        resolvedValue.value.value === '1')
                 ) {
                     return createBooleanLiteral(
-                        value.value.value === '1',
-                        value.loc,
+                        resolvedValue.value.value === '1',
+                        resolvedValue.loc,
                     )
                 } else {
-                    throw typeMismatch(expectedType, value, value.loc)
+                    throw typeMismatch(
+                        expectedType,
+                        resolvedValue,
+                        resolvedValue.loc,
+                    )
                 }
 
             case SyntaxType.DoubleKeyword:
                 if (
-                    value.type === SyntaxType.DoubleConstant ||
-                    value.type === SyntaxType.IntConstant
+                    resolvedValue.type === SyntaxType.DoubleConstant ||
+                    resolvedValue.type === SyntaxType.IntConstant
                 ) {
-                    return value
+                    return resolvedValue
                 } else {
                     throw typeMismatch(expectedType, value, value.loc)
                 }
 
             case SyntaxType.BinaryKeyword:
-                if (value.type === SyntaxType.StringLiteral) {
+                if (resolvedValue.type === SyntaxType.StringLiteral) {
                     return value
                 } else {
-                    throw typeMismatch(expectedType, value, value.loc)
+                    throw typeMismatch(
+                        expectedType,
+                        resolvedValue,
+                        resolvedValue.loc,
+                    )
                 }
 
             case SyntaxType.ByteKeyword:
             case SyntaxType.I8Keyword:
             case SyntaxType.I16Keyword:
             case SyntaxType.I32Keyword:
-                if (value.type === SyntaxType.IntConstant) {
-                    return value
+                if (resolvedValue.type === SyntaxType.IntConstant) {
+                    return resolvedValue
                 } else {
-                    throw typeMismatch(expectedType, value, value.loc)
+                    throw typeMismatch(
+                        expectedType,
+                        resolvedValue,
+                        resolvedValue.loc,
+                    )
                 }
 
             case SyntaxType.I64Keyword:
-                if (value.type === SyntaxType.IntConstant) {
-                    return value
+                if (resolvedValue.type === SyntaxType.IntConstant) {
+                    return resolvedValue
                 } else {
-                    throw typeMismatch(expectedType, value, value.loc)
+                    throw typeMismatch(
+                        expectedType,
+                        resolvedValue,
+                        resolvedValue.loc,
+                    )
                 }
 
             case SyntaxType.SetType:
-                if (value.type === SyntaxType.ConstList) {
+                if (resolvedValue.type === SyntaxType.ConstList) {
                     return {
                         type: SyntaxType.ConstList,
-                        elements: value.elements.map(
+                        elements: resolvedValue.elements.map(
                             (next: ConstValue): ConstValue => {
                                 return validateValue(
                                     expectedType.valueType,
@@ -489,17 +538,21 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                                 )
                             },
                         ),
-                        loc: value.loc,
+                        loc: resolvedValue.loc,
                     }
                 } else {
-                    throw typeMismatch(expectedType, value, value.loc)
+                    throw typeMismatch(
+                        expectedType,
+                        resolvedValue,
+                        resolvedValue.loc,
+                    )
                 }
 
             case SyntaxType.ListType:
-                if (value.type === SyntaxType.ConstList) {
+                if (resolvedValue.type === SyntaxType.ConstList) {
                     return {
                         type: SyntaxType.ConstList,
-                        elements: value.elements.map(
+                        elements: resolvedValue.elements.map(
                             (next: ConstValue): ConstValue => {
                                 return validateValue(
                                     expectedType.valueType,
@@ -507,17 +560,21 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                                 )
                             },
                         ),
-                        loc: value.loc,
+                        loc: resolvedValue.loc,
                     }
                 } else {
-                    throw typeMismatch(expectedType, value, value.loc)
+                    throw typeMismatch(
+                        expectedType,
+                        resolvedValue,
+                        resolvedValue.loc,
+                    )
                 }
 
             case SyntaxType.MapType:
-                if (value.type === SyntaxType.ConstMap) {
+                if (resolvedValue.type === SyntaxType.ConstMap) {
                     return {
                         type: SyntaxType.ConstMap,
-                        properties: value.properties.map(
+                        properties: resolvedValue.properties.map(
                             (next: PropertyAssignment): PropertyAssignment => {
                                 return {
                                     type: SyntaxType.PropertyAssignment,
@@ -558,7 +615,7 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
     function validateFieldType(fieldType: FieldType): FieldType {
         switch (fieldType.type) {
             case SyntaxType.Identifier:
-                if (getIdentifier(fieldType.loc, fieldType.value) != null) {
+                if (requireIdentifier(fieldType.loc, fieldType.value) != null) {
                     return fieldType
                 } else {
                     throw new ValidationError(
