@@ -3,13 +3,13 @@ export interface ICode {
     data?: Buffer;
 }
 export interface ICodeArgs {
-    status?: number | thrift.Int64;
+    status?: number | string | thrift.Int64;
     data?: string | Buffer;
 }
 export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
     encode(args: ICodeArgs, output: thrift.TProtocol): void {
         const obj = {
-            status: (args.status != null ? (typeof args.status === "number" ? new thrift.Int64(args.status) : args.status) : thrift.Int64.fromDecimalString("200")),
+            status: (args.status != null ? (typeof args.status === "number" ? new thrift.Int64(args.status) : typeof args.status === "string" ? thrift.Int64.fromDecimalString(args.status) : args.status) : thrift.Int64.fromDecimalString("200")),
             data: (args.data != null ? (typeof args.data === "string" ? Buffer.from(args.data) : args.data) : Buffer.from("data"))
         };
         output.writeStructBegin("Code");
@@ -77,7 +77,7 @@ export class Code extends thrift.StructLike implements ICode {
     constructor(args: ICodeArgs = {}) {
         super();
         if (args.status != null) {
-            const value_3: thrift.Int64 = (typeof args.status === "number" ? new thrift.Int64(args.status) : args.status);
+            const value_3: thrift.Int64 = (typeof args.status === "number" ? new thrift.Int64(args.status) : typeof args.status === "string" ? thrift.Int64.fromDecimalString(args.status) : args.status);
             this.status = value_3;
         }
         if (args.data != null) {

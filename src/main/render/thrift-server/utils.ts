@@ -43,7 +43,22 @@ export function coerceType(
                     ts.createNew(COMMON_IDENTIFIERS.Int64, undefined, [
                         valueName,
                     ]),
-                    valueName,
+                    ts.createConditional(
+                        ts.createBinary(
+                            ts.createTypeOf(valueName),
+                            ts.SyntaxKind.EqualsEqualsEqualsToken,
+                            ts.createLiteral('string'),
+                        ),
+                        ts.createCall(
+                            ts.createPropertyAccess(
+                                COMMON_IDENTIFIERS.Int64,
+                                ts.createIdentifier('fromDecimalString'),
+                            ),
+                            undefined,
+                            [valueName],
+                        ),
+                        valueName,
+                    ),
                 ),
             )
 

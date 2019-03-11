@@ -4,13 +4,13 @@ export interface IUser {
 }
 export interface IUserArgs {
     name: string;
-    age?: number | thrift.Int64;
+    age?: number | string | thrift.Int64;
 }
 export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
     encode(args: IUserArgs, output: thrift.TProtocol): void {
         const obj = {
             name: args.name,
-            age: (args.age != null ? (typeof args.age === "number" ? new thrift.Int64(args.age) : args.age) : thrift.Int64.fromDecimalString("45"))
+            age: (args.age != null ? (typeof args.age === "number" ? new thrift.Int64(args.age) : typeof args.age === "string" ? thrift.Int64.fromDecimalString(args.age) : args.age) : thrift.Int64.fromDecimalString("45"))
         };
         output.writeStructBegin("User");
         if (obj.name != null) {
@@ -92,7 +92,7 @@ export class User extends thrift.StructLike implements IUser {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
         }
         if (args.age != null) {
-            const value_4: thrift.Int64 = (typeof args.age === "number" ? new thrift.Int64(args.age) : args.age);
+            const value_4: thrift.Int64 = (typeof args.age === "number" ? new thrift.Int64(args.age) : typeof args.age === "string" ? thrift.Int64.fromDecimalString(args.age) : args.age);
             this.age = value_4;
         }
     }

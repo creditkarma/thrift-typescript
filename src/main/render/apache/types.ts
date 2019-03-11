@@ -233,18 +233,18 @@ export function typeNodeForFieldType(
             return ts.createTypeReferenceNode(fieldType.value, undefined)
 
         case SyntaxType.SetType:
-            return ts.createTypeReferenceNode('Set', [
+            return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Set, [
                 typeNodeForFieldType(fieldType.valueType),
             ])
 
         case SyntaxType.MapType:
-            return ts.createTypeReferenceNode('Map', [
+            return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Map, [
                 typeNodeForFieldType(fieldType.keyType),
                 typeNodeForFieldType(fieldType.valueType),
             ])
 
         case SyntaxType.ListType:
-            return ts.createTypeReferenceNode('Array', [
+            return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Array, [
                 typeNodeForFieldType(fieldType.valueType),
             ])
 

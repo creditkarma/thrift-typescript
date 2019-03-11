@@ -275,18 +275,18 @@ export function typeNodeForFieldType(
             )
 
         case SyntaxType.SetType:
-            return ts.createTypeReferenceNode('Set', [
+            return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Set, [
                 typeNodeForFieldType(fieldType.valueType, state, loose),
             ])
 
         case SyntaxType.MapType:
-            return ts.createTypeReferenceNode('Map', [
+            return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Map, [
                 typeNodeForFieldType(fieldType.keyType, state, loose),
                 typeNodeForFieldType(fieldType.valueType, state, loose),
             ])
 
         case SyntaxType.ListType:
-            return ts.createTypeReferenceNode('Array', [
+            return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Array, [
                 typeNodeForFieldType(fieldType.valueType, state, loose),
             ])
 
@@ -300,6 +300,7 @@ export function typeNodeForFieldType(
             if (loose === true) {
                 return ts.createUnionTypeNode([
                     createNumberType(),
+                    createStringType(),
                     ts.createTypeReferenceNode(
                         COMMON_IDENTIFIERS.Int64,
                         undefined,
