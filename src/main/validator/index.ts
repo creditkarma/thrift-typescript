@@ -135,7 +135,9 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
         const newBody: Array<ThriftStatement> = []
         while (!isAtEnd()) {
             try {
-                const statement = validateStatement(resolvedFile.body[currentIndex])
+                const statement = validateStatement(
+                    resolvedFile.body[currentIndex],
+                )
                 newBody.push(statement)
             } catch (e) {
                 errors.push(createValidationError(e.message, e.loc))
@@ -161,8 +163,13 @@ export function validateFile(resolvedFile: IResolvedFile): IResolvedFile {
                 resolvedIdentifier.definition.type ===
                 SyntaxType.ConstDefinition
             ) {
-                if (resolvedIdentifier.definition.initializer.type === SyntaxType.Identifier) {
-                    return resolveValue(resolvedIdentifier.definition.initializer)
+                if (
+                    resolvedIdentifier.definition.initializer.type ===
+                    SyntaxType.Identifier
+                ) {
+                    return resolveValue(
+                        resolvedIdentifier.definition.initializer,
+                    )
                 } else {
                     return resolvedIdentifier.definition.initializer
                 }
