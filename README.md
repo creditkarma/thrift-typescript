@@ -375,7 +375,7 @@ struct Profile {
 
 There is something of a difference between how we want to handle things in TypeScript and how data is going to be sent over the wire. Because of this when we generate interfaces for these structs we generate two interfaces for each struct, one is an exact representation of the Thrift, the other is something looser that more represents how the data will be worked with in the TypeScript application source.
 
-The main difference is that fields marked as `i64` can be represented as either `number` or an `Int64` object and `binary` can be represented as either a `string` or a `Buffer` object.
+The main difference is that fields marked as `i64` can be represented as a `number`, as `string` or an `Int64` object and `binary` can be represented as either a `string` or a `Buffer` object.
 
 Generated TypeScript:
 
@@ -384,7 +384,7 @@ interface IUser {
     id: thrift.Int64
 }
 interface IUserArgs {
-    id: number | thrift.Int64
+    id: number | string | thrift.Int64
 }
 interface IProfile {
     user: IUser
@@ -394,7 +394,7 @@ interface IProfile {
 interface IProfileArgs {
     user: IUserArgs
     data?: string | Buffer
-    lastModified?: number | thrift.Int64
+    lastModified?: number | string | thrift.Int64
 }
 ```
 
@@ -430,7 +430,7 @@ namespace ProfileService {
 
 As you can see from this sketch of generated types when data leave application code and crossed the boundary into the generated code you can pass loose values, when the data comes from generated code it will always be of the strict types.
 
-We can use a `User` object where the `id` is a `number` without having to wrap it in `Int64`. These conversions are handled for us, similarly `string` data can be passed to a `binary` field and the conversion to `Buffer` is handled under the hood. This are just convinience interfaces to make handling the Thrift objects in TypeScript a little easier. You will notice service methods always return an object of the more strict interface. Also, the more strict interface can always be passed where the loose interface is expected.
+We can use a `User` object where the `id` is a `number` or a `string` without having to wrap it in `Int64`. These conversions are handled for us. A `number` passed in is wrapped in `Int64` by using the `Int64` constructor: `new Int64(64)`. A `string` passed in place of an `Int64` is converted using the static `fromDecimalString` method: `Int64.fromDecimalString('64')`. Similarly `string` data can be passed to a `binary` field and the conversion to `Buffer` is handled under the hood. This are just convinience interfaces to make handling the Thrift objects in TypeScript a little easier. You will notice service methods always return an object of the more strict interface. Also, the more strict interface can always be passed where the loose interface is expected.
 
 #### Sending Data Over the Wire
 

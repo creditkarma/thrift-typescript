@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+<a name="3.3.0"></a>
+# [3.3.0](https://github.com/creditkarma/thrift-typescript/compare/v3.2.2...v3.3.0) (2019-03-12)
+
+### Features
+
+* Allow i64 to be represented as string in user code ([0831ec](https://github.com/creditkarma/thrift-typescript/commit/0831ec))
+
+### Bug Fixes
+
+* Fixes an issue where defined constants could not be used as values in Thrift IDL ([205716](https://github.com/creditkarma/thrift-typescript/commit/205716))
+
 <a name="3.2.2"></a>
 # [3.2.2](https://github.com/creditkarma/thrift-typescript/compare/v3.1.1...v3.2.2) (2019-03-05)
 
