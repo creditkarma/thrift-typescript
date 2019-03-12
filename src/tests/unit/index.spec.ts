@@ -209,6 +209,27 @@ describe('Thrift TypeScript Generator', () => {
     })
 
     describe('Thrift Server', () => {
+        it('should correctly generate constants', () => {
+            const content: string = `
+                const i32 WHAT = 32
+                const i32 VALUE = WHAT
+                const list<i32> VALUE_LIST = [ VALUE ]
+                const bool FALSE_CONST = false
+                const i64 INT_64 = 64
+                const set<string> SET_CONST = ['hello', 'world', 'foo', 'bar']
+                const map<string,string> MAP_CONST = {'hello': 'world', 'foo': 'bar' }
+                const map<i32,string> VALUE_MAP = { VALUE: 'world', 5: 'bar' }
+                const list<string> LIST_CONST = ['hello', 'world', 'foo', 'bar']
+            `
+            const expected: string = readSolution(
+                'complex_const',
+                'thrift-server',
+            )
+            const actual: string = make(content)
+
+            assert.deepEqual(actual, expected)
+        })
+
         it('should correctly generate a struct', () => {
             const content: string = `
                 struct MyStruct {

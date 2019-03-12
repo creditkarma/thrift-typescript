@@ -143,6 +143,23 @@ describe('Thrift TypeScript Validator', () => {
         assert.deepEqual(validatedFile.errors, expected)
     })
 
+    it('should not return an error when using identifier as valid value', () => {
+        const content: string = `
+            const i32 VALUE = 32
+            const list<i32> TEST = [ VALUE ]
+        `
+        const parsedFile: IParsedFile = parseSource(content)
+        const resolvedFile: IResolvedFile = resolveFile(
+            '',
+            parsedFile,
+            DEFAULT_OPTIONS,
+        )
+        const validatedFile: IResolvedFile = validateFile(resolvedFile)
+        const expected: Array<IThriftError> = []
+
+        assert.deepEqual(validatedFile.errors, expected)
+    })
+
     it('should return an error if it finds incorrect list types', () => {
         const content: string = `
             const list<string> TEST = [ 32, 41, 65 ]
