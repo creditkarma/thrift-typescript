@@ -12,7 +12,7 @@ export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
         output.writeStructBegin("Code");
         if (obj.status != null) {
             output.writeFieldBegin("status", thrift.TType.I64, 1);
-            output.writeI64(obj.status);
+            output.writeI64((typeof obj.status === "number" ? new thrift.Int64(obj.status) : typeof obj.status === "string" ? thrift.Int64.fromDecimalString(obj.status) : obj.status));
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -333,7 +333,7 @@ export namespace MyService {
             output.writeStructBegin("Pong__Result");
             if (obj.success != null) {
                 output.writeFieldBegin("success", thrift.TType.I64, 0);
-                output.writeI64(obj.success);
+                output.writeI64((typeof obj.success === "number" ? new thrift.Int64(obj.success) : typeof obj.success === "string" ? thrift.Int64.fromDecimalString(obj.success) : obj.success));
                 output.writeFieldEnd();
             }
             output.writeFieldStop();

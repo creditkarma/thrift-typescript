@@ -23,7 +23,7 @@ export const OptionCodec: thrift.IStructCodec<IOptionArgs, IOption> = {
         if (obj.option2 != null) {
             _fieldsSet++;
             output.writeFieldBegin("option2", thrift.TType.I64, 2);
-            output.writeI64(obj.option2);
+            output.writeI64((typeof obj.option2 === "number" ? new thrift.Int64(obj.option2) : typeof obj.option2 === "string" ? thrift.Int64.fromDecimalString(obj.option2) : obj.option2));
             output.writeFieldEnd();
         }
         output.writeFieldStop();

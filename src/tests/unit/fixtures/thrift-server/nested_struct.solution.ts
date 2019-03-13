@@ -23,7 +23,7 @@ export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
         }
         if (obj.age != null) {
             output.writeFieldBegin("age", thrift.TType.I64, 2);
-            output.writeI64(obj.age);
+            output.writeI64((typeof obj.age === "number" ? new thrift.Int64(obj.age) : typeof obj.age === "string" ? thrift.Int64.fromDecimalString(obj.age) : obj.age));
             output.writeFieldEnd();
         }
         output.writeFieldStop();

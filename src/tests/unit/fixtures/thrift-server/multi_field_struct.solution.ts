@@ -29,7 +29,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
         }
         if (obj.bigID != null) {
             output.writeFieldBegin("bigID", thrift.TType.I64, 2);
-            output.writeI64(obj.bigID);
+            output.writeI64((typeof obj.bigID === "number" ? new thrift.Int64(obj.bigID) : typeof obj.bigID === "string" ? thrift.Int64.fromDecimalString(obj.bigID) : obj.bigID));
             output.writeFieldEnd();
         }
         if (obj.word != null) {

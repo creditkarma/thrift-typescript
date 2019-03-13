@@ -15,7 +15,7 @@ export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
         output.writeStructBegin("Code");
         if (obj.status != null) {
             output.writeFieldBegin("status", thrift.TType.I64, 1);
-            output.writeI64(obj.status);
+            output.writeI64((typeof obj.status === "number" ? new thrift.Int64(obj.status) : typeof obj.status === "string" ? thrift.Int64.fromDecimalString(obj.status) : obj.status));
             output.writeFieldEnd();
         }
         if (obj.data != null) {

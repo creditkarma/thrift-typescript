@@ -76,7 +76,7 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
         if (obj.field2 != null) {
             _fieldsSet++;
             output.writeFieldBegin("field2", thrift.TType.I64, 2);
-            output.writeI64(obj.field2);
+            output.writeI64((typeof obj.field2 === "number" ? new thrift.Int64(obj.field2) : typeof obj.field2 === "string" ? thrift.Int64.fromDecimalString(obj.field2) : obj.field2));
             output.writeFieldEnd();
         }
         output.writeFieldStop();

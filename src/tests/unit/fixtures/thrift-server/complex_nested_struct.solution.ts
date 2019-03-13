@@ -15,7 +15,7 @@ export const OtherStructCodec: thrift.IStructCodec<IOtherStructArgs, IOtherStruc
         output.writeStructBegin("OtherStruct");
         if (obj.id != null) {
             output.writeFieldBegin("id", thrift.TType.I64, 1);
-            output.writeI64(obj.id);
+            output.writeI64((typeof obj.id === "number" ? new thrift.Int64(obj.id) : typeof obj.id === "string" ? thrift.Int64.fromDecimalString(obj.id) : obj.id));
             output.writeFieldEnd();
         }
         else {
@@ -197,7 +197,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
             output.writeFieldBegin("intList", thrift.TType.LIST, 5);
             output.writeListBegin(thrift.TType.I64, obj.intList.length);
             obj.intList.forEach((value_10: number | string | thrift.Int64): void => {
-                output.writeI64(value_10);
+                output.writeI64((typeof value_10 === "number" ? new thrift.Int64(value_10) : typeof value_10 === "string" ? thrift.Int64.fromDecimalString(value_10) : value_10));
             });
             output.writeListEnd();
             output.writeFieldEnd();
@@ -241,8 +241,8 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
             output.writeFieldBegin("i64KeyedMap", thrift.TType.MAP, 8);
             output.writeMapBegin(thrift.TType.I64, thrift.TType.I64, obj.i64KeyedMap.size);
             obj.i64KeyedMap.forEach((value_15: number | string | thrift.Int64, key_3: number | string | thrift.Int64): void => {
-                output.writeI64(key_3);
-                output.writeI64(value_15);
+                output.writeI64((typeof key_3 === "number" ? new thrift.Int64(key_3) : typeof key_3 === "string" ? thrift.Int64.fromDecimalString(key_3) : key_3));
+                output.writeI64((typeof value_15 === "number" ? new thrift.Int64(value_15) : typeof value_15 === "string" ? thrift.Int64.fromDecimalString(value_15) : value_15));
             });
             output.writeMapEnd();
             output.writeFieldEnd();

@@ -1,41 +1,26 @@
 import * as ts from 'typescript'
 
-import {
-    ContainerType,
-    FieldDefinition,
-    FunctionType,
-    SyntaxType,
-    UnionDefinition,
-} from '@creditkarma/thrift-parser'
+import { FieldDefinition, UnionDefinition } from '@creditkarma/thrift-parser'
 
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
-
-import { WRITE_METHODS, WriteMethodName } from '../struct/methods'
 
 import {
     createTempVariables,
     writeFieldBegin,
     writeFieldEnd,
     writeFieldStop,
-    writeListBegin,
-    writeListEnd,
-    writeMapBegin,
-    writeMapEnd,
-    writeSetBegin,
-    writeSetEnd,
     writeStructBegin,
     writeStructEnd,
-    writeValueForIdentifier,
+    writeValueForField,
 } from '../struct/encode'
 
 import {
     createFunctionParameter,
-    createMethodCall,
     createNotNullCheck,
     isNotVoid,
 } from '../utils'
 
-import { createVoidType, typeNodeForFieldType } from '../types'
+import { createVoidType } from '../types'
 
 import { IRenderState } from '../../../types'
 
@@ -148,153 +133,4 @@ export function createWriteForFieldType(
         ],
         true,
     )
-}
-
-export function writeValueForType(
-    node: UnionDefinition,
-    fieldType: FunctionType,
-    fieldName: ts.Identifier,
-    state: IRenderState,
-): Array<ts.Expression> {
-    switch (fieldType.type) {
-        case SyntaxType.Identifier:
-            return writeValueForIdentifier(
-                state.identifiers[fieldType.value],
-                node,
-                fieldType,
-                fieldName,
-                state,
-            )
-
-        /**
-         * Container types:
-         *
-         * SetType | MapType | ListType
-         */
-        case SyntaxType.SetType:
-            return [
-                writeSetBegin(fieldType, fieldName, state.identifiers),
-                forEach(node, fieldType, fieldName, state),
-                writeSetEnd(),
-            ]
-
-        case SyntaxType.MapType:
-            return [
-                writeMapBegin(fieldType, fieldName, state.identifiers),
-                forEach(node, fieldType, fieldName, state),
-                writeMapEnd(),
-            ]
-
-        case SyntaxType.ListType:
-            return [
-                writeListBegin(fieldType, fieldName, state.identifiers),
-                forEach(node, fieldType, fieldName, state),
-                writeListEnd(),
-            ]
-
-        /**
-         * Base types:
-         *
-         * SyntaxType.StringKeyword | SyntaxType.DoubleKeyword | SyntaxType.BoolKeyword |
-         * SyntaxType.I8Keyword | SyntaxType.I16Keyword | SyntaxType.I32Keyword |
-         * SyntaxType.I64Keyword | SyntaxType.BinaryKeyword | SyntaxType.ByteKeyword
-         */
-        case SyntaxType.BoolKeyword:
-        case SyntaxType.BinaryKeyword:
-        case SyntaxType.StringKeyword:
-        case SyntaxType.DoubleKeyword:
-        case SyntaxType.I8Keyword:
-        case SyntaxType.ByteKeyword:
-        case SyntaxType.I16Keyword:
-        case SyntaxType.I32Keyword:
-        case SyntaxType.I64Keyword:
-            return [
-                writeMethodForName(WRITE_METHODS[fieldType.type], fieldName),
-            ]
-
-        case SyntaxType.VoidKeyword:
-            return []
-
-        default:
-            const msg: never = fieldType
-            throw new Error(`Non-exhaustive match for: ${msg}`)
-    }
-}
-
-function writeMethodForName(
-    methodName: WriteMethodName,
-    fieldName: ts.Identifier,
-): ts.CallExpression {
-    return createMethodCall('output', methodName, [fieldName])
-}
-
-function writeValueForField(
-    node: UnionDefinition,
-    fieldType: FunctionType,
-    fieldName: ts.Identifier,
-    state: IRenderState,
-): Array<ts.ExpressionStatement> {
-    return writeValueForType(node, fieldType, fieldName, state).map(
-        ts.createStatement,
-    )
-}
-
-/**
- * Loop through container types and write the values for all children
- *
- * EXAMPLE FOR SET
- *
- * // thrift
- * struct MyStruct {
- *   1: required set<string> field1;
- * }
- *
- * // typescript
- * obj.field1.forEach((value_1: string): void => {
- *   output.writeString(value_1);
- * });
- */
-function forEach(
-    node: UnionDefinition,
-    fieldType: ContainerType,
-    fieldName: ts.Identifier,
-    state: IRenderState,
-): ts.CallExpression {
-    const value: ts.Identifier = ts.createUniqueName('value')
-    const forEachParameters: Array<ts.ParameterDeclaration> = [
-        createFunctionParameter(
-            value,
-            typeNodeForFieldType(fieldType.valueType, state),
-        ),
-    ]
-
-    const forEachStatements: Array<ts.Statement> = [
-        ...writeValueForField(node, fieldType.valueType, value, state),
-    ]
-
-    // If map we have to handle key type as well as value type
-    if (fieldType.type === SyntaxType.MapType) {
-        const key: ts.Identifier = ts.createUniqueName('key')
-        forEachParameters.push(
-            createFunctionParameter(
-                key,
-                typeNodeForFieldType(fieldType.keyType, state),
-            ),
-        )
-
-        forEachStatements.unshift(
-            ...writeValueForField(node, fieldType.keyType, key, state),
-        )
-    }
-
-    return createMethodCall(fieldName, 'forEach', [
-        ts.createArrowFunction(
-            undefined, // modifiers
-            undefined, // type parameters
-            forEachParameters, // parameters
-            createVoidType(), // return type,
-            ts.createToken(ts.SyntaxKind.EqualsGreaterThanToken), // greater than equals token
-            ts.createBlock(forEachStatements, true), // body
-        ),
-    ])
 }

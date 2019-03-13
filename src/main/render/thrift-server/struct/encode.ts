@@ -16,6 +16,7 @@ import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 import { WRITE_METHODS, WriteMethodName } from './methods'
 
 import {
+    coerceType,
     createConstStatement,
     createFunctionParameter,
     createMethodCall,
@@ -286,9 +287,16 @@ export function writeValueForType(
         case SyntaxType.ByteKeyword:
         case SyntaxType.I16Keyword:
         case SyntaxType.I32Keyword:
-        case SyntaxType.I64Keyword:
             return [
                 writeMethodForName(WRITE_METHODS[fieldType.type], fieldName),
+            ]
+
+        case SyntaxType.I64Keyword:
+            return [
+                writeMethodForName(
+                    WRITE_METHODS[fieldType.type],
+                    coerceType(fieldName, fieldType),
+                ),
             ]
 
         case SyntaxType.VoidKeyword:
@@ -302,12 +310,12 @@ export function writeValueForType(
 
 function writeMethodForName(
     methodName: WriteMethodName,
-    fieldName: ts.Identifier,
+    fieldName: ts.Expression,
 ): ts.CallExpression {
     return createMethodCall('output', methodName, [fieldName])
 }
 
-function writeValueForField(
+export function writeValueForField(
     node: InterfaceWithFields,
     fieldType: FunctionType,
     fieldName: ts.Identifier,

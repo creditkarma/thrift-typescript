@@ -726,7 +726,7 @@ export namespace Calculator {
             output.writeStructBegin("AddInt64__Args");
             if (obj.num1 != null) {
                 output.writeFieldBegin("num1", thrift.TType.I64, 1);
-                output.writeI64(obj.num1);
+                output.writeI64((typeof obj.num1 === "number" ? new thrift.Int64(obj.num1) : typeof obj.num1 === "string" ? thrift.Int64.fromDecimalString(obj.num1) : obj.num1));
                 output.writeFieldEnd();
             }
             else {
@@ -734,7 +734,7 @@ export namespace Calculator {
             }
             if (obj.num2 != null) {
                 output.writeFieldBegin("num2", thrift.TType.I64, 2);
-                output.writeI64(obj.num2);
+                output.writeI64((typeof obj.num2 === "number" ? new thrift.Int64(obj.num2) : typeof obj.num2 === "string" ? thrift.Int64.fromDecimalString(obj.num2) : obj.num2));
                 output.writeFieldEnd();
             }
             else {
@@ -1968,7 +1968,7 @@ export namespace Calculator {
             output.writeStructBegin("AddInt64__Result");
             if (obj.success != null) {
                 output.writeFieldBegin("success", thrift.TType.I64, 0);
-                output.writeI64(obj.success);
+                output.writeI64((typeof obj.success === "number" ? new thrift.Int64(obj.success) : typeof obj.success === "string" ? thrift.Int64.fromDecimalString(obj.success) : obj.success));
                 output.writeFieldEnd();
             }
             output.writeFieldStop();
