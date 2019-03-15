@@ -47,7 +47,6 @@ export function unionTypeName(name: string, strict: boolean): string {
 }
 
 export function renderUnionTypeName(name: string, state: IRenderState): string {
-    console.log('state: ', state.options)
     if (state.options.strictUnionsComplexNames) {
         return `${unionTypeName(name, true)}__Type`
     } else {
