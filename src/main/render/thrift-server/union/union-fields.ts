@@ -10,12 +10,13 @@ import { typeNodeForFieldType } from '../types'
 
 export function renderUnionTypes(
     node: UnionDefinition,
+    state: IRenderState,
     isExported: boolean,
 ): ts.Statement {
     return ts.createEnumDeclaration(
         undefined, // decorators
         tokens(isExported), // modifiers
-        renderUnionTypeName(node.name.value, true), // enum name
+        renderUnionTypeName(node.name.value, state), // enum name
         node.fields.map((field: FieldDefinition) => {
             return ts.createEnumMember(
                 fieldTypeName(node.name.value, field.name.value, true),
@@ -28,8 +29,9 @@ export function renderUnionTypes(
 export function fieldTypeAccess(
     node: UnionDefinition,
     field: FieldDefinition,
+    state: IRenderState,
 ): string {
-    return `${renderUnionTypeName(node.name.value, true)}.${fieldTypeName(
+    return `${renderUnionTypeName(node.name.value, state)}.${fieldTypeName(
         node.name.value,
         field.name.value,
         true,
@@ -44,8 +46,13 @@ export function unionTypeName(name: string, strict: boolean): string {
     }
 }
 
-export function renderUnionTypeName(name: string, strict: boolean): string {
-    return `${unionTypeName(name, strict)}Type`
+export function renderUnionTypeName(name: string, state: IRenderState): string {
+    console.log('state: ', state.options)
+    if (state.options.strictUnionsComplexNames) {
+        return `${unionTypeName(name, true)}__Type`
+    } else {
+        return `${unionTypeName(name, true)}Type`
+    }
 }
 
 function capitalize(str: string): string {
@@ -116,7 +123,7 @@ function renderInterfaceForField(
                 COMMON_IDENTIFIERS.__type,
                 undefined,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(fieldTypeAccess(node, field)),
+                    ts.createIdentifier(fieldTypeAccess(node, field, state)),
                     undefined,
                 ),
                 undefined,

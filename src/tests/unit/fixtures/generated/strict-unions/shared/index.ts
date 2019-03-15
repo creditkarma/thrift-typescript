@@ -193,18 +193,18 @@ export class SharedStruct extends thrift.StructLike implements ISharedStruct {
         return SharedStructCodec.encode(this, output);
     }
 }
-export enum SharedUnionType {
+export enum SharedUnion__Type {
     SharedUnionWithOption1 = "option1",
     SharedUnionWithOption2 = "option2"
 }
 export type SharedUnion = ISharedUnionWithOption1 | ISharedUnionWithOption2;
 export interface ISharedUnionWithOption1 {
-    __type: SharedUnionType.SharedUnionWithOption1;
+    __type: SharedUnion__Type.SharedUnionWithOption1;
     option1: string;
     option2?: void;
 }
 export interface ISharedUnionWithOption2 {
-    __type: SharedUnionType.SharedUnionWithOption2;
+    __type: SharedUnion__Type.SharedUnionWithOption2;
     option1?: void;
     option2: string;
 }
@@ -240,13 +240,13 @@ export const SharedUnionCodec: thrift.IStructToolkit<SharedUnionArgs, SharedUnio
         if (_returnValue !== null) {
             if (_returnValue.option1) {
                 return {
-                    __type: SharedUnionType.SharedUnionWithOption1,
+                    __type: SharedUnion__Type.SharedUnionWithOption1,
                     option1: _returnValue.option1
                 };
             }
             else {
                 return {
-                    __type: SharedUnionType.SharedUnionWithOption2,
+                    __type: SharedUnion__Type.SharedUnionWithOption2,
                     option2: _returnValue.option2
                 };
             }
@@ -332,13 +332,13 @@ export const SharedUnionCodec: thrift.IStructToolkit<SharedUnionArgs, SharedUnio
         if (_returnValue !== null) {
             if (_returnValue.option1) {
                 return {
-                    __type: SharedUnionType.SharedUnionWithOption1,
+                    __type: SharedUnion__Type.SharedUnionWithOption1,
                     option1: _returnValue.option1
                 };
             }
             else {
                 return {
-                    __type: SharedUnionType.SharedUnionWithOption2,
+                    __type: SharedUnion__Type.SharedUnionWithOption2,
                     option2: _returnValue.option2
                 };
             }

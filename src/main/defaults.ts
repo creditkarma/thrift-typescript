@@ -13,6 +13,7 @@ export const DEFAULT_OPTIONS: IMakeOptions = {
     library: DEFAULT_APACHE_LIB,
     files: [],
     strictUnions: false,
+    strictUnionsComplexNames: false,
     fallbackNamespace: 'java',
 }
 

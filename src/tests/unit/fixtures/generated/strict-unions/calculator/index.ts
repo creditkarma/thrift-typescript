@@ -323,18 +323,18 @@ export class LastName extends thrift.StructLike implements ILastName {
         return LastNameCodec.encode(this, output);
     }
 }
-export enum ChoiceType {
+export enum Choice__Type {
     ChoiceWithFirstName = "firstName",
     ChoiceWithLastName = "lastName"
 }
 export type Choice = IChoiceWithFirstName | IChoiceWithLastName;
 export interface IChoiceWithFirstName {
-    __type: ChoiceType.ChoiceWithFirstName;
+    __type: Choice__Type.ChoiceWithFirstName;
     firstName: IFirstName;
     lastName?: void;
 }
 export interface IChoiceWithLastName {
-    __type: ChoiceType.ChoiceWithLastName;
+    __type: Choice__Type.ChoiceWithLastName;
     firstName?: void;
     lastName: ILastName;
 }
@@ -370,13 +370,13 @@ export const ChoiceCodec: thrift.IStructToolkit<ChoiceArgs, Choice> = {
         if (_returnValue !== null) {
             if (_returnValue.firstName) {
                 return {
-                    __type: ChoiceType.ChoiceWithFirstName,
+                    __type: Choice__Type.ChoiceWithFirstName,
                     firstName: _returnValue.firstName
                 };
             }
             else {
                 return {
-                    __type: ChoiceType.ChoiceWithLastName,
+                    __type: Choice__Type.ChoiceWithLastName,
                     lastName: _returnValue.lastName
                 };
             }
@@ -462,13 +462,13 @@ export const ChoiceCodec: thrift.IStructToolkit<ChoiceArgs, Choice> = {
         if (_returnValue !== null) {
             if (_returnValue.firstName) {
                 return {
-                    __type: ChoiceType.ChoiceWithFirstName,
+                    __type: Choice__Type.ChoiceWithFirstName,
                     firstName: _returnValue.firstName
                 };
             }
             else {
                 return {
-                    __type: ChoiceType.ChoiceWithLastName,
+                    __type: Choice__Type.ChoiceWithLastName,
                     lastName: _returnValue.lastName
                 };
             }

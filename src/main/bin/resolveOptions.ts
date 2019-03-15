@@ -78,6 +78,11 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                 index += 1
                 break
 
+            case '--strictUnionsComplexNames':
+                options.strictUnionsComplexNames = true
+                index += 1
+                break
+
             default:
                 if (next.startsWith('--')) {
                     throw new Error(

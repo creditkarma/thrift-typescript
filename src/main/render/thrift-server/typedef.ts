@@ -84,9 +84,9 @@ function renderUnionTypeReexport(
     return ts.createImportEqualsDeclaration(
         undefined,
         [ts.createToken(ts.SyntaxKind.ExportKeyword)],
-        ts.createIdentifier(renderUnionTypeName(node.name.value, true)),
+        ts.createIdentifier(renderUnionTypeName(node.name.value, state)),
         ts.createIdentifier(
-            `${id.pathName}.${renderUnionTypeName(id.name, true)}`,
+            `${id.pathName}.${renderUnionTypeName(id.name, state)}`,
         ),
     )
 }

@@ -48,6 +48,9 @@ export interface IMakeOptions {
 
     // Should we render strict unions?
     strictUnions: boolean
+
+    // Should render strict unions type with underscore
+    strictUnionsComplexNames: boolean
 }
 
 export interface IRenderState {

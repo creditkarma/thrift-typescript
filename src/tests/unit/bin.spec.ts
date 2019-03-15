@@ -15,6 +15,7 @@ describe('resolveOptions', () => {
             fallbackNamespace: 'java',
             library: 'thrift',
             strictUnions: false,
+            strictUnionsComplexNames: false,
         })
     })
 
@@ -24,6 +25,7 @@ describe('resolveOptions', () => {
             'src',
             '--fallbackNamespace',
             'scala',
+            '--strictUnionsComplexNames',
             'test.thrift',
             'test-two.thrift',
         ])
@@ -37,6 +39,7 @@ describe('resolveOptions', () => {
             fallbackNamespace: 'scala',
             library: 'thrift',
             strictUnions: false,
+            strictUnionsComplexNames: true,
         })
     })
 })

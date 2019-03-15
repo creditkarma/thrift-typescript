@@ -30,7 +30,7 @@ export function renderStrictUnion(
     isExported: boolean = true,
 ): Array<ts.Statement> {
     return [
-        renderUnionTypes(node, isExported),
+        renderUnionTypes(node, state, isExported),
         ...renderUnionsForFields(node, state, isExported, true),
         ...renderUnionsForFields(node, state, isExported, false),
         renderToolkit(node, state, isExported),

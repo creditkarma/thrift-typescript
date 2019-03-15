@@ -113,12 +113,13 @@ export function createCreateMethod(
 function createUnionObjectForField(
     node: UnionDefinition,
     field: FieldDefinition,
+    state: IRenderState,
 ): ts.ObjectLiteralExpression {
     return ts.createObjectLiteral(
         [
             ts.createPropertyAssignment(
                 COMMON_IDENTIFIERS.__type,
-                ts.createIdentifier(fieldTypeAccess(node, field)),
+                ts.createIdentifier(fieldTypeAccess(node, field, state)),
             ),
             ts.createPropertyAssignment(
                 ts.createIdentifier(field.name.value),
@@ -146,7 +147,11 @@ function createReturnForFields(
                     head.name.value,
                 ),
                 ts.createBlock(
-                    [ts.createReturn(createUnionObjectForField(node, head))],
+                    [
+                        ts.createReturn(
+                            createUnionObjectForField(node, head, state),
+                        ),
+                    ],
                     true,
                 ),
                 ts.createBlock(
@@ -155,7 +160,7 @@ function createReturnForFields(
                 ),
             )
         } else {
-            return ts.createReturn(createUnionObjectForField(node, head))
+            return ts.createReturn(createUnionObjectForField(node, head, state))
         }
     } else {
         return ts.createReturn(COMMON_IDENTIFIERS._returnValue)

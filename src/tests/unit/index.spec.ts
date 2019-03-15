@@ -85,6 +85,7 @@ describe('Thrift TypeScript Generator', () => {
                 files: [],
                 library: 'test-lib',
                 strictUnions: true,
+                strictUnionsComplexNames: true,
             })
         })
         it('should correctly generate typedefs for includes', () => {
