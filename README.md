@@ -357,7 +357,7 @@ export namespace MyService {
 
 The `Client` is pretty straight forward. You create a `Client` instance and you can call service methods on it. The inner-workings of the `Processor` aren't something consumers need to concern themselves with. The more interesting bit is `IHandler`. This is the interface that service teams need to implement in order to meet the promises of their service contract. Create an object that satisfies `<service-name>.IHandler` and pass it to the construction of `<service-name>.Processor` and everything else is handled for you.
 
-#### Loose Interfaces
+#### Loose Types
 
 Given these two structs:
 
@@ -373,9 +373,11 @@ struct Profile {
 }
 ```
 
-There is something of a difference between how we want to handle things in TypeScript and how data is going to be sent over the wire. Because of this when we generate interfaces for these structs we generate two interfaces for each struct, one is an exact representation of the Thrift, the other is something looser that more represents how the data will be worked with in the TypeScript application source.
+There is something of a difference between how we want to handle things in TypeScript and how data is going to be sent over the wire. Because of this when we generate interfaces for these structs we generate two interfaces for each struct, one is an exact representation of the Thrift, the other is something looser that provides more flexibility to working with the data in JavaScript.
 
 The main difference is that fields marked as `i64` can be represented as a `number`, as `string` or an `Int64` object and `binary` can be represented as either a `string` or a `Buffer` object.
+
+JavaScript traditionally (`bigint` is new and not fully supported yet) does not support 64-bit integers. This means we need to wrap the Thrift `i64` type in the `Int64` object to maintain precision. In your TypeScript code you may be working with these just as `number` (confident JavaScript's 53-bit precision is good enough for you) or as a `string`. These loose types allow you to do that and the generated code will handle the conversions to `Int64` for you.
 
 Generated TypeScript:
 
@@ -400,13 +402,14 @@ interface IProfileArgs {
 
 The names of loose interfaces just append `Args` onto the end of the interface name. The reason for this is these interfaces will most often be used as arguments in your code.
 
-Where are the loose interfaces used? The loose interfaces can be used anywhere you as the application developer are giving data to the generated code, either as the arguments to a client method or the return value of a service handler.
+Where are the loose interfaces used? The loose interfaces can be used anywhere you, the application developer, are giving data to the generated code, either as the arguments to a client method or the return value of a service handler.
 
 If we had this service:
 
 ```c
 service ProfileService {
     Profile getProfileForUser(1: User user)
+    User getUser(1: i64 id)
 }
 ```
 
@@ -418,12 +421,16 @@ namespace ProfileService {
         constructor(connection: thrift.IThriftConnection<Context>) {
             // ...
         }
-        getProfileForUser(user: IUserArgs, context?: Context): Promise<Profile> {
+        getProfileForUser(user: IUserArgs, context?: Context): Promise<IProfile> {
+            // ...
+        }
+        getUser(id: number | string | Int64): Promise<IUser> {
             // ...
         }
     }
     export interface IHandler<Context> {
         getProfileForUser(user: IUser, context: Context): Promise<IProfileArgs>
+        getUser(id: Int64, context: Context): Promise<IUserArgs>
     }
 }
 ```
@@ -499,7 +506,7 @@ interface IMyUnionWithOption2Args {
 
 The `enum` represents all potential values of the `__type` property attached to each variation of our union. Instead of generating one `interface` with optional properties we generate one interface for each field where that field is required. Our resulting `type` is then the union of multiple interfaces each with only one property. This provides compile-time guarantees that we are setting one and only one field for the union.
 
-The loose intefaces, the `Args` interfaces, behave much like the loose interfaces for structs. They allow you to use `number` in place of `Int64` or allow you to pass either `string` or `Buffer` for `binary` types. In addition, they also forgo the `__type` property. In the codegen we can tell what you are passing by the fields you set. This means in most instances you don't need to provide the `__type` property. You can use the loose interfaces as the return value for service functions or as the arguments for client methods.
+The loose interfaces, the `Args` interfaces, behave much like the loose interfaces for structs. They allow you to use `number` in place of `Int64` or allow you to pass either `string` or `Buffer` for `binary` types. In addition, they also forgo the `__type` property. In the codegen we can tell what you are passing by the fields you set. This means in most instances you don't need to provide the `__type` property. You can use the loose interfaces as the return value for service functions or as the arguments for client methods.
 
 This output is more complex, but it allows us to do a number of things. The most significant of which may be that it allows us to take advantage of discriminated unions in our application code:
 

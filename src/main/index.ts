@@ -97,6 +97,12 @@ export function generate(options: Partial<IMakeOptions>): void {
     const resolvedCache: IResolvedCache = {}
     const renderedCache: IRenderedCache = {}
 
+    if (mergedOptions.strictUnions && mergedOptions.strictUnionsComplexNames) {
+        console.log(
+            `The behavior of 'strictUnionsComplexNames' is experimental an may change.`,
+        )
+    }
+
     const validatedFiles: Array<IResolvedFile> = collectSourceFiles(
         sourceDir,
         mergedOptions,
