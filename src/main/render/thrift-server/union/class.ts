@@ -6,8 +6,6 @@ import {
     UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
-import { IRenderState } from '../../../types'
-
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
 import { createClassConstructor, createFunctionParameter } from '../utils'
@@ -28,24 +26,24 @@ import {
     renderFieldDeclarations,
 } from '../struct/class'
 
-import { assignmentForField as _assignmentForField } from '../struct/reader'
-
 import {
     createFieldAssignment,
     createFieldIncrementer,
     createFieldValidation,
 } from './utils'
 
+import ResolverFile from '../../../resolver/file'
+
 import { renderAnnotations, renderFieldAnnotations } from '../annotations'
 
 export function renderClass(
     node: UnionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
     isExported: boolean,
 ): ts.ClassDeclaration {
     const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(
         node,
-        state,
+        file,
     )
 
     const annotations: ts.PropertyDeclaration = renderAnnotations(
@@ -71,13 +69,13 @@ export function renderClass(
      */
     const fieldAssignments: Array<ts.IfStatement> = node.fields.map(
         (next: FieldDefinition) => {
-            return createFieldAssignment(next, state)
+            return createFieldAssignment(next, file)
         },
     )
 
     const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(
         node,
-        state,
+        file,
     )
 
     // Build the constructor body
@@ -97,14 +95,14 @@ export function renderClass(
         tokens(isExported),
         classNameForStruct(node),
         [],
-        [extendsAbstract(), implementsInterface(node, state)], // heritage
+        [extendsAbstract(), implementsInterface(node, file)], // heritage
         [
             ...fields,
             annotations,
             fieldAnnotations,
             ctor,
             createStaticReadMethod(node),
-            createStaticWriteMethod(node, state),
+            createStaticWriteMethod(node, file),
             createWriteMethod(node),
         ],
     )
@@ -126,9 +124,9 @@ export function createInputParameter(): ts.ParameterDeclaration {
 
 export function createFieldsForStruct(
     node: InterfaceWithFields,
-    state: IRenderState,
+    file: ResolverFile,
 ): Array<ts.PropertyDeclaration> {
     return node.fields.map((field: FieldDefinition) => {
-        return renderFieldDeclarations(field, state)
+        return renderFieldDeclarations(field, file)
     })
 }

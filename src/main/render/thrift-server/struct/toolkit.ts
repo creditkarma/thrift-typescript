@@ -10,7 +10,8 @@ import { createEncodeMethod } from './encode'
 
 import { createDecodeMethod } from './decode'
 
-import { IRenderState } from '../../../types'
+import ResolverFile from '../../../resolver/file'
+
 import {
     looseNameForStruct,
     strictNameForStruct,
@@ -20,7 +21,7 @@ import {
 
 export function renderToolkit(
     node: InterfaceWithFields,
-    state: IRenderState,
+    file: ResolverFile,
     isExported: boolean,
 ): ts.Statement {
     return ts.createVariableStatement(
@@ -29,18 +30,18 @@ export function renderToolkit(
             ts.createIdentifier(toolkitNameForStruct(node)),
             ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IStructCodec, [
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(looseNameForStruct(node, state)),
+                    ts.createIdentifier(looseNameForStruct(node, file)),
                     undefined,
                 ),
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(strictNameForStruct(node, state)),
+                    ts.createIdentifier(strictNameForStruct(node, file)),
                     undefined,
                 ),
             ]),
             ts.createObjectLiteral(
                 [
-                    createEncodeMethod(node, state),
-                    createDecodeMethod(node, state),
+                    createEncodeMethod(node, file),
+                    createDecodeMethod(node, file),
                 ],
                 true,
             ),

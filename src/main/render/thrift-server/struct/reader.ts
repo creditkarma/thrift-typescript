@@ -16,7 +16,8 @@ import {
 
 import { className, toolkitName } from './utils'
 
-import { IRenderState, IResolvedIdentifier } from '../../../types'
+import ResolverFile from '../../../resolver/file'
+import { IResolvedIdentifier } from '../../../types'
 import { createMethodCall } from '../../shared/utils'
 import { COMMON_IDENTIFIERS } from '../identifiers'
 import { createVoidType, typeNodeForFieldType } from '../types'
@@ -40,7 +41,7 @@ function defaultValueAssignment(
 
 export function assignmentForField(
     field: FieldDefinition,
-    state: IRenderState,
+    file: ResolverFile,
     valueAssignment: ValueAssignment = defaultValueAssignment,
 ): Array<ts.Statement> {
     const valueName: ts.Identifier = ts.createUniqueName('value')
@@ -50,7 +51,7 @@ export function assignmentForField(
             field.fieldType,
             valueName,
             ts.createIdentifier(`args.${field.name.value}`),
-            state,
+            file,
         ),
         valueAssignment(valueName, field),
     ]
@@ -61,11 +62,11 @@ export function defaultAssignment(
     saveName: ts.Identifier,
     readName: ts.Identifier,
     fieldType: FieldType,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.Statement {
     return createConstStatement(
         saveName,
-        typeNodeForFieldType(fieldType, state),
+        typeNodeForFieldType(fieldType, file),
         coerceType(readName, fieldType),
     )
 }
@@ -76,7 +77,7 @@ export function assignmentForIdentifier(
     fieldType: FieldType,
     saveName: ts.Identifier,
     readName: ts.Identifier,
-    state: IRenderState,
+    file: ResolverFile,
 ): Array<ts.Statement> {
     switch (id.definition.type) {
         case SyntaxType.ConstDefinition:
@@ -93,11 +94,11 @@ export function assignmentForIdentifier(
 
         // Handle creating value for args.
         case SyntaxType.UnionDefinition:
-            if (state.options.strictUnions) {
+            if (file.schema.options.strictUnions) {
                 return [
                     createConstStatement(
                         saveName,
-                        typeNodeForFieldType(fieldType, state),
+                        typeNodeForFieldType(fieldType, file),
                         createMethodCall(
                             toolkitName(id.resolvedName),
                             'create',
@@ -114,7 +115,7 @@ export function assignmentForIdentifier(
             return [
                 createConstStatement(
                     saveName,
-                    typeNodeForFieldType(fieldType, state),
+                    typeNodeForFieldType(fieldType, file),
                     ts.createNew(
                         ts.createIdentifier(className(id.resolvedName)),
                         undefined,
@@ -124,7 +125,7 @@ export function assignmentForIdentifier(
             ]
 
         case SyntaxType.EnumDefinition:
-            return [defaultAssignment(saveName, readName, fieldType, state)]
+            return [defaultAssignment(saveName, readName, fieldType, file)]
 
         case SyntaxType.TypedefDefinition:
             return assignmentForFieldType(
@@ -132,7 +133,7 @@ export function assignmentForIdentifier(
                 id.definition.definitionType,
                 saveName,
                 readName,
-                state,
+                file,
             )
 
         default:
@@ -146,17 +147,17 @@ export function assignmentForFieldType(
     fieldType: FunctionType,
     saveName: ts.Identifier,
     readName: ts.Identifier,
-    state: IRenderState,
+    file: ResolverFile,
 ): Array<ts.Statement> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return assignmentForIdentifier(
                 field,
-                state.identifiers[fieldType.value],
+                file.resolveIdentifier(fieldType.value),
                 fieldType,
                 saveName,
                 readName,
-                state,
+                file,
             )
 
         /**
@@ -175,7 +176,7 @@ export function assignmentForFieldType(
         case SyntaxType.I16Keyword:
         case SyntaxType.I32Keyword:
         case SyntaxType.I64Keyword: {
-            return [defaultAssignment(saveName, readName, fieldType, state)]
+            return [defaultAssignment(saveName, readName, fieldType, file)]
         }
 
         /**
@@ -187,12 +188,12 @@ export function assignmentForFieldType(
             return [
                 createConstStatement(
                     saveName,
-                    typeNodeForFieldType(fieldType, state),
+                    typeNodeForFieldType(fieldType, file),
                     ts.createNew(
                         COMMON_IDENTIFIERS.Map, // class name
                         [
-                            typeNodeForFieldType(fieldType.keyType, state),
-                            typeNodeForFieldType(fieldType.valueType, state),
+                            typeNodeForFieldType(fieldType.keyType, file),
+                            typeNodeForFieldType(fieldType.valueType, file),
                         ],
                         [],
                     ),
@@ -202,7 +203,7 @@ export function assignmentForFieldType(
                     fieldType,
                     saveName,
                     readName,
-                    state,
+                    file,
                 ),
             ]
         }
@@ -211,10 +212,10 @@ export function assignmentForFieldType(
             return [
                 createConstStatement(
                     saveName,
-                    typeNodeForFieldType(fieldType, state),
+                    typeNodeForFieldType(fieldType, file),
                     ts.createNew(
                         COMMON_IDENTIFIERS.Array, // class name
-                        [typeNodeForFieldType(fieldType.valueType, state)],
+                        [typeNodeForFieldType(fieldType.valueType, file)],
                         [],
                     ),
                 ),
@@ -223,7 +224,7 @@ export function assignmentForFieldType(
                     fieldType,
                     saveName,
                     readName,
-                    state,
+                    file,
                 ),
             ]
         }
@@ -232,10 +233,10 @@ export function assignmentForFieldType(
             return [
                 createConstStatement(
                     saveName,
-                    typeNodeForFieldType(fieldType, state),
+                    typeNodeForFieldType(fieldType, file),
                     ts.createNew(
                         COMMON_IDENTIFIERS.Set, // class name
-                        [typeNodeForFieldType(fieldType.valueType, state)],
+                        [typeNodeForFieldType(fieldType.valueType, file)],
                         [],
                     ),
                 ),
@@ -244,7 +245,7 @@ export function assignmentForFieldType(
                     fieldType,
                     saveName,
                     readName,
-                    state,
+                    file,
                 ),
             ]
         }
@@ -269,7 +270,7 @@ export function loopOverContainer(
     fieldType: ContainerType,
     saveName: ts.Identifier,
     readName: ts.Identifier,
-    state: IRenderState,
+    file: ResolverFile,
 ): Array<ts.Statement> {
     switch (fieldType.type) {
         case SyntaxType.MapType: {
@@ -294,7 +295,7 @@ export function loopOverContainer(
                                         valueParam, // param name
                                         typeNodeForFieldType(
                                             fieldType.valueType,
-                                            state,
+                                            file,
                                             true,
                                         ), // param type
                                         undefined,
@@ -303,7 +304,7 @@ export function loopOverContainer(
                                         keyName, // param name
                                         typeNodeForFieldType(
                                             fieldType.keyType,
-                                            state,
+                                            file,
                                             true,
                                         ), // param type
                                         undefined,
@@ -320,14 +321,14 @@ export function loopOverContainer(
                                             fieldType.valueType,
                                             valueConst,
                                             valueParam,
-                                            state,
+                                            file,
                                         ),
                                         ...assignmentForFieldType(
                                             field,
                                             fieldType.keyType,
                                             keyConst,
                                             keyName,
-                                            state,
+                                            file,
                                         ),
                                         createMethodCallStatement(
                                             saveName,
@@ -364,7 +365,7 @@ export function loopOverContainer(
                                         valueParam, // param name
                                         typeNodeForFieldType(
                                             fieldType.valueType,
-                                            state,
+                                            file,
                                             true,
                                         ), // param type
                                         undefined,
@@ -381,7 +382,7 @@ export function loopOverContainer(
                                             fieldType.valueType,
                                             valueConst,
                                             valueParam,
-                                            state,
+                                            file,
                                         ),
                                         createMethodCallStatement(
                                             saveName,
@@ -418,7 +419,7 @@ export function loopOverContainer(
                                         valueParam, // param name
                                         typeNodeForFieldType(
                                             fieldType.valueType,
-                                            state,
+                                            file,
                                             true,
                                         ), // param type
                                         undefined,
@@ -435,7 +436,7 @@ export function loopOverContainer(
                                             fieldType.valueType,
                                             valueConst,
                                             valueParam,
-                                            state,
+                                            file,
                                         ),
                                         createMethodCallStatement(
                                             saveName,

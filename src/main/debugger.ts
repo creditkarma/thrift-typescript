@@ -1,7 +1,7 @@
 import { TextLocation } from '@creditkarma/thrift-parser'
 import * as os from 'os'
 
-import { ErrorType, IResolvedFile, IThriftError } from './types'
+import { ErrorType, IThriftError, IValidatedFile } from './types'
 
 interface IFormattedError {
     sourceLine: string
@@ -46,9 +46,10 @@ function errorType(type: ErrorType): string {
     }
 }
 
-function printErrorForFile(file: IResolvedFile): void {
-    const sourceLines: Array<string> = file.source.split(os.EOL)
-    const formattedErrors: Array<IFormattedError> = file.errors.map(
+function printErrorForFile(validatedFile: IValidatedFile): void {
+    const parsedFile = validatedFile.file.parsedFile
+    const sourceLines: Array<string> = parsedFile.source.split(os.EOL)
+    const formattedErrors: Array<IFormattedError> = validatedFile.errors.map(
         (next: IThriftError): IFormattedError => {
             return formatError(next)
         },
@@ -70,9 +71,9 @@ function printErrorForFile(file: IResolvedFile): void {
     }
 
     console.log(
-        `Error generating file '${file.path}/${file.name}.thrift': ${
-            file.errors.length
-        } errors found:`,
+        `Error generating file '${parsedFile.path}/${
+            parsedFile.name
+        }.thrift': ${validatedFile.errors.length} errors found:`,
     )
     formattedErrors.forEach(
         (err: IFormattedError): void => {
@@ -89,9 +90,9 @@ function printErrorForFile(file: IResolvedFile): void {
     )
 }
 
-export function printErrors(files: Array<IResolvedFile>): void {
+export function printErrors(files: Array<IValidatedFile>): void {
     files.forEach(
-        (next: IResolvedFile): void => {
+        (next: IValidatedFile): void => {
             printErrorForFile(next)
         },
     )

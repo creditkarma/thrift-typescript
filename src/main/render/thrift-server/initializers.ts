@@ -16,15 +16,19 @@ import {
 
 import { COMMON_IDENTIFIERS } from './identifiers'
 
+import ResolverFile from '../../resolver/file'
 import { propertyAccessForIdentifier } from './utils'
 
 export function renderValue(
     fieldType: FunctionType,
     node: ConstValue,
+    file: ResolverFile,
 ): ts.Expression {
     switch (node.type) {
         case SyntaxType.Identifier:
-            return ts.createIdentifier(node.value)
+            return ts.createIdentifier(
+                file.resolveIdentifier(node.value).resolvedName,
+            )
 
         case SyntaxType.IntConstant:
             return renderIntConstant(node, fieldType)
@@ -44,16 +48,16 @@ export function renderValue(
 
         case SyntaxType.ConstList:
             if (fieldType.type === SyntaxType.ListType) {
-                return renderList(fieldType, node)
+                return renderList(fieldType, node, file)
             } else if (fieldType.type === SyntaxType.SetType) {
-                return renderSet(fieldType, node)
+                return renderSet(fieldType, node, file)
             } else {
                 throw new TypeError(`Type list | set expected`)
             }
 
         case SyntaxType.ConstMap:
             if (fieldType.type === SyntaxType.MapType) {
-                return renderMap(fieldType, node)
+                return renderMap(fieldType, node, file)
             } else {
                 throw new TypeError(`Type map expected`)
             }
@@ -111,11 +115,15 @@ export function renderDoubleConstant(node: DoubleConstant): ts.Expression {
     }
 }
 
-function renderMap(fieldType: MapType, node: ConstMap): ts.NewExpression {
+function renderMap(
+    fieldType: MapType,
+    node: ConstMap,
+    file: ResolverFile,
+): ts.NewExpression {
     const values = node.properties.map(({ name, initializer }) => {
         return ts.createArrayLiteral([
-            renderValue(fieldType.keyType, name),
-            renderValue(fieldType.valueType, initializer),
+            renderValue(fieldType.keyType, name, file),
+            renderValue(fieldType.valueType, initializer, file),
         ])
     })
 
@@ -124,10 +132,14 @@ function renderMap(fieldType: MapType, node: ConstMap): ts.NewExpression {
     ])
 }
 
-function renderSet(fieldType: SetType, node: ConstList): ts.NewExpression {
+function renderSet(
+    fieldType: SetType,
+    node: ConstList,
+    file: ResolverFile,
+): ts.NewExpression {
     const values: Array<ts.Expression> = node.elements.map(
         (value: ConstValue) => {
-            return renderValue(fieldType.valueType, value)
+            return renderValue(fieldType.valueType, value, file)
         },
     )
 
@@ -139,10 +151,11 @@ function renderSet(fieldType: SetType, node: ConstList): ts.NewExpression {
 function renderList(
     fieldType: ListType,
     node: ConstList,
+    file: ResolverFile,
 ): ts.ArrayLiteralExpression {
     const values: Array<ts.Expression> = node.elements.map(
         (value: ConstValue) => {
-            return renderValue(fieldType.valueType, value)
+            return renderValue(fieldType.valueType, value, file)
         },
     )
 

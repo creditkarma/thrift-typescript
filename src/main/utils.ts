@@ -15,17 +15,17 @@ import {
     IIncludeCache,
     IIncludeData,
     IMakeOptions,
-    INamespaceFile,
     IParsedFile,
     IRenderedFile,
-    IResolvedFile,
-    IResolvedIncludeMap,
     IThriftFile,
+    IValidatedFile,
 } from './types'
 
 import { print } from './printer'
 
+import ResolverSchema from './resolver/schema'
 import { mkdir } from './sys'
+import { validateFile } from './validator'
 
 interface IFileCache {
     [path: string]: IThriftFile
@@ -111,78 +111,7 @@ export function parseThriftString(source: string): ThriftDocument {
     }
 }
 
-export function dedupResolvedFiles(
-    files: Array<IResolvedFile>,
-): Array<IResolvedFile> {
-    return Array.from(
-        files
-            .reduce((acc: Map<string, IResolvedFile>, next: IResolvedFile) => {
-                acc.set(`${next.path}/${next.name}`, next)
-                return acc
-            }, new Map())
-            .values(),
-    )
-}
-
-function collectNamespaces(
-    files: Array<IResolvedFile>,
-    cache: Map<string, INamespaceFile> = new Map(),
-): Map<string, INamespaceFile> {
-    if (files.length > 0) {
-        const [head, ...tail] = files
-        const namespace = cache.get(head.namespace.path)
-        if (namespace !== undefined) {
-            namespace.body = namespace.body.concat(head.body)
-            for (const item in head.identifiers) {
-                if (head.identifiers.hasOwnProperty(item)) {
-                    namespace.identifiers[item] = head.identifiers[item]
-                }
-            }
-            for (const item in head.includes) {
-                if (head.includes.hasOwnProperty(item)) {
-                    namespace.includes[item] = head.includes[item]
-                }
-            }
-        } else {
-            cache.set(head.namespace.path, {
-                namespace: head.namespace,
-                includes: head.includes,
-                identifiers: head.identifiers,
-                body: head.body,
-            })
-        }
-
-        return collectNamespaces(tail, cache)
-    } else {
-        return cache
-    }
-}
-
-export function organizeByNamespace(
-    files: Array<IResolvedFile>,
-): Array<INamespaceFile> {
-    return Array.from(collectNamespaces(files).values())
-}
-
-/**
- * Once identifiers have been resolved it's easier to deal with files in a flattened state
- */
-export function flattenResolvedFile(file: IResolvedFile): Array<IResolvedFile> {
-    let result: Array<IResolvedFile> = [file]
-    for (const key in file.includes) {
-        if (file.includes.hasOwnProperty(key)) {
-            const include = file.includes[key].file
-            result = result.concat(flattenResolvedFile(include))
-        }
-    }
-    return result
-}
-
-export function saveFiles(
-    rootDir: string,
-    outDir: string,
-    files: Array<IRenderedFile>,
-): void {
+export function saveFiles(files: Array<IRenderedFile>): void {
     files.forEach((next: IRenderedFile) => {
         mkdir(path.dirname(next.outPath))
         try {
@@ -292,26 +221,10 @@ export function parseSource(source: string): IParsedFile {
     }
 }
 
-function includeListForMap(
-    includes: IResolvedIncludeMap,
-): Array<IResolvedFile> {
-    const includeList: Array<IResolvedFile> = []
-    for (const name of Object.keys(includes)) {
-        includeList.push(includes[name].file)
-    }
-    return includeList
-}
-
 export function collectInvalidFiles(
-    resolvedFiles: Array<IResolvedFile>,
-    errors: Array<IResolvedFile> = [],
-): Array<IResolvedFile> {
-    for (const file of resolvedFiles) {
-        if (file.errors.length > 0) {
-            errors.push(file)
-            collectInvalidFiles(includeListForMap(file.includes), errors)
-        }
-    }
-
-    return errors
+    schema: ResolverSchema,
+): Array<IValidatedFile> {
+    return [...schema.files.values()]
+        .map((file) => validateFile(file))
+        .filter((validatedFile) => validatedFile.errors.length > 0)
 }

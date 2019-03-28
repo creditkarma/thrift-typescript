@@ -16,6 +16,7 @@ describe('resolveOptions', () => {
             library: 'thrift',
             strictUnions: false,
             strictUnionsComplexNames: false,
+            filePerType: false,
         })
     })
 
@@ -40,6 +41,7 @@ describe('resolveOptions', () => {
             library: 'thrift',
             strictUnions: false,
             strictUnionsComplexNames: true,
+            filePerType: false,
         })
     })
 })

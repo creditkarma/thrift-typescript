@@ -1,12 +1,8 @@
 import * as path from 'path'
 import * as ts from 'typescript'
 
-import {
-    IResolvedFile,
-    IResolvedIdentifier,
-    IResolvedIncludeMap,
-} from '../../types'
-
+import ResolverFile from '../../resolver/file'
+import ResolverNamespace from '../../resolver/namespace'
 import { COMMON_IDENTIFIERS } from '../shared/identifiers'
 
 const DEFAULT_THRIFT_LIB: string = 'thrift'
@@ -20,15 +16,7 @@ const DEFAULT_THRIFT_LIB: string = 'thrift'
 export function renderThriftImports(
     thriftLib: string = DEFAULT_THRIFT_LIB,
 ): ts.ImportDeclaration {
-    return ts.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.createImportClause(
-            undefined,
-            ts.createNamespaceImport(COMMON_IDENTIFIERS.thrift),
-        ),
-        ts.createLiteral(thriftLib),
-    )
+    return renderImport(COMMON_IDENTIFIERS.thrift.text, thriftLib)
 }
 
 /**
@@ -40,40 +28,50 @@ export function renderThriftImports(
  * @param resolved A hash of include name to a list of ids used from this include
  */
 export function renderIncludes(
-    currentPath: string,
-    resolved: IResolvedIncludeMap,
+    namespace: ResolverNamespace,
+    files: Array<ResolverFile>,
+    namespaceImport?: string,
 ): Array<ts.ImportDeclaration> {
+    const includedFiles: Set<ResolverFile> = new Set()
+
+    files.forEach((file) => {
+        file.includes.forEach((include) => {
+            includedFiles.add(include)
+        })
+    })
+
     const imports: Array<ts.ImportDeclaration> = []
-
-    for (const name of Object.keys(resolved)) {
-        const resolvedIncludes: Array<IResolvedIdentifier> =
-            resolved[name].identifiers
-        const includeFile: IResolvedFile = resolved[name].file
-
-        if (resolvedIncludes != null && includeFile != null) {
-            const includePath: string = includeFile.namespace.path
-            imports.push(
-                ts.createImportDeclaration(
-                    undefined,
-                    undefined,
-                    ts.createImportClause(
-                        undefined,
-                        ts.createNamespaceImport(ts.createIdentifier(name)),
+    for (const file of includedFiles) {
+        imports.push(
+            renderImport(
+                path.basename(file.fileName, '.thrift'),
+                `./${path.join(
+                    path.relative(
+                        path.dirname(namespace.path),
+                        path.dirname(file.namespace.path),
                     ),
-                    ts.createLiteral(
-                        `./${path.join(
-                            path.relative(
-                                path.dirname(currentPath),
-                                path.dirname(includePath),
-                            ),
-                        )}`,
-                    ),
-                ),
-            )
-        }
+                )}`,
+            ),
+        )
+    }
+
+    if (namespaceImport) {
+        imports.push(renderImport(namespaceImport, './.'))
     }
 
     return imports
+}
+
+export function renderImport(name: string, includePath: string) {
+    return ts.createImportDeclaration(
+        undefined,
+        undefined,
+        ts.createImportClause(
+            undefined,
+            ts.createNamespaceImport(ts.createIdentifier(name)),
+        ),
+        ts.createLiteral(includePath),
+    )
 }
 
 /**

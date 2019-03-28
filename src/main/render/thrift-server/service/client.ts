@@ -38,8 +38,6 @@ import { createAnyType, typeNodeForFieldType } from '../types'
 
 import { renderValue } from '../initializers'
 
-import { IRenderState } from '../../../types'
-
 import {
     renderMethodAnnotationsProperty,
     renderMethodAnnotationsStaticProperty,
@@ -47,6 +45,7 @@ import {
     renderServiceAnnotationsStaticProperty,
 } from '../annotations'
 
+import ResolverFile from '../../../resolver/file'
 import { createClassConstructor } from '../../shared/utils'
 import { looseName, strictName, toolkitName } from '../struct/utils'
 
@@ -70,7 +69,7 @@ function extendsService(service: Identifier): ts.HeritageClause {
 
 export function renderClient(
     service: ServiceDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.ClassDeclaration {
     const staticServiceName: ts.PropertyDeclaration = renderServiceNameStaticProperty()
     const staticAnnotations: ts.PropertyDeclaration = renderServiceAnnotationsStaticProperty()
@@ -84,7 +83,7 @@ export function renderClient(
 
     const baseMethods: Array<ts.MethodDeclaration> = service.functions.map(
         (func: FunctionDefinition) => {
-            return createBaseMethodForDefinition(func, state)
+            return createBaseMethodForDefinition(func, file)
         },
     )
 
@@ -157,7 +156,7 @@ function createSuperCall(): ts.Statement {
 // }
 function createBaseMethodForDefinition(
     def: FunctionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.MethodDeclaration {
     return ts.createMethod(
         undefined, // decorators
@@ -168,7 +167,7 @@ function createBaseMethodForDefinition(
         undefined, // type parameters
         [
             ...def.fields.map((field: FieldDefinition) => {
-                return createParametersForField(field, state)
+                return createParametersForField(field, file)
             }),
             createFunctionParameter(
                 COMMON_IDENTIFIERS.context,
@@ -178,7 +177,7 @@ function createBaseMethodForDefinition(
             ),
         ], // parameters
         ts.createTypeReferenceNode('Promise', [
-            typeNodeForFieldType(def.returnType, state),
+            typeNodeForFieldType(def.returnType, file),
         ]), // return type
         ts.createBlock(
             [
@@ -228,7 +227,7 @@ function createBaseMethodForDefinition(
                             looseName(
                                 createStructArgsName(def),
                                 def.type,
-                                state,
+                                file,
                             ),
                         ),
                         undefined,
@@ -406,7 +405,7 @@ function createBaseMethodForDefinition(
                                                                             // const result = new {{ServiceName}}{{nameTitleCase}}Result()
                                                                             ...createNewResultInstance(
                                                                                 def,
-                                                                                state,
+                                                                                file,
                                                                             ),
 
                                                                             // proto.readMessageEnd()
@@ -502,14 +501,14 @@ function createConnectionSend(): ts.CallExpression {
 // const result: GetUserResult = GetUserResultCodec.decode(input);
 function createNewResultInstance(
     def: FunctionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): Array<ts.Statement> {
     return [
         createConstStatement(
             COMMON_IDENTIFIERS.result,
             ts.createTypeReferenceNode(
                 ts.createIdentifier(
-                    strictName(createStructResultName(def), def.type, state),
+                    strictName(createStructResultName(def), def.type, file),
                 ),
                 undefined,
             ),
@@ -637,16 +636,16 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
 
 function createParametersForField(
     field: FieldDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.ParameterDeclaration {
     const defaultValue =
         field.defaultValue !== null
-            ? renderValue(field.fieldType, field.defaultValue)
+            ? renderValue(field.fieldType, field.defaultValue, file)
             : undefined
 
     return createFunctionParameter(
         field.name.value,
-        typeNodeForFieldType(field.fieldType, state, true),
+        typeNodeForFieldType(field.fieldType, file, true),
         defaultValue,
         field.requiredness === 'optional',
     )

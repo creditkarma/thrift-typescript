@@ -2,37 +2,36 @@ import * as ts from 'typescript'
 
 import { UnionDefinition } from '@creditkarma/thrift-parser'
 
-import { IRenderState } from '../../../types'
-
 import { renderInterface } from '../struct/interface'
 
 import { renderToolkit } from './toolkit'
 
+import ResolverFile from '../../../resolver/file'
 import { renderClass } from './class'
 
 import { renderUnionsForFields, renderUnionTypes } from './union-fields'
 
 export function renderUnion(
     node: UnionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
     isExported: boolean = true,
 ): Array<ts.Statement> {
     return [
-        ...renderInterface(node, state, isExported),
-        renderToolkit(node, state, isExported),
-        renderClass(node, state, isExported),
+        ...renderInterface(node, file, isExported),
+        renderToolkit(node, file, isExported),
+        renderClass(node, file, isExported),
     ]
 }
 
 export function renderStrictUnion(
     node: UnionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
     isExported: boolean = true,
 ): Array<ts.Statement> {
     return [
-        renderUnionTypes(node, state, isExported),
-        ...renderUnionsForFields(node, state, isExported, true),
-        ...renderUnionsForFields(node, state, isExported, false),
-        renderToolkit(node, state, isExported),
+        renderUnionTypes(node, file, isExported),
+        ...renderUnionsForFields(node, file, isExported, true),
+        ...renderUnionsForFields(node, file, isExported, false),
+        renderToolkit(node, file, isExported),
     ]
 }

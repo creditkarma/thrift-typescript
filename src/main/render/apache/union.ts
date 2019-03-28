@@ -6,8 +6,6 @@ import {
     UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap } from '../../types'
-
 import { thriftTypeForFieldType, typeNodeForFieldType } from './types'
 
 import {
@@ -38,6 +36,7 @@ import {
     throwForField,
 } from './struct'
 
+import ResolverFile from '../../resolver/file'
 import {
     COMMON_IDENTIFIERS,
     THRIFT_IDENTIFIERS,
@@ -51,9 +50,12 @@ import {
  */
 export function renderUnion(
     node: UnionDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.ClassDeclaration {
-    const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(node)
+    const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(
+        node,
+        file,
+    )
 
     /**
      * After creating the properties on our class for the struct fields we must create
@@ -105,17 +107,14 @@ export function renderUnion(
 
     const factories: Array<ts.MethodDeclaration> = createUnionFactories(
         node,
-        identifiers,
+        file,
     )
 
     // Build the `read` method
-    const readMethod: ts.MethodDeclaration = createReadMethod(node, identifiers)
+    const readMethod: ts.MethodDeclaration = createReadMethod(node, file)
 
     // Build the `write` method
-    const writeMethod: ts.MethodDeclaration = createWriteMethod(
-        node,
-        identifiers,
-    )
+    const writeMethod: ts.MethodDeclaration = createWriteMethod(node, file)
 
     // export class <node.name> { ... }
     return ts.createClassDeclaration(
@@ -138,7 +137,7 @@ function createFactoryNameForField(field: FieldDefinition): string {
 
 function createUnionFactories(
     node: UnionDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): Array<ts.MethodDeclaration> {
     return node.fields.map(
         (next: FieldDefinition): ts.MethodDeclaration => {
@@ -155,7 +154,7 @@ function createUnionFactories(
                 [
                     createFunctionParameter(
                         ts.createIdentifier(next.name.value),
-                        typeNodeForFieldType(next.fieldType),
+                        typeNodeForFieldType(next.fieldType, file),
                     ),
                 ],
                 ts.createTypeReferenceNode(
@@ -215,7 +214,7 @@ function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
 
 function createReadMethod(
     node: UnionDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
     const returnVariable: ts.VariableStatement = createLetStatement(
@@ -266,7 +265,7 @@ function createReadMethod(
 
     const caseStatements: Array<ts.CaseClause> = node.fields.map(
         (field: FieldDefinition) => {
-            return createCaseForField(node, field, identifiers)
+            return createCaseForField(node, field, file)
         },
     )
 
@@ -358,22 +357,18 @@ function createReadMethod(
 export function createCaseForField(
     node: UnionDefinition,
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.CaseClause {
     const fieldAlias: ts.Identifier = ts.createUniqueName('value')
     const checkType: ts.IfStatement = ts.createIf(
         createEqualsCheck(
             COMMON_IDENTIFIERS.fieldType,
-            thriftTypeForFieldType(field.fieldType, identifiers),
+            thriftTypeForFieldType(field.fieldType, file),
         ),
         ts.createBlock(
             [
                 incrementFieldsSet(),
-                ...readValueForFieldType(
-                    field.fieldType,
-                    fieldAlias,
-                    identifiers,
-                ),
+                ...readValueForFieldType(field.fieldType, fieldAlias, file),
                 ...endReadForField(node, fieldAlias, field),
             ],
             true,

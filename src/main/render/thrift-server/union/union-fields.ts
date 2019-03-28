@@ -2,7 +2,7 @@ import * as ts from 'typescript'
 
 import { FieldDefinition, UnionDefinition } from '@creditkarma/thrift-parser'
 
-import { IRenderState } from '../../../types'
+import ResolverFile from '../../../resolver/file'
 import { COMMON_IDENTIFIERS } from '../../shared/identifiers'
 import { createVoidType } from '../../shared/types'
 import { className, tokens } from '../struct/utils'
@@ -10,13 +10,13 @@ import { typeNodeForFieldType } from '../types'
 
 export function renderUnionTypes(
     node: UnionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
     isExported: boolean,
 ): ts.Statement {
     return ts.createEnumDeclaration(
         undefined, // decorators
         tokens(isExported), // modifiers
-        renderUnionTypeName(node.name.value, state), // enum name
+        renderUnionTypeName(node.name.value, file), // enum name
         node.fields.map((field: FieldDefinition) => {
             return ts.createEnumMember(
                 fieldTypeName(node.name.value, field.name.value, true),
@@ -29,9 +29,9 @@ export function renderUnionTypes(
 export function fieldTypeAccess(
     node: UnionDefinition,
     field: FieldDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): string {
-    return `${renderUnionTypeName(node.name.value, state)}.${fieldTypeName(
+    return `${renderUnionTypeName(node.name.value, file)}.${fieldTypeName(
         node.name.value,
         field.name.value,
         true,
@@ -46,8 +46,8 @@ export function unionTypeName(name: string, strict: boolean): string {
     }
 }
 
-export function renderUnionTypeName(name: string, state: IRenderState): string {
-    if (state.options.strictUnionsComplexNames) {
+export function renderUnionTypeName(name: string, file: ResolverFile): string {
+    if (file.schema.options.strictUnionsComplexNames) {
         return `${unionTypeName(name, true)}__Type`
     } else {
         return `${unionTypeName(name, true)}Type`
@@ -91,7 +91,7 @@ export function fieldInterfaceName(
 function renderInterfaceForField(
     node: UnionDefinition,
     field: FieldDefinition,
-    state: IRenderState,
+    file: ResolverFile,
     strict: boolean,
     isExported: boolean,
 ): ts.InterfaceDeclaration {
@@ -101,7 +101,7 @@ function renderInterfaceForField(
                 undefined,
                 field.name.value,
                 undefined,
-                typeNodeForFieldType(next.fieldType, state, !strict),
+                typeNodeForFieldType(next.fieldType, file, !strict),
                 undefined,
             )
         } else {
@@ -122,7 +122,7 @@ function renderInterfaceForField(
                 COMMON_IDENTIFIERS.__type,
                 undefined,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(fieldTypeAccess(node, field, state)),
+                    ts.createIdentifier(fieldTypeAccess(node, field, file)),
                     undefined,
                 ),
                 undefined,
@@ -144,7 +144,7 @@ function renderInterfaceForField(
 
 export function renderUnionsForFields(
     node: UnionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
     isExported: boolean,
     strict: boolean,
 ): Array<ts.Statement> {
@@ -169,7 +169,7 @@ export function renderUnionsForFields(
         ),
         ...node.fields.map(
             (next: FieldDefinition): ts.InterfaceDeclaration => {
-                return renderInterfaceForField(node, next, state, strict, true)
+                return renderInterfaceForField(node, next, file, strict, true)
             },
         ),
     ]

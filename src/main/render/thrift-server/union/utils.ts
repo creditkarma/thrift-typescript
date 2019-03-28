@@ -4,7 +4,7 @@ import { FieldDefinition, UnionDefinition } from '@creditkarma/thrift-parser'
 
 import { createLetStatement, throwProtocolException } from '../utils'
 
-import { IRenderState } from '../../../types'
+import ResolverFile from '../../../resolver/file'
 import { COMMON_IDENTIFIERS } from '../../shared/identifiers'
 import { assignmentForField as _assignmentForField } from '../struct/reader'
 import { strictNameForStruct } from '../struct/utils'
@@ -13,9 +13,9 @@ import { createNotNullCheck } from '../utils'
 
 export function createReturnVariable(
     node: UnionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.VariableStatement {
-    if (state.options.strictUnions) {
+    if (file.schema.options.strictUnions) {
         return createLetStatement(
             COMMON_IDENTIFIERS._returnValue,
             createAnyType(),
@@ -26,7 +26,7 @@ export function createReturnVariable(
             COMMON_IDENTIFIERS._returnValue,
             ts.createUnionTypeNode([
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(strictNameForStruct(node, state)),
+                    ts.createIdentifier(strictNameForStruct(node, file)),
                     undefined,
                 ),
                 ts.createNull(),
@@ -127,15 +127,15 @@ function returnAssignment(
  */
 export function assignmentForField(
     field: FieldDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): Array<ts.Statement> {
-    if (state.options.strictUnions) {
+    if (file.schema.options.strictUnions) {
         return [
             incrementFieldsSet(),
-            ..._assignmentForField(field, state, returnAssignment),
+            ..._assignmentForField(field, file, returnAssignment),
         ]
     } else {
-        return [incrementFieldsSet(), ..._assignmentForField(field, state)]
+        return [incrementFieldsSet(), ..._assignmentForField(field, file)]
     }
 }
 
@@ -154,13 +154,13 @@ export function assignmentForField(
  */
 export function createFieldAssignment(
     field: FieldDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.IfStatement {
     const hasValue: ts.BinaryExpression = createNotNullCheck(
         ts.createPropertyAccess(COMMON_IDENTIFIERS.args, `${field.name.value}`),
     )
 
-    const thenAssign: Array<ts.Statement> = assignmentForField(field, state)
+    const thenAssign: Array<ts.Statement> = assignmentForField(field, file)
 
     return ts.createIf(hasValue, ts.createBlock([...thenAssign], true))
 }

@@ -2,13 +2,12 @@ import * as ts from 'typescript'
 
 import { ExceptionDefinition } from '@creditkarma/thrift-parser'
 
-import { IRenderState } from '../../../types'
-
+import ResolverFile from '../../../resolver/file'
 import { renderStruct } from '../struct'
 
 export function renderException(
     node: ExceptionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): Array<ts.Statement> {
-    return renderStruct(node, state)
+    return renderStruct(node, file)
 }

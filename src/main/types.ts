@@ -12,6 +12,8 @@ import {
     TypedefDefinition,
     UnionDefinition,
 } from '@creditkarma/thrift-parser'
+import ResolverFile from './resolver/file'
+import ResolverNamespace from './resolver/namespace'
 
 export type CompileTarget = 'apache' | 'thrift-server'
 
@@ -51,65 +53,65 @@ export interface IMakeOptions {
 
     // Should render strict unions type with underscore
     strictUnionsComplexNames: boolean
-}
 
-export interface IRenderState {
-    identifiers: IIdentifierMap
-    options: IMakeOptions
+    // renders each type into its own file.  All types are still re-exported from the index.ts for their namespace
+    // Defaults to false
+    filePerType: boolean
 }
 
 export interface IRenderer {
     renderIncludes(
-        currentPath: string,
-        resolvedFile: INamespaceFile,
+        namespace: ResolverNamespace,
+        files: Array<ResolverFile>,
         options: IMakeOptions,
+        namespaceInclude?: string,
     ): Array<ts.Statement>
 
     renderConst(
         statement: ConstDefinition,
-        state: IRenderState,
+        resolverFile: ResolverFile,
     ): Array<ts.Statement>
 
     renderTypeDef(
         statement: TypedefDefinition,
-        state: IRenderState,
+        resolverFile: ResolverFile,
     ): Array<ts.Statement>
 
     renderEnum(
         statement: EnumDefinition,
-        state: IRenderState,
+        resolverFile: ResolverFile,
     ): Array<ts.Statement>
 
     renderStruct(
         statement: StructDefinition,
-        state: IRenderState,
+        resolverFile: ResolverFile,
     ): Array<ts.Statement>
 
     renderException(
         statement: ExceptionDefinition,
-        state: IRenderState,
+        resolverFile: ResolverFile,
     ): Array<ts.Statement>
 
     renderUnion(
         statement: UnionDefinition,
-        state: IRenderState,
+        resolverFile: ResolverFile,
     ): Array<ts.Statement>
 
     renderService(
         statement: ServiceDefinition,
-        state: IRenderState,
+        resolverFile: ResolverFile,
+    ): Array<ts.Statement>
+
+    renderAsNamespace(
+        name: string,
+        statements: Array<ts.Statement>,
+    ): Array<ts.Statement>
+
+    renderReExport(
+        file: IRenderedFile,
+        exportName: string | null,
     ): Array<ts.Statement>
 }
-
-/**
- *
- * INamespace {
- *   namespace: string
- *   path: string
- * }
- *
- *
- */
 
 export interface IThriftFile {
     name: string
@@ -124,48 +126,14 @@ export interface IParsedFile {
     includes: Array<IParsedFile>
     ast: ThriftDocument
 }
-
-// Map from import identifier to namespace path
-export interface IIncludeMap {
-    [name: string]: string
-}
-
-export interface IResolvedFile {
-    name: string
-    path: string
-    source: string
-    namespace: INamespace
-    includes: IResolvedIncludeMap
-    identifiers: IIdentifierMap
-    body: Array<ThriftStatement>
-    errors: Array<IThriftError>
-}
-
-export interface INamespaceFile {
-    namespace: INamespace
-    includes: IResolvedIncludeMap
-    identifiers: IIdentifierMap
-    body: Array<ThriftStatement>
-}
-
 export interface IRenderedFile {
     outPath: string
-    namespace: INamespace
-    // includes: IRenderedFileMap
-    identifiers: IIdentifierMap
+    namespace: ResolverNamespace
     statements: Array<ts.Statement>
-}
-
-export interface IResolvedFileMap {
-    [name: string]: IResolvedFile
 }
 
 export interface IRenderedFileMap {
     [name: string]: IRenderedFile
-}
-
-export interface INamespacedResolvedFiles {
-    [name: string]: Array<IResolvedFile>
 }
 
 export interface INamespace {
@@ -176,17 +144,6 @@ export interface INamespace {
 
 export interface INamespaceMap {
     [name: string]: INamespace
-}
-
-export interface IResolvedInclude {
-    file: IResolvedFile
-
-    // Identifiers used from this include
-    identifiers: Array<IResolvedIdentifier>
-}
-
-export interface IResolvedIncludeMap {
-    [name: string]: IResolvedInclude
 }
 
 export interface IIncludeData {
@@ -210,10 +167,6 @@ export interface IResolvedIdentifier {
     definition: DefinitionType
 }
 
-export interface IIdentifierMap {
-    [name: string]: IResolvedIdentifier
-}
-
 export const enum ErrorType {
     ValidationError = 'ValidationError',
     ResolutionError = 'ResolutionError',
@@ -230,10 +183,20 @@ export interface IIncludeCache {
     [path: string]: IParsedFile
 }
 
-export interface IResolvedCache {
-    [path: string]: IResolvedFile
+export interface IRenderedCache {
+    [path: string]: Array<IRenderedFile>
 }
 
-export interface IRenderedCache {
-    [path: string]: IRenderedFile
+export interface IStatementMap {
+    [typeName: string]: {
+        namespaced: boolean
+        statements: Array<ts.Statement>
+        file: ResolverFile
+    }
+}
+
+export interface IValidatedFile {
+    file: ResolverFile
+    validStatements: Array<ThriftStatement>
+    errors: Array<IThriftError>
 }

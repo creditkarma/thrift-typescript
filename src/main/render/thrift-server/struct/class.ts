@@ -5,8 +5,6 @@ import {
     InterfaceWithFields,
 } from '@creditkarma/thrift-parser'
 
-import { IRenderState } from '../../../types'
-
 import { renderAnnotations, renderFieldAnnotations } from '../annotations'
 
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
@@ -23,6 +21,7 @@ import { renderValue } from '../initializers'
 import { createVoidType, typeNodeForFieldType } from '../types'
 import { assignmentForField } from './reader'
 
+import ResolverFile from '../../../resolver/file'
 import {
     classNameForStruct,
     createSuperCall,
@@ -36,12 +35,12 @@ import {
 
 export function renderClass(
     node: InterfaceWithFields,
-    state: IRenderState,
+    file: ResolverFile,
     isExported: boolean,
 ): ts.ClassDeclaration {
     const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(
         node,
-        state,
+        file,
     )
 
     const annotations: ts.PropertyDeclaration = renderAnnotations(
@@ -67,13 +66,13 @@ export function renderClass(
      */
     const fieldAssignments: Array<ts.IfStatement> = node.fields.map(
         (field: FieldDefinition) => {
-            return createFieldAssignment(field, state)
+            return createFieldAssignment(field, file)
         },
     )
 
     const argsParameter: ts.ParameterDeclaration = createArgsParameterForStruct(
         node,
-        state,
+        file,
     )
 
     // Build the constructor body
@@ -88,14 +87,14 @@ export function renderClass(
         tokens(isExported),
         classNameForStruct(node),
         [],
-        [extendsAbstract(), implementsInterface(node, state)], // heritage
+        [extendsAbstract(), implementsInterface(node, file)], // heritage
         [
             ...fields,
             annotations,
             fieldAnnotations,
             ctor,
             createStaticReadMethod(node),
-            createStaticWriteMethod(node, state),
+            createStaticWriteMethod(node, file),
             createWriteMethod(node),
         ],
     )
@@ -133,7 +132,7 @@ export function createWriteMethod(
 
 export function createStaticWriteMethod(
     node: InterfaceWithFields,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.MethodDeclaration {
     return ts.createMethod(
         undefined,
@@ -149,7 +148,7 @@ export function createStaticWriteMethod(
             createFunctionParameter(
                 COMMON_IDENTIFIERS.args,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(looseNameForStruct(node, state)),
+                    ts.createIdentifier(looseNameForStruct(node, file)),
                     undefined,
                 ),
             ),
@@ -234,10 +233,10 @@ export function createInputParameter(): ts.ParameterDeclaration {
 
 export function createFieldsForStruct(
     node: InterfaceWithFields,
-    state: IRenderState,
+    file: ResolverFile,
 ): Array<ts.PropertyDeclaration> {
     return node.fields.map((field: FieldDefinition) => {
-        return renderFieldDeclarations(field, state)
+        return renderFieldDeclarations(field, file)
     })
 }
 
@@ -262,11 +261,11 @@ export function createFieldsForStruct(
  */
 export function renderFieldDeclarations(
     field: FieldDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.PropertyDeclaration {
     const defaultValue: ts.Expression | undefined =
         field.defaultValue !== null
-            ? renderValue(field.fieldType, field.defaultValue)
+            ? renderValue(field.fieldType, field.defaultValue, file)
             : undefined
 
     return ts.createProperty(
@@ -276,7 +275,7 @@ export function renderFieldDeclarations(
         field.requiredness === 'required'
             ? undefined
             : ts.createToken(ts.SyntaxKind.QuestionToken),
-        typeNodeForFieldType(field.fieldType, state),
+        typeNodeForFieldType(field.fieldType, file),
         defaultValue,
     )
 }
@@ -296,12 +295,12 @@ export function renderFieldDeclarations(
  */
 export function createFieldAssignment(
     field: FieldDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.IfStatement {
     const hasValue: ts.BinaryExpression = createNotNullCheck(
         ts.createPropertyAccess(COMMON_IDENTIFIERS.args, `${field.name.value}`),
     )
-    const thenAssign: Array<ts.Statement> = assignmentForField(field, state)
+    const thenAssign: Array<ts.Statement> = assignmentForField(field, file)
     const elseThrow: ts.Statement | undefined = throwForField(field)
 
     return ts.createIf(
@@ -323,18 +322,18 @@ function createDefaultInitializer(
 
 export function createArgsParameterForStruct(
     node: InterfaceWithFields,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.ParameterDeclaration {
     return createFunctionParameter(
         COMMON_IDENTIFIERS.args, // param name
-        createArgsTypeForStruct(node, state), // param type
+        createArgsTypeForStruct(node, file), // param type
         createDefaultInitializer(node),
     )
 }
 
 function createArgsTypeForStruct(
     node: InterfaceWithFields,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.TypeNode {
     // return ts.createTypeLiteralNode(
     //     node.fields.map((field: FieldDefinition): ts.TypeElement => {
@@ -348,7 +347,7 @@ function createArgsTypeForStruct(
     //     })
     // )
     return ts.createTypeReferenceNode(
-        ts.createIdentifier(looseNameForStruct(node, state)),
+        ts.createIdentifier(looseNameForStruct(node, file)),
         undefined,
     )
 }

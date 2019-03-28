@@ -1,16 +1,13 @@
-import * as ts from 'typescript'
-
 import {
-    IIdentifierMap,
     IMakeOptions,
-    INamespaceFile,
     IRenderedCache,
     IRenderedFile,
     IRenderer,
-    IRenderState,
 } from '../types'
 
+import ResolverNamespace from '../resolver/namespace'
 import { processStatements } from './iterator'
+import NamespaceGenerator from './namespace'
 
 /**
  * Export this directly is useful for generating code without generating files
@@ -28,32 +25,26 @@ export { processStatements } from './iterator'
  *
  * @param options
  */
-export function generateFile(
+export function generateFiles(
     renderer: IRenderer,
-    resolvedFile: INamespaceFile,
-    options: IMakeOptions,
+    outDir: string,
+    namespace: ResolverNamespace,
     cache: IRenderedCache = {},
-): IRenderedFile {
-    const cacheKey: string = resolvedFile.namespace.path
+    options: IMakeOptions,
+): Array<IRenderedFile> {
+    const cacheKey: string = namespace.path
 
     if (cacheKey === '/' || cache[cacheKey] === undefined) {
-        const identifiers: IIdentifierMap = resolvedFile.identifiers
-        const state: IRenderState = { options, identifiers }
-        const statements: Array<ts.Statement> = [
-            ...renderer.renderIncludes(
-                resolvedFile.namespace.path,
-                resolvedFile,
-                options,
-            ),
-            ...processStatements(resolvedFile.body, state, renderer),
-        ]
+        const namespaceGenerator = new NamespaceGenerator(
+            renderer,
+            namespace,
+            outDir,
+            options,
+        )
 
-        cache[cacheKey] = {
-            outPath: resolvedFile.namespace.path,
-            namespace: resolvedFile.namespace,
-            statements,
-            identifiers,
-        }
+        processStatements(namespace, namespaceGenerator)
+
+        cache[cacheKey] = namespaceGenerator.renderFiles(options.filePerType)
     }
 
     return cache[cacheKey]

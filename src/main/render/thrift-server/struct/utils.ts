@@ -8,7 +8,7 @@ import {
 
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
-import { IRenderState } from '../../../types'
+import ResolverFile from '../../../resolver/file'
 import { throwProtocolException } from '../utils'
 
 type NameMapping = (name: string) => string
@@ -56,9 +56,9 @@ export function tokens(
 
 export function looseNameForStruct(
     node: InterfaceWithFields,
-    state: IRenderState,
+    file: ResolverFile,
 ): string {
-    return looseName(node.name.value, node.type, state)
+    return looseName(node.name.value, node.type, file)
 }
 
 export function classNameForStruct(node: InterfaceWithFields): string {
@@ -67,9 +67,9 @@ export function classNameForStruct(node: InterfaceWithFields): string {
 
 export function strictNameForStruct(
     node: InterfaceWithFields,
-    state: IRenderState,
+    file: ResolverFile,
 ): string {
-    return strictName(node.name.value, node.type, state)
+    return strictName(node.name.value, node.type, file)
 }
 
 export function toolkitNameForStruct(node: InterfaceWithFields): string {
@@ -85,9 +85,12 @@ export function className(name: string): string {
 export function looseName(
     name: string,
     type: SyntaxType,
-    state: IRenderState,
+    file: ResolverFile,
 ): string {
-    if (type === SyntaxType.UnionDefinition && state.options.strictUnions) {
+    if (
+        type === SyntaxType.UnionDefinition &&
+        file.schema.options.strictUnions
+    ) {
         return `${className(name)}Args`
     } else {
         return makeNameForNode(name, (part: string) => {
@@ -99,9 +102,12 @@ export function looseName(
 export function strictName(
     name: string,
     type: SyntaxType,
-    state: IRenderState,
+    file: ResolverFile,
 ): string {
-    if (type === SyntaxType.UnionDefinition && state.options.strictUnions) {
+    if (
+        type === SyntaxType.UnionDefinition &&
+        file.schema.options.strictUnions
+    ) {
         return className(name)
     } else {
         return makeNameForNode(name, (part: string) => {
@@ -125,12 +131,12 @@ export function extendsAbstract(): ts.HeritageClause {
 
 export function implementsInterface(
     node: InterfaceWithFields,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.HeritageClause {
     return ts.createHeritageClause(ts.SyntaxKind.ImplementsKeyword, [
         ts.createExpressionWithTypeArguments(
             [],
-            ts.createIdentifier(strictNameForStruct(node, state)),
+            ts.createIdentifier(strictNameForStruct(node, file)),
         ),
     ])
 }

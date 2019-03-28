@@ -21,8 +21,6 @@ import {
 
 import { renderStruct } from '../struct'
 
-import { IRenderState } from '../../../types'
-
 import { renderClient } from './client'
 
 import { renderProcessor } from './processor'
@@ -31,6 +29,7 @@ import { renderHandlerInterface } from '../../shared/service'
 
 import { typeNodeForFieldType } from '../types'
 
+import ResolverFile from '../../../resolver/file'
 import {
     renderMethodAnnotations,
     renderServiceAnnotations,
@@ -45,39 +44,29 @@ function emptyLocation(): TextLocation {
 
 export function renderService(
     service: ServiceDefinition,
-    state: IRenderState,
-): ts.ModuleDeclaration {
-    return ts.createModuleDeclaration(
-        undefined,
-        [ts.createToken(ts.SyntaxKind.ExportKeyword)],
-        ts.createIdentifier(service.name.value),
-        ts.createModuleBlock([
-            renderServiceName(service),
-            renderServiceAnnotations(
-                collectAllAnnotations(service, state.identifiers),
-            ),
-            renderMethodAnnotations(
-                collectAllMethods(service, state.identifiers),
-            ),
-            renderMethodNames(service, state.identifiers),
-            ...renderArgsStruct(service, state),
-            ...renderResultStruct(service, state),
-            renderClient(service, state),
-            ...renderHandlerInterface(
-                service,
-                (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
-                    return typeNodeForFieldType(fieldType, state, loose)
-                },
-            ),
-            renderProcessor(service, state),
-        ]),
-        ts.NodeFlags.Namespace,
-    )
+    file: ResolverFile,
+): Array<ts.Statement> {
+    return [
+        renderServiceName(service),
+        renderServiceAnnotations(collectAllAnnotations(service, file)),
+        renderMethodAnnotations(collectAllMethods(service, file)),
+        renderMethodNames(service, file),
+        ...renderArgsStruct(service, file),
+        ...renderResultStruct(service, file),
+        renderClient(service, file),
+        ...renderHandlerInterface(
+            service,
+            (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
+                return typeNodeForFieldType(fieldType, file, loose)
+            },
+        ),
+        renderProcessor(service, file),
+    ]
 }
 
 export function renderArgsStruct(
     service: ServiceDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): Array<ts.Statement> {
     return service.functions.reduce(
         (
@@ -102,7 +91,7 @@ export function renderArgsStruct(
                 loc: emptyLocation(),
             }
 
-            return [...acc, ...renderStruct(argsStruct, state)]
+            return [...acc, ...renderStruct(argsStruct, file)]
         },
         [],
     )
@@ -110,7 +99,7 @@ export function renderArgsStruct(
 
 export function renderResultStruct(
     service: ServiceDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): Array<ts.Statement> {
     return service.functions.reduce(
         (
@@ -167,7 +156,7 @@ export function renderResultStruct(
                 loc: emptyLocation(),
             }
 
-            return [...acc, ...renderStruct(resultStruct, state)]
+            return [...acc, ...renderStruct(resultStruct, file)]
         },
         [],
     )

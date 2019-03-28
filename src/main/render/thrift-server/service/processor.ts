@@ -22,8 +22,6 @@ import {
     renderServiceNameStaticProperty,
 } from './utils'
 
-import { IIdentifierMap, IRenderState } from '../../../types'
-
 import {
     COMMON_IDENTIFIERS,
     MESSAGE_TYPE,
@@ -60,6 +58,7 @@ import {
     renderServiceAnnotationsStaticProperty,
 } from '../annotations'
 
+import ResolverFile from '../../../resolver/file'
 import { looseName, strictName, toolkitName } from '../struct/utils'
 
 function objectLiteralForServiceFunctions(
@@ -125,7 +124,7 @@ export function extendsAbstract(): ts.HeritageClause {
 
 export function renderProcessor(
     service: ServiceDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.ClassDeclaration {
     const handler: ts.PropertyDeclaration = ts.createProperty(
         undefined,
@@ -153,11 +152,11 @@ export function renderProcessor(
 
     const processMethod: ts.MethodDeclaration = createProcessMethod(
         service,
-        state.identifiers,
+        file,
     )
     const processFunctions: Array<ts.MethodDeclaration> = service.functions.map(
         (next: FunctionDefinition) => {
-            return createProcessFunctionMethod(service, next, state)
+            return createProcessFunctionMethod(service, next, file)
         },
     )
 
@@ -189,7 +188,7 @@ export function renderProcessor(
             annotations,
             methodAnnotations,
             methodNames,
-            createCtor(service, state.identifiers),
+            createCtor(service, file),
             processMethod,
             ...processFunctions,
         ], // body
@@ -198,13 +197,13 @@ export function renderProcessor(
 
 function createCtor(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.ConstructorDeclaration {
     if (service.extends !== null) {
         return createClassConstructor(
             [createFunctionParameter('handler', createHandlerType(service))],
             [
-                createSuperCall(service.extends, identifiers),
+                createSuperCall(service.extends, file),
                 createAssignmentStatement(
                     ts.createIdentifier('this._handler'),
                     ts.createIdentifier('handler'),
@@ -227,7 +226,7 @@ function createCtor(
 
 function createSuperCall(
     service: Identifier,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.Statement {
     return ts.createStatement(
         ts.createCall(
@@ -235,7 +234,7 @@ function createSuperCall(
             [],
             [
                 objectLiteralForServiceFunctions(
-                    identifiers[service.value].definition,
+                    file.resolveIdentifier(service.value).definition,
                 ),
             ],
         ),
@@ -245,7 +244,7 @@ function createSuperCall(
 function createProcessFunctionMethod(
     service: ServiceDefinition,
     funcDef: FunctionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.MethodDeclaration {
     return createPublicMethod(
         ts.createIdentifier(`process_${funcDef.name.value}`),
@@ -267,7 +266,7 @@ function createProcessFunctionMethod(
                         createPromise(
                             typeNodeForFieldType(
                                 funcDef.returnType,
-                                state,
+                                file,
                                 true,
                             ),
                             createVoidType(),
@@ -284,7 +283,7 @@ function createProcessFunctionMethod(
                                         [
                                             ...createArgsVariable(
                                                 funcDef,
-                                                state,
+                                                file,
                                             ),
                                             // input.readMessageEnd();
                                             createMethodCallStatement(
@@ -350,7 +349,7 @@ function createProcessFunctionMethod(
                                         ts.createIdentifier('data'),
                                         typeNodeForFieldType(
                                             funcDef.returnType,
-                                            state,
+                                            file,
                                             true,
                                         ),
                                     ),
@@ -372,7 +371,7 @@ function createProcessFunctionMethod(
                                                             funcDef,
                                                         ),
                                                         SyntaxType.StructDefinition,
-                                                        state,
+                                                        file,
                                                     ),
                                                 ),
                                                 undefined,
@@ -458,7 +457,7 @@ function createProcessFunctionMethod(
                             ts.createBlock(
                                 [
                                     // if (def.throws.length > 0)
-                                    ...createExceptionHandlers(funcDef, state),
+                                    ...createExceptionHandlers(funcDef, file),
                                 ],
                                 true,
                             ),
@@ -472,7 +471,7 @@ function createProcessFunctionMethod(
 
 function createArgsVariable(
     funcDef: FunctionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): Array<ts.Statement> {
     if (funcDef.fields.length > 0) {
         // const args: type: StructType = StructCodec.decode(input)
@@ -484,7 +483,7 @@ function createArgsVariable(
                         strictName(
                             createStructArgsName(funcDef),
                             SyntaxType.StructDefinition,
-                            state,
+                            file,
                         ),
                     ),
                     undefined,
@@ -510,7 +509,7 @@ function createElseForExceptions(
     exp: FieldDefinition,
     remaining: Array<FieldDefinition>,
     funcDef: FunctionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.Statement {
     if (remaining.length > 0) {
         const [next, ...tail] = remaining
@@ -520,8 +519,8 @@ function createElseForExceptions(
                 ts.SyntaxKind.InstanceOfKeyword,
                 constructorNameForFieldType(next.fieldType),
             ),
-            createThenForException(next, funcDef, state),
-            createElseForExceptions(next, tail, funcDef, state),
+            createThenForException(next, funcDef, file),
+            createElseForExceptions(next, tail, funcDef, file),
         )
     } else {
         return ts.createBlock(
@@ -579,7 +578,7 @@ function createElseForExceptions(
 function createThenForException(
     throwDef: FieldDefinition,
     funcDef: FunctionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.Statement {
     return ts.createBlock(
         [
@@ -591,7 +590,7 @@ function createThenForException(
                         looseName(
                             createStructResultName(funcDef),
                             SyntaxType.StructDefinition,
-                            state,
+                            file,
                         ),
                     ),
                     undefined,
@@ -642,7 +641,7 @@ function createThenForException(
 function createIfForExceptions(
     exps: Array<FieldDefinition>,
     funcDef: FunctionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.Statement {
     const [throwDef, ...tail] = exps
 
@@ -652,18 +651,18 @@ function createIfForExceptions(
             ts.SyntaxKind.InstanceOfKeyword,
             constructorNameForFieldType(throwDef.fieldType),
         ),
-        createThenForException(throwDef, funcDef, state),
-        createElseForExceptions(throwDef, tail, funcDef, state),
+        createThenForException(throwDef, funcDef, file),
+        createElseForExceptions(throwDef, tail, funcDef, file),
     )
 }
 
 function createExceptionHandlers(
     funcDef: FunctionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): Array<ts.Statement> {
     if (funcDef.throws.length > 0) {
         // if (err instanceof {{throwType}}) {
-        return [createIfForExceptions(funcDef.throws, funcDef, state)]
+        return [createIfForExceptions(funcDef.throws, funcDef, file)]
     } else {
         return [
             // const result: Thrift.TApplicationException = new thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
@@ -726,7 +725,7 @@ function createExceptionHandlers(
 // }
 function createProcessMethod(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.MethodDeclaration {
     return createPublicMethod(
         COMMON_IDENTIFIERS.process,
@@ -779,7 +778,7 @@ function createProcessMethod(
                                 COMMON_IDENTIFIERS.fieldName,
                             ),
                         ),
-                        createMethodCallForFname(service, identifiers),
+                        createMethodCallForFname(service, file),
                     ],
                 ),
             ),
@@ -839,12 +838,12 @@ function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
  */
 function createMethodCallForFname(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.SwitchStatement {
     return ts.createSwitch(
         ts.createIdentifier('methodName'),
         ts.createCaseBlock([
-            ...collectAllMethods(service, identifiers).map(
+            ...collectAllMethods(service, file).map(
                 createMethodCallForFunction,
             ),
             ts.createDefaultClause([

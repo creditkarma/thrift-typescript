@@ -9,8 +9,9 @@ import {
 
 import { TypeMapping } from './types'
 
-import { IRenderState, IResolvedIdentifier } from '../../types'
+import { IResolvedIdentifier } from '../../types'
 
+import ResolverFile from '../../resolver/file'
 import { className, looseName, strictName, toolkitName } from './struct/utils'
 import {
     fieldInterfaceName,
@@ -21,16 +22,16 @@ import {
 function renderStrictInterfaceReexport(
     id: IResolvedIdentifier,
     node: TypedefDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.ImportEqualsDeclaration {
     return ts.createImportEqualsDeclaration(
         undefined,
         [ts.createToken(ts.SyntaxKind.ExportKeyword)],
         ts.createIdentifier(
-            strictName(node.name.value, id.definition.type, state),
+            strictName(node.name.value, id.definition.type, file),
         ),
         ts.createIdentifier(
-            `${id.pathName}.${strictName(id.name, id.definition.type, state)}`,
+            `${id.pathName}.${strictName(id.name, id.definition.type, file)}`,
         ),
     )
 }
@@ -38,16 +39,16 @@ function renderStrictInterfaceReexport(
 function renderLooseInterfaceReexport(
     id: IResolvedIdentifier,
     node: TypedefDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.ImportEqualsDeclaration {
     return ts.createImportEqualsDeclaration(
         undefined,
         [ts.createToken(ts.SyntaxKind.ExportKeyword)],
         ts.createIdentifier(
-            looseName(node.name.value, id.definition.type, state),
+            looseName(node.name.value, id.definition.type, file),
         ),
         ts.createIdentifier(
-            `${id.pathName}.${looseName(id.name, id.definition.type, state)}`,
+            `${id.pathName}.${looseName(id.name, id.definition.type, file)}`,
         ),
     )
 }
@@ -79,14 +80,14 @@ function renderToolkitReexport(
 function renderUnionTypeReexport(
     id: IResolvedIdentifier,
     node: TypedefDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.ImportEqualsDeclaration {
     return ts.createImportEqualsDeclaration(
         undefined,
         [ts.createToken(ts.SyntaxKind.ExportKeyword)],
-        ts.createIdentifier(renderUnionTypeName(node.name.value, state)),
+        ts.createIdentifier(renderUnionTypeName(node.name.value, file)),
         ts.createIdentifier(
-            `${id.pathName}.${renderUnionTypeName(id.name, state)}`,
+            `${id.pathName}.${renderUnionTypeName(id.name, file)}`,
         ),
     )
 }
@@ -95,7 +96,7 @@ function renderUnionInterfaceReexports(
     id: IResolvedIdentifier,
     union: UnionDefinition,
     node: TypedefDefinition,
-    state: IRenderState,
+    file: ResolverFile,
     strict: boolean,
 ): Array<ts.ImportEqualsDeclaration> {
     return union.fields.map((next: FieldDefinition) => {
@@ -131,20 +132,19 @@ function renderUnionArgsReexport(
 function renderTypeDefForIdentifier(
     id: IResolvedIdentifier,
     node: TypedefDefinition,
-    typeMapping: TypeMapping,
-    state: IRenderState,
+    file: ResolverFile,
 ): Array<ts.Statement> {
     switch (id.definition.type) {
         case SyntaxType.UnionDefinition:
-            if (state.options.strictUnions) {
+            if (file.schema.options.strictUnions) {
                 return [
-                    renderUnionTypeReexport(id, node, state),
+                    renderUnionTypeReexport(id, node, file),
                     renderClassReexport(id, node),
                     ...renderUnionInterfaceReexports(
                         id,
                         id.definition,
                         node,
-                        state,
+                        file,
                         true,
                     ),
                     renderUnionArgsReexport(id, node),
@@ -152,7 +152,7 @@ function renderTypeDefForIdentifier(
                         id,
                         id.definition,
                         node,
-                        state,
+                        file,
                         false,
                     ),
                     renderToolkitReexport(id, node),
@@ -163,8 +163,8 @@ function renderTypeDefForIdentifier(
         case SyntaxType.ExceptionDefinition:
         case SyntaxType.StructDefinition:
             return [
-                renderStrictInterfaceReexport(id, node, state),
-                renderLooseInterfaceReexport(id, node, state),
+                renderStrictInterfaceReexport(id, node, file),
+                renderLooseInterfaceReexport(id, node, file),
                 renderClassReexport(id, node),
                 renderToolkitReexport(id, node),
             ]
@@ -184,15 +184,14 @@ function renderTypeDefForIdentifier(
 export function renderTypeDef(
     node: TypedefDefinition,
     typeMapping: TypeMapping,
-    state: IRenderState,
+    file: ResolverFile,
 ): Array<ts.Statement> {
     switch (node.definitionType.type) {
         case SyntaxType.Identifier:
             return renderTypeDefForIdentifier(
-                state.identifiers[node.definitionType.value],
+                file.resolveIdentifier(node.definitionType.value),
                 node,
-                typeMapping,
-                state,
+                file,
             )
 
         default:

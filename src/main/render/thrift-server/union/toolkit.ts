@@ -12,7 +12,7 @@ import { createDecodeMethod } from './decode'
 
 import { createCreateMethod } from './create'
 
-import { IRenderState } from '../../../types'
+import ResolverFile from '../../../resolver/file'
 import {
     looseNameForStruct,
     strictNameForStruct,
@@ -22,24 +22,21 @@ import {
 
 function renderMethodsForCodec(
     node: UnionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): Array<ts.MethodDeclaration> {
-    if (state.options.strictUnions) {
+    if (file.schema.options.strictUnions) {
         return [
-            createCreateMethod(node, state),
-            createEncodeMethod(node, state),
-            createDecodeMethod(node, state),
+            createCreateMethod(node, file),
+            createEncodeMethod(node, file),
+            createDecodeMethod(node, file),
         ]
     } else {
-        return [
-            createEncodeMethod(node, state),
-            createDecodeMethod(node, state),
-        ]
+        return [createEncodeMethod(node, file), createDecodeMethod(node, file)]
     }
 }
 
-function toolkitBaseClass(state: IRenderState): ts.Identifier {
-    if (state.options.strictUnions) {
+function toolkitBaseClass(file: ResolverFile): ts.Identifier {
+    if (file.schema.options.strictUnions) {
         return THRIFT_IDENTIFIERS.IStructToolkit
     } else {
         return THRIFT_IDENTIFIERS.IStructCodec
@@ -48,15 +45,15 @@ function toolkitBaseClass(state: IRenderState): ts.Identifier {
 
 function renderToolkitTypeNode(
     node: UnionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.TypeNode {
-    return ts.createTypeReferenceNode(toolkitBaseClass(state), [
+    return ts.createTypeReferenceNode(toolkitBaseClass(file), [
         ts.createTypeReferenceNode(
-            ts.createIdentifier(looseNameForStruct(node, state)),
+            ts.createIdentifier(looseNameForStruct(node, file)),
             undefined,
         ),
         ts.createTypeReferenceNode(
-            ts.createIdentifier(strictNameForStruct(node, state)),
+            ts.createIdentifier(strictNameForStruct(node, file)),
             undefined,
         ),
     ])
@@ -64,15 +61,15 @@ function renderToolkitTypeNode(
 
 export function renderToolkit(
     node: UnionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
     isExported: boolean,
 ): ts.Statement {
     return ts.createVariableStatement(
         tokens(isExported),
         createConst(
             ts.createIdentifier(toolkitNameForStruct(node)),
-            renderToolkitTypeNode(node, state),
-            ts.createObjectLiteral(renderMethodsForCodec(node, state), true),
+            renderToolkitTypeNode(node, file),
+            ts.createObjectLiteral(renderMethodsForCodec(node, file), true),
         ),
     )
 }

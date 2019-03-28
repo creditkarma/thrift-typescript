@@ -22,19 +22,18 @@ import {
 
 import { createVoidType } from '../types'
 
-import { IRenderState } from '../../../types'
-
 import {
     createFieldIncrementer,
     createFieldValidation,
     incrementFieldsSet,
 } from './utils'
 
+import ResolverFile from '../../../resolver/file'
 import { looseNameForStruct, throwForField } from '../struct/utils'
 
 export function createEncodeMethod(
     node: UnionDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.MethodDeclaration {
     return ts.createMethod(
         undefined,
@@ -47,7 +46,7 @@ export function createEncodeMethod(
             createFunctionParameter(
                 COMMON_IDENTIFIERS.args,
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(looseNameForStruct(node, state)),
+                    ts.createIdentifier(looseNameForStruct(node, file)),
                     undefined,
                 ),
             ),
@@ -63,10 +62,10 @@ export function createEncodeMethod(
         ts.createBlock(
             [
                 createFieldIncrementer(),
-                ...createTempVariables(node, state.identifiers),
+                ...createTempVariables(node, file),
                 writeStructBegin(node.name.value),
                 ...node.fields.filter(isNotVoid).map((field) => {
-                    return createWriteForField(node, field, state)
+                    return createWriteForField(node, field, file)
                 }),
                 writeFieldStop(),
                 writeStructEnd(),
@@ -88,7 +87,7 @@ export function createEncodeMethod(
 export function createWriteForField(
     node: UnionDefinition,
     field: FieldDefinition,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.IfStatement {
     const isFieldNull: ts.BinaryExpression = createNotNullCheck(
         `obj.${field.name.value}`,
@@ -97,7 +96,7 @@ export function createWriteForField(
         node,
         field,
         ts.createIdentifier(`obj.${field.name.value}`),
-        state,
+        file,
     )
     const elseThrow: ts.Statement | undefined = throwForField(field)
 
@@ -122,13 +121,13 @@ export function createWriteForFieldType(
     node: UnionDefinition,
     field: FieldDefinition,
     fieldName: ts.Identifier,
-    state: IRenderState,
+    file: ResolverFile,
 ): ts.Block {
     return ts.createBlock(
         [
             incrementFieldsSet(),
-            writeFieldBegin(field, state.identifiers),
-            ...writeValueForField(node, field.fieldType, fieldName, state),
+            writeFieldBegin(field, file),
+            ...writeValueForField(node, field.fieldType, fieldName, file),
             writeFieldEnd(),
         ],
         true,

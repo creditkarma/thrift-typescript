@@ -2,7 +2,7 @@ import * as ts from 'typescript'
 
 import { FunctionType, SyntaxType } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap, IRenderState, IResolvedIdentifier } from '../../types'
+import { IResolvedIdentifier } from '../../types'
 
 import {
     APPLICATION_EXCEPTION,
@@ -18,6 +18,7 @@ import {
     createVoidType,
 } from '../shared/types'
 
+import ResolverFile from '../../resolver/file'
 import { looseName, strictName } from './struct/utils'
 
 export * from '../shared/types'
@@ -102,7 +103,7 @@ export function applicationException(
 
 function thriftTypeForIdentifier(
     id: IResolvedIdentifier,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.Identifier {
     switch (id.definition.type) {
         case SyntaxType.ConstDefinition:
@@ -127,8 +128,9 @@ function thriftTypeForIdentifier(
 
         case SyntaxType.TypedefDefinition:
             return thriftTypeForFieldType(
+                // TODO: does this need to be resolved?
                 id.definition.definitionType,
-                identifiers,
+                file,
             )
 
         default:
@@ -149,13 +151,13 @@ function thriftTypeForIdentifier(
  */
 export function thriftTypeForFieldType(
     fieldType: FunctionType,
-    identifiers: IIdentifierMap,
+    file: ResolverFile,
 ): ts.Identifier {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return thriftTypeForIdentifier(
-                identifiers[fieldType.value],
-                identifiers,
+                file.resolveIdentifier(fieldType.value),
+                file,
             )
 
         case SyntaxType.SetType:
@@ -229,7 +231,7 @@ export function thriftTypeForFieldType(
 function typeNodeForIdentifier(
     id: IResolvedIdentifier,
     name: string,
-    state: IRenderState,
+    file: ResolverFile,
     loose: boolean = false,
 ): ts.TypeNode {
     switch (id.definition.type) {
@@ -239,14 +241,14 @@ function typeNodeForIdentifier(
             if (loose) {
                 return ts.createTypeReferenceNode(
                     ts.createIdentifier(
-                        looseName(name, id.definition.type, state),
+                        looseName(name, id.definition.type, file),
                     ),
                     undefined,
                 )
             } else {
                 return ts.createTypeReferenceNode(
                     ts.createIdentifier(
-                        strictName(name, id.definition.type, state),
+                        strictName(name, id.definition.type, file),
                     ),
                     undefined,
                 )
@@ -254,7 +256,7 @@ function typeNodeForIdentifier(
 
         default:
             return ts.createTypeReferenceNode(
-                ts.createIdentifier(name),
+                ts.createIdentifier(id.resolvedName),
                 undefined,
             )
     }
@@ -262,32 +264,32 @@ function typeNodeForIdentifier(
 
 export function typeNodeForFieldType(
     fieldType: FunctionType,
-    state: IRenderState,
+    file: ResolverFile,
     loose: boolean = false,
 ): ts.TypeNode {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return typeNodeForIdentifier(
-                state.identifiers[fieldType.value],
+                file.resolveIdentifier(fieldType.value),
                 fieldType.value,
-                state,
+                file,
                 loose,
             )
 
         case SyntaxType.SetType:
             return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Set, [
-                typeNodeForFieldType(fieldType.valueType, state, loose),
+                typeNodeForFieldType(fieldType.valueType, file, loose),
             ])
 
         case SyntaxType.MapType:
             return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Map, [
-                typeNodeForFieldType(fieldType.keyType, state, loose),
-                typeNodeForFieldType(fieldType.valueType, state, loose),
+                typeNodeForFieldType(fieldType.keyType, file, loose),
+                typeNodeForFieldType(fieldType.valueType, file, loose),
             ])
 
         case SyntaxType.ListType:
             return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Array, [
-                typeNodeForFieldType(fieldType.valueType, state, loose),
+                typeNodeForFieldType(fieldType.valueType, file, loose),
             ])
 
         case SyntaxType.StringKeyword:
