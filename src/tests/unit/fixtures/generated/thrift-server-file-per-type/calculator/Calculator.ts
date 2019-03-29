@@ -468,11 +468,11 @@ export class AddWithContext__Args extends thrift.StructLike implements IAddWithC
 }
 export interface ICalculate__Args {
     logid: number;
-    work: IWork;
+    work: __NAMESPACE__.IWork;
 }
 export interface ICalculate__ArgsArgs {
     logid: number;
-    work: IWorkArgs;
+    work: __NAMESPACE__.IWorkArgs;
 }
 export const Calculate__ArgsCodec: thrift.IStructCodec<ICalculate__ArgsArgs, ICalculate__Args> = {
     encode(args: ICalculate__ArgsArgs, output: thrift.TProtocol): void {
@@ -523,7 +523,7 @@ export const Calculate__ArgsCodec: thrift.IStructCodec<ICalculate__ArgsArgs, ICa
                     break;
                 case 2:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_14: IWork = __NAMESPACE__.WorkCodec.decode(input);
+                        const value_14: __NAMESPACE__.IWork = __NAMESPACE__.WorkCodec.decode(input);
                         _args.work = value_14;
                     }
                     else {
@@ -550,7 +550,7 @@ export const Calculate__ArgsCodec: thrift.IStructCodec<ICalculate__ArgsArgs, ICa
 };
 export class Calculate__Args extends thrift.StructLike implements ICalculate__Args {
     public logid: number;
-    public work: IWork;
+    public work: __NAMESPACE__.IWork;
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ICalculate__ArgsArgs) {
@@ -563,7 +563,7 @@ export class Calculate__Args extends thrift.StructLike implements ICalculate__Ar
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[logid] is unset!");
         }
         if (args.work != null) {
-            const value_16: IWork = new __NAMESPACE__.Work(args.work);
+            const value_16: __NAMESPACE__.IWork = new __NAMESPACE__.Work(args.work);
             this.work = value_16;
         }
         else {
@@ -751,10 +751,10 @@ export class EchoString__Args extends thrift.StructLike implements IEchoString__
     }
 }
 export interface ICheckName__Args {
-    choice: IChoice;
+    choice: __NAMESPACE__.IChoice;
 }
 export interface ICheckName__ArgsArgs {
-    choice: IChoiceArgs;
+    choice: __NAMESPACE__.IChoiceArgs;
 }
 export const CheckName__ArgsCodec: thrift.IStructCodec<ICheckName__ArgsArgs, ICheckName__Args> = {
     encode(args: ICheckName__ArgsArgs, output: thrift.TProtocol): void {
@@ -787,7 +787,7 @@ export const CheckName__ArgsCodec: thrift.IStructCodec<ICheckName__ArgsArgs, ICh
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_21: IChoice = __NAMESPACE__.ChoiceCodec.decode(input);
+                        const value_21: __NAMESPACE__.IChoice = __NAMESPACE__.ChoiceCodec.decode(input);
                         _args.choice = value_21;
                     }
                     else {
@@ -812,13 +812,13 @@ export const CheckName__ArgsCodec: thrift.IStructCodec<ICheckName__ArgsArgs, ICh
     }
 };
 export class CheckName__Args extends thrift.StructLike implements ICheckName__Args {
-    public choice: IChoice;
+    public choice: __NAMESPACE__.IChoice;
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ICheckName__ArgsArgs) {
         super();
         if (args.choice != null) {
-            const value_22: IChoice = new __NAMESPACE__.Choice(args.choice);
+            const value_22: __NAMESPACE__.IChoice = new __NAMESPACE__.Choice(args.choice);
             this.choice = value_22;
         }
         else {
@@ -2595,7 +2595,7 @@ export class Client<Context = any> extends shared.SharedService.Client<Context> 
             }
         });
     }
-    public calculate(logid: number, work: IWorkArgs, context?: Context): Promise<number> {
+    public calculate(logid: number, work: __NAMESPACE__.IWorkArgs, context?: Context): Promise<number> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
         output.writeMessageBegin("calculate", thrift.MessageType.CALL, this.incrementRequestId());
@@ -2712,7 +2712,7 @@ export class Client<Context = any> extends shared.SharedService.Client<Context> 
             }
         });
     }
-    public checkName(choice: IChoiceArgs, context?: Context): Promise<string> {
+    public checkName(choice: __NAMESPACE__.IChoiceArgs, context?: Context): Promise<string> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
         output.writeMessageBegin("checkName", thrift.MessageType.CALL, this.incrementRequestId());
@@ -2979,10 +2979,10 @@ export interface ILocalHandler<Context = any> {
     add(num1: number, num2: number, context?: Context): number | Promise<number>;
     addInt64(num1: thrift.Int64, num2: thrift.Int64, context?: Context): (number | string | thrift.Int64) | Promise<number | string | thrift.Int64>;
     addWithContext(num1: number, num2: number, context?: Context): number | Promise<number>;
-    calculate(logid: number, work: IWork, context?: Context): number | Promise<number>;
+    calculate(logid: number, work: __NAMESPACE__.IWork, context?: Context): number | Promise<number>;
     echoBinary(word: Buffer, context?: Context): string | Promise<string>;
     echoString(word: string, context?: Context): string | Promise<string>;
-    checkName(choice: IChoice, context?: Context): string | Promise<string>;
+    checkName(choice: __NAMESPACE__.IChoice, context?: Context): string | Promise<string>;
     checkOptional(type?: string, context?: Context): string | Promise<string>;
     mapOneList(arg: Array<number>, context?: Context): Array<number> | Promise<Array<number>>;
     mapValues(arg: Map<string, number>, context?: Context): Array<number> | Promise<Array<number>>;

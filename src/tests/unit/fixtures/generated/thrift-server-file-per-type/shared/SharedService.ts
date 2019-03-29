@@ -189,10 +189,10 @@ export class GetUnion__Args extends thrift.StructLike implements IGetUnion__Args
     }
 }
 export interface IGetStruct__Result {
-    success?: ISharedStruct;
+    success?: __NAMESPACE__.ISharedStruct;
 }
 export interface IGetStruct__ResultArgs {
-    success?: ISharedStructArgs;
+    success?: __NAMESPACE__.ISharedStructArgs;
 }
 export const GetStruct__ResultCodec: thrift.IStructCodec<IGetStruct__ResultArgs, IGetStruct__Result> = {
     encode(args: IGetStruct__ResultArgs, output: thrift.TProtocol): void {
@@ -222,7 +222,7 @@ export const GetStruct__ResultCodec: thrift.IStructCodec<IGetStruct__ResultArgs,
             switch (fieldId) {
                 case 0:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_5: ISharedStruct = __NAMESPACE__.SharedStructCodec.decode(input);
+                        const value_5: __NAMESPACE__.ISharedStruct = __NAMESPACE__.SharedStructCodec.decode(input);
                         _args.success = value_5;
                     }
                     else {
@@ -242,13 +242,13 @@ export const GetStruct__ResultCodec: thrift.IStructCodec<IGetStruct__ResultArgs,
     }
 };
 export class GetStruct__Result extends thrift.StructLike implements IGetStruct__Result {
-    public success?: ISharedStruct;
+    public success?: __NAMESPACE__.ISharedStruct;
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IGetStruct__ResultArgs = {}) {
         super();
         if (args.success != null) {
-            const value_6: ISharedStruct = new __NAMESPACE__.SharedStruct(args.success);
+            const value_6: __NAMESPACE__.ISharedStruct = new __NAMESPACE__.SharedStruct(args.success);
             this.success = value_6;
         }
     }
@@ -263,10 +263,10 @@ export class GetStruct__Result extends thrift.StructLike implements IGetStruct__
     }
 }
 export interface IGetUnion__Result {
-    success?: ISharedUnion;
+    success?: __NAMESPACE__.ISharedUnion;
 }
 export interface IGetUnion__ResultArgs {
-    success?: ISharedUnionArgs;
+    success?: __NAMESPACE__.ISharedUnionArgs;
 }
 export const GetUnion__ResultCodec: thrift.IStructCodec<IGetUnion__ResultArgs, IGetUnion__Result> = {
     encode(args: IGetUnion__ResultArgs, output: thrift.TProtocol): void {
@@ -296,7 +296,7 @@ export const GetUnion__ResultCodec: thrift.IStructCodec<IGetUnion__ResultArgs, I
             switch (fieldId) {
                 case 0:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_7: ISharedUnion = __NAMESPACE__.SharedUnionCodec.decode(input);
+                        const value_7: __NAMESPACE__.ISharedUnion = __NAMESPACE__.SharedUnionCodec.decode(input);
                         _args.success = value_7;
                     }
                     else {
@@ -316,13 +316,13 @@ export const GetUnion__ResultCodec: thrift.IStructCodec<IGetUnion__ResultArgs, I
     }
 };
 export class GetUnion__Result extends thrift.StructLike implements IGetUnion__Result {
-    public success?: ISharedUnion;
+    public success?: __NAMESPACE__.ISharedUnion;
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IGetUnion__ResultArgs = {}) {
         super();
         if (args.success != null) {
-            const value_8: ISharedUnion = new __NAMESPACE__.SharedUnion(args.success);
+            const value_8: __NAMESPACE__.ISharedUnion = new __NAMESPACE__.SharedUnion(args.success);
             this.success = value_8;
         }
     }
@@ -345,7 +345,7 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
     public readonly _annotations: thrift.IThriftAnnotations = annotations;
     public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
     public readonly _methodNames: Array<string> = methodNames;
-    public getStruct(key: number, context?: Context): Promise<ISharedStruct> {
+    public getStruct(key: number, context?: Context): Promise<__NAMESPACE__.ISharedStruct> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
         output.writeMessageBegin("getStruct", thrift.MessageType.CALL, this.incrementRequestId());
@@ -383,7 +383,7 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
             }
         });
     }
-    public getUnion(index: number, context?: Context): Promise<ISharedUnion> {
+    public getUnion(index: number, context?: Context): Promise<__NAMESPACE__.ISharedUnion> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
         output.writeMessageBegin("getUnion", thrift.MessageType.CALL, this.incrementRequestId());
@@ -423,8 +423,8 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
     }
 }
 export interface IHandler<Context = any> {
-    getStruct(key: number, context?: Context): ISharedStructArgs | Promise<ISharedStructArgs>;
-    getUnion(index: number, context?: Context): ISharedUnionArgs | Promise<ISharedUnionArgs>;
+    getStruct(key: number, context?: Context): __NAMESPACE__.ISharedStructArgs | Promise<__NAMESPACE__.ISharedStructArgs>;
+    getUnion(index: number, context?: Context): __NAMESPACE__.ISharedUnionArgs | Promise<__NAMESPACE__.ISharedUnionArgs>;
 }
 export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
     protected readonly _handler: IHandler<Context>;
@@ -470,7 +470,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
         });
     }
     public process_getStruct(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
-        return new Promise<ISharedStructArgs>((resolve, reject): void => {
+        return new Promise<__NAMESPACE__.ISharedStructArgs>((resolve, reject): void => {
             try {
                 const args: IGetStruct__Args = GetStruct__ArgsCodec.decode(input);
                 input.readMessageEnd();
@@ -479,7 +479,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
             catch (err) {
                 reject(err);
             }
-        }).then((data: ISharedStructArgs): Buffer => {
+        }).then((data: __NAMESPACE__.ISharedStructArgs): Buffer => {
             const result: IGetStruct__ResultArgs = { success: data };
             output.writeMessageBegin("getStruct", thrift.MessageType.REPLY, requestId);
             GetStruct__ResultCodec.encode(result, output);
@@ -494,7 +494,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
         });
     }
     public process_getUnion(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
-        return new Promise<ISharedUnionArgs>((resolve, reject): void => {
+        return new Promise<__NAMESPACE__.ISharedUnionArgs>((resolve, reject): void => {
             try {
                 const args: IGetUnion__Args = GetUnion__ArgsCodec.decode(input);
                 input.readMessageEnd();
@@ -503,7 +503,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
             catch (err) {
                 reject(err);
             }
-        }).then((data: ISharedUnionArgs): Buffer => {
+        }).then((data: __NAMESPACE__.ISharedUnionArgs): Buffer => {
             const result: IGetUnion__ResultArgs = { success: data };
             output.writeMessageBegin("getUnion", thrift.MessageType.REPLY, requestId);
             GetUnion__ResultCodec.encode(result, output);

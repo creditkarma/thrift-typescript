@@ -9,12 +9,12 @@ import * as common from "./../common";
 import * as operation from "./../operation";
 import * as __NAMESPACE__ from "./.";
 export interface IChoice {
-    firstName?: IFirstName;
-    lastName?: ILastName;
+    firstName?: __NAMESPACE__.IFirstName;
+    lastName?: __NAMESPACE__.ILastName;
 }
 export interface IChoiceArgs {
-    firstName?: IFirstNameArgs;
-    lastName?: ILastNameArgs;
+    firstName?: __NAMESPACE__.IFirstNameArgs;
+    lastName?: __NAMESPACE__.ILastNameArgs;
 }
 export const ChoiceCodec: thrift.IStructCodec<IChoiceArgs, IChoice> = {
     encode(args: IChoiceArgs, output: thrift.TProtocol): void {
@@ -61,7 +61,7 @@ export const ChoiceCodec: thrift.IStructCodec<IChoiceArgs, IChoice> = {
                 case 1:
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
-                        const value_1: IFirstName = __NAMESPACE__.FirstNameCodec.decode(input);
+                        const value_1: __NAMESPACE__.IFirstName = __NAMESPACE__.FirstNameCodec.decode(input);
                         _returnValue = { firstName: value_1 };
                     }
                     else {
@@ -71,7 +71,7 @@ export const ChoiceCodec: thrift.IStructCodec<IChoiceArgs, IChoice> = {
                 case 2:
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
-                        const value_2: ILastName = __NAMESPACE__.LastNameCodec.decode(input);
+                        const value_2: __NAMESPACE__.ILastName = __NAMESPACE__.LastNameCodec.decode(input);
                         _returnValue = { lastName: value_2 };
                     }
                     else {
@@ -100,8 +100,8 @@ export const ChoiceCodec: thrift.IStructCodec<IChoiceArgs, IChoice> = {
     }
 };
 export class Choice extends thrift.StructLike implements IChoice {
-    public firstName?: IFirstName;
-    public lastName?: ILastName;
+    public firstName?: __NAMESPACE__.IFirstName;
+    public lastName?: __NAMESPACE__.ILastName;
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IChoiceArgs = {}) {
@@ -109,12 +109,12 @@ export class Choice extends thrift.StructLike implements IChoice {
         let _fieldsSet: number = 0;
         if (args.firstName != null) {
             _fieldsSet++;
-            const value_3: IFirstName = new __NAMESPACE__.FirstName(args.firstName);
+            const value_3: __NAMESPACE__.IFirstName = new __NAMESPACE__.FirstName(args.firstName);
             this.firstName = value_3;
         }
         if (args.lastName != null) {
             _fieldsSet++;
-            const value_4: ILastName = new __NAMESPACE__.LastName(args.lastName);
+            const value_4: __NAMESPACE__.ILastName = new __NAMESPACE__.LastName(args.lastName);
             this.lastName = value_4;
         }
         if (_fieldsSet > 1) {

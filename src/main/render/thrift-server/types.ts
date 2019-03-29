@@ -230,7 +230,6 @@ export function thriftTypeForFieldType(
  */
 function typeNodeForIdentifier(
     id: IResolvedIdentifier,
-    name: string,
     file: ResolverFile,
     loose: boolean = false,
 ): ts.TypeNode {
@@ -241,14 +240,14 @@ function typeNodeForIdentifier(
             if (loose) {
                 return ts.createTypeReferenceNode(
                     ts.createIdentifier(
-                        looseName(name, id.definition.type, file),
+                        looseName(id.resolvedName, id.definition.type, file),
                     ),
                     undefined,
                 )
             } else {
                 return ts.createTypeReferenceNode(
                     ts.createIdentifier(
-                        strictName(name, id.definition.type, file),
+                        strictName(id.resolvedName, id.definition.type, file),
                     ),
                     undefined,
                 )
@@ -271,7 +270,6 @@ export function typeNodeForFieldType(
         case SyntaxType.Identifier:
             return typeNodeForIdentifier(
                 file.resolveIdentifier(fieldType.value),
-                fieldType.value,
                 file,
                 loose,
             )

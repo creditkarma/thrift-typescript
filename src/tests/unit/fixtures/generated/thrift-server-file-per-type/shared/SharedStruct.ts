@@ -6,11 +6,11 @@
 import * as thrift from "test-lib";
 import * as __NAMESPACE__ from "./.";
 export interface ISharedStruct {
-    code: ICode;
+    code: __NAMESPACE__.ICode;
     value: string;
 }
 export interface ISharedStructArgs {
-    code: ICodeArgs;
+    code: __NAMESPACE__.ICodeArgs;
     value: string;
 }
 export const SharedStructCodec: thrift.IStructCodec<ISharedStructArgs, ISharedStruct> = {
@@ -53,7 +53,7 @@ export const SharedStructCodec: thrift.IStructCodec<ISharedStructArgs, ISharedSt
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_1: ICode = __NAMESPACE__.CodeCodec.decode(input);
+                        const value_1: __NAMESPACE__.ICode = __NAMESPACE__.CodeCodec.decode(input);
                         _args.code = value_1;
                     }
                     else {
@@ -88,14 +88,14 @@ export const SharedStructCodec: thrift.IStructCodec<ISharedStructArgs, ISharedSt
     }
 };
 export class SharedStruct extends thrift.StructLike implements ISharedStruct {
-    public code: ICode;
+    public code: __NAMESPACE__.ICode;
     public value: string;
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ISharedStructArgs) {
         super();
         if (args.code != null) {
-            const value_3: ICode = new __NAMESPACE__.Code(args.code);
+            const value_3: __NAMESPACE__.ICode = new __NAMESPACE__.Code(args.code);
             this.code = value_3;
         }
         else {
