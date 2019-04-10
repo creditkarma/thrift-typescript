@@ -2,10 +2,7 @@ import { assert } from 'chai'
 import * as fs from 'fs'
 import * as path from 'path'
 
-import {
-    generate,
-    // make
-} from '../../main/index'
+import { generate, make } from '../../main/index'
 
 import { CompileTarget } from '../../main/types'
 
@@ -43,15 +40,15 @@ function zipResults(actual: FileList, expected: FileList): ZippedList {
     )
 }
 
-// function readSolution(
-//     name: string,
-//     target: CompileTarget = 'thrift-server',
-// ): string {
-//     return fs.readFileSync(
-//         path.join(__dirname, `./fixtures/${target}/${name}.solution.ts`),
-//         'utf-8',
-//     )
-// }
+function readSolution(
+    name: string,
+    target: CompileTarget = 'thrift-server',
+): string {
+    return fs.readFileSync(
+        path.join(__dirname, `./fixtures/${target}/${name}.solution.ts`),
+        'utf-8',
+    )
+}
 
 function readGenerated(
     name: string,
