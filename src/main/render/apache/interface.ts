@@ -7,6 +7,7 @@ import {
 
 import { typeNodeForFieldType } from './types'
 
+import { IRenderState } from '../../types'
 import { renderOptional } from './utils'
 
 /**
@@ -36,13 +37,14 @@ export function interfaceNameForClass(statement: InterfaceWithFields): string {
  */
 export function renderInterface(
     statement: InterfaceWithFields,
+    state: IRenderState,
 ): ts.InterfaceDeclaration {
     const signatures = statement.fields.map((field: FieldDefinition) => {
         return ts.createPropertySignature(
             undefined,
             field.name.value,
             renderOptional(field.requiredness),
-            typeNodeForFieldType(field.fieldType, true),
+            typeNodeForFieldType(field.fieldType, state, true),
             undefined,
         )
     })

@@ -1,11 +1,11 @@
-namespace cpp calculator
-namespace d calculator
-namespace dart calculator
-namespace java calculator
-namespace php calculator
-namespace perl calculator
-namespace haxe calculator
-namespace netcore calculator
+namespace cpp com.test.calculator
+namespace d com.test.calculator
+namespace dart com.test.calculator
+namespace java com.test.calculator
+namespace php com.test.calculator
+namespace perl com.test.calculator
+namespace haxe com.test.calculator
+namespace netcore com.test.calculator
 
 include "shared.thrift"
 include "common.thrift"
@@ -21,7 +21,7 @@ const map<string,string> MAPCONSTANT = {'hello':'world', 'goodnight':'moon'}
 struct Work {
   1: required i32 num1 = 0,
   2: required i32 num2,
-  3: required Operation op,
+  3: optional Operation op = Operation.ADD,
   4: optional string comment,
 }
 
@@ -38,13 +38,17 @@ union Choice {
   2: LastName lastName
 }
 
+exception NotAGoodIdea {
+    1: string message
+}
+
 service Calculator extends shared.SharedService {
 
    void ping(),
 
    i32 add(1: i32 num1, 2: i32 num2) throws (1: operation.JankyResult exp),
 
-   i64 addInt64(1: i64 num1, 2: i64 num2),
+   i64 addInt64(1: i64 num1, 2: i64 num2) throws (1: NotAGoodIdea exp),
 
    i32 addWithContext(1: i32 num1, 2: i32 num2),
 

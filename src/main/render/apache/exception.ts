@@ -2,13 +2,12 @@ import * as ts from 'typescript'
 
 import { ExceptionDefinition } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap } from '../../types'
-
+import { IRenderState } from '../../types'
 import { renderStruct } from './struct'
 
 export function renderException(
     node: ExceptionDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.ClassDeclaration {
-    return renderStruct(node, identifiers)
+    return renderStruct(node, state)
 }

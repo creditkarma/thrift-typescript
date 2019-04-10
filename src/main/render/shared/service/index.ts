@@ -10,12 +10,14 @@ import { COMMON_IDENTIFIERS } from '../identifiers'
 
 import { createAnyType, TypeMapping } from '../types'
 
+import { IRenderState } from '../../../types'
 import { createFunctionParameter } from '../utils'
 
 function funcToMethodReducer(
     acc: Array<ts.MethodSignature>,
     func: FunctionDefinition,
     typeMapping: TypeMapping,
+    state: IRenderState,
 ): Array<ts.MethodSignature> {
     return acc.concat([
         ts.createMethodSignature(
@@ -24,7 +26,7 @@ function funcToMethodReducer(
                 ...func.fields.map((field: FieldDefinition) => {
                     return createFunctionParameter(
                         field.name.value,
-                        typeMapping(field.fieldType),
+                        typeMapping(field.fieldType, state),
                         undefined,
                         field.requiredness === 'optional',
                     )
@@ -37,9 +39,9 @@ function funcToMethodReducer(
                 ),
             ],
             ts.createUnionTypeNode([
-                typeMapping(func.returnType, true),
+                typeMapping(func.returnType, state, true),
                 ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Promise, [
-                    typeMapping(func.returnType, true),
+                    typeMapping(func.returnType, state, true),
                 ]),
             ]),
             func.name.value,
@@ -63,10 +65,11 @@ function funcToMethodReducer(
 export function renderHandlerInterface(
     service: ServiceDefinition,
     typeMapping: TypeMapping,
+    state: IRenderState,
 ): Array<ts.Statement> {
     const signatures: Array<ts.MethodSignature> = service.functions.reduce(
         (acc: Array<ts.MethodSignature>, next: FunctionDefinition) => {
-            return funcToMethodReducer(acc, next, typeMapping)
+            return funcToMethodReducer(acc, next, typeMapping, state)
         },
         [],
     )

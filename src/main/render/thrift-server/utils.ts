@@ -18,6 +18,7 @@ import { renderValue } from './initializers'
 
 import { createNotNullCheck } from './utils'
 
+import { IRenderState } from '../../types'
 import {
     APPLICATION_EXCEPTION,
     COMMON_IDENTIFIERS,
@@ -87,6 +88,7 @@ export function coerceType(
 export function getInitializerForField(
     objName: string,
     field: FieldDefinition,
+    state: IRenderState,
     loose: boolean = false,
 ): ts.Expression {
     const valueName: ts.Identifier = ts.createIdentifier(
@@ -100,7 +102,7 @@ export function getInitializerForField(
                 loose === true
                     ? coerceType(valueName, field.fieldType)
                     : valueName,
-                renderValue(field.fieldType, field.defaultValue),
+                renderValue(field.fieldType, field.defaultValue, state),
             ),
         )
     } else {

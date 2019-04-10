@@ -6,20 +6,20 @@ export type InnerUnion = IInnerUnionWithName | IInnerUnionWithId;
 export interface IInnerUnionWithName {
     __type: InnerUnionType.InnerUnionWithName;
     name: string;
-    id?: void;
+    id?: undefined;
 }
 export interface IInnerUnionWithId {
     __type: InnerUnionType.InnerUnionWithId;
-    name?: void;
+    name?: undefined;
     id: number;
 }
 export type InnerUnionArgs = IInnerUnionWithNameArgs | IInnerUnionWithIdArgs;
 export interface IInnerUnionWithNameArgs {
     name: string;
-    id?: void;
+    id?: undefined;
 }
 export interface IInnerUnionWithIdArgs {
-    name?: void;
+    name?: undefined;
     id: number;
 }
 export const InnerUnionCodec: thrift.IStructToolkit<InnerUnionArgs, InnerUnion> = {
@@ -161,20 +161,20 @@ export type MyUnion = IMyUnionWithUser | IMyUnionWithField2;
 export interface IMyUnionWithUser {
     __type: MyUnionType.MyUnionWithUser;
     user: InnerUnion;
-    field2?: void;
+    field2?: undefined;
 }
 export interface IMyUnionWithField2 {
     __type: MyUnionType.MyUnionWithField2;
-    user?: void;
+    user?: undefined;
     field2: string;
 }
 export type MyUnionArgs = IMyUnionWithUserArgs | IMyUnionWithField2Args;
 export interface IMyUnionWithUserArgs {
     user: InnerUnionArgs;
-    field2?: void;
+    field2?: undefined;
 }
 export interface IMyUnionWithField2Args {
-    user?: void;
+    user?: undefined;
     field2: string;
 }
 export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {

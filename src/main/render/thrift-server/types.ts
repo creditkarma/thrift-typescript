@@ -2,7 +2,7 @@ import * as ts from 'typescript'
 
 import { FunctionType, SyntaxType } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap, IRenderState, IResolvedIdentifier } from '../../types'
+import { DefinitionType, IRenderState } from '../../types'
 
 import {
     APPLICATION_EXCEPTION,
@@ -18,6 +18,10 @@ import {
     createVoidType,
 } from '../shared/types'
 
+import {
+    resolveIdentifierDefinition,
+    resolveIdentifierName,
+} from '../../resolver/utils'
 import { looseName, strictName } from './struct/utils'
 
 export * from '../shared/types'
@@ -101,20 +105,20 @@ export function applicationException(
 }
 
 function thriftTypeForIdentifier(
-    id: IResolvedIdentifier,
-    identifiers: IIdentifierMap,
+    definition: DefinitionType,
+    state: IRenderState,
 ): ts.Identifier {
-    switch (id.definition.type) {
+    switch (definition.type) {
         case SyntaxType.ConstDefinition:
             throw new TypeError(
                 `Identifier ${
-                    id.definition.name.value
+                    definition.name.value
                 } is a value being used as a type`,
             )
 
         case SyntaxType.ServiceDefinition:
             throw new TypeError(
-                `Service ${id.definition.name.value} is being used as a type`,
+                `Service ${definition.name.value} is being used as a type`,
             )
 
         case SyntaxType.StructDefinition:
@@ -126,36 +130,31 @@ function thriftTypeForIdentifier(
             return THRIFT_TYPES.I32
 
         case SyntaxType.TypedefDefinition:
-            return thriftTypeForFieldType(
-                id.definition.definitionType,
-                identifiers,
-            )
+            return thriftTypeForFieldType(definition.definitionType, state)
 
         default:
-            const msg: never = id.definition
+            const msg: never = definition
             throw new Error(`Non-exhaustive match for: ${msg}`)
     }
 }
 
 /**
  * Gets the type access for the 'Thrift' object for a given FieldType.
- *
- * This could and should probably be a map of FieldType -> ThriftAccess.
- * However, using a switch statement gives us the safety of exhaustive matching
- * for FieldTypes.
- *
- * @todo Clean up so that we can use the strictNullChecks compiler flag which
- * would allow us to use a map and get the same safety as the switch.
  */
 export function thriftTypeForFieldType(
     fieldType: FunctionType,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.Identifier {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return thriftTypeForIdentifier(
-                identifiers[fieldType.value],
-                identifiers,
+                resolveIdentifierDefinition(
+                    fieldType,
+                    state.currentNamespace,
+                    state.project.namespaces,
+                    state.project.sourceDir,
+                ),
+                state,
             )
 
         case SyntaxType.SetType:
@@ -227,26 +226,26 @@ export function thriftTypeForFieldType(
  * SyntaxType.VoidKeyword
  */
 function typeNodeForIdentifier(
-    id: IResolvedIdentifier,
+    definition: DefinitionType,
     name: string,
     state: IRenderState,
     loose: boolean = false,
 ): ts.TypeNode {
-    switch (id.definition.type) {
+    switch (definition.type) {
         case SyntaxType.StructDefinition:
         case SyntaxType.ExceptionDefinition:
         case SyntaxType.UnionDefinition:
             if (loose) {
                 return ts.createTypeReferenceNode(
                     ts.createIdentifier(
-                        looseName(name, id.definition.type, state),
+                        looseName(name, definition.type, state),
                     ),
                     undefined,
                 )
             } else {
                 return ts.createTypeReferenceNode(
                     ts.createIdentifier(
-                        strictName(name, id.definition.type, state),
+                        strictName(name, definition.type, state),
                     ),
                     undefined,
                 )
@@ -254,7 +253,9 @@ function typeNodeForIdentifier(
 
         default:
             return ts.createTypeReferenceNode(
-                ts.createIdentifier(name),
+                ts.createIdentifier(
+                    resolveIdentifierName(name, state).fullName,
+                ),
                 undefined,
             )
     }
@@ -268,7 +269,12 @@ export function typeNodeForFieldType(
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return typeNodeForIdentifier(
-                state.identifiers[fieldType.value],
+                resolveIdentifierDefinition(
+                    fieldType,
+                    state.currentNamespace,
+                    state.project.namespaces,
+                    state.project.sourceDir,
+                ),
                 fieldType.value,
                 state,
                 loose,

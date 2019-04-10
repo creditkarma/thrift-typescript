@@ -6,33 +6,109 @@ import {
     ExceptionDefinition,
     ServiceDefinition,
     StructDefinition,
-    TextLocation,
-    ThriftDocument,
     ThriftStatement,
     TypedefDefinition,
     UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
-export type CompileTarget = 'apache' | 'thrift-server'
+import { IThriftError } from './errors'
 
-/**
- * The compiler options for our codegen. These can be provided to the generator
- * directly through the JS API, or via the command line.
- *
- * EXAMPLE
- *
- * $ thrift-parser --rootDir . --sourceDir thrift --outDir codegen example.thrift
- */
-export interface IMakeOptions {
+export interface IThriftProject {
+    type: 'ThriftProject'
+
+    // Root directory for the project
     rootDir: string
 
-    // resolved relative to the root directory
+    // Output directory (relative to root) for generated code
     outDir: string
 
-    // resolved relative to the root directory
+    // Source directory (relative to root) for thrift files
     sourceDir: string
 
-    // list of files to generate code from
+    // Namespace declared in this project
+    namespaces: INamespaceMap
+
+    // Options for rendering this project
+    options: IMakeOptions
+}
+
+export interface INamespaceFiles {
+    [name: string]: Array<IParsedFile>
+}
+
+// Map of resolved identifier name to the namespace it represents
+export interface INamespacePathMap {
+    [resolvedName: string]: INamespacePath
+}
+
+export interface INamespacePath {
+    type: 'NamespacePath'
+
+    // Scope is the language this namespace belongs to 'js', 'java'...
+    scope: string
+
+    // The name of the namespace com.company.package
+    name: string
+
+    // The name translated to its result path com/company/package
+    path: string
+}
+
+// Namespace path to namespace
+export interface INamespaceMap {
+    [path: string]: INamespace
+}
+
+export interface INamespace {
+    type: 'Namespace'
+
+    namespace: INamespacePath
+
+    // Files declared as part of this namespace
+    files: ResolvedFileMap
+
+    // Identifiers defined in this namespace
+    exports: IFileExports
+
+    // Map of namespaces used by this file
+    includedNamespaces: INamespacePathMap
+
+    // Data/services defined in this namespace
+    constants: Array<ConstDefinition | EnumDefinition>
+    typedefs: Array<TypedefDefinition>
+    structs: Array<StructDefinition>
+    unions: Array<UnionDefinition>
+    exceptions: Array<ExceptionDefinition>
+    services: Array<ServiceDefinition>
+}
+
+export interface IRenderState {
+    // Options for this render
+    options: IMakeOptions
+
+    // The current namespace being processed
+    currentNamespace: INamespace
+
+    // Current statements being processed
+    currentDefinitions: IFileExports
+
+    // The current Thrift project
+    project: IThriftProject
+}
+
+export type CompileTarget = 'apache' | 'thrift-server'
+
+export interface IMakeOptions {
+    // Root to resolve outDir and sourceDir from
+    rootDir: string
+
+    // Where to put generated TypeScript
+    outDir: string
+
+    // Where to find source thrift
+    sourceDir: string
+
+    // Files to generate from
     files: Array<string>
 
     // What core libs are you compiling for?
@@ -53,16 +129,121 @@ export interface IMakeOptions {
     strictUnionsComplexNames: boolean
 }
 
-export interface IRenderState {
-    identifiers: IIdentifierMap
-    options: IMakeOptions
+export interface IThriftFiles {
+    [filePath: string]: ISourceFile
 }
 
+export interface ISourceFile {
+    type: 'SourceFile'
+
+    // Name of the source file
+    name: string
+
+    // Absolute path to the directory containing source file
+    path: string
+
+    // Full path to this file
+    fullPath: string
+
+    // The raw source content of this file
+    source: string
+}
+
+// Map of file path to the parsed file
+export interface IProcessedFileMap<FileType> {
+    [filePath: string]: FileType
+}
+
+export type ParsedFileMap = IProcessedFileMap<IParsedFile>
+export type ResolvedFileMap = IProcessedFileMap<IResolvedFile>
+
+export interface IProcessedFile {
+    // Source file that parses to this AST
+    sourceFile: ISourceFile
+
+    // Namespace for this file
+    namespace: INamespacePath
+
+    // Map of include names to include path
+    includes: IFileIncludes
+
+    // Identifiers exported by this file
+    exports: IFileExports
+
+    // AST for source file content
+    body: Array<ThriftStatement>
+
+    // Array of errors encountered processing this file
+    errors: Array<IThriftError>
+}
+
+export interface IParsedFile extends IProcessedFile {
+    type: 'ParsedFile'
+}
+
+export interface IResolvedFile extends IProcessedFile {
+    type: 'ResolvedFile'
+
+    // Map of namespaces used by this file
+    includedNamespaces: INamespacePathMap
+
+    // Map of namespace id to include path
+    namespaceToInclude: INamespaceToIncludeMap
+}
+
+// Map of resolved namespace identifier to include
+export interface INamespaceToIncludeMap {
+    [name: string]: string
+}
+
+// Map of include name to include path
+export interface IFileIncludes {
+    [name: string]: IIncludePath
+}
+
+export type DefinitionType =
+    | ConstDefinition
+    | StructDefinition
+    | UnionDefinition
+    | ExceptionDefinition
+    | EnumDefinition
+    | TypedefDefinition
+    | ServiceDefinition
+
+// A map of identifier name to the Thrift definition of that identifier
+export interface IFileExports {
+    [name: string]: DefinitionType
+}
+
+export interface IIncludePath {
+    type: 'IncludePath'
+
+    // Include path as it literally appears in the source code
+    path: string
+
+    // Path to the file importing this include
+    importedFrom: string
+}
+
+// The Thrift file path to the resolved namespace for that file's
+// generated TypeScript.
+export interface IFileToNamespaceMap {
+    [filePath: string]: INamespacePath
+}
+
+// Map of an include's name in a specific file to the namespace that
+// include resolves to.
+export interface IIncludeToNamespaceMap {
+    [includeName: string]: INamespacePath
+}
+
+// Interface for our render object
 export interface IRenderer {
-    renderIncludes(
-        currentPath: string,
-        resolvedFile: INamespaceFile,
-        options: IMakeOptions,
+    renderIndex(state: IRenderState): Array<ts.Statement>
+
+    renderImports(
+        files: Array<ThriftStatement>,
+        state: IRenderState,
     ): Array<ts.Statement>
 
     renderConst(
@@ -101,139 +282,20 @@ export interface IRenderer {
     ): Array<ts.Statement>
 }
 
-/**
- *
- * INamespace {
- *   namespace: string
- *   path: string
- * }
- *
- *
- */
-
-export interface IThriftFile {
-    name: string
-    path: string
-    source: string
-}
-
-export interface IParsedFile {
-    name: string
-    path: string
-    source: string
-    includes: Array<IParsedFile>
-    ast: ThriftDocument
-}
-
-// Map from import identifier to namespace path
-export interface IIncludeMap {
-    [name: string]: string
-}
-
-export interface IResolvedFile {
-    name: string
-    path: string
-    source: string
-    namespace: INamespace
-    includes: IResolvedIncludeMap
-    identifiers: IIdentifierMap
-    body: Array<ThriftStatement>
-    errors: Array<IThriftError>
-}
-
-export interface INamespaceFile {
-    namespace: INamespace
-    includes: IResolvedIncludeMap
-    identifiers: IIdentifierMap
-    body: Array<ThriftStatement>
-}
-
-export interface IRenderedFile {
-    outPath: string
-    namespace: INamespace
-    // includes: IRenderedFileMap
-    identifiers: IIdentifierMap
-    statements: Array<ts.Statement>
-}
-
-export interface IResolvedFileMap {
-    [name: string]: IResolvedFile
-}
-
-export interface IRenderedFileMap {
-    [name: string]: IRenderedFile
-}
-
-export interface INamespacedResolvedFiles {
-    [name: string]: Array<IResolvedFile>
-}
-
-export interface INamespace {
-    scope: string
-    name: string
-    path: string
-}
-
-export interface INamespaceMap {
-    [name: string]: INamespace
-}
-
-export interface IResolvedInclude {
-    file: IResolvedFile
-
-    // Identifiers used from this include
-    identifiers: Array<IResolvedIdentifier>
-}
-
-export interface IResolvedIncludeMap {
-    [name: string]: IResolvedInclude
-}
-
-export interface IIncludeData {
-    path: string
-    base: string
-}
-
-export type DefinitionType =
-    | ConstDefinition
-    | StructDefinition
-    | UnionDefinition
-    | ExceptionDefinition
-    | EnumDefinition
-    | TypedefDefinition
-    | ServiceDefinition
-
 export interface IResolvedIdentifier {
+    rawName: string
     name: string
-    pathName: string
-    resolvedName: string
-    definition: DefinitionType
+    baseName: string
+    pathName?: string
+    fullName: string
 }
 
-export interface IIdentifierMap {
-    [name: string]: IResolvedIdentifier
-}
+export interface IGeneratedFile {
+    type: 'GeneratedFile'
 
-export const enum ErrorType {
-    ValidationError = 'ValidationError',
-    ResolutionError = 'ResolutionError',
-    GenerationError = 'GenerationError',
-}
+    name: string
 
-export interface IThriftError {
-    type: ErrorType
-    message: string
-    loc: TextLocation
-}
+    path: string
 
-export interface IIncludeCache {
-    [path: string]: IParsedFile
-}
-
-export interface IResolvedCache {
-    [path: string]: IResolvedFile
-}
-
-export interface IRenderedCache {
-    [path: string]: IRenderedFile
+    body: Array<ts.Statement>
 }

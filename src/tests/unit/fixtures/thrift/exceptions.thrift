@@ -1,11 +1,11 @@
-namespace cpp exceptions
-namespace d exceptions
-namespace dart exceptions
-namespace java exceptions
-namespace perl exceptions
-namespace php exceptions
-namespace haxe exceptions
-namespace netcore exceptions
+namespace cpp com.test.exceptions
+namespace d com.test.exceptions
+namespace dart com.test.exceptions
+namespace java com.test.exceptions
+namespace perl com.test.exceptions
+namespace php com.test.exceptions
+namespace haxe com.test.exceptions
+namespace netcore com.test.exceptions
 
 include "shared.thrift"
 

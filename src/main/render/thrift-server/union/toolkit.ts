@@ -70,7 +70,7 @@ export function renderToolkit(
     return ts.createVariableStatement(
         tokens(isExported),
         createConst(
-            ts.createIdentifier(toolkitNameForStruct(node)),
+            ts.createIdentifier(toolkitNameForStruct(node, state)),
             renderToolkitTypeNode(node, state),
             ts.createObjectLiteral(renderMethodsForCodec(node, state), true),
         ),

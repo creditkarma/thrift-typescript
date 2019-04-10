@@ -36,13 +36,16 @@ export function print(
         false,
         ts.ScriptKind.TS,
     )
+
     const bodyFile: ts.SourceFile = ts.updateSourceFileNode(
         rawSourceFile,
         statements,
     )
 
-    if (includePreface) {
+    if (includePreface && statements.length > 0) {
         generatePreface(statements[0])
+    } else {
+        console.warn(`Printing empty file`)
     }
 
     return printer.printBundle(ts.createBundle([bodyFile]))

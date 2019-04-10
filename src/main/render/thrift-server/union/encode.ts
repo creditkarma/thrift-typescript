@@ -63,7 +63,7 @@ export function createEncodeMethod(
         ts.createBlock(
             [
                 createFieldIncrementer(),
-                ...createTempVariables(node, state.identifiers),
+                ...createTempVariables(node, state),
                 writeStructBegin(node.name.value),
                 ...node.fields.filter(isNotVoid).map((field) => {
                     return createWriteForField(node, field, state)
@@ -127,7 +127,7 @@ export function createWriteForFieldType(
     return ts.createBlock(
         [
             incrementFieldsSet(),
-            writeFieldBegin(field, state.identifiers),
+            writeFieldBegin(field, state),
             ...writeValueForField(node, field.fieldType, fieldName, state),
             writeFieldEnd(),
         ],

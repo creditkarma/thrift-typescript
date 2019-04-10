@@ -3,7 +3,6 @@ import * as ts from 'typescript'
 import {
     FieldDefinition,
     FunctionDefinition,
-    FunctionType,
     ServiceDefinition,
     StructDefinition,
     SyntaxType,
@@ -46,33 +45,18 @@ function emptyLocation(): TextLocation {
 export function renderService(
     service: ServiceDefinition,
     state: IRenderState,
-): ts.ModuleDeclaration {
-    return ts.createModuleDeclaration(
-        undefined,
-        [ts.createToken(ts.SyntaxKind.ExportKeyword)],
-        ts.createIdentifier(service.name.value),
-        ts.createModuleBlock([
-            renderServiceName(service),
-            renderServiceAnnotations(
-                collectAllAnnotations(service, state.identifiers),
-            ),
-            renderMethodAnnotations(
-                collectAllMethods(service, state.identifiers),
-            ),
-            renderMethodNames(service, state.identifiers),
-            ...renderArgsStruct(service, state),
-            ...renderResultStruct(service, state),
-            renderClient(service, state),
-            ...renderHandlerInterface(
-                service,
-                (fieldType: FunctionType, loose?: boolean): ts.TypeNode => {
-                    return typeNodeForFieldType(fieldType, state, loose)
-                },
-            ),
-            renderProcessor(service, state),
-        ]),
-        ts.NodeFlags.Namespace,
-    )
+): Array<ts.Statement> {
+    return [
+        renderServiceName(service),
+        renderServiceAnnotations(collectAllAnnotations(service, state)),
+        renderMethodAnnotations(collectAllMethods(service, state)),
+        renderMethodNames(service, state),
+        ...renderArgsStruct(service, state),
+        ...renderResultStruct(service, state),
+        renderClient(service, state),
+        ...renderHandlerInterface(service, typeNodeForFieldType, state),
+        renderProcessor(service, state),
+    ]
 }
 
 export function renderArgsStruct(

@@ -6,11 +6,11 @@ import { CompileTarget, IRenderer } from '../types'
 
 export function rendererForTarget(target: CompileTarget = 'apache'): IRenderer {
     switch (target) {
-        case 'apache':
-            return ApacheRenderer
-
         case 'thrift-server':
             return ThriftRenderer
+
+        case 'apache':
+            return ApacheRenderer
 
         default:
             const msg: never = target

@@ -15,7 +15,7 @@ const map<string,string> MAPCONSTANT = {'hello':'world', 'goodnight':'moon'}
 struct Work {
   1: required i32 num1 = 0,
   2: required i32 num2,
-  3: required Operation op,
+  3: Operation op = Operation.ADD,
   4: optional string comment,
 }
 

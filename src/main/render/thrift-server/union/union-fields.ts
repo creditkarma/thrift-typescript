@@ -4,7 +4,7 @@ import { FieldDefinition, UnionDefinition } from '@creditkarma/thrift-parser'
 
 import { IRenderState } from '../../../types'
 import { COMMON_IDENTIFIERS } from '../../shared/identifiers'
-import { createVoidType } from '../../shared/types'
+import { createUndefinedType } from '../../shared/types'
 import { className, tokens } from '../struct/utils'
 import { typeNodeForFieldType } from '../types'
 
@@ -38,19 +38,23 @@ export function fieldTypeAccess(
     )}`
 }
 
-export function unionTypeName(name: string, strict: boolean): string {
+export function unionTypeName(
+    name: string,
+    state: IRenderState,
+    strict: boolean,
+): string {
     if (strict) {
-        return className(name)
+        return className(name, state)
     } else {
-        return `${className(name)}Args`
+        return `${className(name, state)}Args`
     }
 }
 
 export function renderUnionTypeName(name: string, state: IRenderState): string {
     if (state.options.strictUnionsComplexNames) {
-        return `${unionTypeName(name, true)}__Type`
+        return `${unionTypeName(name, state, true)}__Type`
     } else {
-        return `${unionTypeName(name, true)}Type`
+        return `${unionTypeName(name, state, true)}Type`
     }
 }
 
@@ -109,7 +113,7 @@ function renderInterfaceForField(
                 undefined,
                 next.name.value,
                 ts.createToken(ts.SyntaxKind.QuestionToken),
-                createVoidType(),
+                createUndefinedType(),
                 undefined,
             )
         }
@@ -152,7 +156,7 @@ export function renderUnionsForFields(
         ts.createTypeAliasDeclaration(
             undefined,
             tokens(isExported),
-            unionTypeName(node.name.value, strict),
+            unionTypeName(node.name.value, state, strict),
             undefined,
             ts.createUnionTypeNode([
                 ...node.fields.map((next: FieldDefinition) => {

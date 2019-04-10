@@ -16,7 +16,8 @@ import {
 
 import { className, toolkitName } from './utils'
 
-import { IRenderState, IResolvedIdentifier } from '../../../types'
+import { resolveIdentifierDefinition } from '../../../resolver/utils'
+import { DefinitionType, IRenderState } from '../../../types'
 import { createMethodCall } from '../../shared/utils'
 import { COMMON_IDENTIFIERS } from '../identifiers'
 import { createVoidType, typeNodeForFieldType } from '../types'
@@ -71,24 +72,25 @@ export function defaultAssignment(
 }
 
 export function assignmentForIdentifier(
+    id: string,
     field: FieldDefinition,
-    id: IResolvedIdentifier,
+    definition: DefinitionType,
     fieldType: FieldType,
     saveName: ts.Identifier,
     readName: ts.Identifier,
     state: IRenderState,
 ): Array<ts.Statement> {
-    switch (id.definition.type) {
+    switch (definition.type) {
         case SyntaxType.ConstDefinition:
             throw new TypeError(
                 `Identifier ${
-                    id.definition.name.value
+                    definition.name.value
                 } is a value being used as a type`,
             )
 
         case SyntaxType.ServiceDefinition:
             throw new TypeError(
-                `Service ${id.definition.name.value} is being used as a type`,
+                `Service ${definition.name.value} is being used as a type`,
             )
 
         // Handle creating value for args.
@@ -98,11 +100,9 @@ export function assignmentForIdentifier(
                     createConstStatement(
                         saveName,
                         typeNodeForFieldType(fieldType, state),
-                        createMethodCall(
-                            toolkitName(id.resolvedName),
-                            'create',
-                            [readName],
-                        ),
+                        createMethodCall(toolkitName(id, state), 'create', [
+                            readName,
+                        ]),
                     ),
                 ]
             } else {
@@ -116,7 +116,7 @@ export function assignmentForIdentifier(
                     saveName,
                     typeNodeForFieldType(fieldType, state),
                     ts.createNew(
-                        ts.createIdentifier(className(id.resolvedName)),
+                        ts.createIdentifier(className(id, state)),
                         undefined,
                         [readName],
                     ),
@@ -129,14 +129,14 @@ export function assignmentForIdentifier(
         case SyntaxType.TypedefDefinition:
             return assignmentForFieldType(
                 field,
-                id.definition.definitionType,
+                definition.definitionType,
                 saveName,
                 readName,
                 state,
             )
 
         default:
-            const msg: never = id.definition
+            const msg: never = definition
             throw new Error(`Non-exhaustive match for: ${msg}`)
     }
 }
@@ -150,9 +150,17 @@ export function assignmentForFieldType(
 ): Array<ts.Statement> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
+            const definition = resolveIdentifierDefinition(
+                fieldType,
+                state.currentNamespace,
+                state.project.namespaces,
+                state.project.sourceDir,
+            )
+
             return assignmentForIdentifier(
+                fieldType.value,
                 field,
-                state.identifiers[fieldType.value],
+                definition,
                 fieldType,
                 saveName,
                 readName,

@@ -18,7 +18,7 @@ import { renderStruct } from '../struct'
 
 import { renderInterface } from '../interface'
 
-import { IIdentifierMap } from '../../../types'
+import { IRenderState } from '../../../types'
 
 function emptyLocation(): TextLocation {
     return {
@@ -29,7 +29,7 @@ function emptyLocation(): TextLocation {
 
 export function renderArgsStruct(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.InterfaceDeclaration | ts.ClassDeclaration> {
     return service.functions.reduce(
         (
@@ -56,8 +56,8 @@ export function renderArgsStruct(
 
             return [
                 ...acc,
-                renderInterface(argsStruct),
-                renderStruct(argsStruct, identifiers),
+                renderInterface(argsStruct, state),
+                renderStruct(argsStruct, state),
             ]
         },
         [],
@@ -66,7 +66,7 @@ export function renderArgsStruct(
 
 export function renderResultStruct(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.InterfaceDeclaration | ts.ClassDeclaration> {
     return service.functions.reduce(
         (
@@ -125,8 +125,8 @@ export function renderResultStruct(
 
             return [
                 ...acc,
-                renderInterface(resultStruct),
-                renderStruct(resultStruct, identifiers),
+                renderInterface(resultStruct, state),
+                renderStruct(resultStruct, state),
             ]
         },
         [],

@@ -8,23 +8,20 @@ import {
 
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
-import { IRenderState } from '../../../types'
+import { resolveIdentifierName } from '../../../resolver/utils'
+import { IRenderState, IResolvedIdentifier } from '../../../types'
 import { throwProtocolException } from '../utils'
 
 type NameMapping = (name: string) => string
 
-function splitPath(path: string): Array<string> {
-    return path.split('.').filter(
-        (next: string): boolean => {
-            return next.trim() !== ''
-        },
-    )
-}
-
-function makeNameForNode(name: string, mapping: NameMapping): string {
-    const parts: Array<string> = splitPath(name)
-    if (parts.length > 1) {
-        return `${parts[0]}.${mapping(parts[1])}`
+function makeNameForNode(
+    name: string,
+    state: IRenderState,
+    mapping: NameMapping,
+): string {
+    const resolvedId: IResolvedIdentifier = resolveIdentifierName(name, state)
+    if (resolvedId.pathName) {
+        return `${resolvedId.pathName}.${mapping(resolvedId.baseName)}`
     } else {
         return mapping(name)
     }
@@ -61,8 +58,11 @@ export function looseNameForStruct(
     return looseName(node.name.value, node.type, state)
 }
 
-export function classNameForStruct(node: InterfaceWithFields): string {
-    return className(node.name.value)
+export function classNameForStruct(
+    node: InterfaceWithFields,
+    state: IRenderState,
+): string {
+    return className(node.name.value, state)
 }
 
 export function strictNameForStruct(
@@ -72,12 +72,15 @@ export function strictNameForStruct(
     return strictName(node.name.value, node.type, state)
 }
 
-export function toolkitNameForStruct(node: InterfaceWithFields): string {
-    return toolkitName(node.name.value)
+export function toolkitNameForStruct(
+    node: InterfaceWithFields,
+    state: IRenderState,
+): string {
+    return toolkitName(node.name.value, state)
 }
 
-export function className(name: string): string {
-    return makeNameForNode(name, (part: string) => {
+export function className(name: string, state: IRenderState): string {
+    return makeNameForNode(name, state, (part: string) => {
         return part
     })
 }
@@ -88,9 +91,9 @@ export function looseName(
     state: IRenderState,
 ): string {
     if (type === SyntaxType.UnionDefinition && state.options.strictUnions) {
-        return `${className(name)}Args`
+        return `${className(name, state)}Args`
     } else {
-        return makeNameForNode(name, (part: string) => {
+        return makeNameForNode(name, state, (part: string) => {
             return `I${part}Args`
         })
     }
@@ -102,17 +105,17 @@ export function strictName(
     state: IRenderState,
 ): string {
     if (type === SyntaxType.UnionDefinition && state.options.strictUnions) {
-        return className(name)
+        return className(name, state)
     } else {
-        return makeNameForNode(name, (part: string) => {
+        return makeNameForNode(name, state, (part: string) => {
             return `I${part}`
         })
     }
 }
 
 // TODO: This will be renamed to Toolkit in a breaking release
-export function toolkitName(name: string): string {
-    return makeNameForNode(name, (part: string) => {
+export function toolkitName(name: string, state: IRenderState): string {
+    return makeNameForNode(name, state, (part: string) => {
         return `${part}Codec`
     })
 }

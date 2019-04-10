@@ -1,37 +1,35 @@
+import {
+    ConstValue,
+    FieldDefinition,
+    FunctionDefinition,
+    FunctionType,
+    NamespaceDefinition,
+    PropertyAssignment,
+    SyntaxType,
+    TextLocation,
+    ThriftStatement,
+} from '@creditkarma/thrift-parser'
+
 import * as fs from 'fs'
 import * as glob from 'glob'
 import * as path from 'path'
 
 import {
-    IncludeDefinition,
-    parse,
-    SyntaxType,
-    ThriftDocument,
-    ThriftErrors,
-    ThriftStatement,
-} from '@creditkarma/thrift-parser'
-
-import {
-    IIncludeCache,
-    IIncludeData,
+    IFileIncludes,
+    IGeneratedFile,
+    IIncludePath,
     IMakeOptions,
-    INamespaceFile,
-    IParsedFile,
-    IRenderedFile,
+    INamespaceMap,
+    INamespacePath,
+    INamespacePathMap,
+    IProcessedFile,
+    IProcessedFileMap,
     IResolvedFile,
-    IResolvedIncludeMap,
-    IThriftFile,
+    ISourceFile,
 } from './types'
 
 import { print } from './printer'
-
 import { mkdir } from './sys'
-
-interface IFileCache {
-    [path: string]: IThriftFile
-}
-
-const fileCache: IFileCache = {}
 
 export function deepCopy<T extends object>(obj: T): T {
     const newObj: any = Array.isArray(obj) ? [] : {}
@@ -100,218 +98,321 @@ export function collectSourceFiles(
     }
 }
 
-export function parseThriftString(source: string): ThriftDocument {
-    const thrift: ThriftDocument | ThriftErrors = parse(source)
-    switch (thrift.type) {
-        case SyntaxType.ThriftDocument:
-            return thrift
+export function nameForInclude(fullInclude: string): string {
+    const body = fullInclude.replace('.thrift', '')
+    const parts = body.split('/')
+    return parts[parts.length - 1]
+}
 
-        default:
-            throw new Error('Unable to parse source')
+export function includesForFile(
+    body: Array<ThriftStatement>,
+    sourceFile: ISourceFile,
+): IFileIncludes {
+    return body.reduce((acc: IFileIncludes, next: ThriftStatement) => {
+        if (next.type === SyntaxType.IncludeDefinition) {
+            const includeName = nameForInclude(next.path.value)
+
+            acc[includeName] = {
+                type: 'IncludePath',
+                path: next.path.value,
+                importedFrom: sourceFile.path,
+            }
+        }
+
+        return acc
+    }, {})
+}
+
+export function namespaceForInclude<T extends IProcessedFile>(
+    include: IIncludePath,
+    files: IProcessedFileMap<T>,
+    sourceDir: string,
+    options: IMakeOptions,
+): INamespacePath {
+    const file: T = fileForInclude(include, files, sourceDir)
+    const namespace: INamespacePath = namespaceForFile(file.body, options)
+    return namespace
+}
+
+export function fileForInclude<T extends IProcessedFile>(
+    include: IIncludePath,
+    files: IProcessedFileMap<T>,
+    sourceDir: string,
+): T {
+    // Relative to the file requesting the include
+    const optionOne: string = path.resolve(include.importedFrom, include.path)
+
+    // Relative to the source directory
+    const optionTwo: string = path.resolve(sourceDir, include.path)
+
+    if (files[optionOne]) {
+        return files[optionOne]
+    } else if (files[optionTwo]) {
+        return files[optionTwo]
+    } else {
+        throw new Error(`No file for include: ${include.path}`)
     }
 }
 
-export function dedupResolvedFiles(
-    files: Array<IResolvedFile>,
-): Array<IResolvedFile> {
-    return Array.from(
-        files
-            .reduce((acc: Map<string, IResolvedFile>, next: IResolvedFile) => {
-                acc.set(`${next.path}/${next.name}`, next)
-                return acc
-            }, new Map())
-            .values(),
-    )
+function createPathForNamespace(ns: string): string {
+    return ns.split('.').join('/')
 }
 
-function collectNamespaces(
-    files: Array<IResolvedFile>,
-    cache: Map<string, INamespaceFile> = new Map(),
-): Map<string, INamespaceFile> {
-    if (files.length > 0) {
-        const [head, ...tail] = files
-        const namespace = cache.get(head.namespace.path)
-        if (namespace !== undefined) {
-            namespace.body = namespace.body.concat(head.body)
-            for (const item in head.identifiers) {
-                if (head.identifiers.hasOwnProperty(item)) {
-                    namespace.identifiers[item] = head.identifiers[item]
-                }
-            }
-            for (const item in head.includes) {
-                if (head.includes.hasOwnProperty(item)) {
-                    namespace.includes[item] = head.includes[item]
-                }
-            }
-        } else {
-            cache.set(head.namespace.path, {
-                namespace: head.namespace,
-                includes: head.includes,
-                identifiers: head.identifiers,
-                body: head.body,
-            })
-        }
+export function emptyNamespace(): INamespacePath {
+    return {
+        type: 'NamespacePath',
+        scope: '',
+        name: '',
+        path: createPathForNamespace(''),
+    }
+}
 
-        return collectNamespaces(tail, cache)
+export function emptyLocation(): TextLocation {
+    return {
+        start: { line: 0, column: 0, index: 0 },
+        end: { line: 0, column: 0, index: 0 },
+    }
+}
+
+function collectNamespaces(body: Array<ThriftStatement>): INamespacePathMap {
+    return body
+        .filter(
+            (next: ThriftStatement): next is NamespaceDefinition => {
+                return next.type === SyntaxType.NamespaceDefinition
+            },
+        )
+        .reduce((acc: INamespacePathMap, next: NamespaceDefinition) => {
+            acc[next.scope.value] = {
+                type: 'NamespacePath',
+                scope: next.scope.value,
+                name: next.name.value,
+                path: createPathForNamespace(next.name.value),
+            }
+            return acc
+        }, {})
+}
+
+export function namespaceForFile(
+    body: Array<ThriftStatement>,
+    options: IMakeOptions,
+): INamespacePath {
+    const namespaceMap = collectNamespaces(body)
+    if (namespaceMap.js) {
+        return namespaceMap.js
+    } else if (
+        options.fallbackNamespace !== 'none' &&
+        namespaceMap[options.fallbackNamespace]
+    ) {
+        return namespaceMap[options.fallbackNamespace]
     } else {
-        return cache
+        return emptyNamespace()
     }
 }
 
 export function organizeByNamespace(
     files: Array<IResolvedFile>,
-): Array<INamespaceFile> {
-    return Array.from(collectNamespaces(files).values())
-}
-
-/**
- * Once identifiers have been resolved it's easier to deal with files in a flattened state
- */
-export function flattenResolvedFile(file: IResolvedFile): Array<IResolvedFile> {
-    let result: Array<IResolvedFile> = [file]
-    for (const key in file.includes) {
-        if (file.includes.hasOwnProperty(key)) {
-            const include = file.includes[key].file
-            result = result.concat(flattenResolvedFile(include))
-        }
-    }
-    return result
-}
-
-export function saveFiles(
-    rootDir: string,
-    outDir: string,
-    files: Array<IRenderedFile>,
-): void {
-    files.forEach((next: IRenderedFile) => {
-        mkdir(path.dirname(next.outPath))
-        try {
-            fs.writeFileSync(next.outPath, print(next.statements, true))
-        } catch (err) {
-            throw new Error(
-                `Unable to save generated files to: ${next.outPath}`,
-            )
-        }
-    })
-}
-
-export function readThriftFile(
-    file: string,
-    searchPaths: Array<string>,
-): IThriftFile {
-    for (const sourcePath of searchPaths) {
-        const filePath: string = path.resolve(sourcePath, file)
-        if (fileCache[filePath] !== undefined) {
-            return fileCache[filePath]
-        }
-
-        if (fs.existsSync(filePath)) {
-            fileCache[filePath] = {
-                name: path.basename(filePath, '.thrift'),
-                path: path.dirname(filePath),
-                source: fs.readFileSync(filePath, 'utf-8'),
+): INamespaceMap {
+    return files.reduce((acc: INamespaceMap, next: IResolvedFile) => {
+        const namespacePath: string = next.namespace.path
+        let namespace = acc[namespacePath]
+        if (namespace === undefined) {
+            namespace = {
+                type: 'Namespace',
+                namespace: next.namespace,
+                includedNamespaces: {},
+                files: {},
+                exports: {},
+                constants: [],
+                typedefs: [],
+                structs: [],
+                unions: [],
+                exceptions: [],
+                services: [],
             }
 
-            return fileCache[filePath]
+            acc[namespacePath] = namespace
         }
-    }
 
-    throw new Error(`Unable to find file ${file}`)
+        namespace.files[next.sourceFile.fullPath] = next
+        namespace.includedNamespaces = {
+            ...namespace.includedNamespaces,
+            ...next.includedNamespaces,
+        }
+
+        next.body.forEach((statement: ThriftStatement) => {
+            switch (statement.type) {
+                case SyntaxType.ConstDefinition:
+                case SyntaxType.EnumDefinition:
+                    namespace.constants.push(statement)
+                    namespace.exports[statement.name.value] = statement
+                    break
+
+                case SyntaxType.TypedefDefinition:
+                    namespace.typedefs.push(statement)
+                    namespace.exports[statement.name.value] = statement
+                    break
+
+                case SyntaxType.StructDefinition:
+                    namespace.structs.push(statement)
+                    namespace.exports[statement.name.value] = statement
+                    break
+
+                case SyntaxType.UnionDefinition:
+                    namespace.unions.push(statement)
+                    namespace.exports[statement.name.value] = statement
+                    break
+
+                case SyntaxType.ExceptionDefinition:
+                    namespace.exceptions.push(statement)
+                    namespace.exports[statement.name.value] = statement
+                    break
+
+                case SyntaxType.ServiceDefinition:
+                    namespace.services.push(statement)
+                    namespace.exports[statement.name.value] = statement
+                    break
+            }
+        })
+
+        return acc
+    }, {})
 }
 
-function collectIncludes(thrift: ThriftDocument): Array<IIncludeData> {
-    const statements: Array<IncludeDefinition> = thrift.body.filter(
-        (next: ThriftStatement): next is IncludeDefinition => {
-            return next.type === SyntaxType.IncludeDefinition
-        },
-    )
-
-    return statements.map(
-        (next: IncludeDefinition): IIncludeData => ({
-            path: next.path.value,
-            base: path.basename(next.path.value).replace('.thrift', ''),
-        }),
-    )
-}
-
-function parseInclude(
-    currentPath: string,
-    sourceDir: string,
-    include: IIncludeData,
-    cache: IIncludeCache = {},
-): IParsedFile {
-    if (!cache[include.path]) {
-        cache[include.path] = parseFile(
-            sourceDir,
-            readThriftFile(include.path, [currentPath, sourceDir]),
-        )
-    }
-
-    return cache[include.path]
-}
-
-/**
- * interface IParsedFile {
- *   name: string
- *   path: string
- *   includes: Array<IParsedFile>
- *   ast: ThriftDocument
- * }
- *
- * @param sourceDir
- * @param file
- */
-export function parseFile(
-    sourceDir: string,
-    file: IThriftFile,
-    cache: IIncludeCache = {},
-): IParsedFile {
-    const ast: ThriftDocument = parseThriftString(file.source)
-    const includes: Array<IParsedFile> = collectIncludes(ast).map(
-        (next: IIncludeData): IParsedFile => {
-            return parseInclude(file.path, sourceDir, next, cache)
-        },
-    )
-
-    return {
-        name: file.name,
-        path: file.path,
-        source: file.source,
-        includes,
-        ast,
-    }
-}
-
-export function parseSource(source: string): IParsedFile {
-    return {
-        name: '',
-        path: '',
-        source,
-        includes: [],
-        ast: parseThriftString(source),
-    }
-}
-
-function includeListForMap(
-    includes: IResolvedIncludeMap,
-): Array<IResolvedFile> {
-    const includeList: Array<IResolvedFile> = []
-    for (const name of Object.keys(includes)) {
-        includeList.push(includes[name].file)
-    }
-    return includeList
-}
-
-export function collectInvalidFiles(
-    resolvedFiles: Array<IResolvedFile>,
-    errors: Array<IResolvedFile> = [],
-): Array<IResolvedFile> {
+export function collectInvalidFiles<T extends IProcessedFile>(
+    resolvedFiles: Array<T>,
+    errors: Array<T> = [],
+): Array<T> {
     for (const file of resolvedFiles) {
         if (file.errors.length > 0) {
             errors.push(file)
-            collectInvalidFiles(includeListForMap(file.includes), errors)
         }
     }
 
     return errors
+}
+
+export function saveFiles(files: Array<IGeneratedFile>, outDir: string): void {
+    files.forEach((next: IGeneratedFile) => {
+        const outPath: string = path.resolve(
+            outDir,
+            next.path,
+            `${next.name}.ts`,
+        )
+
+        mkdir(path.dirname(outPath))
+
+        try {
+            fs.writeFileSync(outPath, print(next.body, true))
+        } catch (err) {
+            throw new Error(`Unable to save generated files to: ${outPath}`)
+        }
+    })
+}
+
+function identifiersForFieldType(
+    fieldType: FunctionType,
+    results: Set<string>,
+): void {
+    switch (fieldType.type) {
+        case SyntaxType.Identifier:
+            results.add(fieldType.value)
+            break
+
+        case SyntaxType.MapType:
+            identifiersForFieldType(fieldType.keyType, results)
+            identifiersForFieldType(fieldType.valueType, results)
+            break
+
+        case SyntaxType.SetType:
+        case SyntaxType.ListType:
+            identifiersForFieldType(fieldType.valueType, results)
+            break
+    }
+}
+
+function identifiersForConstValue(
+    constValue: ConstValue | null,
+    results: Set<string>,
+): void {
+    if (constValue !== null) {
+        switch (constValue.type) {
+            case SyntaxType.Identifier:
+                results.add(constValue.value)
+                break
+
+            case SyntaxType.ConstList:
+                constValue.elements.forEach((next: ConstValue) => {
+                    identifiersForConstValue(next, results)
+                })
+                break
+
+            case SyntaxType.ConstMap:
+                constValue.properties.forEach((next: PropertyAssignment) => {
+                    identifiersForConstValue(next.name, results)
+                    identifiersForConstValue(next.initializer, results)
+                })
+        }
+    }
+}
+
+export function identifiersForStatements(
+    statements: Array<ThriftStatement>,
+): Array<string> {
+    const results: Set<string> = new Set()
+
+    statements.forEach((next: ThriftStatement) => {
+        switch (next.type) {
+            case SyntaxType.IncludeDefinition:
+            case SyntaxType.CppIncludeDefinition:
+            case SyntaxType.NamespaceDefinition:
+            case SyntaxType.EnumDefinition:
+                // Ignore
+                break
+
+            case SyntaxType.ConstDefinition:
+                identifiersForFieldType(next.fieldType, results)
+                identifiersForConstValue(next.initializer, results)
+                break
+
+            case SyntaxType.TypedefDefinition:
+                identifiersForFieldType(next.definitionType, results)
+                break
+
+            case SyntaxType.StructDefinition:
+            case SyntaxType.UnionDefinition:
+            case SyntaxType.ExceptionDefinition:
+                next.fields.forEach((field: FieldDefinition) => {
+                    identifiersForFieldType(field.fieldType, results)
+                    identifiersForConstValue(field.defaultValue, results)
+                })
+                break
+
+            case SyntaxType.ServiceDefinition:
+                if (next.extends) {
+                    results.add(next.extends.value)
+                }
+
+                next.functions.forEach((func: FunctionDefinition) => {
+                    func.fields.forEach((field: FieldDefinition) => {
+                        identifiersForFieldType(field.fieldType, results)
+                        identifiersForConstValue(field.defaultValue, results)
+                    })
+
+                    func.throws.forEach((field: FieldDefinition) => {
+                        identifiersForFieldType(field.fieldType, results)
+                        identifiersForConstValue(field.defaultValue, results)
+                    })
+
+                    identifiersForFieldType(func.returnType, results)
+                })
+
+                break
+
+            default:
+                const _exhaustiveCheck: never = next
+                throw new Error(`Non-exhaustive match for ${_exhaustiveCheck}`)
+        }
+    })
+
+    return Array.from(results)
 }

@@ -1,5 +1,5 @@
 export enum MyEnum {
-    ONE,
-    TWO,
-    THREE
+    ONE = 0,
+    TWO = 1,
+    THREE = 2
 }

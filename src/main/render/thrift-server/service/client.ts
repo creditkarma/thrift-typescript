@@ -243,7 +243,9 @@ function createBaseMethodForDefinition(
                 ),
                 // args.write(output)
                 createMethodCallStatement(
-                    ts.createIdentifier(toolkitName(createStructArgsName(def))),
+                    ts.createIdentifier(
+                        toolkitName(createStructArgsName(def), state),
+                    ),
                     'encode',
                     [COMMON_IDENTIFIERS.args, COMMON_IDENTIFIERS.output],
                 ),
@@ -516,7 +518,7 @@ function createNewResultInstance(
             ts.createCall(
                 ts.createPropertyAccess(
                     ts.createIdentifier(
-                        toolkitName(createStructResultName(def)),
+                        toolkitName(createStructResultName(def), state),
                     ),
                     ts.createIdentifier('decode'),
                 ),
@@ -641,7 +643,7 @@ function createParametersForField(
 ): ts.ParameterDeclaration {
     const defaultValue =
         field.defaultValue !== null
-            ? renderValue(field.fieldType, field.defaultValue)
+            ? renderValue(field.fieldType, field.defaultValue, state)
             : undefined
 
     return createFunctionParameter(

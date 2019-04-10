@@ -25,7 +25,11 @@ import {
     createPublicMethod,
 } from '../utils'
 
-import { IIdentifierMap } from '../../../types'
+import {
+    resolveIdentifierDefinition,
+    resolveIdentifierName,
+} from '../../../resolver/utils'
+import { IRenderState } from '../../../types'
 
 import {
     constructorNameForFieldType,
@@ -45,6 +49,7 @@ import {
 function funcToMethodReducer(
     acc: Array<ts.MethodSignature>,
     func: FunctionDefinition,
+    state: IRenderState,
 ): Array<ts.MethodSignature> {
     return acc.concat([
         ts.createMethodSignature(
@@ -53,16 +58,16 @@ function funcToMethodReducer(
                 ...func.fields.map((field: FieldDefinition) => {
                     return createFunctionParameter(
                         field.name.value,
-                        typeNodeForFieldType(field.fieldType),
+                        typeNodeForFieldType(field.fieldType, state),
                         undefined,
                         field.requiredness === 'optional',
                     )
                 }),
             ],
             ts.createUnionTypeNode([
-                typeNodeForFieldType(func.returnType),
+                typeNodeForFieldType(func.returnType, state),
                 ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Promise, [
-                    typeNodeForFieldType(func.returnType),
+                    typeNodeForFieldType(func.returnType, state),
                 ]),
             ]),
             func.name.value,
@@ -84,9 +89,12 @@ function funcToMethodReducer(
  */
 export function renderHandlerInterface(
     service: ServiceDefinition,
+    state: IRenderState,
 ): Array<ts.Statement> {
     const signatures: Array<ts.MethodSignature> = service.functions.reduce(
-        funcToMethodReducer,
+        (acc: Array<ts.MethodSignature>, next: FunctionDefinition) => {
+            return funcToMethodReducer(acc, next, state)
+        },
         [],
     )
 
@@ -164,10 +172,10 @@ function handlerType(node: ServiceDefinition): ts.TypeNode {
 }
 
 function createSuperCall(
-    node: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    service: ServiceDefinition,
+    state: IRenderState,
 ): Array<ts.Statement> {
-    if (node.extends !== null) {
+    if (service.extends !== null) {
         return [
             ts.createStatement(
                 ts.createCall(
@@ -175,7 +183,12 @@ function createSuperCall(
                     [],
                     [
                         objectLiteralForServiceFunctions(
-                            identifiers[node.extends.value].definition,
+                            resolveIdentifierDefinition(
+                                service.extends,
+                                state.currentNamespace,
+                                state.project.namespaces,
+                                state.project.sourceDir,
+                            ),
                         ),
                     ],
                 ),
@@ -188,7 +201,7 @@ function createSuperCall(
 
 export function renderProcessor(
     node: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.ClassDeclaration {
     // private _handler
     const handler: ts.PropertyDeclaration = ts.createProperty(
@@ -208,7 +221,7 @@ export function renderProcessor(
             ),
         ],
         [
-            ...createSuperCall(node, identifiers),
+            ...createSuperCall(node, state),
             createAssignmentStatement(
                 ts.createIdentifier('this._handler'),
                 COMMON_IDENTIFIERS.handler,
@@ -216,13 +229,10 @@ export function renderProcessor(
         ],
     )
 
-    const processMethod: ts.MethodDeclaration = createProcessMethod(
-        node,
-        identifiers,
-    )
+    const processMethod: ts.MethodDeclaration = createProcessMethod(node, state)
     const processFunctions: Array<ts.MethodDeclaration> = node.functions.map(
         (next: FunctionDefinition) => {
-            return createProcessFunctionMethod(node, next)
+            return createProcessFunctionMethod(next, state)
         },
     )
 
@@ -290,8 +300,8 @@ export function renderProcessor(
 //     })
 // }
 function createProcessFunctionMethod(
-    service: ServiceDefinition,
     funcDef: FunctionDefinition,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     return createPublicMethod(
         ts.createIdentifier(`process_${funcDef.name.value}`),
@@ -307,7 +317,7 @@ function createProcessFunctionMethod(
                 createMethodCall(
                     createMethodCall(
                         createPromise(
-                            typeNodeForFieldType(funcDef.returnType),
+                            typeNodeForFieldType(funcDef.returnType, state),
                             createVoidType(),
                             [
                                 // try {
@@ -382,6 +392,7 @@ function createProcessFunctionMethod(
                                         COMMON_IDENTIFIERS.data,
                                         typeNodeForFieldType(
                                             funcDef.returnType,
+                                            state,
                                         ),
                                     ),
                                 ],
@@ -478,7 +489,7 @@ function createProcessFunctionMethod(
                             ts.createBlock(
                                 [
                                     // if (def.throws.length > 0)
-                                    ...createExceptionHandlers(funcDef),
+                                    ...createExceptionHandlers(funcDef, state),
                                 ],
                                 true,
                             ),
@@ -515,9 +526,9 @@ function createArgsVariable(funcDef: FunctionDefinition): Array<ts.Statement> {
 }
 
 function createElseForExceptions(
-    exp: FieldDefinition,
     remaining: Array<FieldDefinition>,
     funcDef: FunctionDefinition,
+    state: IRenderState,
 ): ts.Statement {
     if (remaining.length > 0) {
         const [next, ...tail] = remaining
@@ -525,10 +536,16 @@ function createElseForExceptions(
             ts.createBinary(
                 COMMON_IDENTIFIERS.err,
                 ts.SyntaxKind.InstanceOfKeyword,
-                constructorNameForFieldType(next.fieldType),
+                constructorNameForFieldType(
+                    next.fieldType,
+                    (name: string) => {
+                        return resolveIdentifierName(name, state).fullName
+                    },
+                    state,
+                ),
             ),
             createThenForException(next, funcDef),
-            createElseForExceptions(next, tail, funcDef),
+            createElseForExceptions(tail, funcDef, state),
         )
     } else {
         return ts.createBlock(
@@ -639,6 +656,7 @@ function createThenForException(
 function createIfForExceptions(
     exps: Array<FieldDefinition>,
     funcDef: FunctionDefinition,
+    state: IRenderState,
 ): ts.Statement {
     const [throwDef, ...tail] = exps
 
@@ -646,19 +664,26 @@ function createIfForExceptions(
         ts.createBinary(
             COMMON_IDENTIFIERS.err,
             ts.SyntaxKind.InstanceOfKeyword,
-            constructorNameForFieldType(throwDef.fieldType),
+            constructorNameForFieldType(
+                throwDef.fieldType,
+                (name: string) => {
+                    return resolveIdentifierName(name, state).fullName
+                },
+                state,
+            ),
         ),
         createThenForException(throwDef, funcDef),
-        createElseForExceptions(throwDef, tail, funcDef),
+        createElseForExceptions(tail, funcDef, state),
     )
 }
 
 function createExceptionHandlers(
     funcDef: FunctionDefinition,
+    state: IRenderState,
 ): Array<ts.Statement> {
     if (funcDef.throws.length > 0) {
         // if (err instanceof {{throwType}}) {
-        return [createIfForExceptions(funcDef.throws, funcDef)]
+        return [createIfForExceptions(funcDef.throws, funcDef, state)]
     } else {
         return [
             // const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
@@ -719,7 +744,7 @@ function createExceptionHandlers(
 // }
 function createProcessMethod(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     return createPublicMethod(
         COMMON_IDENTIFIERS.process,
@@ -760,7 +785,7 @@ function createProcessMethod(
                     COMMON_IDENTIFIERS.fname,
                 ),
             ),
-            createMethodCallForFname(service, identifiers),
+            createMethodCallForFname(service, state),
         ], // body
     )
 }
@@ -804,11 +829,16 @@ function functionsForService(node: ThriftStatement): Array<FunctionDefinition> {
 
 function collectAllMethods(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<FunctionDefinition> {
     if (service.extends !== null) {
         const inheritedMethods: Array<FunctionDefinition> = functionsForService(
-            identifiers[service.extends.value].definition,
+            resolveIdentifierDefinition(
+                service.extends,
+                state.currentNamespace,
+                state.project.namespaces,
+                state.project.sourceDir,
+            ),
         )
         return [...inheritedMethods, ...service.functions]
     } else {
@@ -842,12 +872,12 @@ function collectAllMethods(
  */
 function createMethodCallForFname(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.SwitchStatement {
     return ts.createSwitch(
         ts.createIdentifier('methodName'),
         ts.createCaseBlock([
-            ...collectAllMethods(service, identifiers).map(
+            ...collectAllMethods(service, state).map(
                 createMethodCallForFunction,
             ),
             ts.createDefaultClause([

@@ -2,7 +2,7 @@ import * as ts from 'typescript'
 
 import { FunctionType, SyntaxType } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap, IResolvedIdentifier } from '../../types'
+import { DefinitionType, IRenderState } from '../../types'
 
 import {
     APPLICATION_EXCEPTION,
@@ -11,6 +11,10 @@ import {
     THRIFT_TYPES,
 } from './identifiers'
 
+import {
+    resolveIdentifierDefinition,
+    resolveIdentifierName,
+} from '../../resolver/utils'
 import {
     createBooleanType,
     createNumberType,
@@ -99,20 +103,20 @@ export function applicationException(
 }
 
 function thriftTypeForIdentifier(
-    id: IResolvedIdentifier,
-    identifiers: IIdentifierMap,
+    definition: DefinitionType,
+    state: IRenderState,
 ): ts.Identifier {
-    switch (id.definition.type) {
+    switch (definition.type) {
         case SyntaxType.ConstDefinition:
             throw new TypeError(
                 `Identifier ${
-                    id.definition.name.value
+                    definition.name.value
                 } is a value being used as a type`,
             )
 
         case SyntaxType.ServiceDefinition:
             throw new TypeError(
-                `Service ${id.definition.name.value} is being used as a type`,
+                `Service ${definition.name.value} is being used as a type`,
             )
 
         case SyntaxType.StructDefinition:
@@ -124,13 +128,10 @@ function thriftTypeForIdentifier(
             return THRIFT_TYPES.I32
 
         case SyntaxType.TypedefDefinition:
-            return thriftTypeForFieldType(
-                id.definition.definitionType,
-                identifiers,
-            )
+            return thriftTypeForFieldType(definition.definitionType, state)
 
         default:
-            const msg: never = id.definition
+            const msg: never = definition
             throw new Error(`Non-exhaustive match for: ${msg}`)
     }
 }
@@ -147,13 +148,18 @@ function thriftTypeForIdentifier(
  */
 export function thriftTypeForFieldType(
     fieldType: FunctionType,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.Identifier {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return thriftTypeForIdentifier(
-                identifiers[fieldType.value],
-                identifiers,
+                resolveIdentifierDefinition(
+                    fieldType,
+                    state.currentNamespace,
+                    state.project.namespaces,
+                    state.project.sourceDir,
+                ),
+                state,
             )
 
         case SyntaxType.SetType:
@@ -226,26 +232,30 @@ export function thriftTypeForFieldType(
  */
 export function typeNodeForFieldType(
     fieldType: FunctionType,
+    state: IRenderState,
     loose: boolean = false,
 ): ts.TypeNode {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
-            return ts.createTypeReferenceNode(fieldType.value, undefined)
+            return ts.createTypeReferenceNode(
+                resolveIdentifierName(fieldType.value, state).fullName,
+                undefined,
+            )
 
         case SyntaxType.SetType:
             return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Set, [
-                typeNodeForFieldType(fieldType.valueType),
+                typeNodeForFieldType(fieldType.valueType, state, loose),
             ])
 
         case SyntaxType.MapType:
             return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Map, [
-                typeNodeForFieldType(fieldType.keyType),
-                typeNodeForFieldType(fieldType.valueType),
+                typeNodeForFieldType(fieldType.keyType, state, loose),
+                typeNodeForFieldType(fieldType.valueType, state, loose),
             ])
 
         case SyntaxType.ListType:
             return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Array, [
-                typeNodeForFieldType(fieldType.valueType),
+                typeNodeForFieldType(fieldType.valueType, state, loose),
             ])
 
         case SyntaxType.StringKeyword:

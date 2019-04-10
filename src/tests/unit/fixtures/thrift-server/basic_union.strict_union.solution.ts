@@ -6,20 +6,20 @@ export type MyUnion = IMyUnionWithField1 | IMyUnionWithField2;
 export interface IMyUnionWithField1 {
     __type: MyUnionType.MyUnionWithField1;
     field1: number;
-    field2?: void;
+    field2?: undefined;
 }
 export interface IMyUnionWithField2 {
     __type: MyUnionType.MyUnionWithField2;
-    field1?: void;
+    field1?: undefined;
     field2: thrift.Int64;
 }
 export type MyUnionArgs = IMyUnionWithField1Args | IMyUnionWithField2Args;
 export interface IMyUnionWithField1Args {
     field1: number;
-    field2?: void;
+    field2?: undefined;
 }
 export interface IMyUnionWithField2Args {
-    field1?: void;
+    field1?: undefined;
     field2: number | string | thrift.Int64;
 }
 export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {

@@ -11,7 +11,7 @@ import {
     SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-import { IIdentifierMap, IResolvedIdentifier } from '../../../types'
+import { DefinitionType, IRenderState } from '../../../types'
 
 import {
     createFunctionParameter,
@@ -30,6 +30,7 @@ import {
 
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
+import { resolveIdentifierDefinition } from '../../../resolver/utils'
 import { WRITE_METHODS, WriteMethodName } from './methods'
 
 function isNotVoid(field: FieldDefinition): boolean {
@@ -51,12 +52,12 @@ function isNotVoid(field: FieldDefinition): boolean {
  */
 export function createWriteMethod(
     struct: InterfaceWithFields,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     const fieldWrites: Array<ts.IfStatement> = struct.fields
         .filter(isNotVoid)
         .map((field) => {
-            return createWriteForField(struct, field, identifiers)
+            return createWriteForField(struct, field, state)
         })
     const inputParameter: ts.ParameterDeclaration = createFunctionParameter(
         COMMON_IDENTIFIERS.output,
@@ -100,7 +101,7 @@ export function createWriteMethod(
 export function createWriteForField(
     struct: InterfaceWithFields,
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.IfStatement {
     return ts.createIf(
         createNotNullCheck(`this.${field.name.value}`), // Condition
@@ -108,7 +109,7 @@ export function createWriteForField(
             struct,
             field,
             ts.createIdentifier(`this.${field.name.value}`),
-            identifiers,
+            state,
         ), // Then block
         undefined, // Else block
     )
@@ -127,33 +128,32 @@ export function createWriteForFieldType(
     struct: InterfaceWithFields,
     field: FieldDefinition,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.Block {
     return ts.createBlock([
-        writeFieldBegin(field, identifiers),
-        ...writeValueForField(struct, field.fieldType, fieldName, identifiers),
+        writeFieldBegin(field, state),
+        ...writeValueForField(struct, field.fieldType, fieldName, state),
         writeFieldEnd(),
     ])
 }
 
-function writeValueForIdentifier(
-    id: IResolvedIdentifier,
-    struct: InterfaceWithFields,
-    fieldType: FunctionType,
+export function writeValueForIdentifier(
+    definition: DefinitionType,
+    node: InterfaceWithFields,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Expression> {
-    switch (id.definition.type) {
+    switch (definition.type) {
         case SyntaxType.ConstDefinition:
             throw new TypeError(
                 `Identifier ${
-                    id.definition.name.value
+                    definition.name.value
                 } is a value being used as a type`,
             )
 
         case SyntaxType.ServiceDefinition:
             throw new TypeError(
-                `Service ${id.definition.name.value} is being used as a type`,
+                `Service ${definition.name.value} is being used as a type`,
             )
 
         case SyntaxType.StructDefinition:
@@ -175,14 +175,14 @@ function writeValueForIdentifier(
 
         case SyntaxType.TypedefDefinition:
             return writeValueForType(
-                struct,
-                id.definition.definitionType,
+                node,
+                definition.definitionType,
                 fieldName,
-                identifiers,
+                state,
             )
 
         default:
-            const msg: never = id.definition
+            const msg: never = definition
             throw new Error(`Non-exhaustive match for: ${msg}`)
     }
 }
@@ -191,16 +191,20 @@ export function writeValueForType(
     struct: InterfaceWithFields,
     fieldType: FunctionType,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.Expression> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return writeValueForIdentifier(
-                identifiers[fieldType.value],
+                resolveIdentifierDefinition(
+                    fieldType,
+                    state.currentNamespace,
+                    state.project.namespaces,
+                    state.project.sourceDir,
+                ),
                 struct,
-                fieldType,
                 fieldName,
-                identifiers,
+                state,
             )
 
         /**
@@ -210,22 +214,22 @@ export function writeValueForType(
          */
         case SyntaxType.SetType:
             return [
-                writeSetBegin(fieldType, fieldName, identifiers),
-                forEach(struct, fieldType, fieldName, identifiers),
+                writeSetBegin(fieldType, fieldName, state),
+                forEach(struct, fieldType, fieldName, state),
                 writeSetEnd(),
             ]
 
         case SyntaxType.MapType:
             return [
-                writeMapBegin(fieldType, fieldName, identifiers),
-                forEach(struct, fieldType, fieldName, identifiers),
+                writeMapBegin(fieldType, fieldName, state),
+                forEach(struct, fieldType, fieldName, state),
                 writeMapEnd(),
             ]
 
         case SyntaxType.ListType:
             return [
-                writeListBegin(fieldType, fieldName, identifiers),
-                forEach(struct, fieldType, fieldName, identifiers),
+                writeListBegin(fieldType, fieldName, state),
+                forEach(struct, fieldType, fieldName, state),
                 writeListEnd(),
             ]
 
@@ -269,9 +273,9 @@ function writeValueForField(
     struct: InterfaceWithFields,
     fieldType: FunctionType,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<ts.ExpressionStatement> {
-    return writeValueForType(struct, fieldType, fieldName, identifiers).map(
+    return writeValueForType(struct, fieldType, fieldName, state).map(
         ts.createStatement,
     )
 }
@@ -295,18 +299,18 @@ function forEach(
     struct: InterfaceWithFields,
     fieldType: ContainerType,
     fieldName: ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.CallExpression {
     const value: ts.Identifier = ts.createUniqueName('value')
     const forEachParameters: Array<ts.ParameterDeclaration> = [
         createFunctionParameter(
             value,
-            typeNodeForFieldType(fieldType.valueType),
+            typeNodeForFieldType(fieldType.valueType, state),
         ),
     ]
 
     const forEachStatements: Array<ts.Statement> = [
-        ...writeValueForField(struct, fieldType.valueType, value, identifiers),
+        ...writeValueForField(struct, fieldType.valueType, value, state),
     ]
 
     // If map we have to handle key type as well as value type
@@ -315,12 +319,12 @@ function forEach(
         forEachParameters.push(
             createFunctionParameter(
                 key,
-                typeNodeForFieldType(fieldType.keyType),
+                typeNodeForFieldType(fieldType.keyType, state),
             ),
         )
 
         forEachStatements.unshift(
-            ...writeValueForField(struct, fieldType.keyType, key, identifiers),
+            ...writeValueForField(struct, fieldType.keyType, key, state),
         )
     }
 
@@ -352,11 +356,11 @@ function writeStructEnd(): ts.ExpressionStatement {
 function writeMapBegin(
     fieldType: MapType,
     fieldName: string | ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.CallExpression {
     return createMethodCall('output', 'writeMapBegin', [
-        thriftTypeForFieldType(fieldType.keyType, identifiers),
-        thriftTypeForFieldType(fieldType.valueType, identifiers),
+        thriftTypeForFieldType(fieldType.keyType, state),
+        thriftTypeForFieldType(fieldType.valueType, state),
         propertyAccessForIdentifier(fieldName, 'size'),
     ])
 }
@@ -370,10 +374,10 @@ function writeMapEnd(): ts.CallExpression {
 function writeListBegin(
     fieldType: ListType,
     fieldName: string | ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.CallExpression {
     return createMethodCall('output', 'writeListBegin', [
-        thriftTypeForFieldType(fieldType.valueType, identifiers),
+        thriftTypeForFieldType(fieldType.valueType, state),
         propertyAccessForIdentifier(fieldName, 'length'),
     ])
 }
@@ -387,10 +391,10 @@ function writeListEnd(): ts.CallExpression {
 function writeSetBegin(
     fieldType: SetType,
     fieldName: string | ts.Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.CallExpression {
     return createMethodCall('output', 'writeSetBegin', [
-        thriftTypeForFieldType(fieldType.valueType, identifiers),
+        thriftTypeForFieldType(fieldType.valueType, state),
         propertyAccessForIdentifier(fieldName, 'size'),
     ])
 }
@@ -403,12 +407,12 @@ function writeSetEnd(): ts.CallExpression {
 // output.writeFieldBegin(<field.name>, <field.fieldType>, <field.fieldID>)
 function writeFieldBegin(
     field: FieldDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.ExpressionStatement {
     if (field.fieldID !== null) {
         return createMethodCallStatement('output', 'writeFieldBegin', [
             ts.createLiteral(field.name.value),
-            thriftTypeForFieldType(field.fieldType, identifiers),
+            thriftTypeForFieldType(field.fieldType, state),
             ts.createLiteral(field.fieldID.value),
         ])
     } else {

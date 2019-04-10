@@ -95,7 +95,7 @@ export function renderClass(
     return ts.createClassDeclaration(
         undefined,
         tokens(isExported),
-        classNameForStruct(node),
+        classNameForStruct(node, state),
         [],
         [extendsAbstract(), implementsInterface(node, state)], // heritage
         [
@@ -103,9 +103,9 @@ export function renderClass(
             annotations,
             fieldAnnotations,
             ctor,
-            createStaticReadMethod(node),
+            createStaticReadMethod(node, state),
             createStaticWriteMethod(node, state),
-            createWriteMethod(node),
+            createWriteMethod(node, state),
         ],
     )
 }

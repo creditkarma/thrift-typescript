@@ -36,9 +36,11 @@ import {
     throwProtocolException,
 } from '../utils'
 
-import { IRenderState, IResolvedIdentifier } from '../../../types'
+import { DefinitionType, IRenderState } from '../../../types'
 
 import { READ_METHODS } from './methods'
+
+import { resolveIdentifierDefinition } from '../../../resolver/utils'
 
 import { strictNameForStruct, toolkitName } from './utils'
 
@@ -139,7 +141,7 @@ export function createDecodeMethod(
                 readStructBegin(),
                 whileLoop,
                 readStructEnd(),
-                createReturnForStruct(node),
+                createReturnForStruct(node, state),
             ],
             true,
         ),
@@ -199,7 +201,7 @@ export function createCaseForField(
     const checkType: ts.IfStatement = ts.createIf(
         createEqualsCheck(
             COMMON_IDENTIFIERS.fieldType,
-            thriftTypeForFieldType(field.fieldType, state.identifiers),
+            thriftTypeForFieldType(field.fieldType, state),
         ),
         ts.createBlock(
             [
@@ -239,11 +241,14 @@ export function endReadForField(
     }
 }
 
-export function createReturnForStruct(node: InterfaceWithFields): ts.Statement {
+export function createReturnForStruct(
+    node: InterfaceWithFields,
+    state: IRenderState,
+): ts.Statement {
     if (hasRequiredField(node)) {
         return ts.createIf(
             createCheckForFields(node.fields),
-            ts.createBlock([createReturnValue(node)], true),
+            ts.createBlock([createReturnValue(node, state)], true),
             ts.createBlock(
                 [
                     throwProtocolException(
@@ -255,18 +260,21 @@ export function createReturnForStruct(node: InterfaceWithFields): ts.Statement {
             ),
         )
     } else {
-        return createReturnValue(node)
+        return createReturnValue(node, state)
     }
 }
 
-function createReturnValue(node: InterfaceWithFields): ts.ReturnStatement {
+function createReturnValue(
+    node: InterfaceWithFields,
+    state: IRenderState,
+): ts.ReturnStatement {
     return ts.createReturn(
         ts.createObjectLiteral(
             node.fields.map(
                 (next: FieldDefinition): ts.ObjectLiteralElementLike => {
                     return ts.createPropertyAssignment(
                         next.name.value,
-                        getInitializerForField('_args', next),
+                        getInitializerForField('_args', next, state),
                     )
                 },
             ),
@@ -276,22 +284,23 @@ function createReturnValue(node: InterfaceWithFields): ts.ReturnStatement {
 }
 
 export function readValueForIdentifier(
-    id: IResolvedIdentifier,
+    id: string,
+    definition: DefinitionType,
     fieldType: FunctionType,
     fieldName: ts.Identifier,
     state: IRenderState,
 ): Array<ts.Statement> {
-    switch (id.definition.type) {
+    switch (definition.type) {
         case SyntaxType.ConstDefinition:
             throw new TypeError(
                 `Identifier ${
-                    id.definition.name.value
+                    definition.name.value
                 } is a value being used as a type`,
             )
 
         case SyntaxType.ServiceDefinition:
             throw new TypeError(
-                `Service ${id.definition.name.value} is being used as a type`,
+                `Service ${definition.name.value} is being used as a type`,
             )
 
         case SyntaxType.StructDefinition:
@@ -304,7 +313,7 @@ export function readValueForIdentifier(
                     typeNodeForFieldType(fieldType, state),
                     ts.createCall(
                         ts.createPropertyAccess(
-                            ts.createIdentifier(toolkitName(id.resolvedName)),
+                            ts.createIdentifier(toolkitName(id, state)),
                             COMMON_IDENTIFIERS.decode,
                         ),
                         undefined,
@@ -327,13 +336,13 @@ export function readValueForIdentifier(
 
         case SyntaxType.TypedefDefinition:
             return readValueForFieldType(
-                id.definition.definitionType,
+                definition.definitionType,
                 fieldName,
                 state,
             )
 
         default:
-            const msg: never = id.definition
+            const msg: never = definition
             throw new Error(`Non-exhaustive match for: ${msg}`)
     }
 }
@@ -345,8 +354,16 @@ export function readValueForFieldType(
 ): Array<ts.Statement> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
+            const definition = resolveIdentifierDefinition(
+                fieldType,
+                state.currentNamespace,
+                state.project.namespaces,
+                state.project.sourceDir,
+            )
+
             return readValueForIdentifier(
-                state.identifiers[fieldType.value],
+                fieldType.value,
+                definition,
                 fieldType,
                 fieldName,
                 state,

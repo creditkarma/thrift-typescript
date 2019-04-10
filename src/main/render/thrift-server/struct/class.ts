@@ -86,7 +86,7 @@ export function renderClass(
     return ts.createClassDeclaration(
         undefined,
         tokens(isExported),
-        classNameForStruct(node),
+        classNameForStruct(node, state).replace('__NAMESPACE__', ''),
         [],
         [extendsAbstract(), implementsInterface(node, state)], // heritage
         [
@@ -94,15 +94,16 @@ export function renderClass(
             annotations,
             fieldAnnotations,
             ctor,
-            createStaticReadMethod(node),
+            createStaticReadMethod(node, state),
             createStaticWriteMethod(node, state),
-            createWriteMethod(node),
+            createWriteMethod(node, state),
         ],
     )
 }
 
 export function createWriteMethod(
     node: InterfaceWithFields,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     return ts.createMethod(
         undefined,
@@ -118,7 +119,9 @@ export function createWriteMethod(
                 ts.createReturn(
                     ts.createCall(
                         ts.createPropertyAccess(
-                            ts.createIdentifier(toolkitNameForStruct(node)),
+                            ts.createIdentifier(
+                                toolkitNameForStruct(node, state),
+                            ),
                             COMMON_IDENTIFIERS.encode,
                         ),
                         undefined,
@@ -161,7 +164,9 @@ export function createStaticWriteMethod(
                 ts.createReturn(
                     ts.createCall(
                         ts.createPropertyAccess(
-                            ts.createIdentifier(toolkitNameForStruct(node)),
+                            ts.createIdentifier(
+                                toolkitNameForStruct(node, state),
+                            ),
                             COMMON_IDENTIFIERS.encode,
                         ),
                         undefined,
@@ -176,6 +181,7 @@ export function createStaticWriteMethod(
 
 export function createStaticReadMethod(
     node: InterfaceWithFields,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     return ts.createMethod(
         undefined,
@@ -189,20 +195,20 @@ export function createStaticReadMethod(
         undefined,
         [createInputParameter()],
         ts.createTypeReferenceNode(
-            ts.createIdentifier(classNameForStruct(node)),
+            ts.createIdentifier(classNameForStruct(node, state)),
             undefined,
         ),
         ts.createBlock(
             [
                 ts.createReturn(
                     ts.createNew(
-                        ts.createIdentifier(classNameForStruct(node)),
+                        ts.createIdentifier(classNameForStruct(node, state)),
                         undefined,
                         [
                             ts.createCall(
                                 ts.createPropertyAccess(
                                     ts.createIdentifier(
-                                        toolkitNameForStruct(node),
+                                        toolkitNameForStruct(node, state),
                                     ),
                                     COMMON_IDENTIFIERS.decode,
                                 ),
@@ -266,7 +272,7 @@ export function renderFieldDeclarations(
 ): ts.PropertyDeclaration {
     const defaultValue: ts.Expression | undefined =
         field.defaultValue !== null
-            ? renderValue(field.fieldType, field.defaultValue)
+            ? renderValue(field.fieldType, field.defaultValue, state)
             : undefined
 
     return ts.createProperty(

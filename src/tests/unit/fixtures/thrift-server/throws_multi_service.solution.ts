@@ -243,389 +243,387 @@ export class UnknownException extends thrift.StructLike implements IUnknownExcep
         return UnknownExceptionCodec.encode(this, output);
     }
 }
-export namespace MyService {
-    export const serviceName: string = "MyService";
-    export const annotations: thrift.IThriftAnnotations = {};
-    export const methodAnnotations: thrift.IMethodAnnotations = {
-        peg: {
-            annotations: {},
-            fieldAnnotations: {}
-        }
-    };
-    export const methodNames: Array<string> = ["peg"];
-    export interface IPeg__Args {
-        name: string;
+export const serviceName: string = "MyService";
+export const annotations: thrift.IThriftAnnotations = {};
+export const methodAnnotations: thrift.IMethodAnnotations = {
+    peg: {
+        annotations: {},
+        fieldAnnotations: {}
     }
-    export interface IPeg__ArgsArgs {
-        name: string;
-    }
-    export const Peg__ArgsCodec: thrift.IStructCodec<IPeg__ArgsArgs, IPeg__Args> = {
-        encode(args: IPeg__ArgsArgs, output: thrift.TProtocol): void {
-            const obj = {
-                name: args.name
-            };
-            output.writeStructBegin("Peg__Args");
-            if (obj.name != null) {
-                output.writeFieldBegin("name", thrift.TType.STRING, 1);
-                output.writeString(obj.name);
-                output.writeFieldEnd();
-            }
-            else {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
-            }
-            output.writeFieldStop();
-            output.writeStructEnd();
-            return;
-        },
-        decode(input: thrift.TProtocol): IPeg__Args {
-            let _args: any = {};
-            input.readStructBegin();
-            while (true) {
-                const ret: thrift.IThriftField = input.readFieldBegin();
-                const fieldType: thrift.TType = ret.fieldType;
-                const fieldId: number = ret.fieldId;
-                if (fieldType === thrift.TType.STOP) {
-                    break;
-                }
-                switch (fieldId) {
-                    case 1:
-                        if (fieldType === thrift.TType.STRING) {
-                            const value_9: string = input.readString();
-                            _args.name = value_9;
-                        }
-                        else {
-                            input.skip(fieldType);
-                        }
-                        break;
-                    default: {
-                        input.skip(fieldType);
-                    }
-                }
-                input.readFieldEnd();
-            }
-            input.readStructEnd();
-            if (_args.name !== undefined) {
-                return {
-                    name: _args.name
-                };
-            }
-            else {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read Peg__Args from input");
-            }
+};
+export const methodNames: Array<string> = ["peg"];
+export interface IPeg__Args {
+    name: string;
+}
+export interface IPeg__ArgsArgs {
+    name: string;
+}
+export const Peg__ArgsCodec: thrift.IStructCodec<IPeg__ArgsArgs, IPeg__Args> = {
+    encode(args: IPeg__ArgsArgs, output: thrift.TProtocol): void {
+        const obj = {
+            name: args.name
+        };
+        output.writeStructBegin("Peg__Args");
+        if (obj.name != null) {
+            output.writeFieldBegin("name", thrift.TType.STRING, 1);
+            output.writeString(obj.name);
+            output.writeFieldEnd();
         }
-    };
-    export class Peg__Args extends thrift.StructLike implements IPeg__Args {
-        public name: string;
-        public readonly _annotations: thrift.IThriftAnnotations = {};
-        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
-        constructor(args: IPeg__ArgsArgs) {
-            super();
-            if (args.name != null) {
-                const value_10: string = args.name;
-                this.name = value_10;
-            }
-            else {
-                throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
-            }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
         }
-        public static read(input: thrift.TProtocol): Peg__Args {
-            return new Peg__Args(Peg__ArgsCodec.decode(input));
-        }
-        public static write(args: IPeg__ArgsArgs, output: thrift.TProtocol): void {
-            return Peg__ArgsCodec.encode(args, output);
-        }
-        public write(output: thrift.TProtocol): void {
-            return Peg__ArgsCodec.encode(this, output);
-        }
-    }
-    export interface IPeg__Result {
-        success?: string;
-        exp?: IServiceException;
-        authExp?: IAuthException;
-        unknownExp?: IUnknownException;
-    }
-    export interface IPeg__ResultArgs {
-        success?: string;
-        exp?: IServiceExceptionArgs;
-        authExp?: IAuthExceptionArgs;
-        unknownExp?: IUnknownExceptionArgs;
-    }
-    export const Peg__ResultCodec: thrift.IStructCodec<IPeg__ResultArgs, IPeg__Result> = {
-        encode(args: IPeg__ResultArgs, output: thrift.TProtocol): void {
-            const obj = {
-                success: args.success,
-                exp: args.exp,
-                authExp: args.authExp,
-                unknownExp: args.unknownExp
-            };
-            output.writeStructBegin("Peg__Result");
-            if (obj.success != null) {
-                output.writeFieldBegin("success", thrift.TType.STRING, 0);
-                output.writeString(obj.success);
-                output.writeFieldEnd();
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    },
+    decode(input: thrift.TProtocol): IPeg__Args {
+        let _args: any = {};
+        input.readStructBegin();
+        while (true) {
+            const ret: thrift.IThriftField = input.readFieldBegin();
+            const fieldType: thrift.TType = ret.fieldType;
+            const fieldId: number = ret.fieldId;
+            if (fieldType === thrift.TType.STOP) {
+                break;
             }
-            if (obj.exp != null) {
-                output.writeFieldBegin("exp", thrift.TType.STRUCT, 1);
-                ServiceExceptionCodec.encode(obj.exp, output);
-                output.writeFieldEnd();
-            }
-            if (obj.authExp != null) {
-                output.writeFieldBegin("authExp", thrift.TType.STRUCT, 2);
-                AuthExceptionCodec.encode(obj.authExp, output);
-                output.writeFieldEnd();
-            }
-            if (obj.unknownExp != null) {
-                output.writeFieldBegin("unknownExp", thrift.TType.STRUCT, 3);
-                UnknownExceptionCodec.encode(obj.unknownExp, output);
-                output.writeFieldEnd();
-            }
-            output.writeFieldStop();
-            output.writeStructEnd();
-            return;
-        },
-        decode(input: thrift.TProtocol): IPeg__Result {
-            let _args: any = {};
-            input.readStructBegin();
-            while (true) {
-                const ret: thrift.IThriftField = input.readFieldBegin();
-                const fieldType: thrift.TType = ret.fieldType;
-                const fieldId: number = ret.fieldId;
-                if (fieldType === thrift.TType.STOP) {
-                    break;
-                }
-                switch (fieldId) {
-                    case 0:
-                        if (fieldType === thrift.TType.STRING) {
-                            const value_11: string = input.readString();
-                            _args.success = value_11;
-                        }
-                        else {
-                            input.skip(fieldType);
-                        }
-                        break;
-                    case 1:
-                        if (fieldType === thrift.TType.STRUCT) {
-                            const value_12: IServiceException = ServiceExceptionCodec.decode(input);
-                            _args.exp = value_12;
-                        }
-                        else {
-                            input.skip(fieldType);
-                        }
-                        break;
-                    case 2:
-                        if (fieldType === thrift.TType.STRUCT) {
-                            const value_13: IAuthException = AuthExceptionCodec.decode(input);
-                            _args.authExp = value_13;
-                        }
-                        else {
-                            input.skip(fieldType);
-                        }
-                        break;
-                    case 3:
-                        if (fieldType === thrift.TType.STRUCT) {
-                            const value_14: IUnknownException = UnknownExceptionCodec.decode(input);
-                            _args.unknownExp = value_14;
-                        }
-                        else {
-                            input.skip(fieldType);
-                        }
-                        break;
-                    default: {
-                        input.skip(fieldType);
-                    }
-                }
-                input.readFieldEnd();
-            }
-            input.readStructEnd();
-            return {
-                success: _args.success,
-                exp: _args.exp,
-                authExp: _args.authExp,
-                unknownExp: _args.unknownExp
-            };
-        }
-    };
-    export class Peg__Result extends thrift.StructLike implements IPeg__Result {
-        public success?: string;
-        public exp?: IServiceException;
-        public authExp?: IAuthException;
-        public unknownExp?: IUnknownException;
-        public readonly _annotations: thrift.IThriftAnnotations = {};
-        public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
-        constructor(args: IPeg__ResultArgs = {}) {
-            super();
-            if (args.success != null) {
-                const value_15: string = args.success;
-                this.success = value_15;
-            }
-            if (args.exp != null) {
-                const value_16: IServiceException = new ServiceException(args.exp);
-                this.exp = value_16;
-            }
-            if (args.authExp != null) {
-                const value_17: IAuthException = new AuthException(args.authExp);
-                this.authExp = value_17;
-            }
-            if (args.unknownExp != null) {
-                const value_18: IUnknownException = new UnknownException(args.unknownExp);
-                this.unknownExp = value_18;
-            }
-        }
-        public static read(input: thrift.TProtocol): Peg__Result {
-            return new Peg__Result(Peg__ResultCodec.decode(input));
-        }
-        public static write(args: IPeg__ResultArgs, output: thrift.TProtocol): void {
-            return Peg__ResultCodec.encode(args, output);
-        }
-        public write(output: thrift.TProtocol): void {
-            return Peg__ResultCodec.encode(this, output);
-        }
-    }
-    export class Client<Context = any> extends thrift.ThriftClient<Context> {
-        public static readonly serviceName: string = serviceName;
-        public static readonly annotations: thrift.IThriftAnnotations = annotations;
-        public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
-        public static readonly methodNames: Array<string> = methodNames;
-        public readonly _serviceName: string = serviceName;
-        public readonly _annotations: thrift.IThriftAnnotations = annotations;
-        public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
-        public readonly _methodNames: Array<string> = methodNames;
-        public peg(name: string, context?: Context): Promise<string> {
-            const writer: thrift.TTransport = new this.transport();
-            const output: thrift.TProtocol = new this.protocol(writer);
-            output.writeMessageBegin("peg", thrift.MessageType.CALL, this.incrementRequestId());
-            const args: IPeg__ArgsArgs = { name };
-            Peg__ArgsCodec.encode(args, output);
-            output.writeMessageEnd();
-            return this.connection.send(writer.flush(), context).then((data: Buffer) => {
-                const reader: thrift.TTransport = this.transport.receiver(data);
-                const input: thrift.TProtocol = new this.protocol(reader);
-                try {
-                    const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
-                    if (fieldName === "peg") {
-                        if (messageType === thrift.MessageType.EXCEPTION) {
-                            const err: thrift.TApplicationException = thrift.TApplicationExceptionCodec.decode(input);
-                            input.readMessageEnd();
-                            return Promise.reject(err);
-                        }
-                        else {
-                            const result: IPeg__Result = Peg__ResultCodec.decode(input);
-                            input.readMessageEnd();
-                            if (result.exp != null) {
-                                return Promise.reject(result.exp);
-                            }
-                            else if (result.authExp != null) {
-                                return Promise.reject(result.authExp);
-                            }
-                            else if (result.unknownExp != null) {
-                                return Promise.reject(result.unknownExp);
-                            }
-                            else if (result.success != null) {
-                                return Promise.resolve(result.success);
-                            }
-                            else {
-                                return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "peg failed: unknown result"));
-                            }
-                        }
+            switch (fieldId) {
+                case 1:
+                    if (fieldType === thrift.TType.STRING) {
+                        const value_9: string = input.readString();
+                        _args.name = value_9;
                     }
                     else {
-                        return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.WRONG_METHOD_NAME, "Received a response to an unknown RPC function: " + fieldName));
+                        input.skip(fieldType);
                     }
+                    break;
+                default: {
+                    input.skip(fieldType);
                 }
-                catch (err) {
-                    return Promise.reject(err);
-                }
-            });
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        if (_args.name !== undefined) {
+            return {
+                name: _args.name
+            };
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read Peg__Args from input");
         }
     }
-    export interface IHandler<Context = any> {
-        peg(name: string, context?: Context): string | Promise<string>;
-    }
-    export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
-        protected readonly _handler: IHandler<Context>;
-        public static readonly serviceName: string = serviceName;
-        public static readonly annotations: thrift.IThriftAnnotations = annotations;
-        public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
-        public static readonly methodNames: Array<string> = methodNames;
-        public readonly _serviceName: string = serviceName;
-        public readonly _annotations: thrift.IThriftAnnotations = annotations;
-        public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
-        public readonly _methodNames: Array<string> = methodNames;
-        constructor(handler: IHandler<Context>) {
-            super();
-            this._handler = handler;
+};
+export class Peg__Args extends thrift.StructLike implements IPeg__Args {
+    public name: string;
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
+    constructor(args: IPeg__ArgsArgs) {
+        super();
+        if (args.name != null) {
+            const value_10: string = args.name;
+            this.name = value_10;
         }
-        public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
-            return new Promise<Buffer>((resolve, reject): void => {
-                const metadata: thrift.IThriftMessage = input.readMessageBegin();
-                const fieldName: string = metadata.fieldName;
-                const requestId: number = metadata.requestId;
-                const methodName: string = "process_" + fieldName;
-                switch (methodName) {
-                    case "process_peg": {
-                        resolve(this.process_peg(requestId, input, output, context));
-                        break;
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
+        }
+    }
+    public static read(input: thrift.TProtocol): Peg__Args {
+        return new Peg__Args(Peg__ArgsCodec.decode(input));
+    }
+    public static write(args: IPeg__ArgsArgs, output: thrift.TProtocol): void {
+        return Peg__ArgsCodec.encode(args, output);
+    }
+    public write(output: thrift.TProtocol): void {
+        return Peg__ArgsCodec.encode(this, output);
+    }
+}
+export interface IPeg__Result {
+    success?: string;
+    exp?: IServiceException;
+    authExp?: IAuthException;
+    unknownExp?: IUnknownException;
+}
+export interface IPeg__ResultArgs {
+    success?: string;
+    exp?: IServiceExceptionArgs;
+    authExp?: IAuthExceptionArgs;
+    unknownExp?: IUnknownExceptionArgs;
+}
+export const Peg__ResultCodec: thrift.IStructCodec<IPeg__ResultArgs, IPeg__Result> = {
+    encode(args: IPeg__ResultArgs, output: thrift.TProtocol): void {
+        const obj = {
+            success: args.success,
+            exp: args.exp,
+            authExp: args.authExp,
+            unknownExp: args.unknownExp
+        };
+        output.writeStructBegin("Peg__Result");
+        if (obj.success != null) {
+            output.writeFieldBegin("success", thrift.TType.STRING, 0);
+            output.writeString(obj.success);
+            output.writeFieldEnd();
+        }
+        if (obj.exp != null) {
+            output.writeFieldBegin("exp", thrift.TType.STRUCT, 1);
+            ServiceExceptionCodec.encode(obj.exp, output);
+            output.writeFieldEnd();
+        }
+        if (obj.authExp != null) {
+            output.writeFieldBegin("authExp", thrift.TType.STRUCT, 2);
+            AuthExceptionCodec.encode(obj.authExp, output);
+            output.writeFieldEnd();
+        }
+        if (obj.unknownExp != null) {
+            output.writeFieldBegin("unknownExp", thrift.TType.STRUCT, 3);
+            UnknownExceptionCodec.encode(obj.unknownExp, output);
+            output.writeFieldEnd();
+        }
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    },
+    decode(input: thrift.TProtocol): IPeg__Result {
+        let _args: any = {};
+        input.readStructBegin();
+        while (true) {
+            const ret: thrift.IThriftField = input.readFieldBegin();
+            const fieldType: thrift.TType = ret.fieldType;
+            const fieldId: number = ret.fieldId;
+            if (fieldType === thrift.TType.STOP) {
+                break;
+            }
+            switch (fieldId) {
+                case 0:
+                    if (fieldType === thrift.TType.STRING) {
+                        const value_11: string = input.readString();
+                        _args.success = value_11;
                     }
-                    default: {
-                        input.skip(thrift.TType.STRUCT);
+                    else {
+                        input.skip(fieldType);
+                    }
+                    break;
+                case 1:
+                    if (fieldType === thrift.TType.STRUCT) {
+                        const value_12: IServiceException = ServiceExceptionCodec.decode(input);
+                        _args.exp = value_12;
+                    }
+                    else {
+                        input.skip(fieldType);
+                    }
+                    break;
+                case 2:
+                    if (fieldType === thrift.TType.STRUCT) {
+                        const value_13: IAuthException = AuthExceptionCodec.decode(input);
+                        _args.authExp = value_13;
+                    }
+                    else {
+                        input.skip(fieldType);
+                    }
+                    break;
+                case 3:
+                    if (fieldType === thrift.TType.STRUCT) {
+                        const value_14: IUnknownException = UnknownExceptionCodec.decode(input);
+                        _args.unknownExp = value_14;
+                    }
+                    else {
+                        input.skip(fieldType);
+                    }
+                    break;
+                default: {
+                    input.skip(fieldType);
+                }
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        return {
+            success: _args.success,
+            exp: _args.exp,
+            authExp: _args.authExp,
+            unknownExp: _args.unknownExp
+        };
+    }
+};
+export class Peg__Result extends thrift.StructLike implements IPeg__Result {
+    public success?: string;
+    public exp?: IServiceException;
+    public authExp?: IAuthException;
+    public unknownExp?: IUnknownException;
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
+    constructor(args: IPeg__ResultArgs = {}) {
+        super();
+        if (args.success != null) {
+            const value_15: string = args.success;
+            this.success = value_15;
+        }
+        if (args.exp != null) {
+            const value_16: IServiceException = new ServiceException(args.exp);
+            this.exp = value_16;
+        }
+        if (args.authExp != null) {
+            const value_17: IAuthException = new AuthException(args.authExp);
+            this.authExp = value_17;
+        }
+        if (args.unknownExp != null) {
+            const value_18: IUnknownException = new UnknownException(args.unknownExp);
+            this.unknownExp = value_18;
+        }
+    }
+    public static read(input: thrift.TProtocol): Peg__Result {
+        return new Peg__Result(Peg__ResultCodec.decode(input));
+    }
+    public static write(args: IPeg__ResultArgs, output: thrift.TProtocol): void {
+        return Peg__ResultCodec.encode(args, output);
+    }
+    public write(output: thrift.TProtocol): void {
+        return Peg__ResultCodec.encode(this, output);
+    }
+}
+export class Client<Context = any> extends thrift.ThriftClient<Context> {
+    public static readonly serviceName: string = serviceName;
+    public static readonly annotations: thrift.IThriftAnnotations = annotations;
+    public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
+    public static readonly methodNames: Array<string> = methodNames;
+    public readonly _serviceName: string = serviceName;
+    public readonly _annotations: thrift.IThriftAnnotations = annotations;
+    public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
+    public readonly _methodNames: Array<string> = methodNames;
+    public peg(name: string, context?: Context): Promise<string> {
+        const writer: thrift.TTransport = new this.transport();
+        const output: thrift.TProtocol = new this.protocol(writer);
+        output.writeMessageBegin("peg", thrift.MessageType.CALL, this.incrementRequestId());
+        const args: IPeg__ArgsArgs = { name };
+        Peg__ArgsCodec.encode(args, output);
+        output.writeMessageEnd();
+        return this.connection.send(writer.flush(), context).then((data: Buffer) => {
+            const reader: thrift.TTransport = this.transport.receiver(data);
+            const input: thrift.TProtocol = new this.protocol(reader);
+            try {
+                const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
+                if (fieldName === "peg") {
+                    if (messageType === thrift.MessageType.EXCEPTION) {
+                        const err: thrift.TApplicationException = thrift.TApplicationExceptionCodec.decode(input);
                         input.readMessageEnd();
-                        const errMessage = "Unknown function " + fieldName;
-                        const err = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN_METHOD, errMessage);
-                        output.writeMessageBegin(fieldName, thrift.MessageType.EXCEPTION, requestId);
-                        thrift.TApplicationExceptionCodec.encode(err, output);
-                        output.writeMessageEnd();
-                        resolve(output.flush());
-                        break;
+                        return Promise.reject(err);
+                    }
+                    else {
+                        const result: IPeg__Result = Peg__ResultCodec.decode(input);
+                        input.readMessageEnd();
+                        if (result.exp != null) {
+                            return Promise.reject(result.exp);
+                        }
+                        else if (result.authExp != null) {
+                            return Promise.reject(result.authExp);
+                        }
+                        else if (result.unknownExp != null) {
+                            return Promise.reject(result.unknownExp);
+                        }
+                        else if (result.success != null) {
+                            return Promise.resolve(result.success);
+                        }
+                        else {
+                            return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "peg failed: unknown result"));
+                        }
                     }
                 }
-            });
-        }
-        public process_peg(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
-            return new Promise<string>((resolve, reject): void => {
-                try {
-                    const args: IPeg__Args = Peg__ArgsCodec.decode(input);
+                else {
+                    return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.WRONG_METHOD_NAME, "Received a response to an unknown RPC function: " + fieldName));
+                }
+            }
+            catch (err) {
+                return Promise.reject(err);
+            }
+        });
+    }
+}
+export interface IHandler<Context = any> {
+    peg(name: string, context?: Context): string | Promise<string>;
+}
+export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
+    protected readonly _handler: IHandler<Context>;
+    public static readonly serviceName: string = serviceName;
+    public static readonly annotations: thrift.IThriftAnnotations = annotations;
+    public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
+    public static readonly methodNames: Array<string> = methodNames;
+    public readonly _serviceName: string = serviceName;
+    public readonly _annotations: thrift.IThriftAnnotations = annotations;
+    public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
+    public readonly _methodNames: Array<string> = methodNames;
+    constructor(handler: IHandler<Context>) {
+        super();
+        this._handler = handler;
+    }
+    public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+        return new Promise<Buffer>((resolve, reject): void => {
+            const metadata: thrift.IThriftMessage = input.readMessageBegin();
+            const fieldName: string = metadata.fieldName;
+            const requestId: number = metadata.requestId;
+            const methodName: string = "process_" + fieldName;
+            switch (methodName) {
+                case "process_peg": {
+                    resolve(this.process_peg(requestId, input, output, context));
+                    break;
+                }
+                default: {
+                    input.skip(thrift.TType.STRUCT);
                     input.readMessageEnd();
-                    resolve(this._handler.peg(args.name, context));
+                    const errMessage = "Unknown function " + fieldName;
+                    const err = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN_METHOD, errMessage);
+                    output.writeMessageBegin(fieldName, thrift.MessageType.EXCEPTION, requestId);
+                    thrift.TApplicationExceptionCodec.encode(err, output);
+                    output.writeMessageEnd();
+                    resolve(output.flush());
+                    break;
                 }
-                catch (err) {
-                    reject(err);
-                }
-            }).then((data: string): Buffer => {
-                const result: IPeg__ResultArgs = { success: data };
+            }
+        });
+    }
+    public process_peg(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+        return new Promise<string>((resolve, reject): void => {
+            try {
+                const args: IPeg__Args = Peg__ArgsCodec.decode(input);
+                input.readMessageEnd();
+                resolve(this._handler.peg(args.name, context));
+            }
+            catch (err) {
+                reject(err);
+            }
+        }).then((data: string): Buffer => {
+            const result: IPeg__ResultArgs = { success: data };
+            output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
+            Peg__ResultCodec.encode(result, output);
+            output.writeMessageEnd();
+            return output.flush();
+        }).catch((err: Error): Buffer => {
+            if (err instanceof ServiceException) {
+                const result: IPeg__ResultArgs = { exp: err };
                 output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
                 Peg__ResultCodec.encode(result, output);
                 output.writeMessageEnd();
                 return output.flush();
-            }).catch((err: Error): Buffer => {
-                if (err instanceof ServiceException) {
-                    const result: IPeg__ResultArgs = { exp: err };
-                    output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
-                    Peg__ResultCodec.encode(result, output);
-                    output.writeMessageEnd();
-                    return output.flush();
-                }
-                else if (err instanceof AuthException) {
-                    const result: IPeg__ResultArgs = { authExp: err };
-                    output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
-                    Peg__ResultCodec.encode(result, output);
-                    output.writeMessageEnd();
-                    return output.flush();
-                }
-                else if (err instanceof UnknownException) {
-                    const result: IPeg__ResultArgs = { unknownExp: err };
-                    output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
-                    Peg__ResultCodec.encode(result, output);
-                    output.writeMessageEnd();
-                    return output.flush();
-                }
-                else {
-                    const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
-                    output.writeMessageBegin("peg", thrift.MessageType.EXCEPTION, requestId);
-                    thrift.TApplicationExceptionCodec.encode(result, output);
-                    output.writeMessageEnd();
-                    return output.flush();
-                }
-            });
-        }
+            }
+            else if (err instanceof AuthException) {
+                const result: IPeg__ResultArgs = { authExp: err };
+                output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
+                Peg__ResultCodec.encode(result, output);
+                output.writeMessageEnd();
+                return output.flush();
+            }
+            else if (err instanceof UnknownException) {
+                const result: IPeg__ResultArgs = { unknownExp: err };
+                output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
+                Peg__ResultCodec.encode(result, output);
+                output.writeMessageEnd();
+                return output.flush();
+            }
+            else {
+                const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+                output.writeMessageBegin("peg", thrift.MessageType.EXCEPTION, requestId);
+                thrift.TApplicationExceptionCodec.encode(result, output);
+                output.writeMessageEnd();
+                return output.flush();
+            }
+        });
     }
 }

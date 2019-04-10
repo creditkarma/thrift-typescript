@@ -16,15 +16,20 @@ import {
 
 import { COMMON_IDENTIFIERS } from './identifiers'
 
+import { resolveIdentifierName } from '../../resolver/utils'
+import { IRenderState } from '../../types'
 import { propertyAccessForIdentifier } from './utils'
 
 export function renderValue(
     fieldType: FunctionType,
     node: ConstValue,
+    state: IRenderState,
 ): ts.Expression {
     switch (node.type) {
         case SyntaxType.Identifier:
-            return ts.createIdentifier(node.value)
+            return ts.createIdentifier(
+                resolveIdentifierName(node.value, state).fullName,
+            )
 
         case SyntaxType.IntConstant:
             return renderIntConstant(node, fieldType)
@@ -44,16 +49,16 @@ export function renderValue(
 
         case SyntaxType.ConstList:
             if (fieldType.type === SyntaxType.ListType) {
-                return renderList(fieldType, node)
+                return renderList(fieldType, node, state)
             } else if (fieldType.type === SyntaxType.SetType) {
-                return renderSet(fieldType, node)
+                return renderSet(fieldType, node, state)
             } else {
                 throw new TypeError(`Type list | set expected`)
             }
 
         case SyntaxType.ConstMap:
             if (fieldType.type === SyntaxType.MapType) {
-                return renderMap(fieldType, node)
+                return renderMap(fieldType, node, state)
             } else {
                 throw new TypeError(`Type map expected`)
             }
@@ -111,11 +116,15 @@ export function renderDoubleConstant(node: DoubleConstant): ts.Expression {
     }
 }
 
-function renderMap(fieldType: MapType, node: ConstMap): ts.NewExpression {
+function renderMap(
+    fieldType: MapType,
+    node: ConstMap,
+    state: IRenderState,
+): ts.NewExpression {
     const values = node.properties.map(({ name, initializer }) => {
         return ts.createArrayLiteral([
-            renderValue(fieldType.keyType, name),
-            renderValue(fieldType.valueType, initializer),
+            renderValue(fieldType.keyType, name, state),
+            renderValue(fieldType.valueType, initializer, state),
         ])
     })
 
@@ -124,10 +133,14 @@ function renderMap(fieldType: MapType, node: ConstMap): ts.NewExpression {
     ])
 }
 
-function renderSet(fieldType: SetType, node: ConstList): ts.NewExpression {
+function renderSet(
+    fieldType: SetType,
+    node: ConstList,
+    state: IRenderState,
+): ts.NewExpression {
     const values: Array<ts.Expression> = node.elements.map(
         (value: ConstValue) => {
-            return renderValue(fieldType.valueType, value)
+            return renderValue(fieldType.valueType, value, state)
         },
     )
 
@@ -139,10 +152,11 @@ function renderSet(fieldType: SetType, node: ConstList): ts.NewExpression {
 function renderList(
     fieldType: ListType,
     node: ConstList,
+    state: IRenderState,
 ): ts.ArrayLiteralExpression {
     const values: Array<ts.Expression> = node.elements.map(
         (value: ConstValue) => {
-            return renderValue(fieldType.valueType, value)
+            return renderValue(fieldType.valueType, value, state)
         },
     )
 

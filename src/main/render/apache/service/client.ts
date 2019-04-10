@@ -40,7 +40,12 @@ import {
     typeNodeForFieldType,
 } from '../types'
 
-export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
+import { IRenderState } from '../../../types'
+
+export function renderClient(
+    node: ServiceDefinition,
+    state: IRenderState,
+): ts.ClassDeclaration {
     // public _seqid: number;
     const seqid: ts.PropertyDeclaration = createPublicProperty(
         '_seqid',
@@ -127,11 +132,13 @@ export function renderClient(node: ServiceDefinition): ts.ClassDeclaration {
     )
 
     const baseMethods: Array<ts.MethodDeclaration> = node.functions.map(
-        createBaseMethodForDefinition,
+        (next: FunctionDefinition) => {
+            return createBaseMethodForDefinition(next, state)
+        },
     )
     const sendMethods: Array<ts.MethodDeclaration> = node.functions.map(
         (next) => {
-            return createSendMethodForDefinition(node, next)
+            return createSendMethodForDefinition(next, state)
         },
     )
     const recvMethods: Array<ts.MethodDeclaration> = node.functions.map(
@@ -207,6 +214,7 @@ function createSuperCall(node: ServiceDefinition): Array<ts.Statement> {
 // }
 function createBaseMethodForDefinition(
     def: FunctionDefinition,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     return ts.createMethod(
         undefined, // decorators
@@ -215,9 +223,11 @@ function createBaseMethodForDefinition(
         def.name.value, // name
         undefined, // question token
         undefined, // type parameters
-        def.fields.map(createParametersForField), // parameters
+        def.fields.map((field: FieldDefinition) => {
+            return createParametersForField(field, state)
+        }), // parameters
         ts.createTypeReferenceNode('Promise', [
-            typeNodeForFieldType(def.returnType),
+            typeNodeForFieldType(def.returnType, state),
         ]), // return type
         ts.createBlock(
             [
@@ -234,7 +244,7 @@ function createBaseMethodForDefinition(
                 // return new Promise<type>((resolve, reject) => { ... })
                 ts.createReturn(
                     createPromise(
-                        typeNodeForFieldType(def.returnType),
+                        typeNodeForFieldType(def.returnType, state),
                         createVoidType(),
                         [
                             // this._reqs[this.seqid()] = (error, result) =>
@@ -345,8 +355,8 @@ function createBaseMethodForDefinition(
 //     return this.output.flush()
 // }
 function createSendMethodForDefinition(
-    service: ServiceDefinition,
     def: FunctionDefinition,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     return ts.createMethod(
         undefined, // decorators
@@ -360,13 +370,13 @@ function createSendMethodForDefinition(
                 const returnType: ts.TypeNode =
                     field.requiredness === 'optional'
                         ? ts.createUnionTypeNode([
-                              typeNodeForFieldType(field.fieldType),
+                              typeNodeForFieldType(field.fieldType, state),
                               ts.createTypeReferenceNode(
                                   ts.createIdentifier('undefined'),
                                   undefined,
                               ),
                           ])
-                        : typeNodeForFieldType(field.fieldType)
+                        : typeNodeForFieldType(field.fieldType, state)
 
                 return createFunctionParameter(
                     ts.createIdentifier(field.name.value),
@@ -701,15 +711,16 @@ function createResultHandler(def: FunctionDefinition): ts.Statement {
 
 function createParametersForField(
     field: FieldDefinition,
+    state: IRenderState,
 ): ts.ParameterDeclaration {
     const defaultValue =
         field.defaultValue !== null
-            ? renderValue(field.fieldType, field.defaultValue)
+            ? renderValue(field.fieldType, field.defaultValue, state)
             : undefined
 
     return createFunctionParameter(
         field.name.value,
-        typeNodeForFieldType(field.fieldType),
+        typeNodeForFieldType(field.fieldType, state),
         defaultValue,
         field.requiredness === 'optional',
     )

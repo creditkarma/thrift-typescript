@@ -12,7 +12,7 @@
     ],
     "scripts": {
         "clean": "rimraf ./coverage ./dist ./**/codegen",
-        "clean-all": "npm run clean && rimraf ./node_modules package-lock.json",
+        "clean:all": "npm run clean && rimraf ./node_modules package-lock.json",
         "codegen": "node ./dist/main/bin/index.js --sourceDir ./src/tests/integration/thrift --outDir ./src/tests/integration/apache/codegen",
         "prebuild": "npm run clean && npm run lint && npm run format",
         "build": "npm run build:only",

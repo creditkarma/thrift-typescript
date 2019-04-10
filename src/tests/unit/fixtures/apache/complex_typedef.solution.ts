@@ -1,6 +1,6 @@
 export enum MyEnum {
-    ONE,
-    TWO
+    ONE = 0,
+    TWO = 1
 }
 export type MyInt = number;
 export import AnotherName = MyEnum;

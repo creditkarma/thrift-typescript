@@ -6,6 +6,7 @@ import {
     ExceptionDefinition,
     ServiceDefinition,
     StructDefinition,
+    ThriftStatement,
     TypedefDefinition,
     UnionDefinition,
 } from '@creditkarma/thrift-parser'
@@ -22,40 +23,36 @@ import {
     renderResultStruct,
 } from './service'
 
-import { fileUsesInt64, fileUsesThrift } from '../shared/includes'
-import { renderTypeDef as _renderTypeDef } from '../shared/typedef'
-import { renderConst as _renderConst } from './const'
-import { renderEnum as _renderEnum } from './enum'
 import {
     renderIncludes as _renderIncludes,
-    renderInt64Import,
     renderThriftImports,
-} from './includes'
+    statementsUseInt64,
+    statementsUseThrift,
+} from '../shared/includes'
+import { renderConst as _renderConst } from './const'
+import { renderEnum as _renderEnum } from './enum'
+import { renderInt64Import } from './includes'
 import { renderStruct as _renderStruct } from './struct'
+import { renderTypeDef as _renderTypeDef } from './typedef'
 import { renderUnion as _renderUnion } from './union'
 
-import {
-    IMakeOptions,
-    INamespaceFile,
-    IRenderer,
-    IRenderState,
-} from '../../types'
+import { IRenderer, IRenderState } from '../../types'
+import { renderIndex } from '../shared'
 import { typeNodeForFieldType } from './types'
 
-export function renderIncludes(
-    currentPath: string,
-    resolvedFile: INamespaceFile,
-    options: IMakeOptions,
+export function renderImports(
+    statements: Array<ThriftStatement>,
+    state: IRenderState,
 ): Array<ts.Statement> {
     const includes: Array<ts.Statement> = [
-        ..._renderIncludes(currentPath, resolvedFile.includes),
+        ..._renderIncludes(statements, state),
     ]
 
-    if (fileUsesThrift(resolvedFile)) {
-        includes.unshift(renderThriftImports(options.library))
+    if (statementsUseThrift(statements)) {
+        includes.unshift(renderThriftImports(state.options.library))
     }
 
-    if (fileUsesInt64(resolvedFile)) {
+    if (statementsUseInt64(statements)) {
         includes.unshift(renderInt64Import())
     }
 
@@ -66,14 +63,14 @@ export function renderConst(
     statement: ConstDefinition,
     state: IRenderState,
 ): Array<ts.Statement> {
-    return [_renderConst(statement, typeNodeForFieldType)]
+    return [_renderConst(statement, typeNodeForFieldType, state)]
 }
 
 export function renderTypeDef(
     statement: TypedefDefinition,
     state: IRenderState,
 ): Array<ts.Statement> {
-    return _renderTypeDef(statement, typeNodeForFieldType, state.identifiers)
+    return _renderTypeDef(statement, typeNodeForFieldType, state)
 }
 
 export function renderEnum(
@@ -87,10 +84,7 @@ export function renderStruct(
     statement: StructDefinition,
     state: IRenderState,
 ): Array<ts.Statement> {
-    return [
-        renderInterface(statement),
-        _renderStruct(statement, state.identifiers),
-    ]
+    return [renderInterface(statement, state), _renderStruct(statement, state)]
 }
 
 export function renderException(
@@ -98,8 +92,8 @@ export function renderException(
     state: IRenderState,
 ): Array<ts.Statement> {
     return [
-        renderInterface(statement),
-        _renderException(statement, state.identifiers),
+        renderInterface(statement, state),
+        _renderException(statement, state),
     ]
 }
 
@@ -107,10 +101,7 @@ export function renderUnion(
     statement: UnionDefinition,
     state: IRenderState,
 ): Array<ts.Statement> {
-    return [
-        renderInterface(statement),
-        _renderUnion(statement, state.identifiers),
-    ]
+    return [renderInterface(statement, state), _renderUnion(statement, state)]
 }
 
 export function renderService(
@@ -118,24 +109,16 @@ export function renderService(
     state: IRenderState,
 ): Array<ts.Statement> {
     return [
-        ts.createModuleDeclaration(
-            undefined,
-            [ts.createToken(ts.SyntaxKind.ExportKeyword)],
-            ts.createIdentifier(statement.name.value),
-            ts.createModuleBlock([
-                ...renderArgsStruct(statement, state.identifiers),
-                ...renderResultStruct(statement, state.identifiers),
-                renderClient(statement),
-                ...renderHandlerInterface(statement),
-                renderProcessor(statement, state.identifiers),
-            ]),
-            ts.NodeFlags.Namespace,
-        ),
+        ...renderArgsStruct(statement, state),
+        ...renderResultStruct(statement, state),
+        renderClient(statement, state),
+        ...renderHandlerInterface(statement, state),
+        renderProcessor(statement, state),
     ]
 }
 
 export const renderer: IRenderer = {
-    renderIncludes,
+    renderImports,
     renderConst,
     renderTypeDef,
     renderEnum,
@@ -143,4 +126,5 @@ export const renderer: IRenderer = {
     renderException,
     renderUnion,
     renderService,
+    renderIndex,
 }

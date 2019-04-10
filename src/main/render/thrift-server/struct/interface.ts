@@ -34,7 +34,7 @@ function strictInterface(
     return ts.createInterfaceDeclaration(
         undefined,
         tokens(isExported),
-        ts.createIdentifier(strictNameForStruct(node, state)),
+        strictNameForStruct(node, state),
         [],
         [],
         signatures,
@@ -59,7 +59,7 @@ function looseInterface(
     return ts.createInterfaceDeclaration(
         undefined,
         tokens(isExported),
-        ts.createIdentifier(looseNameForStruct(node, state)),
+        looseNameForStruct(node, state),
         [],
         [],
         signatures,

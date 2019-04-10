@@ -237,7 +237,7 @@ export function createCaseForField(
     const checkType: ts.IfStatement = ts.createIf(
         createEqualsCheck(
             COMMON_IDENTIFIERS.fieldType,
-            thriftTypeForFieldType(field.fieldType, state.identifiers),
+            thriftTypeForFieldType(field.fieldType, state),
         ),
         ts.createBlock(
             [
@@ -315,6 +315,7 @@ export function metadataTypeForFieldType(
 
 export function createReturnForStruct(
     struct: InterfaceWithFields,
+    state: IRenderState,
 ): ts.Statement {
     if (hasRequiredField(struct)) {
         return ts.createIf(
@@ -329,7 +330,11 @@ export function createReturnForStruct(
                                 ): ts.ObjectLiteralElementLike => {
                                     return ts.createPropertyAssignment(
                                         next.name.value,
-                                        getInitializerForField('_args', next),
+                                        getInitializerForField(
+                                            '_args',
+                                            next,
+                                            state,
+                                        ),
                                     )
                                 },
                             ),

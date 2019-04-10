@@ -2,12 +2,18 @@ import * as ts from 'typescript'
 
 import { FunctionType, SyntaxType } from '@creditkarma/thrift-parser'
 
+import { IRenderState } from '../../types'
 import { COMMON_IDENTIFIERS } from './identifiers'
 
 export type TypeMapping = (
     fieldType: FunctionType,
+    state: IRenderState,
     loose?: boolean,
 ) => ts.TypeNode
+
+export function createUndefinedType(): ts.TypeNode {
+    return ts.createKeywordTypeNode(ts.SyntaxKind.UndefinedKeyword)
+}
 
 export function createVoidType(): ts.TypeNode {
     return ts.createKeywordTypeNode(ts.SyntaxKind.VoidKeyword)
@@ -42,12 +48,23 @@ export function createTypeProperty(
     )
 }
 
+export type ClassNameWithStateMapping = (
+    name: string,
+    state: IRenderState,
+) => string
+export type ClassNameWithoutStateMapping = (name: string) => string
+export type ClassNameMapping =
+    | ClassNameWithStateMapping
+    | ClassNameWithoutStateMapping
+
 export function constructorNameForFieldType(
     fieldType: FunctionType,
+    className: ClassNameMapping,
+    state: IRenderState,
 ): ts.Identifier {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
-            return ts.createIdentifier(fieldType.value)
+            return ts.createIdentifier(className(fieldType.value, state))
 
         case SyntaxType.SetType:
             return COMMON_IDENTIFIERS.Set

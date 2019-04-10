@@ -22,7 +22,7 @@ import {
     renderServiceNameStaticProperty,
 } from './utils'
 
-import { IIdentifierMap, IRenderState } from '../../../types'
+import { IRenderState } from '../../../types'
 
 import {
     COMMON_IDENTIFIERS,
@@ -60,7 +60,8 @@ import {
     renderServiceAnnotationsStaticProperty,
 } from '../annotations'
 
-import { looseName, strictName, toolkitName } from '../struct/utils'
+import { resolveIdentifierDefinition } from '../../../resolver/utils'
+import { className, looseName, strictName, toolkitName } from '../struct/utils'
 
 function objectLiteralForServiceFunctions(
     node: ThriftStatement,
@@ -153,7 +154,7 @@ export function renderProcessor(
 
     const processMethod: ts.MethodDeclaration = createProcessMethod(
         service,
-        state.identifiers,
+        state,
     )
     const processFunctions: Array<ts.MethodDeclaration> = service.functions.map(
         (next: FunctionDefinition) => {
@@ -189,7 +190,7 @@ export function renderProcessor(
             annotations,
             methodAnnotations,
             methodNames,
-            createCtor(service, state.identifiers),
+            createCtor(service, state),
             processMethod,
             ...processFunctions,
         ], // body
@@ -198,13 +199,13 @@ export function renderProcessor(
 
 function createCtor(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.ConstructorDeclaration {
     if (service.extends !== null) {
         return createClassConstructor(
             [createFunctionParameter('handler', createHandlerType(service))],
             [
-                createSuperCall(service.extends, identifiers),
+                createSuperCall(service.extends, state),
                 createAssignmentStatement(
                     ts.createIdentifier('this._handler'),
                     ts.createIdentifier('handler'),
@@ -227,7 +228,7 @@ function createCtor(
 
 function createSuperCall(
     service: Identifier,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.Statement {
     return ts.createStatement(
         ts.createCall(
@@ -235,7 +236,12 @@ function createSuperCall(
             [],
             [
                 objectLiteralForServiceFunctions(
-                    identifiers[service.value].definition,
+                    resolveIdentifierDefinition(
+                        service,
+                        state.currentNamespace,
+                        state.project.namespaces,
+                        state.project.sourceDir,
+                    ),
                 ),
             ],
         ),
@@ -405,6 +411,7 @@ function createProcessFunctionMethod(
                                                     createStructResultName(
                                                         funcDef,
                                                     ),
+                                                    state,
                                                 ),
                                             ),
                                             'encode',
@@ -492,7 +499,7 @@ function createArgsVariable(
                 ts.createCall(
                     ts.createPropertyAccess(
                         ts.createIdentifier(
-                            toolkitName(createStructArgsName(funcDef)),
+                            toolkitName(createStructArgsName(funcDef), state),
                         ),
                         ts.createIdentifier('decode'),
                     ),
@@ -518,7 +525,7 @@ function createElseForExceptions(
             ts.createBinary(
                 COMMON_IDENTIFIERS.err,
                 ts.SyntaxKind.InstanceOfKeyword,
-                constructorNameForFieldType(next.fieldType),
+                constructorNameForFieldType(next.fieldType, className, state),
             ),
             createThenForException(next, funcDef, state),
             createElseForExceptions(next, tail, funcDef, state),
@@ -616,7 +623,7 @@ function createThenForException(
             // StructCodec.encode(result, output)
             createMethodCallStatement(
                 ts.createIdentifier(
-                    toolkitName(createStructResultName(funcDef)),
+                    toolkitName(createStructResultName(funcDef), state),
                 ),
                 'encode',
                 [COMMON_IDENTIFIERS.result, COMMON_IDENTIFIERS.output],
@@ -650,7 +657,7 @@ function createIfForExceptions(
         ts.createBinary(
             COMMON_IDENTIFIERS.err,
             ts.SyntaxKind.InstanceOfKeyword,
-            constructorNameForFieldType(throwDef.fieldType),
+            constructorNameForFieldType(throwDef.fieldType, className, state),
         ),
         createThenForException(throwDef, funcDef, state),
         createElseForExceptions(throwDef, tail, funcDef, state),
@@ -726,7 +733,7 @@ function createExceptionHandlers(
 // }
 function createProcessMethod(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.MethodDeclaration {
     return createPublicMethod(
         COMMON_IDENTIFIERS.process,
@@ -779,7 +786,7 @@ function createProcessMethod(
                                 COMMON_IDENTIFIERS.fieldName,
                             ),
                         ),
-                        createMethodCallForFname(service, identifiers),
+                        createMethodCallForFname(service, state),
                     ],
                 ),
             ),
@@ -839,12 +846,12 @@ function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
  */
 function createMethodCallForFname(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.SwitchStatement {
     return ts.createSwitch(
-        ts.createIdentifier('methodName'),
+        COMMON_IDENTIFIERS.methodName,
         ts.createCaseBlock([
-            ...collectAllMethods(service, identifiers).map(
+            ...collectAllMethods(service, state).map(
                 createMethodCallForFunction,
             ),
             ts.createDefaultClause([

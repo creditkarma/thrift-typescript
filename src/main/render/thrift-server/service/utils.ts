@@ -9,10 +9,11 @@ import {
     SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-import { DefinitionType, IIdentifierMap } from '../../../types'
+import { DefinitionType, IRenderState } from '../../../types'
 
 import { COMMON_IDENTIFIERS } from '../identifiers'
 
+import { resolveIdentifierDefinition } from '../../../resolver/utils'
 import { createStringType } from '../../shared/types'
 
 export function capitalize(str: string): string {
@@ -80,19 +81,23 @@ export function renderServiceNameStaticProperty(): ts.PropertyDeclaration {
 
 export function collectAllMethods(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<FunctionDefinition> {
     if (service.extends === null) {
         return service.functions
     } else {
-        const parentService: DefinitionType =
-            identifiers[service.extends.value].definition
+        const parentService: DefinitionType = resolveIdentifierDefinition(
+            service.extends,
+            state.currentNamespace,
+            state.project.namespaces,
+            state.project.sourceDir,
+        )
         switch (parentService.type) {
             case SyntaxType.ServiceDefinition:
                 // This actually doesn't work for deeply extended services. This identifier map only
                 // has the identifiers for the current namespace.
                 return [
-                    ...collectAllMethods(parentService, identifiers),
+                    ...collectAllMethods(parentService, state),
                     ...service.functions,
                 ]
 
@@ -108,7 +113,7 @@ export function collectAllMethods(
 
 export function renderMethodNames(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): ts.VariableStatement {
     return ts.createVariableStatement(
         [ts.createToken(ts.SyntaxKind.ExportKeyword)],
@@ -118,7 +123,7 @@ export function renderMethodNames(
                     COMMON_IDENTIFIERS.methodNames,
                     ts.createTypeReferenceNode('Array<string>', undefined),
                     ts.createArrayLiteral([
-                        ...collectAllMethods(service, identifiers).map(
+                        ...collectAllMethods(service, state).map(
                             (next: FunctionDefinition) => {
                                 return ts.createLiteral(next.name.value)
                             },
@@ -162,7 +167,7 @@ export function renderMethodNamesStaticProperty(): ts.PropertyDeclaration {
 
 function getRawAnnotations(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Array<Annotation> {
     if (service.extends === null) {
         if (service.annotations) {
@@ -171,19 +176,23 @@ function getRawAnnotations(
             return []
         }
     } else {
-        const parentService: DefinitionType =
-            identifiers[service.extends.value].definition
+        const parentService: DefinitionType = resolveIdentifierDefinition(
+            service.extends,
+            state.currentNamespace,
+            state.project.namespaces,
+            state.project.sourceDir,
+        )
         switch (parentService.type) {
             case SyntaxType.ServiceDefinition:
                 if (service.annotations) {
                     // This actually doesn't work for deeply extended services. This identifier map only
                     // has the identifiers for the current namespace.
                     return [
-                        ...getRawAnnotations(parentService, identifiers),
+                        ...getRawAnnotations(parentService, state),
                         ...service.annotations.annotations,
                     ]
                 } else {
-                    return getRawAnnotations(parentService, identifiers)
+                    return getRawAnnotations(parentService, state)
                 }
 
             default:
@@ -198,13 +207,10 @@ function getRawAnnotations(
 
 export function collectAllAnnotations(
     service: ServiceDefinition,
-    identifiers: IIdentifierMap,
+    state: IRenderState,
 ): Annotations {
     const temp: Map<string, Annotation> = new Map()
-    const rawAnnotations: Array<Annotation> = getRawAnnotations(
-        service,
-        identifiers,
-    )
+    const rawAnnotations: Array<Annotation> = getRawAnnotations(service, state)
 
     for (const annotation of rawAnnotations) {
         temp.set(annotation.name.value, annotation)

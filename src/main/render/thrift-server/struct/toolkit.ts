@@ -26,14 +26,14 @@ export function renderToolkit(
     return ts.createVariableStatement(
         tokens(isExported),
         createConst(
-            ts.createIdentifier(toolkitNameForStruct(node)),
+            toolkitNameForStruct(node, state),
             ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IStructCodec, [
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(looseNameForStruct(node, state)),
+                    looseNameForStruct(node, state),
                     undefined,
                 ),
                 ts.createTypeReferenceNode(
-                    ts.createIdentifier(strictNameForStruct(node, state)),
+                    strictNameForStruct(node, state),
                     undefined,
                 ),
             ]),

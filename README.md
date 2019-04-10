@@ -486,20 +486,20 @@ type MyUnion = IMyUnionWithOption1 | IMyUnionWithOption2
 interface IMyUnionWithOption1 {
     __type: MyUnionType.MyUnionWithOption1
     option1: string
-    option2?: void
+    option2?: undefined
 }
 interface IMyUnionWithOption2 {
     __type: MyUnionType.MyUnionWithOption2
-    option1?: void
+    option1?: undefined
     option2: number
 }
 type MyUnionArgs = IMyUnionWithOption1Args | IMyUnionWithOption2Args
 interface IMyUnionWithOption1Args {
     option1: string
-    option2?: void
+    option2?: undefined
 }
 interface IMyUnionWithOption2Args {
-    option1?: void
+    option1?: undefined
     option2: number
 }
 ```
@@ -524,7 +524,7 @@ function processUnion(union: MyUnion) {
 }
 ```
 
-The fact that each interface we generate defines one required field and some n number of optional `void` fields we can do things like check `union.option2 !== undefined` without a compiler error, but we will get a compiler error if you try to use a value that shouldn't exist on a given union. This expands the ways you can operate on unions to be more general.
+The fact that each interface we generate defines one required field and some n number of optional `undefined` fields we can do things like check `union.option2 !== undefined` without a compiler error, but we will get a compiler error if you try to use a value that shouldn't exist on a given union. This expands the ways you can operate on unions to be more general.
 
 Using this form will require that you prove to the compiler that one (and only one) field is set for your unions.
 
