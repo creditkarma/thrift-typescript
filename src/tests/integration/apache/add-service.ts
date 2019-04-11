@@ -5,7 +5,7 @@ import {
     TBufferedTransport,
 } from 'thrift'
 
-import { AddService } from './codegen/add-service'
+import { AddService } from './codegen/com/test/add-service'
 
 import { Server } from 'net'
 

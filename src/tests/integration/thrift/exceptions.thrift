@@ -1,5 +1,5 @@
-namespace java exceptions
-namespace js exceptions
+namespace java com.test.exceptions
+namespace js com.test.exceptions
 
 include "shared.thrift"
 

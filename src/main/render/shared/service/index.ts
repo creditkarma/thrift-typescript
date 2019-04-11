@@ -10,6 +10,7 @@ import { COMMON_IDENTIFIERS } from '../identifiers'
 
 import { createAnyType, TypeMapping } from '../types'
 
+import { resolveIdentifierName } from '../../../resolver/utils'
 import { IRenderState } from '../../../types'
 import { createFunctionParameter } from '../utils'
 
@@ -108,7 +109,12 @@ export function renderHandlerInterface(
                     ),
                     ts.createTypeReferenceNode(
                         ts.createIdentifier(
-                            `${service.extends.value}.IHandler`,
+                            `${
+                                resolveIdentifierName(
+                                    service.extends.value,
+                                    state,
+                                ).fullName
+                            }.IHandler`,
                         ),
                         [ts.createTypeReferenceNode('Context', undefined)],
                     ),

@@ -2,8 +2,8 @@ include "shared.thrift"
 include "common/common.thrift"
 include "operation.thrift"
 
-namespace java calculator
-namespace js calculator
+namespace java com.test.calculator
+namespace js com.test.calculator
 
 typedef i32 MyInteger
 typedef operation.Operation Operation

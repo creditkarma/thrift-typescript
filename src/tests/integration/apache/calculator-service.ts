@@ -16,11 +16,11 @@ import {
     ExceptionTwo,
     Operation,
     Work,
-} from './codegen/calculator'
+} from './codegen/com/test/calculator'
 
-import { AddService } from './codegen/add-service'
+import { AddService } from './codegen/com/test/add-service'
 
-import { SharedStruct, SharedUnion } from './codegen/shared'
+import { SharedStruct, SharedUnion } from './codegen/com/test/shared'
 
 import { Server } from 'net'
 

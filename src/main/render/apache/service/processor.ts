@@ -120,7 +120,12 @@ export function renderHandlerInterface(
                     ),
                     ts.createTypeReferenceNode(
                         ts.createIdentifier(
-                            `${service.extends.value}.IHandler`,
+                            `${
+                                resolveIdentifierName(
+                                    service.extends.value,
+                                    state,
+                                ).fullName
+                            }.IHandler`,
                         ),
                         undefined,
                     ),
@@ -243,7 +248,12 @@ export function renderProcessor(
                       ts.createExpressionWithTypeArguments(
                           [],
                           ts.createIdentifier(
-                              `${node.extends.value}.Processor`,
+                              `${
+                                  resolveIdentifierName(
+                                      node.extends.value,
+                                      state,
+                                  ).fullName
+                              }.Processor`,
                           ),
                       ),
                   ]),

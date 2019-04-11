@@ -1,5 +1,5 @@
-namespace java common
-namespace js common
+namespace java com.core.common
+namespace js com.core.common
 
 include "shared.thrift"
 

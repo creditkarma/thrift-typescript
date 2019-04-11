@@ -1,5 +1,5 @@
-namespace java operation
-namespace js operation
+namespace java com.test.operation
+namespace js com.test.operation
 
 include "exceptions.thrift"
 

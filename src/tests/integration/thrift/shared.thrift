@@ -1,5 +1,5 @@
-namespace java shared
-namespace js shared
+namespace java com.test.shared
+namespace js com.test.shared
 
 const i32 SHARED_INT = 45
 

@@ -60,7 +60,10 @@ import {
     renderServiceAnnotationsStaticProperty,
 } from '../annotations'
 
-import { resolveIdentifierDefinition } from '../../../resolver/utils'
+import {
+    resolveIdentifierDefinition,
+    resolveIdentifierName,
+} from '../../../resolver/utils'
 import { className, looseName, strictName, toolkitName } from '../struct/utils'
 
 function objectLiteralForServiceFunctions(
@@ -95,11 +98,18 @@ function createHandlerType(node: ServiceDefinition): ts.TypeNode {
     ])
 }
 
-export function extendsService(service: Identifier): ts.HeritageClause {
+export function extendsService(
+    service: Identifier,
+    state: IRenderState,
+): ts.HeritageClause {
     return ts.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
         ts.createExpressionWithTypeArguments(
             [ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined)],
-            ts.createIdentifier(`${service.value}.Processor`),
+            ts.createIdentifier(
+                `${
+                    resolveIdentifierName(service.value, state).fullName
+                }.Processor`,
+            ),
         ),
     ])
 }
@@ -164,7 +174,7 @@ export function renderProcessor(
 
     const heritage: Array<ts.HeritageClause> =
         service.extends !== null
-            ? [extendsService(service.extends)]
+            ? [extendsService(service.extends, state)]
             : [extendsAbstract()]
 
     // export class <node.name> { ... }

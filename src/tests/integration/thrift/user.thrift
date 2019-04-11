@@ -1,5 +1,5 @@
-namespace java user
-namespace js user
+namespace java com.test.user
+namespace js com.test.user
 
 struct User {
   1: string name

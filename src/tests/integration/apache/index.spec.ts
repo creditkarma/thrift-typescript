@@ -17,9 +17,9 @@ import {
     LastName,
     Operation,
     Work,
-} from './codegen/calculator'
+} from './codegen/com/test/calculator'
 
-import { SharedStruct, SharedUnion } from './codegen/shared'
+import { SharedStruct, SharedUnion } from './codegen/com/test/shared'
 
 import { createAddServer } from './add-service'
 import { createCalculatorServer } from './calculator-service'

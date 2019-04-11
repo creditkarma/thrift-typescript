@@ -1,5 +1,5 @@
-namespace java add-service
-namespace js add-service
+namespace java com.test.add-service
+namespace js com.test.add-service
 
 service AddService {
 

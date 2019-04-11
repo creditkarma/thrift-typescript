@@ -40,6 +40,7 @@ import {
     typeNodeForFieldType,
 } from '../types'
 
+import { resolveIdentifierName } from '../../../resolver/utils'
 import { IRenderState } from '../../../types'
 
 export function renderClient(
@@ -153,7 +154,14 @@ export function renderClient(
                   ts.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
                       ts.createExpressionWithTypeArguments(
                           [],
-                          ts.createIdentifier(`${node.extends.value}.Client`),
+                          ts.createIdentifier(
+                              `${
+                                  resolveIdentifierName(
+                                      node.extends.value,
+                                      state,
+                                  ).fullName
+                              }.Client`,
+                          ),
                       ),
                   ]),
               ]
