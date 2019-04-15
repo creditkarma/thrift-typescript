@@ -8,7 +8,7 @@ import {
 
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
-import { resolveIdentifierName } from '../../../resolver/utils'
+import { resolveIdentifierName } from '../../../resolver'
 import { IRenderState, IResolvedIdentifier } from '../../../types'
 import { throwProtocolException } from '../utils'
 

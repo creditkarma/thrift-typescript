@@ -4,11 +4,10 @@ import {
     ThriftDocument,
     ThriftErrors,
 } from '@creditkarma/thrift-parser'
-import { exportsForFile } from '../resolver/utils'
+import { exportsForFile } from '../resolver'
 import {
     IFileExports,
     IFileIncludes,
-    IMakeOptions,
     INamespacePath,
     IParsedFile,
     ISourceFile,
@@ -28,7 +27,7 @@ export function parseThriftString(source: string): ThriftDocument {
 
 export function parseFromSource(
     source: string,
-    options: IMakeOptions,
+    fallbackNamespace: string,
 ): IParsedFile {
     const sourceFile: ISourceFile = {
         type: 'SourceFile',
@@ -38,16 +37,19 @@ export function parseFromSource(
         source,
     }
 
-    return parseThriftFile(sourceFile, options)
+    return parseThriftFile(sourceFile, fallbackNamespace)
 }
 
 export function parseThriftFile(
     file: ISourceFile,
-    options: IMakeOptions,
+    fallbackNamespace: string,
 ): IParsedFile {
     const thriftDoc: ThriftDocument = parseThriftString(file.source)
     const exports: IFileExports = exportsForFile(thriftDoc.body)
-    const namespace: INamespacePath = namespaceForFile(thriftDoc.body, options)
+    const namespace: INamespacePath = namespaceForFile(
+        thriftDoc.body,
+        fallbackNamespace,
+    )
     const includes: IFileIncludes = includesForFile(thriftDoc.body, file)
 
     return {

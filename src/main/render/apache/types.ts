@@ -14,7 +14,7 @@ import {
 import {
     resolveIdentifierDefinition,
     resolveIdentifierName,
-} from '../../resolver/utils'
+} from '../../resolver'
 import {
     createBooleanType,
     createNumberType,

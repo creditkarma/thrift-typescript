@@ -13,7 +13,7 @@
     "scripts": {
         "clean": "rimraf ./coverage ./dist ./**/codegen",
         "clean:all": "npm run clean && rimraf ./node_modules package-lock.json",
-        "codegen": "node ./dist/main/bin/index.js --sourceDir ./src/tests/integration/thrift --outDir ./src/tests/integration/apache/codegen",
+        "codegen": "node ./dist/main/bin/index.js --target apache --sourceDir ./src/tests/integration/thrift --outDir ./src/tests/integration/apache/codegen",
         "prebuild": "npm run clean && npm run lint && npm run format",
         "build": "npm run build:only",
         "build:only": "tsc",
@@ -57,7 +57,7 @@
         "chai": "^4.2.0",
         "mocha": "^5.2.0",
         "nyc": "^13.3.0",
-        "prettier": "^1.15.3",
+        "prettier": "^1.17.0",
         "rimraf": "^2.6.2",
         "source-map-support": "^0.5.9",
         "thrift": "^0.11.0",

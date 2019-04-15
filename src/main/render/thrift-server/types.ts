@@ -21,7 +21,7 @@ import {
 import {
     resolveIdentifierDefinition,
     resolveIdentifierName,
-} from '../../resolver/utils'
+} from '../../resolver'
 import { looseName, strictName } from './struct/utils'
 
 export * from '../shared/types'

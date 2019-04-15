@@ -47,7 +47,7 @@ import {
     renderServiceAnnotationsStaticProperty,
 } from '../annotations'
 
-import { resolveIdentifierName } from '../../../resolver/utils'
+import { resolveIdentifierName } from '../../../resolver'
 import { createClassConstructor } from '../../shared/utils'
 import { looseName, strictName, toolkitName } from '../struct/utils'
 

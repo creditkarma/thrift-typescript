@@ -186,7 +186,10 @@ describe('Thrift TypeScript Generator', () => {
                 'basic_union.strict_union',
                 'thrift-server',
             )
-            const actual: string = make(content, 'thrift-server', true)
+            const actual: string = make(content, {
+                target: 'thrift-server',
+                strictUnions: true,
+            })
 
             assert.deepEqual(actual, expected)
         })
@@ -207,7 +210,10 @@ describe('Thrift TypeScript Generator', () => {
                 'nested_union.strict_union',
                 'thrift-server',
             )
-            const actual: string = make(content, 'thrift-server', true)
+            const actual: string = make(content, {
+                target: 'thrift-server',
+                strictUnions: true,
+            })
 
             assert.deepEqual(actual, expected)
         })
@@ -228,7 +234,10 @@ describe('Thrift TypeScript Generator', () => {
                 'basic_service.strict_union',
                 'thrift-server',
             )
-            const actual: string = make(content, 'thrift-server', true)
+            const actual: string = make(content, {
+                target: 'thrift-server',
+                strictUnions: true,
+            })
 
             assert.deepEqual(actual, expected)
         })
@@ -248,7 +257,7 @@ describe('Thrift TypeScript Generator', () => {
                 const list<string> LIST_CONST = ['hello', 'world', 'foo', 'bar']
             `
             const expected: string = readSolution('complex_const')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -264,7 +273,7 @@ describe('Thrift TypeScript Generator', () => {
                     }
                 `
             const expected: string = readSolution('multi_field_struct')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -274,7 +283,7 @@ describe('Thrift TypeScript Generator', () => {
                 struct MyStruct {}
             `
             const expected: string = readSolution('empty_struct')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -287,7 +296,7 @@ describe('Thrift TypeScript Generator', () => {
                 } ( foo = "bar", two = "three", alone, dot.foo = "bar", dot.lonely )
             `
             const expected: string = readSolution('annotations_struct')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -305,7 +314,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('nested_struct')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -329,7 +338,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('complex_nested_struct')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -342,7 +351,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('basic_union')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -355,7 +364,7 @@ describe('Thrift TypeScript Generator', () => {
                 } ( foo = "bar", two = "three", alone, dot.foo = "bar", dot.lonely )
             `
             const expected: string = readSolution('annotations_union')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -365,7 +374,7 @@ describe('Thrift TypeScript Generator', () => {
                 union MyUnion {}
             `
             const expected: string = readSolution('empty_union')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -383,7 +392,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('nested_union')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -396,7 +405,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('basic_exception')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -409,7 +418,7 @@ describe('Thrift TypeScript Generator', () => {
                 } ( foo = "bar", two = "three", alone, dot.foo = "bar", dot.lonely )
             `
             const expected: string = readSolution('annotations_exception')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -422,7 +431,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('required_field_exception')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -440,7 +449,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('nested_exception')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -459,7 +468,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('basic_service')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -478,7 +487,7 @@ describe('Thrift TypeScript Generator', () => {
                 } ( foo = "bar", two = "three", alone, dot.foo = "bar", dot.lonely )
             `
             const expected: string = readSolution('annotations_service')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -495,7 +504,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('i64_service')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -512,7 +521,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('throws_service')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -537,7 +546,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('throws_multi_service')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -552,7 +561,7 @@ describe('Thrift TypeScript Generator', () => {
             `
 
             const expected: string = readSolution('resolved_field_service')
-            const actual: string = make(content)
+            const actual: string = make(content, { target: 'thrift-server' })
 
             assert.deepEqual(actual, expected)
         })
@@ -568,7 +577,7 @@ describe('Thrift TypeScript Generator', () => {
                 const list<string> LIST_CONST = ['hello', 'world', 'foo', 'bar']
             `
             const expected: string = readSolution('basic_const', 'apache')
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -578,7 +587,7 @@ describe('Thrift TypeScript Generator', () => {
                 typedef string name
             `
             const expected: string = readSolution('basic_typedef', 'apache')
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -593,7 +602,7 @@ describe('Thrift TypeScript Generator', () => {
                 typedef MyEnum AnotherName
             `
             const expected: string = readSolution('enum_typedef', 'apache')
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -614,7 +623,7 @@ describe('Thrift TypeScript Generator', () => {
                 const AnotherName WHAT = AnotherName.ONE
             `
             const expected: string = readSolution('complex_typedef', 'apache')
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -628,7 +637,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('basic_enum', 'apache')
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -645,7 +654,7 @@ describe('Thrift TypeScript Generator', () => {
                 'field_initialized_enum',
                 'apache',
             )
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -664,7 +673,7 @@ describe('Thrift TypeScript Generator', () => {
                 'multi_field_struct',
                 'apache',
             )
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -680,7 +689,7 @@ describe('Thrift TypeScript Generator', () => {
                 'implicit_optional_struct',
                 'apache',
             )
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -692,7 +701,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('map_struct', 'apache')
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -704,7 +713,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('nested_map_struct', 'apache')
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -716,7 +725,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('list_struct', 'apache')
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -731,7 +740,7 @@ describe('Thrift TypeScript Generator', () => {
                 'nested_list_struct',
                 'apache',
             )
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -743,7 +752,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('set_struct', 'apache')
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -755,7 +764,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('nested_set_struct', 'apache')
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -771,7 +780,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('return_id_struct', 'apache')
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -790,7 +799,7 @@ describe('Thrift TypeScript Generator', () => {
                 'container_id_struct',
                 'apache',
             )
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -802,7 +811,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('basic_exception', 'apache')
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -815,7 +824,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('basic_union', 'apache')
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -828,7 +837,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('nested_list_union', 'apache')
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -840,7 +849,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('basic_service', 'apache')
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -852,7 +861,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('i64_service', 'apache')
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -868,7 +877,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('throws_service', 'apache')
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -896,7 +905,7 @@ describe('Thrift TypeScript Generator', () => {
                 'throws_multi_service',
                 'apache',
             )
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })
@@ -912,7 +921,7 @@ describe('Thrift TypeScript Generator', () => {
                 }
             `
             const expected: string = readSolution('return_service', 'apache')
-            const actual: string = make(content, 'apache')
+            const actual: string = make(content, { target: 'apache' })
 
             assert.deepEqual(actual, expected)
         })

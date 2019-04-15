@@ -4,7 +4,7 @@ import { SyntaxType, TypedefDefinition } from '@creditkarma/thrift-parser'
 
 import { TypeMapping } from './types'
 
-import { resolveIdentifierName } from '../../resolver/utils'
+import { resolveIdentifierName } from '../../resolver'
 import { IRenderState, IResolvedIdentifier } from '../../types'
 
 function renderTypeDefForIdentifier(

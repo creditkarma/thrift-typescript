@@ -40,7 +40,7 @@ import { DefinitionType, IRenderState } from '../../../types'
 
 import { READ_METHODS } from './methods'
 
-import { resolveIdentifierDefinition } from '../../../resolver/utils'
+import { resolveIdentifierDefinition } from '../../../resolver'
 
 import { strictNameForStruct, toolkitName } from './utils'
 

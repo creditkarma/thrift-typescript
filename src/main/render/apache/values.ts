@@ -16,7 +16,7 @@ import {
 
 import { COMMON_IDENTIFIERS } from './identifiers'
 
-import { resolveIdentifierName } from '../../resolver/utils'
+import { resolveIdentifierName } from '../../resolver'
 import { IRenderState } from '../../types'
 import { propertyAccessForIdentifier } from './utils'
 

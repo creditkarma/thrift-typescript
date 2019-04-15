@@ -13,7 +13,7 @@ import { DefinitionType, IRenderState } from '../../../types'
 
 import { COMMON_IDENTIFIERS } from '../identifiers'
 
-import { resolveIdentifierDefinition } from '../../../resolver/utils'
+import { resolveIdentifierDefinition } from '../../../resolver'
 import { createStringType } from '../../shared/types'
 
 export function capitalize(str: string): string {

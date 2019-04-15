@@ -10,7 +10,7 @@ import { COMMON_IDENTIFIERS } from '../identifiers'
 
 import { createAnyType, TypeMapping } from '../types'
 
-import { resolveIdentifierName } from '../../../resolver/utils'
+import { resolveIdentifierName } from '../../../resolver'
 import { IRenderState } from '../../../types'
 import { createFunctionParameter } from '../utils'
 

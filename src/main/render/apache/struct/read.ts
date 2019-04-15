@@ -36,7 +36,7 @@ import { THRIFT_IDENTIFIERS, THRIFT_TYPES } from '../identifiers'
 import {
     resolveIdentifierDefinition,
     resolveIdentifierName,
-} from '../../../resolver/utils'
+} from '../../../resolver'
 import { READ_METHODS } from './methods'
 
 /**

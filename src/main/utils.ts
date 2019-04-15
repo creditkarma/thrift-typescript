@@ -18,7 +18,6 @@ import {
     IFileIncludes,
     IGeneratedFile,
     IIncludePath,
-    IMakeOptions,
     INamespaceMap,
     INamespacePath,
     INamespacePathMap,
@@ -89,10 +88,10 @@ export function deepMerge<Base, Update>(
 
 export function collectSourceFiles(
     sourceDir: string,
-    options: IMakeOptions,
+    files?: Array<string>,
 ): Array<string> {
-    if (options.files && options.files.length > 0) {
-        return options.files
+    if (files && files.length > 0) {
+        return files
     } else {
         return glob.sync(`${sourceDir}/**/*.thrift`)
     }
@@ -127,10 +126,13 @@ export function namespaceForInclude<T extends IProcessedFile>(
     include: IIncludePath,
     files: IProcessedFileMap<T>,
     sourceDir: string,
-    options: IMakeOptions,
+    fallbackNamespace: string,
 ): INamespacePath {
     const file: T = fileForInclude(include, files, sourceDir)
-    const namespace: INamespacePath = namespaceForFile(file.body, options)
+    const namespace: INamespacePath = namespaceForFile(
+        file.body,
+        fallbackNamespace,
+    )
     return namespace
 }
 
@@ -194,16 +196,16 @@ function collectNamespaces(body: Array<ThriftStatement>): INamespacePathMap {
 
 export function namespaceForFile(
     body: Array<ThriftStatement>,
-    options: IMakeOptions,
+    fallbackNamespace: string,
 ): INamespacePath {
     const namespaceMap = collectNamespaces(body)
     if (namespaceMap.js) {
         return namespaceMap.js
     } else if (
-        options.fallbackNamespace !== 'none' &&
-        namespaceMap[options.fallbackNamespace]
+        fallbackNamespace !== 'none' &&
+        namespaceMap[fallbackNamespace]
     ) {
-        return namespaceMap[options.fallbackNamespace]
+        return namespaceMap[fallbackNamespace]
     } else {
         return emptyNamespace()
     }

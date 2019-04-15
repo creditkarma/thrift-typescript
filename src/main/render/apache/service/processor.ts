@@ -28,7 +28,7 @@ import {
 import {
     resolveIdentifierDefinition,
     resolveIdentifierName,
-} from '../../../resolver/utils'
+} from '../../../resolver'
 import { IRenderState } from '../../../types'
 
 import {

@@ -11,7 +11,7 @@ import {
 import { rendererForTarget } from '../render'
 import { processStatements, renderStatement } from './iterator'
 
-import { exportsForFile } from '../resolver/utils'
+import { exportsForFile } from '../resolver'
 import {
     IGeneratedFile,
     INamespace,

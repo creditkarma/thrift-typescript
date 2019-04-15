@@ -63,7 +63,7 @@ import {
 import {
     resolveIdentifierDefinition,
     resolveIdentifierName,
-} from '../../../resolver/utils'
+} from '../../../resolver'
 import { className, looseName, strictName, toolkitName } from '../struct/utils'
 
 function objectLiteralForServiceFunctions(

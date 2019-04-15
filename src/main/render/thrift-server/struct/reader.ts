@@ -16,7 +16,7 @@ import {
 
 import { className, toolkitName } from './utils'
 
-import { resolveIdentifierDefinition } from '../../../resolver/utils'
+import { resolveIdentifierDefinition } from '../../../resolver'
 import { DefinitionType, IRenderState } from '../../../types'
 import { createMethodCall } from '../../shared/utils'
 import { COMMON_IDENTIFIERS } from '../identifiers'

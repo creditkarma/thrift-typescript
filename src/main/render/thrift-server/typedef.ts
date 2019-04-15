@@ -24,7 +24,7 @@ import {
 import {
     resolveIdentifierDefinition,
     resolveIdentifierName,
-} from '../../resolver/utils'
+} from '../../resolver'
 
 function renderStrictInterfaceReexport(
     id: IResolvedIdentifier,

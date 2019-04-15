@@ -40,7 +40,7 @@ import {
     typeNodeForFieldType,
 } from '../types'
 
-import { resolveIdentifierName } from '../../../resolver/utils'
+import { resolveIdentifierName } from '../../../resolver'
 import { IRenderState } from '../../../types'
 
 export function renderClient(

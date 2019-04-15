@@ -30,7 +30,7 @@ import {
 
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
-import { resolveIdentifierDefinition } from '../../../resolver/utils'
+import { resolveIdentifierDefinition } from '../../../resolver'
 import { WRITE_METHODS, WriteMethodName } from './methods'
 
 function isNotVoid(field: FieldDefinition): boolean {

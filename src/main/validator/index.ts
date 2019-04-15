@@ -11,10 +11,7 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import { createValidationError, IThriftError, ValidationError } from '../errors'
-import {
-    resolveConstValue,
-    resolveIdentifierDefinition,
-} from '../resolver/utils'
+import { resolveConstValue, resolveIdentifierDefinition } from '../resolver'
 import { DefinitionType, IResolvedFile, ResolvedFileMap } from '../types'
 import { constToTypeString, fieldTypeToString } from './utils'
 
