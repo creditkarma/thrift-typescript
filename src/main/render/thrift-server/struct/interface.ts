@@ -9,6 +9,7 @@ import { typeNodeForFieldType } from '../types'
 
 import { IRenderState } from '../../../types'
 
+import { COMMON_IDENTIFIERS } from '../../shared/identifiers'
 import {
     looseNameForStruct,
     renderOptional,
@@ -21,15 +22,36 @@ function strictInterface(
     state: IRenderState,
     isExported: boolean,
 ): ts.InterfaceDeclaration {
-    const signatures = node.fields.map((field: FieldDefinition) => {
-        return ts.createPropertySignature(
-            undefined,
-            field.name.value,
-            renderOptional(field),
-            typeNodeForFieldType(field.fieldType, state),
-            undefined,
-        )
-    })
+    const signatures = state.options.withNameField
+        ? [
+              ts.createPropertySignature(
+                  undefined,
+                  COMMON_IDENTIFIERS.__name,
+                  undefined,
+                  ts.createLiteralTypeNode(ts.createLiteral(node.name.value)),
+                  undefined,
+              ),
+              ...node.fields.map((field: FieldDefinition) => {
+                  return ts.createPropertySignature(
+                      undefined,
+                      field.name.value,
+                      renderOptional(field),
+                      typeNodeForFieldType(field.fieldType, state),
+                      undefined,
+                  )
+              }),
+          ]
+        : [
+              ...node.fields.map((field: FieldDefinition) => {
+                  return ts.createPropertySignature(
+                      undefined,
+                      field.name.value,
+                      renderOptional(field),
+                      typeNodeForFieldType(field.fieldType, state),
+                      undefined,
+                  )
+              }),
+          ]
 
     return ts.createInterfaceDeclaration(
         undefined,

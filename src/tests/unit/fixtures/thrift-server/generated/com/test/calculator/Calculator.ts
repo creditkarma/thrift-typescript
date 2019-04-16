@@ -78,6 +78,7 @@ export const methodAnnotations: thrift.IMethodAnnotations = {
 };
 export const methodNames: Array<string> = ["getStruct", "getUnion", "ping", "add", "addInt64", "addWithContext", "calculate", "echoBinary", "echoString", "checkName", "checkOptional", "mapOneList", "mapValues", "listToMap", "fetchThing", "zip"];
 export interface IPing__Args {
+    __name: "Ping__Args";
 }
 export interface IPing__ArgsArgs {
 }
@@ -105,10 +106,13 @@ export const Ping__ArgsCodec: thrift.IStructCodec<IPing__ArgsArgs, IPing__Args> 
             input.readFieldEnd();
         }
         input.readStructEnd();
-        return {};
+        return {
+            __name: "Ping__Args"
+        };
     }
 };
 export class Ping__Args extends thrift.StructLike implements IPing__Args {
+    public readonly __name = "Ping__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPing__ArgsArgs = {}) {
@@ -125,6 +129,7 @@ export class Ping__Args extends thrift.StructLike implements IPing__Args {
     }
 }
 export interface IAdd__Args {
+    __name: "Add__Args";
     num1: number;
     num2: number;
 }
@@ -197,6 +202,7 @@ export const Add__ArgsCodec: thrift.IStructCodec<IAdd__ArgsArgs, IAdd__Args> = {
         input.readStructEnd();
         if (_args.num1 !== undefined && _args.num2 !== undefined) {
             return {
+                __name: "Add__Args",
                 num1: _args.num1,
                 num2: _args.num2
             };
@@ -209,6 +215,7 @@ export const Add__ArgsCodec: thrift.IStructCodec<IAdd__ArgsArgs, IAdd__Args> = {
 export class Add__Args extends thrift.StructLike implements IAdd__Args {
     public num1: number;
     public num2: number;
+    public readonly __name = "Add__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IAdd__ArgsArgs) {
@@ -239,6 +246,7 @@ export class Add__Args extends thrift.StructLike implements IAdd__Args {
     }
 }
 export interface IAddInt64__Args {
+    __name: "AddInt64__Args";
     num1: thrift.Int64;
     num2: thrift.Int64;
 }
@@ -311,6 +319,7 @@ export const AddInt64__ArgsCodec: thrift.IStructCodec<IAddInt64__ArgsArgs, IAddI
         input.readStructEnd();
         if (_args.num1 !== undefined && _args.num2 !== undefined) {
             return {
+                __name: "AddInt64__Args",
                 num1: _args.num1,
                 num2: _args.num2
             };
@@ -323,6 +332,7 @@ export const AddInt64__ArgsCodec: thrift.IStructCodec<IAddInt64__ArgsArgs, IAddI
 export class AddInt64__Args extends thrift.StructLike implements IAddInt64__Args {
     public num1: thrift.Int64;
     public num2: thrift.Int64;
+    public readonly __name = "AddInt64__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IAddInt64__ArgsArgs) {
@@ -353,6 +363,7 @@ export class AddInt64__Args extends thrift.StructLike implements IAddInt64__Args
     }
 }
 export interface IAddWithContext__Args {
+    __name: "AddWithContext__Args";
     num1: number;
     num2: number;
 }
@@ -425,6 +436,7 @@ export const AddWithContext__ArgsCodec: thrift.IStructCodec<IAddWithContext__Arg
         input.readStructEnd();
         if (_args.num1 !== undefined && _args.num2 !== undefined) {
             return {
+                __name: "AddWithContext__Args",
                 num1: _args.num1,
                 num2: _args.num2
             };
@@ -437,6 +449,7 @@ export const AddWithContext__ArgsCodec: thrift.IStructCodec<IAddWithContext__Arg
 export class AddWithContext__Args extends thrift.StructLike implements IAddWithContext__Args {
     public num1: number;
     public num2: number;
+    public readonly __name = "AddWithContext__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IAddWithContext__ArgsArgs) {
@@ -467,6 +480,7 @@ export class AddWithContext__Args extends thrift.StructLike implements IAddWithC
     }
 }
 export interface ICalculate__Args {
+    __name: "Calculate__Args";
     logid: number;
     work: __NAMESPACE__.IWork;
 }
@@ -539,6 +553,7 @@ export const Calculate__ArgsCodec: thrift.IStructCodec<ICalculate__ArgsArgs, ICa
         input.readStructEnd();
         if (_args.logid !== undefined && _args.work !== undefined) {
             return {
+                __name: "Calculate__Args",
                 logid: _args.logid,
                 work: _args.work
             };
@@ -551,6 +566,7 @@ export const Calculate__ArgsCodec: thrift.IStructCodec<ICalculate__ArgsArgs, ICa
 export class Calculate__Args extends thrift.StructLike implements ICalculate__Args {
     public logid: number;
     public work: __NAMESPACE__.IWork;
+    public readonly __name = "Calculate__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ICalculate__ArgsArgs) {
@@ -581,6 +597,7 @@ export class Calculate__Args extends thrift.StructLike implements ICalculate__Ar
     }
 }
 export interface IEchoBinary__Args {
+    __name: "EchoBinary__Args";
     word: Buffer;
 }
 export interface IEchoBinary__ArgsArgs {
@@ -633,6 +650,7 @@ export const EchoBinary__ArgsCodec: thrift.IStructCodec<IEchoBinary__ArgsArgs, I
         input.readStructEnd();
         if (_args.word !== undefined) {
             return {
+                __name: "EchoBinary__Args",
                 word: _args.word
             };
         }
@@ -643,6 +661,7 @@ export const EchoBinary__ArgsCodec: thrift.IStructCodec<IEchoBinary__ArgsArgs, I
 };
 export class EchoBinary__Args extends thrift.StructLike implements IEchoBinary__Args {
     public word: Buffer;
+    public readonly __name = "EchoBinary__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IEchoBinary__ArgsArgs) {
@@ -666,6 +685,7 @@ export class EchoBinary__Args extends thrift.StructLike implements IEchoBinary__
     }
 }
 export interface IEchoString__Args {
+    __name: "EchoString__Args";
     word: string;
 }
 export interface IEchoString__ArgsArgs {
@@ -718,6 +738,7 @@ export const EchoString__ArgsCodec: thrift.IStructCodec<IEchoString__ArgsArgs, I
         input.readStructEnd();
         if (_args.word !== undefined) {
             return {
+                __name: "EchoString__Args",
                 word: _args.word
             };
         }
@@ -728,6 +749,7 @@ export const EchoString__ArgsCodec: thrift.IStructCodec<IEchoString__ArgsArgs, I
 };
 export class EchoString__Args extends thrift.StructLike implements IEchoString__Args {
     public word: string;
+    public readonly __name = "EchoString__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IEchoString__ArgsArgs) {
@@ -751,6 +773,7 @@ export class EchoString__Args extends thrift.StructLike implements IEchoString__
     }
 }
 export interface ICheckName__Args {
+    __name: "CheckName__Args";
     choice: __NAMESPACE__.IChoice;
 }
 export interface ICheckName__ArgsArgs {
@@ -803,6 +826,7 @@ export const CheckName__ArgsCodec: thrift.IStructCodec<ICheckName__ArgsArgs, ICh
         input.readStructEnd();
         if (_args.choice !== undefined) {
             return {
+                __name: "CheckName__Args",
                 choice: _args.choice
             };
         }
@@ -813,6 +837,7 @@ export const CheckName__ArgsCodec: thrift.IStructCodec<ICheckName__ArgsArgs, ICh
 };
 export class CheckName__Args extends thrift.StructLike implements ICheckName__Args {
     public choice: __NAMESPACE__.IChoice;
+    public readonly __name = "CheckName__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ICheckName__ArgsArgs) {
@@ -836,6 +861,7 @@ export class CheckName__Args extends thrift.StructLike implements ICheckName__Ar
     }
 }
 export interface ICheckOptional__Args {
+    __name: "CheckOptional__Args";
     type?: string;
 }
 export interface ICheckOptional__ArgsArgs {
@@ -884,12 +910,14 @@ export const CheckOptional__ArgsCodec: thrift.IStructCodec<ICheckOptional__ArgsA
         }
         input.readStructEnd();
         return {
+            __name: "CheckOptional__Args",
             type: _args.type
         };
     }
 };
 export class CheckOptional__Args extends thrift.StructLike implements ICheckOptional__Args {
     public type?: string;
+    public readonly __name = "CheckOptional__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ICheckOptional__ArgsArgs = {}) {
@@ -910,6 +938,7 @@ export class CheckOptional__Args extends thrift.StructLike implements ICheckOpti
     }
 }
 export interface IMapOneList__Args {
+    __name: "MapOneList__Args";
     arg: Array<number>;
 }
 export interface IMapOneList__ArgsArgs {
@@ -973,6 +1002,7 @@ export const MapOneList__ArgsCodec: thrift.IStructCodec<IMapOneList__ArgsArgs, I
         input.readStructEnd();
         if (_args.arg !== undefined) {
             return {
+                __name: "MapOneList__Args",
                 arg: _args.arg
             };
         }
@@ -983,6 +1013,7 @@ export const MapOneList__ArgsCodec: thrift.IStructCodec<IMapOneList__ArgsArgs, I
 };
 export class MapOneList__Args extends thrift.StructLike implements IMapOneList__Args {
     public arg: Array<number>;
+    public readonly __name = "MapOneList__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMapOneList__ArgsArgs) {
@@ -1010,6 +1041,7 @@ export class MapOneList__Args extends thrift.StructLike implements IMapOneList__
     }
 }
 export interface IMapValues__Args {
+    __name: "MapValues__Args";
     arg: Map<string, number>;
 }
 export interface IMapValues__ArgsArgs {
@@ -1075,6 +1107,7 @@ export const MapValues__ArgsCodec: thrift.IStructCodec<IMapValues__ArgsArgs, IMa
         input.readStructEnd();
         if (_args.arg !== undefined) {
             return {
+                __name: "MapValues__Args",
                 arg: _args.arg
             };
         }
@@ -1085,6 +1118,7 @@ export const MapValues__ArgsCodec: thrift.IStructCodec<IMapValues__ArgsArgs, IMa
 };
 export class MapValues__Args extends thrift.StructLike implements IMapValues__Args {
     public arg: Map<string, number>;
+    public readonly __name = "MapValues__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMapValues__ArgsArgs) {
@@ -1113,6 +1147,7 @@ export class MapValues__Args extends thrift.StructLike implements IMapValues__Ar
     }
 }
 export interface IListToMap__Args {
+    __name: "ListToMap__Args";
     arg: Array<Array<string>>;
 }
 export interface IListToMap__ArgsArgs {
@@ -1187,6 +1222,7 @@ export const ListToMap__ArgsCodec: thrift.IStructCodec<IListToMap__ArgsArgs, ILi
         input.readStructEnd();
         if (_args.arg !== undefined) {
             return {
+                __name: "ListToMap__Args",
                 arg: _args.arg
             };
         }
@@ -1197,6 +1233,7 @@ export const ListToMap__ArgsCodec: thrift.IStructCodec<IListToMap__ArgsArgs, ILi
 };
 export class ListToMap__Args extends thrift.StructLike implements IListToMap__Args {
     public arg: Array<Array<string>>;
+    public readonly __name = "ListToMap__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IListToMap__ArgsArgs) {
@@ -1228,6 +1265,7 @@ export class ListToMap__Args extends thrift.StructLike implements IListToMap__Ar
     }
 }
 export interface IFetchThing__Args {
+    __name: "FetchThing__Args";
 }
 export interface IFetchThing__ArgsArgs {
 }
@@ -1255,10 +1293,13 @@ export const FetchThing__ArgsCodec: thrift.IStructCodec<IFetchThing__ArgsArgs, I
             input.readFieldEnd();
         }
         input.readStructEnd();
-        return {};
+        return {
+            __name: "FetchThing__Args"
+        };
     }
 };
 export class FetchThing__Args extends thrift.StructLike implements IFetchThing__Args {
+    public readonly __name = "FetchThing__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IFetchThing__ArgsArgs = {}) {
@@ -1275,6 +1316,7 @@ export class FetchThing__Args extends thrift.StructLike implements IFetchThing__
     }
 }
 export interface IZip__Args {
+    __name: "Zip__Args";
 }
 export interface IZip__ArgsArgs {
 }
@@ -1302,10 +1344,13 @@ export const Zip__ArgsCodec: thrift.IStructCodec<IZip__ArgsArgs, IZip__Args> = {
             input.readFieldEnd();
         }
         input.readStructEnd();
-        return {};
+        return {
+            __name: "Zip__Args"
+        };
     }
 };
 export class Zip__Args extends thrift.StructLike implements IZip__Args {
+    public readonly __name = "Zip__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IZip__ArgsArgs = {}) {
@@ -1322,6 +1367,7 @@ export class Zip__Args extends thrift.StructLike implements IZip__Args {
     }
 }
 export interface IPing__Result {
+    __name: "Ping__Result";
     success?: void;
 }
 export interface IPing__ResultArgs {
@@ -1361,12 +1407,14 @@ export const Ping__ResultCodec: thrift.IStructCodec<IPing__ResultArgs, IPing__Re
         }
         input.readStructEnd();
         return {
+            __name: "Ping__Result",
             success: _args.success
         };
     }
 };
 export class Ping__Result extends thrift.StructLike implements IPing__Result {
     public success?: void;
+    public readonly __name = "Ping__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPing__ResultArgs = {}) {
@@ -1387,6 +1435,7 @@ export class Ping__Result extends thrift.StructLike implements IPing__Result {
     }
 }
 export interface IAdd__Result {
+    __name: "Add__Result";
     success?: number;
     exp?: com_test_operation.IJankyResult;
 }
@@ -1452,6 +1501,7 @@ export const Add__ResultCodec: thrift.IStructCodec<IAdd__ResultArgs, IAdd__Resul
         }
         input.readStructEnd();
         return {
+            __name: "Add__Result",
             success: _args.success,
             exp: _args.exp
         };
@@ -1460,6 +1510,7 @@ export const Add__ResultCodec: thrift.IStructCodec<IAdd__ResultArgs, IAdd__Resul
 export class Add__Result extends thrift.StructLike implements IAdd__Result {
     public success?: number;
     public exp?: com_test_operation.IJankyResult;
+    public readonly __name = "Add__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IAdd__ResultArgs = {}) {
@@ -1484,6 +1535,7 @@ export class Add__Result extends thrift.StructLike implements IAdd__Result {
     }
 }
 export interface IAddInt64__Result {
+    __name: "AddInt64__Result";
     success?: thrift.Int64;
     exp?: __NAMESPACE__.INotAGoodIdea;
 }
@@ -1549,6 +1601,7 @@ export const AddInt64__ResultCodec: thrift.IStructCodec<IAddInt64__ResultArgs, I
         }
         input.readStructEnd();
         return {
+            __name: "AddInt64__Result",
             success: _args.success,
             exp: _args.exp
         };
@@ -1557,6 +1610,7 @@ export const AddInt64__ResultCodec: thrift.IStructCodec<IAddInt64__ResultArgs, I
 export class AddInt64__Result extends thrift.StructLike implements IAddInt64__Result {
     public success?: thrift.Int64;
     public exp?: __NAMESPACE__.INotAGoodIdea;
+    public readonly __name = "AddInt64__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IAddInt64__ResultArgs = {}) {
@@ -1581,6 +1635,7 @@ export class AddInt64__Result extends thrift.StructLike implements IAddInt64__Re
     }
 }
 export interface IAddWithContext__Result {
+    __name: "AddWithContext__Result";
     success?: number;
 }
 export interface IAddWithContext__ResultArgs {
@@ -1629,12 +1684,14 @@ export const AddWithContext__ResultCodec: thrift.IStructCodec<IAddWithContext__R
         }
         input.readStructEnd();
         return {
+            __name: "AddWithContext__Result",
             success: _args.success
         };
     }
 };
 export class AddWithContext__Result extends thrift.StructLike implements IAddWithContext__Result {
     public success?: number;
+    public readonly __name = "AddWithContext__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IAddWithContext__ResultArgs = {}) {
@@ -1655,6 +1712,7 @@ export class AddWithContext__Result extends thrift.StructLike implements IAddWit
     }
 }
 export interface ICalculate__Result {
+    __name: "Calculate__Result";
     success?: number;
     ouch?: com_test_operation.IJankyOperation;
 }
@@ -1720,6 +1778,7 @@ export const Calculate__ResultCodec: thrift.IStructCodec<ICalculate__ResultArgs,
         }
         input.readStructEnd();
         return {
+            __name: "Calculate__Result",
             success: _args.success,
             ouch: _args.ouch
         };
@@ -1728,6 +1787,7 @@ export const Calculate__ResultCodec: thrift.IStructCodec<ICalculate__ResultArgs,
 export class Calculate__Result extends thrift.StructLike implements ICalculate__Result {
     public success?: number;
     public ouch?: com_test_operation.IJankyOperation;
+    public readonly __name = "Calculate__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ICalculate__ResultArgs = {}) {
@@ -1752,6 +1812,7 @@ export class Calculate__Result extends thrift.StructLike implements ICalculate__
     }
 }
 export interface IEchoBinary__Result {
+    __name: "EchoBinary__Result";
     success?: string;
 }
 export interface IEchoBinary__ResultArgs {
@@ -1800,12 +1861,14 @@ export const EchoBinary__ResultCodec: thrift.IStructCodec<IEchoBinary__ResultArg
         }
         input.readStructEnd();
         return {
+            __name: "EchoBinary__Result",
             success: _args.success
         };
     }
 };
 export class EchoBinary__Result extends thrift.StructLike implements IEchoBinary__Result {
     public success?: string;
+    public readonly __name = "EchoBinary__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IEchoBinary__ResultArgs = {}) {
@@ -1826,6 +1889,7 @@ export class EchoBinary__Result extends thrift.StructLike implements IEchoBinary
     }
 }
 export interface IEchoString__Result {
+    __name: "EchoString__Result";
     success?: string;
 }
 export interface IEchoString__ResultArgs {
@@ -1874,12 +1938,14 @@ export const EchoString__ResultCodec: thrift.IStructCodec<IEchoString__ResultArg
         }
         input.readStructEnd();
         return {
+            __name: "EchoString__Result",
             success: _args.success
         };
     }
 };
 export class EchoString__Result extends thrift.StructLike implements IEchoString__Result {
     public success?: string;
+    public readonly __name = "EchoString__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IEchoString__ResultArgs = {}) {
@@ -1900,6 +1966,7 @@ export class EchoString__Result extends thrift.StructLike implements IEchoString
     }
 }
 export interface ICheckName__Result {
+    __name: "CheckName__Result";
     success?: string;
 }
 export interface ICheckName__ResultArgs {
@@ -1948,12 +2015,14 @@ export const CheckName__ResultCodec: thrift.IStructCodec<ICheckName__ResultArgs,
         }
         input.readStructEnd();
         return {
+            __name: "CheckName__Result",
             success: _args.success
         };
     }
 };
 export class CheckName__Result extends thrift.StructLike implements ICheckName__Result {
     public success?: string;
+    public readonly __name = "CheckName__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ICheckName__ResultArgs = {}) {
@@ -1974,6 +2043,7 @@ export class CheckName__Result extends thrift.StructLike implements ICheckName__
     }
 }
 export interface ICheckOptional__Result {
+    __name: "CheckOptional__Result";
     success?: string;
 }
 export interface ICheckOptional__ResultArgs {
@@ -2022,12 +2092,14 @@ export const CheckOptional__ResultCodec: thrift.IStructCodec<ICheckOptional__Res
         }
         input.readStructEnd();
         return {
+            __name: "CheckOptional__Result",
             success: _args.success
         };
     }
 };
 export class CheckOptional__Result extends thrift.StructLike implements ICheckOptional__Result {
     public success?: string;
+    public readonly __name = "CheckOptional__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ICheckOptional__ResultArgs = {}) {
@@ -2048,6 +2120,7 @@ export class CheckOptional__Result extends thrift.StructLike implements ICheckOp
     }
 }
 export interface IMapOneList__Result {
+    __name: "MapOneList__Result";
     success?: Array<number>;
 }
 export interface IMapOneList__ResultArgs {
@@ -2107,12 +2180,14 @@ export const MapOneList__ResultCodec: thrift.IStructCodec<IMapOneList__ResultArg
         }
         input.readStructEnd();
         return {
+            __name: "MapOneList__Result",
             success: _args.success
         };
     }
 };
 export class MapOneList__Result extends thrift.StructLike implements IMapOneList__Result {
     public success?: Array<number>;
+    public readonly __name = "MapOneList__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMapOneList__ResultArgs = {}) {
@@ -2137,6 +2212,7 @@ export class MapOneList__Result extends thrift.StructLike implements IMapOneList
     }
 }
 export interface IMapValues__Result {
+    __name: "MapValues__Result";
     success?: Array<number>;
 }
 export interface IMapValues__ResultArgs {
@@ -2196,12 +2272,14 @@ export const MapValues__ResultCodec: thrift.IStructCodec<IMapValues__ResultArgs,
         }
         input.readStructEnd();
         return {
+            __name: "MapValues__Result",
             success: _args.success
         };
     }
 };
 export class MapValues__Result extends thrift.StructLike implements IMapValues__Result {
     public success?: Array<number>;
+    public readonly __name = "MapValues__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMapValues__ResultArgs = {}) {
@@ -2226,6 +2304,7 @@ export class MapValues__Result extends thrift.StructLike implements IMapValues__
     }
 }
 export interface IListToMap__Result {
+    __name: "ListToMap__Result";
     success?: Map<string, string>;
 }
 export interface IListToMap__ResultArgs {
@@ -2287,12 +2366,14 @@ export const ListToMap__ResultCodec: thrift.IStructCodec<IListToMap__ResultArgs,
         }
         input.readStructEnd();
         return {
+            __name: "ListToMap__Result",
             success: _args.success
         };
     }
 };
 export class ListToMap__Result extends thrift.StructLike implements IListToMap__Result {
     public success?: Map<string, string>;
+    public readonly __name = "ListToMap__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IListToMap__ResultArgs = {}) {
@@ -2318,6 +2399,7 @@ export class ListToMap__Result extends thrift.StructLike implements IListToMap__
     }
 }
 export interface IFetchThing__Result {
+    __name: "FetchThing__Result";
     success?: com_test_common.ICommonStruct;
 }
 export interface IFetchThing__ResultArgs {
@@ -2366,12 +2448,14 @@ export const FetchThing__ResultCodec: thrift.IStructCodec<IFetchThing__ResultArg
         }
         input.readStructEnd();
         return {
+            __name: "FetchThing__Result",
             success: _args.success
         };
     }
 };
 export class FetchThing__Result extends thrift.StructLike implements IFetchThing__Result {
     public success?: com_test_common.ICommonStruct;
+    public readonly __name = "FetchThing__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IFetchThing__ResultArgs = {}) {
@@ -2392,6 +2476,7 @@ export class FetchThing__Result extends thrift.StructLike implements IFetchThing
     }
 }
 export interface IZip__Result {
+    __name: "Zip__Result";
     success?: void;
 }
 export interface IZip__ResultArgs {
@@ -2431,12 +2516,14 @@ export const Zip__ResultCodec: thrift.IStructCodec<IZip__ResultArgs, IZip__Resul
         }
         input.readStructEnd();
         return {
+            __name: "Zip__Result",
             success: _args.success
         };
     }
 };
 export class Zip__Result extends thrift.StructLike implements IZip__Result {
     public success?: void;
+    public readonly __name = "Zip__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IZip__ResultArgs = {}) {

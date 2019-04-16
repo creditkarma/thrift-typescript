@@ -83,6 +83,11 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                 index += 1
                 break
 
+            case '--withNameField':
+                options.withNameField = true
+                index += 1
+                break
+
             default:
                 if (next.startsWith('--')) {
                     throw new Error(

@@ -19,6 +19,7 @@ export const methodAnnotations: thrift.IMethodAnnotations = {
 };
 export const methodNames: Array<string> = ["getStruct", "getUnion"];
 export interface IGetStruct__Args {
+    __name: "GetStruct__Args";
     key: number;
 }
 export interface IGetStruct__ArgsArgs {
@@ -71,6 +72,7 @@ export const GetStruct__ArgsCodec: thrift.IStructCodec<IGetStruct__ArgsArgs, IGe
         input.readStructEnd();
         if (_args.key !== undefined) {
             return {
+                __name: "GetStruct__Args",
                 key: _args.key
             };
         }
@@ -81,6 +83,7 @@ export const GetStruct__ArgsCodec: thrift.IStructCodec<IGetStruct__ArgsArgs, IGe
 };
 export class GetStruct__Args extends thrift.StructLike implements IGetStruct__Args {
     public key: number;
+    public readonly __name = "GetStruct__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IGetStruct__ArgsArgs) {
@@ -104,6 +107,7 @@ export class GetStruct__Args extends thrift.StructLike implements IGetStruct__Ar
     }
 }
 export interface IGetUnion__Args {
+    __name: "GetUnion__Args";
     index: number;
 }
 export interface IGetUnion__ArgsArgs {
@@ -156,6 +160,7 @@ export const GetUnion__ArgsCodec: thrift.IStructCodec<IGetUnion__ArgsArgs, IGetU
         input.readStructEnd();
         if (_args.index !== undefined) {
             return {
+                __name: "GetUnion__Args",
                 index: _args.index
             };
         }
@@ -166,6 +171,7 @@ export const GetUnion__ArgsCodec: thrift.IStructCodec<IGetUnion__ArgsArgs, IGetU
 };
 export class GetUnion__Args extends thrift.StructLike implements IGetUnion__Args {
     public index: number;
+    public readonly __name = "GetUnion__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IGetUnion__ArgsArgs) {
@@ -189,6 +195,7 @@ export class GetUnion__Args extends thrift.StructLike implements IGetUnion__Args
     }
 }
 export interface IGetStruct__Result {
+    __name: "GetStruct__Result";
     success?: __NAMESPACE__.ISharedStruct;
 }
 export interface IGetStruct__ResultArgs {
@@ -237,12 +244,14 @@ export const GetStruct__ResultCodec: thrift.IStructCodec<IGetStruct__ResultArgs,
         }
         input.readStructEnd();
         return {
+            __name: "GetStruct__Result",
             success: _args.success
         };
     }
 };
 export class GetStruct__Result extends thrift.StructLike implements IGetStruct__Result {
     public success?: __NAMESPACE__.ISharedStruct;
+    public readonly __name = "GetStruct__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IGetStruct__ResultArgs = {}) {
@@ -263,6 +272,7 @@ export class GetStruct__Result extends thrift.StructLike implements IGetStruct__
     }
 }
 export interface IGetUnion__Result {
+    __name: "GetUnion__Result";
     success?: __NAMESPACE__.SharedUnion;
 }
 export interface IGetUnion__ResultArgs {
@@ -311,12 +321,14 @@ export const GetUnion__ResultCodec: thrift.IStructCodec<IGetUnion__ResultArgs, I
         }
         input.readStructEnd();
         return {
+            __name: "GetUnion__Result",
             success: _args.success
         };
     }
 };
 export class GetUnion__Result extends thrift.StructLike implements IGetUnion__Result {
     public success?: __NAMESPACE__.SharedUnion;
+    public readonly __name = "GetUnion__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IGetUnion__ResultArgs = {}) {

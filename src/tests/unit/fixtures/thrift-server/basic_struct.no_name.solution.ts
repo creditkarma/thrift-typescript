@@ -1,17 +1,13 @@
 export interface IMyStruct {
-    __name: "MyStruct";
     id: number;
-    bigID: thrift.Int64;
 }
 export interface IMyStructArgs {
-    id?: number;
-    bigID?: number | string | thrift.Int64;
+    id: number;
 }
 export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
     encode(args: IMyStructArgs, output: thrift.TProtocol): void {
         const obj = {
-            id: (args.id != null ? args.id : 45),
-            bigID: (args.bigID != null ? (typeof args.bigID === "number" ? new thrift.Int64(args.bigID) : typeof args.bigID === "string" ? thrift.Int64.fromDecimalString(args.bigID) : args.bigID) : thrift.Int64.fromDecimalString("23948234"))
+            id: args.id
         };
         output.writeStructBegin("MyStruct");
         if (obj.id != null) {
@@ -19,10 +15,8 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
             output.writeI32(obj.id);
             output.writeFieldEnd();
         }
-        if (obj.bigID != null) {
-            output.writeFieldBegin("bigID", thrift.TType.I64, 2);
-            output.writeI64((typeof obj.bigID === "number" ? new thrift.Int64(obj.bigID) : typeof obj.bigID === "string" ? thrift.Int64.fromDecimalString(obj.bigID) : obj.bigID));
-            output.writeFieldEnd();
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[id] is unset!");
         }
         output.writeFieldStop();
         output.writeStructEnd();
@@ -48,15 +42,6 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
                         input.skip(fieldType);
                     }
                     break;
-                case 2:
-                    if (fieldType === thrift.TType.I64) {
-                        const value_2: thrift.Int64 = input.readI64();
-                        _args.bigID = value_2;
-                    }
-                    else {
-                        input.skip(fieldType);
-                    }
-                    break;
                 default: {
                     input.skip(fieldType);
                 }
@@ -64,11 +49,9 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
             input.readFieldEnd();
         }
         input.readStructEnd();
-        if (_args.id !== undefined && _args.bigID !== undefined) {
+        if (_args.id !== undefined) {
             return {
-                __name: "MyStruct",
-                id: (_args.id != null ? _args.id : 45),
-                bigID: (_args.bigID != null ? _args.bigID : thrift.Int64.fromDecimalString("23948234"))
+                id: _args.id
             };
         }
         else {
@@ -77,34 +60,17 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
     }
 };
 export class MyStruct extends thrift.StructLike implements IMyStruct {
-    public id: number = 45;
-    public bigID: thrift.Int64 = thrift.Int64.fromDecimalString("23948234");
-    public readonly __name = "MyStruct";
-    public readonly _annotations: thrift.IThriftAnnotations = {
-        foo: "bar",
-        two: "three",
-        alone: "",
-        'dot.foo': "bar",
-        'dot.lonely': ""
-    };
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {
-        id: {
-            foo: "bar",
-            two: "three",
-            lonely: "",
-            'dot.foo': "bar",
-            'dot.lonely': ""
-        }
-    };
+    public id: number;
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyStructArgs) {
         super();
         if (args.id != null) {
-            const value_3: number = args.id;
-            this.id = value_3;
+            const value_2: number = args.id;
+            this.id = value_2;
         }
-        if (args.bigID != null) {
-            const value_4: thrift.Int64 = (typeof args.bigID === "number" ? new thrift.Int64(args.bigID) : typeof args.bigID === "string" ? thrift.Int64.fromDecimalString(args.bigID) : args.bigID);
-            this.bigID = value_4;
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[id] is unset!");
         }
     }
     public static read(input: thrift.TProtocol): MyStruct {

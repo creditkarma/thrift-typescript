@@ -1,4 +1,5 @@
 export interface IMyUnion {
+    __name: "MyUnion";
     field1?: number;
     field2?: thrift.Int64;
 }
@@ -52,7 +53,7 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
                     if (fieldType === thrift.TType.I32) {
                         _fieldsSet++;
                         const value_1: number = input.readI32();
-                        _returnValue = { field1: value_1 };
+                        _returnValue = { __name: "MyUnion", field1: value_1 };
                     }
                     else {
                         input.skip(fieldType);
@@ -62,7 +63,7 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
                     if (fieldType === thrift.TType.I64) {
                         _fieldsSet++;
                         const value_2: thrift.Int64 = input.readI64();
-                        _returnValue = { field2: value_2 };
+                        _returnValue = { __name: "MyUnion", field2: value_2 };
                     }
                     else {
                         input.skip(fieldType);
@@ -92,6 +93,7 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
 export class MyUnion extends thrift.StructLike implements IMyUnion {
     public field1?: number;
     public field2?: thrift.Int64;
+    public readonly __name = "MyUnion";
     public readonly _annotations: thrift.IThriftAnnotations = {
         foo: "bar",
         two: "three",

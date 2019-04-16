@@ -1,4 +1,5 @@
 export interface IMyStruct {
+    __name: "MyStruct";
 }
 export interface IMyStructArgs {
 }
@@ -26,10 +27,13 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
             input.readFieldEnd();
         }
         input.readStructEnd();
-        return {};
+        return {
+            __name: "MyStruct"
+        };
     }
 };
 export class MyStruct extends thrift.StructLike implements IMyStruct {
+    public readonly __name = "MyStruct";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyStructArgs = {}) {

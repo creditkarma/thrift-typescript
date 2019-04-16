@@ -5,6 +5,7 @@
 */
 import * as thrift from "test-lib";
 export interface INotAGoodIdea {
+    __name: "NotAGoodIdea";
     message?: string;
 }
 export interface INotAGoodIdeaArgs {
@@ -53,12 +54,14 @@ export const NotAGoodIdeaCodec: thrift.IStructCodec<INotAGoodIdeaArgs, INotAGood
         }
         input.readStructEnd();
         return {
+            __name: "NotAGoodIdea",
             message: _args.message
         };
     }
 };
 export class NotAGoodIdea extends thrift.StructLike implements INotAGoodIdea {
     public message?: string;
+    public readonly __name = "NotAGoodIdea";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: INotAGoodIdeaArgs = {}) {

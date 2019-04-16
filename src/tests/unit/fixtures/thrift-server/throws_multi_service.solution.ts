@@ -1,4 +1,5 @@
 export interface IServiceException {
+    __name: "ServiceException";
     message?: string;
 }
 export interface IServiceExceptionArgs {
@@ -47,12 +48,14 @@ export const ServiceExceptionCodec: thrift.IStructCodec<IServiceExceptionArgs, I
         }
         input.readStructEnd();
         return {
+            __name: "ServiceException",
             message: _args.message
         };
     }
 };
 export class ServiceException extends thrift.StructLike implements IServiceException {
     public message?: string;
+    public readonly __name = "ServiceException";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IServiceExceptionArgs = {}) {
@@ -73,6 +76,7 @@ export class ServiceException extends thrift.StructLike implements IServiceExcep
     }
 }
 export interface IAuthException {
+    __name: "AuthException";
     message?: string;
     code?: number;
 }
@@ -138,6 +142,7 @@ export const AuthExceptionCodec: thrift.IStructCodec<IAuthExceptionArgs, IAuthEx
         }
         input.readStructEnd();
         return {
+            __name: "AuthException",
             message: _args.message,
             code: _args.code
         };
@@ -146,6 +151,7 @@ export const AuthExceptionCodec: thrift.IStructCodec<IAuthExceptionArgs, IAuthEx
 export class AuthException extends thrift.StructLike implements IAuthException {
     public message?: string;
     public code?: number;
+    public readonly __name = "AuthException";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IAuthExceptionArgs = {}) {
@@ -170,6 +176,7 @@ export class AuthException extends thrift.StructLike implements IAuthException {
     }
 }
 export interface IUnknownException {
+    __name: "UnknownException";
     message?: string;
 }
 export interface IUnknownExceptionArgs {
@@ -218,12 +225,14 @@ export const UnknownExceptionCodec: thrift.IStructCodec<IUnknownExceptionArgs, I
         }
         input.readStructEnd();
         return {
+            __name: "UnknownException",
             message: _args.message
         };
     }
 };
 export class UnknownException extends thrift.StructLike implements IUnknownException {
     public message?: string;
+    public readonly __name = "UnknownException";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IUnknownExceptionArgs = {}) {
@@ -253,6 +262,7 @@ export const methodAnnotations: thrift.IMethodAnnotations = {
 };
 export const methodNames: Array<string> = ["peg"];
 export interface IPeg__Args {
+    __name: "Peg__Args";
     name: string;
 }
 export interface IPeg__ArgsArgs {
@@ -305,6 +315,7 @@ export const Peg__ArgsCodec: thrift.IStructCodec<IPeg__ArgsArgs, IPeg__Args> = {
         input.readStructEnd();
         if (_args.name !== undefined) {
             return {
+                __name: "Peg__Args",
                 name: _args.name
             };
         }
@@ -315,6 +326,7 @@ export const Peg__ArgsCodec: thrift.IStructCodec<IPeg__ArgsArgs, IPeg__Args> = {
 };
 export class Peg__Args extends thrift.StructLike implements IPeg__Args {
     public name: string;
+    public readonly __name = "Peg__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPeg__ArgsArgs) {
@@ -338,6 +350,7 @@ export class Peg__Args extends thrift.StructLike implements IPeg__Args {
     }
 }
 export interface IPeg__Result {
+    __name: "Peg__Result";
     success?: string;
     exp?: IServiceException;
     authExp?: IAuthException;
@@ -437,6 +450,7 @@ export const Peg__ResultCodec: thrift.IStructCodec<IPeg__ResultArgs, IPeg__Resul
         }
         input.readStructEnd();
         return {
+            __name: "Peg__Result",
             success: _args.success,
             exp: _args.exp,
             authExp: _args.authExp,
@@ -449,6 +463,7 @@ export class Peg__Result extends thrift.StructLike implements IPeg__Result {
     public exp?: IServiceException;
     public authExp?: IAuthException;
     public unknownExp?: IUnknownException;
+    public readonly __name = "Peg__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPeg__ResultArgs = {}) {

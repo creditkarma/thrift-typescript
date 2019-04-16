@@ -5,6 +5,7 @@
 */
 import * as thrift from "test-lib";
 export interface ICode {
+    __name: "Code";
     status?: thrift.Int64;
 }
 export interface ICodeArgs {
@@ -53,12 +54,14 @@ export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
         }
         input.readStructEnd();
         return {
+            __name: "Code",
             status: _args.status
         };
     }
 };
 export class Code extends thrift.StructLike implements ICode {
     public status?: thrift.Int64;
+    public readonly __name = "Code";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ICodeArgs = {}) {

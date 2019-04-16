@@ -6,6 +6,7 @@
 import * as thrift from "test-lib";
 import * as com_test_shared from "./../shared";
 export interface IInvalidResult {
+    __name: "InvalidResult";
     message?: string;
     code?: com_test_shared.ICode;
 }
@@ -71,6 +72,7 @@ export const InvalidResultCodec: thrift.IStructCodec<IInvalidResultArgs, IInvali
         }
         input.readStructEnd();
         return {
+            __name: "InvalidResult",
             message: _args.message,
             code: _args.code
         };
@@ -79,6 +81,7 @@ export const InvalidResultCodec: thrift.IStructCodec<IInvalidResultArgs, IInvali
 export class InvalidResult extends thrift.StructLike implements IInvalidResult {
     public message?: string;
     public code?: com_test_shared.ICode;
+    public readonly __name = "InvalidResult";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IInvalidResultArgs = {}) {

@@ -11,7 +11,7 @@
         "dist/main"
     ],
     "scripts": {
-        "clean": "rimraf ./coverage ./dist ./**/codegen",
+        "clean": "rimraf ./dist ./**/codegen",
         "clean:all": "npm run clean && rimraf ./node_modules package-lock.json",
         "codegen": "node ./dist/main/bin/index.js --target apache --sourceDir ./src/tests/integration/thrift --outDir ./src/tests/integration/apache/codegen",
         "prebuild": "npm run clean && npm run lint && npm run format",
@@ -27,8 +27,7 @@
         "pretest": "npm run build:test && npm run move:fixtures",
         "test": "npm run test:unit && npm run test:integration",
         "test:unit": "NODE_ENV=test mocha --opts mocha.opts",
-        "test:integration": "NODE_ENV=test mocha --opts mocha.integration.opts",
-        "coverage": "NODE_ENV=test nyc mocha --opts mocha.cover.opts"
+        "test:integration": "NODE_ENV=test mocha --opts mocha.integration.opts"
     },
     "keywords": [
         "thrift",
@@ -56,7 +55,6 @@
         "@types/thrift": "^0.10.7",
         "chai": "^4.2.0",
         "mocha": "^5.2.0",
-        "nyc": "^13.3.0",
         "prettier": "^1.17.0",
         "rimraf": "^2.6.2",
         "source-map-support": "^0.5.9",
@@ -64,18 +62,5 @@
         "tslint": "^5.11.0",
         "tslint-config-prettier": "^1.17.0",
         "tslint-plugin-prettier": "^2.0.0"
-    },
-    "nyc": {
-        "include": [
-            "src/*.ts",
-            "src/**/*.ts"
-        ],
-        "exclude": [
-            "src/tests/**"
-        ],
-        "extension": [
-            ".ts"
-        ],
-        "all": true
     }
 }

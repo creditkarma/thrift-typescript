@@ -5,6 +5,7 @@
 */
 import * as thrift from "test-lib";
 export interface IOtherCommonUnion {
+    __name: "OtherCommonUnion";
     option1?: string;
     option2?: number;
 }
@@ -58,7 +59,7 @@ export const OtherCommonUnionCodec: thrift.IStructCodec<IOtherCommonUnionArgs, I
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
                         const value_1: string = input.readString();
-                        _returnValue = { option1: value_1 };
+                        _returnValue = { __name: "OtherCommonUnion", option1: value_1 };
                     }
                     else {
                         input.skip(fieldType);
@@ -68,7 +69,7 @@ export const OtherCommonUnionCodec: thrift.IStructCodec<IOtherCommonUnionArgs, I
                     if (fieldType === thrift.TType.I32) {
                         _fieldsSet++;
                         const value_2: number = input.readI32();
-                        _returnValue = { option2: value_2 };
+                        _returnValue = { __name: "OtherCommonUnion", option2: value_2 };
                     }
                     else {
                         input.skip(fieldType);
@@ -98,6 +99,7 @@ export const OtherCommonUnionCodec: thrift.IStructCodec<IOtherCommonUnionArgs, I
 export class OtherCommonUnion extends thrift.StructLike implements IOtherCommonUnion {
     public option1?: string;
     public option2?: number;
+    public readonly __name = "OtherCommonUnion";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IOtherCommonUnionArgs = {}) {

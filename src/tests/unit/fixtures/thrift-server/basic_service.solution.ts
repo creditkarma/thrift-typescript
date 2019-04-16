@@ -1,4 +1,5 @@
 export interface IUser {
+    __name: "User";
     name: string;
     id: number;
 }
@@ -71,6 +72,7 @@ export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
         input.readStructEnd();
         if (_args.name !== undefined && _args.id !== undefined) {
             return {
+                __name: "User",
                 name: _args.name,
                 id: _args.id
             };
@@ -83,6 +85,7 @@ export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
 export class User extends thrift.StructLike implements IUser {
     public name: string;
     public id: number;
+    public readonly __name = "User";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IUserArgs) {
@@ -130,6 +133,7 @@ export const methodAnnotations: thrift.IMethodAnnotations = {
 };
 export const methodNames: Array<string> = ["getUser", "saveUser", "ping"];
 export interface IGetUser__Args {
+    __name: "GetUser__Args";
     id: number;
 }
 export interface IGetUser__ArgsArgs {
@@ -182,6 +186,7 @@ export const GetUser__ArgsCodec: thrift.IStructCodec<IGetUser__ArgsArgs, IGetUse
         input.readStructEnd();
         if (_args.id !== undefined) {
             return {
+                __name: "GetUser__Args",
                 id: _args.id
             };
         }
@@ -192,6 +197,7 @@ export const GetUser__ArgsCodec: thrift.IStructCodec<IGetUser__ArgsArgs, IGetUse
 };
 export class GetUser__Args extends thrift.StructLike implements IGetUser__Args {
     public id: number;
+    public readonly __name = "GetUser__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IGetUser__ArgsArgs) {
@@ -215,6 +221,7 @@ export class GetUser__Args extends thrift.StructLike implements IGetUser__Args {
     }
 }
 export interface ISaveUser__Args {
+    __name: "SaveUser__Args";
     user: IUser;
 }
 export interface ISaveUser__ArgsArgs {
@@ -267,6 +274,7 @@ export const SaveUser__ArgsCodec: thrift.IStructCodec<ISaveUser__ArgsArgs, ISave
         input.readStructEnd();
         if (_args.user !== undefined) {
             return {
+                __name: "SaveUser__Args",
                 user: _args.user
             };
         }
@@ -277,6 +285,7 @@ export const SaveUser__ArgsCodec: thrift.IStructCodec<ISaveUser__ArgsArgs, ISave
 };
 export class SaveUser__Args extends thrift.StructLike implements ISaveUser__Args {
     public user: IUser;
+    public readonly __name = "SaveUser__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ISaveUser__ArgsArgs) {
@@ -300,6 +309,7 @@ export class SaveUser__Args extends thrift.StructLike implements ISaveUser__Args
     }
 }
 export interface IPing__Args {
+    __name: "Ping__Args";
 }
 export interface IPing__ArgsArgs {
 }
@@ -327,10 +337,13 @@ export const Ping__ArgsCodec: thrift.IStructCodec<IPing__ArgsArgs, IPing__Args> 
             input.readFieldEnd();
         }
         input.readStructEnd();
-        return {};
+        return {
+            __name: "Ping__Args"
+        };
     }
 };
 export class Ping__Args extends thrift.StructLike implements IPing__Args {
+    public readonly __name = "Ping__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPing__ArgsArgs = {}) {
@@ -347,6 +360,7 @@ export class Ping__Args extends thrift.StructLike implements IPing__Args {
     }
 }
 export interface IGetUser__Result {
+    __name: "GetUser__Result";
     success?: IUser;
 }
 export interface IGetUser__ResultArgs {
@@ -395,12 +409,14 @@ export const GetUser__ResultCodec: thrift.IStructCodec<IGetUser__ResultArgs, IGe
         }
         input.readStructEnd();
         return {
+            __name: "GetUser__Result",
             success: _args.success
         };
     }
 };
 export class GetUser__Result extends thrift.StructLike implements IGetUser__Result {
     public success?: IUser;
+    public readonly __name = "GetUser__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IGetUser__ResultArgs = {}) {
@@ -421,6 +437,7 @@ export class GetUser__Result extends thrift.StructLike implements IGetUser__Resu
     }
 }
 export interface ISaveUser__Result {
+    __name: "SaveUser__Result";
     success?: void;
 }
 export interface ISaveUser__ResultArgs {
@@ -460,12 +477,14 @@ export const SaveUser__ResultCodec: thrift.IStructCodec<ISaveUser__ResultArgs, I
         }
         input.readStructEnd();
         return {
+            __name: "SaveUser__Result",
             success: _args.success
         };
     }
 };
 export class SaveUser__Result extends thrift.StructLike implements ISaveUser__Result {
     public success?: void;
+    public readonly __name = "SaveUser__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ISaveUser__ResultArgs = {}) {
@@ -486,6 +505,7 @@ export class SaveUser__Result extends thrift.StructLike implements ISaveUser__Re
     }
 }
 export interface IPing__Result {
+    __name: "Ping__Result";
     success?: void;
 }
 export interface IPing__ResultArgs {
@@ -525,12 +545,14 @@ export const Ping__ResultCodec: thrift.IStructCodec<IPing__ResultArgs, IPing__Re
         }
         input.readStructEnd();
         return {
+            __name: "Ping__Result",
             success: _args.success
         };
     }
 };
 export class Ping__Result extends thrift.StructLike implements IPing__Result {
     public success?: void;
+    public readonly __name = "Ping__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPing__ResultArgs = {}) {

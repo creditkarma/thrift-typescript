@@ -43,18 +43,27 @@ export function renderClass(
     state: IRenderState,
     isExported: boolean,
 ): ts.ClassDeclaration {
-    const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(
-        node,
-        state,
-    )
+    const fields: Array<ts.PropertyDeclaration> = [
+        ...createFieldsForStruct(node, state),
+        renderAnnotations(node.annotations),
+        renderFieldAnnotations(node.fields),
+    ]
 
-    const annotations: ts.PropertyDeclaration = renderAnnotations(
-        node.annotations,
-    )
+    if (state.options.withNameField) {
+        const nameField: ts.PropertyDeclaration = ts.createProperty(
+            undefined,
+            [
+                ts.createToken(ts.SyntaxKind.PublicKeyword),
+                ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
+            ],
+            COMMON_IDENTIFIERS.__name,
+            undefined,
+            undefined,
+            ts.createLiteral(node.name.value),
+        )
 
-    const fieldAnnotations: ts.PropertyDeclaration = renderFieldAnnotations(
-        node.fields,
-    )
+        fields.splice(-2, 0, nameField)
+    }
 
     /**
      * After creating the properties on our class for the struct fields we must create
@@ -100,8 +109,6 @@ export function renderClass(
         [extendsAbstract(), implementsInterface(node, state)], // heritage
         [
             ...fields,
-            annotations,
-            fieldAnnotations,
             ctor,
             createStaticReadMethod(node, state),
             createStaticWriteMethod(node, state),

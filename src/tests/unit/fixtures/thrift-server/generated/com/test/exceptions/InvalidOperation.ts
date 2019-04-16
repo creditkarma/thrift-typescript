@@ -5,6 +5,7 @@
 */
 import * as thrift from "test-lib";
 export interface IInvalidOperation {
+    __name: "InvalidOperation";
     whatOp?: number;
     why?: string;
 }
@@ -70,6 +71,7 @@ export const InvalidOperationCodec: thrift.IStructCodec<IInvalidOperationArgs, I
         }
         input.readStructEnd();
         return {
+            __name: "InvalidOperation",
             whatOp: _args.whatOp,
             why: _args.why
         };
@@ -78,6 +80,7 @@ export const InvalidOperationCodec: thrift.IStructCodec<IInvalidOperationArgs, I
 export class InvalidOperation extends thrift.StructLike implements IInvalidOperation {
     public whatOp?: number;
     public why?: string;
+    public readonly __name = "InvalidOperation";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IInvalidOperationArgs = {}) {

@@ -1,4 +1,5 @@
 export interface ICode {
+    __name: "Code";
     status?: thrift.Int64;
     data?: Buffer;
 }
@@ -64,6 +65,7 @@ export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
         }
         input.readStructEnd();
         return {
+            __name: "Code",
             status: (_args.status != null ? _args.status : thrift.Int64.fromDecimalString("200")),
             data: (_args.data != null ? _args.data : Buffer.from("data"))
         };
@@ -72,6 +74,7 @@ export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
 export class Code extends thrift.StructLike implements ICode {
     public status?: thrift.Int64 = thrift.Int64.fromDecimalString("200");
     public data?: Buffer = Buffer.from("data");
+    public readonly __name = "Code";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ICodeArgs = {}) {
@@ -96,6 +99,7 @@ export class Code extends thrift.StructLike implements ICode {
     }
 }
 export interface IMyException {
+    __name: "MyException";
     description: string;
     code?: ICode;
 }
@@ -165,6 +169,7 @@ export const MyExceptionCodec: thrift.IStructCodec<IMyExceptionArgs, IMyExceptio
         input.readStructEnd();
         if (_args.description !== undefined) {
             return {
+                __name: "MyException",
                 description: _args.description,
                 code: _args.code
             };
@@ -177,6 +182,7 @@ export const MyExceptionCodec: thrift.IStructCodec<IMyExceptionArgs, IMyExceptio
 export class MyException extends thrift.StructLike implements IMyException {
     public description: string;
     public code?: ICode;
+    public readonly __name = "MyException";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyExceptionArgs) {

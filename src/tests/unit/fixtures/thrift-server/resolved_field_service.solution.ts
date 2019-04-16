@@ -9,6 +9,7 @@ export const methodAnnotations: thrift.IMethodAnnotations = {
 };
 export const methodNames: Array<string> = ["ping"];
 export interface IPing__Args {
+    __name: "Ping__Args";
     id: thrift.Int64;
 }
 export interface IPing__ArgsArgs {
@@ -61,6 +62,7 @@ export const Ping__ArgsCodec: thrift.IStructCodec<IPing__ArgsArgs, IPing__Args> 
         input.readStructEnd();
         if (_args.id !== undefined) {
             return {
+                __name: "Ping__Args",
                 id: _args.id
             };
         }
@@ -71,6 +73,7 @@ export const Ping__ArgsCodec: thrift.IStructCodec<IPing__ArgsArgs, IPing__Args> 
 };
 export class Ping__Args extends thrift.StructLike implements IPing__Args {
     public id: thrift.Int64;
+    public readonly __name = "Ping__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPing__ArgsArgs) {
@@ -94,6 +97,7 @@ export class Ping__Args extends thrift.StructLike implements IPing__Args {
     }
 }
 export interface IPing__Result {
+    __name: "Ping__Result";
     success?: void;
 }
 export interface IPing__ResultArgs {
@@ -133,12 +137,14 @@ export const Ping__ResultCodec: thrift.IStructCodec<IPing__ResultArgs, IPing__Re
         }
         input.readStructEnd();
         return {
+            __name: "Ping__Result",
             success: _args.success
         };
     }
 };
 export class Ping__Result extends thrift.StructLike implements IPing__Result {
     public success?: void;
+    public readonly __name = "Ping__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPing__ResultArgs = {}) {

@@ -6,6 +6,7 @@
 import * as thrift from "test-lib";
 import * as __NAMESPACE__ from "./.";
 export interface ISharedStruct {
+    __name: "SharedStruct";
     code: __NAMESPACE__.ICode;
     value: string;
 }
@@ -78,6 +79,7 @@ export const SharedStructCodec: thrift.IStructCodec<ISharedStructArgs, ISharedSt
         input.readStructEnd();
         if (_args.code !== undefined && _args.value !== undefined) {
             return {
+                __name: "SharedStruct",
                 code: _args.code,
                 value: _args.value
             };
@@ -90,6 +92,7 @@ export const SharedStructCodec: thrift.IStructCodec<ISharedStructArgs, ISharedSt
 export class SharedStruct extends thrift.StructLike implements ISharedStruct {
     public code: __NAMESPACE__.ICode;
     public value: string;
+    public readonly __name = "SharedStruct";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ISharedStructArgs) {

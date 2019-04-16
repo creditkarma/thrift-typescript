@@ -11,11 +11,13 @@ export enum ChoiceType {
 }
 export type Choice = IChoiceWithFirstName | IChoiceWithLastName;
 export interface IChoiceWithFirstName {
+    __name: "Choice";
     __type: ChoiceType.ChoiceWithFirstName;
     firstName: __NAMESPACE__.IFirstName;
     lastName?: undefined;
 }
 export interface IChoiceWithLastName {
+    __name: "Choice";
     __type: ChoiceType.ChoiceWithLastName;
     firstName?: undefined;
     lastName: __NAMESPACE__.ILastName;
@@ -50,14 +52,16 @@ export const ChoiceCodec: thrift.IStructToolkit<ChoiceArgs, Choice> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
-            if (_returnValue.firstName) {
+            if (_returnValue.firstName !== undefined) {
                 return {
+                    __name: "Choice",
                     __type: ChoiceType.ChoiceWithFirstName,
                     firstName: _returnValue.firstName
                 };
             }
             else {
                 return {
+                    __name: "Choice",
                     __type: ChoiceType.ChoiceWithLastName,
                     lastName: _returnValue.lastName
                 };
@@ -112,7 +116,7 @@ export const ChoiceCodec: thrift.IStructToolkit<ChoiceArgs, Choice> = {
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
                         const value_3: __NAMESPACE__.IFirstName = __NAMESPACE__.FirstNameCodec.decode(input);
-                        _returnValue = { firstName: value_3 };
+                        _returnValue = { __name: "Choice", firstName: value_3 };
                     }
                     else {
                         input.skip(fieldType);
@@ -122,7 +126,7 @@ export const ChoiceCodec: thrift.IStructToolkit<ChoiceArgs, Choice> = {
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
                         const value_4: __NAMESPACE__.ILastName = __NAMESPACE__.LastNameCodec.decode(input);
-                        _returnValue = { lastName: value_4 };
+                        _returnValue = { __name: "Choice", lastName: value_4 };
                     }
                     else {
                         input.skip(fieldType);
@@ -142,14 +146,16 @@ export const ChoiceCodec: thrift.IStructToolkit<ChoiceArgs, Choice> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
-            if (_returnValue.firstName) {
+            if (_returnValue.firstName !== undefined) {
                 return {
+                    __name: "Choice",
                     __type: ChoiceType.ChoiceWithFirstName,
                     firstName: _returnValue.firstName
                 };
             }
             else {
                 return {
+                    __name: "Choice",
                     __type: ChoiceType.ChoiceWithLastName,
                     lastName: _returnValue.lastName
                 };

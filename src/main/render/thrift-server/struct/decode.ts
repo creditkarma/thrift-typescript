@@ -268,19 +268,43 @@ function createReturnValue(
     node: InterfaceWithFields,
     state: IRenderState,
 ): ts.ReturnStatement {
-    return ts.createReturn(
-        ts.createObjectLiteral(
-            node.fields.map(
-                (next: FieldDefinition): ts.ObjectLiteralElementLike => {
-                    return ts.createPropertyAssignment(
-                        next.name.value,
-                        getInitializerForField('_args', next, state),
-                    )
-                },
+    if (state.options.withNameField) {
+        return ts.createReturn(
+            ts.createObjectLiteral(
+                [
+                    ts.createPropertyAssignment(
+                        COMMON_IDENTIFIERS.__name,
+                        ts.createLiteral(node.name.value),
+                    ),
+                    ...node.fields.map(
+                        (
+                            next: FieldDefinition,
+                        ): ts.ObjectLiteralElementLike => {
+                            return ts.createPropertyAssignment(
+                                next.name.value,
+                                getInitializerForField('_args', next, state),
+                            )
+                        },
+                    ),
+                ],
+                true,
             ),
-            true, // multiline
-        ),
-    )
+        )
+    } else {
+        return ts.createReturn(
+            ts.createObjectLiteral(
+                node.fields.map(
+                    (next: FieldDefinition): ts.ObjectLiteralElementLike => {
+                        return ts.createPropertyAssignment(
+                            next.name.value,
+                            getInitializerForField('_args', next, state),
+                        )
+                    },
+                ),
+                true,
+            ),
+        )
+    }
 }
 
 export function readValueForIdentifier(

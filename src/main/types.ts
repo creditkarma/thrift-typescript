@@ -127,6 +127,9 @@ export interface IMakeOptions {
 
     // Should render strict unions type with underscore
     strictUnionsComplexNames: boolean
+
+    // Should we render the __name field on struct-like objects
+    withNameField: boolean
 }
 
 export interface IThriftFiles {

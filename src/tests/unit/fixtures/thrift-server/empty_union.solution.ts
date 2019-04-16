@@ -1,4 +1,5 @@
 export interface IMyUnion {
+    __name: "MyUnion";
 }
 export interface IMyUnionArgs {
 }
@@ -50,6 +51,7 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
     }
 };
 export class MyUnion extends thrift.StructLike implements IMyUnion {
+    public readonly __name = "MyUnion";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyUnionArgs = {}) {

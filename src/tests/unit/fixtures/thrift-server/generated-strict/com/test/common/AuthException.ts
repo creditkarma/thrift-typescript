@@ -5,6 +5,7 @@
 */
 import * as thrift from "test-lib";
 export interface IAuthException {
+    __name: "AuthException";
     code?: number;
     message?: string;
 }
@@ -70,6 +71,7 @@ export const AuthExceptionCodec: thrift.IStructCodec<IAuthExceptionArgs, IAuthEx
         }
         input.readStructEnd();
         return {
+            __name: "AuthException",
             code: _args.code,
             message: _args.message
         };
@@ -78,6 +80,7 @@ export const AuthExceptionCodec: thrift.IStructCodec<IAuthExceptionArgs, IAuthEx
 export class AuthException extends thrift.StructLike implements IAuthException {
     public code?: number;
     public message?: string;
+    public readonly __name = "AuthException";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IAuthExceptionArgs = {}) {

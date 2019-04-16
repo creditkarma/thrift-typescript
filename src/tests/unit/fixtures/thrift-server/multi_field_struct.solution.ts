@@ -1,4 +1,5 @@
 export interface IMyStruct {
+    __name: "MyStruct";
     id: number;
     bigID: thrift.Int64;
     word: string;
@@ -119,6 +120,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
         input.readStructEnd();
         if (_args.id !== undefined && _args.bigID !== undefined && _args.word !== undefined) {
             return {
+                __name: "MyStruct",
                 id: (_args.id != null ? _args.id : 45),
                 bigID: (_args.bigID != null ? _args.bigID : thrift.Int64.fromDecimalString("23948234")),
                 word: _args.word,
@@ -137,6 +139,7 @@ export class MyStruct extends thrift.StructLike implements IMyStruct {
     public word: string;
     public field1?: number;
     public blob?: Buffer = Buffer.from("binary");
+    public readonly __name = "MyStruct";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyStructArgs) {

@@ -4,11 +4,13 @@ export enum InnerUnionType {
 }
 export type InnerUnion = IInnerUnionWithName | IInnerUnionWithId;
 export interface IInnerUnionWithName {
+    __name: "InnerUnion";
     __type: InnerUnionType.InnerUnionWithName;
     name: string;
     id?: undefined;
 }
 export interface IInnerUnionWithId {
+    __name: "InnerUnion";
     __type: InnerUnionType.InnerUnionWithId;
     name?: undefined;
     id: number;
@@ -43,14 +45,16 @@ export const InnerUnionCodec: thrift.IStructToolkit<InnerUnionArgs, InnerUnion> 
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
-            if (_returnValue.name) {
+            if (_returnValue.name !== undefined) {
                 return {
+                    __name: "InnerUnion",
                     __type: InnerUnionType.InnerUnionWithName,
                     name: _returnValue.name
                 };
             }
             else {
                 return {
+                    __name: "InnerUnion",
                     __type: InnerUnionType.InnerUnionWithId,
                     id: _returnValue.id
                 };
@@ -105,7 +109,7 @@ export const InnerUnionCodec: thrift.IStructToolkit<InnerUnionArgs, InnerUnion> 
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
                         const value_3: string = input.readString();
-                        _returnValue = { name: value_3 };
+                        _returnValue = { __name: "InnerUnion", name: value_3 };
                     }
                     else {
                         input.skip(fieldType);
@@ -115,7 +119,7 @@ export const InnerUnionCodec: thrift.IStructToolkit<InnerUnionArgs, InnerUnion> 
                     if (fieldType === thrift.TType.I32) {
                         _fieldsSet++;
                         const value_4: number = input.readI32();
-                        _returnValue = { id: value_4 };
+                        _returnValue = { __name: "InnerUnion", id: value_4 };
                     }
                     else {
                         input.skip(fieldType);
@@ -135,14 +139,16 @@ export const InnerUnionCodec: thrift.IStructToolkit<InnerUnionArgs, InnerUnion> 
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
-            if (_returnValue.name) {
+            if (_returnValue.name !== undefined) {
                 return {
+                    __name: "InnerUnion",
                     __type: InnerUnionType.InnerUnionWithName,
                     name: _returnValue.name
                 };
             }
             else {
                 return {
+                    __name: "InnerUnion",
                     __type: InnerUnionType.InnerUnionWithId,
                     id: _returnValue.id
                 };
@@ -159,11 +165,13 @@ export enum MyUnionType {
 }
 export type MyUnion = IMyUnionWithUser | IMyUnionWithField2;
 export interface IMyUnionWithUser {
+    __name: "MyUnion";
     __type: MyUnionType.MyUnionWithUser;
     user: InnerUnion;
     field2?: undefined;
 }
 export interface IMyUnionWithField2 {
+    __name: "MyUnion";
     __type: MyUnionType.MyUnionWithField2;
     user?: undefined;
     field2: string;
@@ -198,14 +206,16 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
-            if (_returnValue.user) {
+            if (_returnValue.user !== undefined) {
                 return {
+                    __name: "MyUnion",
                     __type: MyUnionType.MyUnionWithUser,
                     user: _returnValue.user
                 };
             }
             else {
                 return {
+                    __name: "MyUnion",
                     __type: MyUnionType.MyUnionWithField2,
                     field2: _returnValue.field2
                 };
@@ -260,7 +270,7 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
                         const value_7: InnerUnion = InnerUnionCodec.decode(input);
-                        _returnValue = { user: value_7 };
+                        _returnValue = { __name: "MyUnion", user: value_7 };
                     }
                     else {
                         input.skip(fieldType);
@@ -270,7 +280,7 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
                         const value_8: string = input.readString();
-                        _returnValue = { field2: value_8 };
+                        _returnValue = { __name: "MyUnion", field2: value_8 };
                     }
                     else {
                         input.skip(fieldType);
@@ -290,14 +300,16 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
-            if (_returnValue.user) {
+            if (_returnValue.user !== undefined) {
                 return {
+                    __name: "MyUnion",
                     __type: MyUnionType.MyUnionWithUser,
                     user: _returnValue.user
                 };
             }
             else {
                 return {
+                    __name: "MyUnion",
                     __type: MyUnionType.MyUnionWithField2,
                     field2: _returnValue.field2
                 };

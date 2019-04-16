@@ -96,7 +96,7 @@ function renderInterfaceForField(
     node: UnionDefinition,
     field: FieldDefinition,
     state: IRenderState,
-    strict: boolean,
+    isStrict: boolean,
     isExported: boolean,
 ): ts.InterfaceDeclaration {
     const signatures = node.fields.map((next: FieldDefinition) => {
@@ -105,7 +105,7 @@ function renderInterfaceForField(
                 undefined,
                 field.name.value,
                 undefined,
-                typeNodeForFieldType(next.fieldType, state, !strict),
+                typeNodeForFieldType(next.fieldType, state, !isStrict),
                 undefined,
             )
         } else {
@@ -119,7 +119,7 @@ function renderInterfaceForField(
         }
     })
 
-    if (strict) {
+    if (isStrict) {
         signatures.unshift(
             ts.createPropertySignature(
                 undefined,
@@ -132,13 +132,25 @@ function renderInterfaceForField(
                 undefined,
             ),
         )
+
+        if (state.options.withNameField) {
+            signatures.unshift(
+                ts.createPropertySignature(
+                    undefined,
+                    COMMON_IDENTIFIERS.__name,
+                    undefined,
+                    ts.createLiteralTypeNode(ts.createLiteral(node.name.value)),
+                    undefined,
+                ),
+            )
+        }
     }
 
     return ts.createInterfaceDeclaration(
         undefined,
         tokens(isExported),
         ts.createIdentifier(
-            fieldInterfaceName(node.name.value, field.name.value, strict),
+            fieldInterfaceName(node.name.value, field.name.value, isStrict),
         ),
         [],
         [],
@@ -150,13 +162,13 @@ export function renderUnionsForFields(
     node: UnionDefinition,
     state: IRenderState,
     isExported: boolean,
-    strict: boolean,
+    isStrict: boolean,
 ): Array<ts.Statement> {
     return [
         ts.createTypeAliasDeclaration(
             undefined,
             tokens(isExported),
-            unionTypeName(node.name.value, state, strict),
+            unionTypeName(node.name.value, state, isStrict),
             undefined,
             ts.createUnionTypeNode([
                 ...node.fields.map((next: FieldDefinition) => {
@@ -164,7 +176,7 @@ export function renderUnionsForFields(
                         fieldInterfaceName(
                             node.name.value,
                             next.name.value,
-                            strict,
+                            isStrict,
                         ),
                         undefined,
                     )
@@ -173,7 +185,13 @@ export function renderUnionsForFields(
         ),
         ...node.fields.map(
             (next: FieldDefinition): ts.InterfaceDeclaration => {
-                return renderInterfaceForField(node, next, state, strict, true)
+                return renderInterfaceForField(
+                    node,
+                    next,
+                    state,
+                    isStrict,
+                    true,
+                )
             },
         ),
     ]

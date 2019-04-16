@@ -5,6 +5,7 @@
 */
 import * as thrift from "test-lib";
 export interface IFirstName {
+    __name: "FirstName";
     name?: string;
 }
 export interface IFirstNameArgs {
@@ -53,12 +54,14 @@ export const FirstNameCodec: thrift.IStructCodec<IFirstNameArgs, IFirstName> = {
         }
         input.readStructEnd();
         return {
+            __name: "FirstName",
             name: _args.name
         };
     }
 };
 export class FirstName extends thrift.StructLike implements IFirstName {
     public name?: string;
+    public readonly __name = "FirstName";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IFirstNameArgs = {}) {

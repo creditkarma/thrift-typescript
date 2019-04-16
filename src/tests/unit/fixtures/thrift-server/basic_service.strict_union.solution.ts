@@ -4,11 +4,13 @@ export enum MyUnionType {
 }
 export type MyUnion = IMyUnionWithField1 | IMyUnionWithField2;
 export interface IMyUnionWithField1 {
+    __name: "MyUnion";
     __type: MyUnionType.MyUnionWithField1;
     field1: number;
     field2?: undefined;
 }
 export interface IMyUnionWithField2 {
+    __name: "MyUnion";
     __type: MyUnionType.MyUnionWithField2;
     field1?: undefined;
     field2: thrift.Int64;
@@ -43,14 +45,16 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
-            if (_returnValue.field1) {
+            if (_returnValue.field1 !== undefined) {
                 return {
+                    __name: "MyUnion",
                     __type: MyUnionType.MyUnionWithField1,
                     field1: _returnValue.field1
                 };
             }
             else {
                 return {
+                    __name: "MyUnion",
                     __type: MyUnionType.MyUnionWithField2,
                     field2: _returnValue.field2
                 };
@@ -105,7 +109,7 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
                     if (fieldType === thrift.TType.I32) {
                         _fieldsSet++;
                         const value_3: number = input.readI32();
-                        _returnValue = { field1: value_3 };
+                        _returnValue = { __name: "MyUnion", field1: value_3 };
                     }
                     else {
                         input.skip(fieldType);
@@ -115,7 +119,7 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
                     if (fieldType === thrift.TType.I64) {
                         _fieldsSet++;
                         const value_4: thrift.Int64 = input.readI64();
-                        _returnValue = { field2: value_4 };
+                        _returnValue = { __name: "MyUnion", field2: value_4 };
                     }
                     else {
                         input.skip(fieldType);
@@ -135,14 +139,16 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
-            if (_returnValue.field1) {
+            if (_returnValue.field1 !== undefined) {
                 return {
+                    __name: "MyUnion",
                     __type: MyUnionType.MyUnionWithField1,
                     field1: _returnValue.field1
                 };
             }
             else {
                 return {
+                    __name: "MyUnion",
                     __type: MyUnionType.MyUnionWithField2,
                     field2: _returnValue.field2
                 };
@@ -167,6 +173,7 @@ export const methodAnnotations: thrift.IMethodAnnotations = {
 };
 export const methodNames: Array<string> = ["getUser", "ping"];
 export interface IGetUser__Args {
+    __name: "GetUser__Args";
     arg1: MyUnion;
 }
 export interface IGetUser__ArgsArgs {
@@ -219,6 +226,7 @@ export const GetUser__ArgsCodec: thrift.IStructCodec<IGetUser__ArgsArgs, IGetUse
         input.readStructEnd();
         if (_args.arg1 !== undefined) {
             return {
+                __name: "GetUser__Args",
                 arg1: _args.arg1
             };
         }
@@ -229,6 +237,7 @@ export const GetUser__ArgsCodec: thrift.IStructCodec<IGetUser__ArgsArgs, IGetUse
 };
 export class GetUser__Args extends thrift.StructLike implements IGetUser__Args {
     public arg1: MyUnion;
+    public readonly __name = "GetUser__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IGetUser__ArgsArgs) {
@@ -252,6 +261,7 @@ export class GetUser__Args extends thrift.StructLike implements IGetUser__Args {
     }
 }
 export interface IPing__Args {
+    __name: "Ping__Args";
 }
 export interface IPing__ArgsArgs {
 }
@@ -279,10 +289,13 @@ export const Ping__ArgsCodec: thrift.IStructCodec<IPing__ArgsArgs, IPing__Args> 
             input.readFieldEnd();
         }
         input.readStructEnd();
-        return {};
+        return {
+            __name: "Ping__Args"
+        };
     }
 };
 export class Ping__Args extends thrift.StructLike implements IPing__Args {
+    public readonly __name = "Ping__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPing__ArgsArgs = {}) {
@@ -299,6 +312,7 @@ export class Ping__Args extends thrift.StructLike implements IPing__Args {
     }
 }
 export interface IGetUser__Result {
+    __name: "GetUser__Result";
     success?: string;
 }
 export interface IGetUser__ResultArgs {
@@ -347,12 +361,14 @@ export const GetUser__ResultCodec: thrift.IStructCodec<IGetUser__ResultArgs, IGe
         }
         input.readStructEnd();
         return {
+            __name: "GetUser__Result",
             success: _args.success
         };
     }
 };
 export class GetUser__Result extends thrift.StructLike implements IGetUser__Result {
     public success?: string;
+    public readonly __name = "GetUser__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IGetUser__ResultArgs = {}) {
@@ -373,6 +389,7 @@ export class GetUser__Result extends thrift.StructLike implements IGetUser__Resu
     }
 }
 export interface IPing__Result {
+    __name: "Ping__Result";
     success?: void;
 }
 export interface IPing__ResultArgs {
@@ -412,12 +429,14 @@ export const Ping__ResultCodec: thrift.IStructCodec<IPing__ResultArgs, IPing__Re
         }
         input.readStructEnd();
         return {
+            __name: "Ping__Result",
             success: _args.success
         };
     }
 };
 export class Ping__Result extends thrift.StructLike implements IPing__Result {
     public success?: void;
+    public readonly __name = "Ping__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPing__ResultArgs = {}) {

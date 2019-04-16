@@ -5,6 +5,7 @@
 */
 import * as thrift from "test-lib";
 export interface ISharedUnion {
+    __name: "SharedUnion";
     option1?: string;
     option2?: string;
 }
@@ -58,7 +59,7 @@ export const SharedUnionCodec: thrift.IStructCodec<ISharedUnionArgs, ISharedUnio
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
                         const value_1: string = input.readString();
-                        _returnValue = { option1: value_1 };
+                        _returnValue = { __name: "SharedUnion", option1: value_1 };
                     }
                     else {
                         input.skip(fieldType);
@@ -68,7 +69,7 @@ export const SharedUnionCodec: thrift.IStructCodec<ISharedUnionArgs, ISharedUnio
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
                         const value_2: string = input.readString();
-                        _returnValue = { option2: value_2 };
+                        _returnValue = { __name: "SharedUnion", option2: value_2 };
                     }
                     else {
                         input.skip(fieldType);
@@ -98,6 +99,7 @@ export const SharedUnionCodec: thrift.IStructCodec<ISharedUnionArgs, ISharedUnio
 export class SharedUnion extends thrift.StructLike implements ISharedUnion {
     public option1?: string;
     public option2?: string;
+    public readonly __name = "SharedUnion";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ISharedUnionArgs = {}) {

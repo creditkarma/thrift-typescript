@@ -10,11 +10,13 @@ export enum SharedUnionType {
 }
 export type SharedUnion = ISharedUnionWithOption1 | ISharedUnionWithOption2;
 export interface ISharedUnionWithOption1 {
+    __name: "SharedUnion";
     __type: SharedUnionType.SharedUnionWithOption1;
     option1: string;
     option2?: undefined;
 }
 export interface ISharedUnionWithOption2 {
+    __name: "SharedUnion";
     __type: SharedUnionType.SharedUnionWithOption2;
     option1?: undefined;
     option2: string;
@@ -49,14 +51,16 @@ export const SharedUnionCodec: thrift.IStructToolkit<SharedUnionArgs, SharedUnio
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
-            if (_returnValue.option1) {
+            if (_returnValue.option1 !== undefined) {
                 return {
+                    __name: "SharedUnion",
                     __type: SharedUnionType.SharedUnionWithOption1,
                     option1: _returnValue.option1
                 };
             }
             else {
                 return {
+                    __name: "SharedUnion",
                     __type: SharedUnionType.SharedUnionWithOption2,
                     option2: _returnValue.option2
                 };
@@ -111,7 +115,7 @@ export const SharedUnionCodec: thrift.IStructToolkit<SharedUnionArgs, SharedUnio
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
                         const value_3: string = input.readString();
-                        _returnValue = { option1: value_3 };
+                        _returnValue = { __name: "SharedUnion", option1: value_3 };
                     }
                     else {
                         input.skip(fieldType);
@@ -121,7 +125,7 @@ export const SharedUnionCodec: thrift.IStructToolkit<SharedUnionArgs, SharedUnio
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
                         const value_4: string = input.readString();
-                        _returnValue = { option2: value_4 };
+                        _returnValue = { __name: "SharedUnion", option2: value_4 };
                     }
                     else {
                         input.skip(fieldType);
@@ -141,14 +145,16 @@ export const SharedUnionCodec: thrift.IStructToolkit<SharedUnionArgs, SharedUnio
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
-            if (_returnValue.option1) {
+            if (_returnValue.option1 !== undefined) {
                 return {
+                    __name: "SharedUnion",
                     __type: SharedUnionType.SharedUnionWithOption1,
                     option1: _returnValue.option1
                 };
             }
             else {
                 return {
+                    __name: "SharedUnion",
                     __type: SharedUnionType.SharedUnionWithOption2,
                     option2: _returnValue.option2
                 };

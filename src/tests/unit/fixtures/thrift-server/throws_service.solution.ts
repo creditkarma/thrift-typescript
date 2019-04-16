@@ -1,4 +1,5 @@
 export interface IServiceException {
+    __name: "ServiceException";
     message?: string;
 }
 export interface IServiceExceptionArgs {
@@ -47,12 +48,14 @@ export const ServiceExceptionCodec: thrift.IStructCodec<IServiceExceptionArgs, I
         }
         input.readStructEnd();
         return {
+            __name: "ServiceException",
             message: _args.message
         };
     }
 };
 export class ServiceException extends thrift.StructLike implements IServiceException {
     public message?: string;
+    public readonly __name = "ServiceException";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IServiceExceptionArgs = {}) {
@@ -86,6 +89,7 @@ export const methodAnnotations: thrift.IMethodAnnotations = {
 };
 export const methodNames: Array<string> = ["peg", "pong"];
 export interface IPeg__Args {
+    __name: "Peg__Args";
     name: string;
 }
 export interface IPeg__ArgsArgs {
@@ -138,6 +142,7 @@ export const Peg__ArgsCodec: thrift.IStructCodec<IPeg__ArgsArgs, IPeg__Args> = {
         input.readStructEnd();
         if (_args.name !== undefined) {
             return {
+                __name: "Peg__Args",
                 name: _args.name
             };
         }
@@ -148,6 +153,7 @@ export const Peg__ArgsCodec: thrift.IStructCodec<IPeg__ArgsArgs, IPeg__Args> = {
 };
 export class Peg__Args extends thrift.StructLike implements IPeg__Args {
     public name: string;
+    public readonly __name = "Peg__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPeg__ArgsArgs) {
@@ -171,6 +177,7 @@ export class Peg__Args extends thrift.StructLike implements IPeg__Args {
     }
 }
 export interface IPong__Args {
+    __name: "Pong__Args";
     name?: string;
 }
 export interface IPong__ArgsArgs {
@@ -219,12 +226,14 @@ export const Pong__ArgsCodec: thrift.IStructCodec<IPong__ArgsArgs, IPong__Args> 
         }
         input.readStructEnd();
         return {
+            __name: "Pong__Args",
             name: _args.name
         };
     }
 };
 export class Pong__Args extends thrift.StructLike implements IPong__Args {
     public name?: string;
+    public readonly __name = "Pong__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPong__ArgsArgs = {}) {
@@ -245,6 +254,7 @@ export class Pong__Args extends thrift.StructLike implements IPong__Args {
     }
 }
 export interface IPeg__Result {
+    __name: "Peg__Result";
     success?: string;
     exp?: IServiceException;
 }
@@ -310,6 +320,7 @@ export const Peg__ResultCodec: thrift.IStructCodec<IPeg__ResultArgs, IPeg__Resul
         }
         input.readStructEnd();
         return {
+            __name: "Peg__Result",
             success: _args.success,
             exp: _args.exp
         };
@@ -318,6 +329,7 @@ export const Peg__ResultCodec: thrift.IStructCodec<IPeg__ResultArgs, IPeg__Resul
 export class Peg__Result extends thrift.StructLike implements IPeg__Result {
     public success?: string;
     public exp?: IServiceException;
+    public readonly __name = "Peg__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPeg__ResultArgs = {}) {
@@ -342,6 +354,7 @@ export class Peg__Result extends thrift.StructLike implements IPeg__Result {
     }
 }
 export interface IPong__Result {
+    __name: "Pong__Result";
     success?: string;
 }
 export interface IPong__ResultArgs {
@@ -390,12 +403,14 @@ export const Pong__ResultCodec: thrift.IStructCodec<IPong__ResultArgs, IPong__Re
         }
         input.readStructEnd();
         return {
+            __name: "Pong__Result",
             success: _args.success
         };
     }
 };
 export class Pong__Result extends thrift.StructLike implements IPong__Result {
     public success?: string;
+    public readonly __name = "Pong__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPong__ResultArgs = {}) {

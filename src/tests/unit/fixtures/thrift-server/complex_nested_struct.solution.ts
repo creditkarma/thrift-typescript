@@ -1,4 +1,5 @@
 export interface IOtherStruct {
+    __name: "OtherStruct";
     id: thrift.Int64;
     name: Buffer;
 }
@@ -68,6 +69,7 @@ export const OtherStructCodec: thrift.IStructCodec<IOtherStructArgs, IOtherStruc
         input.readStructEnd();
         if (_args.id !== undefined && _args.name !== undefined) {
             return {
+                __name: "OtherStruct",
                 id: _args.id,
                 name: (_args.name != null ? _args.name : Buffer.from("John"))
             };
@@ -80,6 +82,7 @@ export const OtherStructCodec: thrift.IStructCodec<IOtherStructArgs, IOtherStruc
 export class OtherStruct extends thrift.StructLike implements IOtherStruct {
     public id: thrift.Int64;
     public name: Buffer = Buffer.from("John");
+    public readonly __name = "OtherStruct";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IOtherStructArgs) {
@@ -107,6 +110,7 @@ export class OtherStruct extends thrift.StructLike implements IOtherStruct {
     }
 }
 export interface IMyStruct {
+    __name: "MyStruct";
     idList: Array<IOtherStruct>;
     idMap: Map<string, IOtherStruct>;
     idMapList: Map<string, Array<IOtherStruct>>;
@@ -426,6 +430,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
         input.readStructEnd();
         if (_args.idList !== undefined && _args.idMap !== undefined && _args.idMapList !== undefined && _args.idSet !== undefined && _args.intList !== undefined && _args.listList !== undefined && _args.listListString !== undefined && _args.i64KeyedMap !== undefined) {
             return {
+                __name: "MyStruct",
                 idList: _args.idList,
                 idMap: _args.idMap,
                 idMapList: _args.idMapList,
@@ -450,6 +455,7 @@ export class MyStruct extends thrift.StructLike implements IMyStruct {
     public listList: Array<Array<IOtherStruct>>;
     public listListString: Array<Array<string>>;
     public i64KeyedMap: Map<thrift.Int64, thrift.Int64>;
+    public readonly __name = "MyStruct";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyStructArgs) {

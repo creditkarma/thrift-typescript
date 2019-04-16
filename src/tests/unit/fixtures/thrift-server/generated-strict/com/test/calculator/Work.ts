@@ -6,6 +6,7 @@
 import * as thrift from "test-lib";
 import * as __NAMESPACE__ from "./.";
 export interface IWork {
+    __name: "Work";
     num1: number;
     num2: number;
     op?: __NAMESPACE__.Operation;
@@ -109,6 +110,7 @@ export const WorkCodec: thrift.IStructCodec<IWorkArgs, IWork> = {
         input.readStructEnd();
         if (_args.num1 !== undefined && _args.num2 !== undefined) {
             return {
+                __name: "Work",
                 num1: (_args.num1 != null ? _args.num1 : 0),
                 num2: _args.num2,
                 op: (_args.op != null ? _args.op : __NAMESPACE__.Operation.ADD),
@@ -125,6 +127,7 @@ export class Work extends thrift.StructLike implements IWork {
     public num2: number;
     public op?: __NAMESPACE__.Operation = __NAMESPACE__.Operation.ADD;
     public comment?: string;
+    public readonly __name = "Work";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IWorkArgs) {

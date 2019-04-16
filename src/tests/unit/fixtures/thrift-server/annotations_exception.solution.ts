@@ -1,4 +1,5 @@
 export interface IMyException {
+    __name: "MyException";
     message?: string;
     code?: number;
 }
@@ -64,6 +65,7 @@ export const MyExceptionCodec: thrift.IStructCodec<IMyExceptionArgs, IMyExceptio
         }
         input.readStructEnd();
         return {
+            __name: "MyException",
             message: _args.message,
             code: (_args.code != null ? _args.code : 200)
         };
@@ -72,6 +74,7 @@ export const MyExceptionCodec: thrift.IStructCodec<IMyExceptionArgs, IMyExceptio
 export class MyException extends thrift.StructLike implements IMyException {
     public message?: string;
     public code?: number = 200;
+    public readonly __name = "MyException";
     public readonly _annotations: thrift.IThriftAnnotations = {
         foo: "bar",
         two: "three",

@@ -1,4 +1,5 @@
 export interface IUser {
+    __name: "User";
     name: string;
     age?: thrift.Int64;
 }
@@ -68,6 +69,7 @@ export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
         input.readStructEnd();
         if (_args.name !== undefined) {
             return {
+                __name: "User",
                 name: _args.name,
                 age: (_args.age != null ? _args.age : thrift.Int64.fromDecimalString("45"))
             };
@@ -80,6 +82,7 @@ export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
 export class User extends thrift.StructLike implements IUser {
     public name: string;
     public age?: thrift.Int64 = thrift.Int64.fromDecimalString("45");
+    public readonly __name = "User";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IUserArgs) {
@@ -107,6 +110,7 @@ export class User extends thrift.StructLike implements IUser {
     }
 }
 export interface IMyStruct {
+    __name: "MyStruct";
     name: string;
     user: IUser;
 }
@@ -179,6 +183,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
         input.readStructEnd();
         if (_args.name !== undefined && _args.user !== undefined) {
             return {
+                __name: "MyStruct",
                 name: _args.name,
                 user: _args.user
             };
@@ -191,6 +196,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
 export class MyStruct extends thrift.StructLike implements IMyStruct {
     public name: string;
     public user: IUser;
+    public readonly __name = "MyStruct";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyStructArgs) {

@@ -39,6 +39,7 @@ The available options are:
 * --target: The core library to generate for, either 'apache' or 'thrift-server'. Defaults to 'apache'.
 * --strictUnions: Should we generate strict unions (Only available for target = 'thrift-server'. More on this below). Defaults to undefined.
 * --fallbackNamespace: The namespace to fallback to if no 'js' namespace exists. Defaults to 'java'. Set to 'none' to use no namespace.
+* --withNameField: Should we generate a `__name` field on each struct-like object that contains its Thrift name (Only available for target = 'thrift-server'). Defaults to undefined.
 
 All other fields are assumed to be source files.
 
@@ -49,6 +50,8 @@ You can gen code from more than one Thrift file:
 ```sh
 $ thrift-typescript one.thrift two.thrift three.thrift
 ```
+
+#### JavaScript API
 
 You can also generate files using the JavaScript API:
 
@@ -68,7 +71,9 @@ generate({
 })
 ```
 
-You can generate TypeScript from a string of Thrift without saving to file.
+#### Thrift to String
+
+You can also generate TypeScript from a string of Thrift without saving to file.
 
 Note: This method of code generation does not support includes. The Thrift generator must be able to resolve all identifiers which it can't do without a description of the file structure.
 
@@ -263,6 +268,23 @@ export interface IUser {
 *Note: We adopt the convention of prefixing interfaces names with a capital 'I'.*
 
 Only fields that are explicitly required loose the `?`.
+
+##### The `__name` Field
+
+You can pass an option to generate an additional property on each struct-like (structs, unions, exceptions) object that is its literal name in the Thrift file.
+
+For example if we rendered the `User` struct with the `--withNameField` option the generated TypeScript would change:
+
+```typescript
+export interface IUser {
+    __name: "User"
+    name: string
+    email?: string
+    id: number
+}
+```
+
+When generating with this option any data types you create and pass into a client method do not need the `__name` field. However, any data you get back from a service will contain this additional property.
 
 #### Union
 

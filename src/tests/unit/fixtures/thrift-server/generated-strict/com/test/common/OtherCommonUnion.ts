@@ -10,11 +10,13 @@ export enum OtherCommonUnionType {
 }
 export type OtherCommonUnion = IOtherCommonUnionWithOption1 | IOtherCommonUnionWithOption2;
 export interface IOtherCommonUnionWithOption1 {
+    __name: "OtherCommonUnion";
     __type: OtherCommonUnionType.OtherCommonUnionWithOption1;
     option1: string;
     option2?: undefined;
 }
 export interface IOtherCommonUnionWithOption2 {
+    __name: "OtherCommonUnion";
     __type: OtherCommonUnionType.OtherCommonUnionWithOption2;
     option1?: undefined;
     option2: number;
@@ -49,14 +51,16 @@ export const OtherCommonUnionCodec: thrift.IStructToolkit<OtherCommonUnionArgs, 
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
-            if (_returnValue.option1) {
+            if (_returnValue.option1 !== undefined) {
                 return {
+                    __name: "OtherCommonUnion",
                     __type: OtherCommonUnionType.OtherCommonUnionWithOption1,
                     option1: _returnValue.option1
                 };
             }
             else {
                 return {
+                    __name: "OtherCommonUnion",
                     __type: OtherCommonUnionType.OtherCommonUnionWithOption2,
                     option2: _returnValue.option2
                 };
@@ -111,7 +115,7 @@ export const OtherCommonUnionCodec: thrift.IStructToolkit<OtherCommonUnionArgs, 
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
                         const value_3: string = input.readString();
-                        _returnValue = { option1: value_3 };
+                        _returnValue = { __name: "OtherCommonUnion", option1: value_3 };
                     }
                     else {
                         input.skip(fieldType);
@@ -121,7 +125,7 @@ export const OtherCommonUnionCodec: thrift.IStructToolkit<OtherCommonUnionArgs, 
                     if (fieldType === thrift.TType.I32) {
                         _fieldsSet++;
                         const value_4: number = input.readI32();
-                        _returnValue = { option2: value_4 };
+                        _returnValue = { __name: "OtherCommonUnion", option2: value_4 };
                     }
                     else {
                         input.skip(fieldType);
@@ -141,14 +145,16 @@ export const OtherCommonUnionCodec: thrift.IStructToolkit<OtherCommonUnionArgs, 
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
-            if (_returnValue.option1) {
+            if (_returnValue.option1 !== undefined) {
                 return {
+                    __name: "OtherCommonUnion",
                     __type: OtherCommonUnionType.OtherCommonUnionWithOption1,
                     option1: _returnValue.option1
                 };
             }
             else {
                 return {
+                    __name: "OtherCommonUnion",
                     __type: OtherCommonUnionType.OtherCommonUnionWithOption2,
                     option2: _returnValue.option2
                 };
