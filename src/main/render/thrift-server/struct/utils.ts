@@ -6,7 +6,7 @@ import {
     SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
+import { THRIFT_IDENTIFIERS } from '../identifiers'
 
 import { resolveIdentifierName } from '../../../resolver'
 import { IRenderState, IResolvedIdentifier } from '../../../types'
