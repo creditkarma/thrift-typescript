@@ -50,12 +50,9 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
         }
     }
 };
-export class MyUnion extends thrift.StructLike implements IMyUnion {
+export class MyUnion implements thrift.IStructLike, IMyUnion {
     public readonly __name = "MyUnion";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyUnionArgs = {}) {
-        super();
         let _fieldsSet: number = 0;
         if (_fieldsSet > 1) {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion cannot have more than one value");

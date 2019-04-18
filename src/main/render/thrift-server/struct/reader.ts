@@ -155,7 +155,7 @@ export function assignmentForFieldType(
                 state.currentNamespace,
                 state.project.namespaces,
                 state.project.sourceDir,
-            )
+            ).definition
 
             return assignmentForIdentifier(
                 fieldType.value,

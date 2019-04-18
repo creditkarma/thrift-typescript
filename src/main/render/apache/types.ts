@@ -158,7 +158,7 @@ export function thriftTypeForFieldType(
                     state.currentNamespace,
                     state.project.namespaces,
                     state.project.sourceDir,
-                ),
+                ).definition,
                 state,
             )
 

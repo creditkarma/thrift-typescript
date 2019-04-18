@@ -373,7 +373,7 @@ export function renderTypeDef(
                     state.currentNamespace,
                     state.project.namespaces,
                     state.project.sourceDir,
-                ),
+                ).definition,
                 node,
                 typeMapping,
                 state,

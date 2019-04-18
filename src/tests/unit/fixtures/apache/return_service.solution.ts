@@ -179,23 +179,23 @@ export class PingResult {
     }
 }
 export class Client {
-    public _seqid: number;
+    public _requestId: number;
     public _reqs: {
         [name: number]: (err: Error | object | undefined, val?: any) => void;
     };
     public output: thrift.TTransport;
     public protocol: new (trans: thrift.TTransport) => thrift.TProtocol;
     constructor(output: thrift.TTransport, protocol: new (trans: thrift.TTransport) => thrift.TProtocol) {
-        this._seqid = 0;
+        this._requestId = 0;
         this._reqs = {};
         this.output = output;
         this.protocol = protocol;
     }
-    public incrementSeqId(): number {
-        return this._seqid += 1;
+    public incrementRequestId(): number {
+        return this._requestId += 1;
     }
     public ping(status: number): Promise<string> {
-        const requestId: number = this.incrementSeqId();
+        const requestId: number = this.incrementRequestId();
         return new Promise<string>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];

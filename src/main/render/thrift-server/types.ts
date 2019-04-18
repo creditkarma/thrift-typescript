@@ -153,7 +153,7 @@ export function thriftTypeForFieldType(
                     state.currentNamespace,
                     state.project.namespaces,
                     state.project.sourceDir,
-                ),
+                ).definition,
                 state,
             )
 
@@ -274,7 +274,7 @@ export function typeNodeForFieldType(
                     state.currentNamespace,
                     state.project.namespaces,
                     state.project.sourceDir,
-                ),
+                ).definition,
                 fieldType.value,
                 state,
                 loose,

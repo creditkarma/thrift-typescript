@@ -264,7 +264,8 @@ export function resolveFile(
                     parsedFile,
                     files,
                     sourceDir,
-                )
+                ).definition
+
                 if (definition.type === SyntaxType.TypedefDefinition) {
                     if (isBaseType(definition.definitionType)) {
                         return definition.definitionType

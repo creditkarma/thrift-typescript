@@ -201,7 +201,7 @@ export function writeValueForType(
                     state.currentNamespace,
                     state.project.namespaces,
                     state.project.sourceDir,
-                ),
+                ).definition,
                 struct,
                 fieldName,
                 state,

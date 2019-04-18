@@ -53,13 +53,10 @@ export const ServiceExceptionCodec: thrift.IStructCodec<IServiceExceptionArgs, I
         };
     }
 };
-export class ServiceException extends thrift.StructLike implements IServiceException {
+export class ServiceException implements thrift.IStructLike, IServiceException {
     public message?: string;
     public readonly __name = "ServiceException";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IServiceExceptionArgs = {}) {
-        super();
         if (args.message != null) {
             const value_2: string = args.message;
             this.message = value_2;
@@ -75,19 +72,40 @@ export class ServiceException extends thrift.StructLike implements IServiceExcep
         return ServiceExceptionCodec.encode(this, output);
     }
 }
-export const serviceName: string = "MyService";
-export const annotations: thrift.IThriftAnnotations = {};
-export const methodAnnotations: thrift.IMethodAnnotations = {
-    peg: {
-        annotations: {},
-        fieldAnnotations: {}
-    },
-    pong: {
-        annotations: {},
-        fieldAnnotations: {}
+export const metadata: thrift.IServiceMetadata = {
+    name: "MyService",
+    annotations: {},
+    methods: {
+        peg: {
+            name: "peg",
+            annotations: {},
+            arguments: [
+                {
+                    name: "name",
+                    fieldId: 1,
+                    annotations: {},
+                    definitionType: {
+                        type: thrift.DefinitionMetadataType.BaseType
+                    }
+                }
+            ]
+        },
+        pong: {
+            name: "pong",
+            annotations: {},
+            arguments: [
+                {
+                    name: "name",
+                    fieldId: 1,
+                    annotations: {},
+                    definitionType: {
+                        type: thrift.DefinitionMetadataType.BaseType
+                    }
+                }
+            ]
+        }
     }
 };
-export const methodNames: Array<string> = ["peg", "pong"];
 export interface IPeg__Args {
     __name: "Peg__Args";
     name: string;
@@ -151,13 +169,10 @@ export const Peg__ArgsCodec: thrift.IStructCodec<IPeg__ArgsArgs, IPeg__Args> = {
         }
     }
 };
-export class Peg__Args extends thrift.StructLike implements IPeg__Args {
+export class Peg__Args implements thrift.IStructLike, IPeg__Args {
     public name: string;
     public readonly __name = "Peg__Args";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPeg__ArgsArgs) {
-        super();
         if (args.name != null) {
             const value_4: string = args.name;
             this.name = value_4;
@@ -231,13 +246,10 @@ export const Pong__ArgsCodec: thrift.IStructCodec<IPong__ArgsArgs, IPong__Args> 
         };
     }
 };
-export class Pong__Args extends thrift.StructLike implements IPong__Args {
+export class Pong__Args implements thrift.IStructLike, IPong__Args {
     public name?: string;
     public readonly __name = "Pong__Args";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPong__ArgsArgs = {}) {
-        super();
         if (args.name != null) {
             const value_6: string = args.name;
             this.name = value_6;
@@ -326,14 +338,11 @@ export const Peg__ResultCodec: thrift.IStructCodec<IPeg__ResultArgs, IPeg__Resul
         };
     }
 };
-export class Peg__Result extends thrift.StructLike implements IPeg__Result {
+export class Peg__Result implements thrift.IStructLike, IPeg__Result {
     public success?: string;
     public exp?: IServiceException;
     public readonly __name = "Peg__Result";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPeg__ResultArgs = {}) {
-        super();
         if (args.success != null) {
             const value_9: string = args.success;
             this.success = value_9;
@@ -408,13 +417,10 @@ export const Pong__ResultCodec: thrift.IStructCodec<IPong__ResultArgs, IPong__Re
         };
     }
 };
-export class Pong__Result extends thrift.StructLike implements IPong__Result {
+export class Pong__Result implements thrift.IStructLike, IPong__Result {
     public success?: string;
     public readonly __name = "Pong__Result";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPong__ResultArgs = {}) {
-        super();
         if (args.success != null) {
             const value_12: string = args.success;
             this.success = value_12;
@@ -430,15 +436,22 @@ export class Pong__Result extends thrift.StructLike implements IPong__Result {
         return Pong__ResultCodec.encode(this, output);
     }
 }
-export class Client<Context = any> extends thrift.ThriftClient<Context> {
-    public static readonly serviceName: string = serviceName;
-    public static readonly annotations: thrift.IThriftAnnotations = annotations;
-    public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
-    public static readonly methodNames: Array<string> = methodNames;
-    public readonly _serviceName: string = serviceName;
-    public readonly _annotations: thrift.IThriftAnnotations = annotations;
-    public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
-    public readonly _methodNames: Array<string> = methodNames;
+export class Client<Context = any> implements thrift.IThriftClient {
+    public static readonly metadata: thrift.IServiceMetadata = metadata;
+    public readonly __metadata: thrift.IServiceMetadata = metadata;
+    protected _requestId: number;
+    protected transport: thrift.ITransportConstructor;
+    protected protocol: thrift.IProtocolConstructor;
+    protected connection: thrift.IThriftConnection<Context>;
+    constructor(connection: thrift.IThriftConnection<Context>) {
+        this._requestId = 0;
+        this.transport = connection.Transport;
+        this.protocol = connection.Protocol;
+        this.connection = connection;
+    }
+    protected incrementRequestId(): number {
+        return this._requestId += 1;
+    }
     public peg(name: string, context?: Context): Promise<string> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
@@ -523,18 +536,11 @@ export interface IHandler<Context = any> {
     peg(name: string, context?: Context): string | Promise<string>;
     pong(name?: string, context?: Context): string | Promise<string>;
 }
-export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
+export class Processor<Context = any> implements thrift.IThriftProcessor<Context> {
     protected readonly _handler: IHandler<Context>;
-    public static readonly serviceName: string = serviceName;
-    public static readonly annotations: thrift.IThriftAnnotations = annotations;
-    public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
-    public static readonly methodNames: Array<string> = methodNames;
-    public readonly _serviceName: string = serviceName;
-    public readonly _annotations: thrift.IThriftAnnotations = annotations;
-    public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
-    public readonly _methodNames: Array<string> = methodNames;
+    public static readonly metadata: thrift.IServiceMetadata = metadata;
+    public readonly __metadata: thrift.IServiceMetadata = metadata;
     constructor(handler: IHandler<Context>) {
-        super();
         this._handler = handler;
     }
     public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {

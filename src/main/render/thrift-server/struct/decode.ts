@@ -383,7 +383,7 @@ export function readValueForFieldType(
                 state.currentNamespace,
                 state.project.namespaces,
                 state.project.sourceDir,
-            )
+            ).definition
 
             return readValueForIdentifier(
                 fieldType.value,

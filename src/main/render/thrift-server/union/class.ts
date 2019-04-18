@@ -14,9 +14,7 @@ import { createClassConstructor, createFunctionParameter } from '../utils'
 
 import {
     classNameForStruct,
-    createSuperCall,
-    extendsAbstract,
-    implementsInterface,
+    implementsStructInterface,
     tokens,
 } from '../struct/utils'
 
@@ -36,18 +34,15 @@ import {
     createFieldValidation,
 } from './utils'
 
-import { renderAnnotations, renderFieldAnnotations } from '../annotations'
-
 export function renderClass(
     node: UnionDefinition,
     state: IRenderState,
     isExported: boolean,
 ): ts.ClassDeclaration {
-    const fields: Array<ts.PropertyDeclaration> = [
-        ...createFieldsForStruct(node, state),
-        renderAnnotations(node.annotations),
-        renderFieldAnnotations(node.fields),
-    ]
+    const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(
+        node,
+        state,
+    )
 
     if (state.options.withNameField) {
         const nameField: ts.PropertyDeclaration = ts.createProperty(
@@ -62,7 +57,7 @@ export function renderClass(
             ts.createLiteral(node.name.value),
         )
 
-        fields.splice(-2, 0, nameField)
+        fields.push(nameField)
     }
 
     /**
@@ -93,7 +88,6 @@ export function renderClass(
     const ctor: ts.ConstructorDeclaration = createClassConstructor(
         [argsParameter],
         [
-            createSuperCall(),
             createFieldIncrementer(),
             ...fieldAssignments,
             createFieldValidation(node),
@@ -106,7 +100,7 @@ export function renderClass(
         tokens(isExported),
         classNameForStruct(node, state),
         [],
-        [extendsAbstract(), implementsInterface(node, state)], // heritage
+        [implementsStructInterface(node, state)], // heritage
         [
             ...fields,
             ctor,

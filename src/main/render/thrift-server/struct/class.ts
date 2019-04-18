@@ -7,8 +7,6 @@ import {
 
 import { IRenderState } from '../../../types'
 
-import { renderAnnotations, renderFieldAnnotations } from '../annotations'
-
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
 import {
@@ -25,9 +23,7 @@ import { assignmentForField } from './reader'
 
 import {
     classNameForStruct,
-    createSuperCall,
-    extendsAbstract,
-    implementsInterface,
+    implementsStructInterface,
     looseNameForStruct,
     throwForField,
     tokens,
@@ -39,11 +35,10 @@ export function renderClass(
     state: IRenderState,
     isExported: boolean,
 ): ts.ClassDeclaration {
-    const fields: Array<ts.PropertyDeclaration> = [
-        ...createFieldsForStruct(node, state),
-        renderAnnotations(node.annotations),
-        renderFieldAnnotations(node.fields),
-    ]
+    const fields: Array<ts.PropertyDeclaration> = createFieldsForStruct(
+        node,
+        state,
+    )
 
     if (state.options.withNameField) {
         const nameField: ts.PropertyDeclaration = ts.createProperty(
@@ -58,7 +53,7 @@ export function renderClass(
             ts.createLiteral(node.name.value),
         )
 
-        fields.splice(-2, 0, nameField)
+        fields.push(nameField)
     }
 
     /**
@@ -88,7 +83,7 @@ export function renderClass(
     // Build the constructor body
     const ctor: ts.ConstructorDeclaration = createClassConstructor(
         [argsParameter],
-        [createSuperCall(), ...fieldAssignments],
+        fieldAssignments,
     )
 
     // export class <node.name> { ... }
@@ -97,7 +92,7 @@ export function renderClass(
         tokens(isExported),
         classNameForStruct(node, state).replace('__NAMESPACE__', ''),
         [],
-        [extendsAbstract(), implementsInterface(node, state)], // heritage
+        [implementsStructInterface(node, state)], // heritage
         [
             ...fields,
             ctor,

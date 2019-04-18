@@ -13,13 +13,16 @@ import {
     IFileExports,
     IIncludePath,
     INamespace,
+    INamespaceDefinition,
     INamespaceMap,
     INamespacePath,
     IParsedFile,
+    IParsedFileDefinition,
     IProcessedFile,
     IProcessedFileMap,
     IRenderState,
     IResolvedFile,
+    IResolvedFileDefinition,
     IResolvedIdentifier,
     ParsedFileMap,
     ResolvedFileMap,
@@ -68,7 +71,7 @@ function resolveIdentifierFromParsedFile(
     currentFile: IParsedFile,
     files: ParsedFileMap,
     sourceDir: string,
-): DefinitionType {
+): IParsedFileDefinition {
     const [head, ...tail] = id.value.split('.')
     if (currentFile.exports[head] !== undefined) {
         const definition: DefinitionType = currentFile.exports[head]
@@ -81,10 +84,16 @@ function resolveIdentifierFromParsedFile(
                     sourceDir,
                 )
             } else {
-                return definition
+                return {
+                    file: currentFile,
+                    definition,
+                }
             }
         } else {
-            return definition
+            return {
+                file: currentFile,
+                definition,
+            }
         }
     } else if (currentFile.includes[head] !== undefined) {
         const include: IIncludePath | undefined = currentFile.includes[head]
@@ -120,7 +129,7 @@ function resolveIdentifierFromResolvedFile(
     currentFile: IResolvedFile,
     files: ResolvedFileMap,
     sourceDir: string,
-): DefinitionType {
+): IResolvedFileDefinition {
     // The head of the identifier can be one of two things. It can be an identifier defined in this file,
     // or it can be an include path.
     const [head, ...tail] = id.value.split('.')
@@ -135,10 +144,16 @@ function resolveIdentifierFromResolvedFile(
                     sourceDir,
                 )
             } else {
-                return definition
+                return {
+                    file: currentFile,
+                    definition,
+                }
             }
         } else {
-            return definition
+            return {
+                file: currentFile,
+                definition,
+            }
         }
     } else if (currentFile.namespaceToInclude[head] !== undefined) {
         const includeName: string = currentFile.namespaceToInclude[head]
@@ -176,7 +191,7 @@ function resolveIdentifierFromNamespace(
     currentNamespace: INamespace,
     namespaces: INamespaceMap,
     sourceDir: string,
-): DefinitionType {
+): INamespaceDefinition {
     if (currentNamespace.exports[id.value]) {
         const definition: DefinitionType = currentNamespace.exports[id.value]
         if (definition.type === SyntaxType.TypedefDefinition) {
@@ -188,10 +203,16 @@ function resolveIdentifierFromNamespace(
                     sourceDir,
                 )
             } else {
-                return definition
+                return {
+                    namespace: currentNamespace,
+                    definition,
+                }
             }
         } else {
-            return definition
+            return {
+                namespace: currentNamespace,
+                definition,
+            }
         }
     } else {
         const [head, ...tail] = id.value.split('.')
@@ -223,25 +244,25 @@ export function resolveIdentifierDefinition(
     currentFile: IParsedFile,
     files: ParsedFileMap,
     sourceDir: string,
-): DefinitionType
+): IParsedFileDefinition
 export function resolveIdentifierDefinition(
     id: Identifier,
     currentFile: IResolvedFile,
     files: ResolvedFileMap,
     sourceDir: string,
-): DefinitionType
+): IResolvedFileDefinition
 export function resolveIdentifierDefinition(
     id: Identifier,
     currentNamespace: INamespace,
     namespaces: INamespaceMap,
     sourceDir: string,
-): DefinitionType
+): INamespaceDefinition
 export function resolveIdentifierDefinition(
     id: Identifier,
     currentFile: any,
     files: any,
     sourceDir: string,
-): DefinitionType {
+): IResolvedFileDefinition | IParsedFileDefinition | INamespaceDefinition {
     if (currentFile.type === 'ParsedFile') {
         return resolveIdentifierFromParsedFile(
             id,

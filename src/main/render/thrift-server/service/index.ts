@@ -9,14 +9,7 @@ import {
     TextLocation,
 } from '@creditkarma/thrift-parser'
 
-import {
-    collectAllAnnotations,
-    collectAllMethods,
-    createStructArgsName,
-    createStructResultName,
-    renderMethodNames,
-    renderServiceName,
-} from './utils'
+import { createStructArgsName, createStructResultName } from './utils'
 
 import { renderStruct } from '../struct'
 
@@ -30,10 +23,7 @@ import { renderHandlerInterface } from '../../shared/service'
 
 import { typeNodeForFieldType } from '../types'
 
-import {
-    renderMethodAnnotations,
-    renderServiceAnnotations,
-} from '../annotations'
+import { renderServiceMetadata } from './metadata'
 
 function emptyLocation(): TextLocation {
     return {
@@ -47,10 +37,7 @@ export function renderService(
     state: IRenderState,
 ): Array<ts.Statement> {
     return [
-        renderServiceName(service),
-        renderServiceAnnotations(collectAllAnnotations(service, state)),
-        renderMethodAnnotations(collectAllMethods(service, state)),
-        renderMethodNames(service, state),
+        renderServiceMetadata(service, state),
         ...renderArgsStruct(service, state),
         ...renderResultStruct(service, state),
         renderClient(service, state),

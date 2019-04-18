@@ -47,9 +47,9 @@ export function renderClient(
     node: ServiceDefinition,
     state: IRenderState,
 ): ts.ClassDeclaration {
-    // public _seqid: number;
-    const seqid: ts.PropertyDeclaration = createPublicProperty(
-        '_seqid',
+    // public _requestId: number;
+    const requestId: ts.PropertyDeclaration = createPublicProperty(
+        '_requestId',
         createNumberType(),
     )
 
@@ -73,7 +73,7 @@ export function renderClient(
 
     /**
      * constructor(output: TTransport, protocol: { new (trans: TTransport): TProtocol }) {
-     *   this._seqid = 0;
+     *   this._requestId = 0;
      *   this._reqs = {};
      * }
      */
@@ -91,7 +91,7 @@ export function renderClient(
         [
             ...createSuperCall(node),
             createAssignmentStatement(
-                ts.createIdentifier('this._seqid'),
+                ts.createIdentifier('this._requestId'),
                 ts.createLiteral(0),
             ),
             createAssignmentStatement(
@@ -109,11 +109,11 @@ export function renderClient(
         ], // body
     )
 
-    const incrementSeqIdMethod: ts.MethodDeclaration = ts.createMethod(
+    const incrementRequestIdMethod: ts.MethodDeclaration = ts.createMethod(
         undefined,
         [ts.createToken(ts.SyntaxKind.PublicKeyword)],
         undefined,
-        'incrementSeqId',
+        'incrementRequestId',
         undefined,
         undefined,
         [],
@@ -122,7 +122,7 @@ export function renderClient(
             [
                 ts.createReturn(
                     ts.createBinary(
-                        ts.createIdentifier('this._seqid'),
+                        ts.createIdentifier('this._requestId'),
                         ts.SyntaxKind.PlusEqualsToken,
                         ts.createLiteral(1),
                     ),
@@ -175,12 +175,12 @@ export function renderClient(
         [], // type parameters
         heritage, // heritage
         [
-            seqid,
+            requestId,
             reqs,
             output,
             protocol,
             ctor,
-            incrementSeqIdMethod,
+            incrementRequestIdMethod,
             ...baseMethods,
             ...sendMethods,
             ...recvMethods,
@@ -208,7 +208,7 @@ function createSuperCall(node: ServiceDefinition): Array<ts.Statement> {
 }
 
 // public {{name}}( {{#args}}{{fieldName}}: {{fieldType}}, {{/args}} ): Promise<{{typeName}}> {
-//     this._seqid = this.incrementSeqId()
+//     this._requestId = this.incrementRequestId()
 //     return new Promise<{{typeName}}>((resolve, reject) => {
 //         this._reqs[this.seqid()] = function(error, result) {
 //             if (error) {
@@ -239,12 +239,12 @@ function createBaseMethodForDefinition(
         ]), // return type
         ts.createBlock(
             [
-                // this._seqid = this.incrementSeqId()
+                // this._requestId = this.incrementRequestId()
                 createConstStatement(
                     COMMON_IDENTIFIERS.requestId,
                     createNumberType(),
                     ts.createCall(
-                        ts.createIdentifier('this.incrementSeqId'),
+                        ts.createIdentifier('this.incrementRequestId'),
                         undefined,
                         [],
                     ),
@@ -280,7 +280,7 @@ function createBaseMethodForDefinition(
                                     undefined,
                                     ts.createBlock(
                                         [
-                                            // delete this._reqs[_seqid]
+                                            // delete this._reqs[_requestId]
                                             ts.createStatement(
                                                 ts.createDelete(
                                                     ts.createElementAccess(

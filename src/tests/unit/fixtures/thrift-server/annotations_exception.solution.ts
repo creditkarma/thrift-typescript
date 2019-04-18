@@ -71,28 +71,11 @@ export const MyExceptionCodec: thrift.IStructCodec<IMyExceptionArgs, IMyExceptio
         };
     }
 };
-export class MyException extends thrift.StructLike implements IMyException {
+export class MyException implements thrift.IStructLike, IMyException {
     public message?: string;
     public code?: number = 200;
     public readonly __name = "MyException";
-    public readonly _annotations: thrift.IThriftAnnotations = {
-        foo: "bar",
-        two: "three",
-        alone: "",
-        'dot.foo': "bar",
-        'dot.lonely': ""
-    };
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {
-        message: {
-            foo: "bar",
-            two: "three",
-            lonely: "",
-            'dot.foo': "bar",
-            'dot.lonely': ""
-        }
-    };
     constructor(args: IMyExceptionArgs = {}) {
-        super();
         if (args.message != null) {
             const value_3: string = args.message;
             this.message = value_3;

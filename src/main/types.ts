@@ -204,6 +204,21 @@ export interface IFileIncludes {
     [name: string]: IIncludePath
 }
 
+export interface IParsedFileDefinition {
+    file: IParsedFile
+    definition: DefinitionType
+}
+
+export interface IResolvedFileDefinition {
+    file: IResolvedFile
+    definition: DefinitionType
+}
+
+export interface INamespaceDefinition {
+    namespace: INamespace
+    definition: DefinitionType
+}
+
 export type DefinitionType =
     | ConstDefinition
     | StructDefinition

@@ -120,28 +120,20 @@ export function toolkitName(name: string, state: IRenderState): string {
     })
 }
 
-export function extendsAbstract(): ts.HeritageClause {
-    return ts.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
-        ts.createExpressionWithTypeArguments([], THRIFT_IDENTIFIERS.StructLike),
-    ])
-}
-
-export function implementsInterface(
+export function implementsStructInterface(
     node: InterfaceWithFields,
     state: IRenderState,
 ): ts.HeritageClause {
     return ts.createHeritageClause(ts.SyntaxKind.ImplementsKeyword, [
         ts.createExpressionWithTypeArguments(
             [],
+            THRIFT_IDENTIFIERS.IStructLike,
+        ),
+        ts.createExpressionWithTypeArguments(
+            [],
             ts.createIdentifier(strictNameForStruct(node, state)),
         ),
     ])
-}
-
-export function createSuperCall(): ts.Statement {
-    return ts.createStatement(
-        ts.createCall(COMMON_IDENTIFIERS.super, undefined, []),
-    )
 }
 
 /**

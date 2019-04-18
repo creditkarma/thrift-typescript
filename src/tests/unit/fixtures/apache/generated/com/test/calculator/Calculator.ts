@@ -1687,7 +1687,7 @@ export class ZipResult {
     }
 }
 export class Client extends com_test_shared.SharedService.Client {
-    public _seqid: number;
+    public _requestId: number;
     public _reqs: {
         [name: number]: (err: Error | object | undefined, val?: any) => void;
     };
@@ -1695,16 +1695,16 @@ export class Client extends com_test_shared.SharedService.Client {
     public protocol: new (trans: thrift.TTransport) => thrift.TProtocol;
     constructor(output: thrift.TTransport, protocol: new (trans: thrift.TTransport) => thrift.TProtocol) {
         super(output, protocol);
-        this._seqid = 0;
+        this._requestId = 0;
         this._reqs = {};
         this.output = output;
         this.protocol = protocol;
     }
-    public incrementSeqId(): number {
-        return this._seqid += 1;
+    public incrementRequestId(): number {
+        return this._requestId += 1;
     }
     public ping(): Promise<void> {
-        const requestId: number = this.incrementSeqId();
+        const requestId: number = this.incrementRequestId();
         return new Promise<void>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];
@@ -1719,7 +1719,7 @@ export class Client extends com_test_shared.SharedService.Client {
         });
     }
     public add(num1: number, num2: number): Promise<number> {
-        const requestId: number = this.incrementSeqId();
+        const requestId: number = this.incrementRequestId();
         return new Promise<number>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];
@@ -1734,7 +1734,7 @@ export class Client extends com_test_shared.SharedService.Client {
         });
     }
     public addInt64(num1: Int64, num2: Int64): Promise<Int64> {
-        const requestId: number = this.incrementSeqId();
+        const requestId: number = this.incrementRequestId();
         return new Promise<Int64>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];
@@ -1749,7 +1749,7 @@ export class Client extends com_test_shared.SharedService.Client {
         });
     }
     public addWithContext(num1: number, num2: number): Promise<number> {
-        const requestId: number = this.incrementSeqId();
+        const requestId: number = this.incrementRequestId();
         return new Promise<number>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];
@@ -1764,7 +1764,7 @@ export class Client extends com_test_shared.SharedService.Client {
         });
     }
     public calculate(logid: number, work: __NAMESPACE__.Work): Promise<number> {
-        const requestId: number = this.incrementSeqId();
+        const requestId: number = this.incrementRequestId();
         return new Promise<number>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];
@@ -1779,7 +1779,7 @@ export class Client extends com_test_shared.SharedService.Client {
         });
     }
     public echoBinary(word: Buffer): Promise<string> {
-        const requestId: number = this.incrementSeqId();
+        const requestId: number = this.incrementRequestId();
         return new Promise<string>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];
@@ -1794,7 +1794,7 @@ export class Client extends com_test_shared.SharedService.Client {
         });
     }
     public echoString(word: string): Promise<string> {
-        const requestId: number = this.incrementSeqId();
+        const requestId: number = this.incrementRequestId();
         return new Promise<string>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];
@@ -1809,7 +1809,7 @@ export class Client extends com_test_shared.SharedService.Client {
         });
     }
     public checkName(choice: __NAMESPACE__.Choice): Promise<string> {
-        const requestId: number = this.incrementSeqId();
+        const requestId: number = this.incrementRequestId();
         return new Promise<string>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];
@@ -1824,7 +1824,7 @@ export class Client extends com_test_shared.SharedService.Client {
         });
     }
     public checkOptional(type?: string): Promise<string> {
-        const requestId: number = this.incrementSeqId();
+        const requestId: number = this.incrementRequestId();
         return new Promise<string>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];
@@ -1839,7 +1839,7 @@ export class Client extends com_test_shared.SharedService.Client {
         });
     }
     public mapOneList(arg: Array<number>): Promise<Array<number>> {
-        const requestId: number = this.incrementSeqId();
+        const requestId: number = this.incrementRequestId();
         return new Promise<Array<number>>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];
@@ -1854,7 +1854,7 @@ export class Client extends com_test_shared.SharedService.Client {
         });
     }
     public mapValues(arg: Map<string, number>): Promise<Array<number>> {
-        const requestId: number = this.incrementSeqId();
+        const requestId: number = this.incrementRequestId();
         return new Promise<Array<number>>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];
@@ -1869,7 +1869,7 @@ export class Client extends com_test_shared.SharedService.Client {
         });
     }
     public listToMap(arg: Array<Array<string>>): Promise<Map<string, string>> {
-        const requestId: number = this.incrementSeqId();
+        const requestId: number = this.incrementRequestId();
         return new Promise<Map<string, string>>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];
@@ -1884,7 +1884,7 @@ export class Client extends com_test_shared.SharedService.Client {
         });
     }
     public fetchThing(): Promise<com_test_common.CommonStruct> {
-        const requestId: number = this.incrementSeqId();
+        const requestId: number = this.incrementRequestId();
         return new Promise<com_test_common.CommonStruct>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];
@@ -1899,7 +1899,7 @@ export class Client extends com_test_shared.SharedService.Client {
         });
     }
     public zip(): Promise<void> {
-        const requestId: number = this.incrementSeqId();
+        const requestId: number = this.incrementRequestId();
         return new Promise<void>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];

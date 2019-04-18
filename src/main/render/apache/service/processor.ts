@@ -29,6 +29,7 @@ import {
     resolveIdentifierDefinition,
     resolveIdentifierName,
 } from '../../../resolver'
+
 import { IRenderState } from '../../../types'
 
 import {
@@ -193,7 +194,7 @@ function createSuperCall(
                                 state.currentNamespace,
                                 state.project.namespaces,
                                 state.project.sourceDir,
-                            ),
+                            ).definition,
                         ),
                     ],
                 ),
@@ -848,7 +849,7 @@ function collectAllMethods(
                 state.currentNamespace,
                 state.project.namespaces,
                 state.project.sourceDir,
-            ),
+            ).definition,
         )
         return [...inheritedMethods, ...service.functions]
     } else {

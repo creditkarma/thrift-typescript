@@ -90,28 +90,11 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
         }
     }
 };
-export class MyUnion extends thrift.StructLike implements IMyUnion {
+export class MyUnion implements thrift.IStructLike, IMyUnion {
     public field1?: number;
     public field2?: thrift.Int64;
     public readonly __name = "MyUnion";
-    public readonly _annotations: thrift.IThriftAnnotations = {
-        foo: "bar",
-        two: "three",
-        alone: "",
-        'dot.foo': "bar",
-        'dot.lonely': ""
-    };
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {
-        field1: {
-            foo: "bar",
-            two: "three",
-            lonely: "",
-            'dot.foo': "bar",
-            'dot.lonely': ""
-        }
-    };
     constructor(args: IMyUnionArgs = {}) {
-        super();
         let _fieldsSet: number = 0;
         if (args.field1 != null) {
             _fieldsSet++;

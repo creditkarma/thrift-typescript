@@ -159,19 +159,51 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
         }
     }
 };
-export const serviceName: string = "MyService";
-export const annotations: thrift.IThriftAnnotations = {};
-export const methodAnnotations: thrift.IMethodAnnotations = {
-    getUser: {
-        annotations: {},
-        fieldAnnotations: {}
-    },
-    ping: {
-        annotations: {},
-        fieldAnnotations: {}
+export const metadata: thrift.IServiceMetadata = {
+    name: "MyService",
+    annotations: {},
+    methods: {
+        getUser: {
+            name: "getUser",
+            annotations: {},
+            arguments: [
+                {
+                    name: "arg1",
+                    fieldId: 1,
+                    annotations: {},
+                    definitionType: {
+                        type: thrift.DefinitionMetadataType.StructType,
+                        name: "MyUnion",
+                        annotations: {},
+                        fields: {
+                            field1: {
+                                name: "field1",
+                                fieldId: 1,
+                                annotations: {},
+                                definitionType: {
+                                    type: thrift.DefinitionMetadataType.BaseType
+                                }
+                            },
+                            field2: {
+                                name: "field2",
+                                fieldId: 2,
+                                annotations: {},
+                                definitionType: {
+                                    type: thrift.DefinitionMetadataType.BaseType
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        ping: {
+            name: "ping",
+            annotations: {},
+            arguments: []
+        }
     }
 };
-export const methodNames: Array<string> = ["getUser", "ping"];
 export interface IGetUser__Args {
     __name: "GetUser__Args";
     arg1: MyUnion;
@@ -235,13 +267,10 @@ export const GetUser__ArgsCodec: thrift.IStructCodec<IGetUser__ArgsArgs, IGetUse
         }
     }
 };
-export class GetUser__Args extends thrift.StructLike implements IGetUser__Args {
+export class GetUser__Args implements thrift.IStructLike, IGetUser__Args {
     public arg1: MyUnion;
     public readonly __name = "GetUser__Args";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IGetUser__ArgsArgs) {
-        super();
         if (args.arg1 != null) {
             const value_6: MyUnion = MyUnionCodec.create(args.arg1);
             this.arg1 = value_6;
@@ -294,12 +323,9 @@ export const Ping__ArgsCodec: thrift.IStructCodec<IPing__ArgsArgs, IPing__Args> 
         };
     }
 };
-export class Ping__Args extends thrift.StructLike implements IPing__Args {
+export class Ping__Args implements thrift.IStructLike, IPing__Args {
     public readonly __name = "Ping__Args";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPing__ArgsArgs = {}) {
-        super();
     }
     public static read(input: thrift.TProtocol): Ping__Args {
         return new Ping__Args(Ping__ArgsCodec.decode(input));
@@ -366,13 +392,10 @@ export const GetUser__ResultCodec: thrift.IStructCodec<IGetUser__ResultArgs, IGe
         };
     }
 };
-export class GetUser__Result extends thrift.StructLike implements IGetUser__Result {
+export class GetUser__Result implements thrift.IStructLike, IGetUser__Result {
     public success?: string;
     public readonly __name = "GetUser__Result";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IGetUser__ResultArgs = {}) {
-        super();
         if (args.success != null) {
             const value_8: string = args.success;
             this.success = value_8;
@@ -434,13 +457,10 @@ export const Ping__ResultCodec: thrift.IStructCodec<IPing__ResultArgs, IPing__Re
         };
     }
 };
-export class Ping__Result extends thrift.StructLike implements IPing__Result {
+export class Ping__Result implements thrift.IStructLike, IPing__Result {
     public success?: void;
     public readonly __name = "Ping__Result";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPing__ResultArgs = {}) {
-        super();
         if (args.success != null) {
             const value_9: void = undefined;
             this.success = value_9;
@@ -456,15 +476,22 @@ export class Ping__Result extends thrift.StructLike implements IPing__Result {
         return Ping__ResultCodec.encode(this, output);
     }
 }
-export class Client<Context = any> extends thrift.ThriftClient<Context> {
-    public static readonly serviceName: string = serviceName;
-    public static readonly annotations: thrift.IThriftAnnotations = annotations;
-    public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
-    public static readonly methodNames: Array<string> = methodNames;
-    public readonly _serviceName: string = serviceName;
-    public readonly _annotations: thrift.IThriftAnnotations = annotations;
-    public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
-    public readonly _methodNames: Array<string> = methodNames;
+export class Client<Context = any> implements thrift.IThriftClient {
+    public static readonly metadata: thrift.IServiceMetadata = metadata;
+    public readonly __metadata: thrift.IServiceMetadata = metadata;
+    protected _requestId: number;
+    protected transport: thrift.ITransportConstructor;
+    protected protocol: thrift.IProtocolConstructor;
+    protected connection: thrift.IThriftConnection<Context>;
+    constructor(connection: thrift.IThriftConnection<Context>) {
+        this._requestId = 0;
+        this.transport = connection.Transport;
+        this.protocol = connection.Protocol;
+        this.connection = connection;
+    }
+    protected incrementRequestId(): number {
+        return this._requestId += 1;
+    }
     public getUser(arg1: MyUnionArgs, context?: Context): Promise<string> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
@@ -541,18 +568,11 @@ export interface IHandler<Context = any> {
     getUser(arg1: MyUnion, context?: Context): string | Promise<string>;
     ping(context?: Context): void | Promise<void>;
 }
-export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
+export class Processor<Context = any> implements thrift.IThriftProcessor<Context> {
     protected readonly _handler: IHandler<Context>;
-    public static readonly serviceName: string = serviceName;
-    public static readonly annotations: thrift.IThriftAnnotations = annotations;
-    public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
-    public static readonly methodNames: Array<string> = methodNames;
-    public readonly _serviceName: string = serviceName;
-    public readonly _annotations: thrift.IThriftAnnotations = annotations;
-    public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
-    public readonly _methodNames: Array<string> = methodNames;
+    public static readonly metadata: thrift.IServiceMetadata = metadata;
+    public readonly __metadata: thrift.IServiceMetadata = metadata;
     constructor(handler: IHandler<Context>) {
-        super();
         this._handler = handler;
     }
     public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {

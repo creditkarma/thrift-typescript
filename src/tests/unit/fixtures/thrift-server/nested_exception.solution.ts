@@ -71,14 +71,11 @@ export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
         };
     }
 };
-export class Code extends thrift.StructLike implements ICode {
+export class Code implements thrift.IStructLike, ICode {
     public status?: thrift.Int64 = thrift.Int64.fromDecimalString("200");
     public data?: Buffer = Buffer.from("data");
     public readonly __name = "Code";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ICodeArgs = {}) {
-        super();
         if (args.status != null) {
             const value_3: thrift.Int64 = (typeof args.status === "number" ? new thrift.Int64(args.status) : typeof args.status === "string" ? thrift.Int64.fromDecimalString(args.status) : args.status);
             this.status = value_3;
@@ -179,14 +176,11 @@ export const MyExceptionCodec: thrift.IStructCodec<IMyExceptionArgs, IMyExceptio
         }
     }
 };
-export class MyException extends thrift.StructLike implements IMyException {
+export class MyException implements thrift.IStructLike, IMyException {
     public description: string;
     public code?: ICode;
     public readonly __name = "MyException";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyExceptionArgs) {
-        super();
         if (args.description != null) {
             const value_7: string = args.description;
             this.description = value_7;

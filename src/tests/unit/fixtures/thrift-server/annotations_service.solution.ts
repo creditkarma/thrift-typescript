@@ -1,19 +1,20 @@
-export interface IUser {
-    __name: "User";
+export { IUser as IPerson };
+export { IUserArgs as IPersonArgs };
+export { User as Person };
+export { UserCodec as PersonCodec };
+export interface IGroup {
+    __name: "Group";
     name: string;
-    id: number;
 }
-export interface IUserArgs {
+export interface IGroupArgs {
     name: string;
-    id: number;
 }
-export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
-    encode(args: IUserArgs, output: thrift.TProtocol): void {
+export const GroupCodec: thrift.IStructCodec<IGroupArgs, IGroup> = {
+    encode(args: IGroupArgs, output: thrift.TProtocol): void {
         const obj = {
-            name: args.name,
-            id: args.id
+            name: args.name
         };
-        output.writeStructBegin("User");
+        output.writeStructBegin("Group");
         if (obj.name != null) {
             output.writeFieldBegin("name", thrift.TType.STRING, 1);
             output.writeString(obj.name);
@@ -22,19 +23,11 @@ export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
         }
-        if (obj.id != null) {
-            output.writeFieldBegin("id", thrift.TType.I32, 2);
-            output.writeI32(obj.id);
-            output.writeFieldEnd();
-        }
-        else {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[id] is unset!");
-        }
         output.writeFieldStop();
         output.writeStructEnd();
         return;
     },
-    decode(input: thrift.TProtocol): IUser {
+    decode(input: thrift.TProtocol): IGroup {
         let _args: any = {};
         input.readStructBegin();
         while (true) {
@@ -54,10 +47,123 @@ export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
                         input.skip(fieldType);
                     }
                     break;
+                default: {
+                    input.skip(fieldType);
+                }
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        if (_args.name !== undefined) {
+            return {
+                __name: "Group",
+                name: _args.name
+            };
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read Group from input");
+        }
+    }
+};
+export class Group implements thrift.IStructLike, IGroup {
+    public name: string;
+    public readonly __name = "Group";
+    constructor(args: IGroupArgs) {
+        if (args.name != null) {
+            const value_2: string = args.name;
+            this.name = value_2;
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
+        }
+    }
+    public static read(input: thrift.TProtocol): Group {
+        return new Group(GroupCodec.decode(input));
+    }
+    public static write(args: IGroupArgs, output: thrift.TProtocol): void {
+        return GroupCodec.encode(args, output);
+    }
+    public write(output: thrift.TProtocol): void {
+        return GroupCodec.encode(this, output);
+    }
+}
+export interface IUser {
+    __name: "User";
+    name: string;
+    id: number;
+    group?: IGroup;
+}
+export interface IUserArgs {
+    name: string;
+    id: number;
+    group?: IGroupArgs;
+}
+export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
+    encode(args: IUserArgs, output: thrift.TProtocol): void {
+        const obj = {
+            name: args.name,
+            id: args.id,
+            group: args.group
+        };
+        output.writeStructBegin("User");
+        if (obj.name != null) {
+            output.writeFieldBegin("name", thrift.TType.STRING, 1);
+            output.writeString(obj.name);
+            output.writeFieldEnd();
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
+        }
+        if (obj.id != null) {
+            output.writeFieldBegin("id", thrift.TType.I32, 2);
+            output.writeI32(obj.id);
+            output.writeFieldEnd();
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[id] is unset!");
+        }
+        if (obj.group != null) {
+            output.writeFieldBegin("group", thrift.TType.STRUCT, 3);
+            GroupCodec.encode(obj.group, output);
+            output.writeFieldEnd();
+        }
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    },
+    decode(input: thrift.TProtocol): IUser {
+        let _args: any = {};
+        input.readStructBegin();
+        while (true) {
+            const ret: thrift.IThriftField = input.readFieldBegin();
+            const fieldType: thrift.TType = ret.fieldType;
+            const fieldId: number = ret.fieldId;
+            if (fieldType === thrift.TType.STOP) {
+                break;
+            }
+            switch (fieldId) {
+                case 1:
+                    if (fieldType === thrift.TType.STRING) {
+                        const value_3: string = input.readString();
+                        _args.name = value_3;
+                    }
+                    else {
+                        input.skip(fieldType);
+                    }
+                    break;
                 case 2:
                     if (fieldType === thrift.TType.I32) {
-                        const value_2: number = input.readI32();
-                        _args.id = value_2;
+                        const value_4: number = input.readI32();
+                        _args.id = value_4;
+                    }
+                    else {
+                        input.skip(fieldType);
+                    }
+                    break;
+                case 3:
+                    if (fieldType === thrift.TType.STRUCT) {
+                        const value_5: IGroup = GroupCodec.decode(input);
+                        _args.group = value_5;
                     }
                     else {
                         input.skip(fieldType);
@@ -74,7 +180,8 @@ export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
             return {
                 __name: "User",
                 name: _args.name,
-                id: _args.id
+                id: _args.id,
+                group: _args.group
             };
         }
         else {
@@ -82,27 +189,29 @@ export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
         }
     }
 };
-export class User extends thrift.StructLike implements IUser {
+export class User implements thrift.IStructLike, IUser {
     public name: string;
     public id: number;
+    public group?: IGroup;
     public readonly __name = "User";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IUserArgs) {
-        super();
         if (args.name != null) {
-            const value_3: string = args.name;
-            this.name = value_3;
+            const value_6: string = args.name;
+            this.name = value_6;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
         }
         if (args.id != null) {
-            const value_4: number = args.id;
-            this.id = value_4;
+            const value_7: number = args.id;
+            this.id = value_7;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[id] is unset!");
+        }
+        if (args.group != null) {
+            const value_8: IGroup = new Group(args.group);
+            this.group = value_8;
         }
     }
     public static read(input: thrift.TProtocol): User {
@@ -115,35 +224,163 @@ export class User extends thrift.StructLike implements IUser {
         return UserCodec.encode(this, output);
     }
 }
-export const serviceName: string = "MyService";
-export const annotations: thrift.IThriftAnnotations = {
-    foo: "bar",
-    two: "three",
-    alone: "",
-    'dot.foo': "bar",
-    'dot.lonely': ""
-};
-export const methodAnnotations: thrift.IMethodAnnotations = {
-    getUser: {
-        annotations: {
-            foo: "bar",
-            two: "three",
-            lonely: "",
-            'dot.foo': "bar",
-            'dot.lonely': ""
+export const metadata: thrift.IServiceMetadata = {
+    name: "MyService",
+    annotations: {
+        foo: "bar",
+        two: "three",
+        alone: "",
+        'dot.foo': "bar",
+        'dot.lonely': ""
+    },
+    methods: {
+        getUser: {
+            name: "getUser",
+            annotations: {
+                foo: "bar",
+                two: "three",
+                lonely: "",
+                'dot.foo': "bar",
+                'dot.lonely': ""
+            },
+            arguments: [
+                {
+                    name: "id",
+                    fieldId: 1,
+                    annotations: {},
+                    definitionType: {
+                        type: thrift.DefinitionMetadataType.BaseType
+                    }
+                }
+            ]
         },
-        fieldAnnotations: {}
-    },
-    saveUser: {
-        annotations: {},
-        fieldAnnotations: {}
-    },
-    ping: {
-        annotations: {},
-        fieldAnnotations: {}
+        saveUser: {
+            name: "saveUser",
+            annotations: {},
+            arguments: [
+                {
+                    name: "user",
+                    fieldId: 1,
+                    annotations: {},
+                    definitionType: {
+                        type: thrift.DefinitionMetadataType.StructType,
+                        name: "User",
+                        annotations: {
+                            entity: ""
+                        },
+                        fields: {
+                            name: {
+                                name: "name",
+                                fieldId: 1,
+                                annotations: {},
+                                definitionType: {
+                                    type: thrift.DefinitionMetadataType.BaseType
+                                }
+                            },
+                            id: {
+                                name: "id",
+                                fieldId: 2,
+                                annotations: {
+                                    sensitive: ""
+                                },
+                                definitionType: {
+                                    type: thrift.DefinitionMetadataType.BaseType
+                                }
+                            },
+                            group: {
+                                name: "group",
+                                fieldId: 3,
+                                annotations: {
+                                    entity: ""
+                                },
+                                definitionType: {
+                                    type: thrift.DefinitionMetadataType.StructType,
+                                    name: "Group",
+                                    annotations: {},
+                                    fields: {
+                                        name: {
+                                            name: "name",
+                                            fieldId: 1,
+                                            annotations: {},
+                                            definitionType: {
+                                                type: thrift.DefinitionMetadataType.BaseType
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        deleteUser: {
+            name: "deleteUser",
+            annotations: {},
+            arguments: [
+                {
+                    name: "user",
+                    fieldId: 1,
+                    annotations: {},
+                    definitionType: {
+                        type: thrift.DefinitionMetadataType.StructType,
+                        name: "User",
+                        annotations: {
+                            entity: ""
+                        },
+                        fields: {
+                            name: {
+                                name: "name",
+                                fieldId: 1,
+                                annotations: {},
+                                definitionType: {
+                                    type: thrift.DefinitionMetadataType.BaseType
+                                }
+                            },
+                            id: {
+                                name: "id",
+                                fieldId: 2,
+                                annotations: {
+                                    sensitive: ""
+                                },
+                                definitionType: {
+                                    type: thrift.DefinitionMetadataType.BaseType
+                                }
+                            },
+                            group: {
+                                name: "group",
+                                fieldId: 3,
+                                annotations: {
+                                    entity: ""
+                                },
+                                definitionType: {
+                                    type: thrift.DefinitionMetadataType.StructType,
+                                    name: "Group",
+                                    annotations: {},
+                                    fields: {
+                                        name: {
+                                            name: "name",
+                                            fieldId: 1,
+                                            annotations: {},
+                                            definitionType: {
+                                                type: thrift.DefinitionMetadataType.BaseType
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        ping: {
+            name: "ping",
+            annotations: {},
+            arguments: []
+        }
     }
 };
-export const methodNames: Array<string> = ["getUser", "saveUser", "ping"];
 export interface IGetUser__Args {
     __name: "GetUser__Args";
     id: number;
@@ -182,8 +419,8 @@ export const GetUser__ArgsCodec: thrift.IStructCodec<IGetUser__ArgsArgs, IGetUse
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.TType.I32) {
-                        const value_5: number = input.readI32();
-                        _args.id = value_5;
+                        const value_9: number = input.readI32();
+                        _args.id = value_9;
                     }
                     else {
                         input.skip(fieldType);
@@ -207,16 +444,13 @@ export const GetUser__ArgsCodec: thrift.IStructCodec<IGetUser__ArgsArgs, IGetUse
         }
     }
 };
-export class GetUser__Args extends thrift.StructLike implements IGetUser__Args {
+export class GetUser__Args implements thrift.IStructLike, IGetUser__Args {
     public id: number;
     public readonly __name = "GetUser__Args";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IGetUser__ArgsArgs) {
-        super();
         if (args.id != null) {
-            const value_6: number = args.id;
-            this.id = value_6;
+            const value_10: number = args.id;
+            this.id = value_10;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[id] is unset!");
@@ -270,8 +504,8 @@ export const SaveUser__ArgsCodec: thrift.IStructCodec<ISaveUser__ArgsArgs, ISave
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_7: IUser = UserCodec.decode(input);
-                        _args.user = value_7;
+                        const value_11: IUser = UserCodec.decode(input);
+                        _args.user = value_11;
                     }
                     else {
                         input.skip(fieldType);
@@ -295,16 +529,13 @@ export const SaveUser__ArgsCodec: thrift.IStructCodec<ISaveUser__ArgsArgs, ISave
         }
     }
 };
-export class SaveUser__Args extends thrift.StructLike implements ISaveUser__Args {
+export class SaveUser__Args implements thrift.IStructLike, ISaveUser__Args {
     public user: IUser;
     public readonly __name = "SaveUser__Args";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ISaveUser__ArgsArgs) {
-        super();
         if (args.user != null) {
-            const value_8: IUser = new User(args.user);
-            this.user = value_8;
+            const value_12: IUser = new User(args.user);
+            this.user = value_12;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[user] is unset!");
@@ -318,6 +549,91 @@ export class SaveUser__Args extends thrift.StructLike implements ISaveUser__Args
     }
     public write(output: thrift.TProtocol): void {
         return SaveUser__ArgsCodec.encode(this, output);
+    }
+}
+export interface IDeleteUser__Args {
+    __name: "DeleteUser__Args";
+    user: IPerson;
+}
+export interface IDeleteUser__ArgsArgs {
+    user: IPersonArgs;
+}
+export const DeleteUser__ArgsCodec: thrift.IStructCodec<IDeleteUser__ArgsArgs, IDeleteUser__Args> = {
+    encode(args: IDeleteUser__ArgsArgs, output: thrift.TProtocol): void {
+        const obj = {
+            user: args.user
+        };
+        output.writeStructBegin("DeleteUser__Args");
+        if (obj.user != null) {
+            output.writeFieldBegin("user", thrift.TType.STRUCT, 1);
+            PersonCodec.encode(obj.user, output);
+            output.writeFieldEnd();
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[user] is unset!");
+        }
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    },
+    decode(input: thrift.TProtocol): IDeleteUser__Args {
+        let _args: any = {};
+        input.readStructBegin();
+        while (true) {
+            const ret: thrift.IThriftField = input.readFieldBegin();
+            const fieldType: thrift.TType = ret.fieldType;
+            const fieldId: number = ret.fieldId;
+            if (fieldType === thrift.TType.STOP) {
+                break;
+            }
+            switch (fieldId) {
+                case 1:
+                    if (fieldType === thrift.TType.STRUCT) {
+                        const value_13: IPerson = PersonCodec.decode(input);
+                        _args.user = value_13;
+                    }
+                    else {
+                        input.skip(fieldType);
+                    }
+                    break;
+                default: {
+                    input.skip(fieldType);
+                }
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        if (_args.user !== undefined) {
+            return {
+                __name: "DeleteUser__Args",
+                user: _args.user
+            };
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read DeleteUser__Args from input");
+        }
+    }
+};
+export class DeleteUser__Args implements thrift.IStructLike, IDeleteUser__Args {
+    public user: IPerson;
+    public readonly __name = "DeleteUser__Args";
+    constructor(args: IDeleteUser__ArgsArgs) {
+        if (args.user != null) {
+            const value_14: IPerson = new Person(args.user);
+            this.user = value_14;
+        }
+        else {
+            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[user] is unset!");
+        }
+    }
+    public static read(input: thrift.TProtocol): DeleteUser__Args {
+        return new DeleteUser__Args(DeleteUser__ArgsCodec.decode(input));
+    }
+    public static write(args: IDeleteUser__ArgsArgs, output: thrift.TProtocol): void {
+        return DeleteUser__ArgsCodec.encode(args, output);
+    }
+    public write(output: thrift.TProtocol): void {
+        return DeleteUser__ArgsCodec.encode(this, output);
     }
 }
 export interface IPing__Args {
@@ -354,12 +670,9 @@ export const Ping__ArgsCodec: thrift.IStructCodec<IPing__ArgsArgs, IPing__Args> 
         };
     }
 };
-export class Ping__Args extends thrift.StructLike implements IPing__Args {
+export class Ping__Args implements thrift.IStructLike, IPing__Args {
     public readonly __name = "Ping__Args";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPing__ArgsArgs = {}) {
-        super();
     }
     public static read(input: thrift.TProtocol): Ping__Args {
         return new Ping__Args(Ping__ArgsCodec.decode(input));
@@ -406,8 +719,8 @@ export const GetUser__ResultCodec: thrift.IStructCodec<IGetUser__ResultArgs, IGe
             switch (fieldId) {
                 case 0:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_9: IUser = UserCodec.decode(input);
-                        _args.success = value_9;
+                        const value_15: IUser = UserCodec.decode(input);
+                        _args.success = value_15;
                     }
                     else {
                         input.skip(fieldType);
@@ -426,16 +739,13 @@ export const GetUser__ResultCodec: thrift.IStructCodec<IGetUser__ResultArgs, IGe
         };
     }
 };
-export class GetUser__Result extends thrift.StructLike implements IGetUser__Result {
+export class GetUser__Result implements thrift.IStructLike, IGetUser__Result {
     public success?: IUser;
     public readonly __name = "GetUser__Result";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IGetUser__ResultArgs = {}) {
-        super();
         if (args.success != null) {
-            const value_10: IUser = new User(args.success);
-            this.success = value_10;
+            const value_16: IUser = new User(args.success);
+            this.success = value_16;
         }
     }
     public static read(input: thrift.TProtocol): GetUser__Result {
@@ -494,16 +804,13 @@ export const SaveUser__ResultCodec: thrift.IStructCodec<ISaveUser__ResultArgs, I
         };
     }
 };
-export class SaveUser__Result extends thrift.StructLike implements ISaveUser__Result {
+export class SaveUser__Result implements thrift.IStructLike, ISaveUser__Result {
     public success?: void;
     public readonly __name = "SaveUser__Result";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ISaveUser__ResultArgs = {}) {
-        super();
         if (args.success != null) {
-            const value_11: void = undefined;
-            this.success = value_11;
+            const value_17: void = undefined;
+            this.success = value_17;
         }
     }
     public static read(input: thrift.TProtocol): SaveUser__Result {
@@ -514,6 +821,71 @@ export class SaveUser__Result extends thrift.StructLike implements ISaveUser__Re
     }
     public write(output: thrift.TProtocol): void {
         return SaveUser__ResultCodec.encode(this, output);
+    }
+}
+export interface IDeleteUser__Result {
+    __name: "DeleteUser__Result";
+    success?: void;
+}
+export interface IDeleteUser__ResultArgs {
+    success?: void;
+}
+export const DeleteUser__ResultCodec: thrift.IStructCodec<IDeleteUser__ResultArgs, IDeleteUser__Result> = {
+    encode(args: IDeleteUser__ResultArgs, output: thrift.TProtocol): void {
+        output.writeStructBegin("DeleteUser__Result");
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    },
+    decode(input: thrift.TProtocol): IDeleteUser__Result {
+        let _args: any = {};
+        input.readStructBegin();
+        while (true) {
+            const ret: thrift.IThriftField = input.readFieldBegin();
+            const fieldType: thrift.TType = ret.fieldType;
+            const fieldId: number = ret.fieldId;
+            if (fieldType === thrift.TType.STOP) {
+                break;
+            }
+            switch (fieldId) {
+                case 0:
+                    if (fieldType === thrift.TType.VOID) {
+                        input.skip(fieldType);
+                    }
+                    else {
+                        input.skip(fieldType);
+                    }
+                    break;
+                default: {
+                    input.skip(fieldType);
+                }
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        return {
+            __name: "DeleteUser__Result",
+            success: _args.success
+        };
+    }
+};
+export class DeleteUser__Result implements thrift.IStructLike, IDeleteUser__Result {
+    public success?: void;
+    public readonly __name = "DeleteUser__Result";
+    constructor(args: IDeleteUser__ResultArgs = {}) {
+        if (args.success != null) {
+            const value_18: void = undefined;
+            this.success = value_18;
+        }
+    }
+    public static read(input: thrift.TProtocol): DeleteUser__Result {
+        return new DeleteUser__Result(DeleteUser__ResultCodec.decode(input));
+    }
+    public static write(args: IDeleteUser__ResultArgs, output: thrift.TProtocol): void {
+        return DeleteUser__ResultCodec.encode(args, output);
+    }
+    public write(output: thrift.TProtocol): void {
+        return DeleteUser__ResultCodec.encode(this, output);
     }
 }
 export interface IPing__Result {
@@ -562,16 +934,13 @@ export const Ping__ResultCodec: thrift.IStructCodec<IPing__ResultArgs, IPing__Re
         };
     }
 };
-export class Ping__Result extends thrift.StructLike implements IPing__Result {
+export class Ping__Result implements thrift.IStructLike, IPing__Result {
     public success?: void;
     public readonly __name = "Ping__Result";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IPing__ResultArgs = {}) {
-        super();
         if (args.success != null) {
-            const value_12: void = undefined;
-            this.success = value_12;
+            const value_19: void = undefined;
+            this.success = value_19;
         }
     }
     public static read(input: thrift.TProtocol): Ping__Result {
@@ -584,15 +953,22 @@ export class Ping__Result extends thrift.StructLike implements IPing__Result {
         return Ping__ResultCodec.encode(this, output);
     }
 }
-export class Client<Context = any> extends thrift.ThriftClient<Context> {
-    public static readonly serviceName: string = serviceName;
-    public static readonly annotations: thrift.IThriftAnnotations = annotations;
-    public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
-    public static readonly methodNames: Array<string> = methodNames;
-    public readonly _serviceName: string = serviceName;
-    public readonly _annotations: thrift.IThriftAnnotations = annotations;
-    public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
-    public readonly _methodNames: Array<string> = methodNames;
+export class Client<Context = any> implements thrift.IThriftClient {
+    public static readonly metadata: thrift.IServiceMetadata = metadata;
+    public readonly __metadata: thrift.IServiceMetadata = metadata;
+    protected _requestId: number;
+    protected transport: thrift.ITransportConstructor;
+    protected protocol: thrift.IProtocolConstructor;
+    protected connection: thrift.IThriftConnection<Context>;
+    constructor(connection: thrift.IThriftConnection<Context>) {
+        this._requestId = 0;
+        this.transport = connection.Transport;
+        this.protocol = connection.Protocol;
+        this.connection = connection;
+    }
+    protected incrementRequestId(): number {
+        return this._requestId += 1;
+    }
     public getUser(id: number, context?: Context): Promise<IUser> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
@@ -664,6 +1040,39 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
             }
         });
     }
+    public deleteUser(user: IPersonArgs, context?: Context): Promise<void> {
+        const writer: thrift.TTransport = new this.transport();
+        const output: thrift.TProtocol = new this.protocol(writer);
+        output.writeMessageBegin("deleteUser", thrift.MessageType.CALL, this.incrementRequestId());
+        const args: IDeleteUser__ArgsArgs = { user };
+        DeleteUser__ArgsCodec.encode(args, output);
+        output.writeMessageEnd();
+        return this.connection.send(writer.flush(), context).then((data: Buffer) => {
+            const reader: thrift.TTransport = this.transport.receiver(data);
+            const input: thrift.TProtocol = new this.protocol(reader);
+            try {
+                const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
+                if (fieldName === "deleteUser") {
+                    if (messageType === thrift.MessageType.EXCEPTION) {
+                        const err: thrift.TApplicationException = thrift.TApplicationExceptionCodec.decode(input);
+                        input.readMessageEnd();
+                        return Promise.reject(err);
+                    }
+                    else {
+                        const result: IDeleteUser__Result = DeleteUser__ResultCodec.decode(input);
+                        input.readMessageEnd();
+                        return Promise.resolve(result.success);
+                    }
+                }
+                else {
+                    return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.WRONG_METHOD_NAME, "Received a response to an unknown RPC function: " + fieldName));
+                }
+            }
+            catch (err) {
+                return Promise.reject(err);
+            }
+        });
+    }
     public ping(context?: Context): Promise<void> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
@@ -701,20 +1110,14 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
 export interface IHandler<Context = any> {
     getUser(id: number, context?: Context): IUserArgs | Promise<IUserArgs>;
     saveUser(user: IUser, context?: Context): void | Promise<void>;
+    deleteUser(user: IPerson, context?: Context): void | Promise<void>;
     ping(context?: Context): void | Promise<void>;
 }
-export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
+export class Processor<Context = any> implements thrift.IThriftProcessor<Context> {
     protected readonly _handler: IHandler<Context>;
-    public static readonly serviceName: string = serviceName;
-    public static readonly annotations: thrift.IThriftAnnotations = annotations;
-    public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
-    public static readonly methodNames: Array<string> = methodNames;
-    public readonly _serviceName: string = serviceName;
-    public readonly _annotations: thrift.IThriftAnnotations = annotations;
-    public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
-    public readonly _methodNames: Array<string> = methodNames;
+    public static readonly metadata: thrift.IServiceMetadata = metadata;
+    public readonly __metadata: thrift.IServiceMetadata = metadata;
     constructor(handler: IHandler<Context>) {
-        super();
         this._handler = handler;
     }
     public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
@@ -730,6 +1133,10 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
                 }
                 case "process_saveUser": {
                     resolve(this.process_saveUser(requestId, input, output, context));
+                    break;
+                }
+                case "process_deleteUser": {
+                    resolve(this.process_deleteUser(requestId, input, output, context));
                     break;
                 }
                 case "process_ping": {
@@ -793,6 +1200,30 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
         }).catch((err: Error): Buffer => {
             const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("saveUser", thrift.MessageType.EXCEPTION, requestId);
+            thrift.TApplicationExceptionCodec.encode(result, output);
+            output.writeMessageEnd();
+            return output.flush();
+        });
+    }
+    public process_deleteUser(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+        return new Promise<void>((resolve, reject): void => {
+            try {
+                const args: IDeleteUser__Args = DeleteUser__ArgsCodec.decode(input);
+                input.readMessageEnd();
+                resolve(this._handler.deleteUser(args.user, context));
+            }
+            catch (err) {
+                reject(err);
+            }
+        }).then((data: void): Buffer => {
+            const result: IDeleteUser__ResultArgs = { success: data };
+            output.writeMessageBegin("deleteUser", thrift.MessageType.REPLY, requestId);
+            DeleteUser__ResultCodec.encode(result, output);
+            output.writeMessageEnd();
+            return output.flush();
+        }).catch((err: Error): Buffer => {
+            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            output.writeMessageBegin("deleteUser", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
             output.writeMessageEnd();
             return output.flush();

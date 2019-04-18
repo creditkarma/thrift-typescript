@@ -1,7 +1,6 @@
 import * as ts from 'typescript'
 
 import {
-    // ExceptionDefinition,
     FieldDefinition,
     FunctionDefinition,
     Identifier,
@@ -16,10 +15,6 @@ import {
     collectAllMethods,
     createStructArgsName,
     createStructResultName,
-    renderMethodNamesProperty,
-    renderMethodNamesStaticProperty,
-    renderServiceNameProperty,
-    renderServiceNameStaticProperty,
 } from './utils'
 
 import { IRenderState } from '../../../types'
@@ -54,11 +49,9 @@ import {
 } from '../types'
 
 import {
-    renderMethodAnnotationsProperty,
-    renderMethodAnnotationsStaticProperty,
-    renderServiceAnnotationsProperty,
-    renderServiceAnnotationsStaticProperty,
-} from '../annotations'
+    renderServiceMetadataProperty,
+    renderServiceMetadataStaticProperty,
+} from './metadata'
 
 import {
     resolveIdentifierDefinition,
@@ -114,22 +107,11 @@ export function extendsService(
     ])
 }
 
-export function extendsAbstract(): ts.HeritageClause {
-    return ts.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
+export function implementsThriftProcessor(): ts.HeritageClause {
+    return ts.createHeritageClause(ts.SyntaxKind.ImplementsKeyword, [
         ts.createExpressionWithTypeArguments(
-            [
-                ts.createTypeReferenceNode(
-                    COMMON_IDENTIFIERS.Context,
-                    undefined,
-                ),
-                ts.createTypeReferenceNode(COMMON_IDENTIFIERS.IHandler, [
-                    ts.createTypeReferenceNode(
-                        COMMON_IDENTIFIERS.Context,
-                        undefined,
-                    ),
-                ]),
-            ],
-            THRIFT_IDENTIFIERS.ThriftProcessor,
+            [ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined)],
+            THRIFT_IDENTIFIERS.IThriftProcessor,
         ),
     ])
 }
@@ -152,15 +134,11 @@ export function renderProcessor(
         undefined,
     )
 
-    const staticServiceName: ts.PropertyDeclaration = renderServiceNameStaticProperty()
-    const staticAnnotations: ts.PropertyDeclaration = renderServiceAnnotationsStaticProperty()
-    const staticMethodAnnotations: ts.PropertyDeclaration = renderMethodAnnotationsStaticProperty()
-    const staticMethodNames: ts.PropertyDeclaration = renderMethodNamesStaticProperty()
+    // Static properties
+    const staticServiceMetadata: ts.PropertyDeclaration = renderServiceMetadataStaticProperty()
 
-    const serviceName: ts.PropertyDeclaration = renderServiceNameProperty()
-    const annotations: ts.PropertyDeclaration = renderServiceAnnotationsProperty()
-    const methodAnnotations: ts.PropertyDeclaration = renderMethodAnnotationsProperty()
-    const methodNames: ts.PropertyDeclaration = renderMethodNamesProperty()
+    // Instance properties
+    const serviceMetadata: ts.PropertyDeclaration = renderServiceMetadataProperty()
 
     const processMethod: ts.MethodDeclaration = createProcessMethod(
         service,
@@ -175,7 +153,7 @@ export function renderProcessor(
     const heritage: Array<ts.HeritageClause> =
         service.extends !== null
             ? [extendsService(service.extends, state)]
-            : [extendsAbstract()]
+            : [implementsThriftProcessor()]
 
     // export class <node.name> { ... }
     return ts.createClassDeclaration(
@@ -192,14 +170,8 @@ export function renderProcessor(
         heritage, // heritage
         [
             handler,
-            staticServiceName,
-            staticAnnotations,
-            staticMethodAnnotations,
-            staticMethodNames,
-            serviceName,
-            annotations,
-            methodAnnotations,
-            methodNames,
+            staticServiceMetadata,
+            serviceMetadata,
             createCtor(service, state),
             processMethod,
             ...processFunctions,
@@ -226,7 +198,6 @@ function createCtor(
         return createClassConstructor(
             [createFunctionParameter('handler', createHandlerType(service))],
             [
-                ts.createStatement(ts.createCall(ts.createSuper(), [], [])),
                 createAssignmentStatement(
                     ts.createIdentifier('this._handler'),
                     ts.createIdentifier('handler'),
@@ -251,7 +222,7 @@ function createSuperCall(
                         state.currentNamespace,
                         state.project.namespaces,
                         state.project.sourceDir,
-                    ),
+                    ).definition,
                 ),
             ],
         ),

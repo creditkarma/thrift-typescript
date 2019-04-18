@@ -98,7 +98,7 @@ export function validateFile(
                 resolvedFile,
                 files,
                 sourceDir,
-            )
+            ).definition
 
             if (resolvedIdentifier.type !== SyntaxType.ServiceDefinition) {
                 throw new ValidationError(
@@ -148,7 +148,8 @@ export function validateFile(
             resolvedFile,
             files,
             sourceDir,
-        )
+        ).definition
+
         switch (definition.type) {
             case SyntaxType.ServiceDefinition:
                 throw new ValidationError(

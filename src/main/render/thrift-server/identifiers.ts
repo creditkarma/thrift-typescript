@@ -3,16 +3,19 @@ import * as ts from 'typescript'
 export * from '../shared/identifiers'
 
 export const THRIFT_IDENTIFIERS = {
-    ThriftClient: ts.createIdentifier('thrift.ThriftClient'),
-    ThriftProcessor: ts.createIdentifier('thrift.ThriftProcessor'),
+    IServiceMetadata: ts.createIdentifier('thrift.IServiceMetadata'),
+    IMethodMetadata: ts.createIdentifier('thrift.IMethodMetadata'),
+    IFieldMetadata: ts.createIdentifier('thrift.IFieldMetadata'),
+    IThriftClient: ts.createIdentifier('thrift.IThriftClient'),
+    IThriftProcessor: ts.createIdentifier('thrift.IThriftProcessor'),
     IThriftAnnotations: ts.createIdentifier('thrift.IThriftAnnotations'),
     IFieldAnnotations: ts.createIdentifier('thrift.IFieldAnnotations'),
     IMethodAnnotations: ts.createIdentifier('thrift.IMethodAnnotations'),
     IStructCodec: ts.createIdentifier('thrift.IStructCodec'),
     IStructToolkit: ts.createIdentifier('thrift.IStructToolkit'),
     IThriftConnection: ts.createIdentifier('thrift.IThriftConnection'),
-    ProtocolConstructor: ts.createIdentifier('thrift.IProtocolConstructor'),
-    TransportConstructor: ts.createIdentifier('thrift.ITransportConstructor'),
+    IProtocolConstructor: ts.createIdentifier('thrift.IProtocolConstructor'),
+    ITransportConstructor: ts.createIdentifier('thrift.ITransportConstructor'),
     IThriftMessage: ts.createIdentifier('thrift.IThriftMessage'),
     IThriftField: ts.createIdentifier('thrift.IThriftField'),
     IThriftMap: ts.createIdentifier('thrift.IThriftMap'),
@@ -20,7 +23,6 @@ export const THRIFT_IDENTIFIERS = {
     IThriftList: ts.createIdentifier('thrift.IThriftList'),
     TProtocol: ts.createIdentifier('thrift.TProtocol'),
     TTransport: ts.createIdentifier('thrift.TTransport'),
-    CallbackMap: ts.createIdentifier('thrift.IRequestCallbackMap'),
     Thrift_Type: ts.createIdentifier('thrift.TType'),
     Int64: ts.createIdentifier('thrift.Int64'),
     MessageType: ts.createIdentifier('thrift.MessageType'),
@@ -32,7 +34,13 @@ export const THRIFT_IDENTIFIERS = {
     InputBufferUnderrunError: ts.createIdentifier(
         'thrift.InputBufferUnderrunError',
     ),
-    StructLike: ts.createIdentifier('thrift.StructLike'),
+    IStructLike: ts.createIdentifier('thrift.IStructLike'),
+    DefinitionMetadata_StructType: ts.createIdentifier(
+        'thrift.DefinitionMetadataType.StructType',
+    ),
+    DefinitionMetadata_BaseType: ts.createIdentifier(
+        'thrift.DefinitionMetadataType.BaseType',
+    ),
 }
 
 export const THRIFT_TYPES = {

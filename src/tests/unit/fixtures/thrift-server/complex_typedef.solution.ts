@@ -97,13 +97,12 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
         }
     }
 };
-export class MyUnion extends thrift.StructLike implements IMyUnion {
+export class MyUnion implements thrift.IStructLike, IMyUnion {
     public option1?: number;
     public option2?: string;
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyUnionArgs = {}) {
-        super();
         let _fieldsSet: number = 0;
         if (args.option1 != null) {
             _fieldsSet++;
@@ -223,13 +222,12 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
         }
     }
 };
-export class MyStruct extends thrift.StructLike implements IMyStruct {
+export class MyStruct implements thrift.IStructLike, IMyStruct {
     public option1?: number;
     public option2?: string;
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyStructArgs = {}) {
-        super();
         let _fieldsSet: number = 0;
         if (args.option1 != null) {
             _fieldsSet++;

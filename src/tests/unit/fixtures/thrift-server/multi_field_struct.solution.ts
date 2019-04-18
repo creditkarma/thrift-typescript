@@ -133,17 +133,14 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
         }
     }
 };
-export class MyStruct extends thrift.StructLike implements IMyStruct {
+export class MyStruct implements thrift.IStructLike, IMyStruct {
     public id: number = 45;
     public bigID: thrift.Int64 = thrift.Int64.fromDecimalString("23948234");
     public word: string;
     public field1?: number;
     public blob?: Buffer = Buffer.from("binary");
     public readonly __name = "MyStruct";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyStructArgs) {
-        super();
         if (args.id != null) {
             const value_6: number = args.id;
             this.id = value_6;

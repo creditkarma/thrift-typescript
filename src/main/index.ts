@@ -52,6 +52,7 @@ export function make(
     const fileExports: IFileExports = Resolver.exportsForFile(
         validatedFile.body,
     )
+
     const state: IRenderState = {
         options: mergedOptions,
         currentNamespace: {

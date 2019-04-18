@@ -32,12 +32,9 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
         };
     }
 };
-export class MyStruct extends thrift.StructLike implements IMyStruct {
+export class MyStruct implements thrift.IStructLike, IMyStruct {
     public readonly __name = "MyStruct";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyStructArgs = {}) {
-        super();
     }
     public static read(input: thrift.TProtocol): MyStruct {
         return new MyStruct(MyStructCodec.decode(input));

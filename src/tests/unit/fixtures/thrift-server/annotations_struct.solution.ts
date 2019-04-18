@@ -76,28 +76,11 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
         }
     }
 };
-export class MyStruct extends thrift.StructLike implements IMyStruct {
+export class MyStruct implements thrift.IStructLike, IMyStruct {
     public id: number = 45;
     public bigID: thrift.Int64 = thrift.Int64.fromDecimalString("23948234");
     public readonly __name = "MyStruct";
-    public readonly _annotations: thrift.IThriftAnnotations = {
-        foo: "bar",
-        two: "three",
-        alone: "",
-        'dot.foo': "bar",
-        'dot.lonely': ""
-    };
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {
-        id: {
-            foo: "bar",
-            two: "three",
-            lonely: "",
-            'dot.foo': "bar",
-            'dot.lonely': ""
-        }
-    };
     constructor(args: IMyStructArgs) {
-        super();
         if (args.id != null) {
             const value_3: number = args.id;
             this.id = value_3;

@@ -79,14 +79,11 @@ export const OtherStructCodec: thrift.IStructCodec<IOtherStructArgs, IOtherStruc
         }
     }
 };
-export class OtherStruct extends thrift.StructLike implements IOtherStruct {
+export class OtherStruct implements thrift.IStructLike, IOtherStruct {
     public id: thrift.Int64;
     public name: Buffer = Buffer.from("John");
     public readonly __name = "OtherStruct";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IOtherStructArgs) {
-        super();
         if (args.id != null) {
             const value_3: thrift.Int64 = (typeof args.id === "number" ? new thrift.Int64(args.id) : typeof args.id === "string" ? thrift.Int64.fromDecimalString(args.id) : args.id);
             this.id = value_3;
@@ -446,7 +443,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
         }
     }
 };
-export class MyStruct extends thrift.StructLike implements IMyStruct {
+export class MyStruct implements thrift.IStructLike, IMyStruct {
     public idList: Array<IOtherStruct>;
     public idMap: Map<string, IOtherStruct>;
     public idMapList: Map<string, Array<IOtherStruct>>;
@@ -456,10 +453,7 @@ export class MyStruct extends thrift.StructLike implements IMyStruct {
     public listListString: Array<Array<string>>;
     public i64KeyedMap: Map<thrift.Int64, thrift.Int64>;
     public readonly __name = "MyStruct";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyStructArgs) {
-        super();
         if (args.idList != null) {
             const value_35: Array<IOtherStruct> = new Array<IOtherStruct>();
             args.idList.forEach((value_43: IOtherStructArgs): void => {
