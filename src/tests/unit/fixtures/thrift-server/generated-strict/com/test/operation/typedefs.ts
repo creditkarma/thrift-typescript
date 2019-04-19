@@ -5,12 +5,12 @@
 */
 import * as com_test_exceptions from "./../exceptions";
 import * as __NAMESPACE__ from "./.";
-export import IJankyOperation = com_test_exceptions.IInvalidOperation;
-export import IJankyOperationArgs = com_test_exceptions.IInvalidOperationArgs;
-export import JankyOperation = com_test_exceptions.InvalidOperation;
-export import JankyOperationCodec = com_test_exceptions.InvalidOperationCodec;
-export import IJankyResult = com_test_exceptions.IInvalidResult;
-export import IJankyResultArgs = com_test_exceptions.IInvalidResultArgs;
-export import JankyResult = com_test_exceptions.InvalidResult;
-export import JankyResultCodec = com_test_exceptions.InvalidResultCodec;
-export import SomethingToDo = __NAMESPACE__.Operation;
+export type IJankyOperation = com_test_exceptions.IInvalidOperation;
+export type IJankyOperationArgs = com_test_exceptions.IInvalidOperationArgs;
+export const JankyOperation = com_test_exceptions.InvalidOperation;
+export const JankyOperationCodec = com_test_exceptions.InvalidOperationCodec;
+export type IJankyResult = com_test_exceptions.IInvalidResult;
+export type IJankyResultArgs = com_test_exceptions.IInvalidResultArgs;
+export const JankyResult = com_test_exceptions.InvalidResult;
+export const JankyResultCodec = com_test_exceptions.InvalidResultCodec;
+export const SomethingToDo = __NAMESPACE__.Operation;
