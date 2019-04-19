@@ -134,6 +134,34 @@ function renderClassReexport(
     }
 }
 
+function renderUnionReexport(
+    id: IResolvedIdentifier,
+    node: TypedefDefinition,
+    state: IRenderState,
+): ts.Statement {
+    if (id.pathName !== undefined) {
+        return ts.createTypeAliasDeclaration(
+            undefined,
+            tokens(true),
+            className(node.name.value, state),
+            undefined,
+            ts.createTypeReferenceNode(className(id.rawName, state), undefined),
+        )
+    } else {
+        return ts.createExportDeclaration(
+            [],
+            [],
+            ts.createNamedExports([
+                ts.createExportSpecifier(
+                    ts.createIdentifier(`${className(id.rawName, state)}`),
+                    ts.createIdentifier(className(node.name.value, state)),
+                ),
+            ]),
+            undefined,
+        )
+    }
+}
+
 function renderToolkitReexport(
     id: IResolvedIdentifier,
     definition: StructDefinition | UnionDefinition | ExceptionDefinition,
@@ -297,7 +325,7 @@ function renderTypeDefForIdentifier(
             if (state.options.strictUnions) {
                 return [
                     renderUnionTypeReexport(resolvedIdentifier, node, state),
-                    renderClassReexport(resolvedIdentifier, node, state),
+                    renderUnionReexport(resolvedIdentifier, node, state),
                     ...renderUnionInterfaceReexports(
                         resolvedIdentifier,
                         definition,
