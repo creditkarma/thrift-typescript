@@ -15,9 +15,13 @@ export const methodAnnotations: thrift.IMethodAnnotations = {
     getUnion: {
         annotations: {},
         fieldAnnotations: {}
+    },
+    getEnum: {
+        annotations: {},
+        fieldAnnotations: {}
     }
 };
-export const methodNames: Array<string> = ["getStruct", "getUnion"];
+export const methodNames: Array<string> = ["getStruct", "getUnion", "getEnum"];
 export interface IGetStruct__Args {
     __name: "GetStruct__Args";
     key: number;
@@ -194,6 +198,57 @@ export class GetUnion__Args extends thrift.StructLike implements IGetUnion__Args
         return GetUnion__ArgsCodec.encode(this, output);
     }
 }
+export interface IGetEnum__Args {
+    __name: "GetEnum__Args";
+}
+export interface IGetEnum__ArgsArgs {
+}
+export const GetEnum__ArgsCodec: thrift.IStructCodec<IGetEnum__ArgsArgs, IGetEnum__Args> = {
+    encode(args: IGetEnum__ArgsArgs, output: thrift.TProtocol): void {
+        output.writeStructBegin("GetEnum__Args");
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    },
+    decode(input: thrift.TProtocol): IGetEnum__Args {
+        input.readStructBegin();
+        while (true) {
+            const ret: thrift.IThriftField = input.readFieldBegin();
+            const fieldType: thrift.TType = ret.fieldType;
+            const fieldId: number = ret.fieldId;
+            if (fieldType === thrift.TType.STOP) {
+                break;
+            }
+            switch (fieldId) {
+                default: {
+                    input.skip(fieldType);
+                }
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        return {
+            __name: "GetEnum__Args"
+        };
+    }
+};
+export class GetEnum__Args extends thrift.StructLike implements IGetEnum__Args {
+    public readonly __name = "GetEnum__Args";
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
+    constructor(args: IGetEnum__ArgsArgs = {}) {
+        super();
+    }
+    public static read(input: thrift.TProtocol): GetEnum__Args {
+        return new GetEnum__Args(GetEnum__ArgsCodec.decode(input));
+    }
+    public static write(args: IGetEnum__ArgsArgs, output: thrift.TProtocol): void {
+        return GetEnum__ArgsCodec.encode(args, output);
+    }
+    public write(output: thrift.TProtocol): void {
+        return GetEnum__ArgsCodec.encode(this, output);
+    }
+}
 export interface IGetStruct__Result {
     __name: "GetStruct__Result";
     success?: __NAMESPACE__.ISharedStruct;
@@ -348,6 +403,83 @@ export class GetUnion__Result extends thrift.StructLike implements IGetUnion__Re
         return GetUnion__ResultCodec.encode(this, output);
     }
 }
+export interface IGetEnum__Result {
+    __name: "GetEnum__Result";
+    success?: __NAMESPACE__.SharedEnum;
+}
+export interface IGetEnum__ResultArgs {
+    success?: __NAMESPACE__.SharedEnum;
+}
+export const GetEnum__ResultCodec: thrift.IStructCodec<IGetEnum__ResultArgs, IGetEnum__Result> = {
+    encode(args: IGetEnum__ResultArgs, output: thrift.TProtocol): void {
+        const obj = {
+            success: args.success
+        };
+        output.writeStructBegin("GetEnum__Result");
+        if (obj.success != null) {
+            output.writeFieldBegin("success", thrift.TType.I32, 0);
+            output.writeI32(obj.success);
+            output.writeFieldEnd();
+        }
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    },
+    decode(input: thrift.TProtocol): IGetEnum__Result {
+        let _args: any = {};
+        input.readStructBegin();
+        while (true) {
+            const ret: thrift.IThriftField = input.readFieldBegin();
+            const fieldType: thrift.TType = ret.fieldType;
+            const fieldId: number = ret.fieldId;
+            if (fieldType === thrift.TType.STOP) {
+                break;
+            }
+            switch (fieldId) {
+                case 0:
+                    if (fieldType === thrift.TType.I32) {
+                        const value_9: __NAMESPACE__.SharedEnum = input.readI32();
+                        _args.success = value_9;
+                    }
+                    else {
+                        input.skip(fieldType);
+                    }
+                    break;
+                default: {
+                    input.skip(fieldType);
+                }
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        return {
+            __name: "GetEnum__Result",
+            success: _args.success
+        };
+    }
+};
+export class GetEnum__Result extends thrift.StructLike implements IGetEnum__Result {
+    public success?: __NAMESPACE__.SharedEnum;
+    public readonly __name = "GetEnum__Result";
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
+    constructor(args: IGetEnum__ResultArgs = {}) {
+        super();
+        if (args.success != null) {
+            const value_10: __NAMESPACE__.SharedEnum = args.success;
+            this.success = value_10;
+        }
+    }
+    public static read(input: thrift.TProtocol): GetEnum__Result {
+        return new GetEnum__Result(GetEnum__ResultCodec.decode(input));
+    }
+    public static write(args: IGetEnum__ResultArgs, output: thrift.TProtocol): void {
+        return GetEnum__ResultCodec.encode(args, output);
+    }
+    public write(output: thrift.TProtocol): void {
+        return GetEnum__ResultCodec.encode(this, output);
+    }
+}
 export class Client<Context = any> extends thrift.ThriftClient<Context> {
     public static readonly serviceName: string = serviceName;
     public static readonly annotations: thrift.IThriftAnnotations = annotations;
@@ -433,10 +565,49 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
             }
         });
     }
+    public getEnum(context?: Context): Promise<__NAMESPACE__.SharedEnum> {
+        const writer: thrift.TTransport = new this.transport();
+        const output: thrift.TProtocol = new this.protocol(writer);
+        output.writeMessageBegin("getEnum", thrift.MessageType.CALL, this.incrementRequestId());
+        const args: IGetEnum__ArgsArgs = {};
+        GetEnum__ArgsCodec.encode(args, output);
+        output.writeMessageEnd();
+        return this.connection.send(writer.flush(), context).then((data: Buffer) => {
+            const reader: thrift.TTransport = this.transport.receiver(data);
+            const input: thrift.TProtocol = new this.protocol(reader);
+            try {
+                const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
+                if (fieldName === "getEnum") {
+                    if (messageType === thrift.MessageType.EXCEPTION) {
+                        const err: thrift.TApplicationException = thrift.TApplicationExceptionCodec.decode(input);
+                        input.readMessageEnd();
+                        return Promise.reject(err);
+                    }
+                    else {
+                        const result: IGetEnum__Result = GetEnum__ResultCodec.decode(input);
+                        input.readMessageEnd();
+                        if (result.success != null) {
+                            return Promise.resolve(result.success);
+                        }
+                        else {
+                            return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "getEnum failed: unknown result"));
+                        }
+                    }
+                }
+                else {
+                    return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.WRONG_METHOD_NAME, "Received a response to an unknown RPC function: " + fieldName));
+                }
+            }
+            catch (err) {
+                return Promise.reject(err);
+            }
+        });
+    }
 }
 export interface IHandler<Context = any> {
     getStruct(key: number, context?: Context): __NAMESPACE__.ISharedStructArgs | Promise<__NAMESPACE__.ISharedStructArgs>;
     getUnion(index: number, context?: Context): __NAMESPACE__.SharedUnionArgs | Promise<__NAMESPACE__.SharedUnionArgs>;
+    getEnum(context?: Context): __NAMESPACE__.SharedEnum | Promise<__NAMESPACE__.SharedEnum>;
 }
 export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
     protected readonly _handler: IHandler<Context>;
@@ -465,6 +636,10 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
                 }
                 case "process_getUnion": {
                     resolve(this.process_getUnion(requestId, input, output, context));
+                    break;
+                }
+                case "process_getEnum": {
+                    resolve(this.process_getEnum(requestId, input, output, context));
                     break;
                 }
                 default: {
@@ -524,6 +699,29 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
         }).catch((err: Error): Buffer => {
             const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("getUnion", thrift.MessageType.EXCEPTION, requestId);
+            thrift.TApplicationExceptionCodec.encode(result, output);
+            output.writeMessageEnd();
+            return output.flush();
+        });
+    }
+    public process_getEnum(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+        return new Promise<__NAMESPACE__.SharedEnum>((resolve, reject): void => {
+            try {
+                input.readMessageEnd();
+                resolve(this._handler.getEnum(context));
+            }
+            catch (err) {
+                reject(err);
+            }
+        }).then((data: __NAMESPACE__.SharedEnum): Buffer => {
+            const result: IGetEnum__ResultArgs = { success: data };
+            output.writeMessageBegin("getEnum", thrift.MessageType.REPLY, requestId);
+            GetEnum__ResultCodec.encode(result, output);
+            output.writeMessageEnd();
+            return output.flush();
+        }).catch((err: Error): Buffer => {
+            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            output.writeMessageBegin("getEnum", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
             output.writeMessageEnd();
             return output.flush();

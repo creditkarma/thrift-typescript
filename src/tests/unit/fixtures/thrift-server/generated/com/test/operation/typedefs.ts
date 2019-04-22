@@ -14,3 +14,4 @@ export type IJankyResultArgs = com_test_exceptions.IInvalidResultArgs;
 export const JankyResult = com_test_exceptions.InvalidResult;
 export const JankyResultCodec = com_test_exceptions.InvalidResultCodec;
 export const SomethingToDo = __NAMESPACE__.Operation;
+export type SomethingToDo = __NAMESPACE__.Operation;

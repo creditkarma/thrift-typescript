@@ -15,6 +15,7 @@ include "shared.thrift"
 
 typedef shared.SharedStruct CommonStruct
 typedef shared.SharedUnion CommonUnion
+typedef shared.SharedEnum CommonEnum
 typedef shared.SHARED_INT COMMON_INT
 
 exception AuthException {

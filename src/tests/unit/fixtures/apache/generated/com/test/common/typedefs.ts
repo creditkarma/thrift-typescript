@@ -7,6 +7,7 @@ import * as com_test_shared from "./../shared";
 import * as __NAMESPACE__ from "./.";
 export import CommonStruct = com_test_shared.SharedStruct;
 export import CommonUnion = com_test_shared.SharedUnion;
+export import CommonEnum = com_test_shared.SharedEnum;
 export import COMMON_INT = com_test_shared.SHARED_INT;
 export import NotAllowed = __NAMESPACE__.AuthException;
 export import MoreOptions = __NAMESPACE__.OtherCommonUnion;

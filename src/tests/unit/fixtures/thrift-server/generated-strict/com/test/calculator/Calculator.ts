@@ -19,6 +19,10 @@ export const methodAnnotations: thrift.IMethodAnnotations = {
         annotations: {},
         fieldAnnotations: {}
     },
+    getEnum: {
+        annotations: {},
+        fieldAnnotations: {}
+    },
     ping: {
         annotations: {},
         fieldAnnotations: {}
@@ -76,7 +80,7 @@ export const methodAnnotations: thrift.IMethodAnnotations = {
         fieldAnnotations: {}
     }
 };
-export const methodNames: Array<string> = ["getStruct", "getUnion", "ping", "add", "addInt64", "addWithContext", "calculate", "echoBinary", "echoString", "checkName", "checkOptional", "mapOneList", "mapValues", "listToMap", "fetchThing", "zip"];
+export const methodNames: Array<string> = ["getStruct", "getUnion", "getEnum", "ping", "add", "addInt64", "addWithContext", "calculate", "echoBinary", "echoString", "checkName", "checkOptional", "mapOneList", "mapValues", "listToMap", "fetchThing", "zip"];
 export interface IPing__Args {
     __name: "Ping__Args";
 }
@@ -3117,7 +3121,8 @@ export class Processor<Context = any> extends com_test_shared.SharedService.Proc
     constructor(handler: IHandler<Context>) {
         super({
             getStruct: handler.getStruct,
-            getUnion: handler.getUnion
+            getUnion: handler.getUnion,
+            getEnum: handler.getEnum
         });
         this._handler = handler;
     }
@@ -3134,6 +3139,10 @@ export class Processor<Context = any> extends com_test_shared.SharedService.Proc
                 }
                 case "process_getUnion": {
                     resolve(this.process_getUnion(requestId, input, output, context));
+                    break;
+                }
+                case "process_getEnum": {
+                    resolve(this.process_getEnum(requestId, input, output, context));
                     break;
                 }
                 case "process_ping": {

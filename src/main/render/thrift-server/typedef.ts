@@ -374,6 +374,16 @@ function renderTypeDefForIdentifier(
             ]
 
         case SyntaxType.ConstDefinition:
+            return [
+                ts.createVariableStatement(
+                    tokens(true),
+                    createConst(
+                        node.name.value,
+                        undefined,
+                        ts.createIdentifier(resolvedIdentifier.fullName),
+                    ),
+                ),
+            ]
         case SyntaxType.EnumDefinition:
             return [
                 ts.createVariableStatement(
@@ -382,6 +392,16 @@ function renderTypeDefForIdentifier(
                         node.name.value,
                         undefined,
                         ts.createIdentifier(resolvedIdentifier.fullName),
+                    ),
+                ),
+                ts.createTypeAliasDeclaration(
+                    undefined,
+                    tokens(true),
+                    node.name.value,
+                    undefined,
+                    ts.createTypeReferenceNode(
+                        resolvedIdentifier.fullName,
+                        undefined,
                     ),
                 ),
             ]

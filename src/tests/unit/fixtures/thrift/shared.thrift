@@ -23,7 +23,13 @@ union SharedUnion {
   2: string option2
 }
 
+enum SharedEnum {
+    value1
+    value2
+}
+
 service SharedService {
   SharedStruct getStruct(1: i32 key)
   SharedUnion getUnion(1: i32 index)
+  SharedEnum getEnum()
 }
