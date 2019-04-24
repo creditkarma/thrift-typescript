@@ -357,7 +357,7 @@ export class GetUnion__Result implements thrift.IStructLike, IGetUnion__Result {
         return GetUnion__ResultCodec.encode(this, output);
     }
 }
-export class Client<Context = any> implements thrift.IThriftClient {
+export class Client<Context extends thrift.IThriftContext = thrift.IThriftContext> implements thrift.IThriftClient {
     public static readonly metadata: thrift.IServiceMetadata = metadata;
     public readonly __metadata: thrift.IServiceMetadata = metadata;
     protected _requestId: number;
@@ -450,11 +450,11 @@ export class Client<Context = any> implements thrift.IThriftClient {
         });
     }
 }
-export interface IHandler<Context = any> {
+export interface IHandler<Context extends thrift.IThriftContext = thrift.IThriftContext> {
     getStruct(key: number, context?: Context): __NAMESPACE__.ISharedStructArgs | Promise<__NAMESPACE__.ISharedStructArgs>;
     getUnion(index: number, context?: Context): __NAMESPACE__.SharedUnionArgs | Promise<__NAMESPACE__.SharedUnionArgs>;
 }
-export class Processor<Context = any> implements thrift.IThriftProcessor<Context> {
+export class Processor<Context extends thrift.IThriftContext = thrift.IThriftContext> implements thrift.IThriftProcessor<Context> {
     protected readonly _handler: IHandler<Context>;
     public static readonly metadata: thrift.IServiceMetadata = metadata;
     public readonly __metadata: thrift.IServiceMetadata = metadata;

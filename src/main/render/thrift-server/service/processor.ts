@@ -41,7 +41,6 @@ import {
 
 import {
     constructorNameForFieldType,
-    createAnyType,
     createNumberType,
     createStringType,
     createVoidType,
@@ -87,7 +86,7 @@ function objectLiteralForServiceFunctions(
 
 function createHandlerType(node: ServiceDefinition): ts.TypeNode {
     return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.IHandler, [
-        ts.createTypeReferenceNode('Context', undefined),
+        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined),
     ])
 }
 
@@ -162,9 +161,15 @@ export function renderProcessor(
         'Processor', // name
         [
             ts.createTypeParameterDeclaration(
-                'Context',
-                undefined,
-                createAnyType(),
+                COMMON_IDENTIFIERS.Context,
+                ts.createTypeReferenceNode(
+                    THRIFT_IDENTIFIERS.IThriftContext,
+                    undefined,
+                ),
+                ts.createTypeReferenceNode(
+                    THRIFT_IDENTIFIERS.IThriftContext,
+                    undefined,
+                ),
             ),
         ], // type parameters
         heritage, // heritage
@@ -185,22 +190,32 @@ function createCtor(
 ): ts.ConstructorDeclaration {
     if (service.extends !== null) {
         return createClassConstructor(
-            [createFunctionParameter('handler', createHandlerType(service))],
+            [
+                createFunctionParameter(
+                    COMMON_IDENTIFIERS.handler,
+                    createHandlerType(service),
+                ),
+            ],
             [
                 createSuperCall(service.extends, state),
                 createAssignmentStatement(
                     ts.createIdentifier('this._handler'),
-                    ts.createIdentifier('handler'),
+                    COMMON_IDENTIFIERS.handler,
                 ),
             ],
         )
     } else {
         return createClassConstructor(
-            [createFunctionParameter('handler', createHandlerType(service))],
+            [
+                createFunctionParameter(
+                    COMMON_IDENTIFIERS.handler,
+                    createHandlerType(service),
+                ),
+            ],
             [
                 createAssignmentStatement(
                     ts.createIdentifier('this._handler'),
-                    ts.createIdentifier('handler'),
+                    COMMON_IDENTIFIERS.handler,
                 ),
             ],
         )
@@ -237,10 +252,17 @@ function createProcessFunctionMethod(
     return createPublicMethod(
         ts.createIdentifier(`process_${funcDef.name.value}`),
         [
-            createFunctionParameter('requestId', createNumberType()),
-            createFunctionParameter('input', TProtocolType),
-            createFunctionParameter('output', TProtocolType),
-            createFunctionParameter('context', ContextType, undefined),
+            createFunctionParameter(
+                COMMON_IDENTIFIERS.requestId,
+                createNumberType(),
+            ),
+            createFunctionParameter(COMMON_IDENTIFIERS.input, TProtocolType),
+            createFunctionParameter(COMMON_IDENTIFIERS.output, TProtocolType),
+            createFunctionParameter(
+                COMMON_IDENTIFIERS.context,
+                ContextType,
+                undefined,
+            ),
         ], // parameters
         ts.createTypeReferenceNode(
             ts.createIdentifier('Promise<Buffer>'),

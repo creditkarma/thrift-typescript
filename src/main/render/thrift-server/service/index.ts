@@ -25,6 +25,8 @@ import { typeNodeForFieldType } from '../types'
 
 import { renderServiceMetadata } from './metadata'
 
+import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
+
 function emptyLocation(): TextLocation {
     return {
         start: { line: 0, column: 0, index: 0 },
@@ -41,7 +43,22 @@ export function renderService(
         ...renderArgsStruct(service, state),
         ...renderResultStruct(service, state),
         renderClient(service, state),
-        ...renderHandlerInterface(service, typeNodeForFieldType, state),
+        ...renderHandlerInterface(
+            service,
+            typeNodeForFieldType,
+            state,
+            ts.createTypeParameterDeclaration(
+                COMMON_IDENTIFIERS.Context,
+                ts.createTypeReferenceNode(
+                    THRIFT_IDENTIFIERS.IThriftContext,
+                    undefined,
+                ),
+                ts.createTypeReferenceNode(
+                    THRIFT_IDENTIFIERS.IThriftContext,
+                    undefined,
+                ),
+            ),
+        ),
         renderProcessor(service, state),
     ]
 }

@@ -27,7 +27,7 @@ import {
     createNotNullCheck,
 } from '../utils'
 
-import { createAnyType, typeNodeForFieldType } from '../types'
+import { typeNodeForFieldType } from '../types'
 
 import { renderValue } from '../initializers'
 
@@ -162,8 +162,14 @@ export function renderClient(
         [
             ts.createTypeParameterDeclaration(
                 COMMON_IDENTIFIERS.Context,
-                undefined,
-                createAnyType(),
+                ts.createTypeReferenceNode(
+                    THRIFT_IDENTIFIERS.IThriftContext,
+                    undefined,
+                ),
+                ts.createTypeReferenceNode(
+                    THRIFT_IDENTIFIERS.IThriftContext,
+                    undefined,
+                ),
             ),
         ], // type parameters
         heritage, // heritage

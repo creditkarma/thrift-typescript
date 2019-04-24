@@ -2705,7 +2705,7 @@ export class Zip__Result implements thrift.IStructLike, IZip__Result {
         return Zip__ResultCodec.encode(this, output);
     }
 }
-export class Client<Context = any> extends com_test_shared.SharedService.Client<Context> {
+export class Client<Context extends thrift.IThriftContext = thrift.IThriftContext> extends com_test_shared.SharedService.Client<Context> {
     public static readonly metadata: thrift.IServiceMetadata = metadata;
     public readonly __metadata: thrift.IServiceMetadata = metadata;
     constructor(connection: thrift.IThriftConnection<Context>) {
@@ -3246,7 +3246,7 @@ export class Client<Context = any> extends com_test_shared.SharedService.Client<
         });
     }
 }
-export interface ILocalHandler<Context = any> {
+export interface ILocalHandler<Context extends thrift.IThriftContext = thrift.IThriftContext> {
     ping(context?: Context): void | Promise<void>;
     add(num1: number, num2: number, context?: Context): number | Promise<number>;
     addInt64(num1: thrift.Int64, num2: thrift.Int64, context?: Context): (number | string | thrift.Int64) | Promise<number | string | thrift.Int64>;
@@ -3262,8 +3262,8 @@ export interface ILocalHandler<Context = any> {
     fetchThing(context?: Context): com_test_common.ICommonStructArgs | Promise<com_test_common.ICommonStructArgs>;
     zip(context?: Context): void | Promise<void>;
 }
-export type IHandler<Context = any> = ILocalHandler<Context> & com_test_shared.SharedService.IHandler<Context>;
-export class Processor<Context = any> extends com_test_shared.SharedService.Processor<Context> {
+export type IHandler<Context extends thrift.IThriftContext = thrift.IThriftContext> = ILocalHandler<Context> & com_test_shared.SharedService.IHandler<Context>;
+export class Processor<Context extends thrift.IThriftContext = thrift.IThriftContext> extends com_test_shared.SharedService.Processor<Context> {
     protected readonly _handler: IHandler<Context>;
     public static readonly metadata: thrift.IServiceMetadata = metadata;
     public readonly __metadata: thrift.IServiceMetadata = metadata;

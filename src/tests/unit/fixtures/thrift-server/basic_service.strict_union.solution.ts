@@ -476,7 +476,7 @@ export class Ping__Result implements thrift.IStructLike, IPing__Result {
         return Ping__ResultCodec.encode(this, output);
     }
 }
-export class Client<Context = any> implements thrift.IThriftClient {
+export class Client<Context extends thrift.IThriftContext = thrift.IThriftContext> implements thrift.IThriftClient {
     public static readonly metadata: thrift.IServiceMetadata = metadata;
     public readonly __metadata: thrift.IServiceMetadata = metadata;
     protected _requestId: number;
@@ -564,11 +564,11 @@ export class Client<Context = any> implements thrift.IThriftClient {
         });
     }
 }
-export interface IHandler<Context = any> {
+export interface IHandler<Context extends thrift.IThriftContext = thrift.IThriftContext> {
     getUser(arg1: MyUnion, context?: Context): string | Promise<string>;
     ping(context?: Context): void | Promise<void>;
 }
-export class Processor<Context = any> implements thrift.IThriftProcessor<Context> {
+export class Processor<Context extends thrift.IThriftContext = thrift.IThriftContext> implements thrift.IThriftProcessor<Context> {
     protected readonly _handler: IHandler<Context>;
     public static readonly metadata: thrift.IServiceMetadata = metadata;
     public readonly __metadata: thrift.IServiceMetadata = metadata;

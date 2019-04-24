@@ -51,6 +51,13 @@ function funcToMethodReducer(
     ])
 }
 
+const defaultContextType = () =>
+    ts.createTypeParameterDeclaration(
+        COMMON_IDENTIFIERS.Context,
+        undefined,
+        createAnyType(),
+    )
+
 /**
  * // thrift
  * service MyService {
@@ -67,6 +74,7 @@ export function renderHandlerInterface(
     service: ServiceDefinition,
     typeMapping: TypeMapping,
     state: IRenderState,
+    contextType: ts.TypeParameterDeclaration = defaultContextType(),
 ): Array<ts.Statement> {
     const signatures: Array<ts.MethodSignature> = service.functions.reduce(
         (acc: Array<ts.MethodSignature>, next: FunctionDefinition) => {
@@ -81,13 +89,7 @@ export function renderHandlerInterface(
                 undefined,
                 [ts.createToken(ts.SyntaxKind.ExportKeyword)],
                 COMMON_IDENTIFIERS.ILocalHandler,
-                [
-                    ts.createTypeParameterDeclaration(
-                        COMMON_IDENTIFIERS.Context,
-                        undefined,
-                        createAnyType(),
-                    ),
-                ],
+                [contextType],
                 [],
                 signatures,
             ),
@@ -95,17 +97,16 @@ export function renderHandlerInterface(
                 undefined,
                 [ts.createToken(ts.SyntaxKind.ExportKeyword)],
                 COMMON_IDENTIFIERS.IHandler,
-                [
-                    ts.createTypeParameterDeclaration(
-                        COMMON_IDENTIFIERS.Context,
-                        undefined,
-                        createAnyType(),
-                    ),
-                ],
+                [contextType],
                 ts.createIntersectionTypeNode([
                     ts.createTypeReferenceNode(
                         COMMON_IDENTIFIERS.ILocalHandler,
-                        [ts.createTypeReferenceNode('Context', undefined)],
+                        [
+                            ts.createTypeReferenceNode(
+                                COMMON_IDENTIFIERS.Context,
+                                undefined,
+                            ),
+                        ],
                     ),
                     ts.createTypeReferenceNode(
                         ts.createIdentifier(
@@ -127,13 +128,7 @@ export function renderHandlerInterface(
                 undefined,
                 [ts.createToken(ts.SyntaxKind.ExportKeyword)],
                 COMMON_IDENTIFIERS.IHandler,
-                [
-                    ts.createTypeParameterDeclaration(
-                        COMMON_IDENTIFIERS.Context,
-                        undefined,
-                        createAnyType(),
-                    ),
-                ],
+                [contextType],
                 [],
                 signatures,
             ),
