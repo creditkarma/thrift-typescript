@@ -6,8 +6,9 @@
 import * as com_test_operation from "./../operation";
 import * as com_test_common from "./../common";
 export type MyInteger = number;
-export import Operation = com_test_operation.Operation;
-export import ICommonStruct = com_test_common.ICommonStruct;
-export import ICommonStructArgs = com_test_common.ICommonStructArgs;
-export import CommonStruct = com_test_common.CommonStruct;
-export import CommonStructCodec = com_test_common.CommonStructCodec;
+export const Operation = com_test_operation.Operation;
+export type Operation = com_test_operation.Operation;
+export type ICommonStruct = com_test_common.ICommonStruct;
+export type ICommonStructArgs = com_test_common.ICommonStructArgs;
+export const CommonStruct = com_test_common.CommonStruct;
+export const CommonStructCodec = com_test_common.CommonStructCodec;

@@ -2345,7 +2345,8 @@ export class Processor extends com_test_shared.SharedService.Processor {
     constructor(handler: IHandler) {
         super({
             getStruct: handler.getStruct,
-            getUnion: handler.getUnion
+            getUnion: handler.getUnion,
+            getEnum: handler.getEnum
         });
         this._handler = handler;
     }
@@ -2361,6 +2362,10 @@ export class Processor extends com_test_shared.SharedService.Processor {
             }
             case "process_getUnion": {
                 this.process_getUnion(requestId, input, output);
+                return;
+            }
+            case "process_getEnum": {
+                this.process_getEnum(requestId, input, output);
                 return;
             }
             case "process_ping": {
