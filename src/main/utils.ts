@@ -164,7 +164,7 @@ export function emptyNamespace(): INamespacePath {
     return {
         type: 'NamespacePath',
         scope: '',
-        name: '',
+        name: '__ROOT_NAMESPACE__',
         path: createPathForNamespace(''),
     }
 }

@@ -5,7 +5,7 @@
 */
 import Int64 = require("node-int64");
 import * as thrift from "test-lib";
-import * as com_test_shared from "./../shared";
+import * as __ROOT_NAMESPACE__ from "./../../..";
 import * as com_test_operation from "./../operation";
 import * as com_test_common from "./../common";
 import * as __NAMESPACE__ from "./.";
@@ -1686,7 +1686,7 @@ export class ZipResult {
         return new ZipResult(_args);
     }
 }
-export class Client extends com_test_shared.SharedService.Client {
+export class Client extends __ROOT_NAMESPACE__.SharedService.Client {
     public _seqid: number;
     public _reqs: {
         [name: number]: (err: Error | object | undefined, val?: any) => void;
@@ -2339,8 +2339,8 @@ export interface ILocalHandler {
     fetchThing(): com_test_common.CommonStruct | Promise<com_test_common.CommonStruct>;
     zip(): void | Promise<void>;
 }
-export type IHandler = ILocalHandler & com_test_shared.SharedService.IHandler;
-export class Processor extends com_test_shared.SharedService.Processor {
+export type IHandler = ILocalHandler & __ROOT_NAMESPACE__.SharedService.IHandler;
+export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
     public _handler: IHandler;
     constructor(handler: IHandler) {
         super({

@@ -1,12 +1,3 @@
-namespace cpp com.test.shared
-namespace d com.test.share // "shared" would collide with the eponymous D keyword.
-namespace dart com.test.shared
-namespace java com.test.shared
-namespace perl com.test.shared
-namespace php com.test.shared
-namespace haxe com.test.shared
-namespace netcore com.test.shared
-
 const i32 SHARED_INT = 45
 
 struct Code {

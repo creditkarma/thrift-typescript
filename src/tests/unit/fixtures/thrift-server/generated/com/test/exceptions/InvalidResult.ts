@@ -4,15 +4,15 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 */
 import * as thrift from "test-lib";
-import * as com_test_shared from "./../shared";
+import * as __ROOT_NAMESPACE__ from "./../../..";
 export interface IInvalidResult {
     __name: "InvalidResult";
     message?: string;
-    code?: com_test_shared.ICode;
+    code?: __ROOT_NAMESPACE__.ICode;
 }
 export interface IInvalidResultArgs {
     message?: string;
-    code?: com_test_shared.ICodeArgs;
+    code?: __ROOT_NAMESPACE__.ICodeArgs;
 }
 export const InvalidResultCodec: thrift.IStructCodec<IInvalidResultArgs, IInvalidResult> = {
     encode(args: IInvalidResultArgs, output: thrift.TProtocol): void {
@@ -28,7 +28,7 @@ export const InvalidResultCodec: thrift.IStructCodec<IInvalidResultArgs, IInvali
         }
         if (obj.code != null) {
             output.writeFieldBegin("code", thrift.TType.STRUCT, 2);
-            com_test_shared.CodeCodec.encode(obj.code, output);
+            __ROOT_NAMESPACE__.CodeCodec.encode(obj.code, output);
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -57,7 +57,7 @@ export const InvalidResultCodec: thrift.IStructCodec<IInvalidResultArgs, IInvali
                     break;
                 case 2:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_2: com_test_shared.ICode = com_test_shared.CodeCodec.decode(input);
+                        const value_2: __ROOT_NAMESPACE__.ICode = __ROOT_NAMESPACE__.CodeCodec.decode(input);
                         _args.code = value_2;
                     }
                     else {
@@ -80,7 +80,7 @@ export const InvalidResultCodec: thrift.IStructCodec<IInvalidResultArgs, IInvali
 };
 export class InvalidResult extends thrift.StructLike implements IInvalidResult {
     public message?: string;
-    public code?: com_test_shared.ICode;
+    public code?: __ROOT_NAMESPACE__.ICode;
     public readonly __name = "InvalidResult";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
@@ -91,7 +91,7 @@ export class InvalidResult extends thrift.StructLike implements IInvalidResult {
             this.message = value_3;
         }
         if (args.code != null) {
-            const value_4: com_test_shared.ICode = new com_test_shared.Code(args.code);
+            const value_4: __ROOT_NAMESPACE__.ICode = new __ROOT_NAMESPACE__.Code(args.code);
             this.code = value_4;
         }
     }
