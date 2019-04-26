@@ -4,7 +4,7 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 */
 import * as thrift from "test-lib";
-import * as com_test_shared from "./../shared";
+import * as __ROOT_NAMESPACE__ from "./../../..";
 import * as com_test_operation from "./../operation";
 import * as com_test_common from "./../common";
 import * as __NAMESPACE__ from "./.";
@@ -2547,7 +2547,7 @@ export class Zip__Result extends thrift.StructLike implements IZip__Result {
         return Zip__ResultCodec.encode(this, output);
     }
 }
-export class Client<Context = any> extends com_test_shared.SharedService.Client<Context> {
+export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Client<Context> {
     public static readonly serviceName: string = serviceName;
     public static readonly annotations: thrift.IThriftAnnotations = annotations;
     public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
@@ -3107,8 +3107,8 @@ export interface ILocalHandler<Context = any> {
     fetchThing(context?: Context): com_test_common.ICommonStructArgs | Promise<com_test_common.ICommonStructArgs>;
     zip(context?: Context): void | Promise<void>;
 }
-export type IHandler<Context = any> = ILocalHandler<Context> & com_test_shared.SharedService.IHandler<Context>;
-export class Processor<Context = any> extends com_test_shared.SharedService.Processor<Context> {
+export type IHandler<Context = any> = ILocalHandler<Context> & __ROOT_NAMESPACE__.SharedService.IHandler<Context>;
+export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.Processor<Context> {
     protected readonly _handler: IHandler<Context>;
     public static readonly serviceName: string = serviceName;
     public static readonly annotations: thrift.IThriftAnnotations = annotations;

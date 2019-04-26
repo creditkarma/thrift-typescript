@@ -20,7 +20,7 @@ import {
 
 import { AddService } from './codegen/com/test/add-service'
 
-import { SharedStruct, SharedUnion } from './codegen/com/test/shared'
+import { SharedStruct, SharedUnion } from './codegen'
 
 import { Server } from 'net'
 

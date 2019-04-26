@@ -55,7 +55,12 @@ function readGenerated(
     target: CompileTarget = 'thrift-server',
 ): FileList {
     return readDir(
-        path.join(__dirname, `./${target}/generated/com/test/${name}`),
+        path.join(
+            __dirname,
+            name === 'shared'
+                ? `./${target}/generated`
+                : `./${target}/generated/com/test/${name}`,
+        ),
     )
 }
 
@@ -67,9 +72,13 @@ function readGeneratedSolution(
     const files: FileList = readDir(
         path.join(
             __dirname,
-            `./fixtures/${target}/${
-                strictUnions ? 'generated-strict' : 'generated'
-            }/com/test/${name}`,
+            name === 'shared'
+                ? `./fixtures/${target}/${
+                      strictUnions ? 'generated-strict' : 'generated'
+                  }`
+                : `./fixtures/${target}/${
+                      strictUnions ? 'generated-strict' : 'generated'
+                  }/com/test/${name}`,
         ),
     )
 

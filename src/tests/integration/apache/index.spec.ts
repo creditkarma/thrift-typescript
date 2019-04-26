@@ -19,7 +19,7 @@ import {
     Work,
 } from './codegen/com/test/calculator'
 
-import { SharedStruct, SharedUnion } from './codegen/com/test/shared'
+import { SharedStruct, SharedUnion } from './codegen'
 
 import { createAddServer } from './add-service'
 import { createCalculatorServer } from './calculator-service'

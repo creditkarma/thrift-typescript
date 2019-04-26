@@ -4,14 +4,14 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 */
 import * as thrift from "test-lib";
-import * as com_test_shared from "./../shared";
+import * as __ROOT_NAMESPACE__ from "./../../..";
 export interface IInvalidResultArgs {
     message?: string;
-    code?: com_test_shared.Code;
+    code?: __ROOT_NAMESPACE__.Code;
 }
 export class InvalidResult {
     public message?: string;
-    public code?: com_test_shared.Code;
+    public code?: __ROOT_NAMESPACE__.Code;
     constructor(args?: IInvalidResultArgs) {
         if (args != null && args.message != null) {
             this.message = args.message;
@@ -58,7 +58,7 @@ export class InvalidResult {
                     break;
                 case 2:
                     if (fieldType === thrift.Thrift.Type.STRUCT) {
-                        const value_2: com_test_shared.Code = com_test_shared.Code.read(input);
+                        const value_2: __ROOT_NAMESPACE__.Code = __ROOT_NAMESPACE__.Code.read(input);
                         _args.code = value_2;
                     }
                     else {

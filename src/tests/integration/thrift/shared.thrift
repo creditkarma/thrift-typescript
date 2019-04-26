@@ -1,6 +1,3 @@
-namespace java com.test.shared
-namespace js com.test.shared
-
 const i32 SHARED_INT = 45
 
 struct SharedStruct {
