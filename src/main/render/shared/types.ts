@@ -35,6 +35,10 @@ export function createBooleanType(): ts.KeywordTypeNode {
     return ts.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword)
 }
 
+export function createBufferType(): ts.TypeNode {
+    return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Buffer, undefined)
+}
+
 export function createTypeProperty(
     name: string,
     type: ts.TypeNode,

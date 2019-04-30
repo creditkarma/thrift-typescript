@@ -1,10 +1,17 @@
 import * as ts from 'typescript'
 
 export const COMMON_IDENTIFIERS = {
+    methodName: ts.createIdentifier('methodName'),
+    readRequest: ts.createIdentifier('readRequest'),
+    writeResponse: ts.createIdentifier('writeResponse'),
+    writeError: ts.createIdentifier('writeError'),
+    resolve: ts.createIdentifier('resolve'),
+    reject: ts.createIdentifier('reject'),
+    transportWithData: ts.createIdentifier('transportWithData'),
+    receiver: ts.createIdentifier('receiver'),
     __NAMESPACE__: ts.createIdentifier('__NAMESPACE__'),
     metadata: ts.createIdentifier('metadata'),
     __metadata: ts.createIdentifier('__metadata'),
-    methodName: ts.createIdentifier('methodName'),
     __name: ts.createIdentifier('__name'),
     __type: ts.createIdentifier('__type'),
     _fieldsSet: ts.createIdentifier('_fieldsSet'),
@@ -23,7 +30,6 @@ export const COMMON_IDENTIFIERS = {
     break: ts.createIdentifier('break'),
     success: ts.createIdentifier('success'),
     handler: ts.createIdentifier('handler'),
-    _handler: ts.createIdentifier('_handler'),
     super: ts.createIdentifier('super'),
     this: ts.createIdentifier('this'),
     flush: ts.createIdentifier('flush'),
@@ -52,9 +58,6 @@ export const COMMON_IDENTIFIERS = {
     transport: ts.createIdentifier('transport'),
     connection: ts.createIdentifier('connection'),
     messageType: ts.createIdentifier('messageType'),
-    ftype: ts.createIdentifier('ftype'),
-    fname: ts.createIdentifier('fname'),
-    fid: ts.createIdentifier('fid'),
     fieldType: ts.createIdentifier('fieldType'),
     fieldName: ts.createIdentifier('fieldName'),
     fieldId: ts.createIdentifier('fieldId'),
@@ -76,4 +79,6 @@ export const COMMON_IDENTIFIERS = {
     IHandler: ts.createIdentifier('IHandler'),
     ILocalHandler: ts.createIdentifier('ILocalHandler'),
     Node_Int64: ts.createIdentifier('Int64'),
+    writeMessageBegin: ts.createIdentifier('writeMessageBegin'),
+    writeMessageEnd: ts.createIdentifier('writeMessageEnd'),
 }

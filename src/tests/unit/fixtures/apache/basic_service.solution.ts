@@ -133,26 +133,25 @@ export interface IHandler {
     ping(): void | Promise<void>;
 }
 export class Processor {
-    public _handler: IHandler;
+    public handler: IHandler;
     constructor(handler: IHandler) {
-        this._handler = handler;
+        this.handler = handler;
     }
     public process(input: thrift.TProtocol, output: thrift.TProtocol): void {
         const metadata: thrift.TMessage = input.readMessageBegin();
-        const fname: string = metadata.fname;
+        const fieldName: string = metadata.fname;
         const requestId: number = metadata.rseqid;
-        const methodName: string = "process_" + fname;
-        switch (methodName) {
-            case "process_ping": {
+        switch (fieldName) {
+            case "ping": {
                 this.process_ping(requestId, input, output);
                 return;
             }
             default: {
                 input.skip(thrift.Thrift.Type.STRUCT);
                 input.readMessageEnd();
-                const errMessage = "Unknown function " + fname;
+                const errMessage = "Unknown function " + fieldName;
                 const err = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN_METHOD, errMessage);
-                output.writeMessageBegin(fname, thrift.Thrift.MessageType.EXCEPTION, requestId);
+                output.writeMessageBegin(fieldName, thrift.Thrift.MessageType.EXCEPTION, requestId);
                 err.write(output);
                 output.writeMessageEnd();
                 output.flush();
@@ -164,7 +163,7 @@ export class Processor {
         new Promise<void>((resolve, reject): void => {
             try {
                 input.readMessageEnd();
-                resolve(this._handler.ping());
+                resolve(this.handler.ping());
             }
             catch (err) {
                 reject(err);

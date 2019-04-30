@@ -22,9 +22,32 @@ import {
     resolveIdentifierDefinition,
     resolveIdentifierName,
 } from '../../resolver'
+import { THRIFT_IDENTIFIERS } from './identifiers'
 import { looseName, strictName } from './struct/utils'
 
 export * from '../shared/types'
+
+export function createTransportType(): ts.TypeNode {
+    return ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TTransport, undefined)
+}
+
+export function createTransportConstructorType(): ts.TypeNode {
+    return ts.createTypeReferenceNode(
+        THRIFT_IDENTIFIERS.ITransportConstructor,
+        undefined,
+    )
+}
+
+export function createProtocolType(): ts.TypeNode {
+    return ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined)
+}
+
+export function createProtocolConstructorType(): ts.TypeNode {
+    return ts.createTypeReferenceNode(
+        THRIFT_IDENTIFIERS.IProtocolConstructor,
+        undefined,
+    )
+}
 
 export type TProtocolException =
     | 'UNKNOWN'

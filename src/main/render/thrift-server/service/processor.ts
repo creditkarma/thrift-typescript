@@ -13,6 +13,7 @@ import { ContextType, TProtocolType } from './types'
 
 import {
     collectAllMethods,
+    createOutputVariable,
     createStructArgsName,
     createStructResultName,
 } from './utils'
@@ -42,7 +43,9 @@ import {
 import {
     constructorNameForFieldType,
     createNumberType,
+    createProtocolConstructorType,
     createStringType,
+    createTransportConstructorType,
     createVoidType,
     typeNodeForFieldType,
 } from '../types'
@@ -56,6 +59,8 @@ import {
     resolveIdentifierDefinition,
     resolveIdentifierName,
 } from '../../../resolver'
+
+import { createAnyType, createBufferType } from '../../shared/types'
 import { className, looseName, strictName, toolkitName } from '../struct/utils'
 
 function objectLiteralForServiceFunctions(
@@ -125,11 +130,35 @@ export function renderProcessor(
             ts.createToken(ts.SyntaxKind.ProtectedKeyword),
             ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
         ],
-        COMMON_IDENTIFIERS._handler,
+        COMMON_IDENTIFIERS.handler,
         undefined,
         ts.createTypeReferenceNode(COMMON_IDENTIFIERS.IHandler, [
             ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined),
         ]),
+        undefined,
+    )
+
+    const transport: ts.PropertyDeclaration = ts.createProperty(
+        undefined,
+        [
+            ts.createToken(ts.SyntaxKind.ProtectedKeyword),
+            ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
+        ],
+        COMMON_IDENTIFIERS.transport,
+        undefined,
+        createTransportConstructorType(),
+        undefined,
+    )
+
+    const protocol: ts.PropertyDeclaration = ts.createProperty(
+        undefined,
+        [
+            ts.createToken(ts.SyntaxKind.ProtectedKeyword),
+            ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
+        ],
+        COMMON_IDENTIFIERS.protocol,
+        undefined,
+        createProtocolConstructorType(),
         undefined,
     )
 
@@ -143,9 +172,20 @@ export function renderProcessor(
         service,
         state,
     )
+
+    const readRequestMethod: Array<
+        ts.MethodDeclaration
+    > = createReadRequestMethod(service, state)
+
+    const writeResponseMethod: Array<
+        ts.MethodDeclaration
+    > = createWriteResponseMethod(service, state)
+
+    const writeErrorMethod: ts.MethodDeclaration = createWriteErrorMethod()
+
     const processFunctions: Array<ts.MethodDeclaration> = service.functions.map(
         (next: FunctionDefinition) => {
-            return createProcessFunctionMethod(service, next, state)
+            return createProcessFunctionMethod(next, state)
         },
     )
 
@@ -175,10 +215,15 @@ export function renderProcessor(
         heritage, // heritage
         [
             handler,
+            transport,
+            protocol,
             staticServiceMetadata,
             serviceMetadata,
             createCtor(service, state),
             processMethod,
+            ...readRequestMethod,
+            ...writeResponseMethod,
+            writeErrorMethod,
             ...processFunctions,
         ], // body
     )
@@ -195,12 +240,39 @@ function createCtor(
                     COMMON_IDENTIFIERS.handler,
                     createHandlerType(service),
                 ),
+                createFunctionParameter(
+                    COMMON_IDENTIFIERS.transport,
+                    createTransportConstructorType(),
+                    THRIFT_IDENTIFIERS.BufferedTransport,
+                ),
+                createFunctionParameter(
+                    COMMON_IDENTIFIERS.protocol,
+                    createProtocolConstructorType(),
+                    THRIFT_IDENTIFIERS.BinaryProtocol,
+                ),
             ],
             [
                 createSuperCall(service.extends, state),
                 createAssignmentStatement(
-                    ts.createIdentifier('this._handler'),
+                    ts.createPropertyAccess(
+                        COMMON_IDENTIFIERS.this,
+                        COMMON_IDENTIFIERS.handler,
+                    ),
                     COMMON_IDENTIFIERS.handler,
+                ),
+                createAssignmentStatement(
+                    ts.createPropertyAccess(
+                        COMMON_IDENTIFIERS.this,
+                        COMMON_IDENTIFIERS.transport,
+                    ),
+                    COMMON_IDENTIFIERS.transport,
+                ),
+                createAssignmentStatement(
+                    ts.createPropertyAccess(
+                        COMMON_IDENTIFIERS.this,
+                        COMMON_IDENTIFIERS.protocol,
+                    ),
+                    COMMON_IDENTIFIERS.protocol,
                 ),
             ],
         )
@@ -211,11 +283,38 @@ function createCtor(
                     COMMON_IDENTIFIERS.handler,
                     createHandlerType(service),
                 ),
+                createFunctionParameter(
+                    COMMON_IDENTIFIERS.transport,
+                    createTransportConstructorType(),
+                    THRIFT_IDENTIFIERS.BufferedTransport,
+                ),
+                createFunctionParameter(
+                    COMMON_IDENTIFIERS.protocol,
+                    createProtocolConstructorType(),
+                    THRIFT_IDENTIFIERS.BinaryProtocol,
+                ),
             ],
             [
                 createAssignmentStatement(
-                    ts.createIdentifier('this._handler'),
+                    ts.createPropertyAccess(
+                        COMMON_IDENTIFIERS.this,
+                        COMMON_IDENTIFIERS.handler,
+                    ),
                     COMMON_IDENTIFIERS.handler,
+                ),
+                createAssignmentStatement(
+                    ts.createPropertyAccess(
+                        COMMON_IDENTIFIERS.this,
+                        COMMON_IDENTIFIERS.transport,
+                    ),
+                    COMMON_IDENTIFIERS.transport,
+                ),
+                createAssignmentStatement(
+                    ts.createPropertyAccess(
+                        COMMON_IDENTIFIERS.this,
+                        COMMON_IDENTIFIERS.protocol,
+                    ),
+                    COMMON_IDENTIFIERS.protocol,
                 ),
             ],
         )
@@ -239,13 +338,372 @@ function createSuperCall(
                         state.project.sourceDir,
                     ).definition,
                 ),
+                COMMON_IDENTIFIERS.transport,
+                COMMON_IDENTIFIERS.protocol,
             ],
         ),
     )
 }
 
-function createProcessFunctionMethod(
+// const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+// const output: thrift.TProtocol = new this.protocol(new this.transport());
+// output.writeMessageBegin(methodName, thrift.MessageType.EXCEPTION, requestId);
+// thrift.TApplicationExceptionCodec.encode(result, output);
+// output.writeMessageEnd();
+// return output.flush();
+function createWriteErrorMethod(): ts.MethodDeclaration {
+    return ts.createMethod(
+        undefined,
+        undefined,
+        undefined,
+        COMMON_IDENTIFIERS.writeError,
+        undefined,
+        undefined,
+        [
+            createFunctionParameter(
+                COMMON_IDENTIFIERS.methodName,
+                createStringType(),
+            ),
+            createFunctionParameter(
+                COMMON_IDENTIFIERS.requestId,
+                createNumberType(),
+            ),
+            createFunctionParameter(
+                COMMON_IDENTIFIERS.err,
+                ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Error, undefined),
+            ),
+        ],
+        createBufferType(),
+        ts.createBlock(
+            [
+                createConstStatement(
+                    COMMON_IDENTIFIERS.result,
+                    ts.createTypeReferenceNode(
+                        THRIFT_IDENTIFIERS.TApplicationException,
+                        undefined,
+                    ),
+                    ts.createNew(
+                        THRIFT_IDENTIFIERS.TApplicationException,
+                        undefined,
+                        [
+                            ts.createIdentifier(
+                                'thrift.TApplicationExceptionType.UNKNOWN',
+                            ),
+                            ts.createIdentifier('err.message'),
+                        ],
+                    ),
+                ),
+                createOutputVariable(),
+                ts.createStatement(
+                    ts.createCall(
+                        ts.createPropertyAccess(
+                            COMMON_IDENTIFIERS.output,
+                            COMMON_IDENTIFIERS.writeMessageBegin,
+                        ),
+                        undefined,
+                        [
+                            COMMON_IDENTIFIERS.methodName,
+                            ts.createIdentifier('thrift.MessageType.EXCEPTION'),
+                            COMMON_IDENTIFIERS.requestId,
+                        ],
+                    ),
+                ),
+                ts.createStatement(
+                    ts.createCall(
+                        ts.createIdentifier(
+                            'thrift.TApplicationExceptionCodec.encode',
+                        ),
+                        undefined,
+                        [COMMON_IDENTIFIERS.result, COMMON_IDENTIFIERS.output],
+                    ),
+                ),
+                ts.createStatement(
+                    ts.createCall(
+                        ts.createPropertyAccess(
+                            COMMON_IDENTIFIERS.output,
+                            COMMON_IDENTIFIERS.writeMessageEnd,
+                        ),
+                        undefined,
+                        undefined,
+                    ),
+                ),
+                ts.createReturn(
+                    ts.createCall(
+                        ts.createPropertyAccess(
+                            COMMON_IDENTIFIERS.output,
+                            COMMON_IDENTIFIERS.flush,
+                        ),
+                        undefined,
+                        undefined,
+                    ),
+                ),
+            ],
+            true,
+        ),
+    )
+}
+
+function createReadRequestMethod(
     service: ServiceDefinition,
+    state: IRenderState,
+): Array<ts.MethodDeclaration> {
+    return [
+        ...service.functions.map(
+            (next: FunctionDefinition): ts.MethodDeclaration => {
+                return ts.createMethod(
+                    undefined,
+                    undefined,
+                    undefined,
+                    COMMON_IDENTIFIERS.readRequest,
+                    undefined,
+                    undefined,
+                    [
+                        ts.createParameter(
+                            undefined,
+                            undefined,
+                            undefined,
+                            COMMON_IDENTIFIERS.methodName,
+                            undefined,
+                            ts.createLiteralTypeNode(
+                                ts.createLiteral(next.name.value),
+                            ),
+                            undefined,
+                        ),
+                        ts.createParameter(
+                            undefined,
+                            undefined,
+                            undefined,
+                            COMMON_IDENTIFIERS.input,
+                            undefined,
+                            ts.createTypeReferenceNode(
+                                THRIFT_IDENTIFIERS.TProtocol,
+                                undefined,
+                            ),
+                            undefined,
+                        ),
+                    ],
+                    ts.createTypeReferenceNode(
+                        ts.createIdentifier(
+                            strictName(
+                                createStructArgsName(next),
+                                SyntaxType.StructDefinition,
+                                state,
+                            ),
+                        ),
+                        undefined,
+                    ),
+                    undefined,
+                )
+            },
+        ),
+        ts.createMethod(
+            undefined,
+            undefined,
+            undefined,
+            COMMON_IDENTIFIERS.readRequest,
+            undefined,
+            undefined,
+            [
+                ts.createParameter(
+                    undefined,
+                    undefined,
+                    undefined,
+                    COMMON_IDENTIFIERS.methodName,
+                    undefined,
+                    createStringType(),
+                    undefined,
+                ),
+                ts.createParameter(
+                    undefined,
+                    undefined,
+                    undefined,
+                    COMMON_IDENTIFIERS.input,
+                    undefined,
+                    ts.createTypeReferenceNode(
+                        THRIFT_IDENTIFIERS.TProtocol,
+                        undefined,
+                    ),
+                    undefined,
+                ),
+            ],
+            createAnyType(),
+            ts.createBlock(
+                [
+                    ts.createSwitch(
+                        COMMON_IDENTIFIERS.methodName,
+                        ts.createCaseBlock([
+                            ...service.functions.map(
+                                (next: FunctionDefinition) => {
+                                    return ts.createCaseClause(
+                                        ts.createLiteral(next.name.value),
+                                        [
+                                            ts.createBlock(
+                                                [ts.createReturn()],
+                                                true,
+                                            ),
+                                        ],
+                                    )
+                                },
+                            ),
+                            defaultCaseForRead(service, state),
+                        ]),
+                    ),
+                ],
+                true,
+            ),
+        ),
+    ]
+}
+
+function createWriteResponseMethod(
+    service: ServiceDefinition,
+    state: IRenderState,
+): Array<ts.MethodDeclaration> {
+    return [
+        ...service.functions.map(
+            (next: FunctionDefinition): ts.MethodDeclaration => {
+                return ts.createMethod(
+                    undefined,
+                    undefined,
+                    undefined,
+                    COMMON_IDENTIFIERS.writeResponse,
+                    undefined,
+                    undefined,
+                    [
+                        createFunctionParameter(
+                            COMMON_IDENTIFIERS.methodName,
+                            ts.createLiteralTypeNode(
+                                ts.createLiteral(next.name.value),
+                            ),
+                        ),
+                        createFunctionParameter(
+                            COMMON_IDENTIFIERS.input,
+                            ts.createTypeReferenceNode(
+                                THRIFT_IDENTIFIERS.TProtocol,
+                                undefined,
+                            ),
+                        ),
+                    ],
+                    ts.createTypeReferenceNode(
+                        ts.createIdentifier(
+                            strictName(
+                                createStructArgsName(next),
+                                SyntaxType.StructDefinition,
+                                state,
+                            ),
+                        ),
+                        undefined,
+                    ),
+                    undefined,
+                )
+            },
+        ),
+        ts.createMethod(
+            undefined,
+            undefined,
+            undefined,
+            COMMON_IDENTIFIERS.writeResponse,
+            undefined,
+            undefined,
+            [
+                ts.createParameter(
+                    undefined,
+                    undefined,
+                    undefined,
+                    COMMON_IDENTIFIERS.methodName,
+                    undefined,
+                    createStringType(),
+                    undefined,
+                ),
+                ts.createParameter(
+                    undefined,
+                    undefined,
+                    undefined,
+                    COMMON_IDENTIFIERS.input,
+                    undefined,
+                    ts.createTypeReferenceNode(
+                        THRIFT_IDENTIFIERS.TProtocol,
+                        undefined,
+                    ),
+                    undefined,
+                ),
+            ],
+            createAnyType(),
+            ts.createBlock(
+                [
+                    ts.createSwitch(
+                        COMMON_IDENTIFIERS.methodName,
+                        ts.createCaseBlock([
+                            ...service.functions.map(
+                                (next: FunctionDefinition) => {
+                                    return ts.createCaseClause(
+                                        ts.createLiteral(next.name.value),
+                                        [
+                                            ts.createBlock(
+                                                [ts.createReturn()],
+                                                true,
+                                            ),
+                                        ],
+                                    )
+                                },
+                            ),
+                            defaultCaseForRead(service, state),
+                        ]),
+                    ),
+                ],
+                true,
+            ),
+        ),
+    ]
+}
+
+function defaultCaseForRead(
+    service: ServiceDefinition,
+    state: IRenderState,
+): ts.DefaultClause {
+    if (service.extends !== null) {
+        return ts.createDefaultClause([
+            ts.createBlock(
+                [
+                    ts.createStatement(
+                        ts.createCall(COMMON_IDENTIFIERS.resolve, undefined, [
+                            ts.createCall(
+                                ts.createPropertyAccess(
+                                    ts.createSuper(),
+                                    COMMON_IDENTIFIERS.readRequest,
+                                ),
+                                undefined,
+                                [],
+                            ),
+                        ]),
+                    ),
+                ],
+                true,
+            ),
+        ])
+    } else {
+        return ts.createDefaultClause([
+            ts.createBlock(
+                [
+                    ts.createThrow(
+                        ts.createNew(COMMON_IDENTIFIERS.Error, undefined, [
+                            ts.createBinary(
+                                ts.createLiteral(
+                                    'Unable to read request for unknown function ',
+                                ),
+                                ts.SyntaxKind.PlusToken,
+                                COMMON_IDENTIFIERS.methodName,
+                            ),
+                        ]),
+                    ),
+                ],
+                true,
+            ),
+        ])
+    }
+}
+
+function createProcessFunctionMethod(
     funcDef: FunctionDefinition,
     state: IRenderState,
 ): ts.MethodDeclaration {
@@ -264,10 +722,9 @@ function createProcessFunctionMethod(
                 undefined,
             ),
         ], // parameters
-        ts.createTypeReferenceNode(
-            ts.createIdentifier('Promise<Buffer>'),
-            undefined,
-        ), // return type
+        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Promise, [
+            createBufferType(),
+        ]), // return type
         [
             // new Promise<{{typeName}}>((resolve, reject) => {
             ts.createReturn(
@@ -283,7 +740,7 @@ function createProcessFunctionMethod(
                             [
                                 // try {
                                 //     resolve(
-                                //         this._handler.{{name}}({{#args}}args.{{fieldName}}, {{/args}}context)
+                                //         this.handler.{{name}}({{#args}}args.{{fieldName}}, {{/args}}context)
                                 //     )
                                 // } catch (e) {
                                 //     reject(e)
@@ -304,8 +761,9 @@ function createProcessFunctionMethod(
                                                 ts.createIdentifier('resolve'),
                                                 [
                                                     createMethodCall(
-                                                        ts.createIdentifier(
-                                                            'this._handler',
+                                                        ts.createPropertyAccess(
+                                                            COMMON_IDENTIFIERS.this,
+                                                            COMMON_IDENTIFIERS.handler,
                                                         ),
                                                         funcDef.name.value,
                                                         [
@@ -741,15 +1199,53 @@ function createProcessMethod(
     return createPublicMethod(
         COMMON_IDENTIFIERS.process,
         [
-            createFunctionParameter('input', TProtocolType),
-            createFunctionParameter('output', TProtocolType),
-            createFunctionParameter('context', ContextType, undefined),
+            createFunctionParameter(
+                COMMON_IDENTIFIERS.data,
+                createBufferType(),
+            ),
+            createFunctionParameter(
+                COMMON_IDENTIFIERS.context,
+                ContextType,
+                undefined,
+            ),
         ], // parameters
-        ts.createTypeReferenceNode(
-            ts.createIdentifier('Promise<Buffer>'),
-            undefined,
-        ), // return type
+        ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Promise, [
+            createBufferType(),
+        ]), // return type
         [
+            createConstStatement(
+                COMMON_IDENTIFIERS.transportWithData,
+                ts.createTypeReferenceNode(
+                    THRIFT_IDENTIFIERS.TTransport,
+                    undefined,
+                ),
+                ts.createCall(
+                    ts.createPropertyAccess(
+                        ts.createPropertyAccess(
+                            COMMON_IDENTIFIERS.this,
+                            COMMON_IDENTIFIERS.transport,
+                        ),
+                        COMMON_IDENTIFIERS.receiver,
+                    ),
+                    undefined,
+                    [COMMON_IDENTIFIERS.data],
+                ),
+            ),
+            createConstStatement(
+                COMMON_IDENTIFIERS.input,
+                ts.createTypeReferenceNode(
+                    THRIFT_IDENTIFIERS.TProtocol,
+                    undefined,
+                ),
+                ts.createNew(
+                    ts.createPropertyAccess(
+                        COMMON_IDENTIFIERS.this,
+                        COMMON_IDENTIFIERS.protocol,
+                    ),
+                    undefined,
+                    [COMMON_IDENTIFIERS.transportWithData],
+                ),
+            ),
             ts.createReturn(
                 createPromise(
                     ts.createTypeReferenceNode(
@@ -759,7 +1255,7 @@ function createProcessMethod(
                     createVoidType(),
                     [
                         createConstStatement(
-                            'metadata',
+                            COMMON_IDENTIFIERS.metadata,
                             ts.createTypeReferenceNode(
                                 THRIFT_IDENTIFIERS.IThriftMessage,
                                 undefined,
@@ -771,23 +1267,14 @@ function createProcessMethod(
                             ),
                         ),
                         createConstStatement(
-                            'fieldName',
+                            COMMON_IDENTIFIERS.fieldName,
                             createStringType(),
                             ts.createIdentifier('metadata.fieldName'),
                         ),
                         createConstStatement(
-                            'requestId',
+                            COMMON_IDENTIFIERS.requestId,
                             createNumberType(),
                             ts.createIdentifier('metadata.requestId'),
-                        ),
-                        createConstStatement(
-                            ts.createIdentifier('methodName'),
-                            createStringType(),
-                            ts.createBinary(
-                                ts.createLiteral('process_'),
-                                ts.SyntaxKind.PlusToken,
-                                COMMON_IDENTIFIERS.fieldName,
-                            ),
                         ),
                         createMethodCallForFname(service, state),
                     ],
@@ -799,16 +1286,16 @@ function createProcessMethod(
 
 function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
     const processMethodName: string = `process_${func.name.value}`
-    return ts.createCaseClause(ts.createLiteral(processMethodName), [
+    return ts.createCaseClause(ts.createLiteral(func.name.value), [
         ts.createBlock(
             [
                 ts.createStatement(
-                    ts.createCall(ts.createIdentifier('resolve'), undefined, [
+                    ts.createCall(COMMON_IDENTIFIERS.resolve, undefined, [
                         createMethodCall(
-                            ts.createIdentifier('this'),
+                            COMMON_IDENTIFIERS.this,
                             processMethodName,
                             [
-                                ts.createIdentifier('requestId'),
+                                COMMON_IDENTIFIERS.requestId,
                                 COMMON_IDENTIFIERS.input,
                                 COMMON_IDENTIFIERS.output,
                                 COMMON_IDENTIFIERS.context,
@@ -852,7 +1339,7 @@ function createMethodCallForFname(
     state: IRenderState,
 ): ts.SwitchStatement {
     return ts.createSwitch(
-        COMMON_IDENTIFIERS.methodName,
+        COMMON_IDENTIFIERS.fieldName,
         ts.createCaseBlock([
             ...collectAllMethods(service, state).map(
                 createMethodCallForFunction,

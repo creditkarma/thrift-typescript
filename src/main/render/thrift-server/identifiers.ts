@@ -3,6 +3,8 @@ import * as ts from 'typescript'
 export * from '../shared/identifiers'
 
 export const THRIFT_IDENTIFIERS = {
+    BufferedTransport: ts.createIdentifier('thrift.BufferedTransport'),
+    BinaryProtocol: ts.createIdentifier('thrift.BinaryProtocol'),
     IThriftContext: ts.createIdentifier('thrift.IThriftContext'),
     IServiceMetadata: ts.createIdentifier('thrift.IServiceMetadata'),
     IMethodMetadata: ts.createIdentifier('thrift.IMethodMetadata'),

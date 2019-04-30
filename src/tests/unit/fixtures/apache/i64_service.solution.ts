@@ -210,26 +210,25 @@ export interface IHandler {
     add(num1: Int64, num2: Int64): Int64 | Promise<Int64>;
 }
 export class Processor {
-    public _handler: IHandler;
+    public handler: IHandler;
     constructor(handler: IHandler) {
-        this._handler = handler;
+        this.handler = handler;
     }
     public process(input: thrift.TProtocol, output: thrift.TProtocol): void {
         const metadata: thrift.TMessage = input.readMessageBegin();
-        const fname: string = metadata.fname;
+        const fieldName: string = metadata.fname;
         const requestId: number = metadata.rseqid;
-        const methodName: string = "process_" + fname;
-        switch (methodName) {
-            case "process_add": {
+        switch (fieldName) {
+            case "add": {
                 this.process_add(requestId, input, output);
                 return;
             }
             default: {
                 input.skip(thrift.Thrift.Type.STRUCT);
                 input.readMessageEnd();
-                const errMessage = "Unknown function " + fname;
+                const errMessage = "Unknown function " + fieldName;
                 const err = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN_METHOD, errMessage);
-                output.writeMessageBegin(fname, thrift.Thrift.MessageType.EXCEPTION, requestId);
+                output.writeMessageBegin(fieldName, thrift.Thrift.MessageType.EXCEPTION, requestId);
                 err.write(output);
                 output.writeMessageEnd();
                 output.flush();
@@ -242,7 +241,7 @@ export class Processor {
             try {
                 const args: AddArgs = AddArgs.read(input);
                 input.readMessageEnd();
-                resolve(this._handler.add(args.num1, args.num2));
+                resolve(this.handler.add(args.num1, args.num2));
             }
             catch (err) {
                 reject(err);

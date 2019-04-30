@@ -3264,84 +3264,89 @@ export interface ILocalHandler<Context extends thrift.IThriftContext = thrift.IT
 }
 export type IHandler<Context extends thrift.IThriftContext = thrift.IThriftContext> = ILocalHandler<Context> & com_test_shared.SharedService.IHandler<Context>;
 export class Processor<Context extends thrift.IThriftContext = thrift.IThriftContext> extends com_test_shared.SharedService.Processor<Context> {
-    protected readonly _handler: IHandler<Context>;
+    protected readonly handler: IHandler<Context>;
+    protected readonly transport: thrift.ITransportConstructor;
+    protected readonly protocol: thrift.IProtocolConstructor;
     public static readonly metadata: thrift.IServiceMetadata = metadata;
     public readonly __metadata: thrift.IServiceMetadata = metadata;
-    constructor(handler: IHandler<Context>) {
+    constructor(handler: IHandler<Context>, transport: thrift.ITransportConstructor = thrift.BufferedTransport, protocol: thrift.IProtocolConstructor = thrift.BinaryProtocol) {
         super({
             getStruct: handler.getStruct,
             getUnion: handler.getUnion
-        });
-        this._handler = handler;
+        }, transport, protocol);
+        this.handler = handler;
+        this.transport = transport;
+        this.protocol = protocol;
     }
-    public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    public process(data: Buffer, context: Context): Promise<Buffer> {
+        const transportWithData: thrift.TTransport = this.transport.receiver(data);
+        const input: thrift.TProtocol = new this.protocol(transportWithData);
         return new Promise<Buffer>((resolve, reject): void => {
             const metadata: thrift.IThriftMessage = input.readMessageBegin();
             const fieldName: string = metadata.fieldName;
             const requestId: number = metadata.requestId;
-            const methodName: string = "process_" + fieldName;
-            switch (methodName) {
-                case "process_getStruct": {
+            switch (fieldName) {
+                case "getStruct": {
                     resolve(this.process_getStruct(requestId, input, output, context));
                     break;
                 }
-                case "process_getUnion": {
+                case "getUnion": {
                     resolve(this.process_getUnion(requestId, input, output, context));
                     break;
                 }
-                case "process_ping": {
+                case "ping": {
                     resolve(this.process_ping(requestId, input, output, context));
                     break;
                 }
-                case "process_add": {
+                case "add": {
                     resolve(this.process_add(requestId, input, output, context));
                     break;
                 }
-                case "process_addInt64": {
+                case "addInt64": {
                     resolve(this.process_addInt64(requestId, input, output, context));
                     break;
                 }
-                case "process_addWithContext": {
+                case "addWithContext": {
                     resolve(this.process_addWithContext(requestId, input, output, context));
                     break;
                 }
-                case "process_calculate": {
+                case "calculate": {
                     resolve(this.process_calculate(requestId, input, output, context));
                     break;
                 }
-                case "process_echoBinary": {
+                case "echoBinary": {
                     resolve(this.process_echoBinary(requestId, input, output, context));
                     break;
                 }
-                case "process_echoString": {
+                case "echoString": {
                     resolve(this.process_echoString(requestId, input, output, context));
                     break;
                 }
-                case "process_checkName": {
+                case "checkName": {
                     resolve(this.process_checkName(requestId, input, output, context));
                     break;
                 }
-                case "process_checkOptional": {
+                case "checkOptional": {
                     resolve(this.process_checkOptional(requestId, input, output, context));
                     break;
                 }
-                case "process_mapOneList": {
+                case "mapOneList": {
                     resolve(this.process_mapOneList(requestId, input, output, context));
                     break;
                 }
-                case "process_mapValues": {
+                case "mapValues": {
                     resolve(this.process_mapValues(requestId, input, output, context));
                     break;
                 }
-                case "process_listToMap": {
+                case "listToMap": {
                     resolve(this.process_listToMap(requestId, input, output, context));
                     break;
                 }
-                case "process_fetchThing": {
+                case "fetchThing": {
                     resolve(this.process_fetchThing(requestId, input, output, context));
                     break;
                 }
-                case "process_zip": {
+                case "zip": {
                     resolve(this.process_zip(requestId, input, output, context));
                     break;
                 }
@@ -3363,7 +3368,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
         return new Promise<void>((resolve, reject): void => {
             try {
                 input.readMessageEnd();
-                resolve(this._handler.ping(context));
+                resolve(this.handler.ping(context));
             }
             catch (err) {
                 reject(err);
@@ -3387,7 +3392,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             try {
                 const args: IAdd__Args = Add__ArgsCodec.decode(input);
                 input.readMessageEnd();
-                resolve(this._handler.add(args.num1, args.num2, context));
+                resolve(this.handler.add(args.num1, args.num2, context));
             }
             catch (err) {
                 reject(err);
@@ -3420,7 +3425,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             try {
                 const args: IAddInt64__Args = AddInt64__ArgsCodec.decode(input);
                 input.readMessageEnd();
-                resolve(this._handler.addInt64(args.num1, args.num2, context));
+                resolve(this.handler.addInt64(args.num1, args.num2, context));
             }
             catch (err) {
                 reject(err);
@@ -3453,7 +3458,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             try {
                 const args: IAddWithContext__Args = AddWithContext__ArgsCodec.decode(input);
                 input.readMessageEnd();
-                resolve(this._handler.addWithContext(args.num1, args.num2, context));
+                resolve(this.handler.addWithContext(args.num1, args.num2, context));
             }
             catch (err) {
                 reject(err);
@@ -3477,7 +3482,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             try {
                 const args: ICalculate__Args = Calculate__ArgsCodec.decode(input);
                 input.readMessageEnd();
-                resolve(this._handler.calculate(args.logid, args.work, context));
+                resolve(this.handler.calculate(args.logid, args.work, context));
             }
             catch (err) {
                 reject(err);
@@ -3510,7 +3515,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             try {
                 const args: IEchoBinary__Args = EchoBinary__ArgsCodec.decode(input);
                 input.readMessageEnd();
-                resolve(this._handler.echoBinary(args.word, context));
+                resolve(this.handler.echoBinary(args.word, context));
             }
             catch (err) {
                 reject(err);
@@ -3534,7 +3539,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             try {
                 const args: IEchoString__Args = EchoString__ArgsCodec.decode(input);
                 input.readMessageEnd();
-                resolve(this._handler.echoString(args.word, context));
+                resolve(this.handler.echoString(args.word, context));
             }
             catch (err) {
                 reject(err);
@@ -3558,7 +3563,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             try {
                 const args: ICheckName__Args = CheckName__ArgsCodec.decode(input);
                 input.readMessageEnd();
-                resolve(this._handler.checkName(args.choice, context));
+                resolve(this.handler.checkName(args.choice, context));
             }
             catch (err) {
                 reject(err);
@@ -3582,7 +3587,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             try {
                 const args: ICheckOptional__Args = CheckOptional__ArgsCodec.decode(input);
                 input.readMessageEnd();
-                resolve(this._handler.checkOptional(args.type, context));
+                resolve(this.handler.checkOptional(args.type, context));
             }
             catch (err) {
                 reject(err);
@@ -3606,7 +3611,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             try {
                 const args: IMapOneList__Args = MapOneList__ArgsCodec.decode(input);
                 input.readMessageEnd();
-                resolve(this._handler.mapOneList(args.arg, context));
+                resolve(this.handler.mapOneList(args.arg, context));
             }
             catch (err) {
                 reject(err);
@@ -3630,7 +3635,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             try {
                 const args: IMapValues__Args = MapValues__ArgsCodec.decode(input);
                 input.readMessageEnd();
-                resolve(this._handler.mapValues(args.arg, context));
+                resolve(this.handler.mapValues(args.arg, context));
             }
             catch (err) {
                 reject(err);
@@ -3654,7 +3659,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             try {
                 const args: IListToMap__Args = ListToMap__ArgsCodec.decode(input);
                 input.readMessageEnd();
-                resolve(this._handler.listToMap(args.arg, context));
+                resolve(this.handler.listToMap(args.arg, context));
             }
             catch (err) {
                 reject(err);
@@ -3677,7 +3682,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
         return new Promise<com_test_common.ICommonStructArgs>((resolve, reject): void => {
             try {
                 input.readMessageEnd();
-                resolve(this._handler.fetchThing(context));
+                resolve(this.handler.fetchThing(context));
             }
             catch (err) {
                 reject(err);
@@ -3700,7 +3705,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
         return new Promise<void>((resolve, reject): void => {
             try {
                 input.readMessageEnd();
-                resolve(this._handler.zip(context));
+                resolve(this.handler.zip(context));
             }
             catch (err) {
                 reject(err);

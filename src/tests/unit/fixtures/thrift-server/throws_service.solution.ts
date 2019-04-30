@@ -537,24 +537,29 @@ export interface IHandler<Context extends thrift.IThriftContext = thrift.IThrift
     pong(name?: string, context?: Context): string | Promise<string>;
 }
 export class Processor<Context extends thrift.IThriftContext = thrift.IThriftContext> implements thrift.IThriftProcessor<Context> {
-    protected readonly _handler: IHandler<Context>;
+    protected readonly handler: IHandler<Context>;
+    protected readonly transport: thrift.ITransportConstructor;
+    protected readonly protocol: thrift.IProtocolConstructor;
     public static readonly metadata: thrift.IServiceMetadata = metadata;
     public readonly __metadata: thrift.IServiceMetadata = metadata;
-    constructor(handler: IHandler<Context>) {
-        this._handler = handler;
+    constructor(handler: IHandler<Context>, transport: thrift.ITransportConstructor = thrift.BufferedTransport, protocol: thrift.IProtocolConstructor = thrift.BinaryProtocol) {
+        this.handler = handler;
+        this.transport = transport;
+        this.protocol = protocol;
     }
-    public process(input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    public process(data: Buffer, context: Context): Promise<Buffer> {
+        const transportWithData: thrift.TTransport = this.transport.receiver(data);
+        const input: thrift.TProtocol = new this.protocol(transportWithData);
         return new Promise<Buffer>((resolve, reject): void => {
             const metadata: thrift.IThriftMessage = input.readMessageBegin();
             const fieldName: string = metadata.fieldName;
             const requestId: number = metadata.requestId;
-            const methodName: string = "process_" + fieldName;
-            switch (methodName) {
-                case "process_peg": {
+            switch (fieldName) {
+                case "peg": {
                     resolve(this.process_peg(requestId, input, output, context));
                     break;
                 }
-                case "process_pong": {
+                case "pong": {
                     resolve(this.process_pong(requestId, input, output, context));
                     break;
                 }
@@ -577,7 +582,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             try {
                 const args: IPeg__Args = Peg__ArgsCodec.decode(input);
                 input.readMessageEnd();
-                resolve(this._handler.peg(args.name, context));
+                resolve(this.handler.peg(args.name, context));
             }
             catch (err) {
                 reject(err);
@@ -610,7 +615,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             try {
                 const args: IPong__Args = Pong__ArgsCodec.decode(input);
                 input.readMessageEnd();
-                resolve(this._handler.pong(args.name, context));
+                resolve(this.handler.pong(args.name, context));
             }
             catch (err) {
                 reject(err);

@@ -213,7 +213,7 @@ export function renderProcessor(
     const handler: ts.PropertyDeclaration = ts.createProperty(
         undefined,
         [ts.createToken(ts.SyntaxKind.PublicKeyword)],
-        '_handler',
+        COMMON_IDENTIFIERS.handler,
         undefined,
         handlerType(node),
         undefined,
@@ -229,7 +229,10 @@ export function renderProcessor(
         [
             ...createSuperCall(node, state),
             createAssignmentStatement(
-                ts.createIdentifier('this._handler'),
+                ts.createPropertyAccess(
+                    COMMON_IDENTIFIERS.this,
+                    COMMON_IDENTIFIERS.handler,
+                ),
                 COMMON_IDENTIFIERS.handler,
             ),
         ],
@@ -279,7 +282,7 @@ export function renderProcessor(
 //     new Promise<{{typeName}}>((resolve, reject) => {
 //         try {
 //             resolve(
-//                 this._handler.{{name}}({{#args}}args.{{fieldName}}, {{/args}})
+//                 this.handler.{{name}}({{#args}}args.{{fieldName}}, {{/args}})
 //             )
 //         } catch (e) {
 //             reject(e)
@@ -317,9 +320,12 @@ function createProcessFunctionMethod(
     return createPublicMethod(
         ts.createIdentifier(`process_${funcDef.name.value}`),
         [
-            createFunctionParameter('requestId', createNumberType()),
-            createFunctionParameter('input', TProtocolType),
-            createFunctionParameter('output', TProtocolType),
+            createFunctionParameter(
+                COMMON_IDENTIFIERS.requestId,
+                createNumberType(),
+            ),
+            createFunctionParameter(COMMON_IDENTIFIERS.input, TProtocolType),
+            createFunctionParameter(COMMON_IDENTIFIERS.output, TProtocolType),
         ], // parameters
         createVoidType(), // return type
         [
@@ -348,11 +354,12 @@ function createProcessFunctionMethod(
                                                 'readMessageEnd',
                                             ),
                                             createCallStatement(
-                                                ts.createIdentifier('resolve'),
+                                                COMMON_IDENTIFIERS.resolve,
                                                 [
                                                     createMethodCall(
-                                                        ts.createIdentifier(
-                                                            'this._handler',
+                                                        ts.createPropertyAccess(
+                                                            COMMON_IDENTIFIERS.this,
+                                                            COMMON_IDENTIFIERS.handler,
                                                         ),
                                                         funcDef.name.value,
                                                         funcDef.fields.map(
@@ -379,9 +386,7 @@ function createProcessFunctionMethod(
                                         ts.createBlock(
                                             [
                                                 createCallStatement(
-                                                    ts.createIdentifier(
-                                                        'reject',
-                                                    ),
+                                                    COMMON_IDENTIFIERS.reject,
                                                     [COMMON_IDENTIFIERS.err],
                                                 ),
                                             ],
@@ -580,7 +585,7 @@ function createElseForExceptions(
                     [
                         ts.createLiteral(funcDef.name.value),
                         MESSAGE_TYPE.EXCEPTION,
-                        ts.createIdentifier('requestId'),
+                        COMMON_IDENTIFIERS.requestId,
                     ],
                 ),
                 // result.write(output)
@@ -639,7 +644,7 @@ function createThenForException(
                 [
                     ts.createLiteral(funcDef.name.value),
                     MESSAGE_TYPE.REPLY,
-                    ts.createIdentifier('requestId'),
+                    COMMON_IDENTIFIERS.requestId,
                 ],
             ),
             // result.write(output)
@@ -716,7 +721,7 @@ function createExceptionHandlers(
                 [
                     ts.createLiteral(funcDef.name.value),
                     MESSAGE_TYPE.EXCEPTION,
-                    ts.createIdentifier('requestId'),
+                    COMMON_IDENTIFIERS.requestId,
                 ],
             ),
             // result.write(output)
@@ -760,13 +765,13 @@ function createProcessMethod(
     return createPublicMethod(
         COMMON_IDENTIFIERS.process,
         [
-            createFunctionParameter('input', TProtocolType),
-            createFunctionParameter('output', TProtocolType),
+            createFunctionParameter(COMMON_IDENTIFIERS.input, TProtocolType),
+            createFunctionParameter(COMMON_IDENTIFIERS.output, TProtocolType),
         ], // parameters
         createVoidType(), // return type
         [
             createConstStatement(
-                'metadata',
+                COMMON_IDENTIFIERS.metadata,
                 ts.createTypeReferenceNode(
                     THRIFT_IDENTIFIERS.TMessage,
                     undefined,
@@ -778,7 +783,7 @@ function createProcessMethod(
                 ),
             ),
             createConstStatement(
-                'fname',
+                COMMON_IDENTIFIERS.fieldName,
                 createStringType(),
                 ts.createIdentifier('metadata.fname'),
             ),
@@ -787,15 +792,6 @@ function createProcessMethod(
                 createNumberType(),
                 ts.createIdentifier('metadata.rseqid'),
             ),
-            createConstStatement(
-                ts.createIdentifier('methodName'),
-                createStringType(),
-                ts.createBinary(
-                    ts.createLiteral('process_'),
-                    ts.SyntaxKind.PlusToken,
-                    COMMON_IDENTIFIERS.fname,
-                ),
-            ),
             createMethodCallForFname(service, state),
         ], // body
     )
@@ -803,7 +799,7 @@ function createProcessMethod(
 
 function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
     const processMethodName: string = `process_${func.name.value}`
-    return ts.createCaseClause(ts.createLiteral(processMethodName), [
+    return ts.createCaseClause(ts.createLiteral(func.name.value), [
         ts.createBlock(
             [
                 ts.createStatement(
@@ -886,7 +882,7 @@ function createMethodCallForFname(
     state: IRenderState,
 ): ts.SwitchStatement {
     return ts.createSwitch(
-        ts.createIdentifier('methodName'),
+        COMMON_IDENTIFIERS.fieldName,
         ts.createCaseBlock([
             ...collectAllMethods(service, state).map(
                 createMethodCallForFunction,
@@ -912,7 +908,7 @@ function createMethodCallForFname(
                             ts.createBinary(
                                 ts.createLiteral('Unknown function '),
                                 ts.SyntaxKind.PlusToken,
-                                COMMON_IDENTIFIERS.fname,
+                                COMMON_IDENTIFIERS.fieldName,
                             ),
                         ),
                         // const x = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN_METHOD, err)
@@ -929,9 +925,9 @@ function createMethodCallForFname(
                             COMMON_IDENTIFIERS.output,
                             'writeMessageBegin',
                             [
-                                COMMON_IDENTIFIERS.fname,
+                                COMMON_IDENTIFIERS.fieldName,
                                 MESSAGE_TYPE.EXCEPTION,
-                                ts.createIdentifier('requestId'),
+                                COMMON_IDENTIFIERS.requestId,
                             ],
                         ),
                         // err.write(output)

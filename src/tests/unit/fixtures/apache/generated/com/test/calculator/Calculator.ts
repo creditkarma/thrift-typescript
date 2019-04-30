@@ -2341,90 +2341,89 @@ export interface ILocalHandler {
 }
 export type IHandler = ILocalHandler & com_test_shared.SharedService.IHandler;
 export class Processor extends com_test_shared.SharedService.Processor {
-    public _handler: IHandler;
+    public handler: IHandler;
     constructor(handler: IHandler) {
         super({
             getStruct: handler.getStruct,
             getUnion: handler.getUnion
         });
-        this._handler = handler;
+        this.handler = handler;
     }
     public process(input: thrift.TProtocol, output: thrift.TProtocol): void {
         const metadata: thrift.TMessage = input.readMessageBegin();
-        const fname: string = metadata.fname;
+        const fieldName: string = metadata.fname;
         const requestId: number = metadata.rseqid;
-        const methodName: string = "process_" + fname;
-        switch (methodName) {
-            case "process_getStruct": {
+        switch (fieldName) {
+            case "getStruct": {
                 this.process_getStruct(requestId, input, output);
                 return;
             }
-            case "process_getUnion": {
+            case "getUnion": {
                 this.process_getUnion(requestId, input, output);
                 return;
             }
-            case "process_ping": {
+            case "ping": {
                 this.process_ping(requestId, input, output);
                 return;
             }
-            case "process_add": {
+            case "add": {
                 this.process_add(requestId, input, output);
                 return;
             }
-            case "process_addInt64": {
+            case "addInt64": {
                 this.process_addInt64(requestId, input, output);
                 return;
             }
-            case "process_addWithContext": {
+            case "addWithContext": {
                 this.process_addWithContext(requestId, input, output);
                 return;
             }
-            case "process_calculate": {
+            case "calculate": {
                 this.process_calculate(requestId, input, output);
                 return;
             }
-            case "process_echoBinary": {
+            case "echoBinary": {
                 this.process_echoBinary(requestId, input, output);
                 return;
             }
-            case "process_echoString": {
+            case "echoString": {
                 this.process_echoString(requestId, input, output);
                 return;
             }
-            case "process_checkName": {
+            case "checkName": {
                 this.process_checkName(requestId, input, output);
                 return;
             }
-            case "process_checkOptional": {
+            case "checkOptional": {
                 this.process_checkOptional(requestId, input, output);
                 return;
             }
-            case "process_mapOneList": {
+            case "mapOneList": {
                 this.process_mapOneList(requestId, input, output);
                 return;
             }
-            case "process_mapValues": {
+            case "mapValues": {
                 this.process_mapValues(requestId, input, output);
                 return;
             }
-            case "process_listToMap": {
+            case "listToMap": {
                 this.process_listToMap(requestId, input, output);
                 return;
             }
-            case "process_fetchThing": {
+            case "fetchThing": {
                 this.process_fetchThing(requestId, input, output);
                 return;
             }
-            case "process_zip": {
+            case "zip": {
                 this.process_zip(requestId, input, output);
                 return;
             }
             default: {
                 input.skip(thrift.Thrift.Type.STRUCT);
                 input.readMessageEnd();
-                const errMessage = "Unknown function " + fname;
+                const errMessage = "Unknown function " + fieldName;
                 const err = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN_METHOD, errMessage);
-                output.writeMessageBegin(fname, thrift.Thrift.MessageType.EXCEPTION, requestId);
+                output.writeMessageBegin(fieldName, thrift.Thrift.MessageType.EXCEPTION, requestId);
                 err.write(output);
                 output.writeMessageEnd();
                 output.flush();
@@ -2436,7 +2435,7 @@ export class Processor extends com_test_shared.SharedService.Processor {
         new Promise<void>((resolve, reject): void => {
             try {
                 input.readMessageEnd();
-                resolve(this._handler.ping());
+                resolve(this.handler.ping());
             }
             catch (err) {
                 reject(err);
@@ -2462,7 +2461,7 @@ export class Processor extends com_test_shared.SharedService.Processor {
             try {
                 const args: AddArgs = AddArgs.read(input);
                 input.readMessageEnd();
-                resolve(this._handler.add(args.num1, args.num2));
+                resolve(this.handler.add(args.num1, args.num2));
             }
             catch (err) {
                 reject(err);
@@ -2498,7 +2497,7 @@ export class Processor extends com_test_shared.SharedService.Processor {
             try {
                 const args: AddInt64Args = AddInt64Args.read(input);
                 input.readMessageEnd();
-                resolve(this._handler.addInt64(args.num1, args.num2));
+                resolve(this.handler.addInt64(args.num1, args.num2));
             }
             catch (err) {
                 reject(err);
@@ -2534,7 +2533,7 @@ export class Processor extends com_test_shared.SharedService.Processor {
             try {
                 const args: AddWithContextArgs = AddWithContextArgs.read(input);
                 input.readMessageEnd();
-                resolve(this._handler.addWithContext(args.num1, args.num2));
+                resolve(this.handler.addWithContext(args.num1, args.num2));
             }
             catch (err) {
                 reject(err);
@@ -2560,7 +2559,7 @@ export class Processor extends com_test_shared.SharedService.Processor {
             try {
                 const args: CalculateArgs = CalculateArgs.read(input);
                 input.readMessageEnd();
-                resolve(this._handler.calculate(args.logid, args.work));
+                resolve(this.handler.calculate(args.logid, args.work));
             }
             catch (err) {
                 reject(err);
@@ -2596,7 +2595,7 @@ export class Processor extends com_test_shared.SharedService.Processor {
             try {
                 const args: EchoBinaryArgs = EchoBinaryArgs.read(input);
                 input.readMessageEnd();
-                resolve(this._handler.echoBinary(args.word));
+                resolve(this.handler.echoBinary(args.word));
             }
             catch (err) {
                 reject(err);
@@ -2622,7 +2621,7 @@ export class Processor extends com_test_shared.SharedService.Processor {
             try {
                 const args: EchoStringArgs = EchoStringArgs.read(input);
                 input.readMessageEnd();
-                resolve(this._handler.echoString(args.word));
+                resolve(this.handler.echoString(args.word));
             }
             catch (err) {
                 reject(err);
@@ -2648,7 +2647,7 @@ export class Processor extends com_test_shared.SharedService.Processor {
             try {
                 const args: CheckNameArgs = CheckNameArgs.read(input);
                 input.readMessageEnd();
-                resolve(this._handler.checkName(args.choice));
+                resolve(this.handler.checkName(args.choice));
             }
             catch (err) {
                 reject(err);
@@ -2674,7 +2673,7 @@ export class Processor extends com_test_shared.SharedService.Processor {
             try {
                 const args: CheckOptionalArgs = CheckOptionalArgs.read(input);
                 input.readMessageEnd();
-                resolve(this._handler.checkOptional(args.type));
+                resolve(this.handler.checkOptional(args.type));
             }
             catch (err) {
                 reject(err);
@@ -2700,7 +2699,7 @@ export class Processor extends com_test_shared.SharedService.Processor {
             try {
                 const args: MapOneListArgs = MapOneListArgs.read(input);
                 input.readMessageEnd();
-                resolve(this._handler.mapOneList(args.arg));
+                resolve(this.handler.mapOneList(args.arg));
             }
             catch (err) {
                 reject(err);
@@ -2726,7 +2725,7 @@ export class Processor extends com_test_shared.SharedService.Processor {
             try {
                 const args: MapValuesArgs = MapValuesArgs.read(input);
                 input.readMessageEnd();
-                resolve(this._handler.mapValues(args.arg));
+                resolve(this.handler.mapValues(args.arg));
             }
             catch (err) {
                 reject(err);
@@ -2752,7 +2751,7 @@ export class Processor extends com_test_shared.SharedService.Processor {
             try {
                 const args: ListToMapArgs = ListToMapArgs.read(input);
                 input.readMessageEnd();
-                resolve(this._handler.listToMap(args.arg));
+                resolve(this.handler.listToMap(args.arg));
             }
             catch (err) {
                 reject(err);
@@ -2777,7 +2776,7 @@ export class Processor extends com_test_shared.SharedService.Processor {
         new Promise<com_test_common.CommonStruct>((resolve, reject): void => {
             try {
                 input.readMessageEnd();
-                resolve(this._handler.fetchThing());
+                resolve(this.handler.fetchThing());
             }
             catch (err) {
                 reject(err);
@@ -2802,7 +2801,7 @@ export class Processor extends com_test_shared.SharedService.Processor {
         new Promise<void>((resolve, reject): void => {
             try {
                 input.readMessageEnd();
-                resolve(this._handler.zip());
+                resolve(this.handler.zip());
             }
             catch (err) {
                 reject(err);
