@@ -165,6 +165,77 @@ export function renderMethodNamesStaticProperty(): ts.PropertyDeclaration {
     )
 }
 
+export function renderMethodParameters(
+    service: ServiceDefinition,
+    state: IRenderState,
+): ts.VariableStatement {
+    return ts.createVariableStatement(
+        [ts.createToken(ts.SyntaxKind.ExportKeyword)],
+        ts.createVariableDeclarationList(
+            [
+                ts.createVariableDeclaration(
+                    COMMON_IDENTIFIERS.methodParameters,
+                    ts.createTypeReferenceNode(
+                        '{ [methodName: string]: number }',
+                        undefined,
+                    ),
+                    ts.createObjectLiteral(
+                        [
+                            ...collectAllMethods(service, state).map(
+                                (next: FunctionDefinition) => {
+                                    return ts.createPropertyAssignment(
+                                        next.name.value,
+                                        ts.createLiteral(
+                                            next.fields.length + 1, // including context
+                                        ),
+                                    )
+                                },
+                            ),
+                        ],
+                        true,
+                    ),
+                ),
+            ],
+            ts.NodeFlags.Const,
+        ),
+    )
+}
+
+export function renderMethodParametersProperty(): ts.PropertyDeclaration {
+    return ts.createProperty(
+        undefined,
+        [
+            ts.createToken(ts.SyntaxKind.PublicKeyword),
+            ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
+        ],
+        COMMON_IDENTIFIERS._methodParameters,
+        undefined,
+        ts.createTypeReferenceNode(
+            '{ [methodName: string]: number }',
+            undefined,
+        ),
+        COMMON_IDENTIFIERS.methodParameters,
+    )
+}
+
+export function renderMethodParametersStaticProperty(): ts.PropertyDeclaration {
+    return ts.createProperty(
+        undefined,
+        [
+            ts.createToken(ts.SyntaxKind.PublicKeyword),
+            ts.createToken(ts.SyntaxKind.StaticKeyword),
+            ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
+        ],
+        COMMON_IDENTIFIERS._methodParameters,
+        undefined,
+        ts.createTypeReferenceNode(
+            '{ [methodName: string]: number }',
+            undefined,
+        ),
+        COMMON_IDENTIFIERS.methodParameters,
+    )
+}
+
 function getRawAnnotations(
     service: ServiceDefinition,
     state: IRenderState,

@@ -15,6 +15,7 @@ import {
     createStructArgsName,
     createStructResultName,
     renderMethodNames,
+    renderMethodParameters,
     renderServiceName,
 } from './utils'
 
@@ -51,6 +52,7 @@ export function renderService(
         renderServiceAnnotations(collectAllAnnotations(service, state)),
         renderMethodAnnotations(collectAllMethods(service, state)),
         renderMethodNames(service, state),
+        renderMethodParameters(service, state),
         ...renderArgsStruct(service, state),
         ...renderResultStruct(service, state),
         renderClient(service, state),
