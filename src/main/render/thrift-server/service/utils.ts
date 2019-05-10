@@ -226,7 +226,7 @@ export function renderMethodParametersStaticProperty(): ts.PropertyDeclaration {
             ts.createToken(ts.SyntaxKind.StaticKeyword),
             ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
         ],
-        COMMON_IDENTIFIERS._methodParameters,
+        COMMON_IDENTIFIERS.methodParameters,
         undefined,
         ts.createTypeReferenceNode(
             '{ [methodName: string]: number }',

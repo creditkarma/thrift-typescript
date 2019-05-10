@@ -22,6 +22,11 @@ export const methodAnnotations: thrift.IMethodAnnotations = {
     }
 };
 export const methodNames: Array<string> = ["getStruct", "getUnion", "getEnum"];
+export const methodParameters: { [methodName: string]: number } = {
+    getStruct: 2,
+    getUnion: 2,
+    getEnum: 1
+};
 export interface IGetStruct__Args {
     __name: "GetStruct__Args";
     key: number;
@@ -485,10 +490,12 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
     public static readonly annotations: thrift.IThriftAnnotations = annotations;
     public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
     public static readonly methodNames: Array<string> = methodNames;
+    public static readonly methodParameters: { [methodName: string]: number } = methodParameters;
     public readonly _serviceName: string = serviceName;
     public readonly _annotations: thrift.IThriftAnnotations = annotations;
     public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
     public readonly _methodNames: Array<string> = methodNames;
+    public readonly _methodParameters: { [methodName: string]: number } = methodParameters;
     public getStruct(key: number, context?: Context): Promise<__NAMESPACE__.ISharedStruct> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
