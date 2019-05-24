@@ -224,7 +224,7 @@ export function renderMethodParametersProperty(): ts.PropertyDeclaration {
             ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
         ],
         COMMON_IDENTIFIERS._methodParameters,
-        undefined,
+        ts.createToken(ts.SyntaxKind.QuestionToken),
         methodParamMapType,
         COMMON_IDENTIFIERS.methodParameters,
     )

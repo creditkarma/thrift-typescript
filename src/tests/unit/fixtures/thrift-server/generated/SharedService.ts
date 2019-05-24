@@ -496,7 +496,7 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
     public readonly _annotations: thrift.IThriftAnnotations = annotations;
     public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
     public readonly _methodNames: Array<string> = methodNames;
-    public readonly _methodParameters: {
+    public readonly _methodParameters?: {
         [methodName: string]: number;
     } = methodParameters;
     public getStruct(key: number, context?: Context): Promise<__NAMESPACE__.ISharedStruct> {
