@@ -132,7 +132,9 @@ export const methodAnnotations: thrift.IMethodAnnotations = {
     }
 };
 export const methodNames: Array<string> = ["getUser", "saveUser", "ping"];
-export const methodParameters: { [methodName: string]: number } = {
+export const methodParameters: {
+    [methodName: string]: number;
+} = {
     getUser: 2,
     saveUser: 2,
     ping: 1
@@ -582,12 +584,13 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
     public static readonly annotations: thrift.IThriftAnnotations = annotations;
     public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
     public static readonly methodNames: Array<string> = methodNames;
-    public static readonly methodParameters: { [methodName: string]: number } = methodParameters;
     public readonly _serviceName: string = serviceName;
     public readonly _annotations: thrift.IThriftAnnotations = annotations;
     public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
     public readonly _methodNames: Array<string> = methodNames;
-    public readonly _methodParameters: { [methodName: string]: number } = methodParameters;
+    public readonly _methodParameters: {
+        [methodName: string]: number;
+    } = methodParameters;
     public getUser(id: number, context?: Context): Promise<IUser> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);

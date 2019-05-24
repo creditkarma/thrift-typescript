@@ -14,7 +14,7 @@ import { DefinitionType, IRenderState } from '../../../types'
 import { COMMON_IDENTIFIERS } from '../identifiers'
 
 import { resolveIdentifierDefinition } from '../../../resolver'
-import { createStringType } from '../../shared/types'
+import { createNumberType, createStringType } from '../../shared/types'
 
 export function capitalize(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1)
@@ -165,6 +165,24 @@ export function renderMethodNamesStaticProperty(): ts.PropertyDeclaration {
     )
 }
 
+const methodParamMapType: ts.TypeLiteralNode = ts.createTypeLiteralNode([
+    ts.createIndexSignature(
+        undefined,
+        undefined,
+        [
+            ts.createParameter(
+                undefined,
+                undefined,
+                undefined,
+                COMMON_IDENTIFIERS.methodName,
+                undefined,
+                createStringType(),
+            ),
+        ],
+        createNumberType(),
+    ),
+])
+
 export function renderMethodParameters(
     service: ServiceDefinition,
     state: IRenderState,
@@ -175,10 +193,7 @@ export function renderMethodParameters(
             [
                 ts.createVariableDeclaration(
                     COMMON_IDENTIFIERS.methodParameters,
-                    ts.createTypeReferenceNode(
-                        '{ [methodName: string]: number }',
-                        undefined,
-                    ),
+                    methodParamMapType,
                     ts.createObjectLiteral(
                         [
                             ...collectAllMethods(service, state).map(
@@ -210,28 +225,7 @@ export function renderMethodParametersProperty(): ts.PropertyDeclaration {
         ],
         COMMON_IDENTIFIERS._methodParameters,
         undefined,
-        ts.createTypeReferenceNode(
-            '{ [methodName: string]: number }',
-            undefined,
-        ),
-        COMMON_IDENTIFIERS.methodParameters,
-    )
-}
-
-export function renderMethodParametersStaticProperty(): ts.PropertyDeclaration {
-    return ts.createProperty(
-        undefined,
-        [
-            ts.createToken(ts.SyntaxKind.PublicKeyword),
-            ts.createToken(ts.SyntaxKind.StaticKeyword),
-            ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
-        ],
-        COMMON_IDENTIFIERS.methodParameters,
-        undefined,
-        ts.createTypeReferenceNode(
-            '{ [methodName: string]: number }',
-            undefined,
-        ),
+        methodParamMapType,
         COMMON_IDENTIFIERS.methodParameters,
     )
 }

@@ -16,7 +16,6 @@ import {
     renderMethodNamesProperty,
     renderMethodNamesStaticProperty,
     renderMethodParametersProperty,
-    renderMethodParametersStaticProperty,
     renderServiceNameProperty,
     renderServiceNameStaticProperty,
 } from './utils'
@@ -86,7 +85,6 @@ export function renderClient(
     const staticAnnotations: ts.PropertyDeclaration = renderServiceAnnotationsStaticProperty()
     const staticMethodAnnotations: ts.PropertyDeclaration = renderMethodAnnotationsStaticProperty()
     const staticMethodNames: ts.PropertyDeclaration = renderMethodNamesStaticProperty()
-    const staticMethodParameters: ts.PropertyDeclaration = renderMethodParametersStaticProperty()
 
     const serviceName: ts.PropertyDeclaration = renderServiceNameProperty()
     const annotations: ts.PropertyDeclaration = renderServiceAnnotationsProperty()
@@ -123,7 +121,6 @@ export function renderClient(
             staticAnnotations,
             staticMethodAnnotations,
             staticMethodNames,
-            staticMethodParameters,
             serviceName,
             annotations,
             methodAnnotations,
