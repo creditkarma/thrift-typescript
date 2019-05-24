@@ -14,7 +14,7 @@ import { DefinitionType, IRenderState } from '../../../types'
 import { COMMON_IDENTIFIERS } from '../identifiers'
 
 import { resolveIdentifierDefinition } from '../../../resolver'
-import { createStringType } from '../../shared/types'
+import { createNumberType, createStringType } from '../../shared/types'
 
 export function capitalize(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1)
@@ -162,6 +162,71 @@ export function renderMethodNamesStaticProperty(): ts.PropertyDeclaration {
         undefined,
         ts.createTypeReferenceNode('Array<string>', undefined),
         COMMON_IDENTIFIERS.methodNames,
+    )
+}
+
+const methodParamMapType: ts.TypeLiteralNode = ts.createTypeLiteralNode([
+    ts.createIndexSignature(
+        undefined,
+        undefined,
+        [
+            ts.createParameter(
+                undefined,
+                undefined,
+                undefined,
+                COMMON_IDENTIFIERS.methodName,
+                undefined,
+                createStringType(),
+            ),
+        ],
+        createNumberType(),
+    ),
+])
+
+export function renderMethodParameters(
+    service: ServiceDefinition,
+    state: IRenderState,
+): ts.VariableStatement {
+    return ts.createVariableStatement(
+        [ts.createToken(ts.SyntaxKind.ExportKeyword)],
+        ts.createVariableDeclarationList(
+            [
+                ts.createVariableDeclaration(
+                    COMMON_IDENTIFIERS.methodParameters,
+                    methodParamMapType,
+                    ts.createObjectLiteral(
+                        [
+                            ...collectAllMethods(service, state).map(
+                                (next: FunctionDefinition) => {
+                                    return ts.createPropertyAssignment(
+                                        next.name.value,
+                                        ts.createLiteral(
+                                            next.fields.length + 1, // including context
+                                        ),
+                                    )
+                                },
+                            ),
+                        ],
+                        true,
+                    ),
+                ),
+            ],
+            ts.NodeFlags.Const,
+        ),
+    )
+}
+
+export function renderMethodParametersProperty(): ts.PropertyDeclaration {
+    return ts.createProperty(
+        undefined,
+        [
+            ts.createToken(ts.SyntaxKind.PublicKeyword),
+            ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
+        ],
+        COMMON_IDENTIFIERS._methodParameters,
+        undefined,
+        methodParamMapType,
+        COMMON_IDENTIFIERS.methodParameters,
     )
 }
 

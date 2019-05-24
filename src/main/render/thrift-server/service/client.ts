@@ -15,6 +15,7 @@ import {
     createStructResultName,
     renderMethodNamesProperty,
     renderMethodNamesStaticProperty,
+    renderMethodParametersProperty,
     renderServiceNameProperty,
     renderServiceNameStaticProperty,
 } from './utils'
@@ -89,6 +90,7 @@ export function renderClient(
     const annotations: ts.PropertyDeclaration = renderServiceAnnotationsProperty()
     const methodAnnotations: ts.PropertyDeclaration = renderMethodAnnotationsProperty()
     const methodNames: ts.PropertyDeclaration = renderMethodNamesProperty()
+    const methodParameters: ts.PropertyDeclaration = renderMethodParametersProperty()
 
     const baseMethods: Array<ts.MethodDeclaration> = service.functions.map(
         (func: FunctionDefinition) => {
@@ -123,6 +125,7 @@ export function renderClient(
             annotations,
             methodAnnotations,
             methodNames,
+            methodParameters,
             ...createCtor(service),
             ...baseMethods,
         ], // body
