@@ -8,6 +8,9 @@ export const methodAnnotations: thrift.IMethodAnnotations = {
     }
 };
 export const methodNames: Array<string> = ["ping"];
+export const methodParameters: { [methodName: string]: number } = {
+    ping: 2
+};
 export interface IPing__Args {
     __name: "Ping__Args";
     id: thrift.Int64;
@@ -169,10 +172,12 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
     public static readonly annotations: thrift.IThriftAnnotations = annotations;
     public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
     public static readonly methodNames: Array<string> = methodNames;
+    public static readonly methodParameters: { [methodName: string]: number } = methodParameters;
     public readonly _serviceName: string = serviceName;
     public readonly _annotations: thrift.IThriftAnnotations = annotations;
     public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
     public readonly _methodNames: Array<string> = methodNames;
+    public readonly _methodParameters: { [methodName: string]: number } = methodParameters;
     public ping(id: number | string | thrift.Int64, context?: Context): Promise<void> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);

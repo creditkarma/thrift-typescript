@@ -88,6 +88,10 @@ export const methodAnnotations: thrift.IMethodAnnotations = {
     }
 };
 export const methodNames: Array<string> = ["peg", "pong"];
+export const methodParameters: { [methodName: string]: number } = {
+    peg: 2,
+    pong: 2
+};
 export interface IPeg__Args {
     __name: "Peg__Args";
     name: string;
@@ -412,10 +416,12 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
     public static readonly annotations: thrift.IThriftAnnotations = annotations;
     public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
     public static readonly methodNames: Array<string> = methodNames;
+    public static readonly methodParameters: { [methodName: string]: number } = methodParameters;
     public readonly _serviceName: string = serviceName;
     public readonly _annotations: thrift.IThriftAnnotations = annotations;
     public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
     public readonly _methodNames: Array<string> = methodNames;
+    public readonly _methodParameters: { [methodName: string]: number } = methodParameters;
     public peg(name: string, context?: Context): Promise<string> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);

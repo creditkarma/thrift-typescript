@@ -10,6 +10,8 @@ export const COMMON_IDENTIFIERS = {
     thrift: ts.createIdentifier('thrift'),
     methodNames: ts.createIdentifier('methodNames'),
     _methodNames: ts.createIdentifier('_methodNames'),
+    methodParameters: ts.createIdentifier('methodParameters'),
+    _methodParameters: ts.createIdentifier('_methodParameters'),
     serviceName: ts.createIdentifier('serviceName'),
     fieldAnnotations: ts.createIdentifier('fieldAnnotations'),
     methodAnnotations: ts.createIdentifier('methodAnnotations'),

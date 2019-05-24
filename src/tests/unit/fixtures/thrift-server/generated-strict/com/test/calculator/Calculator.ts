@@ -81,6 +81,25 @@ export const methodAnnotations: thrift.IMethodAnnotations = {
     }
 };
 export const methodNames: Array<string> = ["getStruct", "getUnion", "getEnum", "ping", "add", "addInt64", "addWithContext", "calculate", "echoBinary", "echoString", "checkName", "checkOptional", "mapOneList", "mapValues", "listToMap", "fetchThing", "zip"];
+export const methodParameters: { [methodName: string]: number } = {
+    getStruct: 2,
+    getUnion: 2,
+    getEnum: 1,
+    ping: 1,
+    add: 3,
+    addInt64: 3,
+    addWithContext: 3,
+    calculate: 3,
+    echoBinary: 2,
+    echoString: 2,
+    checkName: 2,
+    checkOptional: 2,
+    mapOneList: 2,
+    mapValues: 2,
+    listToMap: 2,
+    fetchThing: 1,
+    zip: 1
+};
 export interface IPing__Args {
     __name: "Ping__Args";
 }
@@ -2552,10 +2571,12 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
     public static readonly annotations: thrift.IThriftAnnotations = annotations;
     public static readonly methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
     public static readonly methodNames: Array<string> = methodNames;
+    public static readonly methodParameters: { [methodName: string]: number } = methodParameters;
     public readonly _serviceName: string = serviceName;
     public readonly _annotations: thrift.IThriftAnnotations = annotations;
     public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
     public readonly _methodNames: Array<string> = methodNames;
+    public readonly _methodParameters: { [methodName: string]: number } = methodParameters;
     constructor(connection: thrift.IThriftConnection<Context>) {
         super(connection);
     }
