@@ -5,6 +5,7 @@ import {
     ServiceDefinition,
     StructDefinition,
     ThriftStatement,
+    TypedefDefinition,
     UnionDefinition,
 } from '@creditkarma/thrift-parser'
 
@@ -46,6 +47,7 @@ export function generateFile(
 
 function generateFileFromStatements(
     statements: Array<
+        | TypedefDefinition
         | ServiceDefinition
         | ExceptionDefinition
         | UnionDefinition
@@ -60,6 +62,7 @@ function generateFileFromStatements(
     statements.forEach(
         (
             statement:
+                | TypedefDefinition
                 | ServiceDefinition
                 | ExceptionDefinition
                 | UnionDefinition
@@ -150,14 +153,15 @@ export function generateProject(
                 thriftProject,
                 renderer,
             ),
-            generateFilesFromKey(
-                'typedefs',
-                namespace,
-                thriftProject,
-                renderer,
-            ),
+            // generateFilesFromKey(
+            //     'typedefs',
+            //     namespace,
+            //     thriftProject,
+            //     renderer,
+            // ),
             generateFileFromStatements(
                 [
+                    ...namespace.typedefs,
                     ...namespace.structs,
                     ...namespace.unions,
                     ...namespace.exceptions,

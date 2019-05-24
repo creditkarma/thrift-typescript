@@ -10,7 +10,7 @@ import {
     TypedefDefinition,
 } from '@creditkarma/thrift-parser'
 
-import { INamespacePath, IRenderState } from '../../types'
+import { DefinitionType, INamespacePath, IRenderState } from '../../types'
 import { identifiersForStatements } from '../../utils'
 import { COMMON_IDENTIFIERS } from './identifiers'
 
@@ -147,15 +147,45 @@ export function renderIncludes(
     const importedNamespaces: Set<string> = new Set()
     const imports: Array<ts.ImportDeclaration> = []
     const identifiers: Array<string> = identifiersForStatements(statements)
-    let importNamespace: boolean = false
+    const importedIdentifiers: Set<string> = new Set()
 
     identifiers.forEach((next: string) => {
         const [head] = next.split('.')
         if (
             state.currentNamespace.exports[head] &&
-            state.currentDefinitions[head] === undefined
+            state.currentDefinitions[head] === undefined &&
+            importedIdentifiers.has(head) === false
         ) {
-            importNamespace = true
+            importedIdentifiers.add(head)
+
+            const def: DefinitionType = state.currentNamespace.exports[head]
+            let importPath: ts.LiteralExpression = ts.createLiteral('./.')
+            let importName: string = head
+
+            switch (def.type) {
+                case SyntaxType.ConstDefinition:
+                case SyntaxType.EnumDefinition:
+                    importPath = ts.createLiteral('./constants')
+                    importName = '__CONSTANTS__'
+                    break
+
+                default:
+                    importPath = ts.createLiteral(`./${head}`)
+            }
+
+            imports.push(
+                ts.createImportDeclaration(
+                    undefined,
+                    undefined,
+                    ts.createImportClause(
+                        undefined,
+                        ts.createNamespaceImport(
+                            ts.createIdentifier(importName),
+                        ),
+                    ),
+                    importPath,
+                ),
+            )
         } else if (
             state.currentNamespace.includedNamespaces[head] !== undefined
         ) {
@@ -190,20 +220,6 @@ export function renderIncludes(
             }
         }
     })
-
-    if (importNamespace) {
-        imports.push(
-            ts.createImportDeclaration(
-                undefined,
-                undefined,
-                ts.createImportClause(
-                    undefined,
-                    ts.createNamespaceImport(COMMON_IDENTIFIERS.__NAMESPACE__),
-                ),
-                ts.createLiteral(`./.`),
-            ),
-        )
-    }
 
     return imports
 }

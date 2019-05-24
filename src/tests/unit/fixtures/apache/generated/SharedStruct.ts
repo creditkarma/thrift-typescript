@@ -4,13 +4,13 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 */
 import * as thrift from "test-lib";
-import * as __NAMESPACE__ from "./.";
+import * as Code from "./Code";
 export interface ISharedStructArgs {
-    code: __NAMESPACE__.Code;
+    code: Code.Code;
     value: string;
 }
 export class SharedStruct {
-    public code: __NAMESPACE__.Code;
+    public code: Code.Code;
     public value: string;
     constructor(args: ISharedStructArgs) {
         if (args != null && args.code != null) {
@@ -55,7 +55,7 @@ export class SharedStruct {
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.Thrift.Type.STRUCT) {
-                        const value_1: __NAMESPACE__.Code = __NAMESPACE__.Code.read(input);
+                        const value_1: Code.Code = Code.Code.read(input);
                         _args.code = value_1;
                     }
                     else {

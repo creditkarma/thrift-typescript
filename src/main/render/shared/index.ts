@@ -3,6 +3,7 @@ import * as ts from 'typescript'
 import {
     InterfaceWithFields,
     ServiceDefinition,
+    TypedefDefinition,
 } from '@creditkarma/thrift-parser'
 
 import { INamespace, IRenderState } from '../../types'
@@ -22,10 +23,11 @@ export function renderIndex(state: IRenderState): Array<ts.Statement> {
     }
 
     ;[
+        ...currentNamespace.typedefs,
         ...currentNamespace.structs,
         ...currentNamespace.unions,
         ...currentNamespace.exceptions,
-    ].forEach((next: InterfaceWithFields) => {
+    ].forEach((next: InterfaceWithFields | TypedefDefinition) => {
         results.push(
             ts.createExportDeclaration(
                 undefined,
@@ -62,16 +64,16 @@ export function renderIndex(state: IRenderState): Array<ts.Statement> {
         )
     })
 
-    if (currentNamespace.typedefs.length > 0) {
-        results.push(
-            ts.createExportDeclaration(
-                undefined,
-                undefined,
-                undefined,
-                ts.createLiteral(`./typedefs`),
-            ),
-        )
-    }
+    // if (currentNamespace.typedefs.length > 0) {
+    //     results.push(
+    //         ts.createExportDeclaration(
+    //             undefined,
+    //             undefined,
+    //             undefined,
+    //             ts.createLiteral(`./typedefs`),
+    //         ),
+    //     )
+    // }
 
     return results
 }

@@ -6,8 +6,10 @@
 import * as thrift from "test-lib";
 import * as __ROOT_NAMESPACE__ from "./../../..";
 import * as com_test_operation from "./../operation";
+import * as NotAGoodIdea from "./NotAGoodIdea";
+import * as Work from "./Work";
+import * as Choice from "./Choice";
 import * as com_test_common from "./../common";
-import * as __NAMESPACE__ from "./.";
 export const serviceName: string = "Calculator";
 export const annotations: thrift.IThriftAnnotations = {};
 export const methodAnnotations: thrift.IMethodAnnotations = {
@@ -486,11 +488,11 @@ export class AddWithContext__Args extends thrift.StructLike implements IAddWithC
 export interface ICalculate__Args {
     __name: "Calculate__Args";
     logid: number;
-    work: __NAMESPACE__.IWork;
+    work: Work.IWork;
 }
 export interface ICalculate__ArgsArgs {
     logid: number;
-    work: __NAMESPACE__.IWorkArgs;
+    work: Work.IWorkArgs;
 }
 export const Calculate__ArgsCodec: thrift.IStructCodec<ICalculate__ArgsArgs, ICalculate__Args> = {
     encode(args: ICalculate__ArgsArgs, output: thrift.TProtocol): void {
@@ -509,7 +511,7 @@ export const Calculate__ArgsCodec: thrift.IStructCodec<ICalculate__ArgsArgs, ICa
         }
         if (obj.work != null) {
             output.writeFieldBegin("work", thrift.TType.STRUCT, 2);
-            __NAMESPACE__.WorkCodec.encode(obj.work, output);
+            Work.WorkCodec.encode(obj.work, output);
             output.writeFieldEnd();
         }
         else {
@@ -541,7 +543,7 @@ export const Calculate__ArgsCodec: thrift.IStructCodec<ICalculate__ArgsArgs, ICa
                     break;
                 case 2:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_14: __NAMESPACE__.IWork = __NAMESPACE__.WorkCodec.decode(input);
+                        const value_14: Work.IWork = Work.WorkCodec.decode(input);
                         _args.work = value_14;
                     }
                     else {
@@ -569,7 +571,7 @@ export const Calculate__ArgsCodec: thrift.IStructCodec<ICalculate__ArgsArgs, ICa
 };
 export class Calculate__Args extends thrift.StructLike implements ICalculate__Args {
     public logid: number;
-    public work: __NAMESPACE__.IWork;
+    public work: Work.IWork;
     public readonly __name = "Calculate__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
@@ -583,7 +585,7 @@ export class Calculate__Args extends thrift.StructLike implements ICalculate__Ar
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[logid] is unset!");
         }
         if (args.work != null) {
-            const value_16: __NAMESPACE__.IWork = new __NAMESPACE__.Work(args.work);
+            const value_16: Work.IWork = new Work.Work(args.work);
             this.work = value_16;
         }
         else {
@@ -778,10 +780,10 @@ export class EchoString__Args extends thrift.StructLike implements IEchoString__
 }
 export interface ICheckName__Args {
     __name: "CheckName__Args";
-    choice: __NAMESPACE__.Choice;
+    choice: Choice.Choice;
 }
 export interface ICheckName__ArgsArgs {
-    choice: __NAMESPACE__.ChoiceArgs;
+    choice: Choice.ChoiceArgs;
 }
 export const CheckName__ArgsCodec: thrift.IStructCodec<ICheckName__ArgsArgs, ICheckName__Args> = {
     encode(args: ICheckName__ArgsArgs, output: thrift.TProtocol): void {
@@ -791,7 +793,7 @@ export const CheckName__ArgsCodec: thrift.IStructCodec<ICheckName__ArgsArgs, ICh
         output.writeStructBegin("CheckName__Args");
         if (obj.choice != null) {
             output.writeFieldBegin("choice", thrift.TType.STRUCT, 1);
-            __NAMESPACE__.ChoiceCodec.encode(obj.choice, output);
+            Choice.ChoiceCodec.encode(obj.choice, output);
             output.writeFieldEnd();
         }
         else {
@@ -814,7 +816,7 @@ export const CheckName__ArgsCodec: thrift.IStructCodec<ICheckName__ArgsArgs, ICh
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_21: __NAMESPACE__.Choice = __NAMESPACE__.ChoiceCodec.decode(input);
+                        const value_21: Choice.Choice = Choice.ChoiceCodec.decode(input);
                         _args.choice = value_21;
                     }
                     else {
@@ -840,14 +842,14 @@ export const CheckName__ArgsCodec: thrift.IStructCodec<ICheckName__ArgsArgs, ICh
     }
 };
 export class CheckName__Args extends thrift.StructLike implements ICheckName__Args {
-    public choice: __NAMESPACE__.Choice;
+    public choice: Choice.Choice;
     public readonly __name = "CheckName__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ICheckName__ArgsArgs) {
         super();
         if (args.choice != null) {
-            const value_22: __NAMESPACE__.Choice = __NAMESPACE__.ChoiceCodec.create(args.choice);
+            const value_22: Choice.Choice = Choice.ChoiceCodec.create(args.choice);
             this.choice = value_22;
         }
         else {
@@ -1541,11 +1543,11 @@ export class Add__Result extends thrift.StructLike implements IAdd__Result {
 export interface IAddInt64__Result {
     __name: "AddInt64__Result";
     success?: thrift.Int64;
-    exp?: __NAMESPACE__.INotAGoodIdea;
+    exp?: NotAGoodIdea.INotAGoodIdea;
 }
 export interface IAddInt64__ResultArgs {
     success?: number | string | thrift.Int64;
-    exp?: __NAMESPACE__.INotAGoodIdeaArgs;
+    exp?: NotAGoodIdea.INotAGoodIdeaArgs;
 }
 export const AddInt64__ResultCodec: thrift.IStructCodec<IAddInt64__ResultArgs, IAddInt64__Result> = {
     encode(args: IAddInt64__ResultArgs, output: thrift.TProtocol): void {
@@ -1561,7 +1563,7 @@ export const AddInt64__ResultCodec: thrift.IStructCodec<IAddInt64__ResultArgs, I
         }
         if (obj.exp != null) {
             output.writeFieldBegin("exp", thrift.TType.STRUCT, 1);
-            __NAMESPACE__.NotAGoodIdeaCodec.encode(obj.exp, output);
+            NotAGoodIdea.NotAGoodIdeaCodec.encode(obj.exp, output);
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -1590,7 +1592,7 @@ export const AddInt64__ResultCodec: thrift.IStructCodec<IAddInt64__ResultArgs, I
                     break;
                 case 1:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_53: __NAMESPACE__.INotAGoodIdea = __NAMESPACE__.NotAGoodIdeaCodec.decode(input);
+                        const value_53: NotAGoodIdea.INotAGoodIdea = NotAGoodIdea.NotAGoodIdeaCodec.decode(input);
                         _args.exp = value_53;
                     }
                     else {
@@ -1613,7 +1615,7 @@ export const AddInt64__ResultCodec: thrift.IStructCodec<IAddInt64__ResultArgs, I
 };
 export class AddInt64__Result extends thrift.StructLike implements IAddInt64__Result {
     public success?: thrift.Int64;
-    public exp?: __NAMESPACE__.INotAGoodIdea;
+    public exp?: NotAGoodIdea.INotAGoodIdea;
     public readonly __name = "AddInt64__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
@@ -1624,7 +1626,7 @@ export class AddInt64__Result extends thrift.StructLike implements IAddInt64__Re
             this.success = value_54;
         }
         if (args.exp != null) {
-            const value_55: __NAMESPACE__.INotAGoodIdea = new __NAMESPACE__.NotAGoodIdea(args.exp);
+            const value_55: NotAGoodIdea.INotAGoodIdea = new NotAGoodIdea.NotAGoodIdea(args.exp);
             this.exp = value_55;
         }
     }
@@ -2712,7 +2714,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
             }
         });
     }
-    public calculate(logid: number, work: __NAMESPACE__.IWorkArgs, context?: Context): Promise<number> {
+    public calculate(logid: number, work: Work.IWorkArgs, context?: Context): Promise<number> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
         output.writeMessageBegin("calculate", thrift.MessageType.CALL, this.incrementRequestId());
@@ -2829,7 +2831,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
             }
         });
     }
-    public checkName(choice: __NAMESPACE__.ChoiceArgs, context?: Context): Promise<string> {
+    public checkName(choice: Choice.ChoiceArgs, context?: Context): Promise<string> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
         output.writeMessageBegin("checkName", thrift.MessageType.CALL, this.incrementRequestId());
@@ -3096,10 +3098,10 @@ export interface ILocalHandler<Context = any> {
     add(num1: number, num2: number, context?: Context): number | Promise<number>;
     addInt64(num1: thrift.Int64, num2: thrift.Int64, context?: Context): (number | string | thrift.Int64) | Promise<number | string | thrift.Int64>;
     addWithContext(num1: number, num2: number, context?: Context): number | Promise<number>;
-    calculate(logid: number, work: __NAMESPACE__.IWork, context?: Context): number | Promise<number>;
+    calculate(logid: number, work: Work.IWork, context?: Context): number | Promise<number>;
     echoBinary(word: Buffer, context?: Context): string | Promise<string>;
     echoString(word: string, context?: Context): string | Promise<string>;
-    checkName(choice: __NAMESPACE__.Choice, context?: Context): string | Promise<string>;
+    checkName(choice: Choice.Choice, context?: Context): string | Promise<string>;
     checkOptional(type?: string, context?: Context): string | Promise<string>;
     mapOneList(arg: Array<number>, context?: Context): Array<number> | Promise<Array<number>>;
     mapValues(arg: Map<string, number>, context?: Context): Array<number> | Promise<Array<number>>;
@@ -3288,7 +3290,7 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
-            if (err instanceof __NAMESPACE__.NotAGoodIdea) {
+            if (err instanceof NotAGoodIdea.NotAGoodIdea) {
                 const result: IAddInt64__ResultArgs = { exp: err };
                 output.writeMessageBegin("addInt64", thrift.MessageType.REPLY, requestId);
                 AddInt64__ResultCodec.encode(result, output);

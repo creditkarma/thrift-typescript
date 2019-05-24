@@ -4,7 +4,9 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 */
 import * as thrift from "test-lib";
-import * as __NAMESPACE__ from "./.";
+import * as SharedStruct from "./SharedStruct";
+import * as SharedUnion from "./SharedUnion";
+import * as __CONSTANTS__ from "./constants";
 export const serviceName: string = "SharedService";
 export const annotations: thrift.IThriftAnnotations = {};
 export const methodAnnotations: thrift.IMethodAnnotations = {
@@ -251,10 +253,10 @@ export class GetEnum__Args extends thrift.StructLike implements IGetEnum__Args {
 }
 export interface IGetStruct__Result {
     __name: "GetStruct__Result";
-    success?: __NAMESPACE__.ISharedStruct;
+    success?: SharedStruct.ISharedStruct;
 }
 export interface IGetStruct__ResultArgs {
-    success?: __NAMESPACE__.ISharedStructArgs;
+    success?: SharedStruct.ISharedStructArgs;
 }
 export const GetStruct__ResultCodec: thrift.IStructCodec<IGetStruct__ResultArgs, IGetStruct__Result> = {
     encode(args: IGetStruct__ResultArgs, output: thrift.TProtocol): void {
@@ -264,7 +266,7 @@ export const GetStruct__ResultCodec: thrift.IStructCodec<IGetStruct__ResultArgs,
         output.writeStructBegin("GetStruct__Result");
         if (obj.success != null) {
             output.writeFieldBegin("success", thrift.TType.STRUCT, 0);
-            __NAMESPACE__.SharedStructCodec.encode(obj.success, output);
+            SharedStruct.SharedStructCodec.encode(obj.success, output);
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -284,7 +286,7 @@ export const GetStruct__ResultCodec: thrift.IStructCodec<IGetStruct__ResultArgs,
             switch (fieldId) {
                 case 0:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_5: __NAMESPACE__.ISharedStruct = __NAMESPACE__.SharedStructCodec.decode(input);
+                        const value_5: SharedStruct.ISharedStruct = SharedStruct.SharedStructCodec.decode(input);
                         _args.success = value_5;
                     }
                     else {
@@ -305,14 +307,14 @@ export const GetStruct__ResultCodec: thrift.IStructCodec<IGetStruct__ResultArgs,
     }
 };
 export class GetStruct__Result extends thrift.StructLike implements IGetStruct__Result {
-    public success?: __NAMESPACE__.ISharedStruct;
+    public success?: SharedStruct.ISharedStruct;
     public readonly __name = "GetStruct__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IGetStruct__ResultArgs = {}) {
         super();
         if (args.success != null) {
-            const value_6: __NAMESPACE__.ISharedStruct = new __NAMESPACE__.SharedStruct(args.success);
+            const value_6: SharedStruct.ISharedStruct = new SharedStruct.SharedStruct(args.success);
             this.success = value_6;
         }
     }
@@ -328,10 +330,10 @@ export class GetStruct__Result extends thrift.StructLike implements IGetStruct__
 }
 export interface IGetUnion__Result {
     __name: "GetUnion__Result";
-    success?: __NAMESPACE__.SharedUnion;
+    success?: SharedUnion.SharedUnion;
 }
 export interface IGetUnion__ResultArgs {
-    success?: __NAMESPACE__.SharedUnionArgs;
+    success?: SharedUnion.SharedUnionArgs;
 }
 export const GetUnion__ResultCodec: thrift.IStructCodec<IGetUnion__ResultArgs, IGetUnion__Result> = {
     encode(args: IGetUnion__ResultArgs, output: thrift.TProtocol): void {
@@ -341,7 +343,7 @@ export const GetUnion__ResultCodec: thrift.IStructCodec<IGetUnion__ResultArgs, I
         output.writeStructBegin("GetUnion__Result");
         if (obj.success != null) {
             output.writeFieldBegin("success", thrift.TType.STRUCT, 0);
-            __NAMESPACE__.SharedUnionCodec.encode(obj.success, output);
+            SharedUnion.SharedUnionCodec.encode(obj.success, output);
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -361,7 +363,7 @@ export const GetUnion__ResultCodec: thrift.IStructCodec<IGetUnion__ResultArgs, I
             switch (fieldId) {
                 case 0:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_7: __NAMESPACE__.SharedUnion = __NAMESPACE__.SharedUnionCodec.decode(input);
+                        const value_7: SharedUnion.SharedUnion = SharedUnion.SharedUnionCodec.decode(input);
                         _args.success = value_7;
                     }
                     else {
@@ -382,14 +384,14 @@ export const GetUnion__ResultCodec: thrift.IStructCodec<IGetUnion__ResultArgs, I
     }
 };
 export class GetUnion__Result extends thrift.StructLike implements IGetUnion__Result {
-    public success?: __NAMESPACE__.SharedUnion;
+    public success?: SharedUnion.SharedUnion;
     public readonly __name = "GetUnion__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IGetUnion__ResultArgs = {}) {
         super();
         if (args.success != null) {
-            const value_8: __NAMESPACE__.SharedUnion = __NAMESPACE__.SharedUnionCodec.create(args.success);
+            const value_8: SharedUnion.SharedUnion = SharedUnion.SharedUnionCodec.create(args.success);
             this.success = value_8;
         }
     }
@@ -405,10 +407,10 @@ export class GetUnion__Result extends thrift.StructLike implements IGetUnion__Re
 }
 export interface IGetEnum__Result {
     __name: "GetEnum__Result";
-    success?: __NAMESPACE__.SharedEnum;
+    success?: __CONSTANTS__.SharedEnum;
 }
 export interface IGetEnum__ResultArgs {
-    success?: __NAMESPACE__.SharedEnum;
+    success?: __CONSTANTS__.SharedEnum;
 }
 export const GetEnum__ResultCodec: thrift.IStructCodec<IGetEnum__ResultArgs, IGetEnum__Result> = {
     encode(args: IGetEnum__ResultArgs, output: thrift.TProtocol): void {
@@ -438,7 +440,7 @@ export const GetEnum__ResultCodec: thrift.IStructCodec<IGetEnum__ResultArgs, IGe
             switch (fieldId) {
                 case 0:
                     if (fieldType === thrift.TType.I32) {
-                        const value_9: __NAMESPACE__.SharedEnum = input.readI32();
+                        const value_9: __CONSTANTS__.SharedEnum = input.readI32();
                         _args.success = value_9;
                     }
                     else {
@@ -459,14 +461,14 @@ export const GetEnum__ResultCodec: thrift.IStructCodec<IGetEnum__ResultArgs, IGe
     }
 };
 export class GetEnum__Result extends thrift.StructLike implements IGetEnum__Result {
-    public success?: __NAMESPACE__.SharedEnum;
+    public success?: __CONSTANTS__.SharedEnum;
     public readonly __name = "GetEnum__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IGetEnum__ResultArgs = {}) {
         super();
         if (args.success != null) {
-            const value_10: __NAMESPACE__.SharedEnum = args.success;
+            const value_10: __CONSTANTS__.SharedEnum = args.success;
             this.success = value_10;
         }
     }
@@ -489,7 +491,7 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
     public readonly _annotations: thrift.IThriftAnnotations = annotations;
     public readonly _methodAnnotations: thrift.IMethodAnnotations = methodAnnotations;
     public readonly _methodNames: Array<string> = methodNames;
-    public getStruct(key: number, context?: Context): Promise<__NAMESPACE__.ISharedStruct> {
+    public getStruct(key: number, context?: Context): Promise<SharedStruct.ISharedStruct> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
         output.writeMessageBegin("getStruct", thrift.MessageType.CALL, this.incrementRequestId());
@@ -527,7 +529,7 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
             }
         });
     }
-    public getUnion(index: number, context?: Context): Promise<__NAMESPACE__.SharedUnion> {
+    public getUnion(index: number, context?: Context): Promise<SharedUnion.SharedUnion> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
         output.writeMessageBegin("getUnion", thrift.MessageType.CALL, this.incrementRequestId());
@@ -565,7 +567,7 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
             }
         });
     }
-    public getEnum(context?: Context): Promise<__NAMESPACE__.SharedEnum> {
+    public getEnum(context?: Context): Promise<__CONSTANTS__.SharedEnum> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
         output.writeMessageBegin("getEnum", thrift.MessageType.CALL, this.incrementRequestId());
@@ -605,9 +607,9 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
     }
 }
 export interface IHandler<Context = any> {
-    getStruct(key: number, context?: Context): __NAMESPACE__.ISharedStructArgs | Promise<__NAMESPACE__.ISharedStructArgs>;
-    getUnion(index: number, context?: Context): __NAMESPACE__.SharedUnionArgs | Promise<__NAMESPACE__.SharedUnionArgs>;
-    getEnum(context?: Context): __NAMESPACE__.SharedEnum | Promise<__NAMESPACE__.SharedEnum>;
+    getStruct(key: number, context?: Context): SharedStruct.ISharedStructArgs | Promise<SharedStruct.ISharedStructArgs>;
+    getUnion(index: number, context?: Context): SharedUnion.SharedUnionArgs | Promise<SharedUnion.SharedUnionArgs>;
+    getEnum(context?: Context): __CONSTANTS__.SharedEnum | Promise<__CONSTANTS__.SharedEnum>;
 }
 export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
     protected readonly _handler: IHandler<Context>;
@@ -657,7 +659,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
         });
     }
     public process_getStruct(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
-        return new Promise<__NAMESPACE__.ISharedStructArgs>((resolve, reject): void => {
+        return new Promise<SharedStruct.ISharedStructArgs>((resolve, reject): void => {
             try {
                 const args: IGetStruct__Args = GetStruct__ArgsCodec.decode(input);
                 input.readMessageEnd();
@@ -666,7 +668,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
             catch (err) {
                 reject(err);
             }
-        }).then((data: __NAMESPACE__.ISharedStructArgs): Buffer => {
+        }).then((data: SharedStruct.ISharedStructArgs): Buffer => {
             const result: IGetStruct__ResultArgs = { success: data };
             output.writeMessageBegin("getStruct", thrift.MessageType.REPLY, requestId);
             GetStruct__ResultCodec.encode(result, output);
@@ -681,7 +683,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
         });
     }
     public process_getUnion(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
-        return new Promise<__NAMESPACE__.SharedUnionArgs>((resolve, reject): void => {
+        return new Promise<SharedUnion.SharedUnionArgs>((resolve, reject): void => {
             try {
                 const args: IGetUnion__Args = GetUnion__ArgsCodec.decode(input);
                 input.readMessageEnd();
@@ -690,7 +692,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
             catch (err) {
                 reject(err);
             }
-        }).then((data: __NAMESPACE__.SharedUnionArgs): Buffer => {
+        }).then((data: SharedUnion.SharedUnionArgs): Buffer => {
             const result: IGetUnion__ResultArgs = { success: data };
             output.writeMessageBegin("getUnion", thrift.MessageType.REPLY, requestId);
             GetUnion__ResultCodec.encode(result, output);
@@ -705,7 +707,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
         });
     }
     public process_getEnum(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
-        return new Promise<__NAMESPACE__.SharedEnum>((resolve, reject): void => {
+        return new Promise<__CONSTANTS__.SharedEnum>((resolve, reject): void => {
             try {
                 input.readMessageEnd();
                 resolve(this._handler.getEnum(context));
@@ -713,7 +715,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
             catch (err) {
                 reject(err);
             }
-        }).then((data: __NAMESPACE__.SharedEnum): Buffer => {
+        }).then((data: __CONSTANTS__.SharedEnum): Buffer => {
             const result: IGetEnum__ResultArgs = { success: data };
             output.writeMessageBegin("getEnum", thrift.MessageType.REPLY, requestId);
             GetEnum__ResultCodec.encode(result, output);

@@ -4,14 +4,7 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 */
 import * as com_test_exceptions from "./../exceptions";
-import * as __NAMESPACE__ from "./.";
-export type IJankyOperation = com_test_exceptions.IInvalidOperation;
-export type IJankyOperationArgs = com_test_exceptions.IInvalidOperationArgs;
-export const JankyOperation = com_test_exceptions.InvalidOperation;
-export const JankyOperationCodec = com_test_exceptions.InvalidOperationCodec;
 export type IJankyResult = com_test_exceptions.IInvalidResult;
 export type IJankyResultArgs = com_test_exceptions.IInvalidResultArgs;
 export const JankyResult = com_test_exceptions.InvalidResult;
 export const JankyResultCodec = com_test_exceptions.InvalidResultCodec;
-export const SomethingToDo = __NAMESPACE__.Operation;
-export type SomethingToDo = __NAMESPACE__.Operation;

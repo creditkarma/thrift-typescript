@@ -93,16 +93,16 @@ function readGeneratedSolution(
 
 describe('Thrift TypeScript Generator', () => {
     const generatedTests: { [testName: string]: string } = {
-        operation: 'should correctly generate typedefs for includes',
-        common: 'should correctly generate a struct using includes',
-        exceptions: 'should correctly generate an exception using includes',
-        shared: 'should correctly generate a service',
-        calculator: 'should correctly generate a service using includes',
+        operation: 'Operation Namespace',
+        common: 'Common Namespace',
+        exceptions: 'Exceptions Namespace',
+        shared: 'Shared Namespace',
+        calculator: 'Calculator Namespace',
     }
 
     describe('Thrift Server Generated', () => {
-        before(() => {
-            generate({
+        before(async () => {
+            await generate({
                 rootDir: __dirname,
                 outDir: 'thrift-server/generated',
                 sourceDir: 'fixtures/thrift',
@@ -120,6 +120,9 @@ describe('Thrift TypeScript Generator', () => {
                 const zipped: ZippedList = zipResults(actual, expected)
 
                 zipped.forEach((next: ZippedDetail) => {
+                    console.log(
+                        `should match ${next[0].name} and ${next[1].name}`,
+                    )
                     assert.deepEqual(next[0].content, next[1].content)
                 })
             })
@@ -127,8 +130,8 @@ describe('Thrift TypeScript Generator', () => {
     })
 
     describe('Thrift Server Generated w/ Strict Unions', () => {
-        before(() => {
-            generate({
+        before(async () => {
+            await generate({
                 rootDir: __dirname,
                 outDir: 'thrift-server/generated',
                 sourceDir: 'fixtures/thrift',
@@ -158,8 +161,8 @@ describe('Thrift TypeScript Generator', () => {
     })
 
     describe('Apache Generated', () => {
-        before(() => {
-            generate({
+        before(async () => {
+            await generate({
                 rootDir: __dirname,
                 outDir: 'apache/generated',
                 sourceDir: 'fixtures/thrift',

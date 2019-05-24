@@ -4,17 +4,17 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 */
 import * as thrift from "test-lib";
-import * as __NAMESPACE__ from "./.";
+import * as Operation from "./Operation";
 export interface IWorkArgs {
     num1: number;
     num2: number;
-    op?: __NAMESPACE__.Operation;
+    op?: Operation.Operation;
     comment?: string;
 }
 export class Work {
     public num1: number = 0;
     public num2: number;
-    public op?: __NAMESPACE__.Operation = __NAMESPACE__.Operation.ADD;
+    public op?: Operation.Operation = Operation.Operation.ADD;
     public comment?: string;
     constructor(args: IWorkArgs) {
         if (args != null && args.num1 != null) {
@@ -93,7 +93,7 @@ export class Work {
                     break;
                 case 3:
                     if (fieldType === thrift.Thrift.Type.I32) {
-                        const value_3: __NAMESPACE__.Operation = input.readI32();
+                        const value_3: Operation.Operation = input.readI32();
                         _args.op = value_3;
                     }
                     else {

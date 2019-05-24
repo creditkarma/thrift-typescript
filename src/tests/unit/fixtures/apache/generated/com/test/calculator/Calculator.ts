@@ -7,8 +7,10 @@ import Int64 = require("node-int64");
 import * as thrift from "test-lib";
 import * as __ROOT_NAMESPACE__ from "./../../..";
 import * as com_test_operation from "./../operation";
+import * as NotAGoodIdea from "./NotAGoodIdea";
+import * as Work from "./Work";
+import * as Choice from "./Choice";
 import * as com_test_common from "./../common";
-import * as __NAMESPACE__ from "./.";
 export interface IPingArgsArgs {
 }
 export class PingArgs {
@@ -295,11 +297,11 @@ export class AddWithContextArgs {
 }
 export interface ICalculateArgsArgs {
     logid: number;
-    work: __NAMESPACE__.Work;
+    work: Work.Work;
 }
 export class CalculateArgs {
     public logid: number;
-    public work: __NAMESPACE__.Work;
+    public work: Work.Work;
     constructor(args: ICalculateArgsArgs) {
         if (args != null && args.logid != null) {
             this.logid = args.logid;
@@ -352,7 +354,7 @@ export class CalculateArgs {
                     break;
                 case 2:
                     if (fieldType === thrift.Thrift.Type.STRUCT) {
-                        const value_8: __NAMESPACE__.Work = __NAMESPACE__.Work.read(input);
+                        const value_8: Work.Work = Work.Work.read(input);
                         _args.work = value_8;
                     }
                     else {
@@ -493,10 +495,10 @@ export class EchoStringArgs {
     }
 }
 export interface ICheckNameArgsArgs {
-    choice: __NAMESPACE__.Choice;
+    choice: Choice.Choice;
 }
 export class CheckNameArgs {
-    public choice: __NAMESPACE__.Choice;
+    public choice: Choice.Choice;
     constructor(args: ICheckNameArgsArgs) {
         if (args != null && args.choice != null) {
             this.choice = args.choice;
@@ -529,7 +531,7 @@ export class CheckNameArgs {
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.Thrift.Type.STRUCT) {
-                        const value_11: __NAMESPACE__.Choice = __NAMESPACE__.Choice.read(input);
+                        const value_11: Choice.Choice = Choice.Choice.read(input);
                         _args.choice = value_11;
                     }
                     else {
@@ -1004,11 +1006,11 @@ export class AddResult {
 }
 export interface IAddInt64ResultArgs {
     success?: number | Int64;
-    exp?: __NAMESPACE__.NotAGoodIdea;
+    exp?: NotAGoodIdea.NotAGoodIdea;
 }
 export class AddInt64Result {
     public success?: Int64;
-    public exp?: __NAMESPACE__.NotAGoodIdea;
+    public exp?: NotAGoodIdea.NotAGoodIdea;
     constructor(args?: IAddInt64ResultArgs) {
         if (args != null && args.success != null) {
             if (typeof args.success === "number") {
@@ -1060,7 +1062,7 @@ export class AddInt64Result {
                     break;
                 case 1:
                     if (fieldType === thrift.Thrift.Type.STRUCT) {
-                        const value_27: __NAMESPACE__.NotAGoodIdea = __NAMESPACE__.NotAGoodIdea.read(input);
+                        const value_27: NotAGoodIdea.NotAGoodIdea = NotAGoodIdea.NotAGoodIdea.read(input);
                         _args.exp = value_27;
                     }
                     else {
@@ -1763,7 +1765,7 @@ export class Client extends __ROOT_NAMESPACE__.SharedService.Client {
             this.send_addWithContext(num1, num2, requestId);
         });
     }
-    public calculate(logid: number, work: __NAMESPACE__.Work): Promise<number> {
+    public calculate(logid: number, work: Work.Work): Promise<number> {
         const requestId: number = this.incrementSeqId();
         return new Promise<number>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
@@ -1808,7 +1810,7 @@ export class Client extends __ROOT_NAMESPACE__.SharedService.Client {
             this.send_echoString(word, requestId);
         });
     }
-    public checkName(choice: __NAMESPACE__.Choice): Promise<string> {
+    public checkName(choice: Choice.Choice): Promise<string> {
         const requestId: number = this.incrementSeqId();
         return new Promise<string>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
@@ -1949,7 +1951,7 @@ export class Client extends __ROOT_NAMESPACE__.SharedService.Client {
         this.output.flush();
         return;
     }
-    public send_calculate(logid: number, work: __NAMESPACE__.Work, requestId: number): void {
+    public send_calculate(logid: number, work: Work.Work, requestId: number): void {
         const output: thrift.TProtocol = new this.protocol(this.output);
         output.writeMessageBegin("calculate", thrift.Thrift.MessageType.CALL, requestId);
         const args: CalculateArgs = new CalculateArgs({ logid, work });
@@ -1976,7 +1978,7 @@ export class Client extends __ROOT_NAMESPACE__.SharedService.Client {
         this.output.flush();
         return;
     }
-    public send_checkName(choice: __NAMESPACE__.Choice, requestId: number): void {
+    public send_checkName(choice: Choice.Choice, requestId: number): void {
         const output: thrift.TProtocol = new this.protocol(this.output);
         output.writeMessageBegin("checkName", thrift.Thrift.MessageType.CALL, requestId);
         const args: CheckNameArgs = new CheckNameArgs({ choice });
@@ -2328,10 +2330,10 @@ export interface ILocalHandler {
     add(num1: number, num2: number): number | Promise<number>;
     addInt64(num1: Int64, num2: Int64): Int64 | Promise<Int64>;
     addWithContext(num1: number, num2: number): number | Promise<number>;
-    calculate(logid: number, work: __NAMESPACE__.Work): number | Promise<number>;
+    calculate(logid: number, work: Work.Work): number | Promise<number>;
     echoBinary(word: Buffer): string | Promise<string>;
     echoString(word: string): string | Promise<string>;
-    checkName(choice: __NAMESPACE__.Choice): string | Promise<string>;
+    checkName(choice: Choice.Choice): string | Promise<string>;
     checkOptional(type?: string): string | Promise<string>;
     mapOneList(arg: Array<number>): Array<number> | Promise<Array<number>>;
     mapValues(arg: Map<string, number>): Array<number> | Promise<Array<number>>;
@@ -2516,7 +2518,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             output.flush();
             return;
         }).catch((err: Error): void => {
-            if (err instanceof __NAMESPACE__.NotAGoodIdea) {
+            if (err instanceof NotAGoodIdea.NotAGoodIdea) {
                 const result: AddInt64Result = new AddInt64Result({ exp: err });
                 output.writeMessageBegin("addInt64", thrift.Thrift.MessageType.REPLY, requestId);
                 result.write(output);

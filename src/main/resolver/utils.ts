@@ -285,12 +285,22 @@ export function resolveIdentifierName(
                 fullName: name,
             }
         } else {
+            const def = currentNamespace.exports[pathName]
+            let rootName: string = pathName
+
+            if (
+                def.type === SyntaxType.ConstDefinition ||
+                def.type === SyntaxType.EnumDefinition
+            ) {
+                rootName = '__CONSTANTS__'
+            }
+
             return {
                 rawName: name,
                 name: pathName,
                 baseName,
-                pathName: '__NAMESPACE__',
-                fullName: `__NAMESPACE__.${name}`,
+                pathName: rootName,
+                fullName: `${rootName}.${name}`,
             }
         }
     }
