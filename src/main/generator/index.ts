@@ -153,12 +153,6 @@ export function generateProject(
                 thriftProject,
                 renderer,
             ),
-            // generateFilesFromKey(
-            //     'typedefs',
-            //     namespace,
-            //     thriftProject,
-            //     renderer,
-            // ),
             generateFileFromStatements(
                 [
                     ...namespace.typedefs,

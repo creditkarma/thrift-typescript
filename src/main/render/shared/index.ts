@@ -64,16 +64,5 @@ export function renderIndex(state: IRenderState): Array<ts.Statement> {
         )
     })
 
-    // if (currentNamespace.typedefs.length > 0) {
-    //     results.push(
-    //         ts.createExportDeclaration(
-    //             undefined,
-    //             undefined,
-    //             undefined,
-    //             ts.createLiteral(`./typedefs`),
-    //         ),
-    //     )
-    // }
-
     return results
 }
