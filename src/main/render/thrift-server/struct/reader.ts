@@ -150,12 +150,10 @@ export function assignmentForFieldType(
 ): Array<ts.Statement> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
-            const definition = resolveIdentifierDefinition(
-                fieldType,
-                state.currentNamespace,
-                state.project.namespaces,
-                state.project.sourceDir,
-            )
+            const definition = resolveIdentifierDefinition(fieldType, {
+                currentNamespace: state.currentNamespace,
+                namespaceMap: state.project.namespaces,
+            })
 
             return assignmentForIdentifier(
                 fieldType.value,

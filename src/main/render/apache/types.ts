@@ -16,7 +16,9 @@ import {
     resolveIdentifierName,
 } from '../../resolver'
 import {
+    createArrayType,
     createBooleanType,
+    createBufferType,
     createNumberType,
     createStringType,
     createVoidType,
@@ -153,12 +155,10 @@ export function thriftTypeForFieldType(
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return thriftTypeForIdentifier(
-                resolveIdentifierDefinition(
-                    fieldType,
-                    state.currentNamespace,
-                    state.project.namespaces,
-                    state.project.sourceDir,
-                ),
+                resolveIdentifierDefinition(fieldType, {
+                    currentNamespace: state.currentNamespace,
+                    namespaceMap: state.project.namespaces,
+                }),
                 state,
             )
 
@@ -254,9 +254,9 @@ export function typeNodeForFieldType(
             ])
 
         case SyntaxType.ListType:
-            return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Array, [
+            return createArrayType(
                 typeNodeForFieldType(fieldType.valueType, state, loose),
-            ])
+            )
 
         case SyntaxType.StringKeyword:
             return createStringType()
@@ -281,10 +281,7 @@ export function typeNodeForFieldType(
             }
 
         case SyntaxType.BinaryKeyword:
-            return ts.createTypeReferenceNode(
-                COMMON_IDENTIFIERS.Buffer,
-                undefined,
-            )
+            return createBufferType()
 
         case SyntaxType.DoubleKeyword:
         case SyntaxType.I8Keyword:

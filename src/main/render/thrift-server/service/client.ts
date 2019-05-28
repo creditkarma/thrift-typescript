@@ -49,6 +49,7 @@ import {
 } from '../annotations'
 
 import { resolveIdentifierName } from '../../../resolver'
+import { createBufferType, createPromiseType } from '../../shared/types'
 import { createClassConstructor } from '../../shared/utils'
 import { looseName, strictName, toolkitName } from '../struct/utils'
 
@@ -188,9 +189,7 @@ function createBaseMethodForDefinition(
                 true,
             ),
         ], // parameters
-        ts.createTypeReferenceNode('Promise', [
-            typeNodeForFieldType(def.returnType, state),
-        ]), // return type
+        createPromiseType(typeNodeForFieldType(def.returnType, state)), // return type
         ts.createBlock(
             [
                 createConstStatement(
@@ -279,10 +278,7 @@ function createBaseMethodForDefinition(
                                 [
                                     createFunctionParameter(
                                         COMMON_IDENTIFIERS.data,
-                                        ts.createTypeReferenceNode(
-                                            COMMON_IDENTIFIERS.Buffer,
-                                            undefined,
-                                        ),
+                                        createBufferType(),
                                     ),
                                 ],
                                 undefined,

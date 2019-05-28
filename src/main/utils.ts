@@ -22,16 +22,22 @@ import {
     INamespaceMap,
     INamespacePath,
     INamespacePathMap,
-    IProcessedFile,
-    IProcessedFileMap,
+    IParsedFile,
+    IParsedFileMap,
     IRenderState,
-    IResolvedFile,
     ISourceFile,
 } from './types'
 
+import { IThriftError } from './errors'
 import { print } from './printer'
 import { resolveIdentifierDefinition } from './resolver'
 import { mkdir } from './sys'
+
+export function valuesForObject<T>(obj: { [key: string]: T }): Array<T> {
+    return Object.keys(obj).map((next: string) => {
+        return obj[next]
+    })
+}
 
 export function deepCopy<T extends object>(obj: T): T {
     const newObj: any = Array.isArray(obj) ? [] : {}
@@ -107,10 +113,10 @@ export function nameForInclude(fullInclude: string): string {
 }
 
 export function includesForFile(
-    body: Array<ThriftStatement>,
+    fileBody: Array<ThriftStatement>,
     sourceFile: ISourceFile,
 ): IFileIncludes {
-    return body.reduce((acc: IFileIncludes, next: ThriftStatement) => {
+    return fileBody.reduce((acc: IFileIncludes, next: ThriftStatement) => {
         if (next.type === SyntaxType.IncludeDefinition) {
             const includeName = nameForInclude(next.path.value)
 
@@ -125,37 +131,41 @@ export function includesForFile(
     }, {})
 }
 
-export function namespaceForInclude<T extends IProcessedFile>(
-    include: IIncludePath,
-    files: IProcessedFileMap<T>,
+export function namespaceForInclude(
+    includePath: IIncludePath,
+    fileMap: IParsedFileMap,
     sourceDir: string,
     fallbackNamespace: string,
 ): INamespacePath {
-    const file: T = fileForInclude(include, files, sourceDir)
+    const file: IParsedFile = fileForInclude(includePath, fileMap, sourceDir)
     const namespace: INamespacePath = namespaceForFile(
         file.body,
         fallbackNamespace,
     )
+
     return namespace
 }
 
-export function fileForInclude<T extends IProcessedFile>(
-    include: IIncludePath,
-    files: IProcessedFileMap<T>,
+export function fileForInclude(
+    includePath: IIncludePath,
+    fileMap: IParsedFileMap,
     sourceDir: string,
-): T {
+): IParsedFile {
     // Relative to the file requesting the include
-    const optionOne: string = path.resolve(include.importedFrom, include.path)
+    const relativeToFile: string = path.resolve(
+        includePath.importedFrom,
+        includePath.path,
+    )
 
     // Relative to the source directory
-    const optionTwo: string = path.resolve(sourceDir, include.path)
+    const relativeToRoot: string = path.resolve(sourceDir, includePath.path)
 
-    if (files[optionOne]) {
-        return files[optionOne]
-    } else if (files[optionTwo]) {
-        return files[optionTwo]
+    if (fileMap[relativeToFile]) {
+        return fileMap[relativeToFile]
+    } else if (fileMap[relativeToRoot]) {
+        return fileMap[relativeToRoot]
     } else {
-        throw new Error(`No file for include: ${include.path}`)
+        throw new Error(`No file for include: ${includePath.path}`)
     }
 }
 
@@ -169,6 +179,7 @@ export function emptyNamespace(): INamespacePath {
         scope: '',
         name: '__ROOT_NAMESPACE__',
         path: createPathForNamespace(''),
+        accessor: '__ROOT_NAMESPACE__',
     }
 }
 
@@ -179,6 +190,19 @@ export function emptyLocation(): TextLocation {
     }
 }
 
+function resolveNamespaceAccessor(namespaceName: string): string {
+    return namespaceName
+        .split('')
+        .map((next: string) => {
+            if (next === '.') {
+                return '_'
+            } else {
+                return next
+            }
+        })
+        .join('')
+}
+
 function collectNamespaces(body: Array<ThriftStatement>): INamespacePathMap {
     return body
         .filter(
@@ -186,13 +210,19 @@ function collectNamespaces(body: Array<ThriftStatement>): INamespacePathMap {
                 return next.type === SyntaxType.NamespaceDefinition
             },
         )
-        .reduce((acc: INamespacePathMap, next: NamespaceDefinition) => {
-            acc[next.scope.value] = {
+        .reduce((acc: INamespacePathMap, def: NamespaceDefinition) => {
+            const includeAccessor: string = resolveNamespaceAccessor(
+                def.name.value,
+            )
+
+            acc[def.scope.value] = {
                 type: 'NamespacePath',
-                scope: next.scope.value,
-                name: next.name.value,
-                path: createPathForNamespace(next.name.value),
+                scope: def.scope.value,
+                name: def.name.value,
+                path: createPathForNamespace(def.name.value),
+                accessor: includeAccessor,
             }
+
             return acc
         }, {})
 }
@@ -202,6 +232,7 @@ export function namespaceForFile(
     fallbackNamespace: string,
 ): INamespacePath {
     const namespaceMap = collectNamespaces(body)
+
     if (namespaceMap.js) {
         return namespaceMap.js
     } else if (
@@ -215,17 +246,28 @@ export function namespaceForFile(
 }
 
 export function organizeByNamespace(
-    files: Array<IResolvedFile>,
+    parsedFiles: Array<IParsedFile>,
+    sourceDir: string,
+    fallbackNamespace: string,
 ): INamespaceMap {
-    return files.reduce((acc: INamespaceMap, next: IResolvedFile) => {
-        const namespacePath: string = next.namespace.path
-        let namespace = acc[namespacePath]
+    const parsedFileMap: IParsedFileMap = parsedFiles.reduce(
+        (acc: IParsedFileMap, next: IParsedFile) => {
+            acc[next.sourceFile.fullPath] = next
+            return acc
+        },
+        {},
+    )
+
+    return parsedFiles.reduce((acc: INamespaceMap, parsedFile: IParsedFile) => {
+        const namespaceAccessor: string = parsedFile.namespace.accessor
+        let namespace = acc[namespaceAccessor]
         if (namespace === undefined) {
             namespace = {
                 type: 'Namespace',
-                namespace: next.namespace,
+                namespace: parsedFile.namespace,
                 includedNamespaces: {},
-                files: {},
+                namespaceIncludes: {},
+                errors: [],
                 exports: {},
                 constants: [],
                 enums: [],
@@ -236,16 +278,31 @@ export function organizeByNamespace(
                 services: [],
             }
 
-            acc[namespacePath] = namespace
+            acc[namespaceAccessor] = namespace
         }
 
-        namespace.files[next.sourceFile.fullPath] = next
-        namespace.includedNamespaces = {
-            ...namespace.includedNamespaces,
-            ...next.includedNamespaces,
-        }
+        Object.keys(parsedFile.includes).forEach(
+            (includeName: string): void => {
+                const includePath: IIncludePath =
+                    parsedFile.includes[includeName]
 
-        next.body.forEach((statement: ThriftStatement) => {
+                const namesapcePath: INamespacePath = namespaceForInclude(
+                    includePath,
+                    parsedFileMap,
+                    sourceDir,
+                    fallbackNamespace,
+                )
+
+                namespace.includedNamespaces[
+                    namesapcePath.accessor
+                ] = namesapcePath
+
+                namespace.namespaceIncludes[includeName] =
+                    namesapcePath.accessor
+            },
+        )
+
+        parsedFile.body.forEach((statement: ThriftStatement) => {
             switch (statement.type) {
                 case SyntaxType.ConstDefinition:
                     namespace.constants.push(statement)
@@ -288,7 +345,7 @@ export function organizeByNamespace(
     }, {})
 }
 
-export function collectInvalidFiles<T extends IProcessedFile>(
+export function collectInvalidFiles<T extends { errors: Array<IThriftError> }>(
     resolvedFiles: Array<T>,
     errors: Array<T> = [],
 ): Array<T> {
@@ -331,9 +388,10 @@ function identifiersForFieldType(
             if (resolveTypedefs) {
                 const def: DefinitionType = resolveIdentifierDefinition(
                     fieldType,
-                    state.currentNamespace,
-                    state.project.namespaces,
-                    state.project.sourceDir,
+                    {
+                        currentNamespace: state.currentNamespace,
+                        namespaceMap: state.project.namespaces,
+                    },
                 )
 
                 if (def.type === SyntaxType.TypedefDefinition) {

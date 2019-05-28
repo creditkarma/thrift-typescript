@@ -9,7 +9,7 @@ import {
 
 import { COMMON_IDENTIFIERS } from '../identifiers'
 
-import { createAnyType, TypeMapping } from '../types'
+import { createAnyType, createPromiseType, TypeMapping } from '../types'
 
 import { resolveIdentifierName } from '../../../resolver'
 import {
@@ -51,9 +51,7 @@ function funcToMethodReducer(
             ],
             ts.createUnionTypeNode([
                 typeMapping(func.returnType, state, true),
-                ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Promise, [
-                    typeMapping(func.returnType, state, true),
-                ]),
+                createPromiseType(typeMapping(func.returnType, state, true)),
             ]),
             func.name.value,
             undefined,
@@ -115,7 +113,12 @@ export function renderHandlerInterface(
                 ts.createIntersectionTypeNode([
                     ts.createTypeReferenceNode(
                         COMMON_IDENTIFIERS.ILocalHandler,
-                        [ts.createTypeReferenceNode('Context', undefined)],
+                        [
+                            ts.createTypeReferenceNode(
+                                COMMON_IDENTIFIERS.Context,
+                                undefined,
+                            ),
+                        ],
                     ),
                     ts.createTypeReferenceNode(
                         ts.createIdentifier(
@@ -126,7 +129,12 @@ export function renderHandlerInterface(
                                 ).fullName
                             }.IHandler`,
                         ),
-                        [ts.createTypeReferenceNode('Context', undefined)],
+                        [
+                            ts.createTypeReferenceNode(
+                                COMMON_IDENTIFIERS.Context,
+                                undefined,
+                            ),
+                        ],
                     ),
                 ]),
             ),
@@ -180,7 +188,7 @@ export function serviceInheritanceChain(
 
             if (nextNamespacePath && nextPath) {
                 const nextNamespace: INamespace =
-                    context.namespaceMap[nextNamespacePath.path]
+                    context.namespaceMap[nextNamespacePath.accessor]
 
                 if (nextNamespace) {
                     const parentService = nextNamespace.exports[nextPath]

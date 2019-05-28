@@ -17,7 +17,12 @@ import {
     collectAllMethods,
     serviceInheritanceChain,
 } from '../../shared/service'
-import { createNumberType, createStringType } from '../../shared/types'
+
+import {
+    createArrayType,
+    createNumberType,
+    createStringType,
+} from '../../shared/types'
 
 export function capitalize(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1)
@@ -92,7 +97,7 @@ export function renderMethodNames(
             [
                 ts.createVariableDeclaration(
                     COMMON_IDENTIFIERS.methodNames,
-                    ts.createTypeReferenceNode('Array<string>', undefined),
+                    createArrayType(createStringType()),
                     ts.createArrayLiteral([
                         ...collectAllMethods(service, state).map(
                             (next: FunctionDefinition) => {
@@ -116,7 +121,7 @@ export function renderMethodNamesProperty(): ts.PropertyDeclaration {
         ],
         COMMON_IDENTIFIERS._methodNames,
         undefined,
-        ts.createTypeReferenceNode('Array<string>', undefined),
+        createArrayType(createStringType()),
         COMMON_IDENTIFIERS.methodNames,
     )
 }
@@ -131,7 +136,7 @@ export function renderMethodNamesStaticProperty(): ts.PropertyDeclaration {
         ],
         COMMON_IDENTIFIERS.methodNames,
         undefined,
-        ts.createTypeReferenceNode('Array<string>', undefined),
+        createArrayType(createStringType()),
         COMMON_IDENTIFIERS.methodNames,
     )
 }

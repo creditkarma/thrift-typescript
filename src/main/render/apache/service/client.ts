@@ -42,6 +42,7 @@ import {
 
 import { resolveIdentifierName } from '../../../resolver'
 import { IRenderState } from '../../../types'
+import { createPromiseType, createUndefinedType } from '../../shared/types'
 
 export function renderClient(
     node: ServiceDefinition,
@@ -234,9 +235,7 @@ function createBaseMethodForDefinition(
         def.fields.map((field: FieldDefinition) => {
             return createParametersForField(field, state)
         }), // parameters
-        ts.createTypeReferenceNode('Promise', [
-            typeNodeForFieldType(def.returnType, state),
-        ]), // return type
+        createPromiseType(typeNodeForFieldType(def.returnType, state)), // return type
         ts.createBlock(
             [
                 // this._seqid = this.incrementSeqId()
@@ -266,12 +265,12 @@ function createBaseMethodForDefinition(
                                     undefined,
                                     [
                                         createFunctionParameter(
-                                            'error',
+                                            COMMON_IDENTIFIERS.error,
                                             undefined,
                                             undefined,
                                         ),
                                         createFunctionParameter(
-                                            'result',
+                                            COMMON_IDENTIFIERS.result,
                                             undefined,
                                             undefined,
                                         ),
@@ -293,18 +292,16 @@ function createBaseMethodForDefinition(
                                             ),
                                             ts.createIf(
                                                 // if (error != null)
-                                                createNotNullCheck('error'),
+                                                createNotNullCheck(
+                                                    COMMON_IDENTIFIERS.error,
+                                                ),
                                                 // reject(error)
                                                 ts.createBlock(
                                                     [
                                                         createCallStatement(
-                                                            ts.createIdentifier(
-                                                                'reject',
-                                                            ),
+                                                            COMMON_IDENTIFIERS.reject,
                                                             [
-                                                                ts.createIdentifier(
-                                                                    'error',
-                                                                ),
+                                                                COMMON_IDENTIFIERS.error,
                                                             ],
                                                         ),
                                                     ],
@@ -379,10 +376,7 @@ function createSendMethodForDefinition(
                     field.requiredness === 'optional'
                         ? ts.createUnionTypeNode([
                               typeNodeForFieldType(field.fieldType, state),
-                              ts.createTypeReferenceNode(
-                                  ts.createIdentifier('undefined'),
-                                  undefined,
-                              ),
+                              createUndefinedType(),
                           ])
                         : typeNodeForFieldType(field.fieldType, state)
 

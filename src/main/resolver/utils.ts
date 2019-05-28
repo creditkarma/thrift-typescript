@@ -11,18 +11,11 @@ import {
 import {
     DefinitionType,
     IFileExports,
-    IIncludePath,
     INamespace,
-    INamespaceMap,
     INamespacePath,
-    IParsedFile,
-    IProcessedFile,
-    IProcessedFileMap,
     IRenderState,
-    IResolvedFile,
+    IResolveContext,
     IResolvedIdentifier,
-    ParsedFileMap,
-    ResolvedFileMap,
 } from '../types'
 
 import { ValidationError } from '../errors'
@@ -30,8 +23,8 @@ import { emptyLocation, fileForInclude } from '../utils'
 
 // Give some thrift statements this generates a map of the name of those statements to the
 // definition of that statement
-export function exportsForFile(body: Array<ThriftStatement>): IFileExports {
-    return body.reduce((acc: IFileExports, next: ThriftStatement) => {
+export function exportsForFile(fileBody: Array<ThriftStatement>): IFileExports {
+    return fileBody.reduce((acc: IFileExports, next: ThriftStatement) => {
         switch (next.type) {
             case SyntaxType.TypedefDefinition:
             case SyntaxType.ConstDefinition:
@@ -61,131 +54,19 @@ function stubIdentifier(value: string): Identifier {
     }
 }
 
-// Given an identifier and the parsed file where the identifier is being used find
-// the definition of the identifier
-function resolveIdentifierFromParsedFile(
+export function resolveIdentifierDefinition(
     id: Identifier,
-    currentFile: IParsedFile,
-    files: ParsedFileMap,
-    sourceDir: string,
+    context: IResolveContext,
 ): DefinitionType {
-    const [head, ...tail] = id.value.split('.')
-    if (currentFile.exports[head] !== undefined) {
-        const definition: DefinitionType = currentFile.exports[head]
+    if (context.currentNamespace.exports[id.value]) {
+        const definition: DefinitionType =
+            context.currentNamespace.exports[id.value]
+
         if (definition.type === SyntaxType.TypedefDefinition) {
             if (definition.definitionType.type === SyntaxType.Identifier) {
-                return resolveIdentifierFromParsedFile(
+                return resolveIdentifierDefinition(
                     definition.definitionType,
-                    currentFile,
-                    files,
-                    sourceDir,
-                )
-            } else {
-                return definition
-            }
-        } else {
-            return definition
-        }
-    } else if (currentFile.includes[head] !== undefined) {
-        const include: IIncludePath | undefined = currentFile.includes[head]
-        if (include !== undefined) {
-            // The next file to look in for the definition of this constant
-            const nextFile: IParsedFile = fileForInclude(
-                include,
-                files,
-                sourceDir,
-            )
-
-            return resolveIdentifierFromParsedFile(
-                stubIdentifier(tail.join('.')),
-                nextFile,
-                files,
-                sourceDir,
-            )
-        }
-    }
-
-    throw new ValidationError(
-        `Unable to resolve identifier[${id.value}] in parsed file[${
-            currentFile.sourceFile.fullPath
-        }]`,
-        id.loc,
-    )
-}
-
-// Given an identifier and the resolved file where the identifier is being used find
-// the definition of the identifier
-function resolveIdentifierFromResolvedFile(
-    id: Identifier,
-    currentFile: IResolvedFile,
-    files: ResolvedFileMap,
-    sourceDir: string,
-): DefinitionType {
-    // The head of the identifier can be one of two things. It can be an identifier defined in this file,
-    // or it can be an include path.
-    const [head, ...tail] = id.value.split('.')
-    if (currentFile.exports[head] !== undefined) {
-        const definition: DefinitionType = currentFile.exports[head]
-        if (definition.type === SyntaxType.TypedefDefinition) {
-            if (definition.definitionType.type === SyntaxType.Identifier) {
-                return resolveIdentifierFromResolvedFile(
-                    definition.definitionType,
-                    currentFile,
-                    files,
-                    sourceDir,
-                )
-            } else {
-                return definition
-            }
-        } else {
-            return definition
-        }
-    } else if (currentFile.namespaceToInclude[head] !== undefined) {
-        const includeName: string = currentFile.namespaceToInclude[head]
-        const include: IIncludePath | undefined =
-            currentFile.includes[includeName]
-        if (include !== undefined) {
-            // The next file to look in for the definition of this constant
-            const nextFile: IResolvedFile = fileForInclude(
-                include,
-                files,
-                sourceDir,
-            )
-
-            return resolveIdentifierFromResolvedFile(
-                stubIdentifier(tail.join('.')),
-                nextFile,
-                files,
-                sourceDir,
-            )
-        }
-    }
-
-    throw new ValidationError(
-        `Unable to resolve identifier[${id.value}] in resolved file[${
-            currentFile.sourceFile.fullPath
-        }]`,
-        id.loc,
-    )
-}
-
-// Given an identifier and the namespace where the identifier is being used find
-// the definition of the identifier
-function resolveIdentifierFromNamespace(
-    id: Identifier,
-    currentNamespace: INamespace,
-    namespaces: INamespaceMap,
-    sourceDir: string,
-): DefinitionType {
-    if (currentNamespace.exports[id.value]) {
-        const definition: DefinitionType = currentNamespace.exports[id.value]
-        if (definition.type === SyntaxType.TypedefDefinition) {
-            if (definition.definitionType.type === SyntaxType.Identifier) {
-                return resolveIdentifierFromNamespace(
-                    definition.definitionType,
-                    currentNamespace,
-                    namespaces,
-                    sourceDir,
+                    context,
                 )
             } else {
                 return definition
@@ -196,68 +77,34 @@ function resolveIdentifierFromNamespace(
     } else {
         const [head, ...tail] = id.value.split('.')
         const namespace: INamespacePath =
-            currentNamespace.includedNamespaces[head]
+            context.currentNamespace.includedNamespaces[head]
 
-        if (namespace !== undefined) {
-            const nextNamespace: INamespace = namespaces[namespace.path]
+        if (context.currentNamespace.includedNamespaces[head]) {
+            const nextNamespace: INamespace =
+                context.namespaceMap[namespace.accessor]
 
-            return resolveIdentifierFromNamespace(
-                stubIdentifier(tail.join('.')),
-                nextNamespace,
-                namespaces,
-                sourceDir,
+            return resolveIdentifierDefinition(stubIdentifier(tail.join('.')), {
+                currentNamespace: nextNamespace,
+                namespaceMap: context.namespaceMap,
+            })
+        } else if (context.currentNamespace.namespaceIncludes[head]) {
+            const accessor: string =
+                context.currentNamespace.namespaceIncludes[head]
+
+            const nextNamespace: INamespace = context.namespaceMap[accessor]
+
+            return resolveIdentifierDefinition(stubIdentifier(tail.join('.')), {
+                currentNamespace: nextNamespace,
+                namespaceMap: context.namespaceMap,
+            })
+        } else {
+            throw new ValidationError(
+                `Unable to resolve identifier[${id.value}] in namespace[${
+                    context.currentNamespace.namespace.path
+                }]`,
+                id.loc,
             )
         }
-
-        throw new ValidationError(
-            `Unable to resolve identifier[${id.value}] in namespace[${
-                currentNamespace.namespace.path
-            }]`,
-            id.loc,
-        )
-    }
-}
-
-export function resolveIdentifierDefinition(
-    id: Identifier,
-    currentFile: IParsedFile,
-    files: ParsedFileMap,
-    sourceDir: string,
-): DefinitionType
-export function resolveIdentifierDefinition(
-    id: Identifier,
-    currentFile: IResolvedFile,
-    files: ResolvedFileMap,
-    sourceDir: string,
-): DefinitionType
-export function resolveIdentifierDefinition(
-    id: Identifier,
-    currentNamespace: INamespace,
-    namespaces: INamespaceMap,
-    sourceDir: string,
-): DefinitionType
-export function resolveIdentifierDefinition(
-    id: Identifier,
-    currentFile: any,
-    files: any,
-    sourceDir: string,
-): DefinitionType {
-    if (currentFile.type === 'ParsedFile') {
-        return resolveIdentifierFromParsedFile(
-            id,
-            currentFile,
-            files,
-            sourceDir,
-        )
-    } else if (currentFile.type === 'ResolvedFile') {
-        return resolveIdentifierFromResolvedFile(
-            id,
-            currentFile,
-            files,
-            sourceDir,
-        )
-    } else {
-        return resolveIdentifierFromNamespace(id, currentFile, files, sourceDir)
     }
 }
 
@@ -275,6 +122,7 @@ export function resolveIdentifierName(
         baseName = [base, ...tail].join('.')
     }
 
+    // Handle identifier exists in the current namespace
     if (currentNamespace.exports[pathName]) {
         if (state.currentDefinitions[pathName]) {
             return {
@@ -315,7 +163,9 @@ export function resolveIdentifierName(
         }
     }
 
-    const namespace = currentNamespace.includedNamespaces[pathName]
+    // Handle if identifier exists in another namespace
+    const namespace: INamespacePath =
+        currentNamespace.includedNamespaces[pathName]
 
     if (namespace !== undefined) {
         return {
@@ -355,16 +205,14 @@ export function resolveIdentifierName(
  *
  * This is blunt, but it makes type-checking later very easy.
  */
-export function resolveConstValue<T extends IProcessedFile>(
+export function resolveConstValue(
     value: ConstValue,
-    fieldType: FunctionType,
-    currentFile: T,
-    files: IProcessedFileMap<T>,
-    sourceDir: string,
+    expectedType: FunctionType,
+    context: IResolveContext,
 ): ConstValue {
     switch (value.type) {
         case SyntaxType.IntConstant:
-            if (fieldType.type === SyntaxType.BoolKeyword) {
+            if (expectedType.type === SyntaxType.BoolKeyword) {
                 if (value.value.value === '1' || value.value.value === '0') {
                     return createBooleanLiteral(
                         value.value.value === '1',
@@ -382,36 +230,33 @@ export function resolveConstValue<T extends IProcessedFile>(
 
         case SyntaxType.Identifier:
             const [head, ...tail] = value.value.split('.')
-            if (currentFile.exports[head]) {
-                const statement: ThriftStatement = currentFile.exports[head]
+            if (context.currentNamespace.exports[head]) {
+                const statement: ThriftStatement =
+                    context.currentNamespace.exports[head]
                 if (statement.type === SyntaxType.ConstDefinition) {
                     return resolveConstValue(
                         statement.initializer,
-                        fieldType,
-                        currentFile,
-                        files,
-                        sourceDir,
+                        expectedType,
+                        context,
                     )
                 } else {
                     return value
                 }
             } else {
-                const include: IIncludePath | undefined =
-                    currentFile.includes[head]
-                if (include !== undefined) {
-                    // The next file to look in for the definition of this constant
-                    const nextFile: T = fileForInclude(
-                        include,
-                        files,
-                        sourceDir,
-                    )
+                const nextNamespacePath: INamespacePath | undefined =
+                    context.currentNamespace.includedNamespaces[head]
+
+                if (nextNamespacePath !== undefined) {
+                    const nextNamespace: INamespace =
+                        context.namespaceMap[nextNamespacePath.accessor]
 
                     return resolveConstValue(
                         stubIdentifier(tail.join('.')),
-                        fieldType,
-                        nextFile,
-                        files,
-                        sourceDir,
+                        expectedType,
+                        {
+                            currentNamespace: nextNamespace,
+                            namespaceMap: context.namespaceMap,
+                        },
                     )
                 }
             }
@@ -429,17 +274,13 @@ export function resolveConstValue<T extends IProcessedFile>(
                             type: SyntaxType.PropertyAssignment,
                             name: resolveConstValue(
                                 next.name,
-                                fieldType,
-                                currentFile,
-                                files,
-                                sourceDir,
+                                expectedType,
+                                context,
                             ),
                             initializer: resolveConstValue(
                                 next.initializer,
-                                fieldType,
-                                currentFile,
-                                files,
-                                sourceDir,
+                                expectedType,
+                                context,
                             ),
                             loc: next.loc,
                         }
@@ -453,13 +294,7 @@ export function resolveConstValue<T extends IProcessedFile>(
                 type: SyntaxType.ConstList,
                 elements: value.elements.map(
                     (next: ConstValue): ConstValue => {
-                        return resolveConstValue(
-                            next,
-                            fieldType,
-                            currentFile,
-                            files,
-                            sourceDir,
-                        )
+                        return resolveConstValue(next, expectedType, context)
                     },
                 ),
                 loc: value.loc,

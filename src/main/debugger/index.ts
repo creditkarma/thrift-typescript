@@ -2,7 +2,12 @@ import { TextLocation } from '@creditkarma/thrift-parser'
 import * as os from 'os'
 
 import { ErrorType, IThriftError } from '../errors'
-import { IProcessedFile } from '../types'
+import { INamespace, ISourceFile } from '../types'
+
+interface IErrorFile {
+    sourceFile: ISourceFile
+    errors: Array<IThriftError>
+}
 
 interface IFormattedError {
     sourceLine: string
@@ -47,7 +52,7 @@ function errorType(type: ErrorType): string {
     }
 }
 
-function printErrorForFile<T extends IProcessedFile>(file: T): void {
+function printErrorForFile<T extends IErrorFile>(file: T): void {
     const sourceLines: Array<string> = file.sourceFile.source.split(os.EOL)
     const formattedErrors: Array<IFormattedError> = file.errors.map(
         (next: IThriftError): IFormattedError => {
@@ -90,10 +95,27 @@ function printErrorForFile<T extends IProcessedFile>(file: T): void {
     )
 }
 
-export function printErrors<T extends IProcessedFile>(files: Array<T>): void {
+export function printErrorsForFiles<T extends IErrorFile>(
+    files: Array<T>,
+): void {
     files.forEach(
         (next: T): void => {
             printErrorForFile(next)
         },
     )
+}
+
+export function printErrors(files: Array<INamespace>): void {
+    files.forEach((next: INamespace) => {
+        console.log(
+            `Errors encountered while generating namesapce: ${
+                next.namespace.name
+            }`,
+        )
+        console.log()
+        next.errors.forEach((err: IThriftError) => {
+            console.log(`Error: ${err.message}`)
+            console.log()
+        })
+    })
 }

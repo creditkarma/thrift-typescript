@@ -46,6 +46,8 @@ import {
     collectInheritedMethods,
 } from '../../shared/service'
 
+import { createErrorType, createPromiseType } from '../../shared/types'
+
 function funcToMethodReducer(
     acc: Array<ts.MethodSignature>,
     func: FunctionDefinition,
@@ -66,9 +68,7 @@ function funcToMethodReducer(
             ],
             ts.createUnionTypeNode([
                 typeNodeForFieldType(func.returnType, state),
-                ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Promise, [
-                    typeNodeForFieldType(func.returnType, state),
-                ]),
+                createPromiseType(typeNodeForFieldType(func.returnType, state)),
             ]),
             func.name.value,
             undefined,
@@ -310,9 +310,12 @@ function createProcessFunctionMethod(
     return createPublicMethod(
         ts.createIdentifier(`process_${funcDef.name.value}`),
         [
-            createFunctionParameter('requestId', createNumberType()),
-            createFunctionParameter('input', TProtocolType),
-            createFunctionParameter('output', TProtocolType),
+            createFunctionParameter(
+                COMMON_IDENTIFIERS.requestId,
+                createNumberType(),
+            ),
+            createFunctionParameter(COMMON_IDENTIFIERS.input, TProtocolType),
+            createFunctionParameter(COMMON_IDENTIFIERS.output, TProtocolType),
         ], // parameters
         createVoidType(), // return type
         [
@@ -483,10 +486,7 @@ function createProcessFunctionMethod(
                             [
                                 createFunctionParameter(
                                     COMMON_IDENTIFIERS.err,
-                                    ts.createTypeReferenceNode(
-                                        ts.createIdentifier('Error'),
-                                        undefined,
-                                    ),
+                                    createErrorType(),
                                 ),
                             ],
                             createVoidType(),
@@ -574,7 +574,7 @@ function createElseForExceptions(
                     [
                         ts.createLiteral(funcDef.name.value),
                         MESSAGE_TYPE.EXCEPTION,
-                        ts.createIdentifier('requestId'),
+                        COMMON_IDENTIFIERS.requestId,
                     ],
                 ),
                 // result.write(output)
@@ -633,7 +633,7 @@ function createThenForException(
                 [
                     ts.createLiteral(funcDef.name.value),
                     MESSAGE_TYPE.REPLY,
-                    ts.createIdentifier('requestId'),
+                    COMMON_IDENTIFIERS.requestId,
                 ],
             ),
             // result.write(output)
@@ -710,7 +710,7 @@ function createExceptionHandlers(
                 [
                     ts.createLiteral(funcDef.name.value),
                     MESSAGE_TYPE.EXCEPTION,
-                    ts.createIdentifier('requestId'),
+                    COMMON_IDENTIFIERS.requestId,
                 ],
             ),
             // result.write(output)
@@ -754,13 +754,13 @@ function createProcessMethod(
     return createPublicMethod(
         COMMON_IDENTIFIERS.process,
         [
-            createFunctionParameter('input', TProtocolType),
-            createFunctionParameter('output', TProtocolType),
+            createFunctionParameter(COMMON_IDENTIFIERS.input, TProtocolType),
+            createFunctionParameter(COMMON_IDENTIFIERS.output, TProtocolType),
         ], // parameters
         createVoidType(), // return type
         [
             createConstStatement(
-                'metadata',
+                COMMON_IDENTIFIERS.metadata,
                 ts.createTypeReferenceNode(
                     THRIFT_IDENTIFIERS.TMessage,
                     undefined,
@@ -772,17 +772,23 @@ function createProcessMethod(
                 ),
             ),
             createConstStatement(
-                'fname',
+                COMMON_IDENTIFIERS.fname,
                 createStringType(),
-                ts.createIdentifier('metadata.fname'),
+                ts.createPropertyAccess(
+                    COMMON_IDENTIFIERS.metadata,
+                    COMMON_IDENTIFIERS.fname,
+                ),
             ),
             createConstStatement(
                 COMMON_IDENTIFIERS.requestId,
                 createNumberType(),
-                ts.createIdentifier('metadata.rseqid'),
+                ts.createPropertyAccess(
+                    COMMON_IDENTIFIERS.metadata,
+                    COMMON_IDENTIFIERS.rseqid,
+                ),
             ),
             createConstStatement(
-                ts.createIdentifier('methodName'),
+                COMMON_IDENTIFIERS.methodName,
                 createStringType(),
                 ts.createBinary(
                     ts.createLiteral('process_'),

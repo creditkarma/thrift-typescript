@@ -1,4 +1,4 @@
-export { resolveFile } from './resolveFile'
+// export { resolveFile } from './resolveFile'
 export {
     exportsForFile,
     resolveIdentifierDefinition,

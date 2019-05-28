@@ -433,12 +433,10 @@ export function renderTypeDef(
 
             return renderTypeDefForIdentifier(
                 resolvedIdentifier,
-                resolveIdentifierDefinition(
-                    node.definitionType,
-                    state.currentNamespace,
-                    state.project.namespaces,
-                    state.project.sourceDir,
-                ),
+                resolveIdentifierDefinition(node.definitionType, {
+                    currentNamespace: state.currentNamespace,
+                    namespaceMap: state.project.namespaces,
+                }),
                 node,
                 typeMapping,
                 state,

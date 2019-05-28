@@ -196,12 +196,10 @@ export function writeValueForType(
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return writeValueForIdentifier(
-                resolveIdentifierDefinition(
-                    fieldType,
-                    state.currentNamespace,
-                    state.project.namespaces,
-                    state.project.sourceDir,
-                ),
+                resolveIdentifierDefinition(fieldType, {
+                    currentNamespace: state.currentNamespace,
+                    namespaceMap: state.project.namespaces,
+                }),
                 struct,
                 fieldName,
                 state,

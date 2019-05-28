@@ -243,9 +243,10 @@ export function writeValueForType(
         case SyntaxType.Identifier:
             const definition: DefinitionType = resolveIdentifierDefinition(
                 fieldType,
-                state.currentNamespace,
-                state.project.namespaces,
-                state.project.sourceDir,
+                {
+                    currentNamespace: state.currentNamespace,
+                    namespaceMap: state.project.namespaces,
+                },
             )
 
             return writeValueForIdentifier(

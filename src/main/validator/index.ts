@@ -7,12 +7,11 @@ import {
     PropertyAssignment,
     SyntaxType,
     TextLocation,
-    ThriftStatement,
 } from '@creditkarma/thrift-parser'
 
 import { createValidationError, IThriftError, ValidationError } from '../errors'
 import { resolveConstValue, resolveIdentifierDefinition } from '../resolver'
-import { DefinitionType, IResolvedFile, ResolvedFileMap } from '../types'
+import { DefinitionType, INamespace, INamespaceMap } from '../types'
 import { constToTypeString, fieldTypeToString } from './utils'
 
 function typeMismatch(
@@ -35,12 +34,15 @@ function typeMismatch(
  * @param files
  * @param sourceDir
  */
-export function validateFile(
-    resolvedFile: IResolvedFile,
-    files: ResolvedFileMap,
-    sourceDir: string,
-): IResolvedFile {
-    const body = resolvedFile.body
+export function validateNamespace(
+    currentNamespace: INamespace,
+    namespaceMap: INamespaceMap,
+): INamespace {
+    const body: Array<DefinitionType> = Object.keys(
+        currentNamespace.exports,
+    ).map((next: string) => {
+        return currentNamespace.exports[next]
+    })
     const bodySize: number = body.length
     let currentIndex: number = 0
 
@@ -62,11 +64,8 @@ export function validateFile(
         return currentIndex >= bodySize
     }
 
-    function validateStatement(statement: ThriftStatement): void {
+    function validateStatement(statement: DefinitionType): void {
         switch (statement.type) {
-            case SyntaxType.NamespaceDefinition:
-            case SyntaxType.IncludeDefinition:
-            case SyntaxType.CppIncludeDefinition:
             case SyntaxType.EnumDefinition:
             case SyntaxType.TypedefDefinition:
                 break
@@ -95,9 +94,10 @@ export function validateFile(
         if (id !== null) {
             const resolvedIdentifier: DefinitionType = resolveIdentifierDefinition(
                 id,
-                resolvedFile,
-                files,
-                sourceDir,
+                {
+                    currentNamespace,
+                    namespaceMap,
+                },
             )
 
             if (resolvedIdentifier.type !== SyntaxType.ServiceDefinition) {
@@ -143,12 +143,10 @@ export function validateFile(
         resolvedValue: ConstValue,
         rawValue: ConstValue,
     ): void {
-        const definition: DefinitionType = resolveIdentifierDefinition(
-            id,
-            resolvedFile,
-            files,
-            sourceDir,
-        )
+        const definition: DefinitionType = resolveIdentifierDefinition(id, {
+            currentNamespace,
+            namespaceMap,
+        })
         switch (definition.type) {
             case SyntaxType.ServiceDefinition:
                 throw new ValidationError(
@@ -190,9 +188,10 @@ export function validateFile(
         const resolvedValue: ConstValue = resolveConstValue(
             value,
             expectedType,
-            resolvedFile,
-            files,
-            sourceDir,
+            {
+                currentNamespace,
+                namespaceMap,
+            },
         )
 
         switch (expectedType.type) {
@@ -298,14 +297,18 @@ export function validateFile(
     validateStatements()
 
     return {
-        type: 'ResolvedFile',
-        sourceFile: resolvedFile.sourceFile,
-        namespace: resolvedFile.namespace,
-        includedNamespaces: resolvedFile.includedNamespaces,
-        namespaceToInclude: resolvedFile.namespaceToInclude,
-        includes: resolvedFile.includes,
-        exports: resolvedFile.exports,
-        body: resolvedFile.body,
+        type: 'Namespace',
+        namespace: currentNamespace.namespace,
+        exports: currentNamespace.exports,
+        includedNamespaces: currentNamespace.includedNamespaces,
+        namespaceIncludes: currentNamespace.namespaceIncludes,
         errors,
+        constants: currentNamespace.constants,
+        enums: currentNamespace.enums,
+        typedefs: currentNamespace.typedefs,
+        structs: currentNamespace.structs,
+        unions: currentNamespace.unions,
+        exceptions: currentNamespace.exceptions,
+        services: currentNamespace.services,
     }
 }

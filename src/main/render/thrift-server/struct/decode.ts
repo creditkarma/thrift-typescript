@@ -150,7 +150,7 @@ export function createDecodeMethod(
 
 export function createInputParameter(): ts.ParameterDeclaration {
     return createFunctionParameter(
-        'input', // param name
+        COMMON_IDENTIFIERS.input, // param name
         ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined), // param type
     )
 }
@@ -352,7 +352,7 @@ export function readValueForIdentifier(
                     fieldName,
                     typeNodeForFieldType(fieldType, state),
                     createMethodCall(
-                        'input',
+                        COMMON_IDENTIFIERS.input,
                         READ_METHODS[SyntaxType.I32Keyword],
                     ),
                 ),
@@ -378,12 +378,10 @@ export function readValueForFieldType(
 ): Array<ts.Statement> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
-            const definition = resolveIdentifierDefinition(
-                fieldType,
-                state.currentNamespace,
-                state.project.namespaces,
-                state.project.sourceDir,
-            )
+            const definition = resolveIdentifierDefinition(fieldType, {
+                currentNamespace: state.currentNamespace,
+                namespaceMap: state.project.namespaces,
+            })
 
             return readValueForIdentifier(
                 fieldType.value,
@@ -414,7 +412,10 @@ export function readValueForFieldType(
                 createConstStatement(
                     fieldName,
                     typeNodeForFieldType(fieldType, state),
-                    createMethodCall('input', READ_METHODS[fieldType.type]),
+                    createMethodCall(
+                        COMMON_IDENTIFIERS.input,
+                        READ_METHODS[fieldType.type],
+                    ),
                 ),
             ]
 
@@ -470,7 +471,7 @@ export function readValueForFieldType(
 
         case SyntaxType.VoidKeyword:
             return [
-                createMethodCallStatement('input', 'skip', [
+                createMethodCallStatement(COMMON_IDENTIFIERS.input, 'skip', [
                     COMMON_IDENTIFIERS.fieldType,
                 ]),
             ]
@@ -627,52 +628,55 @@ function readEndForFieldType(fieldType: ContainerType): ts.CallExpression {
 
 // input.readStructBegin(<structName>)
 export function readStructBegin(): ts.ExpressionStatement {
-    return createMethodCallStatement('input', 'readStructBegin')
+    return createMethodCallStatement(
+        COMMON_IDENTIFIERS.input,
+        'readStructBegin',
+    )
 }
 
 // input.readStructEnd()
 export function readStructEnd(): ts.ExpressionStatement {
-    return createMethodCallStatement('input', 'readStructEnd')
+    return createMethodCallStatement(COMMON_IDENTIFIERS.input, 'readStructEnd')
 }
 
 // input.readFieldBegin()
 export function readFieldBegin(): ts.CallExpression {
-    return createMethodCall('input', 'readFieldBegin')
+    return createMethodCall(COMMON_IDENTIFIERS.input, 'readFieldBegin')
 }
 
 // input.readFieldEnd()
 export function readFieldEnd(): ts.ExpressionStatement {
-    return createMethodCallStatement('input', 'readFieldEnd')
+    return createMethodCallStatement(COMMON_IDENTIFIERS.input, 'readFieldEnd')
 }
 
 // input.readMapBegin()
 export function readMapBegin(): ts.CallExpression {
-    return createMethodCall('input', 'readMapBegin')
+    return createMethodCall(COMMON_IDENTIFIERS.input, 'readMapBegin')
 }
 
 // input.readMapEnd()
 export function readMapEnd(): ts.CallExpression {
-    return createMethodCall('input', 'readMapEnd')
+    return createMethodCall(COMMON_IDENTIFIERS.input, 'readMapEnd')
 }
 
 // input.readListBegin()
 export function readListBegin(): ts.CallExpression {
-    return createMethodCall('input', 'readListBegin')
+    return createMethodCall(COMMON_IDENTIFIERS.input, 'readListBegin')
 }
 
 // input.readListEnd()
 export function readListEnd(): ts.CallExpression {
-    return createMethodCall('input', 'readListEnd')
+    return createMethodCall(COMMON_IDENTIFIERS.input, 'readListEnd')
 }
 
 // input.readSetBegin()
 export function readSetBegin(): ts.CallExpression {
-    return createMethodCall('input', 'readSetBegin')
+    return createMethodCall(COMMON_IDENTIFIERS.input, 'readSetBegin')
 }
 
 // input.readSetEnd()
 export function readSetEnd(): ts.CallExpression {
-    return createMethodCall('input', 'readSetEnd')
+    return createMethodCall(COMMON_IDENTIFIERS.input, 'readSetEnd')
 }
 
 // input.skip(fieldType)
@@ -681,7 +685,7 @@ export function createSkipBlock(): ts.Block {
 }
 
 function createSkipStatement(): ts.ExpressionStatement {
-    return createMethodCallStatement('input', 'skip', [
+    return createMethodCallStatement(COMMON_IDENTIFIERS.input, 'skip', [
         COMMON_IDENTIFIERS.fieldType,
     ])
 }
