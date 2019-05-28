@@ -6,7 +6,7 @@
 import * as thrift from "test-lib";
 import * as SharedStruct from "./SharedStruct";
 import * as SharedUnion from "./SharedUnion";
-import * as __CONSTANTS__ from "./constants";
+import * as SharedEnum from "./SharedEnum";
 export const serviceName: string = "SharedService";
 export const annotations: thrift.IThriftAnnotations = {};
 export const methodAnnotations: thrift.IMethodAnnotations = {
@@ -414,10 +414,10 @@ export class GetUnion__Result extends thrift.StructLike implements IGetUnion__Re
 }
 export interface IGetEnum__Result {
     __name: "GetEnum__Result";
-    success?: __CONSTANTS__.SharedEnum;
+    success?: SharedEnum.SharedEnum;
 }
 export interface IGetEnum__ResultArgs {
-    success?: __CONSTANTS__.SharedEnum;
+    success?: SharedEnum.SharedEnum;
 }
 export const GetEnum__ResultCodec: thrift.IStructCodec<IGetEnum__ResultArgs, IGetEnum__Result> = {
     encode(args: IGetEnum__ResultArgs, output: thrift.TProtocol): void {
@@ -447,7 +447,7 @@ export const GetEnum__ResultCodec: thrift.IStructCodec<IGetEnum__ResultArgs, IGe
             switch (fieldId) {
                 case 0:
                     if (fieldType === thrift.TType.I32) {
-                        const value_9: __CONSTANTS__.SharedEnum = input.readI32();
+                        const value_9: SharedEnum.SharedEnum = input.readI32();
                         _args.success = value_9;
                     }
                     else {
@@ -468,14 +468,14 @@ export const GetEnum__ResultCodec: thrift.IStructCodec<IGetEnum__ResultArgs, IGe
     }
 };
 export class GetEnum__Result extends thrift.StructLike implements IGetEnum__Result {
-    public success?: __CONSTANTS__.SharedEnum;
+    public success?: SharedEnum.SharedEnum;
     public readonly __name = "GetEnum__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IGetEnum__ResultArgs = {}) {
         super();
         if (args.success != null) {
-            const value_10: __CONSTANTS__.SharedEnum = args.success;
+            const value_10: SharedEnum.SharedEnum = args.success;
             this.success = value_10;
         }
     }
@@ -577,7 +577,7 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
             }
         });
     }
-    public getEnum(context?: Context): Promise<__CONSTANTS__.SharedEnum> {
+    public getEnum(context?: Context): Promise<SharedEnum.SharedEnum> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
         output.writeMessageBegin("getEnum", thrift.MessageType.CALL, this.incrementRequestId());
@@ -619,7 +619,7 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
 export interface IHandler<Context = any> {
     getStruct(key: number, context?: Context): SharedStruct.ISharedStructArgs | Promise<SharedStruct.ISharedStructArgs>;
     getUnion(index: number, context?: Context): SharedUnion.SharedUnionArgs | Promise<SharedUnion.SharedUnionArgs>;
-    getEnum(context?: Context): __CONSTANTS__.SharedEnum | Promise<__CONSTANTS__.SharedEnum>;
+    getEnum(context?: Context): SharedEnum.SharedEnum | Promise<SharedEnum.SharedEnum>;
 }
 export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
     protected readonly _handler: IHandler<Context>;
@@ -717,7 +717,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
         });
     }
     public process_getEnum(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
-        return new Promise<__CONSTANTS__.SharedEnum>((resolve, reject): void => {
+        return new Promise<SharedEnum.SharedEnum>((resolve, reject): void => {
             try {
                 input.readMessageEnd();
                 resolve(this._handler.getEnum(context));
@@ -725,7 +725,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
             catch (err) {
                 reject(err);
             }
-        }).then((data: __CONSTANTS__.SharedEnum): Buffer => {
+        }).then((data: SharedEnum.SharedEnum): Buffer => {
             const result: IGetEnum__ResultArgs = { success: data };
             output.writeMessageBegin("getEnum", thrift.MessageType.REPLY, requestId);
             GetEnum__ResultCodec.encode(result, output);

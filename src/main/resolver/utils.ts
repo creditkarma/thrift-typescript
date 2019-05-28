@@ -288,10 +288,7 @@ export function resolveIdentifierName(
             const def = currentNamespace.exports[pathName]
             let rootName: string = pathName
 
-            if (
-                def.type === SyntaxType.ConstDefinition ||
-                def.type === SyntaxType.EnumDefinition
-            ) {
+            if (def.type === SyntaxType.ConstDefinition) {
                 rootName = '__CONSTANTS__'
             }
 

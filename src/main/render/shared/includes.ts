@@ -164,7 +164,6 @@ export function renderIncludes(
 
             switch (def.type) {
                 case SyntaxType.ConstDefinition:
-                case SyntaxType.EnumDefinition:
                     importPath = ts.createLiteral('./constants')
                     importName = '__CONSTANTS__'
                     break

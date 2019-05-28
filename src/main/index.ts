@@ -63,6 +63,7 @@ export function make(
             exports: fileExports,
             includedNamespaces: {},
             constants: [],
+            enums: [],
             typedefs: [],
             structs: [],
             unions: [],

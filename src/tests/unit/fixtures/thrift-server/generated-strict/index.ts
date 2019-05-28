@@ -4,6 +4,7 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 */
 export * from "./constants";
+export * from "./SharedEnum";
 export * from "./Code";
 export * from "./SharedStruct";
 export * from "./SharedUnion";

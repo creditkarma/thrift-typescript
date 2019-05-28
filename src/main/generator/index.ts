@@ -1,19 +1,13 @@
 import * as ts from 'typescript'
 
-import {
-    ExceptionDefinition,
-    ServiceDefinition,
-    StructDefinition,
-    ThriftStatement,
-    TypedefDefinition,
-    UnionDefinition,
-} from '@creditkarma/thrift-parser'
+import { ThriftStatement } from '@creditkarma/thrift-parser'
 
 import { rendererForTarget } from '../render'
 import { processStatements, renderStatement } from './iterator'
 
 import { exportsForFile } from '../resolver'
 import {
+    DefinitionType,
     IGeneratedFile,
     INamespace,
     IRenderer,
@@ -46,56 +40,41 @@ export function generateFile(
 }
 
 function generateFileFromStatements(
-    statements: Array<
-        | TypedefDefinition
-        | ServiceDefinition
-        | ExceptionDefinition
-        | UnionDefinition
-        | StructDefinition
-    >,
+    statements: Array<DefinitionType>,
     namespace: INamespace,
     thriftProject: IThriftProject,
     renderer: IRenderer,
 ): Array<IGeneratedFile> {
     const result: Array<IGeneratedFile> = []
 
-    statements.forEach(
-        (
-            statement:
-                | TypedefDefinition
-                | ServiceDefinition
-                | ExceptionDefinition
-                | UnionDefinition
-                | StructDefinition,
-        ) => {
-            const state: IRenderState = {
-                options: thriftProject.options,
-                currentNamespace: namespace,
-                currentDefinitions: exportsForFile([statement]),
-                project: thriftProject,
-            }
+    statements.forEach((statement: DefinitionType) => {
+        const state: IRenderState = {
+            options: thriftProject.options,
+            currentNamespace: namespace,
+            currentDefinitions: exportsForFile([statement]),
+            project: thriftProject,
+        }
 
-            const structFile: IGeneratedFile = {
-                type: 'GeneratedFile',
-                name: statement.name.value,
-                path: namespace.namespace.path,
-                body: renderStatement(statement, state, renderer),
-            }
+        const structFile: IGeneratedFile = {
+            type: 'GeneratedFile',
+            name: statement.name.value,
+            path: namespace.namespace.path,
+            body: renderStatement(statement, state, renderer),
+        }
 
-            structFile.body = [
-                ...renderer.renderImports([statement], state),
-                ...structFile.body,
-            ]
+        structFile.body = [
+            ...renderer.renderImports([statement], state),
+            ...structFile.body,
+        ]
 
-            result.push(structFile)
-        },
-    )
+        result.push(structFile)
+    })
 
     return result
 }
 
 function generateFilesFromKey(
-    key: 'constants' | 'typedefs',
+    key: 'constants',
     namespace: INamespace,
     thriftProject: IThriftProject,
     renderer: IRenderer,
@@ -155,6 +134,7 @@ export function generateProject(
             ),
             generateFileFromStatements(
                 [
+                    ...namespace.enums,
                     ...namespace.typedefs,
                     ...namespace.structs,
                     ...namespace.unions,

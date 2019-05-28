@@ -6,7 +6,7 @@
 import * as thrift from "test-lib";
 import * as SharedStruct from "./SharedStruct";
 import * as SharedUnion from "./SharedUnion";
-import * as __CONSTANTS__ from "./constants";
+import * as SharedEnum from "./SharedEnum";
 export interface IGetStructArgsArgs {
     key: number;
 }
@@ -259,10 +259,10 @@ export class GetUnionResult {
     }
 }
 export interface IGetEnumResultArgs {
-    success?: __CONSTANTS__.SharedEnum;
+    success?: SharedEnum.SharedEnum;
 }
 export class GetEnumResult {
-    public success?: __CONSTANTS__.SharedEnum;
+    public success?: SharedEnum.SharedEnum;
     constructor(args?: IGetEnumResultArgs) {
         if (args != null && args.success != null) {
             this.success = args.success;
@@ -292,7 +292,7 @@ export class GetEnumResult {
             switch (fieldId) {
                 case 0:
                     if (fieldType === thrift.Thrift.Type.I32) {
-                        const value_5: __CONSTANTS__.SharedEnum = input.readI32();
+                        const value_5: SharedEnum.SharedEnum = input.readI32();
                         _args.success = value_5;
                     }
                     else {
@@ -355,9 +355,9 @@ export class Client {
             this.send_getUnion(index, requestId);
         });
     }
-    public getEnum(): Promise<__CONSTANTS__.SharedEnum> {
+    public getEnum(): Promise<SharedEnum.SharedEnum> {
         const requestId: number = this.incrementSeqId();
-        return new Promise<__CONSTANTS__.SharedEnum>((resolve, reject): void => {
+        return new Promise<SharedEnum.SharedEnum>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];
                 if (error != null) {
@@ -461,7 +461,7 @@ export class Client {
 export interface IHandler {
     getStruct(key: number): SharedStruct.SharedStruct | Promise<SharedStruct.SharedStruct>;
     getUnion(index: number): SharedUnion.SharedUnion | Promise<SharedUnion.SharedUnion>;
-    getEnum(): __CONSTANTS__.SharedEnum | Promise<__CONSTANTS__.SharedEnum>;
+    getEnum(): SharedEnum.SharedEnum | Promise<SharedEnum.SharedEnum>;
 }
 export class Processor {
     public _handler: IHandler;
@@ -552,7 +552,7 @@ export class Processor {
         });
     }
     public process_getEnum(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
-        new Promise<__CONSTANTS__.SharedEnum>((resolve, reject): void => {
+        new Promise<SharedEnum.SharedEnum>((resolve, reject): void => {
             try {
                 input.readMessageEnd();
                 resolve(this._handler.getEnum());
@@ -560,7 +560,7 @@ export class Processor {
             catch (err) {
                 reject(err);
             }
-        }).then((data: __CONSTANTS__.SharedEnum): void => {
+        }).then((data: SharedEnum.SharedEnum): void => {
             const result: GetEnumResult = new GetEnumResult({ success: data });
             output.writeMessageBegin("getEnum", thrift.Thrift.MessageType.REPLY, requestId);
             result.write(output);

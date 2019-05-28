@@ -74,7 +74,8 @@ export interface INamespace {
     includedNamespaces: INamespacePathMap
 
     // Data/services defined in this namespace
-    constants: Array<ConstDefinition | EnumDefinition>
+    constants: Array<ConstDefinition>
+    enums: Array<EnumDefinition>
     typedefs: Array<TypedefDefinition>
     structs: Array<StructDefinition>
     unions: Array<UnionDefinition>

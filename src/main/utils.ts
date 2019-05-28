@@ -225,6 +225,7 @@ export function organizeByNamespace(
                 files: {},
                 exports: {},
                 constants: [],
+                enums: [],
                 typedefs: [],
                 structs: [],
                 unions: [],
@@ -244,8 +245,12 @@ export function organizeByNamespace(
         next.body.forEach((statement: ThriftStatement) => {
             switch (statement.type) {
                 case SyntaxType.ConstDefinition:
-                case SyntaxType.EnumDefinition:
                     namespace.constants.push(statement)
+                    namespace.exports[statement.name.value] = statement
+                    break
+
+                case SyntaxType.EnumDefinition:
+                    namespace.enums.push(statement)
                     namespace.exports[statement.name.value] = statement
                     break
 
