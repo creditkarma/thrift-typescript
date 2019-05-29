@@ -67,6 +67,8 @@ export const COMMON_IDENTIFIERS = {
     Buffer: ts.createIdentifier('Buffer'),
     Boolean: ts.createIdentifier('Boolean'),
     Promise: ts.createIdentifier('Promise'),
+    resolve: ts.createIdentifier('resolve'),
+    reject: ts.createIdentifier('reject'),
     Number: ts.createIdentifier('Number'),
     Error: ts.createIdentifier('Error'),
     void: ts.createIdentifier('void'),

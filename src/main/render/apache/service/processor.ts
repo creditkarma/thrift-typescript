@@ -3,9 +3,8 @@ import * as ts from 'typescript'
 import {
     FieldDefinition,
     FunctionDefinition,
+    Identifier,
     ServiceDefinition,
-    SyntaxType,
-    ThriftStatement,
 } from '@creditkarma/thrift-parser'
 
 import { TProtocolType } from './types'
@@ -26,7 +25,7 @@ import {
 } from '../utils'
 
 import {
-    resolveIdentifierDefinition,
+    // resolveIdentifierDefinition,
     resolveIdentifierName,
 } from '../../../resolver'
 import { IRenderState } from '../../../types'
@@ -45,6 +44,11 @@ import {
     THRIFT_IDENTIFIERS,
     THRIFT_TYPES,
 } from '../identifiers'
+
+import {
+    collectAllMethods,
+    collectInheritedMethods,
+} from '../../shared/service'
 
 function funcToMethodReducer(
     acc: Array<ts.MethodSignature>,
@@ -147,29 +151,26 @@ export function renderHandlerInterface(
 }
 
 function objectLiteralForServiceFunctions(
-    node: ThriftStatement,
+    service: ServiceDefinition,
+    state: IRenderState,
 ): ts.ObjectLiteralExpression {
-    switch (node.type) {
-        case SyntaxType.ServiceDefinition:
-            return ts.createObjectLiteral(
-                node.functions.map(
-                    (next: FunctionDefinition): ts.PropertyAssignment => {
-                        return ts.createPropertyAssignment(
-                            ts.createIdentifier(next.name.value),
-                            ts.createIdentifier(`handler.${next.name.value}`),
-                        )
-                    },
-                ),
-                true,
-            )
-
-        default:
-            throw new TypeError(
-                `A service can only extend another service. Found: ${
-                    node.type
-                }`,
-            )
-    }
+    return ts.createObjectLiteral(
+        collectInheritedMethods(service, {
+            currentNamespace: state.currentNamespace,
+            namespaceMap: state.project.namespaces,
+        }).map(
+            (next: FunctionDefinition): ts.PropertyAssignment => {
+                return ts.createPropertyAssignment(
+                    ts.createIdentifier(next.name.value),
+                    ts.createPropertyAccess(
+                        COMMON_IDENTIFIERS.handler,
+                        ts.createIdentifier(next.name.value),
+                    ),
+                )
+            },
+        ),
+        true,
+    )
 }
 
 function handlerType(node: ServiceDefinition): ts.TypeNode {
@@ -186,16 +187,7 @@ function createSuperCall(
                 ts.createCall(
                     ts.createSuper(),
                     [],
-                    [
-                        objectLiteralForServiceFunctions(
-                            resolveIdentifierDefinition(
-                                service.extends,
-                                state.currentNamespace,
-                                state.project.namespaces,
-                                state.project.sourceDir,
-                            ),
-                        ),
-                    ],
+                    [objectLiteralForServiceFunctions(service, state)],
                 ),
             ),
         ]
@@ -212,7 +204,7 @@ export function renderProcessor(
     const handler: ts.PropertyDeclaration = ts.createProperty(
         undefined,
         [ts.createToken(ts.SyntaxKind.PublicKeyword)],
-        '_handler',
+        COMMON_IDENTIFIERS._handler,
         undefined,
         handlerType(node),
         undefined,
@@ -228,7 +220,10 @@ export function renderProcessor(
         [
             ...createSuperCall(node, state),
             createAssignmentStatement(
-                ts.createIdentifier('this._handler'),
+                ts.createPropertyAccess(
+                    COMMON_IDENTIFIERS.this,
+                    COMMON_IDENTIFIERS._handler,
+                ),
                 COMMON_IDENTIFIERS.handler,
             ),
         ],
@@ -247,13 +242,16 @@ export function renderProcessor(
                   ts.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
                       ts.createExpressionWithTypeArguments(
                           [],
-                          ts.createIdentifier(
-                              `${
-                                  resolveIdentifierName(
-                                      node.extends.value,
-                                      state,
-                                  ).fullName
-                              }.Processor`,
+                          ts.createPropertyAccess(
+                              ts.createIdentifier(
+                                  `${
+                                      resolveIdentifierName(
+                                          node.extends.value,
+                                          state,
+                                      ).fullName
+                                  }`,
+                              ),
+                              COMMON_IDENTIFIERS.Processor,
                           ),
                       ),
                   ]),
@@ -264,7 +262,7 @@ export function renderProcessor(
     return ts.createClassDeclaration(
         undefined, // decorators
         [ts.createToken(ts.SyntaxKind.ExportKeyword)], // modifiers
-        'Processor', // name
+        COMMON_IDENTIFIERS.Processor, // name
         undefined, // type parameters
         heritage, // heritage
         [handler, ctor, processMethod, ...processFunctions], // body
@@ -347,11 +345,12 @@ function createProcessFunctionMethod(
                                                 'readMessageEnd',
                                             ),
                                             createCallStatement(
-                                                ts.createIdentifier('resolve'),
+                                                COMMON_IDENTIFIERS.resolve,
                                                 [
                                                     createMethodCall(
-                                                        ts.createIdentifier(
-                                                            'this._handler',
+                                                        ts.createPropertyAccess(
+                                                            COMMON_IDENTIFIERS.this,
+                                                            COMMON_IDENTIFIERS._handler,
                                                         ),
                                                         funcDef.name.value,
                                                         funcDef.fields.map(
@@ -823,39 +822,6 @@ function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
     ])
 }
 
-function functionsForService(node: ThriftStatement): Array<FunctionDefinition> {
-    switch (node.type) {
-        case SyntaxType.ServiceDefinition:
-            return node.functions
-
-        default:
-            throw new TypeError(
-                `A service can only extend another service. Found: ${
-                    node.type
-                }`,
-            )
-    }
-}
-
-function collectAllMethods(
-    service: ServiceDefinition,
-    state: IRenderState,
-): Array<FunctionDefinition> {
-    if (service.extends !== null) {
-        const inheritedMethods: Array<FunctionDefinition> = functionsForService(
-            resolveIdentifierDefinition(
-                service.extends,
-                state.currentNamespace,
-                state.project.namespaces,
-                state.project.sourceDir,
-            ),
-        )
-        return [...inheritedMethods, ...service.functions]
-    } else {
-        return service.functions
-    }
-}
-
 /**
  * In Scrooge we did something like this:
  *
@@ -885,7 +851,7 @@ function createMethodCallForFname(
     state: IRenderState,
 ): ts.SwitchStatement {
     return ts.createSwitch(
-        ts.createIdentifier('methodName'),
+        COMMON_IDENTIFIERS.methodName,
         ts.createCaseBlock([
             ...collectAllMethods(service, state).map(
                 createMethodCallForFunction,
@@ -930,7 +896,7 @@ function createMethodCallForFname(
                             [
                                 COMMON_IDENTIFIERS.fname,
                                 MESSAGE_TYPE.EXCEPTION,
-                                ts.createIdentifier('requestId'),
+                                COMMON_IDENTIFIERS.requestId,
                             ],
                         ),
                         // err.write(output)

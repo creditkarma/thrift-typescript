@@ -15,6 +15,7 @@ import * as glob from 'glob'
 import * as path from 'path'
 
 import {
+    DefinitionType,
     IFileIncludes,
     IGeneratedFile,
     IIncludePath,
@@ -23,11 +24,13 @@ import {
     INamespacePathMap,
     IProcessedFile,
     IProcessedFileMap,
+    IRenderState,
     IResolvedFile,
     ISourceFile,
 } from './types'
 
 import { print } from './printer'
+import { resolveIdentifierDefinition } from './resolver'
 import { mkdir } from './sys'
 
 export function deepCopy<T extends object>(obj: T): T {
@@ -319,20 +322,35 @@ export function saveFiles(files: Array<IGeneratedFile>, outDir: string): void {
 function identifiersForFieldType(
     fieldType: FunctionType,
     results: Set<string>,
+    state: IRenderState,
+    resolveTypedefs: boolean = false,
 ): void {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
+            if (resolveTypedefs) {
+                const def: DefinitionType = resolveIdentifierDefinition(
+                    fieldType,
+                    state.currentNamespace,
+                    state.project.namespaces,
+                    state.project.sourceDir,
+                )
+
+                if (def.type === SyntaxType.TypedefDefinition) {
+                    identifiersForFieldType(def.definitionType, results, state)
+                }
+            }
+
             results.add(fieldType.value)
             break
 
         case SyntaxType.MapType:
-            identifiersForFieldType(fieldType.keyType, results)
-            identifiersForFieldType(fieldType.valueType, results)
+            identifiersForFieldType(fieldType.keyType, results, state)
+            identifiersForFieldType(fieldType.valueType, results, state)
             break
 
         case SyntaxType.SetType:
         case SyntaxType.ListType:
-            identifiersForFieldType(fieldType.valueType, results)
+            identifiersForFieldType(fieldType.valueType, results, state)
             break
     }
 }
@@ -364,6 +382,7 @@ function identifiersForConstValue(
 
 export function identifiersForStatements(
     statements: Array<ThriftStatement>,
+    state: IRenderState,
 ): Array<string> {
     const results: Set<string> = new Set()
 
@@ -377,19 +396,24 @@ export function identifiersForStatements(
                 break
 
             case SyntaxType.ConstDefinition:
-                identifiersForFieldType(next.fieldType, results)
+                identifiersForFieldType(next.fieldType, results, state)
                 identifiersForConstValue(next.initializer, results)
                 break
 
             case SyntaxType.TypedefDefinition:
-                identifiersForFieldType(next.definitionType, results)
+                identifiersForFieldType(next.definitionType, results, state)
                 break
 
             case SyntaxType.StructDefinition:
             case SyntaxType.UnionDefinition:
             case SyntaxType.ExceptionDefinition:
                 next.fields.forEach((field: FieldDefinition) => {
-                    identifiersForFieldType(field.fieldType, results)
+                    identifiersForFieldType(
+                        field.fieldType,
+                        results,
+                        state,
+                        true,
+                    )
                     identifiersForConstValue(field.defaultValue, results)
                 })
                 break
@@ -401,16 +425,31 @@ export function identifiersForStatements(
 
                 next.functions.forEach((func: FunctionDefinition) => {
                     func.fields.forEach((field: FieldDefinition) => {
-                        identifiersForFieldType(field.fieldType, results)
+                        identifiersForFieldType(
+                            field.fieldType,
+                            results,
+                            state,
+                            true,
+                        )
                         identifiersForConstValue(field.defaultValue, results)
                     })
 
                     func.throws.forEach((field: FieldDefinition) => {
-                        identifiersForFieldType(field.fieldType, results)
+                        identifiersForFieldType(
+                            field.fieldType,
+                            results,
+                            state,
+                            true,
+                        )
                         identifiersForConstValue(field.defaultValue, results)
                     })
 
-                    identifiersForFieldType(func.returnType, results)
+                    identifiersForFieldType(
+                        func.returnType,
+                        results,
+                        state,
+                        true,
+                    )
                 })
 
                 break

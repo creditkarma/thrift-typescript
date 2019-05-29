@@ -13,6 +13,11 @@ import {
 
 import { IThriftError } from './errors'
 
+export interface IResolveContext {
+    currentNamespace: INamespace
+    namespaceMap: INamespaceMap
+}
+
 export interface IThriftProject {
     type: 'ThriftProject'
 

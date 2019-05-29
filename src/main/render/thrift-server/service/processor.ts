@@ -13,7 +13,6 @@ import {
 import { ContextType, TProtocolType } from './types'
 
 import {
-    collectAllMethods,
     createStructArgsName,
     createStructResultName,
     renderMethodNamesProperty,
@@ -64,6 +63,8 @@ import {
     resolveIdentifierDefinition,
     resolveIdentifierName,
 } from '../../../resolver'
+
+import { collectAllMethods } from '../../shared/service'
 import { className, looseName, strictName, toolkitName } from '../struct/utils'
 
 function objectLiteralForServiceFunctions(

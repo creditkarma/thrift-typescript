@@ -55,19 +55,19 @@ function generateFileFromStatements(
             project: thriftProject,
         }
 
-        const structFile: IGeneratedFile = {
+        const generatedFile: IGeneratedFile = {
             type: 'GeneratedFile',
             name: statement.name.value,
             path: namespace.namespace.path,
             body: renderStatement(statement, state, renderer),
         }
 
-        structFile.body = [
+        generatedFile.body = [
             ...renderer.renderImports([statement], state),
-            ...structFile.body,
+            ...generatedFile.body,
         ]
 
-        result.push(structFile)
+        result.push(generatedFile)
     })
 
     return result

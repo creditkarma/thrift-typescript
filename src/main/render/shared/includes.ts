@@ -2,24 +2,35 @@ import * as path from 'path'
 import * as ts from 'typescript'
 
 import {
-    ConstDefinition,
     FieldDefinition,
+    FieldType,
     FunctionDefinition,
     SyntaxType,
     ThriftStatement,
-    TypedefDefinition,
 } from '@creditkarma/thrift-parser'
 
 import { DefinitionType, INamespacePath, IRenderState } from '../../types'
 import { identifiersForStatements } from '../../utils'
 import { COMMON_IDENTIFIERS } from './identifiers'
 
-function constUsesThrift(statement: ConstDefinition): boolean {
-    return statement.fieldType.type === SyntaxType.I64Keyword
-}
+function fieldTypeUsesThrift(fieldType: FieldType): boolean {
+    switch (fieldType.type) {
+        case SyntaxType.I64Keyword:
+            return true
 
-function typedefUsesThrift(statement: TypedefDefinition): boolean {
-    return statement.definitionType.type === SyntaxType.I64Keyword
+        case SyntaxType.MapType:
+            return (
+                fieldTypeUsesThrift(fieldType.keyType) ||
+                fieldTypeUsesThrift(fieldType.valueType)
+            )
+
+        case SyntaxType.ListType:
+        case SyntaxType.SetType:
+            return fieldTypeUsesThrift(fieldType.valueType)
+
+        default:
+            return false
+    }
 }
 
 function statementUsesThrift(statement: ThriftStatement): boolean {
@@ -37,10 +48,10 @@ function statementUsesThrift(statement: ThriftStatement): boolean {
             return false
 
         case SyntaxType.ConstDefinition:
-            return constUsesThrift(statement)
+            return fieldTypeUsesThrift(statement.fieldType)
 
         case SyntaxType.TypedefDefinition:
-            return typedefUsesThrift(statement)
+            return fieldTypeUsesThrift(statement.definitionType)
 
         default:
             const msg: never = statement
@@ -79,10 +90,10 @@ function statementUsesInt64(statement: ThriftStatement): boolean {
             return false
 
         case SyntaxType.ConstDefinition:
-            return constUsesThrift(statement)
+            return fieldTypeUsesThrift(statement.fieldType)
 
         case SyntaxType.TypedefDefinition:
-            return typedefUsesThrift(statement)
+            return fieldTypeUsesThrift(statement.definitionType)
 
         default:
             const msg: never = statement
@@ -145,12 +156,19 @@ export function renderIncludes(
     state: IRenderState,
 ): Array<ts.ImportDeclaration> {
     const importedNamespaces: Set<string> = new Set()
+
     const imports: Array<ts.ImportDeclaration> = []
-    const identifiers: Array<string> = identifiersForStatements(statements)
+
+    const identifiers: Array<string> = identifiersForStatements(
+        statements,
+        state,
+    )
+
     const importedIdentifiers: Set<string> = new Set()
 
     identifiers.forEach((next: string) => {
         const [head] = next.split('.')
+
         if (
             state.currentNamespace.exports[head] &&
             state.currentDefinitions[head] === undefined &&
@@ -159,17 +177,12 @@ export function renderIncludes(
             importedIdentifiers.add(head)
 
             const def: DefinitionType = state.currentNamespace.exports[head]
-            let importPath: ts.LiteralExpression = ts.createLiteral('./.')
+            let importPath: ts.LiteralExpression = ts.createLiteral(`./${head}`)
             let importName: string = head
 
-            switch (def.type) {
-                case SyntaxType.ConstDefinition:
-                    importPath = ts.createLiteral('./constants')
-                    importName = '__CONSTANTS__'
-                    break
-
-                default:
-                    importPath = ts.createLiteral(`./${head}`)
+            if (def.type === SyntaxType.ConstDefinition) {
+                importPath = ts.createLiteral('./constants')
+                importName = '__CONSTANTS__'
             }
 
             imports.push(

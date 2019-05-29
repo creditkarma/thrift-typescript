@@ -3,15 +3,30 @@ import * as ts from 'typescript'
 import {
     FieldDefinition,
     FunctionDefinition,
+    Identifier,
     ServiceDefinition,
+    SyntaxType,
+    // SyntaxType,
+    // ThriftStatement,
 } from '@creditkarma/thrift-parser'
 
 import { COMMON_IDENTIFIERS } from '../identifiers'
 
 import { createAnyType, TypeMapping } from '../types'
 
-import { resolveIdentifierName } from '../../../resolver'
-import { IRenderState } from '../../../types'
+import {
+    // resolveIdentifierDefinition,
+    resolveIdentifierName,
+} from '../../../resolver'
+import {
+    // DefinitionType,
+    DefinitionType,
+    INamespace,
+    INamespaceMap,
+    INamespacePath,
+    IRenderState,
+    IResolveContext,
+} from '../../../types'
 import { createFunctionParameter } from '../utils'
 
 function funcToMethodReducer(
@@ -33,8 +48,11 @@ function funcToMethodReducer(
                     )
                 }),
                 createFunctionParameter(
-                    'context',
-                    ts.createTypeReferenceNode('Context', undefined),
+                    COMMON_IDENTIFIERS.context,
+                    ts.createTypeReferenceNode(
+                        COMMON_IDENTIFIERS.Context,
+                        undefined,
+                    ),
                     undefined,
                     true,
                 ),
@@ -139,4 +157,90 @@ export function renderHandlerInterface(
             ),
         ]
     }
+}
+
+export function serviceInheritanceChain(
+    service: ServiceDefinition,
+    context: IResolveContext,
+): Array<ServiceDefinition> {
+    if (service.extends !== null) {
+        if (context.currentNamespace.exports[service.extends.value]) {
+            const parentService: DefinitionType =
+                context.currentNamespace.exports[service.extends.value]
+
+            if (parentService.type === SyntaxType.ServiceDefinition) {
+                return [
+                    parentService,
+                    ...serviceInheritanceChain(parentService, context),
+                ]
+            } else {
+                throw new Error(
+                    `Services can only extends other services but found[${
+                        parentService.type
+                    }]`,
+                )
+            }
+        } else {
+            const [path, ...tail] = service.extends.value.split('.')
+            const nextPath: string = tail.join('.')
+            const nextNamespacePath: INamespacePath =
+                context.currentNamespace.includedNamespaces[path]
+
+            if (nextNamespacePath && nextPath) {
+                const nextNamespace: INamespace =
+                    context.namespaceMap[nextNamespacePath.path]
+
+                if (nextNamespace) {
+                    const parentService = nextNamespace.exports[nextPath]
+
+                    if (parentService.type === SyntaxType.ServiceDefinition) {
+                        return [
+                            parentService,
+                            ...serviceInheritanceChain(parentService, {
+                                currentNamespace: nextNamespace,
+                                namespaceMap: context.namespaceMap,
+                            }),
+                        ]
+                    } else {
+                        throw new Error(
+                            `Services can only extends other services but found[${
+                                parentService.type
+                            }]`,
+                        )
+                    }
+                }
+            }
+
+            throw new Error(
+                `Unable to resolve parent service: ${service.extends.value}`,
+            )
+        }
+    } else {
+        return []
+    }
+}
+
+export function collectInheritedMethods(
+    service: ServiceDefinition,
+    context: IResolveContext,
+): Array<FunctionDefinition> {
+    return serviceInheritanceChain(service, context).reduce(
+        (acc: Array<FunctionDefinition>, next: ServiceDefinition) => {
+            return [...acc, ...next.functions]
+        },
+        [],
+    )
+}
+
+export function collectAllMethods(
+    service: ServiceDefinition,
+    state: IRenderState,
+): Array<FunctionDefinition> {
+    return [
+        ...collectInheritedMethods(service, {
+            currentNamespace: state.currentNamespace,
+            namespaceMap: state.project.namespaces,
+        }),
+        ...service.functions,
+    ]
 }

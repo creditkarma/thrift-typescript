@@ -292,6 +292,19 @@ export function resolveIdentifierName(
                 rootName = '__CONSTANTS__'
             }
 
+            /**
+             * Services do not export an object with the thrift-defined name.
+             */
+            if (def.type === SyntaxType.ServiceDefinition) {
+                return {
+                    rawName: name,
+                    name: pathName,
+                    baseName,
+                    pathName: rootName,
+                    fullName: `${rootName}`,
+                }
+            }
+
             return {
                 rawName: name,
                 name: pathName,

@@ -123,6 +123,7 @@ describe('Thrift TypeScript Generator', () => {
                     console.log(
                         `should match ${next[0].name} and ${next[1].name}`,
                     )
+
                     assert.deepEqual(next[0].content, next[1].content)
                 })
             })
