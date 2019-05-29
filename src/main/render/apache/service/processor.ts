@@ -3,7 +3,6 @@ import * as ts from 'typescript'
 import {
     FieldDefinition,
     FunctionDefinition,
-    Identifier,
     ServiceDefinition,
 } from '@creditkarma/thrift-parser'
 
@@ -24,10 +23,7 @@ import {
     createPublicMethod,
 } from '../utils'
 
-import {
-    // resolveIdentifierDefinition,
-    resolveIdentifierName,
-} from '../../../resolver'
+import { resolveIdentifierName } from '../../../resolver'
 import { IRenderState } from '../../../types'
 
 import {

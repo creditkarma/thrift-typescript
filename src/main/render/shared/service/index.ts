@@ -3,26 +3,18 @@ import * as ts from 'typescript'
 import {
     FieldDefinition,
     FunctionDefinition,
-    Identifier,
     ServiceDefinition,
     SyntaxType,
-    // SyntaxType,
-    // ThriftStatement,
 } from '@creditkarma/thrift-parser'
 
 import { COMMON_IDENTIFIERS } from '../identifiers'
 
 import { createAnyType, TypeMapping } from '../types'
 
+import { resolveIdentifierName } from '../../../resolver'
 import {
-    // resolveIdentifierDefinition,
-    resolveIdentifierName,
-} from '../../../resolver'
-import {
-    // DefinitionType,
     DefinitionType,
     INamespace,
-    INamespaceMap,
     INamespacePath,
     IRenderState,
     IResolveContext,

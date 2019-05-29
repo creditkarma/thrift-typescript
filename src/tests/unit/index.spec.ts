@@ -120,9 +120,11 @@ describe('Thrift TypeScript Generator', () => {
                 const zipped: ZippedList = zipResults(actual, expected)
 
                 zipped.forEach((next: ZippedDetail) => {
-                    console.log(
-                        `should match ${next[0].name} and ${next[1].name}`,
-                    )
+                    if (next[0].content !== next[1].content) {
+                        console.log(
+                            `should match ${next[0].name} and ${next[1].name}`,
+                        )
+                    }
 
                     assert.deepEqual(next[0].content, next[1].content)
                 })
@@ -155,6 +157,12 @@ describe('Thrift TypeScript Generator', () => {
                 const zipped: ZippedList = zipResults(actual, expected)
 
                 zipped.forEach((next: ZippedDetail) => {
+                    if (next[0].content !== next[1].content) {
+                        console.log(
+                            `should match ${next[0].name} and ${next[1].name}`,
+                        )
+                    }
+
                     assert.deepEqual(next[0].content, next[1].content)
                 })
             })
@@ -183,6 +191,12 @@ describe('Thrift TypeScript Generator', () => {
                 const zipped: ZippedList = zipResults(actual, expected)
 
                 zipped.forEach((next: ZippedDetail) => {
+                    if (next[0].content !== next[1].content) {
+                        console.log(
+                            `should match ${next[0].name} and ${next[1].name}`,
+                        )
+                    }
+
                     assert.deepEqual(next[0].content, next[1].content)
                 })
             })
