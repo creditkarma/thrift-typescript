@@ -323,6 +323,7 @@ function identifiersForFieldType(
     fieldType: FunctionType,
     results: Set<string>,
     state: IRenderState,
+    // Is this identifier being resolved in a context where we need to know the underlying type of typedefs?
     resolveTypedefs: boolean = false,
 ): void {
     switch (fieldType.type) {
@@ -380,6 +381,14 @@ function identifiersForConstValue(
     }
 }
 
+/**
+ * We're going to loop through the provided statements and find the Identifiers being used by these statements.
+ *
+ * The complicating factor here is that this is used to determine imports for a given file. In some cases a
+ * file may need an identifier not explicitly in the AST node. For instance if a Identifer refers to a typedef
+ * that aliases a map we may need to know the key and value types of the map so the including file can import
+ * those types to handle encoding/decoding of those types.
+ */
 export function identifiersForStatements(
     statements: Array<ThriftStatement>,
     state: IRenderState,
