@@ -63,13 +63,13 @@ export function make(
         mergedOptions,
     )
 
-    const resolvedNamespace: INamespace =
+    const currentNamespace: INamespace =
         thriftProject.namespaces['__ROOT_NAMESPACE__']
 
     const state: IRenderState = {
         options: mergedOptions,
-        currentNamespace: resolvedNamespace,
-        currentDefinitions: resolvedNamespace.exports,
+        currentNamespace,
+        currentDefinitions: currentNamespace.exports,
         project: {
             type: 'ThriftProject',
             rootDir: '',
@@ -81,9 +81,9 @@ export function make(
     }
 
     const statements: Array<ThriftStatement> = Object.keys(
-        resolvedNamespace.exports,
+        currentNamespace.exports,
     ).map((next: string) => {
-        return resolvedNamespace.exports[next]
+        return currentNamespace.exports[next]
     })
 
     return print(
