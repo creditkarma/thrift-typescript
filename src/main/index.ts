@@ -22,7 +22,6 @@ import { rendererForTarget } from './render'
 import { ThriftStatement } from '@creditkarma/thrift-parser'
 import { Parser } from './parser'
 import { Resolver } from './resolver'
-import { resolveNamespace } from './resolver/resolveNamespace'
 import * as Sys from './sys'
 import * as Utils from './utils'
 import * as Validator from './validator'
@@ -149,7 +148,7 @@ export function thriftProjectFromSourceFiles(
     const resolvedNamespaces: INamespaceMap = Object.keys(namespaces).reduce(
         (acc: INamespaceMap, next: string) => {
             const nextNamespace: INamespace = namespaces[next]
-            acc[next] = resolveNamespace(nextNamespace, namespaces)
+            acc[next] = Resolver.resolveNamespace(nextNamespace, namespaces)
             return acc
         },
         {},

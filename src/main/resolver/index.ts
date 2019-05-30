@@ -1,4 +1,5 @@
-// export { resolveFile } from './resolveFile'
+import { resolveNamespace } from './resolveNamespace'
+
 import {
     exportsForFile,
     identifiersForStatements,
@@ -8,6 +9,7 @@ import {
 } from './utils'
 
 export const Resolver = {
+    resolveNamespace,
     exportsForFile,
     resolveIdentifierDefinition,
     resolveConstValue,
