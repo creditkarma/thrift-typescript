@@ -1,10 +1,5 @@
 import {
-    ConstValue,
-    FieldDefinition,
-    FunctionDefinition,
-    FunctionType,
     NamespaceDefinition,
-    PropertyAssignment,
     SyntaxType,
     TextLocation,
     ThriftStatement,
@@ -15,7 +10,6 @@ import * as glob from 'glob'
 import * as path from 'path'
 
 import {
-    DefinitionType,
     IFileIncludes,
     IGeneratedFile,
     IIncludePath,
@@ -24,13 +18,10 @@ import {
     INamespacePathMap,
     IParsedFile,
     IParsedFileMap,
-    IRenderState,
     ISourceFile,
 } from './types'
 
-import { IThriftError } from './errors'
 import { print } from './printer'
-import { resolveIdentifierDefinition } from './resolver'
 import { mkdir } from './sys'
 
 export function valuesForObject<T>(obj: { [key: string]: T }): Array<T> {
@@ -41,6 +32,7 @@ export function valuesForObject<T>(obj: { [key: string]: T }): Array<T> {
 
 export function deepCopy<T extends object>(obj: T): T {
     const newObj: any = Array.isArray(obj) ? [] : {}
+
     for (const key in obj) {
         if (obj.hasOwnProperty(key)) {
             const value: any = obj[key]
@@ -131,22 +123,7 @@ export function includesForFile(
     }, {})
 }
 
-export function namespaceForInclude(
-    includePath: IIncludePath,
-    fileMap: IParsedFileMap,
-    sourceDir: string,
-    fallbackNamespace: string,
-): INamespacePath {
-    const file: IParsedFile = fileForInclude(includePath, fileMap, sourceDir)
-    const namespace: INamespacePath = namespaceForFile(
-        file.body,
-        fallbackNamespace,
-    )
-
-    return namespace
-}
-
-export function fileForInclude(
+function fileForInclude(
     includePath: IIncludePath,
     fileMap: IParsedFileMap,
     sourceDir: string,
@@ -167,6 +144,21 @@ export function fileForInclude(
     } else {
         throw new Error(`No file for include: ${includePath.path}`)
     }
+}
+
+export function namespaceForInclude(
+    includePath: IIncludePath,
+    fileMap: IParsedFileMap,
+    sourceDir: string,
+    fallbackNamespace: string,
+): INamespacePath {
+    const file: IParsedFile = fileForInclude(includePath, fileMap, sourceDir)
+    const namespace: INamespacePath = namespaceForFile(
+        file.body,
+        fallbackNamespace,
+    )
+
+    return namespace
 }
 
 function createPathForNamespace(ns: string): string {
@@ -203,8 +195,10 @@ function resolveNamespaceAccessor(namespaceName: string): string {
         .join('')
 }
 
-function collectNamespaces(body: Array<ThriftStatement>): INamespacePathMap {
-    return body
+function collectNamespaces(
+    fileBody: Array<ThriftStatement>,
+): INamespacePathMap {
+    return fileBody
         .filter(
             (next: ThriftStatement): next is NamespaceDefinition => {
                 return next.type === SyntaxType.NamespaceDefinition
@@ -228,10 +222,10 @@ function collectNamespaces(body: Array<ThriftStatement>): INamespacePathMap {
 }
 
 export function namespaceForFile(
-    body: Array<ThriftStatement>,
+    fileBody: Array<ThriftStatement>,
     fallbackNamespace: string,
 ): INamespacePath {
-    const namespaceMap = collectNamespaces(body)
+    const namespaceMap = collectNamespaces(fileBody)
 
     if (namespaceMap.js) {
         return namespaceMap.js
@@ -345,19 +339,6 @@ export function organizeByNamespace(
     }, {})
 }
 
-export function collectInvalidFiles<T extends { errors: Array<IThriftError> }>(
-    resolvedFiles: Array<T>,
-    errors: Array<T> = [],
-): Array<T> {
-    for (const file of resolvedFiles) {
-        if (file.errors.length > 0) {
-            errors.push(file)
-        }
-    }
-
-    return errors
-}
-
 export function saveFiles(files: Array<IGeneratedFile>, outDir: string): void {
     files.forEach((next: IGeneratedFile) => {
         const outPath: string = path.resolve(
@@ -374,158 +355,4 @@ export function saveFiles(files: Array<IGeneratedFile>, outDir: string): void {
             throw new Error(`Unable to save generated files to: ${outPath}`)
         }
     })
-}
-
-function identifiersForFieldType(
-    fieldType: FunctionType,
-    results: Set<string>,
-    state: IRenderState,
-    // Is this identifier being resolved in a context where we need to know the underlying type of typedefs?
-    resolveTypedefs: boolean = false,
-): void {
-    switch (fieldType.type) {
-        case SyntaxType.Identifier:
-            if (resolveTypedefs) {
-                const def: DefinitionType = resolveIdentifierDefinition(
-                    fieldType,
-                    {
-                        currentNamespace: state.currentNamespace,
-                        namespaceMap: state.project.namespaces,
-                    },
-                )
-
-                if (def.type === SyntaxType.TypedefDefinition) {
-                    identifiersForFieldType(def.definitionType, results, state)
-                }
-            }
-
-            results.add(fieldType.value)
-            break
-
-        case SyntaxType.MapType:
-            identifiersForFieldType(fieldType.keyType, results, state)
-            identifiersForFieldType(fieldType.valueType, results, state)
-            break
-
-        case SyntaxType.SetType:
-        case SyntaxType.ListType:
-            identifiersForFieldType(fieldType.valueType, results, state)
-            break
-    }
-}
-
-function identifiersForConstValue(
-    constValue: ConstValue | null,
-    results: Set<string>,
-): void {
-    if (constValue !== null) {
-        switch (constValue.type) {
-            case SyntaxType.Identifier:
-                results.add(constValue.value)
-                break
-
-            case SyntaxType.ConstList:
-                constValue.elements.forEach((next: ConstValue) => {
-                    identifiersForConstValue(next, results)
-                })
-                break
-
-            case SyntaxType.ConstMap:
-                constValue.properties.forEach((next: PropertyAssignment) => {
-                    identifiersForConstValue(next.name, results)
-                    identifiersForConstValue(next.initializer, results)
-                })
-        }
-    }
-}
-
-/**
- * We're going to loop through the provided statements and find the Identifiers being used by these statements.
- *
- * The complicating factor here is that this is used to determine imports for a given file. In some cases a
- * file may need an identifier not explicitly in the AST node. For instance if a Identifer refers to a typedef
- * that aliases a map we may need to know the key and value types of the map so the including file can import
- * those types to handle encoding/decoding of those types.
- */
-export function identifiersForStatements(
-    statements: Array<ThriftStatement>,
-    state: IRenderState,
-): Array<string> {
-    const results: Set<string> = new Set()
-
-    statements.forEach((next: ThriftStatement) => {
-        switch (next.type) {
-            case SyntaxType.IncludeDefinition:
-            case SyntaxType.CppIncludeDefinition:
-            case SyntaxType.NamespaceDefinition:
-            case SyntaxType.EnumDefinition:
-                // Ignore
-                break
-
-            case SyntaxType.ConstDefinition:
-                identifiersForFieldType(next.fieldType, results, state)
-                identifiersForConstValue(next.initializer, results)
-                break
-
-            case SyntaxType.TypedefDefinition:
-                identifiersForFieldType(next.definitionType, results, state)
-                break
-
-            case SyntaxType.StructDefinition:
-            case SyntaxType.UnionDefinition:
-            case SyntaxType.ExceptionDefinition:
-                next.fields.forEach((field: FieldDefinition) => {
-                    identifiersForFieldType(
-                        field.fieldType,
-                        results,
-                        state,
-                        true,
-                    )
-                    identifiersForConstValue(field.defaultValue, results)
-                })
-                break
-
-            case SyntaxType.ServiceDefinition:
-                if (next.extends) {
-                    results.add(next.extends.value)
-                }
-
-                next.functions.forEach((func: FunctionDefinition) => {
-                    func.fields.forEach((field: FieldDefinition) => {
-                        identifiersForFieldType(
-                            field.fieldType,
-                            results,
-                            state,
-                            true,
-                        )
-                        identifiersForConstValue(field.defaultValue, results)
-                    })
-
-                    func.throws.forEach((field: FieldDefinition) => {
-                        identifiersForFieldType(
-                            field.fieldType,
-                            results,
-                            state,
-                            true,
-                        )
-                        identifiersForConstValue(field.defaultValue, results)
-                    })
-
-                    identifiersForFieldType(
-                        func.returnType,
-                        results,
-                        state,
-                        true,
-                    )
-                })
-
-                break
-
-            default:
-                const _exhaustiveCheck: never = next
-                throw new Error(`Non-exhaustive match for ${_exhaustiveCheck}`)
-        }
-    })
-
-    return Array.from(results)
 }

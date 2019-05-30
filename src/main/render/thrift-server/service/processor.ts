@@ -1,7 +1,6 @@
 import * as ts from 'typescript'
 
 import {
-    // ExceptionDefinition,
     FieldDefinition,
     FunctionDefinition,
     Identifier,
@@ -59,10 +58,7 @@ import {
     renderServiceAnnotationsStaticProperty,
 } from '../annotations'
 
-import {
-    resolveIdentifierDefinition,
-    resolveIdentifierName,
-} from '../../../resolver'
+import { Resolver } from '../../../resolver'
 
 import { collectAllMethods } from '../../shared/service'
 
@@ -115,7 +111,8 @@ export function extendsService(
             [ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined)],
             ts.createIdentifier(
                 `${
-                    resolveIdentifierName(service.value, state).fullName
+                    Resolver.resolveIdentifierName(service.value, state)
+                        .fullName
                 }.Processor`,
             ),
         ),
@@ -254,7 +251,7 @@ function createSuperCall(
             [],
             [
                 objectLiteralForServiceFunctions(
-                    resolveIdentifierDefinition(service, {
+                    Resolver.resolveIdentifierDefinition(service, {
                         currentNamespace: state.currentNamespace,
                         namespaceMap: state.project.namespaces,
                     }),

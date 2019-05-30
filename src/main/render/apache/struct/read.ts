@@ -33,10 +33,7 @@ import { createAnyType, createNumberType } from '../types'
 
 import { THRIFT_IDENTIFIERS, THRIFT_TYPES } from '../identifiers'
 
-import {
-    resolveIdentifierDefinition,
-    resolveIdentifierName,
-} from '../../../resolver'
+import { Resolver } from '../../../resolver'
 import { READ_METHODS } from './methods'
 
 /**
@@ -480,7 +477,8 @@ export function readValueForIdentifier(
                     ts.createCall(
                         ts.createPropertyAccess(
                             ts.createIdentifier(
-                                resolveIdentifierName(baseName, state).fullName,
+                                Resolver.resolveIdentifierName(baseName, state)
+                                    .fullName,
                             ),
                             COMMON_IDENTIFIERS.read,
                         ),
@@ -524,7 +522,7 @@ export function readValueForFieldType(
         case SyntaxType.Identifier:
             return readValueForIdentifier(
                 fieldType.value,
-                resolveIdentifierDefinition(fieldType, {
+                Resolver.resolveIdentifierDefinition(fieldType, {
                     currentNamespace: state.currentNamespace,
                     namespaceMap: state.project.namespaces,
                 }),

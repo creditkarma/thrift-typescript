@@ -1,7 +1,16 @@
 // export { resolveFile } from './resolveFile'
-export {
+import {
+    exportsForFile,
+    identifiersForStatements,
+    resolveConstValue,
+    resolveIdentifierDefinition,
+    resolveIdentifierName,
+} from './utils'
+
+export const Resolver = {
     exportsForFile,
     resolveIdentifierDefinition,
     resolveConstValue,
     resolveIdentifierName,
-} from './utils'
+    identifiersForStatements,
+}

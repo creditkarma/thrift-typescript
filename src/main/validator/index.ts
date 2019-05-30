@@ -10,7 +10,7 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import { createValidationError, IThriftError, ValidationError } from '../errors'
-import { resolveConstValue, resolveIdentifierDefinition } from '../resolver'
+import { Resolver } from '../resolver'
 import { DefinitionType, INamespace, INamespaceMap } from '../types'
 import { constToTypeString, fieldTypeToString } from './utils'
 
@@ -92,7 +92,7 @@ export function validateNamespace(
 
     function validateExtends(id: Identifier | null): void {
         if (id !== null) {
-            const resolvedIdentifier: DefinitionType = resolveIdentifierDefinition(
+            const resolvedIdentifier: DefinitionType = Resolver.resolveIdentifierDefinition(
                 id,
                 {
                     currentNamespace,
@@ -143,10 +143,13 @@ export function validateNamespace(
         resolvedValue: ConstValue,
         rawValue: ConstValue,
     ): void {
-        const definition: DefinitionType = resolveIdentifierDefinition(id, {
-            currentNamespace,
-            namespaceMap,
-        })
+        const definition: DefinitionType = Resolver.resolveIdentifierDefinition(
+            id,
+            {
+                currentNamespace,
+                namespaceMap,
+            },
+        )
         switch (definition.type) {
             case SyntaxType.ServiceDefinition:
                 throw new ValidationError(
@@ -185,7 +188,7 @@ export function validateNamespace(
         value: ConstValue,
         rawValue: ConstValue = value,
     ): void {
-        const resolvedValue: ConstValue = resolveConstValue(
+        const resolvedValue: ConstValue = Resolver.resolveConstValue(
             value,
             expectedType,
             {

@@ -11,10 +11,7 @@ import {
     THRIFT_TYPES,
 } from './identifiers'
 
-import {
-    resolveIdentifierDefinition,
-    resolveIdentifierName,
-} from '../../resolver'
+import { Resolver } from '../../resolver'
 import {
     createArrayType,
     createBooleanType,
@@ -155,7 +152,7 @@ export function thriftTypeForFieldType(
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return thriftTypeForIdentifier(
-                resolveIdentifierDefinition(fieldType, {
+                Resolver.resolveIdentifierDefinition(fieldType, {
                     currentNamespace: state.currentNamespace,
                     namespaceMap: state.project.namespaces,
                 }),
@@ -238,7 +235,7 @@ export function typeNodeForFieldType(
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return ts.createTypeReferenceNode(
-                resolveIdentifierName(fieldType.value, state).fullName,
+                Resolver.resolveIdentifierName(fieldType.value, state).fullName,
                 undefined,
             )
 

@@ -16,7 +16,7 @@ import {
 
 import { COMMON_IDENTIFIERS } from './identifiers'
 
-import { resolveIdentifierName } from '../../resolver'
+import { Resolver } from '../../resolver'
 import { IRenderState } from '../../types'
 import { propertyAccessForIdentifier } from './utils'
 
@@ -28,7 +28,7 @@ export function renderValue(
     switch (node.type) {
         case SyntaxType.Identifier:
             return ts.createIdentifier(
-                resolveIdentifierName(node.value, state).fullName,
+                Resolver.resolveIdentifierName(node.value, state).fullName,
             )
 
         case SyntaxType.IntConstant:

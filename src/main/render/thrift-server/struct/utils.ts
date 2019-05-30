@@ -8,7 +8,7 @@ import {
 
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
-import { resolveIdentifierName } from '../../../resolver'
+import { Resolver } from '../../../resolver'
 import { IRenderState, IResolvedIdentifier } from '../../../types'
 import { throwProtocolException } from '../utils'
 
@@ -19,7 +19,10 @@ function makeNameForNode(
     state: IRenderState,
     mapping: NameMapping,
 ): string {
-    const resolvedId: IResolvedIdentifier = resolveIdentifierName(name, state)
+    const resolvedId: IResolvedIdentifier = Resolver.resolveIdentifierName(
+        name,
+        state,
+    )
     if (resolvedId.pathName) {
         return `${resolvedId.pathName}.${mapping(resolvedId.baseName)}`
     } else {

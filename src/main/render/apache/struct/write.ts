@@ -30,7 +30,7 @@ import {
 
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
-import { resolveIdentifierDefinition } from '../../../resolver'
+import { Resolver } from '../../../resolver'
 import { WRITE_METHODS, WriteMethodName } from './methods'
 
 function isNotVoid(field: FieldDefinition): boolean {
@@ -196,7 +196,7 @@ export function writeValueForType(
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return writeValueForIdentifier(
-                resolveIdentifierDefinition(fieldType, {
+                Resolver.resolveIdentifierDefinition(fieldType, {
                     currentNamespace: state.currentNamespace,
                     namespaceMap: state.project.namespaces,
                 }),

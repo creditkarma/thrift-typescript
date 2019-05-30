@@ -5,7 +5,7 @@ import {
     ThriftErrors,
 } from '@creditkarma/thrift-parser'
 
-import { exportsForFile } from '../resolver'
+import { Resolver } from '../resolver'
 
 import {
     IFileExports,
@@ -49,7 +49,7 @@ export function parseThriftFile(
 ): IParsedFile {
     const thriftDoc: ThriftDocument = parseThriftString(file.source)
 
-    const exports: IFileExports = exportsForFile(thriftDoc.body)
+    const exports: IFileExports = Resolver.exportsForFile(thriftDoc.body)
 
     const namespace: INamespacePath = namespaceForFile(
         thriftDoc.body,

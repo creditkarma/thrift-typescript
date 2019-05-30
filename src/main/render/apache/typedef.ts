@@ -4,7 +4,7 @@ import { SyntaxType, TypedefDefinition } from '@creditkarma/thrift-parser'
 
 import { TypeMapping } from './types'
 
-import { resolveIdentifierName } from '../../resolver'
+import { Resolver } from '../../resolver'
 import { IRenderState, IResolvedIdentifier } from '../../types'
 
 function renderTypeDefForIdentifier(
@@ -29,7 +29,10 @@ export function renderTypeDef(
     switch (node.definitionType.type) {
         case SyntaxType.Identifier:
             return renderTypeDefForIdentifier(
-                resolveIdentifierName(node.definitionType.value, state),
+                Resolver.resolveIdentifierName(
+                    node.definitionType.value,
+                    state,
+                ),
                 node,
             )
 

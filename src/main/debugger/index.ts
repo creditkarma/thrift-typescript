@@ -119,3 +119,16 @@ export function printErrors(files: Array<INamespace>): void {
         })
     })
 }
+
+export function collectInvalidFiles<T extends { errors: Array<IThriftError> }>(
+    resolvedFiles: Array<T>,
+    errors: Array<T> = [],
+): Array<T> {
+    for (const file of resolvedFiles) {
+        if (file.errors.length > 0) {
+            errors.push(file)
+        }
+    }
+
+    return errors
+}

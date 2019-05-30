@@ -11,7 +11,7 @@ import { COMMON_IDENTIFIERS } from '../identifiers'
 
 import { createAnyType, createPromiseType, TypeMapping } from '../types'
 
-import { resolveIdentifierName } from '../../../resolver'
+import { Resolver } from '../../../resolver'
 import {
     DefinitionType,
     INamespace,
@@ -123,7 +123,7 @@ export function renderHandlerInterface(
                     ts.createTypeReferenceNode(
                         ts.createIdentifier(
                             `${
-                                resolveIdentifierName(
+                                Resolver.resolveIdentifierName(
                                     service.extends.value,
                                     state,
                                 ).fullName

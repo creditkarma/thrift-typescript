@@ -40,7 +40,7 @@ import {
     typeNodeForFieldType,
 } from '../types'
 
-import { resolveIdentifierName } from '../../../resolver'
+import { Resolver } from '../../../resolver'
 import { IRenderState } from '../../../types'
 import { createPromiseType, createUndefinedType } from '../../shared/types'
 
@@ -155,13 +155,16 @@ export function renderClient(
                   ts.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
                       ts.createExpressionWithTypeArguments(
                           [],
-                          ts.createIdentifier(
-                              `${
-                                  resolveIdentifierName(
-                                      node.extends.value,
-                                      state,
-                                  ).fullName
-                              }.Client`,
+                          ts.createPropertyAccess(
+                              ts.createIdentifier(
+                                  `${
+                                      Resolver.resolveIdentifierName(
+                                          node.extends.value,
+                                          state,
+                                      ).fullName
+                                  }`,
+                              ),
+                              COMMON_IDENTIFIERS.Client,
                           ),
                       ),
                   ]),
@@ -172,7 +175,7 @@ export function renderClient(
     return ts.createClassDeclaration(
         undefined, // decorators
         [ts.createToken(ts.SyntaxKind.ExportKeyword)], // modifiers
-        'Client', // name
+        COMMON_IDENTIFIERS.Client, // name
         [], // type parameters
         heritage, // heritage
         [
@@ -311,9 +314,7 @@ function createBaseMethodForDefinition(
                                                 ts.createBlock(
                                                     [
                                                         createCallStatement(
-                                                            ts.createIdentifier(
-                                                                'resolve',
-                                                            ),
+                                                            COMMON_IDENTIFIERS.resolve,
                                                             [
                                                                 COMMON_IDENTIFIERS.result,
                                                             ],
@@ -329,7 +330,7 @@ function createBaseMethodForDefinition(
                             ),
                             // this.send_{{name}}( {{#args}}{{fieldName}}, {{/args}} )
                             createMethodCallStatement(
-                                ts.createIdentifier('this'),
+                                COMMON_IDENTIFIERS.this,
                                 `send_${def.name.value}`,
                                 [
                                     ...def.fields.map(

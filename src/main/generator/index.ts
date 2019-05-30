@@ -5,7 +5,7 @@ import { ThriftStatement } from '@creditkarma/thrift-parser'
 import { rendererForTarget } from '../render'
 import { processStatements, renderStatement } from './iterator'
 
-import { exportsForFile } from '../resolver'
+import { Resolver } from '../resolver'
 import {
     DefinitionType,
     IGeneratedFile,
@@ -51,7 +51,7 @@ function generateFileFromStatements(
         const state: IRenderState = {
             options: thriftProject.options,
             currentNamespace: namespace,
-            currentDefinitions: exportsForFile([statement]),
+            currentDefinitions: Resolver.exportsForFile([statement]),
             project: thriftProject,
         }
 
@@ -93,7 +93,7 @@ function generateFilesFromKey(
         const state: IRenderState = {
             options: thriftProject.options,
             currentNamespace: namespace,
-            currentDefinitions: exportsForFile(statements),
+            currentDefinitions: Resolver.exportsForFile(statements),
             project: thriftProject,
         }
 

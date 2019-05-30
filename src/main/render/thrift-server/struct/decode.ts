@@ -40,7 +40,7 @@ import { DefinitionType, IRenderState } from '../../../types'
 
 import { READ_METHODS } from './methods'
 
-import { resolveIdentifierDefinition } from '../../../resolver'
+import { Resolver } from '../../../resolver'
 
 import { strictNameForStruct, toolkitName } from './utils'
 
@@ -378,7 +378,7 @@ export function readValueForFieldType(
 ): Array<ts.Statement> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
-            const definition = resolveIdentifierDefinition(fieldType, {
+            const definition = Resolver.resolveIdentifierDefinition(fieldType, {
                 currentNamespace: state.currentNamespace,
                 namespaceMap: state.project.namespaces,
             })

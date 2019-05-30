@@ -48,7 +48,7 @@ import {
     renderServiceAnnotationsStaticProperty,
 } from '../annotations'
 
-import { resolveIdentifierName } from '../../../resolver'
+import { Resolver } from '../../../resolver'
 import { createBufferType, createPromiseType } from '../../shared/types'
 import { createClassConstructor } from '../../shared/utils'
 import { looseName, strictName, toolkitName } from '../struct/utils'
@@ -69,10 +69,14 @@ function extendsService(
     return ts.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
         ts.createExpressionWithTypeArguments(
             [ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined)],
-            ts.createIdentifier(
-                `${
-                    resolveIdentifierName(service.value, state).fullName
-                }.Client`,
+            ts.createPropertyAccess(
+                ts.createIdentifier(
+                    `${
+                        Resolver.resolveIdentifierName(service.value, state)
+                            .fullName
+                    }`,
+                ),
+                COMMON_IDENTIFIERS.Client,
             ),
         ),
     ])
@@ -108,7 +112,7 @@ export function renderClient(
     return ts.createClassDeclaration(
         undefined, // decorators
         [ts.createToken(ts.SyntaxKind.ExportKeyword)], // modifiers
-        'Client', // name
+        COMMON_IDENTIFIERS.Client, // name
         [
             ts.createTypeParameterDeclaration(
                 COMMON_IDENTIFIERS.Context,
@@ -527,7 +531,7 @@ function createNewResultInstance(
                     ts.createIdentifier(
                         toolkitName(createStructResultName(def), state),
                     ),
-                    ts.createIdentifier('decode'),
+                    COMMON_IDENTIFIERS.decode,
                 ),
                 undefined,
                 [COMMON_IDENTIFIERS.input],
@@ -538,7 +542,10 @@ function createNewResultInstance(
 
 function resolvePromiseWith(result: ts.Expression): ts.CallExpression {
     return ts.createCall(
-        ts.createPropertyAccess(COMMON_IDENTIFIERS.Promise, 'resolve'),
+        ts.createPropertyAccess(
+            COMMON_IDENTIFIERS.Promise,
+            COMMON_IDENTIFIERS.resolve,
+        ),
         undefined,
         [result],
     )
@@ -546,7 +553,10 @@ function resolvePromiseWith(result: ts.Expression): ts.CallExpression {
 
 function rejectPromiseWith(result: ts.Expression): ts.CallExpression {
     return ts.createCall(
-        ts.createPropertyAccess(COMMON_IDENTIFIERS.Promise, 'reject'),
+        ts.createPropertyAccess(
+            COMMON_IDENTIFIERS.Promise,
+            COMMON_IDENTIFIERS.reject,
+        ),
         undefined,
         [result],
     )
@@ -555,7 +565,12 @@ function rejectPromiseWith(result: ts.Expression): ts.CallExpression {
 function createResultReturn(def: FunctionDefinition): ts.Statement {
     if (def.returnType.type === SyntaxType.VoidKeyword) {
         return ts.createReturn(
-            resolvePromiseWith(ts.createIdentifier('result.success')),
+            resolvePromiseWith(
+                ts.createPropertyAccess(
+                    COMMON_IDENTIFIERS.result,
+                    COMMON_IDENTIFIERS.success,
+                ),
+            ),
         )
     } else {
         // {{^isVoid}}
@@ -564,12 +579,20 @@ function createResultReturn(def: FunctionDefinition): ts.Statement {
         // }
         // {{/isVoid}}
         return ts.createIf(
-            createNotNullCheck(ts.createIdentifier('result.success')),
+            createNotNullCheck(
+                ts.createPropertyAccess(
+                    COMMON_IDENTIFIERS.result,
+                    COMMON_IDENTIFIERS.success,
+                ),
+            ),
             ts.createBlock(
                 [
                     ts.createReturn(
                         resolvePromiseWith(
-                            ts.createIdentifier('result.success'),
+                            ts.createPropertyAccess(
+                                COMMON_IDENTIFIERS.result,
+                                COMMON_IDENTIFIERS.success,
+                            ),
                         ),
                     ),
                 ],

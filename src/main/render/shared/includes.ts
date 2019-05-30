@@ -9,8 +9,8 @@ import {
     ThriftStatement,
 } from '@creditkarma/thrift-parser'
 
+import { Resolver } from '../../resolver'
 import { DefinitionType, INamespacePath, IRenderState } from '../../types'
-import { identifiersForStatements } from '../../utils'
 import { COMMON_IDENTIFIERS } from './identifiers'
 
 function fieldTypeUsesThrift(fieldType: FieldType): boolean {
@@ -159,7 +159,7 @@ export function renderIncludes(
 
     const imports: Array<ts.ImportDeclaration> = []
 
-    const identifiers: Array<string> = identifiersForStatements(
+    const identifiers: Array<string> = Resolver.identifiersForStatements(
         statements,
         state,
     )

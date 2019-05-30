@@ -27,10 +27,7 @@ import {
     unionTypeName,
 } from './union/union-fields'
 
-import {
-    resolveIdentifierDefinition,
-    resolveIdentifierName,
-} from '../../resolver'
+import { Resolver } from '../../resolver'
 import { createConst } from '../shared/utils'
 
 function renderStrictInterfaceReexport(
@@ -426,14 +423,14 @@ export function renderTypeDef(
 ): Array<ts.Statement> {
     switch (node.definitionType.type) {
         case SyntaxType.Identifier:
-            const resolvedIdentifier = resolveIdentifierName(
+            const resolvedIdentifier = Resolver.resolveIdentifierName(
                 node.definitionType.value,
                 state,
             )
 
             return renderTypeDefForIdentifier(
                 resolvedIdentifier,
-                resolveIdentifierDefinition(node.definitionType, {
+                Resolver.resolveIdentifierDefinition(node.definitionType, {
                     currentNamespace: state.currentNamespace,
                     namespaceMap: state.project.namespaces,
                 }),

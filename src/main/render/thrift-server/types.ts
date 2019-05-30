@@ -20,10 +20,7 @@ import {
     createVoidType,
 } from '../shared/types'
 
-import {
-    resolveIdentifierDefinition,
-    resolveIdentifierName,
-} from '../../resolver'
+import { Resolver } from '../../resolver'
 import { looseName, strictName } from './struct/utils'
 
 export * from '../shared/types'
@@ -150,7 +147,7 @@ export function thriftTypeForFieldType(
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return thriftTypeForIdentifier(
-                resolveIdentifierDefinition(fieldType, {
+                Resolver.resolveIdentifierDefinition(fieldType, {
                     currentNamespace: state.currentNamespace,
                     namespaceMap: state.project.namespaces,
                 }),
@@ -254,7 +251,7 @@ function typeNodeForIdentifier(
         default:
             return ts.createTypeReferenceNode(
                 ts.createIdentifier(
-                    resolveIdentifierName(name, state).fullName,
+                    Resolver.resolveIdentifierName(name, state).fullName,
                 ),
                 undefined,
             )
@@ -269,7 +266,7 @@ export function typeNodeForFieldType(
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return typeNodeForIdentifier(
-                resolveIdentifierDefinition(fieldType, {
+                Resolver.resolveIdentifierDefinition(fieldType, {
                     currentNamespace: state.currentNamespace,
                     namespaceMap: state.project.namespaces,
                 }),

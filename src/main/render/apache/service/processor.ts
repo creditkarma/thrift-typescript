@@ -23,7 +23,7 @@ import {
     createPublicMethod,
 } from '../utils'
 
-import { resolveIdentifierName } from '../../../resolver'
+import { Resolver } from '../../../resolver'
 import { IRenderState } from '../../../types'
 
 import {
@@ -121,7 +121,7 @@ export function renderHandlerInterface(
                     ts.createTypeReferenceNode(
                         ts.createIdentifier(
                             `${
-                                resolveIdentifierName(
+                                Resolver.resolveIdentifierName(
                                     service.extends.value,
                                     state,
                                 ).fullName
@@ -241,7 +241,7 @@ export function renderProcessor(
                           ts.createPropertyAccess(
                               ts.createIdentifier(
                                   `${
-                                      resolveIdentifierName(
+                                      Resolver.resolveIdentifierName(
                                           node.extends.value,
                                           state,
                                       ).fullName
@@ -544,7 +544,8 @@ function createElseForExceptions(
                 constructorNameForFieldType(
                     next.fieldType,
                     (name: string) => {
-                        return resolveIdentifierName(name, state).fullName
+                        return Resolver.resolveIdentifierName(name, state)
+                            .fullName
                     },
                     state,
                 ),
@@ -672,7 +673,7 @@ function createIfForExceptions(
             constructorNameForFieldType(
                 throwDef.fieldType,
                 (name: string) => {
-                    return resolveIdentifierName(name, state).fullName
+                    return Resolver.resolveIdentifierName(name, state).fullName
                 },
                 state,
             ),
