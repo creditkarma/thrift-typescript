@@ -20,16 +20,17 @@ import { readThriftFile } from './reader'
 import { rendererForTarget } from './render'
 
 import { ThriftStatement } from '@creditkarma/thrift-parser'
-import * as Parser from './parser'
-import * as Resolver from './resolver'
+import { Parser } from './parser'
+import { Resolver } from './resolver'
 import { resolveNamespace } from './resolver/resolveNamespace'
+import * as Sys from './sys'
 import * as Utils from './utils'
 import * as Validator from './validator'
 
 export { Resolver }
 export { Parser }
-export { Validator }
 export { Utils }
+export { Sys }
 
 // Reexport thrift-parser so we can use all those types with the enhanced parser exported from
 // this project.
@@ -219,5 +220,5 @@ export async function generate(
 
     const generatedFiles: Array<IGeneratedFile> = generateProject(thriftProject)
 
-    Utils.saveFiles(generatedFiles, outDir)
+    Sys.saveFiles(generatedFiles, outDir)
 }

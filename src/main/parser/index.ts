@@ -17,7 +17,7 @@ import {
 
 import { includesForFile, namespaceForFile } from '../utils'
 
-export function parseThriftString(source: string): ThriftDocument {
+function parseThriftString(source: string): ThriftDocument {
     const thrift: ThriftDocument | ThriftErrors = parse(source)
     switch (thrift.type) {
         case SyntaxType.ThriftDocument:
@@ -28,7 +28,7 @@ export function parseThriftString(source: string): ThriftDocument {
     }
 }
 
-export function parseFromSource(
+function parseFromSource(
     source: string,
     fallbackNamespace: string,
 ): IParsedFile {
@@ -43,7 +43,7 @@ export function parseFromSource(
     return parseThriftFile(sourceFile, fallbackNamespace)
 }
 
-export function parseThriftFile(
+function parseThriftFile(
     file: ISourceFile,
     fallbackNamespace: string,
 ): IParsedFile {
@@ -67,4 +67,10 @@ export function parseThriftFile(
         body: thriftDoc.body,
         errors: [],
     }
+}
+
+export const Parser = {
+    parseFromSource,
+    parseThriftString,
+    parseThriftFile,
 }

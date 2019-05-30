@@ -626,13 +626,16 @@ export function readValueForFieldType(
 export function readStructBegin(): ts.ExpressionStatement {
     return createMethodCallStatement(
         COMMON_IDENTIFIERS.input,
-        'readStructBegin',
+        COMMON_IDENTIFIERS.readStructBegin,
     )
 }
 
 // input.readStructEnd()
 export function readStructEnd(): ts.ExpressionStatement {
-    return createMethodCallStatement(COMMON_IDENTIFIERS.input, 'readStructEnd')
+    return createMethodCallStatement(
+        COMMON_IDENTIFIERS.input,
+        COMMON_IDENTIFIERS.readStructEnd,
+    )
 }
 
 // input.readFieldBegin()

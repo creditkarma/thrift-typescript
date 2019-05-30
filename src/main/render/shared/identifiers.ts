@@ -80,4 +80,6 @@ export const COMMON_IDENTIFIERS = {
     IHandler: ts.createIdentifier('IHandler'),
     ILocalHandler: ts.createIdentifier('ILocalHandler'),
     Node_Int64: ts.createIdentifier('Int64'),
+    readStructBegin: ts.createIdentifier('readStructBegin'),
+    readStructEnd: ts.createIdentifier('readStructEnd'),
 }

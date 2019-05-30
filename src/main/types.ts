@@ -285,9 +285,12 @@ export interface IResolvedIdentifier {
 export interface IGeneratedFile {
     type: 'GeneratedFile'
 
+    // File name
     name: string
 
+    // Path to save file
     path: string
 
+    // Body of file as TS Nodes
     body: Array<ts.Statement>
 }

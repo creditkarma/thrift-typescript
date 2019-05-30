@@ -5,13 +5,11 @@ import {
     ThriftStatement,
 } from '@creditkarma/thrift-parser'
 
-import * as fs from 'fs'
 import * as glob from 'glob'
 import * as path from 'path'
 
 import {
     IFileIncludes,
-    IGeneratedFile,
     IIncludePath,
     INamespaceMap,
     INamespacePath,
@@ -20,9 +18,6 @@ import {
     IParsedFileMap,
     ISourceFile,
 } from './types'
-
-import { print } from './printer'
-import { mkdir } from './sys'
 
 export function valuesForObject<T>(obj: { [key: string]: T }): Array<T> {
     return Object.keys(obj).map((next: string) => {
@@ -101,6 +96,7 @@ export function collectSourceFiles(
 export function nameForInclude(fullInclude: string): string {
     const body = fullInclude.replace('.thrift', '')
     const parts = body.split('/')
+
     return parts[parts.length - 1]
 }
 
@@ -337,22 +333,4 @@ export function organizeByNamespace(
 
         return acc
     }, {})
-}
-
-export function saveFiles(files: Array<IGeneratedFile>, outDir: string): void {
-    files.forEach((next: IGeneratedFile) => {
-        const outPath: string = path.resolve(
-            outDir,
-            next.path,
-            `${next.name}.ts`,
-        )
-
-        mkdir(path.dirname(outPath))
-
-        try {
-            fs.writeFileSync(outPath, print(next.body, true))
-        } catch (err) {
-            throw new Error(`Unable to save generated files to: ${outPath}`)
-        }
-    })
 }
