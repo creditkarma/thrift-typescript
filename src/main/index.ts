@@ -1,9 +1,6 @@
 import * as path from 'path'
 
-import { parseFromSource, parseThriftFile } from './parser'
-
 import {
-    IFileExports,
     IGeneratedFile,
     IMakeOptions,
     INamespace,
@@ -27,14 +24,16 @@ import * as Parser from './parser'
 import * as Resolver from './resolver'
 import { resolveNamespace } from './resolver/resolveNamespace'
 import * as Utils from './utils'
-import { validateNamespace } from './validator'
-// import * as Validator from './validator'
-// import { ThriftStatement, SyntaxType } from '@creditkarma/thrift-parser';
+import * as Validator from './validator'
 
 export { Resolver }
 export { Parser }
-// export { Validator }
+export { Validator }
 export { Utils }
+
+// Reexport thrift-parser so we can use all those types with the enhanced parser exported from
+// this project.
+export * from '@creditkarma/thrift-parser'
 
 /**
  * This function is mostly for testing purposes. It does not support includes.
@@ -49,27 +48,22 @@ export function make(
     options: Partial<IMakeOptions> = {},
 ): string {
     const mergedOptions: IMakeOptions = mergeWithDefaults(options)
-    const parsedFile: IParsedFile = parseThriftSource(source, options)
 
-    const fileExports: IFileExports = Resolver.exportsForFile(parsedFile.body)
-
-    const namespace: INamespace = {
-        type: 'Namespace',
-        namespace: Utils.emptyNamespace(),
-        exports: fileExports,
-        includedNamespaces: {},
-        namespaceIncludes: {},
-        errors: [],
-        constants: [],
-        enums: [],
-        typedefs: [],
-        structs: [],
-        unions: [],
-        exceptions: [],
-        services: [],
+    const sourceFile: ISourceFile = {
+        type: 'SourceFile',
+        name: 'source.thrift',
+        path: '',
+        fullPath: '',
+        source,
     }
 
-    const resolvedNamespace: INamespace = resolveNamespace(namespace, {})
+    const thriftProject: IThriftProject = thriftProjectFromSourceFiles(
+        [sourceFile],
+        mergedOptions,
+    )
+
+    const resolvedNamespace: INamespace =
+        thriftProject.namespaces['__ROOT_NAMESPACE__']
 
     const state: IRenderState = {
         options: mergedOptions,
@@ -85,7 +79,7 @@ export function make(
         },
     }
 
-    const resolvedBody: Array<ThriftStatement> = Object.keys(
+    const statements: Array<ThriftStatement> = Object.keys(
         resolvedNamespace.exports,
     ).map((next: string) => {
         return resolvedNamespace.exports[next]
@@ -93,29 +87,11 @@ export function make(
 
     return print(
         processStatements(
-            resolvedBody,
+            statements,
             state,
             rendererForTarget(mergedOptions.target),
         ),
     )
-}
-
-export function parseThriftSource(
-    source: string,
-    options: Partial<IMakeOptions> = {},
-): IParsedFile {
-    const mergedOptions: IMakeOptions = mergeWithDefaults(options)
-
-    const parsedFile: IParsedFile = parseFromSource(
-        source,
-        mergedOptions.fallbackNamespace,
-    )
-
-    if (parsedFile.errors.length > 0) {
-        throw new Error(`Unable to validate thrift source`)
-    }
-
-    return parsedFile
 }
 
 export async function readThriftFiles(options: {
@@ -143,7 +119,10 @@ export async function readThriftFiles(options: {
     return thriftFiles
 }
 
-export async function generate(options: Partial<IMakeOptions>): Promise<void> {
+export function thriftProjectFromSourceFiles(
+    sourceFiles: Array<ISourceFile>,
+    options: Partial<IMakeOptions> = {},
+): IThriftProject {
     const mergedOptions: IMakeOptions = mergeWithDefaults(options)
 
     // Root at which we operate relative to
@@ -155,15 +134,9 @@ export async function generate(options: Partial<IMakeOptions>): Promise<void> {
     // Where do we read source files
     const sourceDir: string = path.resolve(rootDir, mergedOptions.sourceDir)
 
-    const thriftFiles: Array<ISourceFile> = await readThriftFiles({
-        rootDir,
-        sourceDir,
-        files: mergedOptions.files,
-    })
-
-    const parsedFiles: Array<IParsedFile> = thriftFiles.map(
+    const parsedFiles: Array<IParsedFile> = sourceFiles.map(
         (next: ISourceFile) =>
-            parseThriftFile(next, mergedOptions.fallbackNamespace),
+            Parser.parseThriftFile(next, mergedOptions.fallbackNamespace),
     )
 
     const namespaces: INamespaceMap = Utils.organizeByNamespace(
@@ -188,33 +161,61 @@ export async function generate(options: Partial<IMakeOptions>): Promise<void> {
     if (resolvedInvalidFiles.length > 0) {
         Debugger.printErrors(resolvedInvalidFiles)
         throw new Error(`Unable to parse Thrift files`)
+    } else {
+        const validatedNamespaces: INamespaceMap = Object.keys(
+            resolvedNamespaces,
+        ).reduce((acc: INamespaceMap, next: string) => {
+            const nextNamespace: INamespace = namespaces[next]
+            acc[next] = Validator.validateNamespace(nextNamespace, namespaces)
+            return acc
+        }, {})
+
+        const validatedInvalidFiles: Array<
+            INamespace
+        > = Utils.collectInvalidFiles(
+            Utils.valuesForObject(validatedNamespaces),
+        )
+
+        if (validatedInvalidFiles.length > 0) {
+            Debugger.printErrors(validatedInvalidFiles)
+            throw new Error(`Unable to parse Thrift files`)
+        } else {
+            return {
+                type: 'ThriftProject',
+                rootDir,
+                outDir,
+                sourceDir,
+                namespaces: resolvedNamespaces,
+                options: mergedOptions,
+            }
+        }
     }
+}
 
-    const validatedNamespaces: INamespaceMap = Object.keys(
-        resolvedNamespaces,
-    ).reduce((acc: INamespaceMap, next: string) => {
-        const nextNamespace: INamespace = namespaces[next]
-        acc[next] = validateNamespace(nextNamespace, namespaces)
-        return acc
-    }, {})
+export async function generate(
+    options: Partial<IMakeOptions> = {},
+): Promise<void> {
+    const mergedOptions: IMakeOptions = mergeWithDefaults(options)
 
-    const validatedInvalidFiles: Array<INamespace> = Utils.collectInvalidFiles(
-        Utils.valuesForObject(validatedNamespaces),
-    )
+    // Root at which we operate relative to
+    const rootDir: string = path.resolve(process.cwd(), mergedOptions.rootDir)
 
-    if (validatedInvalidFiles.length > 0) {
-        Debugger.printErrors(validatedInvalidFiles)
-        throw new Error(`Unable to parse Thrift files`)
-    }
+    // Where do we save generated files
+    const outDir: string = path.resolve(rootDir, mergedOptions.outDir)
 
-    const thriftProject: IThriftProject = {
-        type: 'ThriftProject',
+    // Where do we read source files
+    const sourceDir: string = path.resolve(rootDir, mergedOptions.sourceDir)
+
+    const sourceFiles: Array<ISourceFile> = await readThriftFiles({
         rootDir,
-        outDir,
         sourceDir,
-        namespaces: resolvedNamespaces,
-        options: mergedOptions,
-    }
+        files: mergedOptions.files,
+    })
+
+    const thriftProject: IThriftProject = thriftProjectFromSourceFiles(
+        sourceFiles,
+        mergedOptions,
+    )
 
     const generatedFiles: Array<IGeneratedFile> = generateProject(thriftProject)
 
