@@ -56,13 +56,13 @@ export function resolveNamespace(
     currentNamespace: INamespace,
     namespaceMap: INamespaceMap,
 ): INamespace {
-    const body: Array<DefinitionType> = Object.keys(
+    const statements: Array<DefinitionType> = Object.keys(
         currentNamespace.exports,
     ).map((next: string) => {
         return currentNamespace.exports[next]
     })
 
-    const bodySize: number = body.length
+    const bodySize: number = statements.length
     let currentIndex: number = 0
 
     const errors: Array<IThriftError> = []
@@ -72,7 +72,7 @@ export function resolveNamespace(
 
         while (!isAtEnd()) {
             try {
-                const statement = resolveStatement(body[currentIndex])
+                const statement = resolveStatement(statements[currentIndex])
 
                 if (statement !== null) {
                     newBody.push(statement)

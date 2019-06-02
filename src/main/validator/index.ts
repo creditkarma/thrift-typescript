@@ -38,12 +38,12 @@ export function validateNamespace(
     currentNamespace: INamespace,
     namespaceMap: INamespaceMap,
 ): INamespace {
-    const body: Array<DefinitionType> = Object.keys(
+    const statements: Array<DefinitionType> = Object.keys(
         currentNamespace.exports,
     ).map((next: string) => {
         return currentNamespace.exports[next]
     })
-    const bodySize: number = body.length
+    const bodySize: number = statements.length
     let currentIndex: number = 0
 
     const errors: Array<IThriftError> = []
@@ -51,7 +51,7 @@ export function validateNamespace(
     function validateStatements(): void {
         while (!isAtEnd()) {
             try {
-                validateStatement(body[currentIndex])
+                validateStatement(statements[currentIndex])
             } catch (e) {
                 errors.push(createValidationError(e.message, e.loc))
             }
