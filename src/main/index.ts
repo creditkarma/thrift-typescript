@@ -35,6 +35,9 @@ export { Sys }
 // this project.
 export * from '@creditkarma/thrift-parser'
 
+// Expose the file generator
+export { generateProject }
+
 /**
  * This function is mostly for testing purposes. It does not support includes.
  * Given a string of Thrift IDL it will return a string of TypeScript. If the
@@ -192,16 +195,13 @@ export function thriftProjectFromSourceFiles(
     }
 }
 
-export async function generate(
+export async function processThriftProject(
     options: Partial<IMakeOptions> = {},
-): Promise<void> {
+): Promise<IThriftProject> {
     const mergedOptions: IMakeOptions = mergeWithDefaults(options)
 
     // Root at which we operate relative to
     const rootDir: string = path.resolve(process.cwd(), mergedOptions.rootDir)
-
-    // Where do we save generated files
-    const outDir: string = path.resolve(rootDir, mergedOptions.outDir)
 
     // Where do we read source files
     const sourceDir: string = path.resolve(rootDir, mergedOptions.sourceDir)
@@ -212,12 +212,15 @@ export async function generate(
         files: mergedOptions.files,
     })
 
-    const thriftProject: IThriftProject = thriftProjectFromSourceFiles(
-        sourceFiles,
-        mergedOptions,
-    )
+    return thriftProjectFromSourceFiles(sourceFiles, mergedOptions)
+}
+
+export async function generate(
+    options: Partial<IMakeOptions> = {},
+): Promise<void> {
+    const thriftProject: IThriftProject = await processThriftProject(options)
 
     const generatedFiles: Array<IGeneratedFile> = generateProject(thriftProject)
 
-    Sys.saveFiles(generatedFiles, outDir)
+    Sys.saveFiles(generatedFiles, thriftProject.outDir)
 }
