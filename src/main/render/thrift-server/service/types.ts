@@ -10,7 +10,7 @@ export const TProtocolType: ts.TypeNode = ts.createTypeReferenceNode(
 )
 
 export const ContextType: ts.TypeNode = ts.createTypeReferenceNode(
-    'Context',
+    COMMON_IDENTIFIERS.Context,
     undefined,
 )
 

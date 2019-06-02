@@ -1,4 +1,5 @@
 import {
+    BaseType,
     ConstValue,
     EnumMember,
     FieldDefinition,
@@ -9,28 +10,21 @@ import {
     Identifier,
     IntConstant,
     SyntaxType,
-    ThriftStatement,
 } from '@creditkarma/thrift-parser'
 
 import {
-    IFileExports,
+    DefinitionType,
+    INamespace,
+    INamespaceMap,
     INamespacePath,
-    INamespacePathMap,
-    INamespaceToIncludeMap,
-    IParsedFile,
-    IResolvedFile,
-    ParsedFileMap,
 } from '../types'
 
 import { createValidationError, IThriftError, ValidationError } from '../errors'
 
-import { emptyLocation, namespaceForInclude } from '../utils'
+import { emptyLocation } from '../utils'
 
-import {
-    exportsForFile,
-    resolveConstValue,
-    resolveIdentifierDefinition,
-} from './utils'
+import { resolveConstValue } from './resolveConstValue'
+import { resolveIdentifierDefinition } from './resolveIdentifierDefinition'
 
 /**
  * What do you mean, resolve file?
@@ -59,31 +53,33 @@ import {
  * @param sourceDir
  * @param options
  */
-export function resolveFile(
-    parsedFile: IParsedFile,
-    files: ParsedFileMap,
-    sourceDir: string,
-    fallbackNamespace: string,
-): IResolvedFile {
-    const body: Array<ThriftStatement> = parsedFile.body
-    const bodySize: number = body.length
+export function resolveNamespace(
+    currentNamespace: INamespace,
+    namespaceMap: INamespaceMap,
+): INamespace {
+    const statements: Array<DefinitionType> = Object.keys(
+        currentNamespace.exports,
+    ).map((next: string) => {
+        return currentNamespace.exports[next]
+    })
+
+    const bodySize: number = statements.length
     let currentIndex: number = 0
 
     const errors: Array<IThriftError> = []
-    const includedNamespaces: INamespacePathMap = {}
-    const namespaceToInclude: INamespaceToIncludeMap = {}
 
-    function resolveStatements(): Array<ThriftStatement> {
-        const newBody: Array<ThriftStatement> = []
+    function resolveStatements(): Array<DefinitionType> {
+        const newBody: Array<DefinitionType> = []
+
         while (!isAtEnd()) {
             try {
-                const statement = resolveStatement(body[currentIndex])
+                const statement = resolveStatement(statements[currentIndex])
 
                 if (statement !== null) {
                     newBody.push(statement)
                 }
-            } catch (e) {
-                errors.push(createValidationError(e.message, e.loc))
+            } catch (err) {
+                errors.push(createValidationError(err.message, err.loc))
             }
 
             currentIndex += 1
@@ -97,14 +93,9 @@ export function resolveFile(
     }
 
     function resolveStatement(
-        statement: ThriftStatement,
-    ): ThriftStatement | null {
+        statement: DefinitionType,
+    ): DefinitionType | null {
         switch (statement.type) {
-            case SyntaxType.NamespaceDefinition:
-            case SyntaxType.IncludeDefinition:
-            case SyntaxType.CppIncludeDefinition:
-                return null
-
             case SyntaxType.TypedefDefinition:
                 return {
                     type: SyntaxType.TypedefDefinition,
@@ -200,28 +191,17 @@ export function resolveFile(
 
     function resolveName(name: string): string {
         const [head, ...tail] = name.split('.')
-        if (parsedFile.exports[head] !== undefined) {
+
+        if (currentNamespace.exports[head] !== undefined) {
             return name
-        } else if (parsedFile.includes[head] !== undefined) {
-            const namespace: INamespacePath = namespaceForInclude(
-                parsedFile.includes[head],
-                files,
-                sourceDir,
-                fallbackNamespace,
-            )
-            const includeAccessor: string = namespace.name
-                .split('')
-                .map((next: string) => {
-                    if (next === '.') {
-                        return '_'
-                    } else {
-                        return next
-                    }
-                })
-                .join('')
-            includedNamespaces[includeAccessor] = namespace
-            namespaceToInclude[includeAccessor] = head
-            return [includeAccessor, ...tail].join('.')
+        } else if (currentNamespace.includedNamespaces[head] !== undefined) {
+            const namespacePath: INamespacePath =
+                currentNamespace.includedNamespaces[head]
+            return [namespacePath.accessor, ...tail].join('.')
+        } else if (currentNamespace.namespaceIncludes[head]) {
+            const namespaceAccessor: string =
+                currentNamespace.namespaceIncludes[head]
+            return [namespaceAccessor, ...tail].join('.')
         } else {
             return name
         }
@@ -237,7 +217,7 @@ export function resolveFile(
         }
     }
 
-    function isBaseType(fieldType: FieldType): boolean {
+    function isBaseType(fieldType: FieldType): fieldType is BaseType {
         switch (fieldType.type) {
             case SyntaxType.I8Keyword:
             case SyntaxType.I16Keyword:
@@ -259,18 +239,16 @@ export function resolveFile(
              * case.
              */
             case SyntaxType.Identifier:
-                const definition = resolveIdentifierDefinition(
-                    fieldType,
-                    parsedFile,
-                    files,
-                    sourceDir,
-                )
-                if (definition.type === SyntaxType.TypedefDefinition) {
-                    if (isBaseType(definition.definitionType)) {
-                        return definition.definitionType
-                    } else {
-                        return resolveIdentifier(fieldType)
-                    }
+                const definition = resolveIdentifierDefinition(fieldType, {
+                    currentNamespace,
+                    namespaceMap,
+                })
+
+                if (
+                    definition.type === SyntaxType.TypedefDefinition &&
+                    isBaseType(definition.definitionType)
+                ) {
+                    return definition.definitionType
                 } else {
                     return resolveIdentifier(fieldType)
                 }
@@ -345,13 +323,10 @@ export function resolveFile(
         value: ConstValue,
         fieldType: FunctionType,
     ): ConstValue {
-        const resolvedValue: ConstValue = resolveConstValue(
-            value,
-            fieldType,
-            parsedFile,
-            files,
-            sourceDir,
-        )
+        const resolvedValue: ConstValue = resolveConstValue(value, fieldType, {
+            currentNamespace,
+            namespaceMap,
+        })
 
         if (resolvedValue.type === SyntaxType.Identifier) {
             return resolveIdentifier(resolvedValue)
@@ -448,18 +423,51 @@ export function resolveFile(
         )
     }
 
-    const resolvedBody: Array<ThriftStatement> = resolveStatements()
-    const resolvedExports: IFileExports = exportsForFile(resolvedBody)
-
-    return {
-        type: 'ResolvedFile',
-        sourceFile: parsedFile.sourceFile,
-        namespace: parsedFile.namespace,
-        includedNamespaces,
-        namespaceToInclude,
-        includes: parsedFile.includes,
-        exports: resolvedExports,
-        body: resolvedBody,
-        errors,
+    const newNamespace: INamespace = {
+        type: 'Namespace',
+        namespace: currentNamespace.namespace,
+        exports: {},
+        includedNamespaces: currentNamespace.includedNamespaces,
+        namespaceIncludes: currentNamespace.namespaceIncludes,
+        errors: [],
+        constants: [],
+        enums: [],
+        typedefs: [],
+        structs: [],
+        unions: [],
+        exceptions: [],
+        services: [],
     }
+
+    resolveStatements().forEach((next: DefinitionType) => {
+        newNamespace.exports[next.name.value] = next
+
+        switch (next.type) {
+            case SyntaxType.ConstDefinition:
+                newNamespace.constants.push(next)
+                break
+            case SyntaxType.TypedefDefinition:
+                newNamespace.typedefs.push(next)
+                break
+            case SyntaxType.EnumDefinition:
+                newNamespace.enums.push(next)
+                break
+            case SyntaxType.StructDefinition:
+                newNamespace.structs.push(next)
+                break
+            case SyntaxType.UnionDefinition:
+                newNamespace.unions.push(next)
+                break
+            case SyntaxType.ExceptionDefinition:
+                newNamespace.exceptions.push(next)
+                break
+            case SyntaxType.ServiceDefinition:
+                newNamespace.services.push(next)
+                break
+        }
+    })
+
+    newNamespace.errors = errors
+
+    return newNamespace
 }

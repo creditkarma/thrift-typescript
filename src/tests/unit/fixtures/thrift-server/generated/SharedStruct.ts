@@ -4,14 +4,14 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 */
 import * as thrift from "test-lib";
-import * as __NAMESPACE__ from "./.";
+import * as Code from "./Code";
 export interface ISharedStruct {
     __name: "SharedStruct";
-    code: __NAMESPACE__.ICode;
+    code: Code.ICode;
     value: string;
 }
 export interface ISharedStructArgs {
-    code: __NAMESPACE__.ICodeArgs;
+    code: Code.ICodeArgs;
     value: string;
 }
 export const SharedStructCodec: thrift.IStructCodec<ISharedStructArgs, ISharedStruct> = {
@@ -23,7 +23,7 @@ export const SharedStructCodec: thrift.IStructCodec<ISharedStructArgs, ISharedSt
         output.writeStructBegin("SharedStruct");
         if (obj.code != null) {
             output.writeFieldBegin("code", thrift.TType.STRUCT, 1);
-            __NAMESPACE__.CodeCodec.encode(obj.code, output);
+            Code.CodeCodec.encode(obj.code, output);
             output.writeFieldEnd();
         }
         else {
@@ -54,7 +54,7 @@ export const SharedStructCodec: thrift.IStructCodec<ISharedStructArgs, ISharedSt
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_1: __NAMESPACE__.ICode = __NAMESPACE__.CodeCodec.decode(input);
+                        const value_1: Code.ICode = Code.CodeCodec.decode(input);
                         _args.code = value_1;
                     }
                     else {
@@ -90,7 +90,7 @@ export const SharedStructCodec: thrift.IStructCodec<ISharedStructArgs, ISharedSt
     }
 };
 export class SharedStruct extends thrift.StructLike implements ISharedStruct {
-    public code: __NAMESPACE__.ICode;
+    public code: Code.ICode;
     public value: string;
     public readonly __name = "SharedStruct";
     public readonly _annotations: thrift.IThriftAnnotations = {};
@@ -98,7 +98,7 @@ export class SharedStruct extends thrift.StructLike implements ISharedStruct {
     constructor(args: ISharedStructArgs) {
         super();
         if (args.code != null) {
-            const value_3: __NAMESPACE__.ICode = new __NAMESPACE__.Code(args.code);
+            const value_3: Code.ICode = new Code.Code(args.code);
             this.code = value_3;
         }
         else {

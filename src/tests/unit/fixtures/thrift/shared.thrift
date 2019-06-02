@@ -19,8 +19,11 @@ enum SharedEnum {
     value2
 }
 
-service SharedService {
-  SharedStruct getStruct(1: i32 key)
+service SharedServiceBase {
+    SharedStruct getStruct(1: i32 key)
+}
+
+service SharedService extends SharedServiceBase {
   SharedUnion getUnion(1: i32 index)
   SharedEnum getEnum()
 }

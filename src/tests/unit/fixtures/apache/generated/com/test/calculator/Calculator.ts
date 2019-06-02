@@ -7,8 +7,12 @@ import Int64 = require("node-int64");
 import * as thrift from "test-lib";
 import * as __ROOT_NAMESPACE__ from "./../../..";
 import * as com_test_operation from "./../operation";
+import * as NotAGoodIdea from "./NotAGoodIdea";
+import * as Work from "./Work";
+import * as Choice from "./Choice";
 import * as com_test_common from "./../common";
-import * as __NAMESPACE__ from "./.";
+import * as CommonStruct from "./CommonStruct";
+import * as TypedMap from "./TypedMap";
 export interface IPingArgsArgs {
 }
 export class PingArgs {
@@ -295,11 +299,11 @@ export class AddWithContextArgs {
 }
 export interface ICalculateArgsArgs {
     logid: number;
-    work: __NAMESPACE__.Work;
+    work: Work.Work;
 }
 export class CalculateArgs {
     public logid: number;
-    public work: __NAMESPACE__.Work;
+    public work: Work.Work;
     constructor(args: ICalculateArgsArgs) {
         if (args != null && args.logid != null) {
             this.logid = args.logid;
@@ -352,7 +356,7 @@ export class CalculateArgs {
                     break;
                 case 2:
                     if (fieldType === thrift.Thrift.Type.STRUCT) {
-                        const value_8: __NAMESPACE__.Work = __NAMESPACE__.Work.read(input);
+                        const value_8: Work.Work = Work.Work.read(input);
                         _args.work = value_8;
                     }
                     else {
@@ -493,10 +497,10 @@ export class EchoStringArgs {
     }
 }
 export interface ICheckNameArgsArgs {
-    choice: __NAMESPACE__.Choice;
+    choice: Choice.Choice;
 }
 export class CheckNameArgs {
-    public choice: __NAMESPACE__.Choice;
+    public choice: Choice.Choice;
     constructor(args: ICheckNameArgsArgs) {
         if (args != null && args.choice != null) {
             this.choice = args.choice;
@@ -529,7 +533,7 @@ export class CheckNameArgs {
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.Thrift.Type.STRUCT) {
-                        const value_11: __NAMESPACE__.Choice = __NAMESPACE__.Choice.read(input);
+                        const value_11: Choice.Choice = Choice.Choice.read(input);
                         _args.choice = value_11;
                     }
                     else {
@@ -856,6 +860,37 @@ export class FetchThingArgs {
         return new FetchThingArgs();
     }
 }
+export interface IFetchMapArgsArgs {
+}
+export class FetchMapArgs {
+    constructor() {
+    }
+    public write(output: thrift.TProtocol): void {
+        output.writeStructBegin("FetchMapArgs");
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    }
+    public static read(input: thrift.TProtocol): FetchMapArgs {
+        input.readStructBegin();
+        while (true) {
+            const ret: thrift.TField = input.readFieldBegin();
+            const fieldType: thrift.Thrift.Type = ret.ftype;
+            const fieldId: number = ret.fid;
+            if (fieldType === thrift.Thrift.Type.STOP) {
+                break;
+            }
+            switch (fieldId) {
+                default: {
+                    input.skip(fieldType);
+                }
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        return new FetchMapArgs();
+    }
+}
 export interface IZipArgsArgs {
 }
 export class ZipArgs {
@@ -1004,11 +1039,11 @@ export class AddResult {
 }
 export interface IAddInt64ResultArgs {
     success?: number | Int64;
-    exp?: __NAMESPACE__.NotAGoodIdea;
+    exp?: NotAGoodIdea.NotAGoodIdea;
 }
 export class AddInt64Result {
     public success?: Int64;
-    public exp?: __NAMESPACE__.NotAGoodIdea;
+    public exp?: NotAGoodIdea.NotAGoodIdea;
     constructor(args?: IAddInt64ResultArgs) {
         if (args != null && args.success != null) {
             if (typeof args.success === "number") {
@@ -1060,7 +1095,7 @@ export class AddInt64Result {
                     break;
                 case 1:
                     if (fieldType === thrift.Thrift.Type.STRUCT) {
-                        const value_27: __NAMESPACE__.NotAGoodIdea = __NAMESPACE__.NotAGoodIdea.read(input);
+                        const value_27: NotAGoodIdea.NotAGoodIdea = NotAGoodIdea.NotAGoodIdea.read(input);
                         _args.exp = value_27;
                     }
                     else {
@@ -1641,6 +1676,70 @@ export class FetchThingResult {
         return new FetchThingResult(_args);
     }
 }
+export interface IFetchMapResultArgs {
+    success?: TypedMap.TypedMap;
+}
+export class FetchMapResult {
+    public success?: TypedMap.TypedMap;
+    constructor(args?: IFetchMapResultArgs) {
+        if (args != null && args.success != null) {
+            this.success = args.success;
+        }
+    }
+    public write(output: thrift.TProtocol): void {
+        output.writeStructBegin("FetchMapResult");
+        if (this.success != null) {
+            output.writeFieldBegin("success", thrift.Thrift.Type.MAP, 0);
+            output.writeMapBegin(thrift.Thrift.Type.STRING, thrift.Thrift.Type.STRUCT, this.success.size);
+            this.success.forEach((value_45: CommonStruct.CommonStruct, key_5: string): void => {
+                output.writeString(key_5);
+                value_45.write(output);
+            });
+            output.writeMapEnd();
+            output.writeFieldEnd();
+        }
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    }
+    public static read(input: thrift.TProtocol): FetchMapResult {
+        input.readStructBegin();
+        let _args: any = {};
+        while (true) {
+            const ret: thrift.TField = input.readFieldBegin();
+            const fieldType: thrift.Thrift.Type = ret.ftype;
+            const fieldId: number = ret.fid;
+            if (fieldType === thrift.Thrift.Type.STOP) {
+                break;
+            }
+            switch (fieldId) {
+                case 0:
+                    if (fieldType === thrift.Thrift.Type.MAP) {
+                        const value_46: Map<string, CommonStruct.CommonStruct> = new Map<string, CommonStruct.CommonStruct>();
+                        const metadata_8: thrift.TMap = input.readMapBegin();
+                        const size_8: number = metadata_8.size;
+                        for (let i_8: number = 0; i_8 < size_8; i_8++) {
+                            const key_6: string = input.readString();
+                            const value_47: CommonStruct.CommonStruct = CommonStruct.CommonStruct.read(input);
+                            value_46.set(key_6, value_47);
+                        }
+                        input.readMapEnd();
+                        _args.success = value_46;
+                    }
+                    else {
+                        input.skip(fieldType);
+                    }
+                    break;
+                default: {
+                    input.skip(fieldType);
+                }
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        return new FetchMapResult(_args);
+    }
+}
 export interface IZipResultArgs {
     success?: void;
 }
@@ -1763,7 +1862,7 @@ export class Client extends __ROOT_NAMESPACE__.SharedService.Client {
             this.send_addWithContext(num1, num2, requestId);
         });
     }
-    public calculate(logid: number, work: __NAMESPACE__.Work): Promise<number> {
+    public calculate(logid: number, work: Work.Work): Promise<number> {
         const requestId: number = this.incrementSeqId();
         return new Promise<number>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
@@ -1808,7 +1907,7 @@ export class Client extends __ROOT_NAMESPACE__.SharedService.Client {
             this.send_echoString(word, requestId);
         });
     }
-    public checkName(choice: __NAMESPACE__.Choice): Promise<string> {
+    public checkName(choice: Choice.Choice): Promise<string> {
         const requestId: number = this.incrementSeqId();
         return new Promise<string>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
@@ -1898,6 +1997,21 @@ export class Client extends __ROOT_NAMESPACE__.SharedService.Client {
             this.send_fetchThing(requestId);
         });
     }
+    public fetchMap(): Promise<TypedMap.TypedMap> {
+        const requestId: number = this.incrementSeqId();
+        return new Promise<TypedMap.TypedMap>((resolve, reject): void => {
+            this._reqs[requestId] = (error, result) => {
+                delete this._reqs[requestId];
+                if (error != null) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            };
+            this.send_fetchMap(requestId);
+        });
+    }
     public zip(): Promise<void> {
         const requestId: number = this.incrementSeqId();
         return new Promise<void>((resolve, reject): void => {
@@ -1949,7 +2063,7 @@ export class Client extends __ROOT_NAMESPACE__.SharedService.Client {
         this.output.flush();
         return;
     }
-    public send_calculate(logid: number, work: __NAMESPACE__.Work, requestId: number): void {
+    public send_calculate(logid: number, work: Work.Work, requestId: number): void {
         const output: thrift.TProtocol = new this.protocol(this.output);
         output.writeMessageBegin("calculate", thrift.Thrift.MessageType.CALL, requestId);
         const args: CalculateArgs = new CalculateArgs({ logid, work });
@@ -1976,7 +2090,7 @@ export class Client extends __ROOT_NAMESPACE__.SharedService.Client {
         this.output.flush();
         return;
     }
-    public send_checkName(choice: __NAMESPACE__.Choice, requestId: number): void {
+    public send_checkName(choice: Choice.Choice, requestId: number): void {
         const output: thrift.TProtocol = new this.protocol(this.output);
         output.writeMessageBegin("checkName", thrift.Thrift.MessageType.CALL, requestId);
         const args: CheckNameArgs = new CheckNameArgs({ choice });
@@ -2025,6 +2139,15 @@ export class Client extends __ROOT_NAMESPACE__.SharedService.Client {
         const output: thrift.TProtocol = new this.protocol(this.output);
         output.writeMessageBegin("fetchThing", thrift.Thrift.MessageType.CALL, requestId);
         const args: FetchThingArgs = new FetchThingArgs();
+        args.write(output);
+        output.writeMessageEnd();
+        this.output.flush();
+        return;
+    }
+    public send_fetchMap(requestId: number): void {
+        const output: thrift.TProtocol = new this.protocol(this.output);
+        output.writeMessageBegin("fetchMap", thrift.Thrift.MessageType.CALL, requestId);
+        const args: FetchMapArgs = new FetchMapArgs();
         args.write(output);
         output.writeMessageEnd();
         this.output.flush();
@@ -2308,6 +2431,26 @@ export class Client extends __ROOT_NAMESPACE__.SharedService.Client {
             }
         }
     }
+    public recv_fetchMap(input: thrift.TProtocol, mtype: thrift.Thrift.MessageType, requestId: number): void {
+        const noop = (): any => null;
+        const callback = this._reqs[requestId] || noop;
+        if (mtype === thrift.Thrift.MessageType.EXCEPTION) {
+            const x: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException();
+            x.read(input);
+            input.readMessageEnd();
+            return callback(x);
+        }
+        else {
+            const result: FetchMapResult = FetchMapResult.read(input);
+            input.readMessageEnd();
+            if (result.success != null) {
+                return callback(undefined, result.success);
+            }
+            else {
+                return callback(new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, "fetchMap failed: unknown result"));
+            }
+        }
+    }
     public recv_zip(input: thrift.TProtocol, mtype: thrift.Thrift.MessageType, requestId: number): void {
         const noop = (): any => null;
         const callback = this._reqs[requestId] || noop;
@@ -2328,15 +2471,16 @@ export interface ILocalHandler {
     add(num1: number, num2: number): number | Promise<number>;
     addInt64(num1: Int64, num2: Int64): Int64 | Promise<Int64>;
     addWithContext(num1: number, num2: number): number | Promise<number>;
-    calculate(logid: number, work: __NAMESPACE__.Work): number | Promise<number>;
+    calculate(logid: number, work: Work.Work): number | Promise<number>;
     echoBinary(word: Buffer): string | Promise<string>;
     echoString(word: string): string | Promise<string>;
-    checkName(choice: __NAMESPACE__.Choice): string | Promise<string>;
+    checkName(choice: Choice.Choice): string | Promise<string>;
     checkOptional(type?: string): string | Promise<string>;
     mapOneList(arg: Array<number>): Array<number> | Promise<Array<number>>;
     mapValues(arg: Map<string, number>): Array<number> | Promise<Array<number>>;
     listToMap(arg: Array<Array<string>>): Map<string, string> | Promise<Map<string, string>>;
     fetchThing(): com_test_common.CommonStruct | Promise<com_test_common.CommonStruct>;
+    fetchMap(): TypedMap.TypedMap | Promise<TypedMap.TypedMap>;
     zip(): void | Promise<void>;
 }
 export type IHandler = ILocalHandler & __ROOT_NAMESPACE__.SharedService.IHandler;
@@ -2344,9 +2488,9 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
     public _handler: IHandler;
     constructor(handler: IHandler) {
         super({
-            getStruct: handler.getStruct,
             getUnion: handler.getUnion,
-            getEnum: handler.getEnum
+            getEnum: handler.getEnum,
+            getStruct: handler.getStruct
         });
         this._handler = handler;
     }
@@ -2356,16 +2500,16 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
         const requestId: number = metadata.rseqid;
         const methodName: string = "process_" + fname;
         switch (methodName) {
-            case "process_getStruct": {
-                this.process_getStruct(requestId, input, output);
-                return;
-            }
             case "process_getUnion": {
                 this.process_getUnion(requestId, input, output);
                 return;
             }
             case "process_getEnum": {
                 this.process_getEnum(requestId, input, output);
+                return;
+            }
+            case "process_getStruct": {
+                this.process_getStruct(requestId, input, output);
                 return;
             }
             case "process_ping": {
@@ -2418,6 +2562,10 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             }
             case "process_fetchThing": {
                 this.process_fetchThing(requestId, input, output);
+                return;
+            }
+            case "process_fetchMap": {
+                this.process_fetchMap(requestId, input, output);
                 return;
             }
             case "process_zip": {
@@ -2516,7 +2664,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             output.flush();
             return;
         }).catch((err: Error): void => {
-            if (err instanceof __NAMESPACE__.NotAGoodIdea) {
+            if (err instanceof NotAGoodIdea.NotAGoodIdea) {
                 const result: AddInt64Result = new AddInt64Result({ exp: err });
                 output.writeMessageBegin("addInt64", thrift.Thrift.MessageType.REPLY, requestId);
                 result.write(output);
@@ -2797,6 +2945,31 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
         }).catch((err: Error): void => {
             const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("fetchThing", thrift.Thrift.MessageType.EXCEPTION, requestId);
+            result.write(output);
+            output.writeMessageEnd();
+            output.flush();
+            return;
+        });
+    }
+    public process_fetchMap(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+        new Promise<TypedMap.TypedMap>((resolve, reject): void => {
+            try {
+                input.readMessageEnd();
+                resolve(this._handler.fetchMap());
+            }
+            catch (err) {
+                reject(err);
+            }
+        }).then((data: TypedMap.TypedMap): void => {
+            const result: FetchMapResult = new FetchMapResult({ success: data });
+            output.writeMessageBegin("fetchMap", thrift.Thrift.MessageType.REPLY, requestId);
+            result.write(output);
+            output.writeMessageEnd();
+            output.flush();
+            return;
+        }).catch((err: Error): void => {
+            const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            output.writeMessageBegin("fetchMap", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);
             output.writeMessageEnd();
             output.flush();

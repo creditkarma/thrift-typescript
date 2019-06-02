@@ -4,66 +4,9 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 */
 import * as thrift from "test-lib";
-import * as __NAMESPACE__ from "./.";
-export interface IGetStructArgsArgs {
-    key: number;
-}
-export class GetStructArgs {
-    public key: number;
-    constructor(args: IGetStructArgsArgs) {
-        if (args != null && args.key != null) {
-            this.key = args.key;
-        }
-        else {
-            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field[key] is unset!");
-        }
-    }
-    public write(output: thrift.TProtocol): void {
-        output.writeStructBegin("GetStructArgs");
-        if (this.key != null) {
-            output.writeFieldBegin("key", thrift.Thrift.Type.I32, 1);
-            output.writeI32(this.key);
-            output.writeFieldEnd();
-        }
-        output.writeFieldStop();
-        output.writeStructEnd();
-        return;
-    }
-    public static read(input: thrift.TProtocol): GetStructArgs {
-        input.readStructBegin();
-        let _args: any = {};
-        while (true) {
-            const ret: thrift.TField = input.readFieldBegin();
-            const fieldType: thrift.Thrift.Type = ret.ftype;
-            const fieldId: number = ret.fid;
-            if (fieldType === thrift.Thrift.Type.STOP) {
-                break;
-            }
-            switch (fieldId) {
-                case 1:
-                    if (fieldType === thrift.Thrift.Type.I32) {
-                        const value_1: number = input.readI32();
-                        _args.key = value_1;
-                    }
-                    else {
-                        input.skip(fieldType);
-                    }
-                    break;
-                default: {
-                    input.skip(fieldType);
-                }
-            }
-            input.readFieldEnd();
-        }
-        input.readStructEnd();
-        if (_args.key !== undefined) {
-            return new GetStructArgs(_args);
-        }
-        else {
-            throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Unable to read GetStructArgs from input");
-        }
-    }
-}
+import * as SharedServiceBase from "./SharedServiceBase";
+import * as SharedUnion from "./SharedUnion";
+import * as SharedEnum from "./SharedEnum";
 export interface IGetUnionArgsArgs {
     index: number;
 }
@@ -101,8 +44,8 @@ export class GetUnionArgs {
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.Thrift.Type.I32) {
-                        const value_2: number = input.readI32();
-                        _args.index = value_2;
+                        const value_1: number = input.readI32();
+                        _args.index = value_1;
                     }
                     else {
                         input.skip(fieldType);
@@ -154,62 +97,11 @@ export class GetEnumArgs {
         return new GetEnumArgs();
     }
 }
-export interface IGetStructResultArgs {
-    success?: __NAMESPACE__.SharedStruct;
-}
-export class GetStructResult {
-    public success?: __NAMESPACE__.SharedStruct;
-    constructor(args?: IGetStructResultArgs) {
-        if (args != null && args.success != null) {
-            this.success = args.success;
-        }
-    }
-    public write(output: thrift.TProtocol): void {
-        output.writeStructBegin("GetStructResult");
-        if (this.success != null) {
-            output.writeFieldBegin("success", thrift.Thrift.Type.STRUCT, 0);
-            this.success.write(output);
-            output.writeFieldEnd();
-        }
-        output.writeFieldStop();
-        output.writeStructEnd();
-        return;
-    }
-    public static read(input: thrift.TProtocol): GetStructResult {
-        input.readStructBegin();
-        let _args: any = {};
-        while (true) {
-            const ret: thrift.TField = input.readFieldBegin();
-            const fieldType: thrift.Thrift.Type = ret.ftype;
-            const fieldId: number = ret.fid;
-            if (fieldType === thrift.Thrift.Type.STOP) {
-                break;
-            }
-            switch (fieldId) {
-                case 0:
-                    if (fieldType === thrift.Thrift.Type.STRUCT) {
-                        const value_3: __NAMESPACE__.SharedStruct = __NAMESPACE__.SharedStruct.read(input);
-                        _args.success = value_3;
-                    }
-                    else {
-                        input.skip(fieldType);
-                    }
-                    break;
-                default: {
-                    input.skip(fieldType);
-                }
-            }
-            input.readFieldEnd();
-        }
-        input.readStructEnd();
-        return new GetStructResult(_args);
-    }
-}
 export interface IGetUnionResultArgs {
-    success?: __NAMESPACE__.SharedUnion;
+    success?: SharedUnion.SharedUnion;
 }
 export class GetUnionResult {
-    public success?: __NAMESPACE__.SharedUnion;
+    public success?: SharedUnion.SharedUnion;
     constructor(args?: IGetUnionResultArgs) {
         if (args != null && args.success != null) {
             this.success = args.success;
@@ -239,8 +131,8 @@ export class GetUnionResult {
             switch (fieldId) {
                 case 0:
                     if (fieldType === thrift.Thrift.Type.STRUCT) {
-                        const value_4: __NAMESPACE__.SharedUnion = __NAMESPACE__.SharedUnion.read(input);
-                        _args.success = value_4;
+                        const value_2: SharedUnion.SharedUnion = SharedUnion.SharedUnion.read(input);
+                        _args.success = value_2;
                     }
                     else {
                         input.skip(fieldType);
@@ -257,10 +149,10 @@ export class GetUnionResult {
     }
 }
 export interface IGetEnumResultArgs {
-    success?: __NAMESPACE__.SharedEnum;
+    success?: SharedEnum.SharedEnum;
 }
 export class GetEnumResult {
-    public success?: __NAMESPACE__.SharedEnum;
+    public success?: SharedEnum.SharedEnum;
     constructor(args?: IGetEnumResultArgs) {
         if (args != null && args.success != null) {
             this.success = args.success;
@@ -290,8 +182,8 @@ export class GetEnumResult {
             switch (fieldId) {
                 case 0:
                     if (fieldType === thrift.Thrift.Type.I32) {
-                        const value_5: __NAMESPACE__.SharedEnum = input.readI32();
-                        _args.success = value_5;
+                        const value_3: SharedEnum.SharedEnum = input.readI32();
+                        _args.success = value_3;
                     }
                     else {
                         input.skip(fieldType);
@@ -307,7 +199,7 @@ export class GetEnumResult {
         return new GetEnumResult(_args);
     }
 }
-export class Client {
+export class Client extends SharedServiceBase.Client {
     public _seqid: number;
     public _reqs: {
         [name: number]: (err: Error | object | undefined, val?: any) => void;
@@ -315,6 +207,7 @@ export class Client {
     public output: thrift.TTransport;
     public protocol: new (trans: thrift.TTransport) => thrift.TProtocol;
     constructor(output: thrift.TTransport, protocol: new (trans: thrift.TTransport) => thrift.TProtocol) {
+        super(output, protocol);
         this._seqid = 0;
         this._reqs = {};
         this.output = output;
@@ -323,24 +216,9 @@ export class Client {
     public incrementSeqId(): number {
         return this._seqid += 1;
     }
-    public getStruct(key: number): Promise<__NAMESPACE__.SharedStruct> {
+    public getUnion(index: number): Promise<SharedUnion.SharedUnion> {
         const requestId: number = this.incrementSeqId();
-        return new Promise<__NAMESPACE__.SharedStruct>((resolve, reject): void => {
-            this._reqs[requestId] = (error, result) => {
-                delete this._reqs[requestId];
-                if (error != null) {
-                    reject(error);
-                }
-                else {
-                    resolve(result);
-                }
-            };
-            this.send_getStruct(key, requestId);
-        });
-    }
-    public getUnion(index: number): Promise<__NAMESPACE__.SharedUnion> {
-        const requestId: number = this.incrementSeqId();
-        return new Promise<__NAMESPACE__.SharedUnion>((resolve, reject): void => {
+        return new Promise<SharedUnion.SharedUnion>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];
                 if (error != null) {
@@ -353,9 +231,9 @@ export class Client {
             this.send_getUnion(index, requestId);
         });
     }
-    public getEnum(): Promise<__NAMESPACE__.SharedEnum> {
+    public getEnum(): Promise<SharedEnum.SharedEnum> {
         const requestId: number = this.incrementSeqId();
-        return new Promise<__NAMESPACE__.SharedEnum>((resolve, reject): void => {
+        return new Promise<SharedEnum.SharedEnum>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];
                 if (error != null) {
@@ -367,15 +245,6 @@ export class Client {
             };
             this.send_getEnum(requestId);
         });
-    }
-    public send_getStruct(key: number, requestId: number): void {
-        const output: thrift.TProtocol = new this.protocol(this.output);
-        output.writeMessageBegin("getStruct", thrift.Thrift.MessageType.CALL, requestId);
-        const args: GetStructArgs = new GetStructArgs({ key });
-        args.write(output);
-        output.writeMessageEnd();
-        this.output.flush();
-        return;
     }
     public send_getUnion(index: number, requestId: number): void {
         const output: thrift.TProtocol = new this.protocol(this.output);
@@ -394,26 +263,6 @@ export class Client {
         output.writeMessageEnd();
         this.output.flush();
         return;
-    }
-    public recv_getStruct(input: thrift.TProtocol, mtype: thrift.Thrift.MessageType, requestId: number): void {
-        const noop = (): any => null;
-        const callback = this._reqs[requestId] || noop;
-        if (mtype === thrift.Thrift.MessageType.EXCEPTION) {
-            const x: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException();
-            x.read(input);
-            input.readMessageEnd();
-            return callback(x);
-        }
-        else {
-            const result: GetStructResult = GetStructResult.read(input);
-            input.readMessageEnd();
-            if (result.success != null) {
-                return callback(undefined, result.success);
-            }
-            else {
-                return callback(new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, "getStruct failed: unknown result"));
-            }
-        }
     }
     public recv_getUnion(input: thrift.TProtocol, mtype: thrift.Thrift.MessageType, requestId: number): void {
         const noop = (): any => null;
@@ -456,14 +305,17 @@ export class Client {
         }
     }
 }
-export interface IHandler {
-    getStruct(key: number): __NAMESPACE__.SharedStruct | Promise<__NAMESPACE__.SharedStruct>;
-    getUnion(index: number): __NAMESPACE__.SharedUnion | Promise<__NAMESPACE__.SharedUnion>;
-    getEnum(): __NAMESPACE__.SharedEnum | Promise<__NAMESPACE__.SharedEnum>;
+export interface ILocalHandler {
+    getUnion(index: number): SharedUnion.SharedUnion | Promise<SharedUnion.SharedUnion>;
+    getEnum(): SharedEnum.SharedEnum | Promise<SharedEnum.SharedEnum>;
 }
-export class Processor {
+export type IHandler = ILocalHandler & SharedServiceBase.IHandler;
+export class Processor extends SharedServiceBase.Processor {
     public _handler: IHandler;
     constructor(handler: IHandler) {
+        super({
+            getStruct: handler.getStruct
+        });
         this._handler = handler;
     }
     public process(input: thrift.TProtocol, output: thrift.TProtocol): void {
@@ -497,34 +349,8 @@ export class Processor {
             }
         }
     }
-    public process_getStruct(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
-        new Promise<__NAMESPACE__.SharedStruct>((resolve, reject): void => {
-            try {
-                const args: GetStructArgs = GetStructArgs.read(input);
-                input.readMessageEnd();
-                resolve(this._handler.getStruct(args.key));
-            }
-            catch (err) {
-                reject(err);
-            }
-        }).then((data: __NAMESPACE__.SharedStruct): void => {
-            const result: GetStructResult = new GetStructResult({ success: data });
-            output.writeMessageBegin("getStruct", thrift.Thrift.MessageType.REPLY, requestId);
-            result.write(output);
-            output.writeMessageEnd();
-            output.flush();
-            return;
-        }).catch((err: Error): void => {
-            const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-            output.writeMessageBegin("getStruct", thrift.Thrift.MessageType.EXCEPTION, requestId);
-            result.write(output);
-            output.writeMessageEnd();
-            output.flush();
-            return;
-        });
-    }
     public process_getUnion(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
-        new Promise<__NAMESPACE__.SharedUnion>((resolve, reject): void => {
+        new Promise<SharedUnion.SharedUnion>((resolve, reject): void => {
             try {
                 const args: GetUnionArgs = GetUnionArgs.read(input);
                 input.readMessageEnd();
@@ -533,7 +359,7 @@ export class Processor {
             catch (err) {
                 reject(err);
             }
-        }).then((data: __NAMESPACE__.SharedUnion): void => {
+        }).then((data: SharedUnion.SharedUnion): void => {
             const result: GetUnionResult = new GetUnionResult({ success: data });
             output.writeMessageBegin("getUnion", thrift.Thrift.MessageType.REPLY, requestId);
             result.write(output);
@@ -550,7 +376,7 @@ export class Processor {
         });
     }
     public process_getEnum(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
-        new Promise<__NAMESPACE__.SharedEnum>((resolve, reject): void => {
+        new Promise<SharedEnum.SharedEnum>((resolve, reject): void => {
             try {
                 input.readMessageEnd();
                 resolve(this._handler.getEnum());
@@ -558,7 +384,7 @@ export class Processor {
             catch (err) {
                 reject(err);
             }
-        }).then((data: __NAMESPACE__.SharedEnum): void => {
+        }).then((data: SharedEnum.SharedEnum): void => {
             const result: GetEnumResult = new GetEnumResult({ success: data });
             output.writeMessageBegin("getEnum", thrift.Thrift.MessageType.REPLY, requestId);
             result.write(output);

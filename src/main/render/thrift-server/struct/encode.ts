@@ -15,7 +15,7 @@ import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
 import { WRITE_METHODS, WriteMethodName } from './methods'
 
-import { resolveIdentifierDefinition } from '../../../resolver'
+import { Resolver } from '../../../resolver'
 
 import {
     coerceType,
@@ -241,11 +241,12 @@ export function writeValueForType(
 ): Array<ts.Expression> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
-            const definition: DefinitionType = resolveIdentifierDefinition(
+            const definition: DefinitionType = Resolver.resolveIdentifierDefinition(
                 fieldType,
-                state.currentNamespace,
-                state.project.namespaces,
-                state.project.sourceDir,
+                {
+                    currentNamespace: state.currentNamespace,
+                    namespaceMap: state.project.namespaces,
+                },
             )
 
             return writeValueForIdentifier(

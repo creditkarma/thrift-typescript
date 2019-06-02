@@ -16,7 +16,7 @@ import {
 
 import { className, toolkitName } from './utils'
 
-import { resolveIdentifierDefinition } from '../../../resolver'
+import { Resolver } from '../../../resolver'
 import { DefinitionType, IRenderState } from '../../../types'
 import { createMethodCall } from '../../shared/utils'
 import { COMMON_IDENTIFIERS } from '../identifiers'
@@ -150,12 +150,10 @@ export function assignmentForFieldType(
 ): Array<ts.Statement> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
-            const definition = resolveIdentifierDefinition(
-                fieldType,
-                state.currentNamespace,
-                state.project.namespaces,
-                state.project.sourceDir,
-            )
+            const definition = Resolver.resolveIdentifierDefinition(fieldType, {
+                currentNamespace: state.currentNamespace,
+                namespaceMap: state.project.namespaces,
+            })
 
             return assignmentForIdentifier(
                 fieldType.value,

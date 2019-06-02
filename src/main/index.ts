@@ -1,38 +1,42 @@
 import * as path from 'path'
 
-import { parseFromSource, parseThriftFile } from './parser'
-
 import {
-    IFileExports,
     IGeneratedFile,
     IMakeOptions,
+    INamespace,
     INamespaceMap,
     IParsedFile,
     IRenderState,
-    IResolvedFile,
     ISourceFile,
     IThriftProject,
-    ParsedFileMap,
-    ResolvedFileMap,
 } from './types'
 
 import { mergeWithDefaults } from './defaults'
 
-import { printErrors } from './debugger'
+import * as Debugger from './debugger'
 import { generateProject, processStatements } from './generator'
 import { print } from './printer'
 import { readThriftFile } from './reader'
 import { rendererForTarget } from './render'
 
-import * as Parser from './parser'
-import * as Resolver from './resolver'
+import { ThriftStatement } from '@creditkarma/thrift-parser'
+import { Parser } from './parser'
+import { Resolver } from './resolver'
+import * as Sys from './sys'
 import * as Utils from './utils'
 import * as Validator from './validator'
 
-export { Resolver }
-export { Parser }
-export { Validator }
+export * from './resolver'
+export * from './parser'
 export { Utils }
+export { Sys }
+
+// Reexport thrift-parser so we can use all those types with the enhanced parser exported from
+// this project.
+export * from '@creditkarma/thrift-parser'
+
+// Expose the file generator
+export { generateProject }
 
 /**
  * This function is mostly for testing purposes. It does not support includes.
@@ -47,29 +51,27 @@ export function make(
     options: Partial<IMakeOptions> = {},
 ): string {
     const mergedOptions: IMakeOptions = mergeWithDefaults(options)
-    const validatedFile: IResolvedFile = parseThriftSource(source, options)
 
-    const fileExports: IFileExports = Resolver.exportsForFile(
-        validatedFile.body,
+    const sourceFile: ISourceFile = {
+        type: 'SourceFile',
+        name: 'source.thrift',
+        path: '',
+        fullPath: '',
+        source,
+    }
+
+    const thriftProject: IThriftProject = thriftProjectFromSourceFiles(
+        [sourceFile],
+        mergedOptions,
     )
+
+    const currentNamespace: INamespace =
+        thriftProject.namespaces['__ROOT_NAMESPACE__']
+
     const state: IRenderState = {
         options: mergedOptions,
-        currentNamespace: {
-            type: 'Namespace',
-            namespace: Utils.emptyNamespace(),
-            files: {
-                [validatedFile.sourceFile.fullPath]: validatedFile,
-            },
-            exports: fileExports,
-            includedNamespaces: {},
-            constants: [],
-            typedefs: [],
-            structs: [],
-            unions: [],
-            exceptions: [],
-            services: [],
-        },
-        currentDefinitions: fileExports,
+        currentNamespace,
+        currentDefinitions: currentNamespace.exports,
         project: {
             type: 'ThriftProject',
             rootDir: '',
@@ -80,112 +82,19 @@ export function make(
         },
     }
 
+    const statements: Array<ThriftStatement> = Object.keys(
+        currentNamespace.exports,
+    ).map((next: string) => {
+        return currentNamespace.exports[next]
+    })
+
     return print(
         processStatements(
-            validatedFile.body,
+            statements,
             state,
             rendererForTarget(mergedOptions.target),
         ),
     )
-}
-
-export function parseThriftSource(
-    source: string,
-    options: Partial<IMakeOptions> = {},
-): IResolvedFile {
-    const mergedOptions: IMakeOptions = mergeWithDefaults(options)
-    const parsedFile: IParsedFile = parseFromSource(
-        source,
-        mergedOptions.fallbackNamespace,
-    )
-    const resolvedFile: IResolvedFile = Resolver.resolveFile(
-        parsedFile,
-        {},
-        '',
-        mergedOptions.fallbackNamespace,
-    )
-    const validatedFile: IResolvedFile = Validator.validateFile(
-        resolvedFile,
-        {},
-        '',
-    )
-
-    if (validatedFile.errors.length > 0) {
-        throw new Error(`Unable to validate thrift source`)
-    }
-
-    return validatedFile
-}
-
-export async function parseThriftFiles(
-    thriftFiles: Array<ISourceFile>,
-    options: {
-        sourceDir: string
-        fallbackNamespace: string
-    },
-): Promise<Array<IResolvedFile>> {
-    const parsedFiles: Array<IParsedFile> = thriftFiles.map(
-        (next: ISourceFile) => {
-            const parsed = parseThriftFile(next, options.fallbackNamespace)
-            return parsed
-        },
-    )
-
-    const parsedFileMap: ParsedFileMap = parsedFiles.reduce(
-        (acc: ParsedFileMap, next: IParsedFile) => {
-            acc[next.sourceFile.fullPath] = next
-            return acc
-        },
-        {},
-    )
-
-    const resolvedFiles: Array<IResolvedFile> = parsedFiles.map(
-        (next: IParsedFile) => {
-            return Resolver.resolveFile(
-                next,
-                parsedFileMap,
-                options.sourceDir,
-                options.fallbackNamespace,
-            )
-        },
-    )
-
-    const resolvedInvalidFiles: Array<
-        IResolvedFile
-    > = Utils.collectInvalidFiles(resolvedFiles)
-
-    if (resolvedInvalidFiles.length > 0) {
-        printErrors(resolvedInvalidFiles)
-        throw new Error(`Unable to parse Thrift files`)
-    } else {
-        const resolvedFileMap: ResolvedFileMap = resolvedFiles.reduce(
-            (acc: ResolvedFileMap, next: IResolvedFile) => {
-                acc[next.sourceFile.fullPath] = next
-                return acc
-            },
-            {},
-        )
-        const validatedFiles: Array<IResolvedFile> = resolvedFiles.map(
-            (next: IResolvedFile) => {
-                return Validator.validateFile(
-                    next,
-                    resolvedFileMap,
-                    options.sourceDir,
-                )
-            },
-        )
-
-        const validatedInvalidFiles: Array<
-            IResolvedFile
-        > = Utils.collectInvalidFiles(validatedFiles)
-
-        if (validatedInvalidFiles.length > 0) {
-            printErrors(validatedInvalidFiles)
-            throw new Error(`Unable to parse Thrift files`)
-        } else {
-            return validatedFiles
-        }
-    }
 }
 
 export async function readThriftFiles(options: {
@@ -213,7 +122,10 @@ export async function readThriftFiles(options: {
     return thriftFiles
 }
 
-export async function generate(options: Partial<IMakeOptions>): Promise<void> {
+export function thriftProjectFromSourceFiles(
+    sourceFiles: Array<ISourceFile>,
+    options: Partial<IMakeOptions> = {},
+): IThriftProject {
     const mergedOptions: IMakeOptions = mergeWithDefaults(options)
 
     // Root at which we operate relative to
@@ -225,32 +137,90 @@ export async function generate(options: Partial<IMakeOptions>): Promise<void> {
     // Where do we read source files
     const sourceDir: string = path.resolve(rootDir, mergedOptions.sourceDir)
 
-    const thriftFiles: Array<ISourceFile> = await readThriftFiles({
+    const parsedFiles: Array<IParsedFile> = sourceFiles.map(
+        (next: ISourceFile) =>
+            Parser.parseThriftFile(next, mergedOptions.fallbackNamespace),
+    )
+
+    const namespaces: INamespaceMap = Resolver.organizeByNamespace(
+        parsedFiles,
+        sourceDir,
+        mergedOptions.fallbackNamespace,
+    )
+
+    const resolvedNamespaces: INamespaceMap = Object.keys(namespaces).reduce(
+        (acc: INamespaceMap, next: string) => {
+            const nextNamespace: INamespace = namespaces[next]
+            acc[next] = Resolver.resolveNamespace(nextNamespace, namespaces)
+            return acc
+        },
+        {},
+    )
+
+    const resolvedInvalidFiles: Array<
+        INamespace
+    > = Debugger.collectInvalidFiles(Utils.valuesForObject(resolvedNamespaces))
+
+    if (resolvedInvalidFiles.length > 0) {
+        Debugger.printErrors(resolvedInvalidFiles)
+        throw new Error(`Unable to parse Thrift files`)
+    } else {
+        const validatedNamespaces: INamespaceMap = Object.keys(
+            resolvedNamespaces,
+        ).reduce((acc: INamespaceMap, next: string) => {
+            const nextNamespace: INamespace = namespaces[next]
+            acc[next] = Validator.validateNamespace(nextNamespace, namespaces)
+            return acc
+        }, {})
+
+        const validatedInvalidFiles: Array<
+            INamespace
+        > = Debugger.collectInvalidFiles(
+            Utils.valuesForObject(validatedNamespaces),
+        )
+
+        if (validatedInvalidFiles.length > 0) {
+            Debugger.printErrors(validatedInvalidFiles)
+            throw new Error(`Unable to parse Thrift files`)
+        } else {
+            return {
+                type: 'ThriftProject',
+                rootDir,
+                outDir,
+                sourceDir,
+                namespaces: resolvedNamespaces,
+                options: mergedOptions,
+            }
+        }
+    }
+}
+
+export async function processThriftProject(
+    options: Partial<IMakeOptions> = {},
+): Promise<IThriftProject> {
+    const mergedOptions: IMakeOptions = mergeWithDefaults(options)
+
+    // Root at which we operate relative to
+    const rootDir: string = path.resolve(process.cwd(), mergedOptions.rootDir)
+
+    // Where do we read source files
+    const sourceDir: string = path.resolve(rootDir, mergedOptions.sourceDir)
+
+    const sourceFiles: Array<ISourceFile> = await readThriftFiles({
         rootDir,
         sourceDir,
         files: mergedOptions.files,
     })
 
-    const validatedFiles: Array<IResolvedFile> = await parseThriftFiles(
-        thriftFiles,
-        {
-            sourceDir,
-            fallbackNamespace: mergedOptions.fallbackNamespace,
-        },
-    )
+    return thriftProjectFromSourceFiles(sourceFiles, mergedOptions)
+}
 
-    const namespaces: INamespaceMap = Utils.organizeByNamespace(validatedFiles)
-
-    const thriftProject: IThriftProject = {
-        type: 'ThriftProject',
-        rootDir,
-        outDir,
-        sourceDir,
-        namespaces,
-        options: mergedOptions,
-    }
+export async function generate(
+    options: Partial<IMakeOptions> = {},
+): Promise<void> {
+    const thriftProject: IThriftProject = await processThriftProject(options)
 
     const generatedFiles: Array<IGeneratedFile> = generateProject(thriftProject)
 
-    Utils.saveFiles(generatedFiles, outDir)
+    Sys.saveFiles(generatedFiles, thriftProject.outDir)
 }

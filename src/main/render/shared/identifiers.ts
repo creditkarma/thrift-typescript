@@ -1,7 +1,7 @@
 import * as ts from 'typescript'
 
 export const COMMON_IDENTIFIERS = {
-    __NAMESPACE__: ts.createIdentifier('__NAMESPACE__'),
+    metadata: ts.createIdentifier('metadata'),
     methodName: ts.createIdentifier('methodName'),
     __name: ts.createIdentifier('__name'),
     __type: ts.createIdentifier('__type'),
@@ -51,6 +51,7 @@ export const COMMON_IDENTIFIERS = {
     transport: ts.createIdentifier('transport'),
     connection: ts.createIdentifier('connection'),
     messageType: ts.createIdentifier('messageType'),
+    rseqid: ts.createIdentifier('rseqid'),
     ftype: ts.createIdentifier('ftype'),
     fname: ts.createIdentifier('fname'),
     fid: ts.createIdentifier('fid'),
@@ -68,11 +69,17 @@ export const COMMON_IDENTIFIERS = {
     Buffer: ts.createIdentifier('Buffer'),
     Boolean: ts.createIdentifier('Boolean'),
     Promise: ts.createIdentifier('Promise'),
+    reject: ts.createIdentifier('reject'),
+    resolve: ts.createIdentifier('resolve'),
+    then: ts.createIdentifier('then'),
     Number: ts.createIdentifier('Number'),
     Error: ts.createIdentifier('Error'),
+    error: ts.createIdentifier('error'),
     void: ts.createIdentifier('void'),
     Int64: ts.createIdentifier('thrift.Int64'),
     IHandler: ts.createIdentifier('IHandler'),
     ILocalHandler: ts.createIdentifier('ILocalHandler'),
     Node_Int64: ts.createIdentifier('Int64'),
+    readStructBegin: ts.createIdentifier('readStructBegin'),
+    readStructEnd: ts.createIdentifier('readStructEnd'),
 }

@@ -11,12 +11,11 @@ import {
     THRIFT_TYPES,
 } from './identifiers'
 
+import { Resolver } from '../../resolver'
 import {
-    resolveIdentifierDefinition,
-    resolveIdentifierName,
-} from '../../resolver'
-import {
+    createArrayType,
     createBooleanType,
+    createBufferType,
     createNumberType,
     createStringType,
     createVoidType,
@@ -153,12 +152,10 @@ export function thriftTypeForFieldType(
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return thriftTypeForIdentifier(
-                resolveIdentifierDefinition(
-                    fieldType,
-                    state.currentNamespace,
-                    state.project.namespaces,
-                    state.project.sourceDir,
-                ),
+                Resolver.resolveIdentifierDefinition(fieldType, {
+                    currentNamespace: state.currentNamespace,
+                    namespaceMap: state.project.namespaces,
+                }),
                 state,
             )
 
@@ -238,7 +235,11 @@ export function typeNodeForFieldType(
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return ts.createTypeReferenceNode(
-                resolveIdentifierName(fieldType.value, state).fullName,
+                Resolver.resolveIdentifierName(fieldType.value, {
+                    currentNamespace: state.currentNamespace,
+                    currentDefinitions: state.currentDefinitions,
+                    namespaceMap: state.project.namespaces,
+                }).fullName,
                 undefined,
             )
 
@@ -254,9 +255,9 @@ export function typeNodeForFieldType(
             ])
 
         case SyntaxType.ListType:
-            return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Array, [
+            return createArrayType(
                 typeNodeForFieldType(fieldType.valueType, state, loose),
-            ])
+            )
 
         case SyntaxType.StringKeyword:
             return createStringType()
@@ -281,10 +282,7 @@ export function typeNodeForFieldType(
             }
 
         case SyntaxType.BinaryKeyword:
-            return ts.createTypeReferenceNode(
-                COMMON_IDENTIFIERS.Buffer,
-                undefined,
-            )
+            return createBufferType()
 
         case SyntaxType.DoubleKeyword:
         case SyntaxType.I8Keyword:

@@ -9,12 +9,20 @@ import {
     SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-import { DefinitionType, IRenderState } from '../../../types'
+import { IRenderState, IResolveContext } from '../../../types'
 
 import { COMMON_IDENTIFIERS } from '../identifiers'
 
-import { resolveIdentifierDefinition } from '../../../resolver'
-import { createNumberType, createStringType } from '../../shared/types'
+import {
+    collectAllMethods,
+    serviceInheritanceChain,
+} from '../../shared/service'
+
+import {
+    createArrayType,
+    createNumberType,
+    createStringType,
+} from '../../shared/types'
 
 export function capitalize(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1)
@@ -79,38 +87,6 @@ export function renderServiceNameStaticProperty(): ts.PropertyDeclaration {
     )
 }
 
-export function collectAllMethods(
-    service: ServiceDefinition,
-    state: IRenderState,
-): Array<FunctionDefinition> {
-    if (service.extends === null) {
-        return service.functions
-    } else {
-        const parentService: DefinitionType = resolveIdentifierDefinition(
-            service.extends,
-            state.currentNamespace,
-            state.project.namespaces,
-            state.project.sourceDir,
-        )
-        switch (parentService.type) {
-            case SyntaxType.ServiceDefinition:
-                // This actually doesn't work for deeply extended services. This identifier map only
-                // has the identifiers for the current namespace.
-                return [
-                    ...collectAllMethods(parentService, state),
-                    ...service.functions,
-                ]
-
-            default:
-                throw new TypeError(
-                    `A service can only extend another service. Found: ${
-                        parentService.type
-                    }`,
-                )
-        }
-    }
-}
-
 export function renderMethodNames(
     service: ServiceDefinition,
     state: IRenderState,
@@ -121,7 +97,7 @@ export function renderMethodNames(
             [
                 ts.createVariableDeclaration(
                     COMMON_IDENTIFIERS.methodNames,
-                    ts.createTypeReferenceNode('Array<string>', undefined),
+                    createArrayType(createStringType()),
                     ts.createArrayLiteral([
                         ...collectAllMethods(service, state).map(
                             (next: FunctionDefinition) => {
@@ -145,7 +121,7 @@ export function renderMethodNamesProperty(): ts.PropertyDeclaration {
         ],
         COMMON_IDENTIFIERS._methodNames,
         undefined,
-        ts.createTypeReferenceNode('Array<string>', undefined),
+        createArrayType(createStringType()),
         COMMON_IDENTIFIERS.methodNames,
     )
 }
@@ -160,7 +136,7 @@ export function renderMethodNamesStaticProperty(): ts.PropertyDeclaration {
         ],
         COMMON_IDENTIFIERS.methodNames,
         undefined,
-        ts.createTypeReferenceNode('Array<string>', undefined),
+        createArrayType(createStringType()),
         COMMON_IDENTIFIERS.methodNames,
     )
 }
@@ -232,42 +208,21 @@ export function renderMethodParametersProperty(): ts.PropertyDeclaration {
 
 function getRawAnnotations(
     service: ServiceDefinition,
-    state: IRenderState,
+    context: IResolveContext,
 ): Array<Annotation> {
-    if (service.extends === null) {
-        if (service.annotations) {
-            return service.annotations.annotations
-        } else {
-            return []
-        }
-    } else {
-        const parentService: DefinitionType = resolveIdentifierDefinition(
-            service.extends,
-            state.currentNamespace,
-            state.project.namespaces,
-            state.project.sourceDir,
-        )
-        switch (parentService.type) {
-            case SyntaxType.ServiceDefinition:
-                if (service.annotations) {
-                    // This actually doesn't work for deeply extended services. This identifier map only
-                    // has the identifiers for the current namespace.
-                    return [
-                        ...getRawAnnotations(parentService, state),
-                        ...service.annotations.annotations,
-                    ]
-                } else {
-                    return getRawAnnotations(parentService, state)
-                }
-
-            default:
-                throw new TypeError(
-                    `A service can only extend another service. Found: ${
-                        parentService.type
-                    }`,
-                )
-        }
-    }
+    const baseAnnotations: Array<Annotation> = service.annotations
+        ? service.annotations.annotations
+        : []
+    return serviceInheritanceChain(service, context).reduce(
+        (acc: Array<Annotation>, next: ServiceDefinition) => {
+            if (next.annotations) {
+                return [...acc, ...next.annotations.annotations]
+            } else {
+                return acc
+            }
+        },
+        baseAnnotations,
+    )
 }
 
 export function collectAllAnnotations(
@@ -275,7 +230,10 @@ export function collectAllAnnotations(
     state: IRenderState,
 ): Annotations {
     const temp: Map<string, Annotation> = new Map()
-    const rawAnnotations: Array<Annotation> = getRawAnnotations(service, state)
+    const rawAnnotations: Array<Annotation> = getRawAnnotations(service, {
+        currentNamespace: state.currentNamespace,
+        namespaceMap: state.project.namespaces,
+    })
 
     for (const annotation of rawAnnotations) {
         temp.set(annotation.name.value, annotation)

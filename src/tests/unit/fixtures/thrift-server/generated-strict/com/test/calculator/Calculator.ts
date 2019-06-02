@@ -6,20 +6,24 @@
 import * as thrift from "test-lib";
 import * as __ROOT_NAMESPACE__ from "./../../..";
 import * as com_test_operation from "./../operation";
+import * as NotAGoodIdea from "./NotAGoodIdea";
+import * as Work from "./Work";
+import * as Choice from "./Choice";
 import * as com_test_common from "./../common";
-import * as __NAMESPACE__ from "./.";
+import * as CommonStruct from "./CommonStruct";
+import * as TypedMap from "./TypedMap";
 export const serviceName: string = "Calculator";
 export const annotations: thrift.IThriftAnnotations = {};
 export const methodAnnotations: thrift.IMethodAnnotations = {
-    getStruct: {
-        annotations: {},
-        fieldAnnotations: {}
-    },
     getUnion: {
         annotations: {},
         fieldAnnotations: {}
     },
     getEnum: {
+        annotations: {},
+        fieldAnnotations: {}
+    },
+    getStruct: {
         annotations: {},
         fieldAnnotations: {}
     },
@@ -75,18 +79,22 @@ export const methodAnnotations: thrift.IMethodAnnotations = {
         annotations: {},
         fieldAnnotations: {}
     },
+    fetchMap: {
+        annotations: {},
+        fieldAnnotations: {}
+    },
     zip: {
         annotations: {},
         fieldAnnotations: {}
     }
 };
-export const methodNames: Array<string> = ["getStruct", "getUnion", "getEnum", "ping", "add", "addInt64", "addWithContext", "calculate", "echoBinary", "echoString", "checkName", "checkOptional", "mapOneList", "mapValues", "listToMap", "fetchThing", "zip"];
+export const methodNames: Array<string> = ["getUnion", "getEnum", "getStruct", "ping", "add", "addInt64", "addWithContext", "calculate", "echoBinary", "echoString", "checkName", "checkOptional", "mapOneList", "mapValues", "listToMap", "fetchThing", "fetchMap", "zip"];
 export const methodParameters: {
     [methodName: string]: number;
 } = {
-    getStruct: 2,
     getUnion: 2,
     getEnum: 1,
+    getStruct: 2,
     ping: 1,
     add: 3,
     addInt64: 3,
@@ -100,6 +108,7 @@ export const methodParameters: {
     mapValues: 2,
     listToMap: 2,
     fetchThing: 1,
+    fetchMap: 1,
     zip: 1
 };
 export interface IPing__Args {
@@ -507,11 +516,11 @@ export class AddWithContext__Args extends thrift.StructLike implements IAddWithC
 export interface ICalculate__Args {
     __name: "Calculate__Args";
     logid: number;
-    work: __NAMESPACE__.IWork;
+    work: Work.IWork;
 }
 export interface ICalculate__ArgsArgs {
     logid: number;
-    work: __NAMESPACE__.IWorkArgs;
+    work: Work.IWorkArgs;
 }
 export const Calculate__ArgsCodec: thrift.IStructCodec<ICalculate__ArgsArgs, ICalculate__Args> = {
     encode(args: ICalculate__ArgsArgs, output: thrift.TProtocol): void {
@@ -530,7 +539,7 @@ export const Calculate__ArgsCodec: thrift.IStructCodec<ICalculate__ArgsArgs, ICa
         }
         if (obj.work != null) {
             output.writeFieldBegin("work", thrift.TType.STRUCT, 2);
-            __NAMESPACE__.WorkCodec.encode(obj.work, output);
+            Work.WorkCodec.encode(obj.work, output);
             output.writeFieldEnd();
         }
         else {
@@ -562,7 +571,7 @@ export const Calculate__ArgsCodec: thrift.IStructCodec<ICalculate__ArgsArgs, ICa
                     break;
                 case 2:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_14: __NAMESPACE__.IWork = __NAMESPACE__.WorkCodec.decode(input);
+                        const value_14: Work.IWork = Work.WorkCodec.decode(input);
                         _args.work = value_14;
                     }
                     else {
@@ -590,7 +599,7 @@ export const Calculate__ArgsCodec: thrift.IStructCodec<ICalculate__ArgsArgs, ICa
 };
 export class Calculate__Args extends thrift.StructLike implements ICalculate__Args {
     public logid: number;
-    public work: __NAMESPACE__.IWork;
+    public work: Work.IWork;
     public readonly __name = "Calculate__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
@@ -604,7 +613,7 @@ export class Calculate__Args extends thrift.StructLike implements ICalculate__Ar
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[logid] is unset!");
         }
         if (args.work != null) {
-            const value_16: __NAMESPACE__.IWork = new __NAMESPACE__.Work(args.work);
+            const value_16: Work.IWork = new Work.Work(args.work);
             this.work = value_16;
         }
         else {
@@ -799,10 +808,10 @@ export class EchoString__Args extends thrift.StructLike implements IEchoString__
 }
 export interface ICheckName__Args {
     __name: "CheckName__Args";
-    choice: __NAMESPACE__.Choice;
+    choice: Choice.Choice;
 }
 export interface ICheckName__ArgsArgs {
-    choice: __NAMESPACE__.ChoiceArgs;
+    choice: Choice.ChoiceArgs;
 }
 export const CheckName__ArgsCodec: thrift.IStructCodec<ICheckName__ArgsArgs, ICheckName__Args> = {
     encode(args: ICheckName__ArgsArgs, output: thrift.TProtocol): void {
@@ -812,7 +821,7 @@ export const CheckName__ArgsCodec: thrift.IStructCodec<ICheckName__ArgsArgs, ICh
         output.writeStructBegin("CheckName__Args");
         if (obj.choice != null) {
             output.writeFieldBegin("choice", thrift.TType.STRUCT, 1);
-            __NAMESPACE__.ChoiceCodec.encode(obj.choice, output);
+            Choice.ChoiceCodec.encode(obj.choice, output);
             output.writeFieldEnd();
         }
         else {
@@ -835,7 +844,7 @@ export const CheckName__ArgsCodec: thrift.IStructCodec<ICheckName__ArgsArgs, ICh
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_21: __NAMESPACE__.Choice = __NAMESPACE__.ChoiceCodec.decode(input);
+                        const value_21: Choice.Choice = Choice.ChoiceCodec.decode(input);
                         _args.choice = value_21;
                     }
                     else {
@@ -861,14 +870,14 @@ export const CheckName__ArgsCodec: thrift.IStructCodec<ICheckName__ArgsArgs, ICh
     }
 };
 export class CheckName__Args extends thrift.StructLike implements ICheckName__Args {
-    public choice: __NAMESPACE__.Choice;
+    public choice: Choice.Choice;
     public readonly __name = "CheckName__Args";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ICheckName__ArgsArgs) {
         super();
         if (args.choice != null) {
-            const value_22: __NAMESPACE__.Choice = __NAMESPACE__.ChoiceCodec.create(args.choice);
+            const value_22: Choice.Choice = Choice.ChoiceCodec.create(args.choice);
             this.choice = value_22;
         }
         else {
@@ -1340,6 +1349,57 @@ export class FetchThing__Args extends thrift.StructLike implements IFetchThing__
         return FetchThing__ArgsCodec.encode(this, output);
     }
 }
+export interface IFetchMap__Args {
+    __name: "FetchMap__Args";
+}
+export interface IFetchMap__ArgsArgs {
+}
+export const FetchMap__ArgsCodec: thrift.IStructCodec<IFetchMap__ArgsArgs, IFetchMap__Args> = {
+    encode(args: IFetchMap__ArgsArgs, output: thrift.TProtocol): void {
+        output.writeStructBegin("FetchMap__Args");
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    },
+    decode(input: thrift.TProtocol): IFetchMap__Args {
+        input.readStructBegin();
+        while (true) {
+            const ret: thrift.IThriftField = input.readFieldBegin();
+            const fieldType: thrift.TType = ret.fieldType;
+            const fieldId: number = ret.fieldId;
+            if (fieldType === thrift.TType.STOP) {
+                break;
+            }
+            switch (fieldId) {
+                default: {
+                    input.skip(fieldType);
+                }
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        return {
+            __name: "FetchMap__Args"
+        };
+    }
+};
+export class FetchMap__Args extends thrift.StructLike implements IFetchMap__Args {
+    public readonly __name = "FetchMap__Args";
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
+    constructor(args: IFetchMap__ArgsArgs = {}) {
+        super();
+    }
+    public static read(input: thrift.TProtocol): FetchMap__Args {
+        return new FetchMap__Args(FetchMap__ArgsCodec.decode(input));
+    }
+    public static write(args: IFetchMap__ArgsArgs, output: thrift.TProtocol): void {
+        return FetchMap__ArgsCodec.encode(args, output);
+    }
+    public write(output: thrift.TProtocol): void {
+        return FetchMap__ArgsCodec.encode(this, output);
+    }
+}
 export interface IZip__Args {
     __name: "Zip__Args";
 }
@@ -1562,11 +1622,11 @@ export class Add__Result extends thrift.StructLike implements IAdd__Result {
 export interface IAddInt64__Result {
     __name: "AddInt64__Result";
     success?: thrift.Int64;
-    exp?: __NAMESPACE__.INotAGoodIdea;
+    exp?: NotAGoodIdea.INotAGoodIdea;
 }
 export interface IAddInt64__ResultArgs {
     success?: number | string | thrift.Int64;
-    exp?: __NAMESPACE__.INotAGoodIdeaArgs;
+    exp?: NotAGoodIdea.INotAGoodIdeaArgs;
 }
 export const AddInt64__ResultCodec: thrift.IStructCodec<IAddInt64__ResultArgs, IAddInt64__Result> = {
     encode(args: IAddInt64__ResultArgs, output: thrift.TProtocol): void {
@@ -1582,7 +1642,7 @@ export const AddInt64__ResultCodec: thrift.IStructCodec<IAddInt64__ResultArgs, I
         }
         if (obj.exp != null) {
             output.writeFieldBegin("exp", thrift.TType.STRUCT, 1);
-            __NAMESPACE__.NotAGoodIdeaCodec.encode(obj.exp, output);
+            NotAGoodIdea.NotAGoodIdeaCodec.encode(obj.exp, output);
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -1611,7 +1671,7 @@ export const AddInt64__ResultCodec: thrift.IStructCodec<IAddInt64__ResultArgs, I
                     break;
                 case 1:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_53: __NAMESPACE__.INotAGoodIdea = __NAMESPACE__.NotAGoodIdeaCodec.decode(input);
+                        const value_53: NotAGoodIdea.INotAGoodIdea = NotAGoodIdea.NotAGoodIdeaCodec.decode(input);
                         _args.exp = value_53;
                     }
                     else {
@@ -1634,7 +1694,7 @@ export const AddInt64__ResultCodec: thrift.IStructCodec<IAddInt64__ResultArgs, I
 };
 export class AddInt64__Result extends thrift.StructLike implements IAddInt64__Result {
     public success?: thrift.Int64;
-    public exp?: __NAMESPACE__.INotAGoodIdea;
+    public exp?: NotAGoodIdea.INotAGoodIdea;
     public readonly __name = "AddInt64__Result";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
@@ -1645,7 +1705,7 @@ export class AddInt64__Result extends thrift.StructLike implements IAddInt64__Re
             this.success = value_54;
         }
         if (args.exp != null) {
-            const value_55: __NAMESPACE__.INotAGoodIdea = new __NAMESPACE__.NotAGoodIdea(args.exp);
+            const value_55: NotAGoodIdea.INotAGoodIdea = new NotAGoodIdea.NotAGoodIdea(args.exp);
             this.exp = value_55;
         }
     }
@@ -2500,6 +2560,101 @@ export class FetchThing__Result extends thrift.StructLike implements IFetchThing
         return FetchThing__ResultCodec.encode(this, output);
     }
 }
+export interface IFetchMap__Result {
+    __name: "FetchMap__Result";
+    success?: TypedMap.TypedMap;
+}
+export interface IFetchMap__ResultArgs {
+    success?: TypedMap.TypedMap;
+}
+export const FetchMap__ResultCodec: thrift.IStructCodec<IFetchMap__ResultArgs, IFetchMap__Result> = {
+    encode(args: IFetchMap__ResultArgs, output: thrift.TProtocol): void {
+        const obj = {
+            success: args.success
+        };
+        output.writeStructBegin("FetchMap__Result");
+        if (obj.success != null) {
+            output.writeFieldBegin("success", thrift.TType.MAP, 0);
+            output.writeMapBegin(thrift.TType.STRING, thrift.TType.STRUCT, obj.success.size);
+            obj.success.forEach((value_90: CommonStruct.ICommonStructArgs, key_9: string): void => {
+                output.writeString(key_9);
+                CommonStruct.CommonStructCodec.encode(value_90, output);
+            });
+            output.writeMapEnd();
+            output.writeFieldEnd();
+        }
+        output.writeFieldStop();
+        output.writeStructEnd();
+        return;
+    },
+    decode(input: thrift.TProtocol): IFetchMap__Result {
+        let _args: any = {};
+        input.readStructBegin();
+        while (true) {
+            const ret: thrift.IThriftField = input.readFieldBegin();
+            const fieldType: thrift.TType = ret.fieldType;
+            const fieldId: number = ret.fieldId;
+            if (fieldType === thrift.TType.STOP) {
+                break;
+            }
+            switch (fieldId) {
+                case 0:
+                    if (fieldType === thrift.TType.MAP) {
+                        const value_91: Map<string, CommonStruct.ICommonStruct> = new Map<string, CommonStruct.ICommonStruct>();
+                        const metadata_8: thrift.IThriftMap = input.readMapBegin();
+                        const size_8: number = metadata_8.size;
+                        for (let i_8: number = 0; i_8 < size_8; i_8++) {
+                            const key_10: string = input.readString();
+                            const value_92: CommonStruct.ICommonStruct = CommonStruct.CommonStructCodec.decode(input);
+                            value_91.set(key_10, value_92);
+                        }
+                        input.readMapEnd();
+                        _args.success = value_91;
+                    }
+                    else {
+                        input.skip(fieldType);
+                    }
+                    break;
+                default: {
+                    input.skip(fieldType);
+                }
+            }
+            input.readFieldEnd();
+        }
+        input.readStructEnd();
+        return {
+            __name: "FetchMap__Result",
+            success: _args.success
+        };
+    }
+};
+export class FetchMap__Result extends thrift.StructLike implements IFetchMap__Result {
+    public success?: TypedMap.TypedMap;
+    public readonly __name = "FetchMap__Result";
+    public readonly _annotations: thrift.IThriftAnnotations = {};
+    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
+    constructor(args: IFetchMap__ResultArgs = {}) {
+        super();
+        if (args.success != null) {
+            const value_93: Map<string, CommonStruct.ICommonStruct> = new Map<string, CommonStruct.ICommonStruct>();
+            args.success.forEach((value_94: CommonStruct.ICommonStructArgs, key_11: string): void => {
+                const value_95: CommonStruct.ICommonStruct = new CommonStruct.CommonStruct(value_94);
+                const key_12: string = key_11;
+                value_93.set(key_12, value_95);
+            });
+            this.success = value_93;
+        }
+    }
+    public static read(input: thrift.TProtocol): FetchMap__Result {
+        return new FetchMap__Result(FetchMap__ResultCodec.decode(input));
+    }
+    public static write(args: IFetchMap__ResultArgs, output: thrift.TProtocol): void {
+        return FetchMap__ResultCodec.encode(args, output);
+    }
+    public write(output: thrift.TProtocol): void {
+        return FetchMap__ResultCodec.encode(this, output);
+    }
+}
 export interface IZip__Result {
     __name: "Zip__Result";
     success?: void;
@@ -2554,8 +2709,8 @@ export class Zip__Result extends thrift.StructLike implements IZip__Result {
     constructor(args: IZip__ResultArgs = {}) {
         super();
         if (args.success != null) {
-            const value_90: void = undefined;
-            this.success = value_90;
+            const value_96: void = undefined;
+            this.success = value_96;
         }
     }
     public static read(input: thrift.TProtocol): Zip__Result {
@@ -2736,7 +2891,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
             }
         });
     }
-    public calculate(logid: number, work: __NAMESPACE__.IWorkArgs, context?: Context): Promise<number> {
+    public calculate(logid: number, work: Work.IWorkArgs, context?: Context): Promise<number> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
         output.writeMessageBegin("calculate", thrift.MessageType.CALL, this.incrementRequestId());
@@ -2853,7 +3008,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
             }
         });
     }
-    public checkName(choice: __NAMESPACE__.ChoiceArgs, context?: Context): Promise<string> {
+    public checkName(choice: Choice.ChoiceArgs, context?: Context): Promise<string> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
         output.writeMessageBegin("checkName", thrift.MessageType.CALL, this.incrementRequestId());
@@ -3081,6 +3236,44 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
             }
         });
     }
+    public fetchMap(context?: Context): Promise<TypedMap.TypedMap> {
+        const writer: thrift.TTransport = new this.transport();
+        const output: thrift.TProtocol = new this.protocol(writer);
+        output.writeMessageBegin("fetchMap", thrift.MessageType.CALL, this.incrementRequestId());
+        const args: IFetchMap__ArgsArgs = {};
+        FetchMap__ArgsCodec.encode(args, output);
+        output.writeMessageEnd();
+        return this.connection.send(writer.flush(), context).then((data: Buffer) => {
+            const reader: thrift.TTransport = this.transport.receiver(data);
+            const input: thrift.TProtocol = new this.protocol(reader);
+            try {
+                const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
+                if (fieldName === "fetchMap") {
+                    if (messageType === thrift.MessageType.EXCEPTION) {
+                        const err: thrift.TApplicationException = thrift.TApplicationExceptionCodec.decode(input);
+                        input.readMessageEnd();
+                        return Promise.reject(err);
+                    }
+                    else {
+                        const result: IFetchMap__Result = FetchMap__ResultCodec.decode(input);
+                        input.readMessageEnd();
+                        if (result.success != null) {
+                            return Promise.resolve(result.success);
+                        }
+                        else {
+                            return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "fetchMap failed: unknown result"));
+                        }
+                    }
+                }
+                else {
+                    return Promise.reject(new thrift.TApplicationException(thrift.TApplicationExceptionType.WRONG_METHOD_NAME, "Received a response to an unknown RPC function: " + fieldName));
+                }
+            }
+            catch (err) {
+                return Promise.reject(err);
+            }
+        });
+    }
     public zip(context?: Context): Promise<void> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
@@ -3120,15 +3313,16 @@ export interface ILocalHandler<Context = any> {
     add(num1: number, num2: number, context?: Context): number | Promise<number>;
     addInt64(num1: thrift.Int64, num2: thrift.Int64, context?: Context): (number | string | thrift.Int64) | Promise<number | string | thrift.Int64>;
     addWithContext(num1: number, num2: number, context?: Context): number | Promise<number>;
-    calculate(logid: number, work: __NAMESPACE__.IWork, context?: Context): number | Promise<number>;
+    calculate(logid: number, work: Work.IWork, context?: Context): number | Promise<number>;
     echoBinary(word: Buffer, context?: Context): string | Promise<string>;
     echoString(word: string, context?: Context): string | Promise<string>;
-    checkName(choice: __NAMESPACE__.Choice, context?: Context): string | Promise<string>;
+    checkName(choice: Choice.Choice, context?: Context): string | Promise<string>;
     checkOptional(type?: string, context?: Context): string | Promise<string>;
     mapOneList(arg: Array<number>, context?: Context): Array<number> | Promise<Array<number>>;
     mapValues(arg: Map<string, number>, context?: Context): Array<number> | Promise<Array<number>>;
     listToMap(arg: Array<Array<string>>, context?: Context): Map<string, string> | Promise<Map<string, string>>;
     fetchThing(context?: Context): com_test_common.ICommonStructArgs | Promise<com_test_common.ICommonStructArgs>;
+    fetchMap(context?: Context): TypedMap.TypedMap | Promise<TypedMap.TypedMap>;
     zip(context?: Context): void | Promise<void>;
 }
 export type IHandler<Context = any> = ILocalHandler<Context> & __ROOT_NAMESPACE__.SharedService.IHandler<Context>;
@@ -3144,7 +3338,6 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
     public readonly _methodNames: Array<string> = methodNames;
     constructor(handler: IHandler<Context>) {
         super({
-            getStruct: handler.getStruct,
             getUnion: handler.getUnion,
             getEnum: handler.getEnum
         });
@@ -3157,16 +3350,16 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
             const requestId: number = metadata.requestId;
             const methodName: string = "process_" + fieldName;
             switch (methodName) {
-                case "process_getStruct": {
-                    resolve(this.process_getStruct(requestId, input, output, context));
-                    break;
-                }
                 case "process_getUnion": {
                     resolve(this.process_getUnion(requestId, input, output, context));
                     break;
                 }
                 case "process_getEnum": {
                     resolve(this.process_getEnum(requestId, input, output, context));
+                    break;
+                }
+                case "process_getStruct": {
+                    resolve(this.process_getStruct(requestId, input, output, context));
                     break;
                 }
                 case "process_ping": {
@@ -3219,6 +3412,10 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
                 }
                 case "process_fetchThing": {
                     resolve(this.process_fetchThing(requestId, input, output, context));
+                    break;
+                }
+                case "process_fetchMap": {
+                    resolve(this.process_fetchMap(requestId, input, output, context));
                     break;
                 }
                 case "process_zip": {
@@ -3312,7 +3509,7 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
-            if (err instanceof __NAMESPACE__.NotAGoodIdea) {
+            if (err instanceof NotAGoodIdea.NotAGoodIdea) {
                 const result: IAddInt64__ResultArgs = { exp: err };
                 output.writeMessageBegin("addInt64", thrift.MessageType.REPLY, requestId);
                 AddInt64__ResultCodec.encode(result, output);
@@ -3571,6 +3768,29 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
         }).catch((err: Error): Buffer => {
             const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("fetchThing", thrift.MessageType.EXCEPTION, requestId);
+            thrift.TApplicationExceptionCodec.encode(result, output);
+            output.writeMessageEnd();
+            return output.flush();
+        });
+    }
+    public process_fetchMap(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+        return new Promise<TypedMap.TypedMap>((resolve, reject): void => {
+            try {
+                input.readMessageEnd();
+                resolve(this._handler.fetchMap(context));
+            }
+            catch (err) {
+                reject(err);
+            }
+        }).then((data: TypedMap.TypedMap): Buffer => {
+            const result: IFetchMap__ResultArgs = { success: data };
+            output.writeMessageBegin("fetchMap", thrift.MessageType.REPLY, requestId);
+            FetchMap__ResultCodec.encode(result, output);
+            output.writeMessageEnd();
+            return output.flush();
+        }).catch((err: Error): Buffer => {
+            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            output.writeMessageBegin("fetchMap", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
             output.writeMessageEnd();
             return output.flush();

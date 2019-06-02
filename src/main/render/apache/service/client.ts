@@ -40,8 +40,9 @@ import {
     typeNodeForFieldType,
 } from '../types'
 
-import { resolveIdentifierName } from '../../../resolver'
+import { Resolver } from '../../../resolver'
 import { IRenderState } from '../../../types'
+import { createPromiseType, createUndefinedType } from '../../shared/types'
 
 export function renderClient(
     node: ServiceDefinition,
@@ -154,13 +155,23 @@ export function renderClient(
                   ts.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
                       ts.createExpressionWithTypeArguments(
                           [],
-                          ts.createIdentifier(
-                              `${
-                                  resolveIdentifierName(
-                                      node.extends.value,
-                                      state,
-                                  ).fullName
-                              }.Client`,
+                          ts.createPropertyAccess(
+                              ts.createIdentifier(
+                                  `${
+                                      Resolver.resolveIdentifierName(
+                                          node.extends.value,
+                                          {
+                                              currentNamespace:
+                                                  state.currentNamespace,
+                                              currentDefinitions:
+                                                  state.currentDefinitions,
+                                              namespaceMap:
+                                                  state.project.namespaces,
+                                          },
+                                      ).fullName
+                                  }`,
+                              ),
+                              COMMON_IDENTIFIERS.Client,
                           ),
                       ),
                   ]),
@@ -171,7 +182,7 @@ export function renderClient(
     return ts.createClassDeclaration(
         undefined, // decorators
         [ts.createToken(ts.SyntaxKind.ExportKeyword)], // modifiers
-        'Client', // name
+        COMMON_IDENTIFIERS.Client, // name
         [], // type parameters
         heritage, // heritage
         [
@@ -234,9 +245,7 @@ function createBaseMethodForDefinition(
         def.fields.map((field: FieldDefinition) => {
             return createParametersForField(field, state)
         }), // parameters
-        ts.createTypeReferenceNode('Promise', [
-            typeNodeForFieldType(def.returnType, state),
-        ]), // return type
+        createPromiseType(typeNodeForFieldType(def.returnType, state)), // return type
         ts.createBlock(
             [
                 // this._seqid = this.incrementSeqId()
@@ -266,12 +275,12 @@ function createBaseMethodForDefinition(
                                     undefined,
                                     [
                                         createFunctionParameter(
-                                            'error',
+                                            COMMON_IDENTIFIERS.error,
                                             undefined,
                                             undefined,
                                         ),
                                         createFunctionParameter(
-                                            'result',
+                                            COMMON_IDENTIFIERS.result,
                                             undefined,
                                             undefined,
                                         ),
@@ -293,18 +302,16 @@ function createBaseMethodForDefinition(
                                             ),
                                             ts.createIf(
                                                 // if (error != null)
-                                                createNotNullCheck('error'),
+                                                createNotNullCheck(
+                                                    COMMON_IDENTIFIERS.error,
+                                                ),
                                                 // reject(error)
                                                 ts.createBlock(
                                                     [
                                                         createCallStatement(
-                                                            ts.createIdentifier(
-                                                                'reject',
-                                                            ),
+                                                            COMMON_IDENTIFIERS.reject,
                                                             [
-                                                                ts.createIdentifier(
-                                                                    'error',
-                                                                ),
+                                                                COMMON_IDENTIFIERS.error,
                                                             ],
                                                         ),
                                                     ],
@@ -314,9 +321,7 @@ function createBaseMethodForDefinition(
                                                 ts.createBlock(
                                                     [
                                                         createCallStatement(
-                                                            ts.createIdentifier(
-                                                                'resolve',
-                                                            ),
+                                                            COMMON_IDENTIFIERS.resolve,
                                                             [
                                                                 COMMON_IDENTIFIERS.result,
                                                             ],
@@ -332,7 +337,7 @@ function createBaseMethodForDefinition(
                             ),
                             // this.send_{{name}}( {{#args}}{{fieldName}}, {{/args}} )
                             createMethodCallStatement(
-                                ts.createIdentifier('this'),
+                                COMMON_IDENTIFIERS.this,
                                 `send_${def.name.value}`,
                                 [
                                     ...def.fields.map(
@@ -379,10 +384,7 @@ function createSendMethodForDefinition(
                     field.requiredness === 'optional'
                         ? ts.createUnionTypeNode([
                               typeNodeForFieldType(field.fieldType, state),
-                              ts.createTypeReferenceNode(
-                                  ts.createIdentifier('undefined'),
-                                  undefined,
-                              ),
+                              createUndefinedType(),
                           ])
                         : typeNodeForFieldType(field.fieldType, state)
 
