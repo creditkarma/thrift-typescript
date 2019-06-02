@@ -28,7 +28,11 @@ export function renderValue(
     switch (node.type) {
         case SyntaxType.Identifier:
             return ts.createIdentifier(
-                Resolver.resolveIdentifierName(node.value, state).fullName,
+                Resolver.resolveIdentifierName(node.value, {
+                    currentNamespace: state.currentNamespace,
+                    currentDefinitions: state.currentDefinitions,
+                    namespaceMap: state.project.namespaces,
+                }).fullName,
             )
 
         case SyntaxType.IntConstant:

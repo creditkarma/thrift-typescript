@@ -29,10 +29,11 @@ export function renderTypeDef(
     switch (node.definitionType.type) {
         case SyntaxType.Identifier:
             return renderTypeDefForIdentifier(
-                Resolver.resolveIdentifierName(
-                    node.definitionType.value,
-                    state,
-                ),
+                Resolver.resolveIdentifierName(node.definitionType.value, {
+                    currentNamespace: state.currentNamespace,
+                    currentDefinitions: state.currentDefinitions,
+                    namespaceMap: state.project.namespaces,
+                }),
                 node,
             )
 

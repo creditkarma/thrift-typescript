@@ -58,6 +58,7 @@ function generateFileFromStatements(
         const generatedFile: IGeneratedFile = {
             type: 'GeneratedFile',
             name: statement.name.value,
+            ext: 'ts',
             path: namespace.namespace.path,
             body: renderStatement(statement, state, renderer),
         }
@@ -86,6 +87,7 @@ function generateFilesFromKey(
         const constantsFile: IGeneratedFile = {
             type: 'GeneratedFile',
             name: key,
+            ext: 'ts',
             path: namespace.namespace.path,
             body: [],
         }
@@ -156,6 +158,7 @@ export function generateProject(
         result.push({
             type: 'GeneratedFile',
             name: 'index',
+            ext: 'ts',
             path: namespace.namespace.path,
             body: renderer.renderIndex({
                 options: thriftProject.options,

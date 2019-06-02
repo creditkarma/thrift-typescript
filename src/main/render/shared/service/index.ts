@@ -125,7 +125,13 @@ export function renderHandlerInterface(
                             `${
                                 Resolver.resolveIdentifierName(
                                     service.extends.value,
-                                    state,
+                                    {
+                                        currentNamespace:
+                                            state.currentNamespace,
+                                        currentDefinitions:
+                                            state.currentDefinitions,
+                                        namespaceMap: state.project.namespaces,
+                                    },
                                 ).fullName
                             }.IHandler`,
                         ),

@@ -21,7 +21,11 @@ function makeNameForNode(
 ): string {
     const resolvedId: IResolvedIdentifier = Resolver.resolveIdentifierName(
         name,
-        state,
+        {
+            currentNamespace: state.currentNamespace,
+            currentDefinitions: state.currentDefinitions,
+            namespaceMap: state.project.namespaces,
+        },
     )
     if (resolvedId.pathName) {
         return `${resolvedId.pathName}.${mapping(resolvedId.baseName)}`

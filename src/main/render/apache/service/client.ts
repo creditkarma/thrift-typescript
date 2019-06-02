@@ -160,7 +160,14 @@ export function renderClient(
                                   `${
                                       Resolver.resolveIdentifierName(
                                           node.extends.value,
-                                          state,
+                                          {
+                                              currentNamespace:
+                                                  state.currentNamespace,
+                                              currentDefinitions:
+                                                  state.currentDefinitions,
+                                              namespaceMap:
+                                                  state.project.namespaces,
+                                          },
                                       ).fullName
                                   }`,
                               ),

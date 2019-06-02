@@ -235,7 +235,11 @@ export function typeNodeForFieldType(
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return ts.createTypeReferenceNode(
-                Resolver.resolveIdentifierName(fieldType.value, state).fullName,
+                Resolver.resolveIdentifierName(fieldType.value, {
+                    currentNamespace: state.currentNamespace,
+                    currentDefinitions: state.currentDefinitions,
+                    namespaceMap: state.project.namespaces,
+                }).fullName,
                 undefined,
             )
 

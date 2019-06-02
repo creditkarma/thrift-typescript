@@ -161,7 +161,11 @@ export function renderIncludes(
 
     const identifiers: Array<string> = Resolver.identifiersForStatements(
         statements,
-        state,
+        {
+            currentNamespace: state.currentNamespace,
+            currentDefinitions: state.currentDefinitions,
+            namespaceMap: state.project.namespaces,
+        },
     )
 
     const importedIdentifiers: Set<string> = new Set()

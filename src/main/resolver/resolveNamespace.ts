@@ -23,7 +23,8 @@ import { createValidationError, IThriftError, ValidationError } from '../errors'
 
 import { emptyLocation } from '../utils'
 
-import { resolveConstValue, resolveIdentifierDefinition } from './utils'
+import { resolveConstValue } from './resolveConstValue'
+import { resolveIdentifierDefinition } from './resolveIdentifierDefinition'
 
 /**
  * What do you mean, resolve file?

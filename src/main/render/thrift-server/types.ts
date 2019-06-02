@@ -251,7 +251,11 @@ function typeNodeForIdentifier(
         default:
             return ts.createTypeReferenceNode(
                 ts.createIdentifier(
-                    Resolver.resolveIdentifierName(name, state).fullName,
+                    Resolver.resolveIdentifierName(name, {
+                        currentNamespace: state.currentNamespace,
+                        currentDefinitions: state.currentDefinitions,
+                        namespaceMap: state.project.namespaces,
+                    }).fullName,
                 ),
                 undefined,
             )

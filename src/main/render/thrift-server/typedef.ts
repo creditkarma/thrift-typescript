@@ -425,7 +425,11 @@ export function renderTypeDef(
         case SyntaxType.Identifier:
             const resolvedIdentifier = Resolver.resolveIdentifierName(
                 node.definitionType.value,
-                state,
+                {
+                    currentNamespace: state.currentNamespace,
+                    currentDefinitions: state.currentDefinitions,
+                    namespaceMap: state.project.namespaces,
+                },
             )
 
             return renderTypeDefForIdentifier(

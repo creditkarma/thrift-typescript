@@ -123,7 +123,13 @@ export function renderHandlerInterface(
                             `${
                                 Resolver.resolveIdentifierName(
                                     service.extends.value,
-                                    state,
+                                    {
+                                        currentNamespace:
+                                            state.currentNamespace,
+                                        currentDefinitions:
+                                            state.currentDefinitions,
+                                        namespaceMap: state.project.namespaces,
+                                    },
                                 ).fullName
                             }.IHandler`,
                         ),
@@ -243,7 +249,14 @@ export function renderProcessor(
                                   `${
                                       Resolver.resolveIdentifierName(
                                           node.extends.value,
-                                          state,
+                                          {
+                                              currentNamespace:
+                                                  state.currentNamespace,
+                                              currentDefinitions:
+                                                  state.currentDefinitions,
+                                              namespaceMap:
+                                                  state.project.namespaces,
+                                          },
                                       ).fullName
                                   }`,
                               ),
@@ -544,8 +557,11 @@ function createElseForExceptions(
                 constructorNameForFieldType(
                     next.fieldType,
                     (name: string) => {
-                        return Resolver.resolveIdentifierName(name, state)
-                            .fullName
+                        return Resolver.resolveIdentifierName(name, {
+                            currentNamespace: state.currentNamespace,
+                            currentDefinitions: state.currentDefinitions,
+                            namespaceMap: state.project.namespaces,
+                        }).fullName
                     },
                     state,
                 ),
@@ -673,7 +689,11 @@ function createIfForExceptions(
             constructorNameForFieldType(
                 throwDef.fieldType,
                 (name: string) => {
-                    return Resolver.resolveIdentifierName(name, state).fullName
+                    return Resolver.resolveIdentifierName(name, {
+                        currentNamespace: state.currentNamespace,
+                        currentDefinitions: state.currentDefinitions,
+                        namespaceMap: state.project.namespaces,
+                    }).fullName
                 },
                 state,
             ),

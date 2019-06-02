@@ -43,6 +43,8 @@
     },
     "dependencies": {
         "@creditkarma/thrift-parser": "^1.2.0",
+        "@types/fs-extra": "^7.0.0",
+        "fs-extra": "^8.0.1",
         "glob": "^7.1.2",
         "typescript": "3.2.x"
     },

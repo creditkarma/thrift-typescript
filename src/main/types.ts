@@ -18,6 +18,9 @@ export interface IResolveContext {
     // Namespace where the identifier is used
     currentNamespace: INamespace
 
+    // Definitions in current file
+    currentDefinitions?: IFileExports
+
     // Namespaces in current project
     namespaceMap: INamespaceMap
 }
@@ -287,6 +290,9 @@ export interface IGeneratedFile {
 
     // File name
     name: string
+
+    // File extension
+    ext: string
 
     // Path to save file
     path: string

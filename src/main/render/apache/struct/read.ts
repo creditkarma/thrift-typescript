@@ -477,8 +477,12 @@ export function readValueForIdentifier(
                     ts.createCall(
                         ts.createPropertyAccess(
                             ts.createIdentifier(
-                                Resolver.resolveIdentifierName(baseName, state)
-                                    .fullName,
+                                Resolver.resolveIdentifierName(baseName, {
+                                    currentNamespace: state.currentNamespace,
+                                    currentDefinitions:
+                                        state.currentDefinitions,
+                                    namespaceMap: state.project.namespaces,
+                                }).fullName,
                             ),
                             COMMON_IDENTIFIERS.read,
                         ),

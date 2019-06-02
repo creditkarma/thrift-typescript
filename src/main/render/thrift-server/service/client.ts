@@ -72,8 +72,11 @@ function extendsService(
             ts.createPropertyAccess(
                 ts.createIdentifier(
                     `${
-                        Resolver.resolveIdentifierName(service.value, state)
-                            .fullName
+                        Resolver.resolveIdentifierName(service.value, {
+                            currentNamespace: state.currentNamespace,
+                            currentDefinitions: state.currentDefinitions,
+                            namespaceMap: state.project.namespaces,
+                        }).fullName
                     }`,
                 ),
                 COMMON_IDENTIFIERS.Client,

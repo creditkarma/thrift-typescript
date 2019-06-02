@@ -111,8 +111,11 @@ export function extendsService(
             [ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined)],
             ts.createIdentifier(
                 `${
-                    Resolver.resolveIdentifierName(service.value, state)
-                        .fullName
+                    Resolver.resolveIdentifierName(service.value, {
+                        currentNamespace: state.currentNamespace,
+                        currentDefinitions: state.currentDefinitions,
+                        namespaceMap: state.project.namespaces,
+                    }).fullName
                 }.Processor`,
             ),
         ),

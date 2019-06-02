@@ -139,7 +139,7 @@ export function thriftProjectFromSourceFiles(
             Parser.parseThriftFile(next, mergedOptions.fallbackNamespace),
     )
 
-    const namespaces: INamespaceMap = Utils.organizeByNamespace(
+    const namespaces: INamespaceMap = Resolver.organizeByNamespace(
         parsedFiles,
         sourceDir,
         mergedOptions.fallbackNamespace,
