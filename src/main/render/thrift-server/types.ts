@@ -20,8 +20,8 @@ import {
     createVoidType,
 } from '../shared/types'
 
-import { THRIFT_IDENTIFIERS } from './identifiers'
 import { Resolver } from '../../resolver'
+import { THRIFT_IDENTIFIERS } from './identifiers'
 import { looseName, strictName } from './struct/utils'
 
 export * from '../shared/types'

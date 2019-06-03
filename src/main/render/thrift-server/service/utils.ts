@@ -1,13 +1,10 @@
 import * as ts from 'typescript'
 
-import {
-    FieldDefinition,
-    FunctionDefinition,
-} from '@creditkarma/thrift-parser'
+import { FieldDefinition, FunctionDefinition } from '@creditkarma/thrift-parser'
 
+import { createConstStatement } from '../../shared/utils'
 import { COMMON_IDENTIFIERS } from '../identifiers'
-import { createConstStatement } from '../../shared/utils';
-import { createProtocolConstructorType } from '../types';
+import { createProtocolConstructorType } from '../types'
 
 export function capitalize(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1)

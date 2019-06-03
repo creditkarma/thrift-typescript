@@ -38,14 +38,14 @@ import {
     renderServiceMetadataStaticProperty,
 } from './metadata'
 
+import { Resolver } from '../../../resolver'
 import { createNumberType } from '../../shared/types'
+import { createBufferType, createPromiseType } from '../../shared/types'
 import {
     createAssignmentStatement,
     createClassConstructor,
     createProtectedProperty,
 } from '../../shared/utils'
-import { Resolver } from '../../../resolver'
-import { createBufferType, createPromiseType } from '../../shared/types'
 import { looseName, strictName, toolkitName } from '../struct/utils'
 
 function implementsThirftClient(): ts.HeritageClause {

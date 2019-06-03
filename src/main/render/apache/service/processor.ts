@@ -806,15 +806,6 @@ function createProcessMethod(
                     COMMON_IDENTIFIERS.rseqid,
                 ),
             ),
-            createConstStatement(
-                COMMON_IDENTIFIERS.methodName,
-                createStringType(),
-                ts.createBinary(
-                    ts.createLiteral('process_'),
-                    ts.SyntaxKind.PlusToken,
-                    COMMON_IDENTIFIERS.fname,
-                ),
-            ),
             createMethodCallForFname(service, state),
         ], // body
     )

@@ -208,16 +208,6 @@ export interface IFileIncludes {
     [includeName: string]: IIncludePath
 }
 
-export interface IParsedFileDefinition {
-    file: IParsedFile
-    definition: DefinitionType
-}
-
-export interface IResolvedFileDefinition {
-    file: IResolvedFile
-    definition: DefinitionType
-}
-
 export interface INamespaceDefinition {
     namespace: INamespace
     definition: DefinitionType

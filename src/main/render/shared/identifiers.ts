@@ -46,6 +46,8 @@ export const COMMON_IDENTIFIERS = {
     err: ts.createIdentifier('err'),
     args: ts.createIdentifier('args'),
     _args: ts.createIdentifier('_args'),
+    fname: ts.createIdentifier('fname'),
+    rseqid: ts.createIdentifier('rseqid'),
     undefined: ts.createIdentifier('undefined'),
     input: ts.createIdentifier('input'),
     data: ts.createIdentifier('data'),

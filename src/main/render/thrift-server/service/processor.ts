@@ -59,9 +59,9 @@ import { Resolver } from '../../../resolver'
 import { collectAllMethods } from '../../shared/service'
 
 import {
+    createAnyType,
     createBufferType,
     createErrorType,
-    createAnyType,
 } from '../../shared/types'
 
 import { className, looseName, strictName, toolkitName } from '../struct/utils'
@@ -338,14 +338,11 @@ function createSuperCall(
             [],
             [
                 objectLiteralForServiceFunctions(
-                    Resolver.resolveIdentifierDefinition(
-                        service,
-                        {
-                            currentNamespace: state.currentNamespace,
-                            currentDefinitions: state.currentDefinitions,
-                            namespaceMap: state.project.namespaces,
-                        }
-                    ),
+                    Resolver.resolveIdentifierDefinition(service, {
+                        currentNamespace: state.currentNamespace,
+                        currentDefinitions: state.currentDefinitions,
+                        namespaceMap: state.project.namespaces,
+                    }),
                 ),
                 COMMON_IDENTIFIERS.transport,
                 COMMON_IDENTIFIERS.protocol,
@@ -1386,7 +1383,7 @@ function createMethodCallForFname(
                         // thrift.TApplicationExceptionCodec.encode(err, output)
                         createMethodCallStatement(
                             THRIFT_IDENTIFIERS.TApplicationExceptionCodec,
-                            'encode',
+                            COMMON_IDENTIFIERS.encode,
                             [COMMON_IDENTIFIERS.err, COMMON_IDENTIFIERS.output],
                         ),
                         // output.writeMessageEnd()

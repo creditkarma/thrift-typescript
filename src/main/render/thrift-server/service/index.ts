@@ -19,7 +19,7 @@ import { renderClient } from './client'
 
 import { renderProcessor } from './processor'
 
-import { collectAllMethods, renderHandlerInterface } from '../../shared/service'
+import { renderHandlerInterface } from '../../shared/service'
 
 import { typeNodeForFieldType } from '../types'
 

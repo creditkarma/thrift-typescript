@@ -13,7 +13,7 @@ import {
 
 import { DefinitionType, INamespace, IRenderState } from '../../../types'
 
-import { resolveIdentifierDefinition } from '../../../resolver'
+import { Resolver } from '../../../resolver'
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
 const VALID_IDENTIFIER_PATTERN = /^[a-z$_][0-9a-z$_]*$/i
@@ -64,12 +64,14 @@ function renderMetadataForFieldType(
 ): ts.ObjectLiteralExpression {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
-            const definition: DefinitionType = resolveIdentifierDefinition(
+            const definition: DefinitionType = Resolver.resolveIdentifierDefinition(
                 fieldType,
-                currentNamespace,
-                state.project.namespaces,
-                state.project.sourceDir,
-            ).definition
+                {
+                    currentNamespace: state.currentNamespace,
+                    currentDefinitions: state.currentDefinitions,
+                    namespaceMap: state.project.namespaces,
+                },
+            )
 
             if (
                 definition.type === SyntaxType.StructDefinition ||
@@ -208,12 +210,14 @@ function renderMethodMetadataProperties(
             )
         })
     } else {
-        const parentService: DefinitionType = resolveIdentifierDefinition(
+        const parentService: DefinitionType = Resolver.resolveIdentifierDefinition(
             service.extends,
-            state.currentNamespace,
-            state.project.namespaces,
-            state.project.sourceDir,
-        ).definition
+            {
+                currentNamespace: state.currentNamespace,
+                currentDefinitions: state.currentDefinitions,
+                namespaceMap: state.project.namespaces,
+            },
+        )
 
         switch (parentService.type) {
             case SyntaxType.ServiceDefinition:
