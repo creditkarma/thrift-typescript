@@ -354,7 +354,7 @@ function createProcessFunctionMethod(
                                             // input.readMessageEnd();
                                             createMethodCallStatement(
                                                 COMMON_IDENTIFIERS.input,
-                                                'readMessageEnd',
+                                                COMMON_IDENTIFIERS.readMessageEnd,
                                             ),
                                             createCallStatement(
                                                 COMMON_IDENTIFIERS.resolve,
@@ -450,7 +450,7 @@ function createProcessFunctionMethod(
                                         // output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, requestId)
                                         createMethodCallStatement(
                                             COMMON_IDENTIFIERS.output,
-                                            'writeMessageBegin',
+                                            COMMON_IDENTIFIERS.writeMessageBegin,
                                             [
                                                 ts.createLiteral(
                                                     funcDef.name.value,
@@ -468,7 +468,7 @@ function createProcessFunctionMethod(
                                         // output.writeMessageEnd()
                                         createMethodCallStatement(
                                             COMMON_IDENTIFIERS.output,
-                                            'writeMessageEnd',
+                                            COMMON_IDENTIFIERS.writeMessageEnd,
                                             [],
                                         ),
                                         // return output.flush()
@@ -585,7 +585,7 @@ function createElseForExceptions(
                 // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
                 createMethodCallStatement(
                     COMMON_IDENTIFIERS.output,
-                    'writeMessageBegin',
+                    COMMON_IDENTIFIERS.writeMessageBegin,
                     [
                         ts.createLiteral(funcDef.name.value),
                         MESSAGE_TYPE.EXCEPTION,
@@ -601,7 +601,7 @@ function createElseForExceptions(
                 // output.writeMessageEnd()
                 createMethodCallStatement(
                     COMMON_IDENTIFIERS.output,
-                    'writeMessageEnd',
+                    COMMON_IDENTIFIERS.writeMessageEnd,
                 ),
                 // output.flush()
                 createMethodCallStatement(
@@ -644,7 +644,7 @@ function createThenForException(
             // output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
             createMethodCallStatement(
                 COMMON_IDENTIFIERS.output,
-                'writeMessageBegin',
+                COMMON_IDENTIFIERS.writeMessageBegin,
                 [
                     ts.createLiteral(funcDef.name.value),
                     MESSAGE_TYPE.REPLY,
@@ -660,7 +660,7 @@ function createThenForException(
             // output.writeMessageEnd()
             createMethodCallStatement(
                 COMMON_IDENTIFIERS.output,
-                'writeMessageEnd',
+                COMMON_IDENTIFIERS.writeMessageEnd,
             ),
             // output.flush()
             createMethodCallStatement(
@@ -725,7 +725,7 @@ function createExceptionHandlers(
             // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
             createMethodCallStatement(
                 COMMON_IDENTIFIERS.output,
-                'writeMessageBegin',
+                COMMON_IDENTIFIERS.writeMessageBegin,
                 [
                     ts.createLiteral(funcDef.name.value),
                     MESSAGE_TYPE.EXCEPTION,
@@ -741,7 +741,7 @@ function createExceptionHandlers(
             // output.writeMessageEnd()
             createMethodCallStatement(
                 COMMON_IDENTIFIERS.output,
-                'writeMessageEnd',
+                COMMON_IDENTIFIERS.writeMessageEnd,
             ),
             // output.flush()
             createMethodCallStatement(
@@ -786,7 +786,7 @@ function createProcessMethod(
                 ),
                 createMethodCall(
                     COMMON_IDENTIFIERS.input,
-                    'readMessageBegin',
+                    COMMON_IDENTIFIERS.readMessageBegin,
                     [],
                 ),
             ),
@@ -880,7 +880,7 @@ function createMethodCallForFname(
                         // input.readMessageEnd()
                         createMethodCallStatement(
                             COMMON_IDENTIFIERS.input,
-                            'readMessageEnd',
+                            COMMON_IDENTIFIERS.readMessageEnd,
                         ),
                         // const err = `Unknown function ${fname}`
                         createConstStatement(
@@ -904,7 +904,7 @@ function createMethodCallForFname(
                         // output.writeMessageBegin(fname, Thrift.MessageType.EXCEPTION, rseqid)
                         createMethodCallStatement(
                             COMMON_IDENTIFIERS.output,
-                            'writeMessageBegin',
+                            COMMON_IDENTIFIERS.writeMessageBegin,
                             [
                                 COMMON_IDENTIFIERS.fieldName,
                                 MESSAGE_TYPE.EXCEPTION,
@@ -920,7 +920,7 @@ function createMethodCallForFname(
                         // output.writeMessageEnd()
                         createMethodCallStatement(
                             COMMON_IDENTIFIERS.output,
-                            'writeMessageEnd',
+                            COMMON_IDENTIFIERS.writeMessageEnd,
                         ),
                         // output.flush()
                         createMethodCallStatement(

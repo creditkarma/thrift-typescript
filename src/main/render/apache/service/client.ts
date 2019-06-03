@@ -417,7 +417,7 @@ function createSendMethodForDefinition(
                 // output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.seqid())
                 createMethodCallStatement(
                     COMMON_IDENTIFIERS.output,
-                    'writeMessageBegin',
+                    COMMON_IDENTIFIERS.writeMessageBegin,
                     [
                         ts.createLiteral(def.name.value),
                         MESSAGE_TYPE.CALL,
@@ -447,7 +447,7 @@ function createSendMethodForDefinition(
                 // output.writeMessageEnd()
                 createMethodCallStatement(
                     COMMON_IDENTIFIERS.output,
-                    'writeMessageEnd',
+                    COMMON_IDENTIFIERS.writeMessageEnd,
                 ),
                 // return this.output.flush()
                 ts.createStatement(
@@ -567,7 +567,7 @@ function createRecvMethodForDefinition(
                             ),
                             createMethodCallStatement(
                                 COMMON_IDENTIFIERS.input,
-                                'readMessageEnd',
+                                COMMON_IDENTIFIERS.readMessageEnd,
                             ),
                             ts.createReturn(
                                 ts.createCall(
@@ -587,7 +587,7 @@ function createRecvMethodForDefinition(
                             // input.readMessageEnd()
                             createMethodCallStatement(
                                 COMMON_IDENTIFIERS.input,
-                                'readMessageEnd',
+                                COMMON_IDENTIFIERS.readMessageEnd,
                             ),
 
                             createResultHandler(def),

@@ -470,7 +470,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             }
         });
     }
-    public process_getUnion(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_getUnion(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<SharedUnion.ISharedUnionArgs>((resolve, reject): void => {
             try {
                 const args: IGetUnion__Args = GetUnion__ArgsCodec.decode(input);
@@ -494,7 +494,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return output.flush();
         });
     }
-    public process_getEnum(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_getEnum(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<SharedEnum.SharedEnum>((resolve, reject): void => {
             try {
                 input.readMessageEnd();

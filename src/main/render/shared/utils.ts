@@ -78,6 +78,25 @@ export function createClassConstructor(
     )
 }
 
+export function createPrivateMethod(
+    name: ts.Identifier,
+    args: Array<ts.ParameterDeclaration>,
+    type: ts.TypeNode,
+    statements: Array<ts.Statement>,
+): ts.MethodDeclaration {
+    return ts.createMethod(
+        undefined,
+        [ts.createToken(ts.SyntaxKind.PrivateKeyword)],
+        undefined,
+        name,
+        undefined,
+        undefined,
+        args,
+        type,
+        ts.createBlock(statements, true),
+    )
+}
+
 export function createPublicMethod(
     name: ts.Identifier,
     args: Array<ts.ParameterDeclaration>,

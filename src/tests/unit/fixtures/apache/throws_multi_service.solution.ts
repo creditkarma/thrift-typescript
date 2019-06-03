@@ -439,7 +439,7 @@ export class Processor {
             }
         }
     }
-    public process_peg(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_peg(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<string>((resolve, reject): void => {
             try {
                 const args: PegArgs = PegArgs.read(input);

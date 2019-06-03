@@ -2585,7 +2585,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             }
         }
     }
-    public process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<void>((resolve, reject): void => {
             try {
                 input.readMessageEnd();
@@ -2610,7 +2610,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             return;
         });
     }
-    public process_add(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_add(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<number>((resolve, reject): void => {
             try {
                 const args: AddArgs = AddArgs.read(input);
@@ -2646,7 +2646,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             }
         });
     }
-    public process_addInt64(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_addInt64(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<Int64>((resolve, reject): void => {
             try {
                 const args: AddInt64Args = AddInt64Args.read(input);
@@ -2682,7 +2682,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             }
         });
     }
-    public process_addWithContext(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_addWithContext(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<number>((resolve, reject): void => {
             try {
                 const args: AddWithContextArgs = AddWithContextArgs.read(input);
@@ -2708,7 +2708,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             return;
         });
     }
-    public process_calculate(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_calculate(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<number>((resolve, reject): void => {
             try {
                 const args: CalculateArgs = CalculateArgs.read(input);
@@ -2744,7 +2744,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             }
         });
     }
-    public process_echoBinary(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_echoBinary(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<string>((resolve, reject): void => {
             try {
                 const args: EchoBinaryArgs = EchoBinaryArgs.read(input);
@@ -2770,7 +2770,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             return;
         });
     }
-    public process_echoString(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_echoString(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<string>((resolve, reject): void => {
             try {
                 const args: EchoStringArgs = EchoStringArgs.read(input);
@@ -2796,7 +2796,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             return;
         });
     }
-    public process_checkName(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_checkName(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<string>((resolve, reject): void => {
             try {
                 const args: CheckNameArgs = CheckNameArgs.read(input);
@@ -2822,7 +2822,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             return;
         });
     }
-    public process_checkOptional(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_checkOptional(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<string>((resolve, reject): void => {
             try {
                 const args: CheckOptionalArgs = CheckOptionalArgs.read(input);
@@ -2848,7 +2848,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             return;
         });
     }
-    public process_mapOneList(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_mapOneList(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<Array<number>>((resolve, reject): void => {
             try {
                 const args: MapOneListArgs = MapOneListArgs.read(input);
@@ -2874,7 +2874,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             return;
         });
     }
-    public process_mapValues(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_mapValues(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<Array<number>>((resolve, reject): void => {
             try {
                 const args: MapValuesArgs = MapValuesArgs.read(input);
@@ -2900,7 +2900,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             return;
         });
     }
-    public process_listToMap(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_listToMap(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<Map<string, string>>((resolve, reject): void => {
             try {
                 const args: ListToMapArgs = ListToMapArgs.read(input);
@@ -2926,7 +2926,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             return;
         });
     }
-    public process_fetchThing(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_fetchThing(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<com_test_common.CommonStruct>((resolve, reject): void => {
             try {
                 input.readMessageEnd();
@@ -2951,7 +2951,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             return;
         });
     }
-    public process_fetchMap(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_fetchMap(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<TypedMap.TypedMap>((resolve, reject): void => {
             try {
                 input.readMessageEnd();
@@ -2976,7 +2976,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             return;
         });
     }
-    public process_zip(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_zip(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<void>((resolve, reject): void => {
             try {
                 input.readMessageEnd();

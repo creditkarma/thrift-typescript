@@ -277,7 +277,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
             }
         });
     }
-    public process_getStruct(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_getStruct(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<SharedStruct.ISharedStructArgs>((resolve, reject): void => {
             try {
                 const args: IGetStruct__Args = GetStruct__ArgsCodec.decode(input);

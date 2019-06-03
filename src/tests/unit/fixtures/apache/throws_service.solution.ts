@@ -235,7 +235,7 @@ export class Processor {
             }
         }
     }
-    public process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<void>((resolve, reject): void => {
             try {
                 input.readMessageEnd();

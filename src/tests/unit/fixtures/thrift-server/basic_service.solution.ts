@@ -715,12 +715,7 @@ export class Client<Context extends thrift.IThriftContext = thrift.IThriftContex
     }
 }
 export interface IHandler<Context extends thrift.IThriftContext = thrift.IThriftContext> {
-    getUser(this: Context, id: number): IUserArgs | Promise<IUserArgs> {
-        this.headers
-        this.log
-        this.getClient()
-        this.
-    }
+    getUser(this: Context, id: number): IUserArgs | Promise<IUserArgs>
     saveUser(user: IUser, context: Context): void | Promise<void>;
     ping(context: Context): void | Promise<void>;
 }
@@ -798,10 +793,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             }
         }
     }
-    public writeResponse(methodName: "getUser", requestId: number, data: IUserArgs): Buffer
-    public writeResponse(methodName: "saveUser", requestId: number, data: void): Buffer
-    public writeResponse(methodName: "ping", requestId: number, data: void): Buffer
-    public writeResponse(methodName: string, requestId: number, data: any): Buffer {
+    public writeResponse(methodName: "getUser" | "saveUser" | "ping", requestId: number, data: IUserArgs): Buffer {
         switch (methodName) {
             case "getUser": {
                 const result: IGetUser__ResultArgs = { success: data };
@@ -835,7 +827,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
         output.writeMessageEnd();
         return output.flush();
     }
-    public process_getUser(requestId: number, input: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_getUser(requestId: number, input: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<IUserArgs>((resolve, reject): void => {
             try {
                 const args: IGetUser__Args = this.readRequest("getUser", input);
@@ -845,12 +837,12 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
                 reject(err);
             }
         }).then((data: IUserArgs): Buffer => {
-            return this.writeResponse("getUser", data);
+            return this.writeResponse("getUser", requestId, data);
         }).catch((err: Error): Buffer => {
             return this.writeError("getUser", requestId, err);
         });
     }
-    public process_saveUser(requestId: number, input: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_saveUser(requestId: number, input: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<void>((resolve, reject): void => {
             try {
                 const args: ISaveUser__Args = SaveUser__ArgsCodec.decode(input);
@@ -874,7 +866,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return output.flush();
         });
     }
-    public process_ping(requestId: number, input: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_ping(requestId: number, input: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<void>((resolve, reject): void => {
             try {
                 input.readMessageEnd();

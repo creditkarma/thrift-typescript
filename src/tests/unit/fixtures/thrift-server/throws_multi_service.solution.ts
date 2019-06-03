@@ -595,7 +595,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             }
         });
     }
-    public process_peg(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_peg(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<string>((resolve, reject): void => {
             try {
                 const args: IPeg__Args = Peg__ArgsCodec.decode(input);

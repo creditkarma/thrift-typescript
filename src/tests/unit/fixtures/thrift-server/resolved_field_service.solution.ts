@@ -259,7 +259,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             }
         });
     }
-    public process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<void>((resolve, reject): void => {
             try {
                 const args: IPing__Args = Ping__ArgsCodec.decode(input);

@@ -64,6 +64,7 @@ import {
     createErrorType,
 } from '../../shared/types'
 
+import { createPrivateMethod } from '../../shared/utils'
 import { className, looseName, strictName, toolkitName } from '../struct/utils'
 
 function objectLiteralForServiceFunctions(
@@ -205,7 +206,7 @@ export function renderProcessor(
     return ts.createClassDeclaration(
         undefined, // decorators
         [ts.createToken(ts.SyntaxKind.ExportKeyword)], // modifiers
-        'Processor', // name
+        COMMON_IDENTIFIERS.Processor, // name
         [
             ts.createTypeParameterDeclaration(
                 COMMON_IDENTIFIERS.Context,
@@ -360,7 +361,7 @@ function createSuperCall(
 function createWriteErrorMethod(): ts.MethodDeclaration {
     return ts.createMethod(
         undefined,
-        undefined,
+        [ts.createToken(ts.SyntaxKind.PublicKeyword)],
         undefined,
         COMMON_IDENTIFIERS.writeError,
         undefined,
@@ -382,57 +383,44 @@ function createWriteErrorMethod(): ts.MethodDeclaration {
         createBufferType(),
         ts.createBlock(
             [
+                createOutputVariable(),
+                // const result: Thrift.TApplicationException = new thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
                 createConstStatement(
                     COMMON_IDENTIFIERS.result,
                     ts.createTypeReferenceNode(
                         THRIFT_IDENTIFIERS.TApplicationException,
                         undefined,
                     ),
-                    ts.createNew(
-                        THRIFT_IDENTIFIERS.TApplicationException,
-                        undefined,
-                        [
-                            ts.createIdentifier(
-                                'thrift.TApplicationExceptionType.UNKNOWN',
-                            ),
-                            ts.createIdentifier('err.message'),
-                        ],
-                    ),
-                ),
-                createOutputVariable(),
-                ts.createStatement(
-                    ts.createCall(
+                    createApplicationException(
+                        'UNKNOWN',
                         ts.createPropertyAccess(
-                            COMMON_IDENTIFIERS.output,
-                            COMMON_IDENTIFIERS.writeMessageBegin,
+                            COMMON_IDENTIFIERS.err,
+                            COMMON_IDENTIFIERS.message,
                         ),
-                        undefined,
-                        [
-                            COMMON_IDENTIFIERS.methodName,
-                            ts.createIdentifier('thrift.MessageType.EXCEPTION'),
-                            COMMON_IDENTIFIERS.requestId,
-                        ],
                     ),
                 ),
-                ts.createStatement(
-                    ts.createCall(
-                        ts.createIdentifier(
-                            'thrift.TApplicationExceptionCodec.encode',
-                        ),
-                        undefined,
-                        [COMMON_IDENTIFIERS.result, COMMON_IDENTIFIERS.output],
-                    ),
+                // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, requestId)
+                createMethodCallStatement(
+                    COMMON_IDENTIFIERS.output,
+                    COMMON_IDENTIFIERS.writeMessageBegin,
+                    [
+                        COMMON_IDENTIFIERS.methodName,
+                        MESSAGE_TYPE.EXCEPTION,
+                        COMMON_IDENTIFIERS.requestId,
+                    ],
                 ),
-                ts.createStatement(
-                    ts.createCall(
-                        ts.createPropertyAccess(
-                            COMMON_IDENTIFIERS.output,
-                            COMMON_IDENTIFIERS.writeMessageEnd,
-                        ),
-                        undefined,
-                        undefined,
-                    ),
+                // thrift.TApplicationExceptionCodec.encode(result, output)
+                createMethodCallStatement(
+                    THRIFT_IDENTIFIERS.TApplicationExceptionCodec,
+                    COMMON_IDENTIFIERS.encode,
+                    [COMMON_IDENTIFIERS.result, COMMON_IDENTIFIERS.output],
                 ),
+                // output.writeMessageEnd()
+                createMethodCallStatement(
+                    COMMON_IDENTIFIERS.output,
+                    COMMON_IDENTIFIERS.writeMessageEnd,
+                ),
+                // return output.flush()
                 ts.createReturn(
                     ts.createCall(
                         ts.createPropertyAccess(
@@ -440,7 +428,7 @@ function createWriteErrorMethod(): ts.MethodDeclaration {
                             COMMON_IDENTIFIERS.flush,
                         ),
                         undefined,
-                        undefined,
+                        [],
                     ),
                 ),
             ],
@@ -454,11 +442,11 @@ function createReadRequestMethod(
     state: IRenderState,
 ): Array<ts.MethodDeclaration> {
     return [
-        ...service.functions.map(
-            (next: FunctionDefinition): ts.MethodDeclaration => {
+        ...collectAllMethods(service, state).map(
+            (funcDef: FunctionDefinition): ts.MethodDeclaration => {
                 return ts.createMethod(
                     undefined,
-                    undefined,
+                    [ts.createToken(ts.SyntaxKind.PublicKeyword)],
                     undefined,
                     COMMON_IDENTIFIERS.readRequest,
                     undefined,
@@ -471,7 +459,7 @@ function createReadRequestMethod(
                             COMMON_IDENTIFIERS.methodName,
                             undefined,
                             ts.createLiteralTypeNode(
-                                ts.createLiteral(next.name.value),
+                                ts.createLiteral(funcDef.name.value),
                             ),
                             undefined,
                         ),
@@ -491,7 +479,7 @@ function createReadRequestMethod(
                     ts.createTypeReferenceNode(
                         ts.createIdentifier(
                             strictName(
-                                createStructArgsName(next),
+                                createStructArgsName(funcDef),
                                 SyntaxType.StructDefinition,
                                 state,
                             ),
@@ -544,7 +532,48 @@ function createReadRequestMethod(
                                         ts.createLiteral(next.name.value),
                                         [
                                             ts.createBlock(
-                                                [ts.createReturn()],
+                                                [
+                                                    createConstStatement(
+                                                        COMMON_IDENTIFIERS.args,
+                                                        ts.createTypeReferenceNode(
+                                                            ts.createIdentifier(
+                                                                strictName(
+                                                                    createStructArgsName(
+                                                                        next,
+                                                                    ),
+                                                                    SyntaxType.StructDefinition,
+                                                                    state,
+                                                                ),
+                                                            ),
+                                                            undefined,
+                                                        ),
+                                                        ts.createCall(
+                                                            ts.createPropertyAccess(
+                                                                ts.createIdentifier(
+                                                                    toolkitName(
+                                                                        createStructArgsName(
+                                                                            next,
+                                                                        ),
+                                                                        state,
+                                                                    ),
+                                                                ),
+                                                                COMMON_IDENTIFIERS.decode,
+                                                            ),
+                                                            undefined,
+                                                            [
+                                                                COMMON_IDENTIFIERS.input,
+                                                            ],
+                                                        ),
+                                                    ),
+                                                    // input.readMessageEnd();
+                                                    createMethodCallStatement(
+                                                        COMMON_IDENTIFIERS.input,
+                                                        COMMON_IDENTIFIERS.readMessageEnd,
+                                                    ),
+                                                    ts.createReturn(
+                                                        COMMON_IDENTIFIERS.args,
+                                                    ),
+                                                ],
                                                 true,
                                             ),
                                         ],
@@ -566,40 +595,63 @@ function createWriteResponseMethod(
     state: IRenderState,
 ): Array<ts.MethodDeclaration> {
     return [
-        ...service.functions.map(
-            (next: FunctionDefinition): ts.MethodDeclaration => {
+        ...collectAllMethods(service, state).map(
+            (funcDef: FunctionDefinition): ts.MethodDeclaration => {
                 return ts.createMethod(
                     undefined,
-                    undefined,
+                    [ts.createToken(ts.SyntaxKind.PublicKeyword)],
                     undefined,
                     COMMON_IDENTIFIERS.writeResponse,
                     undefined,
                     undefined,
                     [
-                        createFunctionParameter(
+                        ts.createParameter(
+                            undefined,
+                            undefined,
+                            undefined,
                             COMMON_IDENTIFIERS.methodName,
+                            undefined,
                             ts.createLiteralTypeNode(
-                                ts.createLiteral(next.name.value),
+                                ts.createLiteral(funcDef.name.value),
                             ),
+                            undefined,
                         ),
-                        createFunctionParameter(
+                        ts.createParameter(
+                            undefined,
+                            undefined,
+                            undefined,
+                            COMMON_IDENTIFIERS.data,
+                            undefined,
+                            typeNodeForFieldType(
+                                funcDef.returnType,
+                                state,
+                                true,
+                            ),
+                            undefined,
+                        ),
+                        ts.createParameter(
+                            undefined,
+                            undefined,
+                            undefined,
+                            COMMON_IDENTIFIERS.requestId,
+                            undefined,
+                            createNumberType(),
+                            undefined,
+                        ),
+                        ts.createParameter(
+                            undefined,
+                            undefined,
+                            undefined,
                             COMMON_IDENTIFIERS.input,
+                            undefined,
                             ts.createTypeReferenceNode(
                                 THRIFT_IDENTIFIERS.TProtocol,
                                 undefined,
                             ),
+                            undefined,
                         ),
                     ],
-                    ts.createTypeReferenceNode(
-                        ts.createIdentifier(
-                            strictName(
-                                createStructArgsName(next),
-                                SyntaxType.StructDefinition,
-                                state,
-                            ),
-                        ),
-                        undefined,
-                    ),
+                    createBufferType(),
                     undefined,
                 )
             },
@@ -625,6 +677,24 @@ function createWriteResponseMethod(
                     undefined,
                     undefined,
                     undefined,
+                    COMMON_IDENTIFIERS.data,
+                    undefined,
+                    createAnyType(),
+                    undefined,
+                ),
+                ts.createParameter(
+                    undefined,
+                    undefined,
+                    undefined,
+                    COMMON_IDENTIFIERS.requestId,
+                    undefined,
+                    createNumberType(),
+                    undefined,
+                ),
+                ts.createParameter(
+                    undefined,
+                    undefined,
+                    undefined,
                     COMMON_IDENTIFIERS.input,
                     undefined,
                     ts.createTypeReferenceNode(
@@ -634,7 +704,7 @@ function createWriteResponseMethod(
                     undefined,
                 ),
             ],
-            createAnyType(),
+            createBufferType(),
             ts.createBlock(
                 [
                     ts.createSwitch(
@@ -646,7 +716,75 @@ function createWriteResponseMethod(
                                         ts.createLiteral(next.name.value),
                                         [
                                             ts.createBlock(
-                                                [ts.createReturn()],
+                                                [
+                                                    // const result: StructType = {success: data}
+                                                    createConstStatement(
+                                                        COMMON_IDENTIFIERS.result,
+                                                        ts.createTypeReferenceNode(
+                                                            ts.createIdentifier(
+                                                                looseName(
+                                                                    createStructResultName(
+                                                                        next,
+                                                                    ),
+                                                                    SyntaxType.StructDefinition,
+                                                                    state,
+                                                                ),
+                                                            ),
+                                                            undefined,
+                                                        ),
+                                                        ts.createObjectLiteral([
+                                                            ts.createPropertyAssignment(
+                                                                COMMON_IDENTIFIERS.success,
+                                                                COMMON_IDENTIFIERS.data,
+                                                            ),
+                                                        ]),
+                                                    ),
+                                                    // output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, requestId)
+                                                    createMethodCallStatement(
+                                                        COMMON_IDENTIFIERS.output,
+                                                        COMMON_IDENTIFIERS.writeMessageBegin,
+                                                        [
+                                                            ts.createLiteral(
+                                                                next.name.value,
+                                                            ),
+                                                            MESSAGE_TYPE.REPLY,
+                                                            COMMON_IDENTIFIERS.requestId,
+                                                        ],
+                                                    ),
+                                                    // StructCodec.encode(result, output)
+                                                    createMethodCallStatement(
+                                                        ts.createIdentifier(
+                                                            toolkitName(
+                                                                createStructResultName(
+                                                                    next,
+                                                                ),
+                                                                state,
+                                                            ),
+                                                        ),
+                                                        COMMON_IDENTIFIERS.encode,
+                                                        [
+                                                            COMMON_IDENTIFIERS.result,
+                                                            COMMON_IDENTIFIERS.output,
+                                                        ],
+                                                    ),
+                                                    // output.writeMessageEnd()
+                                                    createMethodCallStatement(
+                                                        COMMON_IDENTIFIERS.output,
+                                                        COMMON_IDENTIFIERS.writeMessageEnd,
+                                                        [],
+                                                    ),
+                                                    // return output.flush()
+                                                    ts.createReturn(
+                                                        ts.createCall(
+                                                            ts.createPropertyAccess(
+                                                                COMMON_IDENTIFIERS.output,
+                                                                COMMON_IDENTIFIERS.flush,
+                                                            ),
+                                                            undefined,
+                                                            [],
+                                                        ),
+                                                    ),
+                                                ],
                                                 true,
                                             ),
                                         ],
@@ -713,7 +851,7 @@ function createProcessFunctionMethod(
     funcDef: FunctionDefinition,
     state: IRenderState,
 ): ts.MethodDeclaration {
-    return createPublicMethod(
+    return createPrivateMethod(
         ts.createIdentifier(`process_${funcDef.name.value}`),
         [
             createFunctionParameter(
@@ -721,7 +859,6 @@ function createProcessFunctionMethod(
                 createNumberType(),
             ),
             createFunctionParameter(COMMON_IDENTIFIERS.input, TProtocolType),
-            createFunctionParameter(COMMON_IDENTIFIERS.output, TProtocolType),
             createFunctionParameter(
                 COMMON_IDENTIFIERS.context,
                 ContextType,
@@ -757,11 +894,6 @@ function createProcessFunctionMethod(
                                             ...createArgsVariable(
                                                 funcDef,
                                                 state,
-                                            ),
-                                            // input.readMessageEnd();
-                                            createMethodCallStatement(
-                                                COMMON_IDENTIFIERS.input,
-                                                'readMessageEnd',
                                             ),
                                             createCallStatement(
                                                 COMMON_IDENTIFIERS.resolve,
@@ -830,71 +962,21 @@ function createProcessFunctionMethod(
                                 undefined,
                                 ts.createBlock(
                                     [
-                                        // const result: StructType = {success: data}
-                                        createConstStatement(
-                                            COMMON_IDENTIFIERS.result,
-                                            ts.createTypeReferenceNode(
-                                                ts.createIdentifier(
-                                                    looseName(
-                                                        createStructResultName(
-                                                            funcDef,
-                                                        ),
-                                                        SyntaxType.StructDefinition,
-                                                        state,
-                                                    ),
-                                                ),
-                                                undefined,
-                                            ),
-                                            ts.createObjectLiteral([
-                                                ts.createPropertyAssignment(
-                                                    COMMON_IDENTIFIERS.success,
-                                                    COMMON_IDENTIFIERS.data,
-                                                ),
-                                            ]),
-                                        ),
-                                        // output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, requestId)
-                                        createMethodCallStatement(
-                                            COMMON_IDENTIFIERS.output,
-                                            'writeMessageBegin',
-                                            [
-                                                ts.createLiteral(
-                                                    funcDef.name.value,
-                                                ),
-                                                MESSAGE_TYPE.REPLY,
-                                                COMMON_IDENTIFIERS.requestId,
-                                            ],
-                                        ),
-                                        // StructCodec.encode(result, output)
-                                        createMethodCallStatement(
-                                            ts.createIdentifier(
-                                                toolkitName(
-                                                    createStructResultName(
-                                                        funcDef,
-                                                    ),
-                                                    state,
-                                                ),
-                                            ),
-                                            'encode',
-                                            [
-                                                COMMON_IDENTIFIERS.result,
-                                                COMMON_IDENTIFIERS.output,
-                                            ],
-                                        ),
-                                        // output.writeMessageEnd()
-                                        createMethodCallStatement(
-                                            COMMON_IDENTIFIERS.output,
-                                            'writeMessageEnd',
-                                            [],
-                                        ),
-                                        // return output.flush()
                                         ts.createReturn(
                                             ts.createCall(
                                                 ts.createPropertyAccess(
-                                                    COMMON_IDENTIFIERS.output,
-                                                    'flush',
+                                                    COMMON_IDENTIFIERS.this,
+                                                    COMMON_IDENTIFIERS.writeResponse,
                                                 ),
                                                 undefined,
-                                                [],
+                                                [
+                                                    ts.createLiteral(
+                                                        funcDef.name.value,
+                                                    ),
+                                                    COMMON_IDENTIFIERS.data,
+                                                    COMMON_IDENTIFIERS.requestId,
+                                                    COMMON_IDENTIFIERS.input,
+                                                ],
                                             ),
                                         ),
                                     ],
@@ -903,7 +985,7 @@ function createProcessFunctionMethod(
                             ),
                         ],
                     ),
-                    'catch',
+                    COMMON_IDENTIFIERS.catch,
                     [
                         ts.createArrowFunction(
                             undefined,
@@ -952,13 +1034,14 @@ function createArgsVariable(
                 ),
                 ts.createCall(
                     ts.createPropertyAccess(
-                        ts.createIdentifier(
-                            toolkitName(createStructArgsName(funcDef), state),
-                        ),
-                        ts.createIdentifier('decode'),
+                        COMMON_IDENTIFIERS.this,
+                        COMMON_IDENTIFIERS.readRequest,
                     ),
                     undefined,
-                    [COMMON_IDENTIFIERS.input],
+                    [
+                        ts.createLiteral(funcDef.name.value),
+                        COMMON_IDENTIFIERS.input,
+                    ],
                 ),
             ),
         ]
@@ -968,7 +1051,7 @@ function createArgsVariable(
 }
 
 function createElseForExceptions(
-    exp: FieldDefinition,
+    // exp: FieldDefinition,
     remaining: Array<FieldDefinition>,
     funcDef: FunctionDefinition,
     state: IRenderState,
@@ -982,58 +1065,10 @@ function createElseForExceptions(
                 constructorNameForFieldType(next.fieldType, className, state),
             ),
             createThenForException(next, funcDef, state),
-            createElseForExceptions(next, tail, funcDef, state),
+            createElseForExceptions(tail, funcDef, state),
         )
     } else {
-        return ts.createBlock(
-            [
-                // const result: Thrift.TApplicationException = new thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
-                createConstStatement(
-                    COMMON_IDENTIFIERS.result,
-                    ts.createTypeReferenceNode(
-                        THRIFT_IDENTIFIERS.TApplicationException,
-                        undefined,
-                    ),
-                    createApplicationException(
-                        'UNKNOWN',
-                        ts.createIdentifier('err.message'),
-                    ),
-                ),
-                // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, requestId)
-                createMethodCallStatement(
-                    COMMON_IDENTIFIERS.output,
-                    'writeMessageBegin',
-                    [
-                        ts.createLiteral(funcDef.name.value),
-                        MESSAGE_TYPE.EXCEPTION,
-                        COMMON_IDENTIFIERS.requestId,
-                    ],
-                ),
-                // thrift.TApplicationExceptionCodec.encode(result, output)
-                createMethodCallStatement(
-                    THRIFT_IDENTIFIERS.TApplicationExceptionCodec,
-                    'encode',
-                    [COMMON_IDENTIFIERS.result, COMMON_IDENTIFIERS.output],
-                ),
-                // output.writeMessageEnd()
-                createMethodCallStatement(
-                    COMMON_IDENTIFIERS.output,
-                    'writeMessageEnd',
-                ),
-                // return output.flush()
-                ts.createReturn(
-                    ts.createCall(
-                        ts.createPropertyAccess(
-                            COMMON_IDENTIFIERS.output,
-                            'flush',
-                        ),
-                        undefined,
-                        [],
-                    ),
-                ),
-            ],
-            true,
-        )
+        return ts.createBlock([createWriteErrorCall(funcDef)], true)
     }
 }
 
@@ -1067,7 +1102,7 @@ function createThenForException(
             // output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, requestId)
             createMethodCallStatement(
                 COMMON_IDENTIFIERS.output,
-                'writeMessageBegin',
+                COMMON_IDENTIFIERS.writeMessageBegin,
                 [
                     ts.createLiteral(funcDef.name.value),
                     MESSAGE_TYPE.REPLY,
@@ -1079,18 +1114,21 @@ function createThenForException(
                 ts.createIdentifier(
                     toolkitName(createStructResultName(funcDef), state),
                 ),
-                'encode',
+                COMMON_IDENTIFIERS.encode,
                 [COMMON_IDENTIFIERS.result, COMMON_IDENTIFIERS.output],
             ),
             // output.writeMessageEnd()
             createMethodCallStatement(
                 COMMON_IDENTIFIERS.output,
-                'writeMessageEnd',
+                COMMON_IDENTIFIERS.writeMessageEnd,
             ),
             // return output.flush()
             ts.createReturn(
                 ts.createCall(
-                    ts.createPropertyAccess(COMMON_IDENTIFIERS.output, 'flush'),
+                    ts.createPropertyAccess(
+                        COMMON_IDENTIFIERS.output,
+                        COMMON_IDENTIFIERS.flush,
+                    ),
                     undefined,
                     [],
                 ),
@@ -1114,7 +1152,7 @@ function createIfForExceptions(
             constructorNameForFieldType(throwDef.fieldType, className, state),
         ),
         createThenForException(throwDef, funcDef, state),
-        createElseForExceptions(throwDef, tail, funcDef, state),
+        createElseForExceptions(tail, funcDef, state),
     )
 }
 
@@ -1126,50 +1164,25 @@ function createExceptionHandlers(
         // if (err instanceof {{throwType}}) {
         return [createIfForExceptions(funcDef.throws, funcDef, state)]
     } else {
-        return [
-            // const result: Thrift.TApplicationException = new thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
-            createConstStatement(
-                COMMON_IDENTIFIERS.result,
-                ts.createTypeReferenceNode(
-                    THRIFT_IDENTIFIERS.TApplicationException,
-                    undefined,
-                ),
-                createApplicationException(
-                    'UNKNOWN',
-                    ts.createIdentifier('err.message'),
-                ),
-            ),
-            // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, requestId)
-            createMethodCallStatement(
-                COMMON_IDENTIFIERS.output,
-                'writeMessageBegin',
-                [
-                    ts.createLiteral(funcDef.name.value),
-                    MESSAGE_TYPE.EXCEPTION,
-                    COMMON_IDENTIFIERS.requestId,
-                ],
-            ),
-            // thrift.TApplicationExceptionCodec.encode(result, output)
-            createMethodCallStatement(
-                THRIFT_IDENTIFIERS.TApplicationExceptionCodec,
-                'encode',
-                [COMMON_IDENTIFIERS.result, COMMON_IDENTIFIERS.output],
-            ),
-            // output.writeMessageEnd()
-            createMethodCallStatement(
-                COMMON_IDENTIFIERS.output,
-                'writeMessageEnd',
-            ),
-            // return output.flush()
-            ts.createReturn(
-                ts.createCall(
-                    ts.createPropertyAccess(COMMON_IDENTIFIERS.output, 'flush'),
-                    undefined,
-                    [],
-                ),
-            ),
-        ]
+        return [createWriteErrorCall(funcDef)]
     }
+}
+
+function createWriteErrorCall(funcDef: FunctionDefinition): ts.ReturnStatement {
+    return ts.createReturn(
+        ts.createCall(
+            ts.createPropertyAccess(
+                COMMON_IDENTIFIERS.this,
+                COMMON_IDENTIFIERS.writeError,
+            ),
+            undefined,
+            [
+                ts.createLiteral(funcDef.name.value),
+                COMMON_IDENTIFIERS.requestId,
+                COMMON_IDENTIFIERS.err,
+            ],
+        ),
+    )
 }
 
 // public process(input: TProtocol, output: TProtocol, context: Context): Promise<Buffer> {
@@ -1255,21 +1268,27 @@ function createProcessMethod(
                             ),
                             createMethodCall(
                                 COMMON_IDENTIFIERS.input,
-                                'readMessageBegin',
+                                COMMON_IDENTIFIERS.readMessageBegin,
                                 [],
                             ),
                         ),
                         createConstStatement(
                             COMMON_IDENTIFIERS.fieldName,
                             createStringType(),
-                            ts.createIdentifier('metadata.fieldName'),
+                            ts.createPropertyAccess(
+                                COMMON_IDENTIFIERS.metadata,
+                                COMMON_IDENTIFIERS.fieldName,
+                            ),
                         ),
                         createConstStatement(
                             COMMON_IDENTIFIERS.requestId,
                             createNumberType(),
-                            ts.createIdentifier('metadata.requestId'),
+                            ts.createPropertyAccess(
+                                COMMON_IDENTIFIERS.metadata,
+                                COMMON_IDENTIFIERS.requestId,
+                            ),
                         ),
-                        createMethodCallForFname(service, state),
+                        createMethodCallForFunctionName(service, state),
                     ],
                 ),
             ),
@@ -1290,7 +1309,6 @@ function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
                             [
                                 COMMON_IDENTIFIERS.requestId,
                                 COMMON_IDENTIFIERS.input,
-                                COMMON_IDENTIFIERS.output,
                                 COMMON_IDENTIFIERS.context,
                             ],
                         ),
@@ -1327,7 +1345,7 @@ function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
  *     ...skip logic
  * }
  */
-function createMethodCallForFname(
+function createMethodCallForFunctionName(
     service: ServiceDefinition,
     state: IRenderState,
 ): ts.SwitchStatement {
@@ -1343,13 +1361,13 @@ function createMethodCallForFname(
                         // input.skip(Thrift.Type.STRUCT)
                         createMethodCallStatement(
                             COMMON_IDENTIFIERS.input,
-                            'skip',
+                            COMMON_IDENTIFIERS.skip,
                             [THRIFT_TYPES.STRUCT],
                         ),
                         // input.readMessageEnd()
                         createMethodCallStatement(
                             COMMON_IDENTIFIERS.input,
-                            'readMessageEnd',
+                            COMMON_IDENTIFIERS.readMessageEnd,
                         ),
                         // const err = `Unknown function ${fieldName}`
                         createConstStatement(
@@ -1373,7 +1391,7 @@ function createMethodCallForFname(
                         // output.writeMessageBegin(fieldName, Thrift.MessageType.EXCEPTION, requestId)
                         createMethodCallStatement(
                             COMMON_IDENTIFIERS.output,
-                            'writeMessageBegin',
+                            COMMON_IDENTIFIERS.writeMessageBegin,
                             [
                                 COMMON_IDENTIFIERS.fieldName,
                                 MESSAGE_TYPE.EXCEPTION,
@@ -1389,7 +1407,7 @@ function createMethodCallForFname(
                         // output.writeMessageEnd()
                         createMethodCallStatement(
                             COMMON_IDENTIFIERS.output,
-                            'writeMessageEnd',
+                            COMMON_IDENTIFIERS.writeMessageEnd,
                         ),
                         // return output.flush()
                         ts.createStatement(
@@ -1399,7 +1417,7 @@ function createMethodCallForFname(
                                 [
                                     createMethodCall(
                                         COMMON_IDENTIFIERS.output,
-                                        'flush',
+                                        COMMON_IDENTIFIERS.flush,
                                     ),
                                 ],
                             ),

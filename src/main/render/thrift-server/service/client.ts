@@ -292,7 +292,7 @@ function createBaseMethodForDefinition(
                 // output.writeMessageBegin("{{name}}", Thrift.MessageType.CALL, this.requestId())
                 createMethodCallStatement(
                     COMMON_IDENTIFIERS.output,
-                    'writeMessageBegin',
+                    COMMON_IDENTIFIERS.writeMessageBegin,
                     [
                         ts.createLiteral(def.name.value),
                         MESSAGE_TYPE.CALL,
@@ -335,7 +335,7 @@ function createBaseMethodForDefinition(
                 // output.writeMessageEnd()
                 createMethodCallStatement(
                     COMMON_IDENTIFIERS.output,
-                    'writeMessageEnd',
+                    COMMON_IDENTIFIERS.writeMessageEnd,
                 ),
                 ts.createReturn(
                     ts.createCall(
@@ -415,7 +415,7 @@ function createBaseMethodForDefinition(
                                                                     ts.createCall(
                                                                         ts.createPropertyAccess(
                                                                             COMMON_IDENTIFIERS.input,
-                                                                            'readMessageBegin',
+                                                                            COMMON_IDENTIFIERS.readMessageBegin,
                                                                         ),
                                                                         undefined,
                                                                         [],
@@ -461,9 +461,7 @@ function createBaseMethodForDefinition(
                                                                                 ts.createCall(
                                                                                     ts.createPropertyAccess(
                                                                                         THRIFT_IDENTIFIERS.TApplicationExceptionCodec,
-                                                                                        ts.createIdentifier(
-                                                                                            'decode',
-                                                                                        ),
+                                                                                        COMMON_IDENTIFIERS.decode,
                                                                                     ),
                                                                                     undefined,
                                                                                     [
@@ -473,7 +471,7 @@ function createBaseMethodForDefinition(
                                                                             ),
                                                                             createMethodCallStatement(
                                                                                 COMMON_IDENTIFIERS.input,
-                                                                                'readMessageEnd',
+                                                                                COMMON_IDENTIFIERS.readMessageEnd,
                                                                             ),
                                                                             ts.createReturn(
                                                                                 rejectPromiseWith(
@@ -494,7 +492,7 @@ function createBaseMethodForDefinition(
                                                                             // proto.readMessageEnd()
                                                                             createMethodCallStatement(
                                                                                 COMMON_IDENTIFIERS.input,
-                                                                                'readMessageEnd',
+                                                                                COMMON_IDENTIFIERS.readMessageEnd,
                                                                             ),
 
                                                                             createResultHandler(

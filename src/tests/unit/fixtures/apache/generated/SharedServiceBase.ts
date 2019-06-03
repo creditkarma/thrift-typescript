@@ -207,7 +207,7 @@ export class Processor {
             }
         }
     }
-    public process_getStruct(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_getStruct(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<SharedStruct.SharedStruct>((resolve, reject): void => {
             try {
                 const args: GetStructArgs = GetStructArgs.read(input);

@@ -236,7 +236,7 @@ export class Processor {
             }
         }
     }
-    public process_add(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_add(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<Int64>((resolve, reject): void => {
             try {
                 const args: AddArgs = AddArgs.read(input);

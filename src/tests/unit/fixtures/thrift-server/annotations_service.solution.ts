@@ -1162,7 +1162,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             }
         });
     }
-    public process_getUser(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_getUser(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<IUserArgs>((resolve, reject): void => {
             try {
                 const args: IGetUser__Args = GetUser__ArgsCodec.decode(input);
@@ -1186,7 +1186,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return output.flush();
         });
     }
-    public process_saveUser(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_saveUser(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<void>((resolve, reject): void => {
             try {
                 const args: ISaveUser__Args = SaveUser__ArgsCodec.decode(input);
@@ -1210,7 +1210,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return output.flush();
         });
     }
-    public process_deleteUser(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_deleteUser(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<void>((resolve, reject): void => {
             try {
                 const args: IDeleteUser__Args = DeleteUser__ArgsCodec.decode(input);
@@ -1234,7 +1234,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return output.flush();
         });
     }
-    public process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<void>((resolve, reject): void => {
             try {
                 input.readMessageEnd();

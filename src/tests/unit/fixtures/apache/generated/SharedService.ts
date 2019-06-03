@@ -349,7 +349,7 @@ export class Processor extends SharedServiceBase.Processor {
             }
         }
     }
-    public process_getUnion(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_getUnion(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<SharedUnion.SharedUnion>((resolve, reject): void => {
             try {
                 const args: GetUnionArgs = GetUnionArgs.read(input);
@@ -375,7 +375,7 @@ export class Processor extends SharedServiceBase.Processor {
             return;
         });
     }
-    public process_getEnum(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    private process_getEnum(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<SharedEnum.SharedEnum>((resolve, reject): void => {
             try {
                 input.readMessageEnd();

@@ -3561,7 +3561,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             }
         });
     }
-    public process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<void>((resolve, reject): void => {
             try {
                 input.readMessageEnd();
@@ -3584,7 +3584,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return output.flush();
         });
     }
-    public process_add(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_add(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<number>((resolve, reject): void => {
             try {
                 const args: IAdd__Args = Add__ArgsCodec.decode(input);
@@ -3617,7 +3617,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             }
         });
     }
-    public process_addInt64(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_addInt64(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<number | string | thrift.Int64>((resolve, reject): void => {
             try {
                 const args: IAddInt64__Args = AddInt64__ArgsCodec.decode(input);
@@ -3650,7 +3650,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             }
         });
     }
-    public process_addWithContext(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_addWithContext(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<number>((resolve, reject): void => {
             try {
                 const args: IAddWithContext__Args = AddWithContext__ArgsCodec.decode(input);
@@ -3674,7 +3674,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return output.flush();
         });
     }
-    public process_calculate(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_calculate(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<number>((resolve, reject): void => {
             try {
                 const args: ICalculate__Args = Calculate__ArgsCodec.decode(input);
@@ -3707,7 +3707,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             }
         });
     }
-    public process_echoBinary(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_echoBinary(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<string>((resolve, reject): void => {
             try {
                 const args: IEchoBinary__Args = EchoBinary__ArgsCodec.decode(input);
@@ -3731,7 +3731,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return output.flush();
         });
     }
-    public process_echoString(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_echoString(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<string>((resolve, reject): void => {
             try {
                 const args: IEchoString__Args = EchoString__ArgsCodec.decode(input);
@@ -3755,7 +3755,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return output.flush();
         });
     }
-    public process_checkName(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_checkName(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<string>((resolve, reject): void => {
             try {
                 const args: ICheckName__Args = CheckName__ArgsCodec.decode(input);
@@ -3779,7 +3779,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return output.flush();
         });
     }
-    public process_checkOptional(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_checkOptional(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<string>((resolve, reject): void => {
             try {
                 const args: ICheckOptional__Args = CheckOptional__ArgsCodec.decode(input);
@@ -3803,7 +3803,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return output.flush();
         });
     }
-    public process_mapOneList(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_mapOneList(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<Array<number>>((resolve, reject): void => {
             try {
                 const args: IMapOneList__Args = MapOneList__ArgsCodec.decode(input);
@@ -3827,7 +3827,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return output.flush();
         });
     }
-    public process_mapValues(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_mapValues(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<Array<number>>((resolve, reject): void => {
             try {
                 const args: IMapValues__Args = MapValues__ArgsCodec.decode(input);
@@ -3851,7 +3851,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return output.flush();
         });
     }
-    public process_listToMap(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_listToMap(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<Map<string, string>>((resolve, reject): void => {
             try {
                 const args: IListToMap__Args = ListToMap__ArgsCodec.decode(input);
@@ -3875,7 +3875,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return output.flush();
         });
     }
-    public process_fetchThing(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_fetchThing(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<com_test_common.ICommonStructArgs>((resolve, reject): void => {
             try {
                 input.readMessageEnd();
@@ -3898,7 +3898,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return output.flush();
         });
     }
-    public process_fetchMap(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_fetchMap(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<TypedMap.TypedMap>((resolve, reject): void => {
             try {
                 input.readMessageEnd();
@@ -3921,7 +3921,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return output.flush();
         });
     }
-    public process_zip(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    private process_zip(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
         return new Promise<void>((resolve, reject): void => {
             try {
                 input.readMessageEnd();
