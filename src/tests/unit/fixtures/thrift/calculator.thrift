@@ -14,6 +14,7 @@ include "operation.thrift"
 typedef i32 MyInteger
 typedef operation.Operation Operation
 typedef common.CommonStruct CommonStruct
+typedef map<string, CommonStruct> TypedMap
 
 const i32 INT32CONSTANT = 9853
 const map<string,string> MAPCONSTANT = {'hello':'world', 'goodnight':'moon'}
@@ -40,6 +41,7 @@ union Choice {
 
 exception NotAGoodIdea {
     1: string message
+    2: TypedMap data
 }
 
 service Calculator extends shared.SharedService {
@@ -69,6 +71,8 @@ service Calculator extends shared.SharedService {
    map<string,string> listToMap(1: list<list<string>> arg)
 
    common.CommonStruct fetchThing()
+
+   TypedMap fetchMap()
 
    /**
     * This method has a oneway modifier. That means the client only makes

@@ -4,7 +4,10 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 */
 export * from "./constants";
-export * from "./typedefs";
+export * from "./MyInteger";
+export * from "./Operation";
+export * from "./CommonStruct";
+export * from "./TypedMap";
 export * from "./Work";
 export * from "./FirstName";
 export * from "./LastName";

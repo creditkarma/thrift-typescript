@@ -12,17 +12,16 @@ import {
 } from './identifiers'
 
 import {
+    createArrayType,
     createBooleanType,
+    createBufferType,
     createNumberType,
     createStringType,
     createVoidType,
 } from '../shared/types'
 
-import {
-    resolveIdentifierDefinition,
-    resolveIdentifierName,
-} from '../../resolver'
 import { THRIFT_IDENTIFIERS } from './identifiers'
+import { Resolver } from '../../resolver'
 import { looseName, strictName } from './struct/utils'
 
 export * from '../shared/types'
@@ -171,12 +170,10 @@ export function thriftTypeForFieldType(
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return thriftTypeForIdentifier(
-                resolveIdentifierDefinition(
-                    fieldType,
-                    state.currentNamespace,
-                    state.project.namespaces,
-                    state.project.sourceDir,
-                ).definition,
+                Resolver.resolveIdentifierDefinition(fieldType, {
+                    currentNamespace: state.currentNamespace,
+                    namespaceMap: state.project.namespaces,
+                }),
                 state,
             )
 
@@ -277,7 +274,11 @@ function typeNodeForIdentifier(
         default:
             return ts.createTypeReferenceNode(
                 ts.createIdentifier(
-                    resolveIdentifierName(name, state).fullName,
+                    Resolver.resolveIdentifierName(name, {
+                        currentNamespace: state.currentNamespace,
+                        currentDefinitions: state.currentDefinitions,
+                        namespaceMap: state.project.namespaces,
+                    }).fullName,
                 ),
                 undefined,
             )
@@ -292,12 +293,10 @@ export function typeNodeForFieldType(
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             return typeNodeForIdentifier(
-                resolveIdentifierDefinition(
-                    fieldType,
-                    state.currentNamespace,
-                    state.project.namespaces,
-                    state.project.sourceDir,
-                ).definition,
+                Resolver.resolveIdentifierDefinition(fieldType, {
+                    currentNamespace: state.currentNamespace,
+                    namespaceMap: state.project.namespaces,
+                }),
                 fieldType.value,
                 state,
                 loose,
@@ -315,9 +314,9 @@ export function typeNodeForFieldType(
             ])
 
         case SyntaxType.ListType:
-            return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Array, [
+            return createArrayType(
                 typeNodeForFieldType(fieldType.valueType, state, loose),
-            ])
+            )
 
         case SyntaxType.StringKeyword:
             return createStringType()
@@ -346,16 +345,10 @@ export function typeNodeForFieldType(
             if (loose === true) {
                 return ts.createUnionTypeNode([
                     createStringType(),
-                    ts.createTypeReferenceNode(
-                        COMMON_IDENTIFIERS.Buffer,
-                        undefined,
-                    ),
+                    createBufferType(),
                 ])
             } else {
-                return ts.createTypeReferenceNode(
-                    COMMON_IDENTIFIERS.Buffer,
-                    undefined,
-                )
+                return createBufferType()
             }
 
         case SyntaxType.DoubleKeyword:

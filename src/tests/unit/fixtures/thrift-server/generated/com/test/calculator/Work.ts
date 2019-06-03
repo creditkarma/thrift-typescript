@@ -4,18 +4,18 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 */
 import * as thrift from "test-lib";
-import * as __NAMESPACE__ from "./.";
+import * as Operation from "./Operation";
 export interface IWork {
     __name: "Work";
     num1: number;
     num2: number;
-    op?: __NAMESPACE__.Operation;
+    op?: Operation.Operation;
     comment?: string;
 }
 export interface IWorkArgs {
     num1?: number;
     num2: number;
-    op?: __NAMESPACE__.Operation;
+    op?: Operation.Operation;
     comment?: string;
 }
 export const WorkCodec: thrift.IStructCodec<IWorkArgs, IWork> = {
@@ -23,7 +23,7 @@ export const WorkCodec: thrift.IStructCodec<IWorkArgs, IWork> = {
         const obj = {
             num1: (args.num1 != null ? args.num1 : 0),
             num2: args.num2,
-            op: (args.op != null ? args.op : __NAMESPACE__.Operation.ADD),
+            op: (args.op != null ? args.op : Operation.Operation.ADD),
             comment: args.comment
         };
         output.writeStructBegin("Work");
@@ -85,7 +85,7 @@ export const WorkCodec: thrift.IStructCodec<IWorkArgs, IWork> = {
                     break;
                 case 3:
                     if (fieldType === thrift.TType.I32) {
-                        const value_3: __NAMESPACE__.Operation = input.readI32();
+                        const value_3: Operation.Operation = input.readI32();
                         _args.op = value_3;
                     }
                     else {
@@ -113,7 +113,7 @@ export const WorkCodec: thrift.IStructCodec<IWorkArgs, IWork> = {
                 __name: "Work",
                 num1: (_args.num1 != null ? _args.num1 : 0),
                 num2: _args.num2,
-                op: (_args.op != null ? _args.op : __NAMESPACE__.Operation.ADD),
+                op: (_args.op != null ? _args.op : Operation.Operation.ADD),
                 comment: _args.comment
             };
         }
@@ -125,7 +125,7 @@ export const WorkCodec: thrift.IStructCodec<IWorkArgs, IWork> = {
 export class Work implements thrift.IStructLike, IWork {
     public num1: number = 0;
     public num2: number;
-    public op?: __NAMESPACE__.Operation = __NAMESPACE__.Operation.ADD;
+    public op?: Operation.Operation = Operation.Operation.ADD;
     public comment?: string;
     public readonly __name = "Work";
     constructor(args: IWorkArgs) {
@@ -141,7 +141,7 @@ export class Work implements thrift.IStructLike, IWork {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[num2] is unset!");
         }
         if (args.op != null) {
-            const value_7: __NAMESPACE__.Operation = args.op;
+            const value_7: Operation.Operation = args.op;
             this.op = value_7;
         }
         if (args.comment != null) {

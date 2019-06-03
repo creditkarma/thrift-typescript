@@ -4,8 +4,6 @@ import {
     FieldDefinition,
     FunctionDefinition,
     ServiceDefinition,
-    SyntaxType,
-    ThriftStatement,
 } from '@creditkarma/thrift-parser'
 
 import { TProtocolType } from './types'
@@ -25,11 +23,7 @@ import {
     createPublicMethod,
 } from '../utils'
 
-import {
-    resolveIdentifierDefinition,
-    resolveIdentifierName,
-} from '../../../resolver'
-
+import { Resolver } from '../../../resolver'
 import { IRenderState } from '../../../types'
 
 import {
@@ -46,6 +40,13 @@ import {
     THRIFT_IDENTIFIERS,
     THRIFT_TYPES,
 } from '../identifiers'
+
+import {
+    collectAllMethods,
+    collectInheritedMethods,
+} from '../../shared/service'
+
+import { createErrorType, createPromiseType } from '../../shared/types'
 
 function funcToMethodReducer(
     acc: Array<ts.MethodSignature>,
@@ -67,9 +68,7 @@ function funcToMethodReducer(
             ],
             ts.createUnionTypeNode([
                 typeNodeForFieldType(func.returnType, state),
-                ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Promise, [
-                    typeNodeForFieldType(func.returnType, state),
-                ]),
+                createPromiseType(typeNodeForFieldType(func.returnType, state)),
             ]),
             func.name.value,
             undefined,
@@ -122,9 +121,15 @@ export function renderHandlerInterface(
                     ts.createTypeReferenceNode(
                         ts.createIdentifier(
                             `${
-                                resolveIdentifierName(
+                                Resolver.resolveIdentifierName(
                                     service.extends.value,
-                                    state,
+                                    {
+                                        currentNamespace:
+                                            state.currentNamespace,
+                                        currentDefinitions:
+                                            state.currentDefinitions,
+                                        namespaceMap: state.project.namespaces,
+                                    },
                                 ).fullName
                             }.IHandler`,
                         ),
@@ -148,29 +153,26 @@ export function renderHandlerInterface(
 }
 
 function objectLiteralForServiceFunctions(
-    node: ThriftStatement,
+    service: ServiceDefinition,
+    state: IRenderState,
 ): ts.ObjectLiteralExpression {
-    switch (node.type) {
-        case SyntaxType.ServiceDefinition:
-            return ts.createObjectLiteral(
-                node.functions.map(
-                    (next: FunctionDefinition): ts.PropertyAssignment => {
-                        return ts.createPropertyAssignment(
-                            ts.createIdentifier(next.name.value),
-                            ts.createIdentifier(`handler.${next.name.value}`),
-                        )
-                    },
-                ),
-                true,
-            )
-
-        default:
-            throw new TypeError(
-                `A service can only extend another service. Found: ${
-                    node.type
-                }`,
-            )
-    }
+    return ts.createObjectLiteral(
+        collectInheritedMethods(service, {
+            currentNamespace: state.currentNamespace,
+            namespaceMap: state.project.namespaces,
+        }).map(
+            (next: FunctionDefinition): ts.PropertyAssignment => {
+                return ts.createPropertyAssignment(
+                    ts.createIdentifier(next.name.value),
+                    ts.createPropertyAccess(
+                        COMMON_IDENTIFIERS.handler,
+                        ts.createIdentifier(next.name.value),
+                    ),
+                )
+            },
+        ),
+        true,
+    )
 }
 
 function handlerType(node: ServiceDefinition): ts.TypeNode {
@@ -187,16 +189,7 @@ function createSuperCall(
                 ts.createCall(
                     ts.createSuper(),
                     [],
-                    [
-                        objectLiteralForServiceFunctions(
-                            resolveIdentifierDefinition(
-                                service.extends,
-                                state.currentNamespace,
-                                state.project.namespaces,
-                                state.project.sourceDir,
-                            ).definition,
-                        ),
-                    ],
+                    [objectLiteralForServiceFunctions(service, state)],
                 ),
             ),
         ]
@@ -251,13 +244,23 @@ export function renderProcessor(
                   ts.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
                       ts.createExpressionWithTypeArguments(
                           [],
-                          ts.createIdentifier(
-                              `${
-                                  resolveIdentifierName(
-                                      node.extends.value,
-                                      state,
-                                  ).fullName
-                              }.Processor`,
+                          ts.createPropertyAccess(
+                              ts.createIdentifier(
+                                  `${
+                                      Resolver.resolveIdentifierName(
+                                          node.extends.value,
+                                          {
+                                              currentNamespace:
+                                                  state.currentNamespace,
+                                              currentDefinitions:
+                                                  state.currentDefinitions,
+                                              namespaceMap:
+                                                  state.project.namespaces,
+                                          },
+                                      ).fullName
+                                  }`,
+                              ),
+                              COMMON_IDENTIFIERS.Processor,
                           ),
                       ),
                   ]),
@@ -268,7 +271,7 @@ export function renderProcessor(
     return ts.createClassDeclaration(
         undefined, // decorators
         [ts.createToken(ts.SyntaxKind.ExportKeyword)], // modifiers
-        'Processor', // name
+        COMMON_IDENTIFIERS.Processor, // name
         undefined, // type parameters
         heritage, // heritage
         [handler, ctor, processMethod, ...processFunctions], // body
@@ -494,10 +497,7 @@ function createProcessFunctionMethod(
                             [
                                 createFunctionParameter(
                                     COMMON_IDENTIFIERS.err,
-                                    ts.createTypeReferenceNode(
-                                        ts.createIdentifier('Error'),
-                                        undefined,
-                                    ),
+                                    createErrorType(),
                                 ),
                             ],
                             createVoidType(),
@@ -555,7 +555,11 @@ function createElseForExceptions(
                 constructorNameForFieldType(
                     next.fieldType,
                     (name: string) => {
-                        return resolveIdentifierName(name, state).fullName
+                        return Resolver.resolveIdentifierName(name, {
+                            currentNamespace: state.currentNamespace,
+                            currentDefinitions: state.currentDefinitions,
+                            namespaceMap: state.project.namespaces,
+                        }).fullName
                     },
                     state,
                 ),
@@ -683,7 +687,11 @@ function createIfForExceptions(
             constructorNameForFieldType(
                 throwDef.fieldType,
                 (name: string) => {
-                    return resolveIdentifierName(name, state).fullName
+                    return Resolver.resolveIdentifierName(name, {
+                        currentNamespace: state.currentNamespace,
+                        currentDefinitions: state.currentDefinitions,
+                        namespaceMap: state.project.namespaces,
+                    }).fullName
                 },
                 state,
             ),
@@ -785,12 +793,27 @@ function createProcessMethod(
             createConstStatement(
                 COMMON_IDENTIFIERS.fieldName,
                 createStringType(),
-                ts.createIdentifier('metadata.fname'),
+                ts.createPropertyAccess(
+                    COMMON_IDENTIFIERS.metadata,
+                    COMMON_IDENTIFIERS.fname,
+                ),
             ),
             createConstStatement(
                 COMMON_IDENTIFIERS.requestId,
                 createNumberType(),
-                ts.createIdentifier('metadata.rseqid'),
+                ts.createPropertyAccess(
+                    COMMON_IDENTIFIERS.metadata,
+                    COMMON_IDENTIFIERS.rseqid,
+                ),
+            ),
+            createConstStatement(
+                COMMON_IDENTIFIERS.methodName,
+                createStringType(),
+                ts.createBinary(
+                    ts.createLiteral('process_'),
+                    ts.SyntaxKind.PlusToken,
+                    COMMON_IDENTIFIERS.fname,
+                ),
             ),
             createMethodCallForFname(service, state),
         ], // body
@@ -818,39 +841,6 @@ function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
             true,
         ),
     ])
-}
-
-function functionsForService(node: ThriftStatement): Array<FunctionDefinition> {
-    switch (node.type) {
-        case SyntaxType.ServiceDefinition:
-            return node.functions
-
-        default:
-            throw new TypeError(
-                `A service can only extend another service. Found: ${
-                    node.type
-                }`,
-            )
-    }
-}
-
-function collectAllMethods(
-    service: ServiceDefinition,
-    state: IRenderState,
-): Array<FunctionDefinition> {
-    if (service.extends !== null) {
-        const inheritedMethods: Array<FunctionDefinition> = functionsForService(
-            resolveIdentifierDefinition(
-                service.extends,
-                state.currentNamespace,
-                state.project.namespaces,
-                state.project.sourceDir,
-            ).definition,
-        )
-        return [...inheritedMethods, ...service.functions]
-    } else {
-        return service.functions
-    }
 }
 
 /**

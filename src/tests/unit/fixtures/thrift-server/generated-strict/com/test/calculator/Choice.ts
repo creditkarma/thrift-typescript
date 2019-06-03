@@ -4,7 +4,8 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 */
 import * as thrift from "test-lib";
-import * as __NAMESPACE__ from "./.";
+import * as FirstName from "./FirstName";
+import * as LastName from "./LastName";
 export enum ChoiceType {
     ChoiceWithFirstName = "firstName",
     ChoiceWithLastName = "lastName"
@@ -13,23 +14,23 @@ export type Choice = IChoiceWithFirstName | IChoiceWithLastName;
 export interface IChoiceWithFirstName {
     __name: "Choice";
     __type: ChoiceType.ChoiceWithFirstName;
-    firstName: __NAMESPACE__.IFirstName;
+    firstName: FirstName.IFirstName;
     lastName?: undefined;
 }
 export interface IChoiceWithLastName {
     __name: "Choice";
     __type: ChoiceType.ChoiceWithLastName;
     firstName?: undefined;
-    lastName: __NAMESPACE__.ILastName;
+    lastName: LastName.ILastName;
 }
 export type ChoiceArgs = IChoiceWithFirstNameArgs | IChoiceWithLastNameArgs;
 export interface IChoiceWithFirstNameArgs {
-    firstName: __NAMESPACE__.IFirstNameArgs;
+    firstName: FirstName.IFirstNameArgs;
     lastName?: undefined;
 }
 export interface IChoiceWithLastNameArgs {
     firstName?: undefined;
-    lastName: __NAMESPACE__.ILastNameArgs;
+    lastName: LastName.ILastNameArgs;
 }
 export const ChoiceCodec: thrift.IStructToolkit<ChoiceArgs, Choice> = {
     create(args: ChoiceArgs): Choice {
@@ -37,12 +38,12 @@ export const ChoiceCodec: thrift.IStructToolkit<ChoiceArgs, Choice> = {
         let _returnValue: any = null;
         if (args.firstName != null) {
             _fieldsSet++;
-            const value_1: __NAMESPACE__.IFirstName = new __NAMESPACE__.FirstName(args.firstName);
+            const value_1: FirstName.IFirstName = new FirstName.FirstName(args.firstName);
             _returnValue = { firstName: value_1 };
         }
         if (args.lastName != null) {
             _fieldsSet++;
-            const value_2: __NAMESPACE__.ILastName = new __NAMESPACE__.LastName(args.lastName);
+            const value_2: LastName.ILastName = new LastName.LastName(args.lastName);
             _returnValue = { lastName: value_2 };
         }
         if (_fieldsSet > 1) {
@@ -81,13 +82,13 @@ export const ChoiceCodec: thrift.IStructToolkit<ChoiceArgs, Choice> = {
         if (obj.firstName != null) {
             _fieldsSet++;
             output.writeFieldBegin("firstName", thrift.TType.STRUCT, 1);
-            __NAMESPACE__.FirstNameCodec.encode(obj.firstName, output);
+            FirstName.FirstNameCodec.encode(obj.firstName, output);
             output.writeFieldEnd();
         }
         if (obj.lastName != null) {
             _fieldsSet++;
             output.writeFieldBegin("lastName", thrift.TType.STRUCT, 2);
-            __NAMESPACE__.LastNameCodec.encode(obj.lastName, output);
+            LastName.LastNameCodec.encode(obj.lastName, output);
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -115,7 +116,7 @@ export const ChoiceCodec: thrift.IStructToolkit<ChoiceArgs, Choice> = {
                 case 1:
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
-                        const value_3: __NAMESPACE__.IFirstName = __NAMESPACE__.FirstNameCodec.decode(input);
+                        const value_3: FirstName.IFirstName = FirstName.FirstNameCodec.decode(input);
                         _returnValue = { __name: "Choice", firstName: value_3 };
                     }
                     else {
@@ -125,7 +126,7 @@ export const ChoiceCodec: thrift.IStructToolkit<ChoiceArgs, Choice> = {
                 case 2:
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
-                        const value_4: __NAMESPACE__.ILastName = __NAMESPACE__.LastNameCodec.decode(input);
+                        const value_4: LastName.ILastName = LastName.LastNameCodec.decode(input);
                         _returnValue = { __name: "Choice", lastName: value_4 };
                     }
                     else {

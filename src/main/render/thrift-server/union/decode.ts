@@ -67,15 +67,15 @@ export function createDecodeMethod(
     )
 
     const fieldType: ts.VariableStatement = createConstStatement(
-        'fieldType',
+        COMMON_IDENTIFIERS.fieldType,
         ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.Thrift_Type, undefined),
-        propertyAccessForIdentifier('ret', 'fieldType'),
+        propertyAccessForIdentifier('ret', COMMON_IDENTIFIERS.fieldType),
     )
 
     const fieldId: ts.VariableStatement = createConstStatement(
-        'fieldId',
+        COMMON_IDENTIFIERS.fieldId,
         createNumberType(),
-        propertyAccessForIdentifier('ret', 'fieldId'),
+        propertyAccessForIdentifier('ret', COMMON_IDENTIFIERS.fieldId),
     )
 
     /**

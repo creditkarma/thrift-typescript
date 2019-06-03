@@ -4,7 +4,7 @@ import {
     ThriftDocument,
     ThriftErrors,
 } from '@creditkarma/thrift-parser'
-import { exportsForFile } from '../resolver'
+
 import {
     IFileExports,
     IFileIncludes,
@@ -12,9 +12,10 @@ import {
     IParsedFile,
     ISourceFile,
 } from '../types'
-import { includesForFile, namespaceForFile } from '../utils'
 
-export function parseThriftString(source: string): ThriftDocument {
+import { Resolver } from '../resolver'
+
+function parseThriftString(source: string): ThriftDocument {
     const thrift: ThriftDocument | ThriftErrors = parse(source)
     switch (thrift.type) {
         case SyntaxType.ThriftDocument:
@@ -25,7 +26,7 @@ export function parseThriftString(source: string): ThriftDocument {
     }
 }
 
-export function parseFromSource(
+function parseFromSource(
     source: string,
     fallbackNamespace: string,
 ): IParsedFile {
@@ -40,17 +41,23 @@ export function parseFromSource(
     return parseThriftFile(sourceFile, fallbackNamespace)
 }
 
-export function parseThriftFile(
+function parseThriftFile(
     file: ISourceFile,
     fallbackNamespace: string,
 ): IParsedFile {
     const thriftDoc: ThriftDocument = parseThriftString(file.source)
-    const exports: IFileExports = exportsForFile(thriftDoc.body)
-    const namespace: INamespacePath = namespaceForFile(
+
+    const exports: IFileExports = Resolver.exportsForFile(thriftDoc.body)
+
+    const namespace: INamespacePath = Resolver.namespaceForFile(
         thriftDoc.body,
         fallbackNamespace,
     )
-    const includes: IFileIncludes = includesForFile(thriftDoc.body, file)
+
+    const includes: IFileIncludes = Resolver.includesForFile(
+        thriftDoc.body,
+        file,
+    )
 
     return {
         type: 'ParsedFile',
@@ -61,4 +68,10 @@ export function parseThriftFile(
         body: thriftDoc.body,
         errors: [],
     }
+}
+
+export const Parser = {
+    parseFromSource,
+    parseThriftString,
+    parseThriftFile,
 }

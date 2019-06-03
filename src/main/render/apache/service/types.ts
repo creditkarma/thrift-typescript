@@ -4,6 +4,7 @@ import { createNumberType, createVoidType } from '../types'
 
 import { createFunctionParameter } from '../utils'
 
+import { createErrorType, createUndefinedType } from '../../shared/types'
 import { THRIFT_IDENTIFIERS } from '../identifiers'
 
 export const TProtocolType: ts.TypeNode = ts.createTypeReferenceNode(
@@ -49,9 +50,9 @@ export function createReqType(): ts.TypeLiteralNode {
                     createFunctionParameter(
                         'err',
                         ts.createUnionTypeNode([
-                            ts.createTypeReferenceNode('Error', undefined),
+                            createErrorType(),
                             ts.createTypeReferenceNode('object', undefined),
-                            ts.createTypeReferenceNode('undefined', undefined),
+                            createUndefinedType(),
                         ]),
                     ),
                     createFunctionParameter(

@@ -11,8 +11,26 @@ export type TypeMapping = (
     loose?: boolean,
 ) => ts.TypeNode
 
+export function createErrorType(): ts.TypeNode {
+    return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Error, undefined)
+}
+
 export function createUndefinedType(): ts.TypeNode {
-    return ts.createKeywordTypeNode(ts.SyntaxKind.UndefinedKeyword)
+    return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.undefined, undefined)
+}
+
+export function createBufferType(): ts.TypeNode {
+    return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Buffer, undefined)
+}
+
+export function createPromiseType(typeArgument: ts.TypeNode): ts.TypeNode {
+    return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Promise, [
+        typeArgument,
+    ])
+}
+
+export function createArrayType(typeArgument: ts.TypeNode): ts.TypeNode {
+    return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Array, [typeArgument])
 }
 
 export function createVoidType(): ts.TypeNode {

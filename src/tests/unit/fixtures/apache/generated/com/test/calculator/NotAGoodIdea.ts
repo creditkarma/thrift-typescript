@@ -4,14 +4,21 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 */
 import * as thrift from "test-lib";
+import * as CommonStruct from "./CommonStruct";
+import * as TypedMap from "./TypedMap";
 export interface INotAGoodIdeaArgs {
     message?: string;
+    data?: TypedMap.TypedMap;
 }
 export class NotAGoodIdea {
     public message?: string;
+    public data?: TypedMap.TypedMap;
     constructor(args?: INotAGoodIdeaArgs) {
         if (args != null && args.message != null) {
             this.message = args.message;
+        }
+        if (args != null && args.data != null) {
+            this.data = args.data;
         }
     }
     public write(output: thrift.TProtocol): void {
@@ -19,6 +26,16 @@ export class NotAGoodIdea {
         if (this.message != null) {
             output.writeFieldBegin("message", thrift.Thrift.Type.STRING, 1);
             output.writeString(this.message);
+            output.writeFieldEnd();
+        }
+        if (this.data != null) {
+            output.writeFieldBegin("data", thrift.Thrift.Type.MAP, 2);
+            output.writeMapBegin(thrift.Thrift.Type.STRING, thrift.Thrift.Type.STRUCT, this.data.size);
+            this.data.forEach((value_1: CommonStruct.CommonStruct, key_1: string): void => {
+                output.writeString(key_1);
+                value_1.write(output);
+            });
+            output.writeMapEnd();
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -38,8 +55,25 @@ export class NotAGoodIdea {
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.Thrift.Type.STRING) {
-                        const value_1: string = input.readString();
-                        _args.message = value_1;
+                        const value_2: string = input.readString();
+                        _args.message = value_2;
+                    }
+                    else {
+                        input.skip(fieldType);
+                    }
+                    break;
+                case 2:
+                    if (fieldType === thrift.Thrift.Type.MAP) {
+                        const value_3: Map<string, CommonStruct.CommonStruct> = new Map<string, CommonStruct.CommonStruct>();
+                        const metadata_1: thrift.TMap = input.readMapBegin();
+                        const size_1: number = metadata_1.size;
+                        for (let i_1: number = 0; i_1 < size_1; i_1++) {
+                            const key_2: string = input.readString();
+                            const value_4: CommonStruct.CommonStruct = CommonStruct.CommonStruct.read(input);
+                            value_3.set(key_2, value_4);
+                        }
+                        input.readMapEnd();
+                        _args.data = value_3;
                     }
                     else {
                         input.skip(fieldType);

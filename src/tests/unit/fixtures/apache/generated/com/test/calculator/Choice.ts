@@ -4,14 +4,15 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 */
 import * as thrift from "test-lib";
-import * as __NAMESPACE__ from "./.";
+import * as FirstName from "./FirstName";
+import * as LastName from "./LastName";
 export interface IChoiceArgs {
-    firstName?: __NAMESPACE__.FirstName;
-    lastName?: __NAMESPACE__.LastName;
+    firstName?: FirstName.FirstName;
+    lastName?: LastName.LastName;
 }
 export class Choice {
-    public firstName?: __NAMESPACE__.FirstName;
-    public lastName?: __NAMESPACE__.LastName;
+    public firstName?: FirstName.FirstName;
+    public lastName?: LastName.LastName;
     constructor(args?: IChoiceArgs) {
         let _fieldsSet: number = 0;
         if (args != null) {
@@ -31,10 +32,10 @@ export class Choice {
             }
         }
     }
-    public static fromFirstName(firstName: __NAMESPACE__.FirstName): Choice {
+    public static fromFirstName(firstName: FirstName.FirstName): Choice {
         return new Choice({ firstName });
     }
-    public static fromLastName(lastName: __NAMESPACE__.LastName): Choice {
+    public static fromLastName(lastName: LastName.LastName): Choice {
         return new Choice({ lastName });
     }
     public write(output: thrift.TProtocol): void {
@@ -68,7 +69,7 @@ export class Choice {
                 case 1:
                     if (fieldType === thrift.Thrift.Type.STRUCT) {
                         _fieldsSet++;
-                        const value_1: __NAMESPACE__.FirstName = __NAMESPACE__.FirstName.read(input);
+                        const value_1: FirstName.FirstName = FirstName.FirstName.read(input);
                         _returnValue = Choice.fromFirstName(value_1);
                     }
                     else {
@@ -78,7 +79,7 @@ export class Choice {
                 case 2:
                     if (fieldType === thrift.Thrift.Type.STRUCT) {
                         _fieldsSet++;
-                        const value_2: __NAMESPACE__.LastName = __NAMESPACE__.LastName.read(input);
+                        const value_2: LastName.LastName = LastName.LastName.read(input);
                         _returnValue = Choice.fromLastName(value_2);
                     }
                     else {

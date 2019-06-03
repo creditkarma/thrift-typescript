@@ -1,18 +1,13 @@
 import * as ts from 'typescript'
 
-import {
-    ExceptionDefinition,
-    ServiceDefinition,
-    StructDefinition,
-    ThriftStatement,
-    UnionDefinition,
-} from '@creditkarma/thrift-parser'
+import { ThriftStatement } from '@creditkarma/thrift-parser'
 
 import { rendererForTarget } from '../render'
 import { processStatements, renderStatement } from './iterator'
 
-import { exportsForFile } from '../resolver'
+import { Resolver } from '../resolver'
 import {
+    DefinitionType,
     IGeneratedFile,
     INamespace,
     IRenderer,
@@ -45,54 +40,42 @@ export function generateFile(
 }
 
 function generateFileFromStatements(
-    statements: Array<
-        | ServiceDefinition
-        | ExceptionDefinition
-        | UnionDefinition
-        | StructDefinition
-    >,
+    statements: Array<DefinitionType>,
     namespace: INamespace,
     thriftProject: IThriftProject,
     renderer: IRenderer,
 ): Array<IGeneratedFile> {
     const result: Array<IGeneratedFile> = []
 
-    statements.forEach(
-        (
-            statement:
-                | ServiceDefinition
-                | ExceptionDefinition
-                | UnionDefinition
-                | StructDefinition,
-        ) => {
-            const state: IRenderState = {
-                options: thriftProject.options,
-                currentNamespace: namespace,
-                currentDefinitions: exportsForFile([statement]),
-                project: thriftProject,
-            }
+    statements.forEach((statement: DefinitionType) => {
+        const state: IRenderState = {
+            options: thriftProject.options,
+            currentNamespace: namespace,
+            currentDefinitions: Resolver.exportsForFile([statement]),
+            project: thriftProject,
+        }
 
-            const structFile: IGeneratedFile = {
-                type: 'GeneratedFile',
-                name: statement.name.value,
-                path: namespace.namespace.path,
-                body: renderStatement(statement, state, renderer),
-            }
+        const generatedFile: IGeneratedFile = {
+            type: 'GeneratedFile',
+            name: statement.name.value,
+            ext: 'ts',
+            path: namespace.namespace.path,
+            body: renderStatement(statement, state, renderer),
+        }
 
-            structFile.body = [
-                ...renderer.renderImports([statement], state),
-                ...structFile.body,
-            ]
+        generatedFile.body = [
+            ...renderer.renderImports([statement], state),
+            ...generatedFile.body,
+        ]
 
-            result.push(structFile)
-        },
-    )
+        result.push(generatedFile)
+    })
 
     return result
 }
 
 function generateFilesFromKey(
-    key: 'constants' | 'typedefs',
+    key: 'constants',
     namespace: INamespace,
     thriftProject: IThriftProject,
     renderer: IRenderer,
@@ -104,6 +87,7 @@ function generateFilesFromKey(
         const constantsFile: IGeneratedFile = {
             type: 'GeneratedFile',
             name: key,
+            ext: 'ts',
             path: namespace.namespace.path,
             body: [],
         }
@@ -111,7 +95,7 @@ function generateFilesFromKey(
         const state: IRenderState = {
             options: thriftProject.options,
             currentNamespace: namespace,
-            currentDefinitions: exportsForFile(statements),
+            currentDefinitions: Resolver.exportsForFile(statements),
             project: thriftProject,
         }
 
@@ -150,14 +134,10 @@ export function generateProject(
                 thriftProject,
                 renderer,
             ),
-            generateFilesFromKey(
-                'typedefs',
-                namespace,
-                thriftProject,
-                renderer,
-            ),
             generateFileFromStatements(
                 [
+                    ...namespace.enums,
+                    ...namespace.typedefs,
                     ...namespace.structs,
                     ...namespace.unions,
                     ...namespace.exceptions,
@@ -178,6 +158,7 @@ export function generateProject(
         result.push({
             type: 'GeneratedFile',
             name: 'index',
+            ext: 'ts',
             path: namespace.namespace.path,
             body: renderer.renderIndex({
                 options: thriftProject.options,

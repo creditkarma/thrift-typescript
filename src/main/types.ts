@@ -13,6 +13,18 @@ import {
 
 import { IThriftError } from './errors'
 
+// Context needed to resolve an identifier
+export interface IResolveContext {
+    // Namespace where the identifier is used
+    currentNamespace: INamespace
+
+    // Definitions in current file
+    currentDefinitions?: IFileExports
+
+    // Namespaces in current project
+    namespaceMap: INamespaceMap
+}
+
 export interface IThriftProject {
     type: 'ThriftProject'
 
@@ -38,7 +50,7 @@ export interface INamespaceFiles {
 
 // Map of resolved identifier name to the namespace it represents
 export interface INamespacePathMap {
-    [resolvedName: string]: INamespacePath
+    [namespaceAccessor: string]: INamespacePath
 }
 
 export interface INamespacePath {
@@ -52,6 +64,9 @@ export interface INamespacePath {
 
     // The name translated to its result path com/company/package
     path: string
+
+    // The resolved accessor name used in generated TypeScript
+    accessor: string
 }
 
 // Namespace path to namespace
@@ -64,17 +79,21 @@ export interface INamespace {
 
     namespace: INamespacePath
 
-    // Files declared as part of this namespace
-    files: ResolvedFileMap
-
     // Identifiers defined in this namespace
     exports: IFileExports
 
-    // Map of namespaces used by this file
+    // Map of namespaces used by this file by accessor name
     includedNamespaces: INamespacePathMap
 
+    // Map of raw namespace path to accessor name
+    namespaceIncludes: INamespaceToIncludeMap
+
+    // Errors encountered while processing this namespace
+    errors: Array<IThriftError>
+
     // Data/services defined in this namespace
-    constants: Array<ConstDefinition | EnumDefinition>
+    constants: Array<ConstDefinition>
+    enums: Array<EnumDefinition>
     typedefs: Array<TypedefDefinition>
     structs: Array<StructDefinition>
     unions: Array<UnionDefinition>
@@ -133,7 +152,7 @@ export interface IMakeOptions {
 }
 
 export interface IThriftFiles {
-    [filePath: string]: ISourceFile
+    [absolutePath: string]: ISourceFile
 }
 
 export interface ISourceFile {
@@ -153,14 +172,13 @@ export interface ISourceFile {
 }
 
 // Map of file path to the parsed file
-export interface IProcessedFileMap<FileType> {
-    [filePath: string]: FileType
+export interface IParsedFileMap {
+    [absolutePath: string]: IParsedFile
 }
 
-export type ParsedFileMap = IProcessedFileMap<IParsedFile>
-export type ResolvedFileMap = IProcessedFileMap<IResolvedFile>
+export interface IParsedFile {
+    type: 'ParsedFile'
 
-export interface IProcessedFile {
     // Source file that parses to this AST
     sourceFile: ISourceFile
 
@@ -180,28 +198,14 @@ export interface IProcessedFile {
     errors: Array<IThriftError>
 }
 
-export interface IParsedFile extends IProcessedFile {
-    type: 'ParsedFile'
-}
-
-export interface IResolvedFile extends IProcessedFile {
-    type: 'ResolvedFile'
-
-    // Map of namespaces used by this file
-    includedNamespaces: INamespacePathMap
-
-    // Map of namespace id to include path
-    namespaceToInclude: INamespaceToIncludeMap
-}
-
-// Map of resolved namespace identifier to include
+// Map of namespace path `operation.Operation` to namespace accessor
 export interface INamespaceToIncludeMap {
-    [name: string]: string
+    [rawPath: string]: string
 }
 
 // Map of include name to include path
 export interface IFileIncludes {
-    [name: string]: IIncludePath
+    [includeName: string]: IIncludePath
 }
 
 export interface IParsedFileDefinition {
@@ -241,18 +245,6 @@ export interface IIncludePath {
 
     // Path to the file importing this include
     importedFrom: string
-}
-
-// The Thrift file path to the resolved namespace for that file's
-// generated TypeScript.
-export interface IFileToNamespaceMap {
-    [filePath: string]: INamespacePath
-}
-
-// Map of an include's name in a specific file to the namespace that
-// include resolves to.
-export interface IIncludeToNamespaceMap {
-    [includeName: string]: INamespacePath
 }
 
 // Interface for our render object
@@ -311,9 +303,15 @@ export interface IResolvedIdentifier {
 export interface IGeneratedFile {
     type: 'GeneratedFile'
 
+    // File name
     name: string
 
+    // File extension
+    ext: string
+
+    // Path to save file
     path: string
 
+    // Body of file as TS Nodes
     body: Array<ts.Statement>
 }

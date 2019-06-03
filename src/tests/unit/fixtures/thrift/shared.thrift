@@ -1,12 +1,3 @@
-namespace cpp com.test.shared
-namespace d com.test.share // "shared" would collide with the eponymous D keyword.
-namespace dart com.test.shared
-namespace java com.test.shared
-namespace perl com.test.shared
-namespace php com.test.shared
-namespace haxe com.test.shared
-namespace netcore com.test.shared
-
 const i32 SHARED_INT = 45
 
 struct Code {
@@ -23,7 +14,16 @@ union SharedUnion {
   2: string option2
 }
 
-service SharedService {
-  SharedStruct getStruct(1: i32 key)
+enum SharedEnum {
+    value1
+    value2
+}
+
+service SharedServiceBase {
+    SharedStruct getStruct(1: i32 key)
+}
+
+service SharedService extends SharedServiceBase {
   SharedUnion getUnion(1: i32 index)
+  SharedEnum getEnum()
 }

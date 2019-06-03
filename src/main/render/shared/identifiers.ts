@@ -1,16 +1,14 @@
 import * as ts from 'typescript'
 
 export const COMMON_IDENTIFIERS = {
+    metadata: ts.createIdentifier('metadata'),
     methodName: ts.createIdentifier('methodName'),
     readRequest: ts.createIdentifier('readRequest'),
     writeResponse: ts.createIdentifier('writeResponse'),
     writeError: ts.createIdentifier('writeError'),
-    resolve: ts.createIdentifier('resolve'),
-    reject: ts.createIdentifier('reject'),
     transportWithData: ts.createIdentifier('transportWithData'),
     receiver: ts.createIdentifier('receiver'),
     __NAMESPACE__: ts.createIdentifier('__NAMESPACE__'),
-    metadata: ts.createIdentifier('metadata'),
     __metadata: ts.createIdentifier('__metadata'),
     __name: ts.createIdentifier('__name'),
     __type: ts.createIdentifier('__type'),
@@ -72,8 +70,12 @@ export const COMMON_IDENTIFIERS = {
     Buffer: ts.createIdentifier('Buffer'),
     Boolean: ts.createIdentifier('Boolean'),
     Promise: ts.createIdentifier('Promise'),
+    reject: ts.createIdentifier('reject'),
+    resolve: ts.createIdentifier('resolve'),
+    then: ts.createIdentifier('then'),
     Number: ts.createIdentifier('Number'),
     Error: ts.createIdentifier('Error'),
+    error: ts.createIdentifier('error'),
     void: ts.createIdentifier('void'),
     Int64: ts.createIdentifier('thrift.Int64'),
     IHandler: ts.createIdentifier('IHandler'),
@@ -81,4 +83,6 @@ export const COMMON_IDENTIFIERS = {
     Node_Int64: ts.createIdentifier('Int64'),
     writeMessageBegin: ts.createIdentifier('writeMessageBegin'),
     writeMessageEnd: ts.createIdentifier('writeMessageEnd'),
+    readStructBegin: ts.createIdentifier('readStructBegin'),
+    readStructEnd: ts.createIdentifier('readStructEnd'),
 }

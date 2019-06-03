@@ -1,11 +1,8 @@
 import * as ts from 'typescript'
 
-import {
-    InterfaceWithFields,
-    ServiceDefinition,
-} from '@creditkarma/thrift-parser'
+import { ServiceDefinition } from '@creditkarma/thrift-parser'
 
-import { INamespace, IRenderState } from '../../types'
+import { DefinitionType, INamespace, IRenderState } from '../../types'
 
 export function renderIndex(state: IRenderState): Array<ts.Statement> {
     const currentNamespace: INamespace = state.currentNamespace
@@ -21,22 +18,13 @@ export function renderIndex(state: IRenderState): Array<ts.Statement> {
         )
     }
 
-    if (currentNamespace.typedefs.length > 0) {
-        results.push(
-            ts.createExportDeclaration(
-                undefined,
-                undefined,
-                undefined,
-                ts.createLiteral(`./typedefs`),
-            ),
-        )
-    }
-
     ;[
+        ...currentNamespace.enums,
+        ...currentNamespace.typedefs,
         ...currentNamespace.structs,
         ...currentNamespace.unions,
         ...currentNamespace.exceptions,
-    ].forEach((next: InterfaceWithFields) => {
+    ].forEach((next: DefinitionType) => {
         results.push(
             ts.createExportDeclaration(
                 undefined,

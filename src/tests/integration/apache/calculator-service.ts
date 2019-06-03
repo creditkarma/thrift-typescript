@@ -20,7 +20,7 @@ import {
 
 import { AddService } from './codegen/com/test/add-service'
 
-import { SharedStruct, SharedUnion } from './codegen/com/test/shared'
+import { Code, SharedEnum, SharedStruct, SharedUnion } from './codegen'
 
 import { Server } from 'net'
 
@@ -81,8 +81,14 @@ export function createCalculatorServer(): Server {
         zip(): void {
             return
         },
+        getEnum(): SharedEnum {
+            return SharedEnum.value1
+        },
         getStruct(key: number): SharedStruct {
-            return new SharedStruct({ key, value: 'test' })
+            return new SharedStruct({
+                code: new Code({ status: key }),
+                value: 'test',
+            })
         },
         getUnion(index: number): SharedUnion {
             if (index === 1) {
@@ -129,7 +135,10 @@ export function createCalculatorServer(): Server {
             )
         },
         fetchThing(): CommonStruct {
-            return new SharedStruct({ key: 5, value: 'test' })
+            return new SharedStruct({
+                code: new Code({ status: 5 }),
+                value: 'test',
+            })
         },
         throw(num: number): void {
             if (num === 1) {

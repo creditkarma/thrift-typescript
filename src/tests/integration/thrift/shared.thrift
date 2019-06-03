@@ -1,15 +1,12 @@
-namespace java com.test.shared
-namespace js com.test.shared
-
 const i32 SHARED_INT = 45
 
-struct SharedStruct {
-  1: required i32 key
-  2: required string value
+struct Code {
+  1: i64 status
 }
 
-struct Code {
-  1: i32 status
+struct SharedStruct {
+  1: required Code code
+  2: required string value
 }
 
 union SharedUnion {
@@ -17,7 +14,16 @@ union SharedUnion {
   2: string option2
 }
 
-service SharedService {
-  SharedStruct getStruct(1: i32 key)
+enum SharedEnum {
+    value1
+    value2
+}
+
+service SharedServiceBase {
+    SharedStruct getStruct(1: i32 key)
+}
+
+service SharedService extends SharedServiceBase {
   SharedUnion getUnion(1: i32 index)
+  SharedEnum getEnum()
 }
