@@ -37,6 +37,10 @@ function isObject(obj: any): boolean {
     return obj !== null && typeof obj === 'object'
 }
 
+export function deepSet<T extends object>(base: T, update: Partial<T>): T {
+    return deepMerge(base, update)
+}
+
 export function deepMerge<Base, Update>(
     base: Base,
     update: Update,

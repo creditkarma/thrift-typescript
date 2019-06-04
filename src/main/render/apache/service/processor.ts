@@ -44,6 +44,7 @@ import {
 import {
     collectAllMethods,
     collectInheritedMethods,
+    IFunctionResolution,
 } from '../../shared/service'
 
 import { createErrorType, createPromiseType } from '../../shared/types'
@@ -161,12 +162,12 @@ function objectLiteralForServiceFunctions(
             currentNamespace: state.currentNamespace,
             namespaceMap: state.project.namespaces,
         }).map(
-            (next: FunctionDefinition): ts.PropertyAssignment => {
+            (next: IFunctionResolution): ts.PropertyAssignment => {
                 return ts.createPropertyAssignment(
-                    ts.createIdentifier(next.name.value),
+                    ts.createIdentifier(next.definition.name.value),
                     ts.createPropertyAccess(
                         COMMON_IDENTIFIERS.handler,
-                        ts.createIdentifier(next.name.value),
+                        ts.createIdentifier(next.definition.name.value),
                     ),
                 )
             },
@@ -866,7 +867,9 @@ function createMethodCallForFname(
         COMMON_IDENTIFIERS.fieldName,
         ts.createCaseBlock([
             ...collectAllMethods(service, state).map(
-                createMethodCallForFunction,
+                (next: IFunctionResolution) => {
+                    return createMethodCallForFunction(next.definition)
+                },
             ),
             ts.createDefaultClause([
                 ts.createBlock(

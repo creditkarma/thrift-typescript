@@ -92,45 +92,47 @@ function readGeneratedSolution(
 }
 
 describe('Thrift TypeScript Generator', () => {
-    // const generatedTests: { [testName: string]: string } = {
-    //     operation: 'Operation Namespace',
-    //     common: 'Common Namespace',
-    //     exceptions: 'Exceptions Namespace',
-    //     shared: 'Shared Namespace',
-    //     calculator: 'Calculator Namespace',
-    // }
+    const generatedTests: { [testName: string]: string } = {
+        operation: 'Operation Namespace',
+        common: 'Common Namespace',
+        exceptions: 'Exceptions Namespace',
+        shared: 'Shared Namespace',
+        calculator: 'Calculator Namespace',
+    }
 
-    // describe('Thrift Server Generated', () => {
-    //     before(async () => {
-    //         await generate({
-    //             rootDir: __dirname,
-    //             outDir: 'thrift-server/generated',
-    //             sourceDir: 'fixtures/thrift',
-    //             target: 'thrift-server',
-    //             files: [],
-    //             library: 'test-lib',
-    //             withNameField: true,
-    //         })
-    //     })
+    describe('Thrift Server Generated', () => {
+        before(async () => {
+            await generate({
+                rootDir: __dirname,
+                outDir: 'thrift-server/generated',
+                sourceDir: 'fixtures/thrift',
+                target: 'thrift-server',
+                files: [],
+                library: 'test-lib',
+                withNameField: true,
+            })
+        })
 
-    //     Object.keys(generatedTests).forEach((testName) => {
-    //         it(generatedTests[testName], () => {
-    //             const actual: FileList = readGenerated(testName)
-    //             const expected: FileList = readGeneratedSolution(testName)
-    //             const zipped: ZippedList = zipResults(actual, expected)
+        Object.keys(generatedTests).forEach((testName) => {
+            it(generatedTests[testName], () => {
+                const actual: FileList = readGenerated(testName)
+                const expected: FileList = readGeneratedSolution(testName)
+                const zipped: ZippedList = zipResults(actual, expected)
 
-    //             zipped.forEach((next: ZippedDetail) => {
-    //                 if (next[0].content !== next[1].content) {
-    //                     console.log(
-    //                         `should match ${next[0].name} and ${next[1].name}`,
-    //                     )
-    //                 }
+                zipped.forEach((next: ZippedDetail) => {
+                    console.log(
+                        `should match ${next[0].name} and ${next[1].name}`,
+                    )
 
-    //                 assert.deepEqual(next[0].content, next[1].content)
-    //             })
-    //         })
-    //     })
-    // })
+                    if (next[0].content !== next[1].content) {
+                        console.log('actual: ', next[0].content)
+                    }
+
+                    assert.deepEqual(next[0].content, next[1].content)
+                })
+            })
+        })
+    })
 
     // describe('Thrift Server Generated w/ Strict Unions', () => {
     //     before(async () => {
@@ -270,8 +272,6 @@ describe('Thrift TypeScript Generator', () => {
                 strictUnions: true,
                 withNameField: true,
             })
-
-            console.log('actual: ', actual)
 
             assert.deepEqual(actual, expected)
         })

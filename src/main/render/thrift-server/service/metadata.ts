@@ -14,6 +14,10 @@ import {
 import { DefinitionType, INamespace, IRenderState } from '../../../types'
 
 import { Resolver } from '../../../resolver'
+import {
+    IServiceResolution,
+    serviceInheritanceChain,
+} from '../../shared/service'
 import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
 const VALID_IDENTIFIER_PATTERN = /^[a-z$_][0-9a-z$_]*$/i
@@ -210,8 +214,8 @@ function renderMethodMetadataProperties(
             )
         })
     } else {
-        const parentService: DefinitionType = Resolver.resolveIdentifierDefinition(
-            service.extends,
+        const parents: Array<IServiceResolution> = serviceInheritanceChain(
+            service,
             {
                 currentNamespace: state.currentNamespace,
                 currentDefinitions: state.currentDefinitions,
@@ -219,25 +223,22 @@ function renderMethodMetadataProperties(
             },
         )
 
-        switch (parentService.type) {
-            case SyntaxType.ServiceDefinition:
-                return [
-                    ...renderMethodMetadataProperties(parentService, state),
-                    ...service.functions.map((next: FunctionDefinition) => {
-                        return ts.createPropertyAssignment(
-                            ts.createIdentifier(next.name.value),
-                            renderMetadataForMethodValue(next, state),
-                        )
-                    }),
-                ]
+        const allMethods: Array<FunctionDefinition> = [
+            ...parents.reduce(
+                (acc: Array<FunctionDefinition>, next: IServiceResolution) => {
+                    return [...acc, ...next.definition.functions]
+                },
+                [],
+            ),
+            ...service.functions,
+        ]
 
-            default:
-                throw new TypeError(
-                    `A service can only extend another service. Found: ${
-                        parentService.type
-                    }`,
-                )
-        }
+        return allMethods.map((funcDef: FunctionDefinition) => {
+            return ts.createPropertyAssignment(
+                ts.createIdentifier(funcDef.name.value),
+                renderMetadataForMethodValue(funcDef, state),
+            )
+        })
     }
 }
 

@@ -2,9 +2,9 @@ import * as ts from 'typescript'
 
 import { FieldDefinition, FunctionDefinition } from '@creditkarma/thrift-parser'
 
+import { THRIFT_IDENTIFIERS } from '../../apache/identifiers'
 import { createConstStatement } from '../../shared/utils'
 import { COMMON_IDENTIFIERS } from '../identifiers'
-import { createProtocolConstructorType } from '../types'
 
 export function capitalize(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1)
@@ -14,7 +14,7 @@ export function capitalize(str: string): string {
 export function createOutputVariable(): ts.VariableStatement {
     return createConstStatement(
         COMMON_IDENTIFIERS.output,
-        createProtocolConstructorType(),
+        ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TProtocol, undefined),
         ts.createNew(
             ts.createPropertyAccess(
                 COMMON_IDENTIFIERS.this,
@@ -28,7 +28,7 @@ export function createOutputVariable(): ts.VariableStatement {
                         COMMON_IDENTIFIERS.transport,
                     ),
                     undefined,
-                    undefined,
+                    [],
                 ),
             ],
         ),

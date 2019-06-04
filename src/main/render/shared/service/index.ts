@@ -117,8 +117,8 @@ export function renderHandlerInterface(
                         ],
                     ),
                     ts.createTypeReferenceNode(
-                        ts.createIdentifier(
-                            `${
+                        ts.createQualifiedName(
+                            ts.createIdentifier(
                                 Resolver.resolveIdentifierName(
                                     service.extends.value,
                                     {
@@ -128,8 +128,9 @@ export function renderHandlerInterface(
                                             state.currentDefinitions,
                                         namespaceMap: state.project.namespaces,
                                     },
-                                ).fullName
-                            }.IHandler`,
+                                ).fullName,
+                            ),
+                            COMMON_IDENTIFIERS.IHandler,
                         ),
                         [
                             ts.createTypeReferenceNode(
@@ -155,10 +156,15 @@ export function renderHandlerInterface(
     }
 }
 
+export interface IServiceResolution {
+    namespace: INamespace
+    definition: ServiceDefinition
+}
+
 export function serviceInheritanceChain(
     service: ServiceDefinition,
     context: IResolveContext,
-): Array<ServiceDefinition> {
+): Array<IServiceResolution> {
     if (service.extends !== null) {
         if (context.currentNamespace.exports[service.extends.value]) {
             const parentService: DefinitionType =
@@ -166,7 +172,10 @@ export function serviceInheritanceChain(
 
             if (parentService.type === SyntaxType.ServiceDefinition) {
                 return [
-                    parentService,
+                    {
+                        definition: parentService,
+                        namespace: context.currentNamespace,
+                    },
                     ...serviceInheritanceChain(parentService, context),
                 ]
             } else {
@@ -191,7 +200,10 @@ export function serviceInheritanceChain(
 
                     if (parentService.type === SyntaxType.ServiceDefinition) {
                         return [
-                            parentService,
+                            {
+                                definition: parentService,
+                                namespace: nextNamespace,
+                            },
                             ...serviceInheritanceChain(parentService, {
                                 currentNamespace: nextNamespace,
                                 namespaceMap: context.namespaceMap,
@@ -219,24 +231,52 @@ export function serviceInheritanceChain(
 export function collectInheritedMethods(
     service: ServiceDefinition,
     context: IResolveContext,
-): Array<FunctionDefinition> {
+): Array<IFunctionResolution> {
     return serviceInheritanceChain(service, context).reduce(
-        (acc: Array<FunctionDefinition>, next: ServiceDefinition) => {
-            return [...acc, ...next.functions]
+        (
+            acc: Array<IFunctionResolution>,
+            serviceResolution: IServiceResolution,
+        ) => {
+            return [
+                ...acc,
+                ...serviceResolution.definition.functions.map(
+                    (funcDef: FunctionDefinition): IFunctionResolution => {
+                        return {
+                            namespace: serviceResolution.namespace,
+                            service: serviceResolution.definition,
+                            definition: funcDef,
+                        }
+                    },
+                ),
+            ]
         },
         [],
     )
 }
 
+export interface IFunctionResolution {
+    namespace: INamespace
+    service: ServiceDefinition
+    definition: FunctionDefinition
+}
+
 export function collectAllMethods(
     service: ServiceDefinition,
     state: IRenderState,
-): Array<FunctionDefinition> {
+): Array<IFunctionResolution> {
     return [
         ...collectInheritedMethods(service, {
             currentNamespace: state.currentNamespace,
             namespaceMap: state.project.namespaces,
         }),
-        ...service.functions,
+        ...service.functions.map(
+            (funcDef: FunctionDefinition): IFunctionResolution => {
+                return {
+                    namespace: state.currentNamespace,
+                    service,
+                    definition: funcDef,
+                }
+            },
+        ),
     ]
 }

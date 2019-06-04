@@ -592,16 +592,20 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
                     break;
                 }
                 default: {
-                    const failed: any = metadata
-                    const errMessage = "Unknown function " + failed.methodName;
-                    const err = new Error(errMessage);
+                    const failed: any = metadata;
+                    const errMessage: string = "Unknown function " + failed.methodName;
+                    const err: Error = new Error(errMessage);
                     resolve(this.writeError(failed.methodName, failed.requestId, err));
                     break;
                 }
             }
         });
     }
-    public readRequest(data: Buffer): { methodName: "getUser", requestId: number, data: IGetUser__Args } | { methodName: "ping", requestId: number, data: IPing__Args } {
+    public readRequest(data: Buffer): {
+        methodName: string;
+        requestId: number;
+        data: any;
+    } {
         const transportWithData: thrift.TTransport = this.transport.receiver(data);
         const input: thrift.TProtocol = new this.protocol(transportWithData);
         const metadata: thrift.IThriftMessage = input.readMessageBegin();
@@ -613,8 +617,8 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
                 input.readMessageEnd();
                 return {
                     methodName: fieldName,
-                    requestId,
-                    data,
+                    requestId: requestId,
+                    data: data
                 };
             }
             case "ping": {
@@ -622,8 +626,8 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
                 input.readMessageEnd();
                 return {
                     methodName: fieldName,
-                    requestId,
-                    data,
+                    requestId: requestId,
+                    data: data
                 };
             }
             default: {
@@ -633,10 +637,8 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             }
         }
     }
-    public writeResponse(methodName: "getUser", data: string, requestId: number): Buffer
-    public writeResponse(methodName: "ping", data: void, requestId: number): Buffer
-    public writeResponse(methodName: string, data: any, requestId: number): Buffer {
-        const output: thrift.IProtocolConstructor = new this.protocol(new this.transport);
+    protected writeResponse(methodName: string, data: any, requestId: number): Buffer {
+        const output: thrift.TProtocol = new this.protocol(new this.transport());
         switch (methodName) {
             case "getUser": {
                 const result: IGetUser__ResultArgs = { success: data };
@@ -657,15 +659,15 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             }
         }
     }
-    public writeError(methodName: string, requestId: number, err: Error): Buffer {
-        const output: thrift.IProtocolConstructor = new this.protocol(new this.transport);
+    protected writeError(methodName: string, requestId: number, err: Error): Buffer {
+        const output: thrift.TProtocol = new this.protocol(new this.transport());
         const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
         output.writeMessageBegin(methodName, thrift.MessageType.EXCEPTION, requestId);
         thrift.TApplicationExceptionCodec.encode(result, output);
         output.writeMessageEnd();
         return output.flush();
     }
-    private process_getUser(args: IGetUser__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_getUser(args: IGetUser__Args, requestId: number, context: Context): Promise<Buffer> {
         return new Promise<string>((resolve, reject): void => {
             try {
                 resolve(this.handler.getUser(args.arg1, context));
@@ -679,7 +681,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return this.writeError("getUser", requestId, err);
         });
     }
-    private process_ping(args: IPing__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_ping(args: IPing__Args, requestId: number, context: Context): Promise<Buffer> {
         return new Promise<void>((resolve, reject): void => {
             try {
                 resolve(this.handler.ping(context));

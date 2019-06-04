@@ -26,6 +26,7 @@ export const THRIFT_IDENTIFIERS = {
     IThriftList: ts.createIdentifier('thrift.IThriftList'),
     TProtocol: ts.createIdentifier('thrift.TProtocol'),
     TTransport: ts.createIdentifier('thrift.TTransport'),
+    IReadResult: ts.createIdentifier('thrift.IReadResult'),
     Thrift_Type: ts.createIdentifier('thrift.TType'),
     Int64: ts.createIdentifier('thrift.Int64'),
     MessageType: ts.createIdentifier('thrift.MessageType'),
