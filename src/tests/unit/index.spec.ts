@@ -120,12 +120,12 @@ describe('Thrift TypeScript Generator', () => {
                 const zipped: ZippedList = zipResults(actual, expected)
 
                 zipped.forEach((next: ZippedDetail) => {
-                    console.log(
-                        `should match ${next[0].name} and ${next[1].name}`,
-                    )
-
                     if (next[0].content !== next[1].content) {
-                        console.log('actual: ', next[0].content)
+                        console.log(
+                            `should match ${next[0].name} and ${next[1].name}`,
+                        )
+
+                        // console.log('actual: ', next[0].content)
                     }
 
                     assert.deepEqual(next[0].content, next[1].content)
