@@ -328,7 +328,7 @@ export class GetUnion__Result implements thrift.IStructLike, IGetUnion__Result {
         return GetEnum__ResultCodec.encode(this, output);
     }
 }
-export class Client<Context extends thrift.IThriftContext = thrift.IThriftContext> extends SharedServiceBase.Client<Context>implements thrift.IThriftClient {
+export class Client<Context extends thrift.IRequestContext = thrift.IRequestContext> extends SharedServiceBase.Client<Context>implements thrift.IThriftClient {
     public static readonly metadata: thrift.IServiceMetadata = metadata;
     public readonly __metadata: thrift.IServiceMetadata = metadata;
     protected _requestId: number;

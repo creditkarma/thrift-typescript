@@ -2854,7 +2854,7 @@ export class Zip__Result implements thrift.IStructLike, IZip__Result {
         return Zip__ResultCodec.encode(this, output);
     }
 }
-export class Client<Context extends thrift.IThriftContext = thrift.IThriftContext> extends __ROOT_NAMESPACE__.SharedService.Client<Context> {
+export class Client<Context extends thrift.IRequestContext = thrift.IRequestContext> extends __ROOT_NAMESPACE__.SharedService.Client<Context> {
     public static readonly metadata: thrift.IServiceMetadata = metadata;
     public readonly __metadata: thrift.IServiceMetadata = metadata;
     constructor(connection: thrift.IThriftConnection<Context>) {

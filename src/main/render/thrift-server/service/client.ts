@@ -171,11 +171,11 @@ export function renderClient(
             ts.createTypeParameterDeclaration(
                 COMMON_IDENTIFIERS.Context,
                 ts.createTypeReferenceNode(
-                    THRIFT_IDENTIFIERS.IThriftContext,
+                    THRIFT_IDENTIFIERS.IRequestContext,
                     undefined,
                 ),
                 ts.createTypeReferenceNode(
-                    THRIFT_IDENTIFIERS.IThriftContext,
+                    THRIFT_IDENTIFIERS.IRequestContext,
                     undefined,
                 ),
             ),

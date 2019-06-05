@@ -593,7 +593,7 @@ export class Ping__Result implements thrift.IStructLike, IPing__Result {
         return Ping__ResultCodec.encode(this, output);
     }
 }
-export class Client<Context extends thrift.IThriftContext = thrift.IThriftContext> implements thrift.IThriftClient {
+export class Client<Context extends thrift.IRequestContext = thrift.IRequestContext> implements thrift.IThriftClient {
     public static readonly metadata: thrift.IServiceMetadata = metadata;
     public readonly __metadata: thrift.IServiceMetadata = metadata;
     protected _requestId: number;

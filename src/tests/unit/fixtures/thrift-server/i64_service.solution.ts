@@ -425,7 +425,7 @@ export class Pong__Result implements thrift.IStructLike, IPong__Result {
         return Pong__ResultCodec.encode(this, output);
     }
 }
-export class Client<Context extends thrift.IThriftContext = thrift.IThriftContext> implements thrift.IThriftClient {
+export class Client<Context extends thrift.IRequestContext = thrift.IRequestContext> implements thrift.IThriftClient {
     public static readonly metadata: thrift.IServiceMetadata = metadata;
     public readonly __metadata: thrift.IServiceMetadata = metadata;
     protected _requestId: number;
