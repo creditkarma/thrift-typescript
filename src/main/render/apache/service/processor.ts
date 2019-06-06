@@ -47,111 +47,7 @@ import {
     IFunctionResolution,
 } from '../../shared/service'
 
-import { createErrorType, createPromiseType } from '../../shared/types'
-
-function funcToMethodReducer(
-    acc: Array<ts.MethodSignature>,
-    func: FunctionDefinition,
-    state: IRenderState,
-): Array<ts.MethodSignature> {
-    return acc.concat([
-        ts.createMethodSignature(
-            undefined,
-            [
-                ...func.fields.map((field: FieldDefinition) => {
-                    return createFunctionParameter(
-                        field.name.value,
-                        typeNodeForFieldType(field.fieldType, state),
-                        undefined,
-                        field.requiredness === 'optional',
-                    )
-                }),
-            ],
-            ts.createUnionTypeNode([
-                typeNodeForFieldType(func.returnType, state),
-                createPromiseType(typeNodeForFieldType(func.returnType, state)),
-            ]),
-            func.name.value,
-            undefined,
-        ),
-    ])
-}
-
-/**
- * // thrift
- * service MyService {
- *   i32 add(1: i32 a, 2: i32 b)
- * }
- *
- * // typescript
- * interface IMyServiceHandler {
- *   add(a: number, b: number): number
- * }
- */
-export function renderHandlerInterface(
-    service: ServiceDefinition,
-    state: IRenderState,
-): Array<ts.Statement> {
-    const signatures: Array<ts.MethodSignature> = service.functions.reduce(
-        (acc: Array<ts.MethodSignature>, next: FunctionDefinition) => {
-            return funcToMethodReducer(acc, next, state)
-        },
-        [],
-    )
-
-    if (service.extends !== null) {
-        return [
-            ts.createInterfaceDeclaration(
-                undefined,
-                [ts.createToken(ts.SyntaxKind.ExportKeyword)],
-                COMMON_IDENTIFIERS.ILocalHandler,
-                undefined,
-                [],
-                signatures,
-            ),
-            ts.createTypeAliasDeclaration(
-                undefined,
-                [ts.createToken(ts.SyntaxKind.ExportKeyword)],
-                COMMON_IDENTIFIERS.IHandler,
-                undefined,
-                ts.createIntersectionTypeNode([
-                    ts.createTypeReferenceNode(
-                        COMMON_IDENTIFIERS.ILocalHandler,
-                        undefined,
-                    ),
-                    ts.createTypeReferenceNode(
-                        ts.createIdentifier(
-                            `${
-                                Resolver.resolveIdentifierName(
-                                    service.extends.value,
-                                    {
-                                        currentNamespace:
-                                            state.currentNamespace,
-                                        currentDefinitions:
-                                            state.currentDefinitions,
-                                        namespaceMap: state.project.namespaces,
-                                    },
-                                ).fullName
-                            }.IHandler`,
-                        ),
-                        undefined,
-                    ),
-                ]),
-            ),
-        ]
-    } else {
-        return [
-            ts.createInterfaceDeclaration(
-                undefined,
-                [ts.createToken(ts.SyntaxKind.ExportKeyword)],
-                COMMON_IDENTIFIERS.IHandler,
-                undefined,
-                [],
-                signatures,
-            ),
-        ]
-    }
-}
+import { createErrorType } from '../../shared/types'
 
 function objectLiteralForServiceFunctions(
     service: ServiceDefinition,
@@ -176,9 +72,10 @@ function objectLiteralForServiceFunctions(
     )
 }
 
-function handlerType(node: ServiceDefinition): ts.TypeNode {
-    return ts.createTypeReferenceNode(COMMON_IDENTIFIERS.IHandler, undefined)
-}
+const HANDLER_TYPE: ts.TypeNode = ts.createTypeReferenceNode(
+    COMMON_IDENTIFIERS.IHandler,
+    undefined,
+)
 
 function createSuperCall(
     service: ServiceDefinition,
@@ -209,17 +106,12 @@ export function renderProcessor(
         [ts.createToken(ts.SyntaxKind.PublicKeyword)],
         COMMON_IDENTIFIERS.handler,
         undefined,
-        handlerType(node),
+        HANDLER_TYPE,
         undefined,
     )
 
     const ctor: ts.ConstructorDeclaration = createClassConstructor(
-        [
-            createFunctionParameter(
-                COMMON_IDENTIFIERS.handler,
-                handlerType(node),
-            ),
-        ],
+        [createFunctionParameter(COMMON_IDENTIFIERS.handler, HANDLER_TYPE)],
         [
             ...createSuperCall(node, state),
             createAssignmentStatement(
@@ -338,7 +230,11 @@ function createProcessFunctionMethod(
                 createMethodCall(
                     createMethodCall(
                         createPromise(
-                            typeNodeForFieldType(funcDef.returnType, state),
+                            typeNodeForFieldType(
+                                funcDef.returnType,
+                                state,
+                                true,
+                            ),
                             createVoidType(),
                             [
                                 // try {
@@ -401,7 +297,7 @@ function createProcessFunctionMethod(
                                 ),
                             ],
                         ),
-                        'then',
+                        COMMON_IDENTIFIERS.then,
                         [
                             // }).then((data: {{typeName}}) => {
                             ts.createArrowFunction(
@@ -413,6 +309,7 @@ function createProcessFunctionMethod(
                                         typeNodeForFieldType(
                                             funcDef.returnType,
                                             state,
+                                            true,
                                         ),
                                     ),
                                 ],
@@ -490,7 +387,7 @@ function createProcessFunctionMethod(
                             ),
                         ],
                     ),
-                    'catch',
+                    COMMON_IDENTIFIERS.catch,
                     [
                         ts.createArrowFunction(
                             undefined,

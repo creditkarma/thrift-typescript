@@ -555,10 +555,10 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
 }
-export interface IHandler<Context extends thrift.IThriftContext = thrift.IThriftContext> {
-    peg(name: string, context?: Context): string | Promise<string>;
+export interface IHandler<Context extends object = {}> {
+    peg(name: string, context?: thrift.ThriftContext<Context>): string | Promise<string>;
 }
-export class Processor<Context extends thrift.IThriftContext = thrift.IThriftContext> implements thrift.IThriftProcessor<Context> {
+export class Processor<Context extends object = {}> implements thrift.IThriftProcessor<Context> {
     protected readonly handler: IHandler<Context>;
     protected readonly transport: thrift.ITransportConstructor;
     protected readonly protocol: thrift.IProtocolConstructor;
@@ -569,7 +569,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
         this.transport = transport;
         this.protocol = protocol;
     }
-    public process(data: Buffer, context: Context): Promise<Buffer> {
+    public process(data: Buffer, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         const transportWithData: thrift.TTransport = this.transport.receiver(data);
         const input: thrift.TProtocol = new this.protocol(transportWithData);
         return new Promise<Buffer>((resolve, reject): void => {

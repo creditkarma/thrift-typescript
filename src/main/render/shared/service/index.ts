@@ -25,6 +25,7 @@ function funcToMethodReducer(
     acc: Array<ts.MethodSignature>,
     func: FunctionDefinition,
     typeMapping: TypeMapping,
+    contextType: ts.TypeNode = defaultContextType(),
     state: IRenderState,
 ): Array<ts.MethodSignature> {
     return acc.concat([
@@ -41,10 +42,16 @@ function funcToMethodReducer(
                 }),
                 createFunctionParameter(
                     COMMON_IDENTIFIERS.context,
-                    ts.createTypeReferenceNode(
-                        COMMON_IDENTIFIERS.Context,
-                        undefined,
-                    ),
+                    contextType,
+                    // ts.createTypeReferenceNode(
+                    //     THRIFT_IDENTIFIERS.ThriftContext,
+                    //     [
+                    //         ts.createTypeReferenceNode(
+                    //             COMMON_IDENTIFIERS.Context,
+                    //             undefined,
+                    //         ),
+                    //     ]
+                    // ),
                     undefined,
                     true,
                 ),
@@ -59,7 +66,10 @@ function funcToMethodReducer(
     ])
 }
 
-const defaultContextType = () =>
+const defaultContextType = (): ts.TypeNode =>
+    ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined)
+
+const defaultContextTypeParam = (): ts.TypeParameterDeclaration =>
     ts.createTypeParameterDeclaration(
         COMMON_IDENTIFIERS.Context,
         undefined,
@@ -82,11 +92,18 @@ export function renderHandlerInterface(
     service: ServiceDefinition,
     typeMapping: TypeMapping,
     state: IRenderState,
-    contextType: ts.TypeParameterDeclaration = defaultContextType(),
+    contextType: ts.TypeNode = defaultContextType(),
+    contextTypeParam: ts.TypeParameterDeclaration = defaultContextTypeParam(),
 ): Array<ts.Statement> {
     const signatures: Array<ts.MethodSignature> = service.functions.reduce(
         (acc: Array<ts.MethodSignature>, next: FunctionDefinition) => {
-            return funcToMethodReducer(acc, next, typeMapping, state)
+            return funcToMethodReducer(
+                acc,
+                next,
+                typeMapping,
+                contextType,
+                state,
+            )
         },
         [],
     )
@@ -97,7 +114,7 @@ export function renderHandlerInterface(
                 undefined,
                 [ts.createToken(ts.SyntaxKind.ExportKeyword)],
                 COMMON_IDENTIFIERS.ILocalHandler,
-                [contextType],
+                [contextTypeParam],
                 [],
                 signatures,
             ),
@@ -105,7 +122,7 @@ export function renderHandlerInterface(
                 undefined,
                 [ts.createToken(ts.SyntaxKind.ExportKeyword)],
                 COMMON_IDENTIFIERS.IHandler,
-                [contextType],
+                [contextTypeParam],
                 ts.createIntersectionTypeNode([
                     ts.createTypeReferenceNode(
                         COMMON_IDENTIFIERS.ILocalHandler,
@@ -148,7 +165,7 @@ export function renderHandlerInterface(
                 undefined,
                 [ts.createToken(ts.SyntaxKind.ExportKeyword)],
                 COMMON_IDENTIFIERS.IHandler,
-                [contextType],
+                [contextTypeParam],
                 [],
                 signatures,
             ),

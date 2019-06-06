@@ -564,11 +564,11 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
 }
-export interface IHandler<Context extends thrift.IThriftContext = thrift.IThriftContext> {
-    getUser(arg1: MyUnion, context?: Context): string | Promise<string>;
-    ping(context?: Context): void | Promise<void>;
+export interface IHandler<Context extends object = {}> {
+    getUser(arg1: MyUnion, context?: thrift.ThriftContext<Context>): string | Promise<string>;
+    ping(context?: thrift.ThriftContext<Context>): void | Promise<void>;
 }
-export class Processor<Context extends thrift.IThriftContext = thrift.IThriftContext> implements thrift.IThriftProcessor<Context> {
+export class Processor<Context extends object = {}> implements thrift.IThriftProcessor<Context> {
     protected readonly handler: IHandler<Context>;
     protected readonly transport: thrift.ITransportConstructor;
     protected readonly protocol: thrift.IProtocolConstructor;
@@ -579,7 +579,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
         this.transport = transport;
         this.protocol = protocol;
     }
-    public process(data: Buffer, context: Context): Promise<Buffer> {
+    public process(data: Buffer, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<Buffer>((resolve, reject): void => {
             const metadata = this.readRequest(data);
             switch (metadata.methodName) {
@@ -667,7 +667,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
         output.writeMessageEnd();
         return output.flush();
     }
-    protected process_getUser(args: IGetUser__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_getUser(args: IGetUser__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<string>((resolve, reject): void => {
             try {
                 resolve(this.handler.getUser(args.arg1, context));
@@ -681,7 +681,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return this.writeError("getUser", requestId, err);
         });
     }
-    protected process_ping(args: IPing__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_ping(args: IPing__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<void>((resolve, reject): void => {
             try {
                 resolve(this.handler.ping(context));

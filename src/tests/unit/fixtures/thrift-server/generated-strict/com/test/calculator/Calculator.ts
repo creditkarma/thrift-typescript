@@ -3433,25 +3433,25 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
 }
-export interface ILocalHandler<Context extends thrift.IThriftContext = thrift.IThriftContext> {
-    ping(context?: Context): void | Promise<void>;
-    add(num1: number, num2: number, context?: Context): number | Promise<number>;
-    addInt64(num1: thrift.Int64, num2: thrift.Int64, context?: Context): (number | string | thrift.Int64) | Promise<number | string | thrift.Int64>;
-    addWithContext(num1: number, num2: number, context?: Context): number | Promise<number>;
-    calculate(logid: number, work: Work.IWork, context?: Context): number | Promise<number>;
-    echoBinary(word: Buffer, context?: Context): string | Promise<string>;
-    echoString(word: string, context?: Context): string | Promise<string>;
-    checkName(choice: Choice.Choice, context?: Context): string | Promise<string>;
-    checkOptional(type?: string, context?: Context): string | Promise<string>;
-    mapOneList(arg: Array<number>, context?: Context): Array<number> | Promise<Array<number>>;
-    mapValues(arg: Map<string, number>, context?: Context): Array<number> | Promise<Array<number>>;
-    listToMap(arg: Array<Array<string>>, context?: Context): Map<string, string> | Promise<Map<string, string>>;
-    fetchThing(context?: Context): com_test_common.ICommonStructArgs | Promise<com_test_common.ICommonStructArgs>;
-    fetchMap(context?: Context): TypedMap.TypedMap | Promise<TypedMap.TypedMap>;
-    zip(context?: Context): void | Promise<void>;
+export interface ILocalHandler<Context extends object = {}> {
+    ping(context?: thrift.ThriftContext<Context>): void | Promise<void>;
+    add(num1: number, num2: number, context?: thrift.ThriftContext<Context>): number | Promise<number>;
+    addInt64(num1: thrift.Int64, num2: thrift.Int64, context?: thrift.ThriftContext<Context>): (number | string | thrift.Int64) | Promise<number | string | thrift.Int64>;
+    addWithContext(num1: number, num2: number, context?: thrift.ThriftContext<Context>): number | Promise<number>;
+    calculate(logid: number, work: Work.IWork, context?: thrift.ThriftContext<Context>): number | Promise<number>;
+    echoBinary(word: Buffer, context?: thrift.ThriftContext<Context>): string | Promise<string>;
+    echoString(word: string, context?: thrift.ThriftContext<Context>): string | Promise<string>;
+    checkName(choice: Choice.Choice, context?: thrift.ThriftContext<Context>): string | Promise<string>;
+    checkOptional(type?: string, context?: thrift.ThriftContext<Context>): string | Promise<string>;
+    mapOneList(arg: Array<number>, context?: thrift.ThriftContext<Context>): Array<number> | Promise<Array<number>>;
+    mapValues(arg: Map<string, number>, context?: thrift.ThriftContext<Context>): Array<number> | Promise<Array<number>>;
+    listToMap(arg: Array<Array<string>>, context?: thrift.ThriftContext<Context>): Map<string, string> | Promise<Map<string, string>>;
+    fetchThing(context?: thrift.ThriftContext<Context>): com_test_common.ICommonStructArgs | Promise<com_test_common.ICommonStructArgs>;
+    fetchMap(context?: thrift.ThriftContext<Context>): TypedMap.TypedMap | Promise<TypedMap.TypedMap>;
+    zip(context?: thrift.ThriftContext<Context>): void | Promise<void>;
 }
-export type IHandler<Context extends thrift.IThriftContext = thrift.IThriftContext> = ILocalHandler<Context> & __ROOT_NAMESPACE__.SharedService.IHandler<Context>;
-export class Processor<Context extends thrift.IThriftContext = thrift.IThriftContext> extends __ROOT_NAMESPACE__.SharedService.Processor<Context> {
+export type IHandler<Context extends object = {}> = ILocalHandler<Context> & __ROOT_NAMESPACE__.SharedService.IHandler<Context>;
+export class Processor<Context extends object = {}> extends __ROOT_NAMESPACE__.SharedService.Processor<Context> {
     protected readonly handler: IHandler<Context>;
     protected readonly transport: thrift.ITransportConstructor;
     protected readonly protocol: thrift.IProtocolConstructor;
@@ -3466,7 +3466,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
         this.transport = transport;
         this.protocol = protocol;
     }
-    public process(data: Buffer, context: Context): Promise<Buffer> {
+    public process(data: Buffer, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         const transportWithData: thrift.TTransport = this.transport.receiver(data);
         const input: thrift.TProtocol = new this.protocol(transportWithData);
         return new Promise<Buffer>((resolve, reject): void => {

@@ -237,7 +237,7 @@ export class Processor {
         }
     }
     private process_add(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
-        new Promise<Int64>((resolve, reject): void => {
+        new Promise<number | Int64>((resolve, reject): void => {
             try {
                 const args: AddArgs = AddArgs.read(input);
                 input.readMessageEnd();
@@ -246,7 +246,7 @@ export class Processor {
             catch (err) {
                 reject(err);
             }
-        }).then((data: Int64): void => {
+        }).then((data: number | Int64): void => {
             const result: AddResult = new AddResult({ success: data });
             output.writeMessageBegin("add", thrift.Thrift.MessageType.REPLY, requestId);
             result.write(output);

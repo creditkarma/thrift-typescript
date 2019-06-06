@@ -6,6 +6,7 @@ export const THRIFT_IDENTIFIERS = {
     BufferedTransport: ts.createIdentifier('thrift.BufferedTransport'),
     BinaryProtocol: ts.createIdentifier('thrift.BinaryProtocol'),
     IThriftContext: ts.createIdentifier('thrift.IThriftContext'),
+    ThriftContext: ts.createIdentifier('thrift.ThriftContext'),
     IRequestContext: ts.createIdentifier('thrift.IRequestContext'),
     IServiceMetadata: ts.createIdentifier('thrift.IServiceMetadata'),
     IMethodMetadata: ts.createIdentifier('thrift.IMethodMetadata'),

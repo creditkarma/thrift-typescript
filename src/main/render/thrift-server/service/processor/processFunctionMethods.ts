@@ -6,7 +6,7 @@ import {
     SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-import { ContextType } from '../types'
+import { ThriftContextType } from '../types'
 
 import { IRenderState } from '../../../../types'
 
@@ -52,7 +52,7 @@ export function createProcessFunctionMethod(
             ),
             createFunctionParameter(
                 COMMON_IDENTIFIERS.context,
-                ContextType,
+                ThriftContextType,
                 undefined,
             ),
         ], // parameters

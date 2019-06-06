@@ -47,16 +47,19 @@ export function renderService(
             service,
             typeNodeForFieldType,
             state,
+            ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.ThriftContext, [
+                ts.createTypeReferenceNode(
+                    COMMON_IDENTIFIERS.Context,
+                    undefined,
+                ),
+            ]),
             ts.createTypeParameterDeclaration(
                 COMMON_IDENTIFIERS.Context,
                 ts.createTypeReferenceNode(
-                    THRIFT_IDENTIFIERS.IThriftContext,
+                    COMMON_IDENTIFIERS.object,
                     undefined,
                 ),
-                ts.createTypeReferenceNode(
-                    THRIFT_IDENTIFIERS.IThriftContext,
-                    undefined,
-                ),
+                ts.createTypeLiteralNode([]),
             ),
         ),
         renderProcessor(service, state),

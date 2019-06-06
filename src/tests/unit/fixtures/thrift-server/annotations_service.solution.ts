@@ -1107,13 +1107,13 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
 }
-export interface IHandler<Context extends thrift.IThriftContext = thrift.IThriftContext> {
-    getUser(id: number, context?: Context): IUserArgs | Promise<IUserArgs>;
-    saveUser(user: IUser, context?: Context): void | Promise<void>;
-    deleteUser(user: IPerson, context?: Context): void | Promise<void>;
-    ping(context?: Context): void | Promise<void>;
+export interface IHandler<Context extends object = {}> {
+    getUser(id: number, context?: thrift.ThriftContext<Context>): IUserArgs | Promise<IUserArgs>;
+    saveUser(user: IUser, context?: thrift.ThriftContext<Context>): void | Promise<void>;
+    deleteUser(user: IPerson, context?: thrift.ThriftContext<Context>): void | Promise<void>;
+    ping(context?: thrift.ThriftContext<Context>): void | Promise<void>;
 }
-export class Processor<Context extends thrift.IThriftContext = thrift.IThriftContext> implements thrift.IThriftProcessor<Context> {
+export class Processor<Context extends object = {}> implements thrift.IThriftProcessor<Context> {
     protected readonly handler: IHandler<Context>;
     protected readonly transport: thrift.ITransportConstructor;
     protected readonly protocol: thrift.IProtocolConstructor;
@@ -1124,7 +1124,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
         this.transport = transport;
         this.protocol = protocol;
     }
-    public process(data: Buffer, context: Context): Promise<Buffer> {
+    public process(data: Buffer, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         const transportWithData: thrift.TTransport = this.transport.receiver(data);
         const input: thrift.TProtocol = new this.protocol(transportWithData);
         return new Promise<Buffer>((resolve, reject): void => {

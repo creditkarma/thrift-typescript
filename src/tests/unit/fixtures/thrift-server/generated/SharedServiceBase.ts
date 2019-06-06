@@ -239,10 +239,10 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
 }
-export interface IHandler<Context extends thrift.IThriftContext = thrift.IThriftContext> {
-    getStruct(key: number, context?: Context): SharedStruct.ISharedStructArgs | Promise<SharedStruct.ISharedStructArgs>;
+export interface IHandler<Context extends object = {}> {
+    getStruct(key: number, context?: thrift.ThriftContext<Context>): SharedStruct.ISharedStructArgs | Promise<SharedStruct.ISharedStructArgs>;
 }
-export class Processor<Context extends thrift.IThriftContext = thrift.IThriftContext> implements thrift.IThriftProcessor<Context> {
+export class Processor<Context extends object = {}> implements thrift.IThriftProcessor<Context> {
     protected readonly handler: IHandler<Context>;
     protected readonly transport: thrift.ITransportConstructor;
     protected readonly protocol: thrift.IProtocolConstructor;
@@ -253,7 +253,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
         this.transport = transport;
         this.protocol = protocol;
     }
-    public process(data: Buffer, context: Context): Promise<Buffer> {
+    public process(data: Buffer, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<Buffer>((resolve, reject): void => {
             const metadata = this.readRequest(data);
             switch (metadata.methodName) {
@@ -321,7 +321,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
         output.writeMessageEnd();
         return output.flush();
     }
-    protected process_getStruct(args: IGetStruct__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_getStruct(args: IGetStruct__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<SharedStruct.ISharedStructArgs>((resolve, reject): void => {
             try {
                 resolve(this.handler.getStruct(args.key, context));

@@ -13,7 +13,7 @@ import {
     createPromise,
     createPublicMethod,
 } from '../../utils'
-import { ContextType } from '../types'
+import { ThriftContextType } from '../types'
 
 import {
     createAnyType,
@@ -51,7 +51,7 @@ export function createProcessMethod(
             ),
             createFunctionParameter(
                 COMMON_IDENTIFIERS.context,
-                ContextType,
+                ThriftContextType,
                 undefined,
             ),
         ], // parameters

@@ -14,6 +14,11 @@ export const ContextType: ts.TypeNode = ts.createTypeReferenceNode(
     undefined,
 )
 
+export const ThriftContextType: ts.TypeNode = ts.createTypeReferenceNode(
+    THRIFT_IDENTIFIERS.ThriftContext,
+    [ContextType],
+)
+
 export function createConnectionType(): ts.TypeNode {
     return ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IThriftConnection, [
         ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined),

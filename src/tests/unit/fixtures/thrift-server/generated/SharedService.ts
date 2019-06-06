@@ -413,12 +413,12 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
 }
-export interface ILocalHandler<Context extends thrift.IThriftContext = thrift.IThriftContext> {
-    getUnion(index: number, context?: Context): SharedUnion.ISharedUnionArgs | Promise<SharedUnion.ISharedUnionArgs>;
-    getEnum(context?: Context): SharedEnum.SharedEnum | Promise<SharedEnum.SharedEnum>;
+export interface ILocalHandler<Context extends object = {}> {
+    getUnion(index: number, context?: thrift.ThriftContext<Context>): SharedUnion.ISharedUnionArgs | Promise<SharedUnion.ISharedUnionArgs>;
+    getEnum(context?: thrift.ThriftContext<Context>): SharedEnum.SharedEnum | Promise<SharedEnum.SharedEnum>;
 }
-export type IHandler<Context extends thrift.IThriftContext = thrift.IThriftContext> = ILocalHandler<Context> & SharedServiceBase.IHandler<Context>;
-export class Processor<Context extends thrift.IThriftContext = thrift.IThriftContext> extends SharedServiceBase.Processor<Context> {
+export type IHandler<Context extends object = {}> = ILocalHandler<Context> & SharedServiceBase.IHandler<Context>;
+export class Processor<Context extends object = {}> extends SharedServiceBase.Processor<Context> {
     protected readonly handler: IHandler<Context>;
     protected readonly transport: thrift.ITransportConstructor;
     protected readonly protocol: thrift.IProtocolConstructor;
@@ -432,7 +432,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
         this.transport = transport;
         this.protocol = protocol;
     }
-    public process(data: Buffer, context: Context): Promise<Buffer> {
+    public process(data: Buffer, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<Buffer>((resolve, reject): void => {
             const metadata = this.readRequest(data);
             switch (metadata.methodName) {
@@ -522,7 +522,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
         output.writeMessageEnd();
         return output.flush();
     }
-    protected process_getUnion(args: IGetUnion__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_getUnion(args: IGetUnion__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<SharedUnion.ISharedUnionArgs>((resolve, reject): void => {
             try {
                 resolve(this.handler.getUnion(args.index, context));
@@ -536,7 +536,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return this.writeError("getUnion", requestId, err);
         });
     }
-    protected process_getEnum(args: IGetEnum__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_getEnum(args: IGetEnum__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<SharedEnum.SharedEnum>((resolve, reject): void => {
             try {
                 resolve(this.handler.getEnum(context));

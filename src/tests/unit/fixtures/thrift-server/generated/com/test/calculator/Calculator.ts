@@ -3438,25 +3438,25 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
 }
-export interface ILocalHandler<Context extends thrift.IThriftContext = thrift.IThriftContext> {
-    ping(context?: Context): void | Promise<void>;
-    add(num1: number, num2: number, context?: Context): number | Promise<number>;
-    addInt64(num1: thrift.Int64, num2: thrift.Int64, context?: Context): (number | string | thrift.Int64) | Promise<number | string | thrift.Int64>;
-    addWithContext(num1: number, num2: number, context?: Context): number | Promise<number>;
-    calculate(logid: number, work: Work.IWork, context?: Context): number | Promise<number>;
-    echoBinary(word: Buffer, context?: Context): string | Promise<string>;
-    echoString(word: string, context?: Context): string | Promise<string>;
-    checkName(choice: Choice.IChoice, context?: Context): string | Promise<string>;
-    checkOptional(type?: string, context?: Context): string | Promise<string>;
-    mapOneList(arg: Array<number>, context?: Context): Array<number> | Promise<Array<number>>;
-    mapValues(arg: Map<string, number>, context?: Context): Array<number> | Promise<Array<number>>;
-    listToMap(arg: Array<Array<string>>, context?: Context): Map<string, string> | Promise<Map<string, string>>;
-    fetchThing(context?: Context): com_test_common.ICommonStructArgs | Promise<com_test_common.ICommonStructArgs>;
-    fetchMap(context?: Context): TypedMap.TypedMap | Promise<TypedMap.TypedMap>;
-    zip(context?: Context): void | Promise<void>;
+export interface ILocalHandler<Context extends object = {}> {
+    ping(context?: thrift.ThriftContext<Context>): void | Promise<void>;
+    add(num1: number, num2: number, context?: thrift.ThriftContext<Context>): number | Promise<number>;
+    addInt64(num1: thrift.Int64, num2: thrift.Int64, context?: thrift.ThriftContext<Context>): (number | string | thrift.Int64) | Promise<number | string | thrift.Int64>;
+    addWithContext(num1: number, num2: number, context?: thrift.ThriftContext<Context>): number | Promise<number>;
+    calculate(logid: number, work: Work.IWork, context?: thrift.ThriftContext<Context>): number | Promise<number>;
+    echoBinary(word: Buffer, context?: thrift.ThriftContext<Context>): string | Promise<string>;
+    echoString(word: string, context?: thrift.ThriftContext<Context>): string | Promise<string>;
+    checkName(choice: Choice.IChoice, context?: thrift.ThriftContext<Context>): string | Promise<string>;
+    checkOptional(type?: string, context?: thrift.ThriftContext<Context>): string | Promise<string>;
+    mapOneList(arg: Array<number>, context?: thrift.ThriftContext<Context>): Array<number> | Promise<Array<number>>;
+    mapValues(arg: Map<string, number>, context?: thrift.ThriftContext<Context>): Array<number> | Promise<Array<number>>;
+    listToMap(arg: Array<Array<string>>, context?: thrift.ThriftContext<Context>): Map<string, string> | Promise<Map<string, string>>;
+    fetchThing(context?: thrift.ThriftContext<Context>): com_test_common.ICommonStructArgs | Promise<com_test_common.ICommonStructArgs>;
+    fetchMap(context?: thrift.ThriftContext<Context>): TypedMap.TypedMap | Promise<TypedMap.TypedMap>;
+    zip(context?: thrift.ThriftContext<Context>): void | Promise<void>;
 }
-export type IHandler<Context extends thrift.IThriftContext = thrift.IThriftContext> = ILocalHandler<Context> & __ROOT_NAMESPACE__.SharedService.IHandler<Context>;
-export class Processor<Context extends thrift.IThriftContext = thrift.IThriftContext> extends __ROOT_NAMESPACE__.SharedService.Processor<Context> {
+export type IHandler<Context extends object = {}> = ILocalHandler<Context> & __ROOT_NAMESPACE__.SharedService.IHandler<Context>;
+export class Processor<Context extends object = {}> extends __ROOT_NAMESPACE__.SharedService.Processor<Context> {
     protected readonly handler: IHandler<Context>;
     protected readonly transport: thrift.ITransportConstructor;
     protected readonly protocol: thrift.IProtocolConstructor;
@@ -3472,7 +3472,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
         this.transport = transport;
         this.protocol = protocol;
     }
-    public process(data: Buffer, context: Context): Promise<Buffer> {
+    public process(data: Buffer, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<Buffer>((resolve, reject): void => {
             const metadata = this.readRequest(data);
             switch (metadata.methodName) {
@@ -3830,7 +3830,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
         output.writeMessageEnd();
         return output.flush();
     }
-    protected process_ping(args: IPing__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_ping(args: IPing__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<void>((resolve, reject): void => {
             try {
                 resolve(this.handler.ping(context));
@@ -3844,7 +3844,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return this.writeError("ping", requestId, err);
         });
     }
-    protected process_add(args: IAdd__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_add(args: IAdd__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<number>((resolve, reject): void => {
             try {
                 resolve(this.handler.add(args.num1, args.num2, context));
@@ -3868,7 +3868,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             }
         });
     }
-    protected process_addInt64(args: IAddInt64__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_addInt64(args: IAddInt64__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<number | string | thrift.Int64>((resolve, reject): void => {
             try {
                 resolve(this.handler.addInt64(args.num1, args.num2, context));
@@ -3892,7 +3892,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             }
         });
     }
-    protected process_addWithContext(args: IAddWithContext__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_addWithContext(args: IAddWithContext__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<number>((resolve, reject): void => {
             try {
                 resolve(this.handler.addWithContext(args.num1, args.num2, context));
@@ -3906,7 +3906,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return this.writeError("addWithContext", requestId, err);
         });
     }
-    protected process_calculate(args: ICalculate__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_calculate(args: ICalculate__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<number>((resolve, reject): void => {
             try {
                 resolve(this.handler.calculate(args.logid, args.work, context));
@@ -3930,7 +3930,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             }
         });
     }
-    protected process_echoBinary(args: IEchoBinary__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_echoBinary(args: IEchoBinary__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<string>((resolve, reject): void => {
             try {
                 resolve(this.handler.echoBinary(args.word, context));
@@ -3944,7 +3944,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return this.writeError("echoBinary", requestId, err);
         });
     }
-    protected process_echoString(args: IEchoString__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_echoString(args: IEchoString__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<string>((resolve, reject): void => {
             try {
                 resolve(this.handler.echoString(args.word, context));
@@ -3958,7 +3958,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return this.writeError("echoString", requestId, err);
         });
     }
-    protected process_checkName(args: ICheckName__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_checkName(args: ICheckName__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<string>((resolve, reject): void => {
             try {
                 resolve(this.handler.checkName(args.choice, context));
@@ -3972,7 +3972,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return this.writeError("checkName", requestId, err);
         });
     }
-    protected process_checkOptional(args: ICheckOptional__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_checkOptional(args: ICheckOptional__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<string>((resolve, reject): void => {
             try {
                 resolve(this.handler.checkOptional(args.type, context));
@@ -3986,7 +3986,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return this.writeError("checkOptional", requestId, err);
         });
     }
-    protected process_mapOneList(args: IMapOneList__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_mapOneList(args: IMapOneList__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<Array<number>>((resolve, reject): void => {
             try {
                 resolve(this.handler.mapOneList(args.arg, context));
@@ -4000,7 +4000,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return this.writeError("mapOneList", requestId, err);
         });
     }
-    protected process_mapValues(args: IMapValues__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_mapValues(args: IMapValues__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<Array<number>>((resolve, reject): void => {
             try {
                 resolve(this.handler.mapValues(args.arg, context));
@@ -4014,7 +4014,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return this.writeError("mapValues", requestId, err);
         });
     }
-    protected process_listToMap(args: IListToMap__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_listToMap(args: IListToMap__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<Map<string, string>>((resolve, reject): void => {
             try {
                 resolve(this.handler.listToMap(args.arg, context));
@@ -4028,7 +4028,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return this.writeError("listToMap", requestId, err);
         });
     }
-    protected process_fetchThing(args: IFetchThing__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_fetchThing(args: IFetchThing__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<com_test_common.ICommonStructArgs>((resolve, reject): void => {
             try {
                 resolve(this.handler.fetchThing(context));
@@ -4042,7 +4042,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return this.writeError("fetchThing", requestId, err);
         });
     }
-    protected process_fetchMap(args: IFetchMap__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_fetchMap(args: IFetchMap__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<TypedMap.TypedMap>((resolve, reject): void => {
             try {
                 resolve(this.handler.fetchMap(context));
@@ -4056,7 +4056,7 @@ export class Processor<Context extends thrift.IThriftContext = thrift.IThriftCon
             return this.writeError("fetchMap", requestId, err);
         });
     }
-    protected process_zip(args: IZip__Args, requestId: number, context: Context): Promise<Buffer> {
+    protected process_zip(args: IZip__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<void>((resolve, reject): void => {
             try {
                 resolve(this.handler.zip(context));

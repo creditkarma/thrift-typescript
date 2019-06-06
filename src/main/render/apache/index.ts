@@ -18,7 +18,6 @@ import { renderInterface } from './interface'
 import {
     renderArgsStruct,
     renderClient,
-    renderHandlerInterface,
     renderProcessor,
     renderResultStruct,
 } from './service'
@@ -29,6 +28,9 @@ import {
     statementsUseInt64,
     statementsUseThrift,
 } from '../shared/includes'
+
+import { renderHandlerInterface } from '../shared/service'
+
 import { renderConst as _renderConst } from './const'
 import { renderEnum as _renderEnum } from './enum'
 import { renderInt64Import } from './includes'
@@ -112,7 +114,7 @@ export function renderService(
         ...renderArgsStruct(statement, state),
         ...renderResultStruct(statement, state),
         renderClient(statement, state),
-        ...renderHandlerInterface(statement, state),
+        ...renderHandlerInterface(statement, typeNodeForFieldType, state),
         renderProcessor(statement, state),
     ]
 }

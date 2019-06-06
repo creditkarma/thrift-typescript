@@ -1,6 +1,7 @@
 import * as ts from 'typescript'
 
 export const COMMON_IDENTIFIERS = {
+    object: ts.createIdentifier('object'),
     metadata: ts.createIdentifier('metadata'),
     methodName: ts.createIdentifier('methodName'),
     readRequest: ts.createIdentifier('readRequest'),

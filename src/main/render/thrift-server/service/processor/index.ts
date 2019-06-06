@@ -221,13 +221,10 @@ export function renderProcessor(
             ts.createTypeParameterDeclaration(
                 COMMON_IDENTIFIERS.Context,
                 ts.createTypeReferenceNode(
-                    THRIFT_IDENTIFIERS.IThriftContext,
+                    COMMON_IDENTIFIERS.object,
                     undefined,
                 ),
-                ts.createTypeReferenceNode(
-                    THRIFT_IDENTIFIERS.IThriftContext,
-                    undefined,
-                ),
+                ts.createTypeLiteralNode([]),
             ),
         ], // type parameters
         heritage, // heritage
