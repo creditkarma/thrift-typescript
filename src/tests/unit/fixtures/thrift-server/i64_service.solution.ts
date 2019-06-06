@@ -519,8 +519,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
     }
 }
 export interface IHandler<Context extends object = {}> {
-    peg(name: string, context?: thrift.ThriftContext<Context>): string | Promise<string>;
-    pong(code?: ICode, context?: thrift.ThriftContext<Context>): (number | string | thrift.Int64) | Promise<number | string | thrift.Int64>;
+    peg(name: string, context: thrift.ThriftContext<Context>): string | Promise<string>;
+    pong(code: ICode | undefined, context: thrift.ThriftContext<Context>): (number | string | thrift.Int64) | Promise<number | string | thrift.Int64>;
 }
 export class Processor<Context extends object = {}> implements thrift.IThriftProcessor<Context> {
     protected readonly handler: IHandler<Context>;

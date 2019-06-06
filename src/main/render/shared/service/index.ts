@@ -9,7 +9,12 @@ import {
 
 import { COMMON_IDENTIFIERS } from '../identifiers'
 
-import { createAnyType, createPromiseType, TypeMapping } from '../types'
+import {
+    createAnyType,
+    createPromiseType,
+    createUndefinedType,
+    TypeMapping,
+} from '../types'
 
 import { Resolver } from '../../../resolver'
 import {
@@ -21,40 +26,77 @@ import {
 } from '../../../types'
 import { createFunctionParameter } from '../utils'
 
+function funcReturnType(
+    field: FieldDefinition,
+    typeMapping: TypeMapping,
+    state: IRenderState,
+    requireContext: boolean,
+): ts.TypeNode {
+    if (field.requiredness === 'optional' && requireContext) {
+        return ts.createUnionTypeNode([
+            typeMapping(field.fieldType, state),
+            createUndefinedType(),
+        ])
+    } else {
+        return typeMapping(field.fieldType, state)
+    }
+}
+
+function contextParameter(
+    contextType: ts.TypeNode,
+    requireContext: boolean,
+): ts.ParameterDeclaration {
+    if (requireContext) {
+        return ts.createParameter(
+            undefined,
+            undefined,
+            undefined,
+            COMMON_IDENTIFIERS.context,
+            undefined,
+            contextType,
+        )
+    } else {
+        return ts.createParameter(
+            undefined,
+            undefined,
+            undefined,
+            COMMON_IDENTIFIERS.context,
+            ts.createToken(ts.SyntaxKind.QuestionToken),
+            contextType,
+        )
+    }
+}
+
 function funcToMethodReducer(
     acc: Array<ts.MethodSignature>,
     func: FunctionDefinition,
     typeMapping: TypeMapping,
-    contextType: ts.TypeNode = defaultContextType(),
     state: IRenderState,
+    contextType: ts.TypeNode = defaultContextType(),
+    requireContext: boolean = false,
 ): Array<ts.MethodSignature> {
     return acc.concat([
         ts.createMethodSignature(
             undefined,
             [
                 ...func.fields.map((field: FieldDefinition) => {
-                    return createFunctionParameter(
-                        field.name.value,
-                        typeMapping(field.fieldType, state),
+                    return ts.createParameter(
                         undefined,
-                        field.requiredness === 'optional',
+                        undefined,
+                        undefined,
+                        ts.createIdentifier(field.name.value),
+                        requireContext
+                            ? undefined
+                            : ts.createToken(ts.SyntaxKind.QuestionToken),
+                        funcReturnType(
+                            field,
+                            typeMapping,
+                            state,
+                            requireContext,
+                        ),
                     )
                 }),
-                createFunctionParameter(
-                    COMMON_IDENTIFIERS.context,
-                    contextType,
-                    // ts.createTypeReferenceNode(
-                    //     THRIFT_IDENTIFIERS.ThriftContext,
-                    //     [
-                    //         ts.createTypeReferenceNode(
-                    //             COMMON_IDENTIFIERS.Context,
-                    //             undefined,
-                    //         ),
-                    //     ]
-                    // ),
-                    undefined,
-                    true,
-                ),
+                contextParameter(contextType, requireContext),
             ],
             ts.createUnionTypeNode([
                 typeMapping(func.returnType, state, true),
@@ -94,6 +136,7 @@ export function renderHandlerInterface(
     state: IRenderState,
     contextType: ts.TypeNode = defaultContextType(),
     contextTypeParam: ts.TypeParameterDeclaration = defaultContextTypeParam(),
+    requireContext: boolean = false,
 ): Array<ts.Statement> {
     const signatures: Array<ts.MethodSignature> = service.functions.reduce(
         (acc: Array<ts.MethodSignature>, next: FunctionDefinition) => {
@@ -101,8 +144,9 @@ export function renderHandlerInterface(
                 acc,
                 next,
                 typeMapping,
-                contextType,
                 state,
+                contextType,
+                requireContext,
             )
         },
         [],

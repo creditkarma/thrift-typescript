@@ -3439,21 +3439,21 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
     }
 }
 export interface ILocalHandler<Context extends object = {}> {
-    ping(context?: thrift.ThriftContext<Context>): void | Promise<void>;
-    add(num1: number, num2: number, context?: thrift.ThriftContext<Context>): number | Promise<number>;
-    addInt64(num1: thrift.Int64, num2: thrift.Int64, context?: thrift.ThriftContext<Context>): (number | string | thrift.Int64) | Promise<number | string | thrift.Int64>;
-    addWithContext(num1: number, num2: number, context?: thrift.ThriftContext<Context>): number | Promise<number>;
-    calculate(logid: number, work: Work.IWork, context?: thrift.ThriftContext<Context>): number | Promise<number>;
-    echoBinary(word: Buffer, context?: thrift.ThriftContext<Context>): string | Promise<string>;
-    echoString(word: string, context?: thrift.ThriftContext<Context>): string | Promise<string>;
-    checkName(choice: Choice.IChoice, context?: thrift.ThriftContext<Context>): string | Promise<string>;
-    checkOptional(type?: string, context?: thrift.ThriftContext<Context>): string | Promise<string>;
-    mapOneList(arg: Array<number>, context?: thrift.ThriftContext<Context>): Array<number> | Promise<Array<number>>;
-    mapValues(arg: Map<string, number>, context?: thrift.ThriftContext<Context>): Array<number> | Promise<Array<number>>;
-    listToMap(arg: Array<Array<string>>, context?: thrift.ThriftContext<Context>): Map<string, string> | Promise<Map<string, string>>;
-    fetchThing(context?: thrift.ThriftContext<Context>): com_test_common.ICommonStructArgs | Promise<com_test_common.ICommonStructArgs>;
-    fetchMap(context?: thrift.ThriftContext<Context>): TypedMap.TypedMap | Promise<TypedMap.TypedMap>;
-    zip(context?: thrift.ThriftContext<Context>): void | Promise<void>;
+    ping(context: thrift.ThriftContext<Context>): void | Promise<void>;
+    add(num1: number, num2: number, context: thrift.ThriftContext<Context>): number | Promise<number>;
+    addInt64(num1: thrift.Int64, num2: thrift.Int64, context: thrift.ThriftContext<Context>): (number | string | thrift.Int64) | Promise<number | string | thrift.Int64>;
+    addWithContext(num1: number, num2: number, context: thrift.ThriftContext<Context>): number | Promise<number>;
+    calculate(logid: number, work: Work.IWork, context: thrift.ThriftContext<Context>): number | Promise<number>;
+    echoBinary(word: Buffer, context: thrift.ThriftContext<Context>): string | Promise<string>;
+    echoString(word: string, context: thrift.ThriftContext<Context>): string | Promise<string>;
+    checkName(choice: Choice.IChoice, context: thrift.ThriftContext<Context>): string | Promise<string>;
+    checkOptional(type: string | undefined, context: thrift.ThriftContext<Context>): string | Promise<string>;
+    mapOneList(arg: Array<number>, context: thrift.ThriftContext<Context>): Array<number> | Promise<Array<number>>;
+    mapValues(arg: Map<string, number>, context: thrift.ThriftContext<Context>): Array<number> | Promise<Array<number>>;
+    listToMap(arg: Array<Array<string>>, context: thrift.ThriftContext<Context>): Map<string, string> | Promise<Map<string, string>>;
+    fetchThing(context: thrift.ThriftContext<Context>): com_test_common.ICommonStructArgs | Promise<com_test_common.ICommonStructArgs>;
+    fetchMap(context: thrift.ThriftContext<Context>): TypedMap.TypedMap | Promise<TypedMap.TypedMap>;
+    zip(context: thrift.ThriftContext<Context>): void | Promise<void>;
 }
 export type IHandler<Context extends object = {}> = ILocalHandler<Context> & __ROOT_NAMESPACE__.SharedService.IHandler<Context>;
 export class Processor<Context extends object = {}> extends __ROOT_NAMESPACE__.SharedService.Processor<Context> {

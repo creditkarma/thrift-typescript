@@ -220,7 +220,7 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
     }
 }
 export interface IHandler<Context extends object = {}> {
-    ping(id: thrift.Int64, context?: thrift.ThriftContext<Context>): void | Promise<void>;
+    ping(id: thrift.Int64, context: thrift.ThriftContext<Context>): void | Promise<void>;
 }
 export class Processor<Context extends object = {}> implements thrift.IThriftProcessor<Context> {
     protected readonly handler: IHandler<Context>;

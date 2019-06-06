@@ -414,8 +414,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
     }
 }
 export interface ILocalHandler<Context extends object = {}> {
-    getUnion(index: number, context?: thrift.ThriftContext<Context>): SharedUnion.ISharedUnionArgs | Promise<SharedUnion.ISharedUnionArgs>;
-    getEnum(context?: thrift.ThriftContext<Context>): SharedEnum.SharedEnum | Promise<SharedEnum.SharedEnum>;
+    getUnion(index: number, context: thrift.ThriftContext<Context>): SharedUnion.ISharedUnionArgs | Promise<SharedUnion.ISharedUnionArgs>;
+    getEnum(context: thrift.ThriftContext<Context>): SharedEnum.SharedEnum | Promise<SharedEnum.SharedEnum>;
 }
 export type IHandler<Context extends object = {}> = ILocalHandler<Context> & SharedServiceBase.IHandler<Context>;
 export class Processor<Context extends object = {}> extends SharedServiceBase.Processor<Context> {

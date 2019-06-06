@@ -61,6 +61,7 @@ export function renderService(
                 ),
                 ts.createTypeLiteralNode([]),
             ),
+            true,
         ),
         renderProcessor(service, state),
     ]

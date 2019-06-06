@@ -419,8 +419,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
     }
 }
 export interface IHandler<Context extends object = {}> {
-    getStruct(key: number, context?: thrift.ThriftContext<Context>): __NAMESPACE__.ISharedStructArgs | Promise<__NAMESPACE__.ISharedStructArgs>;
-    getUnion(index: number, context?: thrift.ThriftContext<Context>): __NAMESPACE__.SharedUnionArgs | Promise<__NAMESPACE__.SharedUnionArgs>;
+    getStruct(key: number, context: thrift.ThriftContext<Context>): __NAMESPACE__.ISharedStructArgs | Promise<__NAMESPACE__.ISharedStructArgs>;
+    getUnion(index: number, context: thrift.ThriftContext<Context>): __NAMESPACE__.SharedUnionArgs | Promise<__NAMESPACE__.SharedUnionArgs>;
 }
 export class Processor<Context extends object = {}> implements thrift.IThriftProcessor<Context> {
     protected readonly handler: IHandler<Context>;

@@ -556,7 +556,7 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
     }
 }
 export interface IHandler<Context extends object = {}> {
-    peg(name: string, context?: thrift.ThriftContext<Context>): string | Promise<string>;
+    peg(name: string, context: thrift.ThriftContext<Context>): string | Promise<string>;
 }
 export class Processor<Context extends object = {}> implements thrift.IThriftProcessor<Context> {
     protected readonly handler: IHandler<Context>;

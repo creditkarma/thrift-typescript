@@ -1108,10 +1108,10 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
     }
 }
 export interface IHandler<Context extends object = {}> {
-    getUser(id: number, context?: thrift.ThriftContext<Context>): IUserArgs | Promise<IUserArgs>;
-    saveUser(user: IUser, context?: thrift.ThriftContext<Context>): void | Promise<void>;
-    deleteUser(user: IPerson, context?: thrift.ThriftContext<Context>): void | Promise<void>;
-    ping(context?: thrift.ThriftContext<Context>): void | Promise<void>;
+    getUser(id: number, context: thrift.ThriftContext<Context>): IUserArgs | Promise<IUserArgs>;
+    saveUser(user: IUser, context: thrift.ThriftContext<Context>): void | Promise<void>;
+    deleteUser(user: IPerson, context: thrift.ThriftContext<Context>): void | Promise<void>;
+    ping(context: thrift.ThriftContext<Context>): void | Promise<void>;
 }
 export class Processor<Context extends object = {}> implements thrift.IThriftProcessor<Context> {
     protected readonly handler: IHandler<Context>;

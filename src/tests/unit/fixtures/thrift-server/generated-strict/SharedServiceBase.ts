@@ -236,7 +236,7 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
     }
 }
 export interface IHandler<Context = any> {
-    getStruct(key: number, context?: Context): SharedStruct.ISharedStructArgs | Promise<SharedStruct.ISharedStructArgs>;
+    getStruct(key: number, context: Context): SharedStruct.ISharedStructArgs | Promise<SharedStruct.ISharedStructArgs>;
 }
 export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IHandler<Context>> {
     protected readonly _handler: IHandler<Context>;
