@@ -62,9 +62,7 @@ describe('Thrift TypeScript', () => {
                 CALC_SERVER_CONFIG.port,
                 () => {
                     console.log(
-                        `Thrift server listening at http://${
-                            CALC_SERVER_CONFIG.hostName
-                        }:${CALC_SERVER_CONFIG.port}`,
+                        `Thrift server listening at http://${CALC_SERVER_CONFIG.hostName}:${CALC_SERVER_CONFIG.port}`,
                     )
                     done()
                 },

@@ -41,7 +41,7 @@ export function coerceType(
                         ts.SyntaxKind.EqualsEqualsEqualsToken,
                         ts.createLiteral('number'),
                     ),
-                    ts.createNew(COMMON_IDENTIFIERS.Int64, undefined, [
+                    ts.createCall(COMMON_IDENTIFIERS.BigInt, undefined, [
                         valueName,
                     ]),
                     ts.createConditional(
@@ -50,14 +50,9 @@ export function coerceType(
                             ts.SyntaxKind.EqualsEqualsEqualsToken,
                             ts.createLiteral('string'),
                         ),
-                        ts.createCall(
-                            ts.createPropertyAccess(
-                                COMMON_IDENTIFIERS.Int64,
-                                ts.createIdentifier('fromDecimalString'),
-                            ),
-                            undefined,
-                            [valueName],
-                        ),
+                        ts.createCall(COMMON_IDENTIFIERS.BigInt, undefined, [
+                            valueName,
+                        ]),
                         valueName,
                     ),
                 ),

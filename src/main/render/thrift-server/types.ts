@@ -13,6 +13,7 @@ import {
 
 import {
     createArrayType,
+    createBigIntType,
     createBooleanType,
     createBufferType,
     createNumberType,
@@ -133,9 +134,7 @@ function thriftTypeForIdentifier(
     switch (definition.type) {
         case SyntaxType.ConstDefinition:
             throw new TypeError(
-                `Identifier ${
-                    definition.name.value
-                } is a value being used as a type`,
+                `Identifier ${definition.name.value} is a value being used as a type`,
             )
 
         case SyntaxType.ServiceDefinition:
@@ -329,16 +328,10 @@ export function typeNodeForFieldType(
                 return ts.createUnionTypeNode([
                     createNumberType(),
                     createStringType(),
-                    ts.createTypeReferenceNode(
-                        COMMON_IDENTIFIERS.Int64,
-                        undefined,
-                    ),
+                    createBigIntType(),
                 ])
             } else {
-                return ts.createTypeReferenceNode(
-                    COMMON_IDENTIFIERS.Int64,
-                    undefined,
-                )
+                return createBigIntType()
             }
 
         case SyntaxType.BinaryKeyword:

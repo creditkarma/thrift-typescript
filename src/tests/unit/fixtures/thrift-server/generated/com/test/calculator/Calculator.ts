@@ -501,23 +501,23 @@ export class Add__Args implements thrift.IStructLike, IAdd__Args {
 }
 export interface IAddInt64__Args {
     __name: "AddInt64__Args";
-    num1: thrift.Int64;
-    num2: thrift.Int64;
+    num1: bigint;
+    num2: bigint;
 }
 export interface IAddInt64__ArgsArgs {
-    num1: number | string | thrift.Int64;
-    num2: number | string | thrift.Int64;
+    num1: number | string | bigint;
+    num2: number | string | bigint;
 }
 export const AddInt64__ArgsCodec: thrift.IStructCodec<IAddInt64__ArgsArgs, IAddInt64__Args> = {
     encode(args: IAddInt64__ArgsArgs, output: thrift.TProtocol): void {
         const obj = {
-            num1: (typeof args.num1 === "number" ? new thrift.Int64(args.num1) : typeof args.num1 === "string" ? thrift.Int64.fromDecimalString(args.num1) : args.num1),
-            num2: (typeof args.num2 === "number" ? new thrift.Int64(args.num2) : typeof args.num2 === "string" ? thrift.Int64.fromDecimalString(args.num2) : args.num2)
+            num1: (typeof args.num1 === "number" ? BigInt(args.num1) : typeof args.num1 === "string" ? BigInt(args.num1) : args.num1),
+            num2: (typeof args.num2 === "number" ? BigInt(args.num2) : typeof args.num2 === "string" ? BigInt(args.num2) : args.num2)
         };
         output.writeStructBegin("AddInt64__Args");
         if (obj.num1 != null) {
             output.writeFieldBegin("num1", thrift.TType.I64, 1);
-            output.writeI64((typeof obj.num1 === "number" ? new thrift.Int64(obj.num1) : typeof obj.num1 === "string" ? thrift.Int64.fromDecimalString(obj.num1) : obj.num1));
+            output.writeI64((typeof obj.num1 === "number" ? BigInt(obj.num1) : typeof obj.num1 === "string" ? BigInt(obj.num1) : obj.num1));
             output.writeFieldEnd();
         }
         else {
@@ -525,7 +525,7 @@ export const AddInt64__ArgsCodec: thrift.IStructCodec<IAddInt64__ArgsArgs, IAddI
         }
         if (obj.num2 != null) {
             output.writeFieldBegin("num2", thrift.TType.I64, 2);
-            output.writeI64((typeof obj.num2 === "number" ? new thrift.Int64(obj.num2) : typeof obj.num2 === "string" ? thrift.Int64.fromDecimalString(obj.num2) : obj.num2));
+            output.writeI64((typeof obj.num2 === "number" ? BigInt(obj.num2) : typeof obj.num2 === "string" ? BigInt(obj.num2) : obj.num2));
             output.writeFieldEnd();
         }
         else {
@@ -548,7 +548,7 @@ export const AddInt64__ArgsCodec: thrift.IStructCodec<IAddInt64__ArgsArgs, IAddI
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.TType.I64) {
-                        const value_5: thrift.Int64 = input.readI64();
+                        const value_5: bigint = input.readI64();
                         _args.num1 = value_5;
                     }
                     else {
@@ -557,7 +557,7 @@ export const AddInt64__ArgsCodec: thrift.IStructCodec<IAddInt64__ArgsArgs, IAddI
                     break;
                 case 2:
                     if (fieldType === thrift.TType.I64) {
-                        const value_6: thrift.Int64 = input.readI64();
+                        const value_6: bigint = input.readI64();
                         _args.num2 = value_6;
                     }
                     else {
@@ -584,19 +584,19 @@ export const AddInt64__ArgsCodec: thrift.IStructCodec<IAddInt64__ArgsArgs, IAddI
     }
 };
 export class AddInt64__Args implements thrift.IStructLike, IAddInt64__Args {
-    public num1: thrift.Int64;
-    public num2: thrift.Int64;
+    public num1: bigint;
+    public num2: bigint;
     public readonly __name = "AddInt64__Args";
     constructor(args: IAddInt64__ArgsArgs) {
         if (args.num1 != null) {
-            const value_7: thrift.Int64 = (typeof args.num1 === "number" ? new thrift.Int64(args.num1) : typeof args.num1 === "string" ? thrift.Int64.fromDecimalString(args.num1) : args.num1);
+            const value_7: bigint = (typeof args.num1 === "number" ? BigInt(args.num1) : typeof args.num1 === "string" ? BigInt(args.num1) : args.num1);
             this.num1 = value_7;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[num1] is unset!");
         }
         if (args.num2 != null) {
-            const value_8: thrift.Int64 = (typeof args.num2 === "number" ? new thrift.Int64(args.num2) : typeof args.num2 === "string" ? thrift.Int64.fromDecimalString(args.num2) : args.num2);
+            const value_8: bigint = (typeof args.num2 === "number" ? BigInt(args.num2) : typeof args.num2 === "string" ? BigInt(args.num2) : args.num2);
             this.num2 = value_8;
         }
         else {
@@ -1796,23 +1796,23 @@ export class Add__Result implements thrift.IStructLike, IAdd__Result {
 }
 export interface IAddInt64__Result {
     __name: "AddInt64__Result";
-    success?: thrift.Int64;
+    success?: bigint;
     exp?: NotAGoodIdea.INotAGoodIdea;
 }
 export interface IAddInt64__ResultArgs {
-    success?: number | string | thrift.Int64;
+    success?: number | string | bigint;
     exp?: NotAGoodIdea.INotAGoodIdeaArgs;
 }
 export const AddInt64__ResultCodec: thrift.IStructCodec<IAddInt64__ResultArgs, IAddInt64__Result> = {
     encode(args: IAddInt64__ResultArgs, output: thrift.TProtocol): void {
         const obj = {
-            success: (typeof args.success === "number" ? new thrift.Int64(args.success) : typeof args.success === "string" ? thrift.Int64.fromDecimalString(args.success) : args.success),
+            success: (typeof args.success === "number" ? BigInt(args.success) : typeof args.success === "string" ? BigInt(args.success) : args.success),
             exp: args.exp
         };
         output.writeStructBegin("AddInt64__Result");
         if (obj.success != null) {
             output.writeFieldBegin("success", thrift.TType.I64, 0);
-            output.writeI64((typeof obj.success === "number" ? new thrift.Int64(obj.success) : typeof obj.success === "string" ? thrift.Int64.fromDecimalString(obj.success) : obj.success));
+            output.writeI64((typeof obj.success === "number" ? BigInt(obj.success) : typeof obj.success === "string" ? BigInt(obj.success) : obj.success));
             output.writeFieldEnd();
         }
         if (obj.exp != null) {
@@ -1837,7 +1837,7 @@ export const AddInt64__ResultCodec: thrift.IStructCodec<IAddInt64__ResultArgs, I
             switch (fieldId) {
                 case 0:
                     if (fieldType === thrift.TType.I64) {
-                        const value_52: thrift.Int64 = input.readI64();
+                        const value_52: bigint = input.readI64();
                         _args.success = value_52;
                     }
                     else {
@@ -1868,12 +1868,12 @@ export const AddInt64__ResultCodec: thrift.IStructCodec<IAddInt64__ResultArgs, I
     }
 };
 export class AddInt64__Result implements thrift.IStructLike, IAddInt64__Result {
-    public success?: thrift.Int64;
+    public success?: bigint;
     public exp?: NotAGoodIdea.INotAGoodIdea;
     public readonly __name = "AddInt64__Result";
     constructor(args: IAddInt64__ResultArgs = {}) {
         if (args.success != null) {
-            const value_54: thrift.Int64 = (typeof args.success === "number" ? new thrift.Int64(args.success) : typeof args.success === "string" ? thrift.Int64.fromDecimalString(args.success) : args.success);
+            const value_54: bigint = (typeof args.success === "number" ? BigInt(args.success) : typeof args.success === "string" ? BigInt(args.success) : args.success);
             this.success = value_54;
         }
         if (args.exp != null) {
@@ -2942,7 +2942,7 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
             }
         });
     }
-    public addInt64(num1: number | string | thrift.Int64, num2: number | string | thrift.Int64, context?: Context): Promise<thrift.Int64> {
+    public addInt64(num1: number | string | bigint, num2: number | string | bigint, context?: Context): Promise<bigint> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
         output.writeMessageBegin("addInt64", thrift.MessageType.CALL, this.incrementRequestId());
@@ -3441,7 +3441,7 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
 export interface ILocalHandler<Context extends object = {}> {
     ping(context: thrift.ThriftContext<Context>): void | Promise<void>;
     add(num1: number, num2: number, context: thrift.ThriftContext<Context>): number | Promise<number>;
-    addInt64(num1: thrift.Int64, num2: thrift.Int64, context: thrift.ThriftContext<Context>): (number | string | thrift.Int64) | Promise<number | string | thrift.Int64>;
+    addInt64(num1: bigint, num2: bigint, context: thrift.ThriftContext<Context>): (number | string | bigint) | Promise<number | string | bigint>;
     addWithContext(num1: number, num2: number, context: thrift.ThriftContext<Context>): number | Promise<number>;
     calculate(logid: number, work: Work.IWork, context: thrift.ThriftContext<Context>): number | Promise<number>;
     echoBinary(word: Buffer, context: thrift.ThriftContext<Context>): string | Promise<string>;
@@ -3869,14 +3869,14 @@ export class Processor<Context extends object = {}> extends __ROOT_NAMESPACE__.S
         });
     }
     protected process_addInt64(args: IAddInt64__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
-        return new Promise<number | string | thrift.Int64>((resolve, reject): void => {
+        return new Promise<number | string | bigint>((resolve, reject): void => {
             try {
                 resolve(this.handler.addInt64(args.num1, args.num2, context));
             }
             catch (err) {
                 reject(err);
             }
-        }).then((data: number | string | thrift.Int64): Buffer => {
+        }).then((data: number | string | bigint): Buffer => {
             return this.writeResponse("addInt64", data, requestId);
         }).catch((err: Error): Buffer => {
             if (err instanceof NotAGoodIdea.NotAGoodIdea) {

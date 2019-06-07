@@ -80,22 +80,17 @@ export function renderIntConstant(
     switch (node.value.type) {
         case SyntaxType.IntegerLiteral:
             if (fieldType && fieldType.type === SyntaxType.I64Keyword) {
-                return ts.createCall(
-                    ts.createPropertyAccess(
-                        COMMON_IDENTIFIERS.Int64,
-                        ts.createIdentifier('fromDecimalString'),
-                    ),
-                    undefined,
-                    [ts.createLiteral(node.value.value)],
-                )
+                return ts.createCall(COMMON_IDENTIFIERS.BigInt, undefined, [
+                    ts.createLiteral(node.value.value),
+                ])
             } else {
                 return ts.createLiteral(parseInt(node.value.value, 10))
             }
 
         case SyntaxType.HexLiteral:
-            // The Int64 constructor accepts hex literals as strings
+            // The BigInt constructor accepts hex literals as strings
             if (fieldType && fieldType.type === SyntaxType.I64Keyword) {
-                return ts.createNew(COMMON_IDENTIFIERS.Int64, undefined, [
+                return ts.createCall(COMMON_IDENTIFIERS.BigInt, undefined, [
                     ts.createLiteral(node.value.value),
                 ])
             } else {

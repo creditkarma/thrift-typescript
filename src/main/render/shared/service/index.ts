@@ -241,9 +241,7 @@ export function serviceInheritanceChain(
                 ]
             } else {
                 throw new Error(
-                    `Services can only extends other services but found[${
-                        parentService.type
-                    }]`,
+                    `Services can only extends other services but found[${parentService.type}]`,
                 )
             }
         } else {
@@ -272,9 +270,7 @@ export function serviceInheritanceChain(
                         ]
                     } else {
                         throw new Error(
-                            `Services can only extends other services but found[${
-                                parentService.type
-                            }]`,
+                            `Services can only extends other services but found[${parentService.type}]`,
                         )
                     }
                 }

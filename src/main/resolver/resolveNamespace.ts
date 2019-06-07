@@ -350,9 +350,7 @@ export function resolveNamespace(
                 }
             } else if (fieldID.value < 0) {
                 throw new ValidationError(
-                    `Field IDs should be positive integers, found ${
-                        fieldID.value
-                    }`,
+                    `Field IDs should be positive integers, found ${fieldID.value}`,
                     fieldID.loc,
                 )
             } else if (usedFieldIDs.indexOf(fieldID.value) > -1) {

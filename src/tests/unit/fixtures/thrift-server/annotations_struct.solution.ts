@@ -1,17 +1,17 @@
 export interface IMyStruct {
     __name: "MyStruct";
     id: number;
-    bigID: thrift.Int64;
+    bigID: bigint;
 }
 export interface IMyStructArgs {
     id?: number;
-    bigID?: number | string | thrift.Int64;
+    bigID?: number | string | bigint;
 }
 export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
     encode(args: IMyStructArgs, output: thrift.TProtocol): void {
         const obj = {
             id: (args.id != null ? args.id : 45),
-            bigID: (args.bigID != null ? (typeof args.bigID === "number" ? new thrift.Int64(args.bigID) : typeof args.bigID === "string" ? thrift.Int64.fromDecimalString(args.bigID) : args.bigID) : thrift.Int64.fromDecimalString("23948234"))
+            bigID: (args.bigID != null ? (typeof args.bigID === "number" ? BigInt(args.bigID) : typeof args.bigID === "string" ? BigInt(args.bigID) : args.bigID) : BigInt("23948234"))
         };
         output.writeStructBegin("MyStruct");
         if (obj.id != null) {
@@ -21,7 +21,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
         }
         if (obj.bigID != null) {
             output.writeFieldBegin("bigID", thrift.TType.I64, 2);
-            output.writeI64((typeof obj.bigID === "number" ? new thrift.Int64(obj.bigID) : typeof obj.bigID === "string" ? thrift.Int64.fromDecimalString(obj.bigID) : obj.bigID));
+            output.writeI64((typeof obj.bigID === "number" ? BigInt(obj.bigID) : typeof obj.bigID === "string" ? BigInt(obj.bigID) : obj.bigID));
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -50,7 +50,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
                     break;
                 case 2:
                     if (fieldType === thrift.TType.I64) {
-                        const value_2: thrift.Int64 = input.readI64();
+                        const value_2: bigint = input.readI64();
                         _args.bigID = value_2;
                     }
                     else {
@@ -68,7 +68,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
             return {
                 __name: "MyStruct",
                 id: (_args.id != null ? _args.id : 45),
-                bigID: (_args.bigID != null ? _args.bigID : thrift.Int64.fromDecimalString("23948234"))
+                bigID: (_args.bigID != null ? _args.bigID : BigInt("23948234"))
             };
         }
         else {
@@ -78,7 +78,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
 };
 export class MyStruct implements thrift.IStructLike, IMyStruct {
     public id: number = 45;
-    public bigID: thrift.Int64 = thrift.Int64.fromDecimalString("23948234");
+    public bigID: bigint = BigInt("23948234");
     public readonly __name = "MyStruct";
     constructor(args: IMyStructArgs) {
         if (args.id != null) {
@@ -86,7 +86,7 @@ export class MyStruct implements thrift.IStructLike, IMyStruct {
             this.id = value_3;
         }
         if (args.bigID != null) {
-            const value_4: thrift.Int64 = (typeof args.bigID === "number" ? new thrift.Int64(args.bigID) : typeof args.bigID === "string" ? thrift.Int64.fromDecimalString(args.bigID) : args.bigID);
+            const value_4: bigint = (typeof args.bigID === "number" ? BigInt(args.bigID) : typeof args.bigID === "string" ? BigInt(args.bigID) : args.bigID);
             this.bigID = value_4;
         }
     }
