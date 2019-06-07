@@ -110,9 +110,7 @@ function thriftTypeForIdentifier(
     switch (definition.type) {
         case SyntaxType.ConstDefinition:
             throw new TypeError(
-                `Identifier ${
-                    definition.name.value
-                } is a value being used as a type`,
+                `Identifier ${definition.name.value} is a value being used as a type`,
             )
 
         case SyntaxType.ServiceDefinition:

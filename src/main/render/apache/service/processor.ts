@@ -370,11 +370,7 @@ function createProcessFunctionMethod(
                                                                 next: FieldDefinition,
                                                             ) => {
                                                                 return ts.createIdentifier(
-                                                                    `args.${
-                                                                        next
-                                                                            .name
-                                                                            .value
-                                                                    }`,
+                                                                    `args.${next.name.value}`,
                                                                 )
                                                             },
                                                         ),

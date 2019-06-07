@@ -31,16 +31,12 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                         break
                     } else {
                         throw new Error(
-                            `Provided root directory "${
-                                options.rootDir
-                            }" isn't a directory`,
+                            `Provided root directory "${options.rootDir}" isn't a directory`,
                         )
                     }
                 } catch (e) {
                     throw new Error(
-                        `Provided root directory "${
-                            options.rootDir
-                        }" doesn't exist`,
+                        `Provided root directory "${options.rootDir}" doesn't exist`,
                     )
                 }
 

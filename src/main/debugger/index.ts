@@ -76,41 +76,33 @@ function printErrorForFile<T extends IErrorFile>(file: T): void {
     }
 
     console.log(
-        `Error generating file '${file.sourceFile.path}/${
-            file.sourceFile.name
-        }.thrift': ${file.errors.length} errors found:`,
+        `Error generating file '${file.sourceFile.path}/${file.sourceFile.name}.thrift': ${file.errors.length} errors found:`,
     )
-    formattedErrors.forEach(
-        (err: IFormattedError): void => {
-            const prefix: string = `${err.line} | `
+    formattedErrors.forEach((err: IFormattedError): void => {
+        const prefix: string = `${err.line} | `
 
-            console.log()
-            console.log(`${errorType(err.type)}\n`)
-            console.log(`Message: ${err.message}`)
-            console.log()
-            console.log(`${prefix}${err.sourceLine}`)
-            console.log(padStart(prefix.length, err.locIndicator))
-            console.log()
-        },
-    )
+        console.log()
+        console.log(`${errorType(err.type)}\n`)
+        console.log(`Message: ${err.message}`)
+        console.log()
+        console.log(`${prefix}${err.sourceLine}`)
+        console.log(padStart(prefix.length, err.locIndicator))
+        console.log()
+    })
 }
 
 export function printErrorsForFiles<T extends IErrorFile>(
     files: Array<T>,
 ): void {
-    files.forEach(
-        (next: T): void => {
-            printErrorForFile(next)
-        },
-    )
+    files.forEach((next: T): void => {
+        printErrorForFile(next)
+    })
 }
 
 export function printErrors(files: Array<INamespace>): void {
     files.forEach((next: INamespace) => {
         console.log(
-            `Errors encountered while generating namesapce: ${
-                next.namespace.name
-            }`,
+            `Errors encountered while generating namesapce: ${next.namespace.name}`,
         )
         console.log()
         next.errors.forEach((err: IThriftError) => {

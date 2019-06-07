@@ -56,9 +56,7 @@ export function resolveIdentifierDefinition(
             })
         } else {
             throw new ValidationError(
-                `Unable to resolve identifier[${id.value}] in namespace[${
-                    context.currentNamespace.namespace.path
-                }]`,
+                `Unable to resolve identifier[${id.value}] in namespace[${context.currentNamespace.namespace.path}]`,
                 id.loc,
             )
         }

@@ -89,9 +89,7 @@ function objectLiteralForServiceFunctions(
 
         default:
             throw new TypeError(
-                `A service can only extend another service. Found: ${
-                    node.type
-                }`,
+                `A service can only extend another service. Found: ${node.type}`,
             )
     }
 }
@@ -331,11 +329,7 @@ function createProcessFunctionMethod(
                                                                     next: FieldDefinition,
                                                                 ) => {
                                                                     return ts.createIdentifier(
-                                                                        `args.${
-                                                                            next
-                                                                                .name
-                                                                                .value
-                                                                        }`,
+                                                                        `args.${next.name.value}`,
                                                                     )
                                                                 },
                                                             ),

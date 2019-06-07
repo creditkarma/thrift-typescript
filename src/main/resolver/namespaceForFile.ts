@@ -36,11 +36,9 @@ function collectNamespaces(
     fileBody: Array<ThriftStatement>,
 ): INamespacePathMap {
     return fileBody
-        .filter(
-            (next: ThriftStatement): next is NamespaceDefinition => {
-                return next.type === SyntaxType.NamespaceDefinition
-            },
-        )
+        .filter((next: ThriftStatement): next is NamespaceDefinition => {
+            return next.type === SyntaxType.NamespaceDefinition
+        })
         .reduce((acc: INamespacePathMap, def: NamespaceDefinition) => {
             const includeAccessor: string = resolveNamespaceAccessor(
                 def.name.value,
