@@ -1,22 +1,22 @@
 export interface ICode {
     __name: "Code";
-    status?: thrift.Int64;
+    status?: bigint;
     data?: Buffer;
 }
 export interface ICodeArgs {
-    status?: number | string | thrift.Int64;
+    status?: number | string | bigint;
     data?: string | Buffer;
 }
 export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
     encode(args: ICodeArgs, output: thrift.TProtocol): void {
         const obj = {
-            status: (args.status != null ? (typeof args.status === "number" ? new thrift.Int64(args.status) : typeof args.status === "string" ? thrift.Int64.fromDecimalString(args.status) : args.status) : thrift.Int64.fromDecimalString("200")),
+            status: (args.status != null ? (typeof args.status === "number" ? BigInt(args.status) : typeof args.status === "string" ? BigInt(args.status) : args.status) : BigInt("200")),
             data: (args.data != null ? (typeof args.data === "string" ? Buffer.from(args.data) : args.data) : Buffer.from("data"))
         };
         output.writeStructBegin("Code");
         if (obj.status != null) {
             output.writeFieldBegin("status", thrift.TType.I64, 1);
-            output.writeI64((typeof obj.status === "number" ? new thrift.Int64(obj.status) : typeof obj.status === "string" ? thrift.Int64.fromDecimalString(obj.status) : obj.status));
+            output.writeI64((typeof obj.status === "number" ? BigInt(obj.status) : typeof obj.status === "string" ? BigInt(obj.status) : obj.status));
             output.writeFieldEnd();
         }
         if (obj.data != null) {
@@ -41,7 +41,7 @@ export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.TType.I64) {
-                        const value_1: thrift.Int64 = input.readI64();
+                        const value_1: bigint = input.readI64();
                         _args.status = value_1;
                     }
                     else {
@@ -66,18 +66,18 @@ export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
         input.readStructEnd();
         return {
             __name: "Code",
-            status: (_args.status != null ? _args.status : thrift.Int64.fromDecimalString("200")),
+            status: (_args.status != null ? _args.status : BigInt("200")),
             data: (_args.data != null ? _args.data : Buffer.from("data"))
         };
     }
 };
 export class Code implements thrift.IStructLike, ICode {
-    public status?: thrift.Int64 = thrift.Int64.fromDecimalString("200");
+    public status?: bigint = BigInt("200");
     public data?: Buffer = Buffer.from("data");
     public readonly __name = "Code";
     constructor(args: ICodeArgs = {}) {
         if (args.status != null) {
-            const value_3: thrift.Int64 = (typeof args.status === "number" ? new thrift.Int64(args.status) : typeof args.status === "string" ? thrift.Int64.fromDecimalString(args.status) : args.status);
+            const value_3: bigint = (typeof args.status === "number" ? BigInt(args.status) : typeof args.status === "string" ? BigInt(args.status) : args.status);
             this.status = value_3;
         }
         if (args.data != null) {

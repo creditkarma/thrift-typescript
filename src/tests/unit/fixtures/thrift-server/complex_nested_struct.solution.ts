@@ -1,22 +1,22 @@
 export interface IOtherStruct {
     __name: "OtherStruct";
-    id: thrift.Int64;
+    id: bigint;
     name: Buffer;
 }
 export interface IOtherStructArgs {
-    id: number | string | thrift.Int64;
+    id: number | string | bigint;
     name?: string | Buffer;
 }
 export const OtherStructCodec: thrift.IStructCodec<IOtherStructArgs, IOtherStruct> = {
     encode(args: IOtherStructArgs, output: thrift.TProtocol): void {
         const obj = {
-            id: (typeof args.id === "number" ? new thrift.Int64(args.id) : typeof args.id === "string" ? thrift.Int64.fromDecimalString(args.id) : args.id),
+            id: (typeof args.id === "number" ? BigInt(args.id) : typeof args.id === "string" ? BigInt(args.id) : args.id),
             name: (args.name != null ? (typeof args.name === "string" ? Buffer.from(args.name) : args.name) : Buffer.from("John"))
         };
         output.writeStructBegin("OtherStruct");
         if (obj.id != null) {
             output.writeFieldBegin("id", thrift.TType.I64, 1);
-            output.writeI64((typeof obj.id === "number" ? new thrift.Int64(obj.id) : typeof obj.id === "string" ? thrift.Int64.fromDecimalString(obj.id) : obj.id));
+            output.writeI64((typeof obj.id === "number" ? BigInt(obj.id) : typeof obj.id === "string" ? BigInt(obj.id) : obj.id));
             output.writeFieldEnd();
         }
         else {
@@ -44,7 +44,7 @@ export const OtherStructCodec: thrift.IStructCodec<IOtherStructArgs, IOtherStruc
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.TType.I64) {
-                        const value_1: thrift.Int64 = input.readI64();
+                        const value_1: bigint = input.readI64();
                         _args.id = value_1;
                     }
                     else {
@@ -80,12 +80,12 @@ export const OtherStructCodec: thrift.IStructCodec<IOtherStructArgs, IOtherStruc
     }
 };
 export class OtherStruct implements thrift.IStructLike, IOtherStruct {
-    public id: thrift.Int64;
+    public id: bigint;
     public name: Buffer = Buffer.from("John");
     public readonly __name = "OtherStruct";
     constructor(args: IOtherStructArgs) {
         if (args.id != null) {
-            const value_3: thrift.Int64 = (typeof args.id === "number" ? new thrift.Int64(args.id) : typeof args.id === "string" ? thrift.Int64.fromDecimalString(args.id) : args.id);
+            const value_3: bigint = (typeof args.id === "number" ? BigInt(args.id) : typeof args.id === "string" ? BigInt(args.id) : args.id);
             this.id = value_3;
         }
         else {
@@ -198,7 +198,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
             output.writeFieldBegin("intList", thrift.TType.LIST, 5);
             output.writeListBegin(thrift.TType.I64, obj.intList.length);
             obj.intList.forEach((value_10: number | string | thrift.Int64): void => {
-                output.writeI64((typeof value_10 === "number" ? new thrift.Int64(value_10) : typeof value_10 === "string" ? thrift.Int64.fromDecimalString(value_10) : value_10));
+                output.writeI64((typeof value_10 === "number" ? BigInt(value_10) : typeof value_10 === "string" ? BigInt(value_10) : value_10));
             });
             output.writeListEnd();
             output.writeFieldEnd();
@@ -242,8 +242,8 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
             output.writeFieldBegin("i64KeyedMap", thrift.TType.MAP, 8);
             output.writeMapBegin(thrift.TType.I64, thrift.TType.I64, obj.i64KeyedMap.size);
             obj.i64KeyedMap.forEach((value_15: number | string | thrift.Int64, key_3: number | string | thrift.Int64): void => {
-                output.writeI64((typeof key_3 === "number" ? new thrift.Int64(key_3) : typeof key_3 === "string" ? thrift.Int64.fromDecimalString(key_3) : key_3));
-                output.writeI64((typeof value_15 === "number" ? new thrift.Int64(value_15) : typeof value_15 === "string" ? thrift.Int64.fromDecimalString(value_15) : value_15));
+                output.writeI64((typeof key_3 === "number" ? BigInt(key_3) : typeof key_3 === "string" ? BigInt(key_3) : key_3));
+                output.writeI64((typeof value_15 === "number" ? BigInt(value_15) : typeof value_15 === "string" ? BigInt(value_15) : value_15));
             });
             output.writeMapEnd();
             output.writeFieldEnd();
@@ -345,7 +345,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
                         const metadata_6: thrift.IThriftList = input.readListBegin();
                         const size_6: number = metadata_6.size;
                         for (let i_6: number = 0; i_6 < size_6; i_6++) {
-                            const value_26: thrift.Int64 = input.readI64();
+                            const value_26: bigint = input.readI64();
                             value_25.push(value_26);
                         }
                         input.readListEnd();
@@ -407,8 +407,8 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
                         const metadata_11: thrift.IThriftMap = input.readMapBegin();
                         const size_11: number = metadata_11.size;
                         for (let i_11: number = 0; i_11 < size_11; i_11++) {
-                            const key_6: thrift.Int64 = input.readI64();
-                            const value_34: thrift.Int64 = input.readI64();
+                            const key_6: bigint = input.readI64();
+                            const value_34: bigint = input.readI64();
                             value_33.set(key_6, value_34);
                         }
                         input.readMapEnd();
@@ -507,7 +507,7 @@ export class MyStruct implements thrift.IStructLike, IMyStruct {
         if (args.intList != null) {
             const value_39: Array<thrift.Int64> = new Array<thrift.Int64>();
             args.intList.forEach((value_53: number | string | thrift.Int64): void => {
-                const value_54: thrift.Int64 = (typeof value_53 === "number" ? new thrift.Int64(value_53) : typeof value_53 === "string" ? thrift.Int64.fromDecimalString(value_53) : value_53);
+                const value_54: bigint = (typeof value_53 === "number" ? BigInt(value_53) : typeof value_53 === "string" ? BigInt(value_53) : value_53);
                 value_39.push(value_54);
             });
             this.intList = value_39;
@@ -548,8 +548,8 @@ export class MyStruct implements thrift.IStructLike, IMyStruct {
         if (args.i64KeyedMap != null) {
             const value_42: Map<thrift.Int64, thrift.Int64> = new Map<thrift.Int64, thrift.Int64>();
             args.i64KeyedMap.forEach((value_63: number | string | thrift.Int64, key_11: number | string | thrift.Int64): void => {
-                const value_64: thrift.Int64 = (typeof value_63 === "number" ? new thrift.Int64(value_63) : typeof value_63 === "string" ? thrift.Int64.fromDecimalString(value_63) : value_63);
-                const key_12: thrift.Int64 = (typeof key_11 === "number" ? new thrift.Int64(key_11) : typeof key_11 === "string" ? thrift.Int64.fromDecimalString(key_11) : key_11);
+                const value_64: bigint = (typeof value_63 === "number" ? BigInt(value_63) : typeof value_63 === "string" ? BigInt(value_63) : value_63);
+                const key_12: bigint = (typeof key_11 === "number" ? BigInt(key_11) : typeof key_11 === "string" ? BigInt(key_11) : key_11);
                 value_42.set(key_12, value_64);
             });
             this.i64KeyedMap = value_42;

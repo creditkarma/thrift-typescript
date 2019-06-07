@@ -1,17 +1,17 @@
 export interface IUser {
     __name: "User";
     name: string;
-    age?: thrift.Int64;
+    age?: bigint;
 }
 export interface IUserArgs {
     name: string;
-    age?: number | string | thrift.Int64;
+    age?: number | string | bigint;
 }
 export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
     encode(args: IUserArgs, output: thrift.TProtocol): void {
         const obj = {
             name: args.name,
-            age: (args.age != null ? (typeof args.age === "number" ? new thrift.Int64(args.age) : typeof args.age === "string" ? thrift.Int64.fromDecimalString(args.age) : args.age) : thrift.Int64.fromDecimalString("45"))
+            age: (args.age != null ? (typeof args.age === "number" ? BigInt(args.age) : typeof args.age === "string" ? BigInt(args.age) : args.age) : BigInt("45"))
         };
         output.writeStructBegin("User");
         if (obj.name != null) {
@@ -24,7 +24,7 @@ export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
         }
         if (obj.age != null) {
             output.writeFieldBegin("age", thrift.TType.I64, 2);
-            output.writeI64((typeof obj.age === "number" ? new thrift.Int64(obj.age) : typeof obj.age === "string" ? thrift.Int64.fromDecimalString(obj.age) : obj.age));
+            output.writeI64((typeof obj.age === "number" ? BigInt(obj.age) : typeof obj.age === "string" ? BigInt(obj.age) : obj.age));
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -53,7 +53,7 @@ export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
                     break;
                 case 2:
                     if (fieldType === thrift.TType.I64) {
-                        const value_2: thrift.Int64 = input.readI64();
+                        const value_2: bigint = input.readI64();
                         _args.age = value_2;
                     }
                     else {
@@ -71,7 +71,7 @@ export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
             return {
                 __name: "User",
                 name: _args.name,
-                age: (_args.age != null ? _args.age : thrift.Int64.fromDecimalString("45"))
+                age: (_args.age != null ? _args.age : BigInt("45"))
             };
         }
         else {
@@ -81,7 +81,7 @@ export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
 };
 export class User implements thrift.IStructLike, IUser {
     public name: string;
-    public age?: thrift.Int64 = thrift.Int64.fromDecimalString("45");
+    public age?: bigint = BigInt("45");
     public readonly __name = "User";
     constructor(args: IUserArgs) {
         if (args.name != null) {
@@ -92,7 +92,7 @@ export class User implements thrift.IStructLike, IUser {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[name] is unset!");
         }
         if (args.age != null) {
-            const value_4: thrift.Int64 = (typeof args.age === "number" ? new thrift.Int64(args.age) : typeof args.age === "string" ? thrift.Int64.fromDecimalString(args.age) : args.age);
+            const value_4: bigint = (typeof args.age === "number" ? BigInt(args.age) : typeof args.age === "string" ? BigInt(args.age) : args.age);
             this.age = value_4;
         }
     }

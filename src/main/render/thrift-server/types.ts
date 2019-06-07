@@ -13,6 +13,7 @@ import {
 
 import {
     createArrayType,
+    createBigIntType,
     createBooleanType,
     createBufferType,
     createNumberType,
@@ -327,16 +328,10 @@ export function typeNodeForFieldType(
                 return ts.createUnionTypeNode([
                     createNumberType(),
                     createStringType(),
-                    ts.createTypeReferenceNode(
-                        COMMON_IDENTIFIERS.Int64,
-                        undefined,
-                    ),
+                    createBigIntType(),
                 ])
             } else {
-                return ts.createTypeReferenceNode(
-                    COMMON_IDENTIFIERS.Int64,
-                    undefined,
-                )
+                return createBigIntType()
             }
 
         case SyntaxType.BinaryKeyword:

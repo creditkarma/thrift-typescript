@@ -21,20 +21,20 @@ export const metadata: thrift.IServiceMetadata = {
 };
 export interface IPing__Args {
     __name: "Ping__Args";
-    id: thrift.Int64;
+    id: bigint;
 }
 export interface IPing__ArgsArgs {
-    id: number | string | thrift.Int64;
+    id: number | string | bigint;
 }
 export const Ping__ArgsCodec: thrift.IStructCodec<IPing__ArgsArgs, IPing__Args> = {
     encode(args: IPing__ArgsArgs, output: thrift.TProtocol): void {
         const obj = {
-            id: (typeof args.id === "number" ? new thrift.Int64(args.id) : typeof args.id === "string" ? thrift.Int64.fromDecimalString(args.id) : args.id)
+            id: (typeof args.id === "number" ? BigInt(args.id) : typeof args.id === "string" ? BigInt(args.id) : args.id)
         };
         output.writeStructBegin("Ping__Args");
         if (obj.id != null) {
             output.writeFieldBegin("id", thrift.TType.I64, 1);
-            output.writeI64((typeof obj.id === "number" ? new thrift.Int64(obj.id) : typeof obj.id === "string" ? thrift.Int64.fromDecimalString(obj.id) : obj.id));
+            output.writeI64((typeof obj.id === "number" ? BigInt(obj.id) : typeof obj.id === "string" ? BigInt(obj.id) : obj.id));
             output.writeFieldEnd();
         }
         else {
@@ -57,7 +57,7 @@ export const Ping__ArgsCodec: thrift.IStructCodec<IPing__ArgsArgs, IPing__Args> 
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.TType.I64) {
-                        const value_1: thrift.Int64 = input.readI64();
+                        const value_1: bigint = input.readI64();
                         _args.id = value_1;
                     }
                     else {
@@ -83,11 +83,11 @@ export const Ping__ArgsCodec: thrift.IStructCodec<IPing__ArgsArgs, IPing__Args> 
     }
 };
 export class Ping__Args implements thrift.IStructLike, IPing__Args {
-    public id: thrift.Int64;
+    public id: bigint;
     public readonly __name = "Ping__Args";
     constructor(args: IPing__ArgsArgs) {
         if (args.id != null) {
-            const value_2: thrift.Int64 = (typeof args.id === "number" ? new thrift.Int64(args.id) : typeof args.id === "string" ? thrift.Int64.fromDecimalString(args.id) : args.id);
+            const value_2: bigint = (typeof args.id === "number" ? BigInt(args.id) : typeof args.id === "string" ? BigInt(args.id) : args.id);
             this.id = value_2;
         }
         else {

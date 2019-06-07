@@ -30,7 +30,6 @@ export const THRIFT_IDENTIFIERS = {
     TTransport: ts.createIdentifier('thrift.TTransport'),
     IReadResult: ts.createIdentifier('thrift.IReadResult'),
     Thrift_Type: ts.createIdentifier('thrift.TType'),
-    Int64: ts.createIdentifier('thrift.Int64'),
     MessageType: ts.createIdentifier('thrift.MessageType'),
     TApplicationException: ts.createIdentifier('thrift.TApplicationException'),
     TApplicationExceptionCodec: ts.createIdentifier(

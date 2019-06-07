@@ -1,18 +1,18 @@
 export interface IMyUnion {
     __name: "MyUnion";
     field1?: number;
-    field2?: thrift.Int64;
+    field2?: bigint;
 }
 export interface IMyUnionArgs {
     field1?: number;
-    field2?: number | string | thrift.Int64;
+    field2?: number | string | bigint;
 }
 export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
     encode(args: IMyUnionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
         const obj = {
             field1: args.field1,
-            field2: (typeof args.field2 === "number" ? new thrift.Int64(args.field2) : typeof args.field2 === "string" ? thrift.Int64.fromDecimalString(args.field2) : args.field2)
+            field2: (typeof args.field2 === "number" ? BigInt(args.field2) : typeof args.field2 === "string" ? BigInt(args.field2) : args.field2)
         };
         output.writeStructBegin("MyUnion");
         if (obj.field1 != null) {
@@ -24,7 +24,7 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
         if (obj.field2 != null) {
             _fieldsSet++;
             output.writeFieldBegin("field2", thrift.TType.I64, 2);
-            output.writeI64((typeof obj.field2 === "number" ? new thrift.Int64(obj.field2) : typeof obj.field2 === "string" ? thrift.Int64.fromDecimalString(obj.field2) : obj.field2));
+            output.writeI64((typeof obj.field2 === "number" ? BigInt(obj.field2) : typeof obj.field2 === "string" ? BigInt(obj.field2) : obj.field2));
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -62,7 +62,7 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
                 case 2:
                     if (fieldType === thrift.TType.I64) {
                         _fieldsSet++;
-                        const value_2: thrift.Int64 = input.readI64();
+                        const value_2: bigint = input.readI64();
                         _returnValue = { __name: "MyUnion", field2: value_2 };
                     }
                     else {
@@ -92,7 +92,7 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
 };
 export class MyUnion implements thrift.IStructLike, IMyUnion {
     public field1?: number;
-    public field2?: thrift.Int64;
+    public field2?: bigint;
     public readonly __name = "MyUnion";
     constructor(args: IMyUnionArgs = {}) {
         let _fieldsSet: number = 0;
@@ -103,7 +103,7 @@ export class MyUnion implements thrift.IStructLike, IMyUnion {
         }
         if (args.field2 != null) {
             _fieldsSet++;
-            const value_4: thrift.Int64 = (typeof args.field2 === "number" ? new thrift.Int64(args.field2) : typeof args.field2 === "string" ? thrift.Int64.fromDecimalString(args.field2) : args.field2);
+            const value_4: bigint = (typeof args.field2 === "number" ? BigInt(args.field2) : typeof args.field2 === "string" ? BigInt(args.field2) : args.field2);
             this.field2 = value_4;
         }
         if (_fieldsSet > 1) {

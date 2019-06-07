@@ -2,6 +2,8 @@ import * as ts from 'typescript'
 
 export const COMMON_IDENTIFIERS = {
     parent: ts.createIdentifier('parent'),
+    BigInt: ts.createIdentifier('BigInt'),
+    bigint: ts.createIdentifier('bigint'),
     object: ts.createIdentifier('object'),
     metadata: ts.createIdentifier('metadata'),
     methodName: ts.createIdentifier('methodName'),

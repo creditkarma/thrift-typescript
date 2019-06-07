@@ -45,6 +45,10 @@ export function createStringType(): ts.KeywordTypeNode {
     return ts.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)
 }
 
+export function createBigIntType(): ts.KeywordTypeNode {
+    return ts.createKeywordTypeNode(ts.SyntaxKind.BigIntKeyword)
+}
+
 export function createNumberType(): ts.KeywordTypeNode {
     return ts.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword)
 }
