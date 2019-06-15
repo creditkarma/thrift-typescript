@@ -42,6 +42,7 @@ import { looseNameForStruct, throwForField, toolkitName } from './utils'
 export function createTempVariables(
     node: InterfaceWithFields,
     state: IRenderState,
+    withDefault: boolean = true,
 ): Array<ts.VariableStatement> {
     const structFields: Array<FieldDefinition> = node.fields.filter(
         (next: FieldDefinition): boolean => {
@@ -62,9 +63,10 @@ export function createTempVariables(
                             return ts.createPropertyAssignment(
                                 next.name.value,
                                 getInitializerForField(
-                                    'args',
+                                    COMMON_IDENTIFIERS.args,
                                     next,
                                     state,
+                                    withDefault,
                                     true,
                                 ),
                             )

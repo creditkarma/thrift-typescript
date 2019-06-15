@@ -211,9 +211,25 @@ describe('Thrift TypeScript Generator', () => {
                     2: i64 field2
                 }
             `
+            const expected: string = readSolution('basic_union.strict_union')
+            const actual: string = make(content, {
+                target: 'thrift-server',
+                strictUnions: true,
+                withNameField: true,
+            })
+
+            assert.deepEqual(actual, expected)
+        })
+
+        it('should correctly generate a union with default value', () => {
+            const content: string = `
+                union MyUnion {
+                    1: i32 field1 = 32
+                    2: i64 field2
+                }
+            `
             const expected: string = readSolution(
-                'basic_union.strict_union',
-                'thrift-server',
+                'initialized_union.strict_union',
             )
             const actual: string = make(content, {
                 target: 'thrift-server',
@@ -236,10 +252,7 @@ describe('Thrift TypeScript Generator', () => {
                     2: string field2
                 }
             `
-            const expected: string = readSolution(
-                'nested_union.strict_union',
-                'thrift-server',
-            )
+            const expected: string = readSolution('nested_union.strict_union')
             const actual: string = make(content, {
                 target: 'thrift-server',
                 strictUnions: true,
@@ -261,10 +274,7 @@ describe('Thrift TypeScript Generator', () => {
                     void ping()
                 }
             `
-            const expected: string = readSolution(
-                'basic_service.strict_union',
-                'thrift-server',
-            )
+            const expected: string = readSolution('basic_service.strict_union')
             const actual: string = make(content, {
                 target: 'thrift-server',
                 strictUnions: true,
@@ -431,6 +441,21 @@ describe('Thrift TypeScript Generator', () => {
                     }
                 `
             const expected: string = readSolution('basic_union.no_name')
+            const actual: string = make(content, {
+                target: 'thrift-server',
+            })
+
+            assert.deepEqual(actual, expected)
+        })
+
+        it('should correctly generate a union with default value', () => {
+            const content: string = `
+                    union MyUnion {
+                        1: string option1 = "test"
+                        2: i64 option2
+                    }
+                `
+            const expected: string = readSolution('initialized_union')
             const actual: string = make(content, {
                 target: 'thrift-server',
             })

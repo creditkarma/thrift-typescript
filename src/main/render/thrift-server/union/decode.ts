@@ -41,6 +41,7 @@ import {
     createFieldValidation,
     createReturnVariable,
     incrementFieldsSet,
+    throwBlockForFieldValidation,
 } from './utils'
 
 export function createDecodeMethod(
@@ -130,7 +131,7 @@ export function createDecodeMethod(
                 readStructBegin(),
                 whileLoop,
                 readStructEnd(),
-                createFieldValidation(node),
+                createFieldValidation(throwBlockForFieldValidation()),
                 ts.createIf(
                     ts.createBinary(
                         COMMON_IDENTIFIERS._returnValue,

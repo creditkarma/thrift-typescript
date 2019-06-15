@@ -6,6 +6,7 @@ import { createLetStatement, throwProtocolException } from '../utils'
 
 import { IRenderState } from '../../../types'
 import { COMMON_IDENTIFIERS } from '../../shared/identifiers'
+// import { renderValue } from '../initializers'
 import { assignmentForField as _assignmentForField } from '../struct/reader'
 import { strictNameForStruct } from '../struct/utils'
 import { createAnyType, createNumberType } from '../types'
@@ -52,6 +53,20 @@ export function incrementFieldsSet(): ts.ExpressionStatement {
     )
 }
 
+export function fieldWithDefault(
+    node: UnionDefinition,
+): FieldDefinition | null {
+    const len = node.fields.length
+    for (let i = 0; i < len; i++) {
+        const field: FieldDefinition = node.fields[i]
+        if (field.defaultValue !== null) {
+            return field
+        }
+    }
+
+    return null
+}
+
 /**
  * if (fieldsSet > 1) {
  *   throw new Thrift.TProtocolException(TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
@@ -60,7 +75,7 @@ export function incrementFieldsSet(): ts.ExpressionStatement {
  *   throw new Thrift.TProtocolException(TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
  * }
  */
-export function createFieldValidation(node: UnionDefinition): ts.IfStatement {
+export function createFieldValidation(thenBlock: ts.Block): ts.IfStatement {
     return ts.createIf(
         ts.createBinary(
             COMMON_IDENTIFIERS._fieldsSet,
@@ -82,18 +97,44 @@ export function createFieldValidation(node: UnionDefinition): ts.IfStatement {
                 ts.SyntaxKind.LessThanToken,
                 ts.createLiteral(1),
             ),
-            ts.createBlock(
-                [
-                    throwProtocolException(
-                        'INVALID_DATA',
-                        'TUnion must have one value set',
-                    ),
-                ],
-                true,
-            ),
+            thenBlock,
         ),
     )
 }
+
+export function throwBlockForFieldValidation(): ts.Block {
+    return ts.createBlock(
+        [
+            throwProtocolException(
+                'INVALID_DATA',
+                'TUnion must have one value set',
+            ),
+        ],
+        true,
+    )
+}
+
+// function createThenBlock(
+//     node: UnionDefinition,
+//     withDefaults: boolean,
+//     state: IRenderState,
+// ): ts.Block {
+//     const defaultField: FieldDefinition | null = fieldWithDefault(node)
+
+//     if (withDefaults && defaultField !== null) {
+//         return
+//     } else {
+//         return ts.createBlock(
+//             [
+//                 throwProtocolException(
+//                     'INVALID_DATA',
+//                     'TUnion must have one value set',
+//                 ),
+//             ],
+//             true,
+//         )
+//     }
+// }
 
 function returnAssignment(
     valueName: ts.Identifier,
