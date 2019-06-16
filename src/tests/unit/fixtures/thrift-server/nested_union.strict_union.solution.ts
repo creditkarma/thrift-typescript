@@ -109,7 +109,7 @@ export const InnerUnionCodec: thrift.IStructToolkit<InnerUnionArgs, InnerUnion> 
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
                         const value_3: string = input.readString();
-                        _returnValue = { __name: "InnerUnion", name: value_3 };
+                        _returnValue = { name: value_3 };
                     }
                     else {
                         input.skip(fieldType);
@@ -119,7 +119,7 @@ export const InnerUnionCodec: thrift.IStructToolkit<InnerUnionArgs, InnerUnion> 
                     if (fieldType === thrift.TType.I32) {
                         _fieldsSet++;
                         const value_4: number = input.readI32();
-                        _returnValue = { __name: "InnerUnion", id: value_4 };
+                        _returnValue = { id: value_4 };
                     }
                     else {
                         input.skip(fieldType);
@@ -270,7 +270,7 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
                         const value_7: InnerUnion = InnerUnionCodec.decode(input);
-                        _returnValue = { __name: "MyUnion", user: value_7 };
+                        _returnValue = { user: value_7 };
                     }
                     else {
                         input.skip(fieldType);
@@ -280,7 +280,7 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
                         const value_8: string = input.readString();
-                        _returnValue = { __name: "MyUnion", field2: value_8 };
+                        _returnValue = { field2: value_8 };
                     }
                     else {
                         input.skip(fieldType);

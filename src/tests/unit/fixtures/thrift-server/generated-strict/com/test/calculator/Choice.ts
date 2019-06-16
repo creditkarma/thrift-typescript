@@ -117,7 +117,7 @@ export const ChoiceCodec: thrift.IStructToolkit<ChoiceArgs, Choice> = {
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
                         const value_3: FirstName.IFirstName = FirstName.FirstNameCodec.decode(input);
-                        _returnValue = { __name: "Choice", firstName: value_3 };
+                        _returnValue = { firstName: value_3 };
                     }
                     else {
                         input.skip(fieldType);
@@ -127,7 +127,7 @@ export const ChoiceCodec: thrift.IStructToolkit<ChoiceArgs, Choice> = {
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
                         const value_4: LastName.ILastName = LastName.LastNameCodec.decode(input);
-                        _returnValue = { __name: "Choice", lastName: value_4 };
+                        _returnValue = { lastName: value_4 };
                     }
                     else {
                         input.skip(fieldType);

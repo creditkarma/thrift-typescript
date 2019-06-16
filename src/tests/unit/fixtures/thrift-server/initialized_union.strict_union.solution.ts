@@ -112,7 +112,7 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
                     if (fieldType === thrift.TType.I32) {
                         _fieldsSet++;
                         const value_3: number = input.readI32();
-                        _returnValue = { __name: "MyUnion", field1: value_3 };
+                        _returnValue = { field1: value_3 };
                     }
                     else {
                         input.skip(fieldType);
@@ -122,7 +122,7 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
                     if (fieldType === thrift.TType.I64) {
                         _fieldsSet++;
                         const value_4: thrift.Int64 = input.readI64();
-                        _returnValue = { __name: "MyUnion", field2: value_4 };
+                        _returnValue = { field2: value_4 };
                     }
                     else {
                         input.skip(fieldType);

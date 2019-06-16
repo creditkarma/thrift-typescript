@@ -6,35 +6,16 @@ import { createLetStatement, throwProtocolException } from '../utils'
 
 import { IRenderState } from '../../../types'
 import { COMMON_IDENTIFIERS } from '../../shared/identifiers'
-// import { renderValue } from '../initializers'
 import { assignmentForField as _assignmentForField } from '../struct/reader'
-import { strictNameForStruct } from '../struct/utils'
 import { createAnyType, createNumberType } from '../types'
 import { createNotNullCheck } from '../utils'
 
-export function createReturnVariable(
-    node: UnionDefinition,
-    state: IRenderState,
-): ts.VariableStatement {
-    if (state.options.strictUnions) {
-        return createLetStatement(
-            COMMON_IDENTIFIERS._returnValue,
-            createAnyType(),
-            ts.createNull(),
-        )
-    } else {
-        return createLetStatement(
-            COMMON_IDENTIFIERS._returnValue,
-            ts.createUnionTypeNode([
-                ts.createTypeReferenceNode(
-                    ts.createIdentifier(strictNameForStruct(node, state)),
-                    undefined,
-                ),
-                ts.createNull(),
-            ]),
-            ts.createNull(),
-        )
-    }
+export function createReturnVariable(): ts.VariableStatement {
+    return createLetStatement(
+        COMMON_IDENTIFIERS._returnValue,
+        createAnyType(),
+        ts.createNull(),
+    )
 }
 
 // let _fieldsSet: number = 0;
@@ -113,28 +94,6 @@ export function throwBlockForFieldValidation(): ts.Block {
         true,
     )
 }
-
-// function createThenBlock(
-//     node: UnionDefinition,
-//     withDefaults: boolean,
-//     state: IRenderState,
-// ): ts.Block {
-//     const defaultField: FieldDefinition | null = fieldWithDefault(node)
-
-//     if (withDefaults && defaultField !== null) {
-//         return
-//     } else {
-//         return ts.createBlock(
-//             [
-//                 throwProtocolException(
-//                     'INVALID_DATA',
-//                     'TUnion must have one value set',
-//                 ),
-//             ],
-//             true,
-//         )
-//     }
-// }
 
 function returnAssignment(
     valueName: ts.Identifier,

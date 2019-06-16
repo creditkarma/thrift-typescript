@@ -52,10 +52,7 @@ export function createCreateMethod(
         node,
         state,
     )
-    const returnVariable: ts.VariableStatement = createReturnVariable(
-        node,
-        state,
-    )
+    const returnVariable: ts.VariableStatement = createReturnVariable()
 
     const fieldsSet: ts.VariableStatement = createFieldIncrementer()
 
@@ -169,7 +166,7 @@ export function createCaseForField(
             [
                 incrementFieldsSet(),
                 ...readValueForFieldType(field.fieldType, fieldAlias, state),
-                ...endReadForField(node, fieldAlias, field, state),
+                ...endReadForField(fieldAlias, field),
             ],
             true,
         ),

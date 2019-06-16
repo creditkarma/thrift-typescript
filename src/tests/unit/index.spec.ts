@@ -711,6 +711,30 @@ describe('Thrift TypeScript Generator', () => {
 
             assert.deepEqual(actual, expected)
         })
+
+        it('should correctly generate a complex type alias for an identifier', () => {
+            const content: string = `
+                enum MyEnum {
+                    ONE,
+                    TWO
+                }
+
+                typedef i32 MyInt
+
+                typedef MyEnum AnotherName
+
+                const MyInt INT_32 = 32
+
+                const AnotherName WHAT = AnotherName.ONE
+            `
+            const expected: string = readSolution('complex_typedef')
+            const actual: string = make(content, {
+                target: 'thrift-server',
+                withNameField: true,
+            })
+
+            assert.deepEqual(actual, expected)
+        })
     })
 
     describe('Apache', () => {
