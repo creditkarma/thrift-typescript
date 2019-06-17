@@ -2876,8 +2876,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         Ping__ArgsCodec.encode(args, output);
         output.writeMessageEnd();
         return this.connection.send(writer.flush(), context).then((data: Buffer) => {
-            const reader: thrift.TTransport = this.transport.receiver(data);
-            const input: thrift.TProtocol = new this.protocol(reader);
+            const reader: thrift.TTransport = this.Transport.receiver(data);
+            const input: thrift.TProtocol = new this.Protocol(reader);
             try {
                 const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                 if (fieldName === "ping") {
@@ -2909,8 +2909,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         Add__ArgsCodec.encode(args, output);
         output.writeMessageEnd();
         return this.connection.send(writer.flush(), context).then((data: Buffer) => {
-            const reader: thrift.TTransport = this.transport.receiver(data);
-            const input: thrift.TProtocol = new this.protocol(reader);
+            const reader: thrift.TTransport = this.Transport.receiver(data);
+            const input: thrift.TProtocol = new this.Protocol(reader);
             try {
                 const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                 if (fieldName === "add") {
@@ -2950,8 +2950,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         AddInt64__ArgsCodec.encode(args, output);
         output.writeMessageEnd();
         return this.connection.send(writer.flush(), context).then((data: Buffer) => {
-            const reader: thrift.TTransport = this.transport.receiver(data);
-            const input: thrift.TProtocol = new this.protocol(reader);
+            const reader: thrift.TTransport = this.Transport.receiver(data);
+            const input: thrift.TProtocol = new this.Protocol(reader);
             try {
                 const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                 if (fieldName === "addInt64") {
@@ -2991,8 +2991,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         AddWithContext__ArgsCodec.encode(args, output);
         output.writeMessageEnd();
         return this.connection.send(writer.flush(), context).then((data: Buffer) => {
-            const reader: thrift.TTransport = this.transport.receiver(data);
-            const input: thrift.TProtocol = new this.protocol(reader);
+            const reader: thrift.TTransport = this.Transport.receiver(data);
+            const input: thrift.TProtocol = new this.Protocol(reader);
             try {
                 const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                 if (fieldName === "addWithContext") {
@@ -3029,8 +3029,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         Calculate__ArgsCodec.encode(args, output);
         output.writeMessageEnd();
         return this.connection.send(writer.flush(), context).then((data: Buffer) => {
-            const reader: thrift.TTransport = this.transport.receiver(data);
-            const input: thrift.TProtocol = new this.protocol(reader);
+            const reader: thrift.TTransport = this.Transport.receiver(data);
+            const input: thrift.TProtocol = new this.Protocol(reader);
             try {
                 const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                 if (fieldName === "calculate") {
@@ -3070,8 +3070,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         EchoBinary__ArgsCodec.encode(args, output);
         output.writeMessageEnd();
         return this.connection.send(writer.flush(), context).then((data: Buffer) => {
-            const reader: thrift.TTransport = this.transport.receiver(data);
-            const input: thrift.TProtocol = new this.protocol(reader);
+            const reader: thrift.TTransport = this.Transport.receiver(data);
+            const input: thrift.TProtocol = new this.Protocol(reader);
             try {
                 const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                 if (fieldName === "echoBinary") {
@@ -3108,8 +3108,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         EchoString__ArgsCodec.encode(args, output);
         output.writeMessageEnd();
         return this.connection.send(writer.flush(), context).then((data: Buffer) => {
-            const reader: thrift.TTransport = this.transport.receiver(data);
-            const input: thrift.TProtocol = new this.protocol(reader);
+            const reader: thrift.TTransport = this.Transport.receiver(data);
+            const input: thrift.TProtocol = new this.Protocol(reader);
             try {
                 const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                 if (fieldName === "echoString") {
@@ -3146,8 +3146,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         CheckName__ArgsCodec.encode(args, output);
         output.writeMessageEnd();
         return this.connection.send(writer.flush(), context).then((data: Buffer) => {
-            const reader: thrift.TTransport = this.transport.receiver(data);
-            const input: thrift.TProtocol = new this.protocol(reader);
+            const reader: thrift.TTransport = this.Transport.receiver(data);
+            const input: thrift.TProtocol = new this.Protocol(reader);
             try {
                 const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                 if (fieldName === "checkName") {
@@ -3184,8 +3184,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         CheckOptional__ArgsCodec.encode(args, output);
         output.writeMessageEnd();
         return this.connection.send(writer.flush(), context).then((data: Buffer) => {
-            const reader: thrift.TTransport = this.transport.receiver(data);
-            const input: thrift.TProtocol = new this.protocol(reader);
+            const reader: thrift.TTransport = this.Transport.receiver(data);
+            const input: thrift.TProtocol = new this.Protocol(reader);
             try {
                 const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                 if (fieldName === "checkOptional") {
@@ -3222,8 +3222,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         MapOneList__ArgsCodec.encode(args, output);
         output.writeMessageEnd();
         return this.connection.send(writer.flush(), context).then((data: Buffer) => {
-            const reader: thrift.TTransport = this.transport.receiver(data);
-            const input: thrift.TProtocol = new this.protocol(reader);
+            const reader: thrift.TTransport = this.Transport.receiver(data);
+            const input: thrift.TProtocol = new this.Protocol(reader);
             try {
                 const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                 if (fieldName === "mapOneList") {
@@ -3260,8 +3260,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         MapValues__ArgsCodec.encode(args, output);
         output.writeMessageEnd();
         return this.connection.send(writer.flush(), context).then((data: Buffer) => {
-            const reader: thrift.TTransport = this.transport.receiver(data);
-            const input: thrift.TProtocol = new this.protocol(reader);
+            const reader: thrift.TTransport = this.Transport.receiver(data);
+            const input: thrift.TProtocol = new this.Protocol(reader);
             try {
                 const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                 if (fieldName === "mapValues") {
@@ -3298,8 +3298,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         ListToMap__ArgsCodec.encode(args, output);
         output.writeMessageEnd();
         return this.connection.send(writer.flush(), context).then((data: Buffer) => {
-            const reader: thrift.TTransport = this.transport.receiver(data);
-            const input: thrift.TProtocol = new this.protocol(reader);
+            const reader: thrift.TTransport = this.Transport.receiver(data);
+            const input: thrift.TProtocol = new this.Protocol(reader);
             try {
                 const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                 if (fieldName === "listToMap") {
@@ -3336,8 +3336,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         FetchThing__ArgsCodec.encode(args, output);
         output.writeMessageEnd();
         return this.connection.send(writer.flush(), context).then((data: Buffer) => {
-            const reader: thrift.TTransport = this.transport.receiver(data);
-            const input: thrift.TProtocol = new this.protocol(reader);
+            const reader: thrift.TTransport = this.Transport.receiver(data);
+            const input: thrift.TProtocol = new this.Protocol(reader);
             try {
                 const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                 if (fieldName === "fetchThing") {
@@ -3374,8 +3374,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         FetchMap__ArgsCodec.encode(args, output);
         output.writeMessageEnd();
         return this.connection.send(writer.flush(), context).then((data: Buffer) => {
-            const reader: thrift.TTransport = this.transport.receiver(data);
-            const input: thrift.TProtocol = new this.protocol(reader);
+            const reader: thrift.TTransport = this.Transport.receiver(data);
+            const input: thrift.TProtocol = new this.Protocol(reader);
             try {
                 const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                 if (fieldName === "fetchMap") {
@@ -3412,8 +3412,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         Zip__ArgsCodec.encode(args, output);
         output.writeMessageEnd();
         return this.connection.send(writer.flush(), context).then((data: Buffer) => {
-            const reader: thrift.TTransport = this.transport.receiver(data);
-            const input: thrift.TProtocol = new this.protocol(reader);
+            const reader: thrift.TTransport = this.Transport.receiver(data);
+            const input: thrift.TProtocol = new this.Protocol(reader);
             try {
                 const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                 if (fieldName === "zip") {
@@ -3520,23 +3520,23 @@ export type ReadRequestData = {
 export class Processor<Context extends object = {}> implements thrift.IThriftProcessor<Context> {
     protected readonly parent: __ROOT_NAMESPACE__.SharedService.Processor<Context>;
     protected readonly handler: IHandler<Context>;
-    protected readonly transport: thrift.ITransportConstructor;
-    protected readonly protocol: thrift.IProtocolConstructor;
     public static readonly metadata: thrift.IServiceMetadata = metadata;
     public readonly __metadata: thrift.IServiceMetadata = metadata;
-    constructor(handler: IHandler<Context>, transport: thrift.ITransportConstructor = thrift.BufferedTransport, protocol: thrift.IProtocolConstructor = thrift.BinaryProtocol) {
+    public readonly Transport: thrift.ITransportConstructor;
+    public readonly Protocol: thrift.IProtocolConstructor;
+    constructor(handler: IHandler<Context>, Transport: thrift.ITransportConstructor = thrift.BufferedTransport, Protocol: thrift.IProtocolConstructor = thrift.BinaryProtocol) {
         this.parent = new __ROOT_NAMESPACE__.SharedService.Processor<Context>({
             getUnion: handler.getUnion,
             getEnum: handler.getEnum,
             getStruct: handler.getStruct
         }, transport, protocol);
         this.handler = handler;
-        this.transport = transport;
-        this.protocol = protocol;
+        this.Transport = Transport;
+        this.Protocol = Protocol;
     }
     public process(data: Buffer, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<Buffer>((resolve, reject): void => {
-            const metadata = this.readRequest(data);
+            const metadata: ReadRequestData = this.readRequest(data);
             switch (metadata.methodName) {
                 case "ping": {
                     resolve(this.process_ping(metadata.data, metadata.requestId, context));
@@ -3606,8 +3606,8 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
         });
     }
     public readRequest(data: Buffer): ReadRequestData {
-        const transportWithData: thrift.TTransport = this.transport.receiver(data);
-        const input: thrift.TProtocol = new this.protocol(transportWithData);
+        const transportWithData: thrift.TTransport = this.Transport.receiver(data);
+        const input: thrift.TProtocol = new this.Protocol(transportWithData);
         const metadata: thrift.IThriftMessage = input.readMessageBegin();
         const fieldName: string = metadata.fieldName;
         const requestId: number = metadata.requestId;
@@ -3753,7 +3753,7 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
         }
     }
     public writeResponse(methodName: string, data: any, requestId: number): Buffer {
-        const output: thrift.TProtocol = new this.protocol(new this.transport());
+        const output: thrift.TProtocol = new this.Protocol(new this.Transport());
         switch (methodName) {
             case "ping": {
                 const result: IPing__ResultArgs = { success: data };
@@ -3866,7 +3866,7 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
         }
     }
     public writeError(methodName: string, requestId: number, err: Error): Buffer {
-        const output: thrift.TProtocol = new this.protocol(new this.transport());
+        const output: thrift.TProtocol = new this.Protocol(new this.Transport());
         const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
         output.writeMessageBegin(methodName, thrift.MessageType.EXCEPTION, requestId);
         thrift.TApplicationExceptionCodec.encode(result, output);
@@ -3899,7 +3899,7 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
             return this.writeResponse("add", data, requestId);
         }).catch((err: Error): Buffer => {
             if (err instanceof com_test_operation.JankyResult) {
-                const output: thrift.TProtocol = new this.protocol(new this.transport());
+                const output: thrift.TProtocol = new this.Protocol(new this.Transport());
                 const result: IAdd__ResultArgs = { exp: err };
                 output.writeMessageBegin("add", thrift.MessageType.REPLY, requestId);
                 Add__ResultCodec.encode(result, output);
@@ -3923,7 +3923,7 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
             return this.writeResponse("addInt64", data, requestId);
         }).catch((err: Error): Buffer => {
             if (err instanceof NotAGoodIdea.NotAGoodIdea) {
-                const output: thrift.TProtocol = new this.protocol(new this.transport());
+                const output: thrift.TProtocol = new this.Protocol(new this.Transport());
                 const result: IAddInt64__ResultArgs = { exp: err };
                 output.writeMessageBegin("addInt64", thrift.MessageType.REPLY, requestId);
                 AddInt64__ResultCodec.encode(result, output);
@@ -3961,7 +3961,7 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
             return this.writeResponse("calculate", data, requestId);
         }).catch((err: Error): Buffer => {
             if (err instanceof com_test_operation.JankyOperation) {
-                const output: thrift.TProtocol = new this.protocol(new this.transport());
+                const output: thrift.TProtocol = new this.Protocol(new this.Transport());
                 const result: ICalculate__ResultArgs = { ouch: err };
                 output.writeMessageBegin("calculate", thrift.MessageType.REPLY, requestId);
                 Calculate__ResultCodec.encode(result, output);

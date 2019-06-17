@@ -94,7 +94,7 @@ export function renderClient(
 
         fields.push(
             createProtectedProperty(
-                'transport',
+                COMMON_IDENTIFIERS.Transport,
                 ts.createTypeReferenceNode(
                     THRIFT_IDENTIFIERS.ITransportConstructor,
                     undefined,
@@ -104,7 +104,7 @@ export function renderClient(
 
         fields.push(
             createProtectedProperty(
-                'protocol',
+                COMMON_IDENTIFIERS.Protocol,
                 ts.createTypeReferenceNode(
                     THRIFT_IDENTIFIERS.IProtocolConstructor,
                     undefined,
@@ -341,7 +341,7 @@ function createBaseMethodForDefinition(
                     ts.createCall(
                         ts.createPropertyAccess(
                             createConnectionSend(),
-                            ts.createIdentifier('then'),
+                            COMMON_IDENTIFIERS.then,
                         ),
                         undefined,
                         [
@@ -365,8 +365,12 @@ function createBaseMethodForDefinition(
                                                 undefined,
                                             ),
                                             ts.createCall(
-                                                ts.createIdentifier(
-                                                    'this.transport.receiver',
+                                                ts.createPropertyAccess(
+                                                    ts.createPropertyAccess(
+                                                        COMMON_IDENTIFIERS.this,
+                                                        COMMON_IDENTIFIERS.Transport,
+                                                    ),
+                                                    COMMON_IDENTIFIERS.receiver,
                                                 ),
                                                 undefined,
                                                 [COMMON_IDENTIFIERS.data],
@@ -379,8 +383,9 @@ function createBaseMethodForDefinition(
                                                 undefined,
                                             ),
                                             ts.createNew(
-                                                ts.createIdentifier(
-                                                    'this.protocol',
+                                                ts.createPropertyAccess(
+                                                    COMMON_IDENTIFIERS.this,
+                                                    COMMON_IDENTIFIERS.Protocol,
                                                 ),
                                                 undefined,
                                                 [COMMON_IDENTIFIERS.reader],

@@ -71,7 +71,10 @@ export function createProcessMethod(
                     [
                         createConstStatement(
                             COMMON_IDENTIFIERS.metadata,
-                            undefined,
+                            ts.createTypeReferenceNode(
+                                COMMON_IDENTIFIERS.ReadRequestData,
+                                undefined,
+                            ),
                             ts.createCall(
                                 ts.createPropertyAccess(
                                     COMMON_IDENTIFIERS.this,

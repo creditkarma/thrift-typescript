@@ -18,14 +18,14 @@ export function createOutputVariable(): ts.VariableStatement {
         ts.createNew(
             ts.createPropertyAccess(
                 COMMON_IDENTIFIERS.this,
-                COMMON_IDENTIFIERS.protocol,
+                COMMON_IDENTIFIERS.Protocol,
             ),
             undefined,
             [
                 ts.createNew(
                     ts.createPropertyAccess(
                         COMMON_IDENTIFIERS.this,
-                        COMMON_IDENTIFIERS.transport,
+                        COMMON_IDENTIFIERS.Transport,
                     ),
                     undefined,
                     [],

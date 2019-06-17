@@ -69,7 +69,7 @@ export function createReadRequestMethod(
                         ts.createPropertyAccess(
                             ts.createPropertyAccess(
                                 COMMON_IDENTIFIERS.this,
-                                COMMON_IDENTIFIERS.transport,
+                                COMMON_IDENTIFIERS.Transport,
                             ),
                             COMMON_IDENTIFIERS.receiver,
                         ),
@@ -86,7 +86,7 @@ export function createReadRequestMethod(
                     ts.createNew(
                         ts.createPropertyAccess(
                             COMMON_IDENTIFIERS.this,
-                            COMMON_IDENTIFIERS.protocol,
+                            COMMON_IDENTIFIERS.Protocol,
                         ),
                         undefined,
                         [COMMON_IDENTIFIERS.transportWithData],

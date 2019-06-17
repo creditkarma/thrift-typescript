@@ -181,10 +181,10 @@ export function renderProcessor(
     const transport: ts.PropertyDeclaration = ts.createProperty(
         undefined,
         [
-            ts.createToken(ts.SyntaxKind.ProtectedKeyword),
+            ts.createToken(ts.SyntaxKind.PublicKeyword),
             ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
         ],
-        COMMON_IDENTIFIERS.transport,
+        COMMON_IDENTIFIERS.Transport,
         undefined,
         createTransportConstructorType(),
         undefined,
@@ -193,10 +193,10 @@ export function renderProcessor(
     const protocol: ts.PropertyDeclaration = ts.createProperty(
         undefined,
         [
-            ts.createToken(ts.SyntaxKind.ProtectedKeyword),
+            ts.createToken(ts.SyntaxKind.PublicKeyword),
             ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
         ],
-        COMMON_IDENTIFIERS.protocol,
+        COMMON_IDENTIFIERS.Protocol,
         undefined,
         createProtocolConstructorType(),
         undefined,
@@ -256,10 +256,10 @@ export function renderProcessor(
         [
             ...parent,
             handler,
-            transport,
-            protocol,
             staticServiceMetadata,
             serviceMetadata,
+            transport,
+            protocol,
             createCtor(service, state),
             processMethod,
             readRequestMethod,
@@ -282,12 +282,12 @@ function createCtor(
                     HANDLER_TYPE,
                 ),
                 createFunctionParameter(
-                    COMMON_IDENTIFIERS.transport,
+                    COMMON_IDENTIFIERS.Transport,
                     createTransportConstructorType(),
                     THRIFT_IDENTIFIERS.BufferedTransport,
                 ),
                 createFunctionParameter(
-                    COMMON_IDENTIFIERS.protocol,
+                    COMMON_IDENTIFIERS.Protocol,
                     createProtocolConstructorType(),
                     THRIFT_IDENTIFIERS.BinaryProtocol,
                 ),
@@ -304,16 +304,16 @@ function createCtor(
                 createAssignmentStatement(
                     ts.createPropertyAccess(
                         COMMON_IDENTIFIERS.this,
-                        COMMON_IDENTIFIERS.transport,
+                        COMMON_IDENTIFIERS.Transport,
                     ),
-                    COMMON_IDENTIFIERS.transport,
+                    COMMON_IDENTIFIERS.Transport,
                 ),
                 createAssignmentStatement(
                     ts.createPropertyAccess(
                         COMMON_IDENTIFIERS.this,
-                        COMMON_IDENTIFIERS.protocol,
+                        COMMON_IDENTIFIERS.Protocol,
                     ),
-                    COMMON_IDENTIFIERS.protocol,
+                    COMMON_IDENTIFIERS.Protocol,
                 ),
             ],
         )
@@ -325,12 +325,12 @@ function createCtor(
                     HANDLER_TYPE,
                 ),
                 createFunctionParameter(
-                    COMMON_IDENTIFIERS.transport,
+                    COMMON_IDENTIFIERS.Transport,
                     createTransportConstructorType(),
                     THRIFT_IDENTIFIERS.BufferedTransport,
                 ),
                 createFunctionParameter(
-                    COMMON_IDENTIFIERS.protocol,
+                    COMMON_IDENTIFIERS.Protocol,
                     createProtocolConstructorType(),
                     THRIFT_IDENTIFIERS.BinaryProtocol,
                 ),
@@ -346,16 +346,16 @@ function createCtor(
                 createAssignmentStatement(
                     ts.createPropertyAccess(
                         COMMON_IDENTIFIERS.this,
-                        COMMON_IDENTIFIERS.transport,
+                        COMMON_IDENTIFIERS.Transport,
                     ),
-                    COMMON_IDENTIFIERS.transport,
+                    COMMON_IDENTIFIERS.Transport,
                 ),
                 createAssignmentStatement(
                     ts.createPropertyAccess(
                         COMMON_IDENTIFIERS.this,
-                        COMMON_IDENTIFIERS.protocol,
+                        COMMON_IDENTIFIERS.Protocol,
                     ),
-                    COMMON_IDENTIFIERS.protocol,
+                    COMMON_IDENTIFIERS.Protocol,
                 ),
             ],
         )
@@ -430,8 +430,8 @@ function createParent(
                         ),
                         true,
                     ),
-                    COMMON_IDENTIFIERS.transport,
-                    COMMON_IDENTIFIERS.protocol,
+                    COMMON_IDENTIFIERS.Transport,
+                    COMMON_IDENTIFIERS.Protocol,
                 ],
             ),
         ),

@@ -344,8 +344,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         GetUnion__ArgsCodec.encode(args, output);
         output.writeMessageEnd();
         return this.connection.send(writer.flush(), context).then((data: Buffer) => {
-            const reader: thrift.TTransport = this.transport.receiver(data);
-            const input: thrift.TProtocol = new this.protocol(reader);
+            const reader: thrift.TTransport = this.Transport.receiver(data);
+            const input: thrift.TProtocol = new this.Protocol(reader);
             try {
                 const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                 if (fieldName === "getUnion") {
@@ -382,8 +382,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         GetEnum__ArgsCodec.encode(args, output);
         output.writeMessageEnd();
         return this.connection.send(writer.flush(), context).then((data: Buffer) => {
-            const reader: thrift.TTransport = this.transport.receiver(data);
-            const input: thrift.TProtocol = new this.protocol(reader);
+            const reader: thrift.TTransport = this.Transport.receiver(data);
+            const input: thrift.TProtocol = new this.Protocol(reader);
             try {
                 const { fieldName: fieldName, messageType: messageType }: thrift.IThriftMessage = input.readMessageBegin();
                 if (fieldName === "getEnum") {
@@ -430,21 +430,21 @@ export type ReadRequestData = {
 export class Processor<Context extends object = {}> implements thrift.IThriftProcessor<Context> {
     protected readonly parent: SharedServiceBase.Processor<Context>;
     protected readonly handler: IHandler<Context>;
-    protected readonly transport: thrift.ITransportConstructor;
-    protected readonly protocol: thrift.IProtocolConstructor;
     public static readonly metadata: thrift.IServiceMetadata = metadata;
     public readonly __metadata: thrift.IServiceMetadata = metadata;
-    constructor(handler: IHandler<Context>, transport: thrift.ITransportConstructor = thrift.BufferedTransport, protocol: thrift.IProtocolConstructor = thrift.BinaryProtocol) {
+    public readonly Transport: thrift.ITransportConstructor;
+    public readonly Protocol: thrift.IProtocolConstructor;
+    constructor(handler: IHandler<Context>, Transport: thrift.ITransportConstructor = thrift.BufferedTransport, Protocol: thrift.IProtocolConstructor = thrift.BinaryProtocol) {
         this.parent = new SharedServiceBase.Processor<Context>({
             getStruct: handler.getStruct
         }, transport, protocol);
         this.handler = handler;
-        this.transport = transport;
-        this.protocol = protocol;
+        this.Transport = Transport;
+        this.Protocol = Protocol;
     }
     public process(data: Buffer, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<Buffer>((resolve, reject): void => {
-            const metadata = this.readRequest(data);
+            const metadata: ReadRequestData = this.readRequest(data);
             switch (metadata.methodName) {
                 case "getUnion": {
                     resolve(this.process_getUnion(metadata.data, metadata.requestId, context));
@@ -462,8 +462,8 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
         });
     }
     public readRequest(data: Buffer): ReadRequestData {
-        const transportWithData: thrift.TTransport = this.transport.receiver(data);
-        const input: thrift.TProtocol = new this.protocol(transportWithData);
+        const transportWithData: thrift.TTransport = this.Transport.receiver(data);
+        const input: thrift.TProtocol = new this.Protocol(transportWithData);
         const metadata: thrift.IThriftMessage = input.readMessageBegin();
         const fieldName: string = metadata.fieldName;
         const requestId: number = metadata.requestId;
@@ -492,7 +492,7 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
         }
     }
     public writeResponse(methodName: string, data: any, requestId: number): Buffer {
-        const output: thrift.TProtocol = new this.protocol(new this.transport());
+        const output: thrift.TProtocol = new this.Protocol(new this.Transport());
         switch (methodName) {
             case "getUnion": {
                 const result: IGetUnion__ResultArgs = { success: data };
@@ -514,7 +514,7 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
         }
     }
     public writeError(methodName: string, requestId: number, err: Error): Buffer {
-        const output: thrift.TProtocol = new this.protocol(new this.transport());
+        const output: thrift.TProtocol = new this.Protocol(new this.Transport());
         const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
         output.writeMessageBegin(methodName, thrift.MessageType.EXCEPTION, requestId);
         thrift.TApplicationExceptionCodec.encode(result, output);
