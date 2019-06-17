@@ -30,7 +30,7 @@ import {
     typeNodeForFieldType,
 } from '../../types'
 
-import { createProtectedMethod } from '../../../shared/utils'
+import { createPrivateMethod } from '../../../shared/utils'
 import { className, looseName, toolkitName } from '../../struct/utils'
 import { createOutputVariable, createStructResultName } from '../utils'
 import { argsTypeForFunction, createWriteErrorCall } from './utils'
@@ -39,7 +39,7 @@ export function createProcessFunctionMethod(
     funcDef: FunctionDefinition,
     state: IRenderState,
 ): ts.MethodDeclaration {
-    return createProtectedMethod(
+    return createPrivateMethod(
         ts.createIdentifier(`process_${funcDef.name.value}`),
         [
             createFunctionParameter(

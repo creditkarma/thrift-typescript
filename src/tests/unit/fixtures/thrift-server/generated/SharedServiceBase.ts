@@ -322,7 +322,7 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
         output.writeMessageEnd();
         return output.flush();
     }
-    protected process_getStruct(args: IGetStruct__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
+    private process_getStruct(args: IGetStruct__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<SharedStruct.ISharedStructArgs>((resolve, reject): void => {
             try {
                 resolve(this.handler.getStruct(args.key, context));

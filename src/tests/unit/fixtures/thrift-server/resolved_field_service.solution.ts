@@ -1,4 +1,4 @@
-export type INT_64 = thrift.Int64;
+export type INT_64 = bigint;
 export const metadata: thrift.IServiceMetadata = {
     name: "MyService",
     annotations: {},
@@ -185,7 +185,7 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
     protected incrementRequestId(): number {
         return this._requestId += 1;
     }
-    public ping(id: number | string | thrift.Int64, context?: Context): Promise<void> {
+    public ping(id: number | string | bigint, context?: Context): Promise<void> {
         const writer: thrift.TTransport = new this.transport();
         const output: thrift.TProtocol = new this.protocol(writer);
         output.writeMessageBegin("ping", thrift.MessageType.CALL, this.incrementRequestId());
@@ -220,8 +220,13 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
     }
 }
 export interface IHandler<Context extends object = {}> {
-    ping(id: thrift.Int64, context: thrift.ThriftContext<Context>): void | Promise<void>;
+    ping(id: bigint, context: thrift.ThriftContext<Context>): void | Promise<void>;
 }
+export type ReadRequestData = {
+    methodName: "ping";
+    requestId: number;
+    data: IPing__Args;
+};
 export class Processor<Context extends object = {}> implements thrift.IThriftProcessor<Context> {
     protected readonly handler: IHandler<Context>;
     protected readonly transport: thrift.ITransportConstructor;
@@ -234,53 +239,81 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
         this.protocol = protocol;
     }
     public process(data: Buffer, context: thrift.ThriftContext<Context>): Promise<Buffer> {
-        const transportWithData: thrift.TTransport = this.transport.receiver(data);
-        const input: thrift.TProtocol = new this.protocol(transportWithData);
         return new Promise<Buffer>((resolve, reject): void => {
-            const metadata: thrift.IThriftMessage = input.readMessageBegin();
-            const fieldName: string = metadata.fieldName;
-            const requestId: number = metadata.requestId;
-            switch (fieldName) {
+            const metadata = this.readRequest(data);
+            switch (metadata.methodName) {
                 case "ping": {
-                    resolve(this.process_ping(requestId, input, output, context));
+                    resolve(this.process_ping(metadata.data, metadata.requestId, context));
                     break;
                 }
                 default: {
-                    input.skip(thrift.TType.STRUCT);
-                    input.readMessageEnd();
-                    const errMessage = "Unknown function " + fieldName;
-                    const err = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN_METHOD, errMessage);
-                    output.writeMessageBegin(fieldName, thrift.MessageType.EXCEPTION, requestId);
-                    thrift.TApplicationExceptionCodec.encode(err, output);
-                    output.writeMessageEnd();
-                    resolve(output.flush());
+                    const failed: any = metadata;
+                    const errMessage: string = "Unknown function " + failed.methodName;
+                    const err: Error = new Error(errMessage);
+                    resolve(this.writeError(failed.methodName, failed.requestId, err));
                     break;
                 }
             }
         });
     }
-    private process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    public readRequest(data: Buffer): ReadRequestData {
+        const transportWithData: thrift.TTransport = this.transport.receiver(data);
+        const input: thrift.TProtocol = new this.protocol(transportWithData);
+        const metadata: thrift.IThriftMessage = input.readMessageBegin();
+        const fieldName: string = metadata.fieldName;
+        const requestId: number = metadata.requestId;
+        switch (fieldName) {
+            case "ping": {
+                const data: IPing__Args = Ping__ArgsCodec.decode(input);
+                input.readMessageEnd();
+                return {
+                    methodName: fieldName,
+                    requestId: requestId,
+                    data: data
+                };
+            }
+            default: {
+                input.skip(thrift.TType.STRUCT);
+                input.readMessageEnd();
+                throw new Error("Unable to read request for unknown function " + fieldName);
+            }
+        }
+    }
+    public writeResponse(methodName: string, data: any, requestId: number): Buffer {
+        const output: thrift.TProtocol = new this.protocol(new this.transport());
+        switch (methodName) {
+            case "ping": {
+                const result: IPing__ResultArgs = { success: data };
+                output.writeMessageBegin("ping", thrift.MessageType.REPLY, requestId);
+                Ping__ResultCodec.encode(result, output);
+                output.writeMessageEnd();
+                return output.flush();
+            }
+            default: {
+                throw new Error("Unable to write response for unknown function " + methodName);
+            }
+        }
+    }
+    public writeError(methodName: string, requestId: number, err: Error): Buffer {
+        const output: thrift.TProtocol = new this.protocol(new this.transport());
+        const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+        output.writeMessageBegin(methodName, thrift.MessageType.EXCEPTION, requestId);
+        thrift.TApplicationExceptionCodec.encode(result, output);
+        output.writeMessageEnd();
+        return output.flush();
+    }
+    private process_ping(args: IPing__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<void>((resolve, reject): void => {
             try {
-                const args: IPing__Args = Ping__ArgsCodec.decode(input);
-                input.readMessageEnd();
                 resolve(this.handler.ping(args.id, context));
             }
             catch (err) {
                 reject(err);
             }
         }).then((data: void): Buffer => {
-            const result: IPing__ResultArgs = { success: data };
-            output.writeMessageBegin("ping", thrift.MessageType.REPLY, requestId);
-            Ping__ResultCodec.encode(result, output);
-            output.writeMessageEnd();
-            return output.flush();
+            return this.writeResponse("ping", data, requestId);
         }).catch((err: Error): Buffer => {
-            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
-            output.writeMessageBegin("ping", thrift.MessageType.EXCEPTION, requestId);
-            thrift.TApplicationExceptionCodec.encode(result, output);
-            output.writeMessageEnd();
-            return output.flush();
+            return this.writeError("ping", requestId, err);
         });
     }
 }

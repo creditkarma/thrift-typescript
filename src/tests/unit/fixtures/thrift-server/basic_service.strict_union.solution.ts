@@ -672,7 +672,7 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
         output.writeMessageEnd();
         return output.flush();
     }
-    protected process_getUser(args: IGetUser__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
+    private process_getUser(args: IGetUser__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<string>((resolve, reject): void => {
             try {
                 resolve(this.handler.getUser(args.arg1, context));
@@ -686,7 +686,7 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
             return this.writeError("getUser", requestId, err);
         });
     }
-    protected process_ping(args: IPing__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
+    private process_ping(args: IPing__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<void>((resolve, reject): void => {
             try {
                 resolve(this.handler.ping(context));

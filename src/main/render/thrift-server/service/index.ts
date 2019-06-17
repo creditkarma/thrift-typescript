@@ -17,9 +17,11 @@ import { IRenderState } from '../../../types'
 
 import { renderClient } from './client'
 
-import { renderProcessor, renderReadResultType } from './processor'
-
-import { renderHandlerInterface } from '../../shared/service'
+import {
+    renderHandlerInterface,
+    renderProcessor,
+    renderReadResultType,
+} from './processor'
 
 import { typeNodeForFieldType } from '../types'
 

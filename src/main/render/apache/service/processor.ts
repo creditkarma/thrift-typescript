@@ -20,6 +20,7 @@ import {
     createMethodCall,
     createMethodCallStatement,
     createPromise,
+    createProtectedMethod,
     createPublicMethod,
 } from '../utils'
 
@@ -28,7 +29,9 @@ import { IRenderState } from '../../../types'
 
 import {
     constructorNameForFieldType,
+    createErrorType,
     createNumberType,
+    createPromiseType,
     createStringType,
     createVoidType,
     typeNodeForFieldType,
@@ -47,7 +50,109 @@ import {
     IFunctionResolution,
 } from '../../shared/service'
 
-import { createErrorType } from '../../shared/types'
+function funcToMethodReducer(
+    acc: Array<ts.MethodSignature>,
+    func: FunctionDefinition,
+    state: IRenderState,
+): Array<ts.MethodSignature> {
+    return acc.concat([
+        ts.createMethodSignature(
+            undefined,
+            [
+                ...func.fields.map((field: FieldDefinition) => {
+                    return createFunctionParameter(
+                        field.name.value,
+                        typeNodeForFieldType(field.fieldType, state),
+                        undefined,
+                        field.requiredness === 'optional',
+                    )
+                }),
+            ],
+            ts.createUnionTypeNode([
+                typeNodeForFieldType(func.returnType, state),
+                createPromiseType(typeNodeForFieldType(func.returnType, state)),
+            ]),
+            func.name.value,
+            undefined,
+        ),
+    ])
+}
+
+/**
+ * // thrift
+ * service MyService {
+ *   i32 add(1: i32 a, 2: i32 b)
+ * }
+ *
+ * // typescript
+ * interface IMyServiceHandler {
+ *   add(a: number, b: number): number
+ * }
+ */
+export function renderHandlerInterface(
+    service: ServiceDefinition,
+    state: IRenderState,
+): Array<ts.Statement> {
+    const signatures: Array<ts.MethodSignature> = service.functions.reduce(
+        (acc: Array<ts.MethodSignature>, next: FunctionDefinition) => {
+            return funcToMethodReducer(acc, next, state)
+        },
+        [],
+    )
+
+    if (service.extends !== null) {
+        return [
+            ts.createInterfaceDeclaration(
+                undefined,
+                [ts.createToken(ts.SyntaxKind.ExportKeyword)],
+                COMMON_IDENTIFIERS.ILocalHandler,
+                undefined,
+                [],
+                signatures,
+            ),
+            ts.createTypeAliasDeclaration(
+                undefined,
+                [ts.createToken(ts.SyntaxKind.ExportKeyword)],
+                COMMON_IDENTIFIERS.IHandler,
+                undefined,
+                ts.createIntersectionTypeNode([
+                    ts.createTypeReferenceNode(
+                        COMMON_IDENTIFIERS.ILocalHandler,
+                        undefined,
+                    ),
+                    ts.createTypeReferenceNode(
+                        ts.createIdentifier(
+                            `${
+                                Resolver.resolveIdentifierName(
+                                    service.extends.value,
+                                    {
+                                        currentNamespace:
+                                            state.currentNamespace,
+                                        currentDefinitions:
+                                            state.currentDefinitions,
+                                        namespaceMap: state.project.namespaces,
+                                    },
+                                ).fullName
+                            }.IHandler`,
+                        ),
+                        undefined,
+                    ),
+                ]),
+            ),
+        ]
+    } else {
+        return [
+            ts.createInterfaceDeclaration(
+                undefined,
+                [ts.createToken(ts.SyntaxKind.ExportKeyword)],
+                COMMON_IDENTIFIERS.IHandler,
+                undefined,
+                [],
+                signatures,
+            ),
+        ]
+    }
+}
 
 function objectLiteralForServiceFunctions(
     service: ServiceDefinition,
@@ -213,7 +318,7 @@ function createProcessFunctionMethod(
     funcDef: FunctionDefinition,
     state: IRenderState,
 ): ts.MethodDeclaration {
-    return createPublicMethod(
+    return createProtectedMethod(
         ts.createIdentifier(`process_${funcDef.name.value}`),
         [
             createFunctionParameter(

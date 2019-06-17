@@ -558,6 +558,11 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
 export interface IHandler<Context extends object = {}> {
     peg(name: string, context: thrift.ThriftContext<Context>): string | Promise<string>;
 }
+export type ReadRequestData = {
+    methodName: "peg";
+    requestId: number;
+    data: IPeg__Args;
+};
 export class Processor<Context extends object = {}> implements thrift.IThriftProcessor<Context> {
     protected readonly handler: IHandler<Context>;
     protected readonly transport: thrift.ITransportConstructor;
@@ -570,49 +575,82 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
         this.protocol = protocol;
     }
     public process(data: Buffer, context: thrift.ThriftContext<Context>): Promise<Buffer> {
-        const transportWithData: thrift.TTransport = this.transport.receiver(data);
-        const input: thrift.TProtocol = new this.protocol(transportWithData);
         return new Promise<Buffer>((resolve, reject): void => {
-            const metadata: thrift.IThriftMessage = input.readMessageBegin();
-            const fieldName: string = metadata.fieldName;
-            const requestId: number = metadata.requestId;
-            switch (fieldName) {
+            const metadata = this.readRequest(data);
+            switch (metadata.methodName) {
                 case "peg": {
-                    resolve(this.process_peg(requestId, input, output, context));
+                    resolve(this.process_peg(metadata.data, metadata.requestId, context));
                     break;
                 }
                 default: {
-                    input.skip(thrift.TType.STRUCT);
-                    input.readMessageEnd();
-                    const errMessage = "Unknown function " + fieldName;
-                    const err = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN_METHOD, errMessage);
-                    output.writeMessageBegin(fieldName, thrift.MessageType.EXCEPTION, requestId);
-                    thrift.TApplicationExceptionCodec.encode(err, output);
-                    output.writeMessageEnd();
-                    resolve(output.flush());
+                    const failed: any = metadata;
+                    const errMessage: string = "Unknown function " + failed.methodName;
+                    const err: Error = new Error(errMessage);
+                    resolve(this.writeError(failed.methodName, failed.requestId, err));
                     break;
                 }
             }
         });
     }
-    private process_peg(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol, context: Context): Promise<Buffer> {
+    public readRequest(data: Buffer): ReadRequestData {
+        const transportWithData: thrift.TTransport = this.transport.receiver(data);
+        const input: thrift.TProtocol = new this.protocol(transportWithData);
+        const metadata: thrift.IThriftMessage = input.readMessageBegin();
+        const fieldName: string = metadata.fieldName;
+        const requestId: number = metadata.requestId;
+        switch (fieldName) {
+            case "peg": {
+                const data: IPeg__Args = Peg__ArgsCodec.decode(input);
+                input.readMessageEnd();
+                return {
+                    methodName: fieldName,
+                    requestId: requestId,
+                    data: data
+                };
+            }
+            default: {
+                input.skip(thrift.TType.STRUCT);
+                input.readMessageEnd();
+                throw new Error("Unable to read request for unknown function " + fieldName);
+            }
+        }
+    }
+    public writeResponse(methodName: string, data: any, requestId: number): Buffer {
+        const output: thrift.TProtocol = new this.protocol(new this.transport());
+        switch (methodName) {
+            case "peg": {
+                const result: IPeg__ResultArgs = { success: data };
+                output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
+                Peg__ResultCodec.encode(result, output);
+                output.writeMessageEnd();
+                return output.flush();
+            }
+            default: {
+                throw new Error("Unable to write response for unknown function " + methodName);
+            }
+        }
+    }
+    public writeError(methodName: string, requestId: number, err: Error): Buffer {
+        const output: thrift.TProtocol = new this.protocol(new this.transport());
+        const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+        output.writeMessageBegin(methodName, thrift.MessageType.EXCEPTION, requestId);
+        thrift.TApplicationExceptionCodec.encode(result, output);
+        output.writeMessageEnd();
+        return output.flush();
+    }
+    private process_peg(args: IPeg__Args, requestId: number, context: thrift.ThriftContext<Context>): Promise<Buffer> {
         return new Promise<string>((resolve, reject): void => {
             try {
-                const args: IPeg__Args = Peg__ArgsCodec.decode(input);
-                input.readMessageEnd();
                 resolve(this.handler.peg(args.name, context));
             }
             catch (err) {
                 reject(err);
             }
         }).then((data: string): Buffer => {
-            const result: IPeg__ResultArgs = { success: data };
-            output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
-            Peg__ResultCodec.encode(result, output);
-            output.writeMessageEnd();
-            return output.flush();
+            return this.writeResponse("peg", data, requestId);
         }).catch((err: Error): Buffer => {
             if (err instanceof ServiceException) {
+                const output: thrift.TProtocol = new this.protocol(new this.transport());
                 const result: IPeg__ResultArgs = { exp: err };
                 output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
                 Peg__ResultCodec.encode(result, output);
@@ -620,6 +658,7 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
                 return output.flush();
             }
             else if (err instanceof AuthException) {
+                const output: thrift.TProtocol = new this.protocol(new this.transport());
                 const result: IPeg__ResultArgs = { authExp: err };
                 output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
                 Peg__ResultCodec.encode(result, output);
@@ -627,6 +666,7 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
                 return output.flush();
             }
             else if (err instanceof UnknownException) {
+                const output: thrift.TProtocol = new this.protocol(new this.transport());
                 const result: IPeg__ResultArgs = { unknownExp: err };
                 output.writeMessageBegin("peg", thrift.MessageType.REPLY, requestId);
                 Peg__ResultCodec.encode(result, output);
@@ -634,11 +674,7 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
                 return output.flush();
             }
             else {
-                const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
-                output.writeMessageBegin("peg", thrift.MessageType.EXCEPTION, requestId);
-                thrift.TApplicationExceptionCodec.encode(result, output);
-                output.writeMessageEnd();
-                return output.flush();
+                return this.writeError("peg", requestId, err);
             }
         });
     }

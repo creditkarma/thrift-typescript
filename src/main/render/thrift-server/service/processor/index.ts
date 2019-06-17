@@ -2,7 +2,6 @@ import * as ts from 'typescript'
 
 import {
     FunctionDefinition,
-    Identifier,
     ServiceDefinition,
 } from '@creditkarma/thrift-parser'
 
@@ -33,12 +32,15 @@ import {
     IServiceResolution,
     serviceInheritanceChain,
 } from '../../../shared/service'
+
 import { createProcessFunctionMethod } from './processFunctionMethods'
 import { createProcessMethod } from './processMethod'
 import { createReadRequestMethod } from './readRequest'
 import { argsTypeForFunction } from './utils'
 import { createWriteErrorMethod } from './writeError'
 import { createWriteResponseMethod } from './writeResponse'
+
+export { renderHandlerInterface } from './renderHandlerInterface'
 
 const HANDLER_TYPE: ts.TypeNode = ts.createTypeReferenceNode(
     COMMON_IDENTIFIERS.IHandler,
@@ -87,22 +89,6 @@ export function parentServiceProperty(
     } else {
         return []
     }
-
-    // return ts.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
-    //     ts.createExpressionWithTypeArguments(
-    //         [ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined)],
-    //         ts.createPropertyAccess(
-    //             ts.createIdentifier(
-    //                 Resolver.resolveIdentifierName(service.value, {
-    //                     currentNamespace: state.currentNamespace,
-    //                     currentDefinitions: state.currentDefinitions,
-    //                     namespaceMap: state.project.namespaces,
-    //                 }).fullName,
-    //             ),
-    //             COMMON_IDENTIFIERS.Processor,
-    //         ),
-    //     ),
-    // ])
 }
 
 export function implementsThriftProcessor(): ts.HeritageClause {

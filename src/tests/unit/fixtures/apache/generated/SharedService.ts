@@ -7,7 +7,6 @@ import * as thrift from "test-lib";
 import * as SharedServiceBase from "./SharedServiceBase";
 import * as SharedUnion from "./SharedUnion";
 import * as SharedEnum from "./SharedEnum";
-import * as SharedStruct from "./SharedStruct";
 export interface IGetUnionArgsArgs {
     index: number;
 }
@@ -200,7 +199,7 @@ export class GetEnumResult {
         return new GetEnumResult(_args);
     }
 }
-export class Client  extends SharedServiceBase.Client {
+export class Client extends SharedServiceBase.Client {
     public _requestId: number;
     public _reqs: {
         [name: number]: (err: Error | object | undefined, val?: any) => void;
@@ -217,21 +216,6 @@ export class Client  extends SharedServiceBase.Client {
     public incrementRequestId(): number {
         return this._requestId += 1;
     }
-    public getStruct(key: number): Promise<SharedStruct.SharedStruct> {
-        const requestId: number = this.incrementRequestId();
-        return new Promise<SharedStruct.SharedStruct>((resolve, reject): void => {
-            this._reqs[requestId] = (error, result) => {
-                delete this._reqs[requestId];
-                if (error != null) {
-                    reject(error);
-                }
-                else {
-                    resolve(result);
-                }
-            };
-            this.send_getStruct(key, requestId);
-        });
-    }
     public getUnion(index: number): Promise<SharedUnion.SharedUnion> {
         const requestId: number = this.incrementRequestId();
         return new Promise<SharedUnion.SharedUnion>((resolve, reject): void => {
@@ -245,6 +229,21 @@ export class Client  extends SharedServiceBase.Client {
                 }
             };
             this.send_getUnion(index, requestId);
+        });
+    }
+    public getEnum(): Promise<SharedEnum.SharedEnum> {
+        const requestId: number = this.incrementRequestId();
+        return new Promise<SharedEnum.SharedEnum>((resolve, reject): void => {
+            this._reqs[requestId] = (error, result) => {
+                delete this._reqs[requestId];
+                if (error != null) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            };
+            this.send_getEnum(requestId);
         });
     }
     public send_getUnion(index: number, requestId: number): void {
@@ -332,7 +331,7 @@ export class Processor extends SharedServiceBase.Processor {
                 this.process_getUnion(requestId, input, output);
                 return;
             }
-            case "process_getEnum": {
+            case "getEnum": {
                 this.process_getEnum(requestId, input, output);
                 return;
             }
@@ -349,7 +348,7 @@ export class Processor extends SharedServiceBase.Processor {
             }
         }
     }
-    private process_getUnion(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    protected process_getUnion(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<SharedUnion.SharedUnion>((resolve, reject): void => {
             try {
                 const args: GetUnionArgs = GetUnionArgs.read(input);
@@ -375,7 +374,7 @@ export class Processor extends SharedServiceBase.Processor {
             return;
         });
     }
-    private process_getEnum(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    protected process_getEnum(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<SharedEnum.SharedEnum>((resolve, reject): void => {
             try {
                 input.readMessageEnd();

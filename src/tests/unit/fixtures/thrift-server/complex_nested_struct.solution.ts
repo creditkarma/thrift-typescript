@@ -112,20 +112,20 @@ export interface IMyStruct {
     idMap: Map<string, IOtherStruct>;
     idMapList: Map<string, Array<IOtherStruct>>;
     idSet: Set<IOtherStruct>;
-    intList: Array<thrift.Int64>;
+    intList: Array<bigint>;
     listList: Array<Array<IOtherStruct>>;
     listListString: Array<Array<string>>;
-    i64KeyedMap: Map<thrift.Int64, thrift.Int64>;
+    i64KeyedMap: Map<bigint, bigint>;
 }
 export interface IMyStructArgs {
     idList: Array<IOtherStructArgs>;
     idMap: Map<string, IOtherStructArgs>;
     idMapList: Map<string, Array<IOtherStructArgs>>;
     idSet: Set<IOtherStructArgs>;
-    intList: Array<number | string | thrift.Int64>;
+    intList: Array<number | string | bigint>;
     listList: Array<Array<IOtherStructArgs>>;
     listListString: Array<Array<string>>;
-    i64KeyedMap: Map<number | string | thrift.Int64, number | string | thrift.Int64>;
+    i64KeyedMap: Map<number | string | bigint, number | string | bigint>;
 }
 export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
     encode(args: IMyStructArgs, output: thrift.TProtocol): void {
@@ -197,7 +197,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
         if (obj.intList != null) {
             output.writeFieldBegin("intList", thrift.TType.LIST, 5);
             output.writeListBegin(thrift.TType.I64, obj.intList.length);
-            obj.intList.forEach((value_10: number | string | thrift.Int64): void => {
+            obj.intList.forEach((value_10: number | string | bigint): void => {
                 output.writeI64((typeof value_10 === "number" ? BigInt(value_10) : typeof value_10 === "string" ? BigInt(value_10) : value_10));
             });
             output.writeListEnd();
@@ -241,7 +241,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
         if (obj.i64KeyedMap != null) {
             output.writeFieldBegin("i64KeyedMap", thrift.TType.MAP, 8);
             output.writeMapBegin(thrift.TType.I64, thrift.TType.I64, obj.i64KeyedMap.size);
-            obj.i64KeyedMap.forEach((value_15: number | string | thrift.Int64, key_3: number | string | thrift.Int64): void => {
+            obj.i64KeyedMap.forEach((value_15: number | string | bigint, key_3: number | string | bigint): void => {
                 output.writeI64((typeof key_3 === "number" ? BigInt(key_3) : typeof key_3 === "string" ? BigInt(key_3) : key_3));
                 output.writeI64((typeof value_15 === "number" ? BigInt(value_15) : typeof value_15 === "string" ? BigInt(value_15) : value_15));
             });
@@ -341,7 +341,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
                     break;
                 case 5:
                     if (fieldType === thrift.TType.LIST) {
-                        const value_25: Array<thrift.Int64> = new Array<thrift.Int64>();
+                        const value_25: Array<bigint> = new Array<bigint>();
                         const metadata_6: thrift.IThriftList = input.readListBegin();
                         const size_6: number = metadata_6.size;
                         for (let i_6: number = 0; i_6 < size_6; i_6++) {
@@ -403,7 +403,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
                     break;
                 case 8:
                     if (fieldType === thrift.TType.MAP) {
-                        const value_33: Map<thrift.Int64, thrift.Int64> = new Map<thrift.Int64, thrift.Int64>();
+                        const value_33: Map<bigint, bigint> = new Map<bigint, bigint>();
                         const metadata_11: thrift.IThriftMap = input.readMapBegin();
                         const size_11: number = metadata_11.size;
                         for (let i_11: number = 0; i_11 < size_11; i_11++) {
@@ -448,10 +448,10 @@ export class MyStruct implements thrift.IStructLike, IMyStruct {
     public idMap: Map<string, IOtherStruct>;
     public idMapList: Map<string, Array<IOtherStruct>>;
     public idSet: Set<IOtherStruct>;
-    public intList: Array<thrift.Int64>;
+    public intList: Array<bigint>;
     public listList: Array<Array<IOtherStruct>>;
     public listListString: Array<Array<string>>;
-    public i64KeyedMap: Map<thrift.Int64, thrift.Int64>;
+    public i64KeyedMap: Map<bigint, bigint>;
     public readonly __name = "MyStruct";
     constructor(args: IMyStructArgs) {
         if (args.idList != null) {
@@ -505,8 +505,8 @@ export class MyStruct implements thrift.IStructLike, IMyStruct {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[idSet] is unset!");
         }
         if (args.intList != null) {
-            const value_39: Array<thrift.Int64> = new Array<thrift.Int64>();
-            args.intList.forEach((value_53: number | string | thrift.Int64): void => {
+            const value_39: Array<bigint> = new Array<bigint>();
+            args.intList.forEach((value_53: number | string | bigint): void => {
                 const value_54: bigint = (typeof value_53 === "number" ? BigInt(value_53) : typeof value_53 === "string" ? BigInt(value_53) : value_53);
                 value_39.push(value_54);
             });
@@ -546,8 +546,8 @@ export class MyStruct implements thrift.IStructLike, IMyStruct {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[listListString] is unset!");
         }
         if (args.i64KeyedMap != null) {
-            const value_42: Map<thrift.Int64, thrift.Int64> = new Map<thrift.Int64, thrift.Int64>();
-            args.i64KeyedMap.forEach((value_63: number | string | thrift.Int64, key_11: number | string | thrift.Int64): void => {
+            const value_42: Map<bigint, bigint> = new Map<bigint, bigint>();
+            args.i64KeyedMap.forEach((value_63: number | string | bigint, key_11: number | string | bigint): void => {
                 const value_64: bigint = (typeof value_63 === "number" ? BigInt(value_63) : typeof value_63 === "string" ? BigInt(value_63) : value_63);
                 const key_12: bigint = (typeof key_11 === "number" ? BigInt(key_11) : typeof key_11 === "string" ? BigInt(key_11) : key_11);
                 value_42.set(key_12, value_64);

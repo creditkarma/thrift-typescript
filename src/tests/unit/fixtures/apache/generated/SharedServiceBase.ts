@@ -116,23 +116,23 @@ export class GetStructResult {
     }
 }
 export class Client {
-    public _seqid: number;
+    public _requestId: number;
     public _reqs: {
         [name: number]: (err: Error | object | undefined, val?: any) => void;
     };
     public output: thrift.TTransport;
     public protocol: new (trans: thrift.TTransport) => thrift.TProtocol;
     constructor(output: thrift.TTransport, protocol: new (trans: thrift.TTransport) => thrift.TProtocol) {
-        this._seqid = 0;
+        this._requestId = 0;
         this._reqs = {};
         this.output = output;
         this.protocol = protocol;
     }
-    public incrementSeqId(): number {
-        return this._seqid += 1;
+    public incrementRequestId(): number {
+        return this._requestId += 1;
     }
     public getStruct(key: number): Promise<SharedStruct.SharedStruct> {
-        const requestId: number = this.incrementSeqId();
+        const requestId: number = this.incrementRequestId();
         return new Promise<SharedStruct.SharedStruct>((resolve, reject): void => {
             this._reqs[requestId] = (error, result) => {
                 delete this._reqs[requestId];
@@ -180,26 +180,25 @@ export interface IHandler {
     getStruct(key: number): SharedStruct.SharedStruct | Promise<SharedStruct.SharedStruct>;
 }
 export class Processor {
-    public _handler: IHandler;
+    public handler: IHandler;
     constructor(handler: IHandler) {
-        this._handler = handler;
+        this.handler = handler;
     }
     public process(input: thrift.TProtocol, output: thrift.TProtocol): void {
         const metadata: thrift.TMessage = input.readMessageBegin();
-        const fname: string = metadata.fname;
+        const fieldName: string = metadata.fname;
         const requestId: number = metadata.rseqid;
-        const methodName: string = "process_" + fname;
-        switch (methodName) {
-            case "process_getStruct": {
+        switch (fieldName) {
+            case "getStruct": {
                 this.process_getStruct(requestId, input, output);
                 return;
             }
             default: {
                 input.skip(thrift.Thrift.Type.STRUCT);
                 input.readMessageEnd();
-                const errMessage = "Unknown function " + fname;
+                const errMessage = "Unknown function " + fieldName;
                 const err = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN_METHOD, errMessage);
-                output.writeMessageBegin(fname, thrift.Thrift.MessageType.EXCEPTION, requestId);
+                output.writeMessageBegin(fieldName, thrift.Thrift.MessageType.EXCEPTION, requestId);
                 err.write(output);
                 output.writeMessageEnd();
                 output.flush();
@@ -207,12 +206,12 @@ export class Processor {
             }
         }
     }
-    private process_getStruct(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    protected process_getStruct(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<SharedStruct.SharedStruct>((resolve, reject): void => {
             try {
                 const args: GetStructArgs = GetStructArgs.read(input);
                 input.readMessageEnd();
-                resolve(this._handler.getStruct(args.key));
+                resolve(this.handler.getStruct(args.key));
             }
             catch (err) {
                 reject(err);

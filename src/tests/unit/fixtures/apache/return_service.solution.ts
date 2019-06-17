@@ -274,7 +274,7 @@ export class Processor {
             }
         }
     }
-    private process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
+    protected process_ping(requestId: number, input: thrift.TProtocol, output: thrift.TProtocol): void {
         new Promise<string>((resolve, reject): void => {
             try {
                 const args: PingArgs = PingArgs.read(input);
