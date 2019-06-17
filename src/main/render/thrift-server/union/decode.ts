@@ -41,6 +41,7 @@ import {
     createFieldValidation,
     createReturnVariable,
     incrementFieldsSet,
+    throwBlockForFieldValidation,
 } from './utils'
 
 export function createDecodeMethod(
@@ -48,10 +49,7 @@ export function createDecodeMethod(
     state: IRenderState,
 ): ts.MethodDeclaration {
     const inputParameter: ts.ParameterDeclaration = createInputParameter()
-    const returnVariable: ts.VariableStatement = createReturnVariable(
-        node,
-        state,
-    )
+    const returnVariable: ts.VariableStatement = createReturnVariable()
 
     const fieldsSet: ts.VariableStatement = createFieldIncrementer()
 
@@ -61,7 +59,7 @@ export function createDecodeMethod(
      * const fieldId: number = ret.fieldId
      */
     const ret: ts.VariableStatement = createConstStatement(
-        'ret',
+        COMMON_IDENTIFIERS.ret,
         ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.IThriftField, undefined),
         readFieldBegin(),
     )
@@ -69,13 +67,19 @@ export function createDecodeMethod(
     const fieldType: ts.VariableStatement = createConstStatement(
         COMMON_IDENTIFIERS.fieldType,
         ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.Thrift_Type, undefined),
-        propertyAccessForIdentifier('ret', COMMON_IDENTIFIERS.fieldType),
+        propertyAccessForIdentifier(
+            COMMON_IDENTIFIERS.ret,
+            COMMON_IDENTIFIERS.fieldType,
+        ),
     )
 
     const fieldId: ts.VariableStatement = createConstStatement(
         COMMON_IDENTIFIERS.fieldId,
         createNumberType(),
-        propertyAccessForIdentifier('ret', COMMON_IDENTIFIERS.fieldId),
+        propertyAccessForIdentifier(
+            COMMON_IDENTIFIERS.ret,
+            COMMON_IDENTIFIERS.fieldId,
+        ),
     )
 
     /**
@@ -130,31 +134,45 @@ export function createDecodeMethod(
                 readStructBegin(),
                 whileLoop,
                 readStructEnd(),
-                createFieldValidation(node),
-                ts.createIf(
-                    ts.createBinary(
-                        COMMON_IDENTIFIERS._returnValue,
-                        ts.SyntaxKind.ExclamationEqualsEqualsToken,
-                        ts.createNull(),
-                    ),
-                    ts.createBlock(
-                        [createReturnForFields(node, node.fields, state)],
-                        true,
-                    ),
-                    ts.createBlock(
-                        [
-                            throwProtocolException(
-                                'UNKNOWN',
-                                'Unable to read data for TUnion',
-                            ),
-                        ],
-                        true,
-                    ),
-                ),
+                createFieldValidation(throwBlockForFieldValidation()),
+                createEndReturn(node, state),
             ],
             true,
         ),
     )
+}
+
+function createEndReturn(
+    node: UnionDefinition,
+    state: IRenderState,
+): ts.Statement {
+    if (node.fields.length > 0) {
+        return ts.createIf(
+            ts.createBinary(
+                COMMON_IDENTIFIERS._returnValue,
+                ts.SyntaxKind.ExclamationEqualsEqualsToken,
+                ts.createNull(),
+            ),
+            ts.createBlock(
+                [createReturnForFields(node, node.fields, state)],
+                true,
+            ),
+            ts.createBlock(
+                [
+                    throwProtocolException(
+                        'UNKNOWN',
+                        'Unable to read data for TUnion',
+                    ),
+                ],
+                true,
+            ),
+        )
+    } else {
+        return throwProtocolException(
+            'UNKNOWN',
+            'Unable to read data for TUnion',
+        )
+    }
 }
 
 function createUnionObjectForField(
@@ -162,45 +180,35 @@ function createUnionObjectForField(
     field: FieldDefinition,
     state: IRenderState,
 ): ts.ObjectLiteralExpression {
-    if (state.options.withNameField) {
-        return ts.createObjectLiteral(
-            [
-                ts.createPropertyAssignment(
-                    COMMON_IDENTIFIERS.__name,
-                    ts.createLiteral(node.name.value),
-                ),
-                ts.createPropertyAssignment(
-                    COMMON_IDENTIFIERS.__type,
-                    ts.createIdentifier(fieldTypeAccess(node, field, state)),
-                ),
-                ts.createPropertyAssignment(
-                    ts.createIdentifier(field.name.value),
-                    ts.createPropertyAccess(
-                        COMMON_IDENTIFIERS._returnValue,
-                        field.name.value,
-                    ),
-                ),
-            ],
-            true,
-        )
-    } else {
-        return ts.createObjectLiteral(
-            [
-                ts.createPropertyAssignment(
-                    COMMON_IDENTIFIERS.__type,
-                    ts.createIdentifier(fieldTypeAccess(node, field, state)),
-                ),
-                ts.createPropertyAssignment(
-                    ts.createIdentifier(field.name.value),
-                    ts.createPropertyAccess(
-                        COMMON_IDENTIFIERS._returnValue,
-                        field.name.value,
-                    ),
-                ),
-            ],
-            true,
+    const properties: Array<ts.PropertyAssignment> = [
+        ts.createPropertyAssignment(
+            ts.createIdentifier(field.name.value),
+            ts.createPropertyAccess(
+                COMMON_IDENTIFIERS._returnValue,
+                field.name.value,
+            ),
+        ),
+    ]
+
+    if (state.options.strictUnions) {
+        properties.unshift(
+            ts.createPropertyAssignment(
+                COMMON_IDENTIFIERS.__type,
+                ts.createIdentifier(fieldTypeAccess(node, field, state)),
+            ),
         )
     }
+
+    if (state.options.withNameField) {
+        properties.unshift(
+            ts.createPropertyAssignment(
+                COMMON_IDENTIFIERS.__name,
+                ts.createLiteral(node.name.value),
+            ),
+        )
+    }
+
+    return ts.createObjectLiteral(properties, true)
 }
 
 export function createReturnForFields(
@@ -208,33 +216,25 @@ export function createReturnForFields(
     fields: Array<FieldDefinition>,
     state: IRenderState,
 ): ts.Statement {
-    if (state.options.strictUnions) {
-        const [head, ...tail] = fields
-        if (tail.length > 0) {
-            return ts.createIf(
-                ts.createBinary(
-                    ts.createPropertyAccess(
-                        COMMON_IDENTIFIERS._returnValue,
-                        head.name.value,
-                    ),
-                    ts.SyntaxKind.ExclamationEqualsEqualsToken,
-                    COMMON_IDENTIFIERS.undefined,
+    const [head, ...tail] = fields
+    if (tail.length > 0) {
+        return ts.createIf(
+            ts.createBinary(
+                ts.createPropertyAccess(
+                    COMMON_IDENTIFIERS._returnValue,
+                    head.name.value,
                 ),
-                ts.createBlock(
-                    [
-                        ts.createReturn(
-                            createUnionObjectForField(node, head, state),
-                        ),
-                    ],
-                    true,
-                ),
-                ts.createBlock([createReturnForFields(node, tail, state)]),
-            )
-        } else {
-            return ts.createReturn(createUnionObjectForField(node, head, state))
-        }
+                ts.SyntaxKind.ExclamationEqualsEqualsToken,
+                COMMON_IDENTIFIERS.undefined,
+            ),
+            ts.createBlock(
+                [ts.createReturn(createUnionObjectForField(node, head, state))],
+                true,
+            ),
+            ts.createBlock([createReturnForFields(node, tail, state)]),
+        )
     } else {
-        return ts.createReturn(COMMON_IDENTIFIERS._returnValue)
+        return ts.createReturn(createUnionObjectForField(node, head, state))
     }
 }
 
@@ -266,7 +266,7 @@ export function createCaseForField(
             [
                 incrementFieldsSet(),
                 ...readValueForFieldType(field.fieldType, fieldAlias, state),
-                ...endReadForField(node, fieldAlias, field, state),
+                ...endReadForField(fieldAlias, field),
             ],
             true,
         ),
@@ -284,65 +284,27 @@ export function createCaseForField(
 }
 
 export function endReadForField(
-    node: UnionDefinition,
     fieldName: ts.Identifier,
     field: FieldDefinition,
-    state: IRenderState,
 ): Array<ts.Statement> {
     switch (field.fieldType.type) {
         case SyntaxType.VoidKeyword:
-            if (state.options.withNameField) {
-                return [
-                    ts.createStatement(
-                        ts.createAssignment(
-                            COMMON_IDENTIFIERS._returnValue,
-                            ts.createObjectLiteral([
-                                ts.createPropertyAssignment(
-                                    COMMON_IDENTIFIERS.__name,
-                                    ts.createLiteral(node.name.value),
-                                ),
-                            ]),
-                        ),
-                    ),
-                ]
-            } else {
-                return []
-            }
+            return []
 
         default:
-            if (state.options.withNameField) {
-                return [
-                    ts.createStatement(
-                        ts.createAssignment(
-                            COMMON_IDENTIFIERS._returnValue,
-                            ts.createObjectLiteral([
-                                ts.createPropertyAssignment(
-                                    COMMON_IDENTIFIERS.__name,
-                                    ts.createLiteral(node.name.value),
-                                ),
-                                ts.createPropertyAssignment(
-                                    field.name.value,
-                                    fieldName,
-                                ),
-                            ]),
-                        ),
+            return [
+                ts.createStatement(
+                    ts.createAssignment(
+                        COMMON_IDENTIFIERS._returnValue,
+                        ts.createObjectLiteral([
+                            ts.createPropertyAssignment(
+                                field.name.value,
+                                fieldName,
+                            ),
+                        ]),
                     ),
-                ]
-            } else {
-                return [
-                    ts.createStatement(
-                        ts.createAssignment(
-                            COMMON_IDENTIFIERS._returnValue,
-                            ts.createObjectLiteral([
-                                ts.createPropertyAssignment(
-                                    field.name.value,
-                                    fieldName,
-                                ),
-                            ]),
-                        ),
-                    ),
-                ]
-            }
+                ),
+            ]
     }
 }
 

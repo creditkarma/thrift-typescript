@@ -39,7 +39,7 @@ export const OptionCodec: thrift.IStructCodec<IOptionArgs, IOption> = {
     },
     decode(input: thrift.TProtocol): IOption {
         let _fieldsSet: number = 0;
-        let _returnValue: IOption | null = null;
+        let _returnValue: any = null;
         input.readStructBegin();
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
@@ -53,7 +53,7 @@ export const OptionCodec: thrift.IStructCodec<IOptionArgs, IOption> = {
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
                         const value_1: Buffer = input.readBinary();
-                        _returnValue = { __name: "Option", option1: value_1 };
+                        _returnValue = { option1: value_1 };
                     }
                     else {
                         input.skip(fieldType);
@@ -63,7 +63,7 @@ export const OptionCodec: thrift.IStructCodec<IOptionArgs, IOption> = {
                     if (fieldType === thrift.TType.I64) {
                         _fieldsSet++;
                         const value_2: thrift.Int64 = input.readI64();
-                        _returnValue = { __name: "Option", option2: value_2 };
+                        _returnValue = { option2: value_2 };
                     }
                     else {
                         input.skip(fieldType);
@@ -83,7 +83,18 @@ export const OptionCodec: thrift.IStructCodec<IOptionArgs, IOption> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
-            return _returnValue;
+            if (_returnValue.option1 !== undefined) {
+                return {
+                    __name: "Option",
+                    option1: _returnValue.option1
+                };
+            }
+            else {
+                return {
+                    __name: "Option",
+                    option2: _returnValue.option2
+                };
+            }
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read data for TUnion");
@@ -167,7 +178,7 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
     },
     decode(input: thrift.TProtocol): IMyUnion {
         let _fieldsSet: number = 0;
-        let _returnValue: IMyUnion | null = null;
+        let _returnValue: any = null;
         input.readStructBegin();
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
@@ -181,7 +192,7 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
                         const value_5: string = input.readString();
-                        _returnValue = { __name: "MyUnion", name: value_5 };
+                        _returnValue = { name: value_5 };
                     }
                     else {
                         input.skip(fieldType);
@@ -191,7 +202,7 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
                     if (fieldType === thrift.TType.STRUCT) {
                         _fieldsSet++;
                         const value_6: IOption = OptionCodec.decode(input);
-                        _returnValue = { __name: "MyUnion", option: value_6 };
+                        _returnValue = { option: value_6 };
                     }
                     else {
                         input.skip(fieldType);
@@ -211,7 +222,18 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
-            return _returnValue;
+            if (_returnValue.name !== undefined) {
+                return {
+                    __name: "MyUnion",
+                    name: _returnValue.name
+                };
+            }
+            else {
+                return {
+                    __name: "MyUnion",
+                    option: _returnValue.option
+                };
+            }
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read data for TUnion");

@@ -250,7 +250,7 @@ export function createFieldsForStruct(
     state: IRenderState,
 ): Array<ts.PropertyDeclaration> {
     return node.fields.map((field: FieldDefinition) => {
-        return renderFieldDeclarations(field, state)
+        return renderFieldDeclarations(field, state, true)
     })
 }
 
@@ -276,9 +276,10 @@ export function createFieldsForStruct(
 export function renderFieldDeclarations(
     field: FieldDefinition,
     state: IRenderState,
+    withDefaults: boolean,
 ): ts.PropertyDeclaration {
     const defaultValue: ts.Expression | undefined =
-        field.defaultValue !== null
+        withDefaults && field.defaultValue !== null
             ? renderValue(field.fieldType, field.defaultValue, state)
             : undefined
 

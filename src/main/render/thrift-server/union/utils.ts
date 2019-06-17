@@ -7,33 +7,15 @@ import { createLetStatement, throwProtocolException } from '../utils'
 import { IRenderState } from '../../../types'
 import { COMMON_IDENTIFIERS } from '../../shared/identifiers'
 import { assignmentForField as _assignmentForField } from '../struct/reader'
-import { strictNameForStruct } from '../struct/utils'
 import { createAnyType, createNumberType } from '../types'
 import { createNotNullCheck } from '../utils'
 
-export function createReturnVariable(
-    node: UnionDefinition,
-    state: IRenderState,
-): ts.VariableStatement {
-    if (state.options.strictUnions) {
-        return createLetStatement(
-            COMMON_IDENTIFIERS._returnValue,
-            createAnyType(),
-            ts.createNull(),
-        )
-    } else {
-        return createLetStatement(
-            COMMON_IDENTIFIERS._returnValue,
-            ts.createUnionTypeNode([
-                ts.createTypeReferenceNode(
-                    ts.createIdentifier(strictNameForStruct(node, state)),
-                    undefined,
-                ),
-                ts.createNull(),
-            ]),
-            ts.createNull(),
-        )
-    }
+export function createReturnVariable(): ts.VariableStatement {
+    return createLetStatement(
+        COMMON_IDENTIFIERS._returnValue,
+        createAnyType(),
+        ts.createNull(),
+    )
 }
 
 // let _fieldsSet: number = 0;
@@ -52,6 +34,20 @@ export function incrementFieldsSet(): ts.ExpressionStatement {
     )
 }
 
+export function fieldWithDefault(
+    node: UnionDefinition,
+): FieldDefinition | null {
+    const len = node.fields.length
+    for (let i = 0; i < len; i++) {
+        const field: FieldDefinition = node.fields[i]
+        if (field.defaultValue !== null) {
+            return field
+        }
+    }
+
+    return null
+}
+
 /**
  * if (fieldsSet > 1) {
  *   throw new Thrift.TProtocolException(TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with more than one set value!");
@@ -60,7 +56,7 @@ export function incrementFieldsSet(): ts.ExpressionStatement {
  *   throw new Thrift.TProtocolException(TProtocolExceptionType.INVALID_DATA, "Cannot read a TUnion with no set value!");
  * }
  */
-export function createFieldValidation(node: UnionDefinition): ts.IfStatement {
+export function createFieldValidation(thenBlock: ts.Block): ts.IfStatement {
     return ts.createIf(
         ts.createBinary(
             COMMON_IDENTIFIERS._fieldsSet,
@@ -82,16 +78,20 @@ export function createFieldValidation(node: UnionDefinition): ts.IfStatement {
                 ts.SyntaxKind.LessThanToken,
                 ts.createLiteral(1),
             ),
-            ts.createBlock(
-                [
-                    throwProtocolException(
-                        'INVALID_DATA',
-                        'TUnion must have one value set',
-                    ),
-                ],
-                true,
-            ),
+            thenBlock,
         ),
+    )
+}
+
+export function throwBlockForFieldValidation(): ts.Block {
+    return ts.createBlock(
+        [
+            throwProtocolException(
+                'INVALID_DATA',
+                'TUnion must have one value set',
+            ),
+        ],
+        true,
     )
 }
 

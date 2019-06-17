@@ -115,7 +115,7 @@ export const SharedUnionCodec: thrift.IStructToolkit<SharedUnionArgs, SharedUnio
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
                         const value_3: string = input.readString();
-                        _returnValue = { __name: "SharedUnion", option1: value_3 };
+                        _returnValue = { option1: value_3 };
                     }
                     else {
                         input.skip(fieldType);
@@ -125,7 +125,7 @@ export const SharedUnionCodec: thrift.IStructToolkit<SharedUnionArgs, SharedUnio
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
                         const value_4: string = input.readString();
-                        _returnValue = { __name: "SharedUnion", option2: value_4 };
+                        _returnValue = { option2: value_4 };
                     }
                     else {
                         input.skip(fieldType);

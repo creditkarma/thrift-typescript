@@ -55,6 +55,7 @@ export const COMMON_IDENTIFIERS = {
     ftype: ts.createIdentifier('ftype'),
     fname: ts.createIdentifier('fname'),
     fid: ts.createIdentifier('fid'),
+    ret: ts.createIdentifier('ret'),
     fieldType: ts.createIdentifier('fieldType'),
     fieldName: ts.createIdentifier('fieldName'),
     fieldId: ts.createIdentifier('fieldId'),
