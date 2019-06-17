@@ -1,9 +1,11 @@
 import * as ts from 'typescript'
 
 export const COMMON_IDENTIFIERS = {
+    parent: ts.createIdentifier('parent'),
     object: ts.createIdentifier('object'),
     metadata: ts.createIdentifier('metadata'),
     methodName: ts.createIdentifier('methodName'),
+    ReadRequestData: ts.createIdentifier('ReadRequestData'),
     readRequest: ts.createIdentifier('readRequest'),
     writeResponse: ts.createIdentifier('writeResponse'),
     writeError: ts.createIdentifier('writeError'),
@@ -87,7 +89,6 @@ export const COMMON_IDENTIFIERS = {
     Int64: ts.createIdentifier('thrift.Int64'),
     IHandler: ts.createIdentifier('IHandler'),
     ILocalHandler: ts.createIdentifier('ILocalHandler'),
-    IReadResult: ts.createIdentifier('IReadResult'),
     Node_Int64: ts.createIdentifier('Int64'),
     skip: ts.createIdentifier('skip'),
     writeMessageBegin: ts.createIdentifier('writeMessageBegin'),

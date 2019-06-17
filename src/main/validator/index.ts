@@ -102,9 +102,7 @@ export function validateNamespace(
 
             if (resolvedIdentifier.type !== SyntaxType.ServiceDefinition) {
                 throw new ValidationError(
-                    `Service type expected but found type ${
-                        resolvedIdentifier.type
-                    }`,
+                    `Service type expected but found type ${resolvedIdentifier.type}`,
                     id.loc,
                 )
             }
@@ -112,13 +110,11 @@ export function validateNamespace(
     }
 
     function validateFields(fields: Array<FieldDefinition>): void {
-        fields.forEach(
-            (field: FieldDefinition): void => {
-                if (field.defaultValue !== null) {
-                    validateValue(field.fieldType, field.defaultValue)
-                }
-            },
-        )
+        fields.forEach((field: FieldDefinition): void => {
+            if (field.defaultValue !== null) {
+                validateValue(field.fieldType, field.defaultValue)
+            }
+        })
     }
 
     function validateEnum(
@@ -252,11 +248,9 @@ export function validateNamespace(
 
             case SyntaxType.SetType:
                 if (resolvedValue.type === SyntaxType.ConstList) {
-                    resolvedValue.elements.forEach(
-                        (next: ConstValue): void => {
-                            validateValue(expectedType.valueType, next)
-                        },
-                    )
+                    resolvedValue.elements.forEach((next: ConstValue): void => {
+                        validateValue(expectedType.valueType, next)
+                    })
                 } else {
                     throw typeMismatch(expectedType, rawValue, rawValue.loc)
                 }
@@ -264,11 +258,9 @@ export function validateNamespace(
 
             case SyntaxType.ListType:
                 if (resolvedValue.type === SyntaxType.ConstList) {
-                    resolvedValue.elements.forEach(
-                        (next: ConstValue): void => {
-                            validateValue(expectedType.valueType, next)
-                        },
-                    )
+                    resolvedValue.elements.forEach((next: ConstValue): void => {
+                        validateValue(expectedType.valueType, next)
+                    })
                 } else {
                     throw typeMismatch(expectedType, rawValue, rawValue.loc)
                 }

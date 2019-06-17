@@ -30,7 +30,7 @@ import {
 export function createWriteErrorMethod(): ts.MethodDeclaration {
     return ts.createMethod(
         undefined,
-        [ts.createToken(ts.SyntaxKind.ProtectedKeyword)],
+        [ts.createToken(ts.SyntaxKind.PublicKeyword)],
         undefined,
         COMMON_IDENTIFIERS.writeError,
         undefined,

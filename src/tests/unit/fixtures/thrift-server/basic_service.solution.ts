@@ -765,10 +765,7 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
             }
         });
     }
-    public readRequest(methodName: "getUser", input: thrift.TProtocol | Buffer): IGetUser__Args
-    public readRequest(methodName: "saveUser", input: thrift.TProtocol | Buffer): ISaveUser__Args
-    public readRequest(methodName: "ping", input: thrift.TProtocol | Buffer): void
-    public readRequest(methodName: string, input: thrift.TProtocol | Buffer): any {
+    public readRequest(methodName: string, input: thrift.TProtocol | Buffer): IReadResult {
         if (input instanceof Buffer) {
             const transportWithData: thrift.TTransport = this.transport.receiver(input);
             input = new this.protocol(transportWithData);

@@ -28,7 +28,10 @@ function defaultCaseForWrite(service: ServiceDefinition): ts.DefaultClause {
                     ts.createReturn(
                         ts.createCall(
                             ts.createPropertyAccess(
-                                ts.createSuper(),
+                                ts.createPropertyAccess(
+                                    COMMON_IDENTIFIERS.this,
+                                    COMMON_IDENTIFIERS.parent,
+                                ),
                                 COMMON_IDENTIFIERS.writeResponse,
                             ),
                             undefined,
@@ -72,7 +75,7 @@ export function createWriteResponseMethod(
     return [
         ts.createMethod(
             undefined,
-            [ts.createToken(ts.SyntaxKind.ProtectedKeyword)],
+            [ts.createToken(ts.SyntaxKind.PublicKeyword)],
             undefined,
             COMMON_IDENTIFIERS.writeResponse,
             undefined,

@@ -418,14 +418,24 @@ export interface ILocalHandler<Context extends object = {}> {
     getEnum(context: thrift.ThriftContext<Context>): SharedEnum.SharedEnum | Promise<SharedEnum.SharedEnum>;
 }
 export type IHandler<Context extends object = {}> = ILocalHandler<Context> & SharedServiceBase.IHandler<Context>;
-export class Processor<Context extends object = {}> extends SharedServiceBase.Processor<Context> {
+export type ReadRequestData = {
+    methodName: "getUnion";
+    requestId: number;
+    data: IGetUnion__Args;
+} | {
+    methodName: "getEnum";
+    requestId: number;
+    data: IGetEnum__Args;
+} | SharedServiceBase.ReadRequestData;
+export class Processor<Context extends object = {}> implements thrift.IThriftProcessor<Context> {
+    protected readonly parent: SharedServiceBase.Processor<Context>;
     protected readonly handler: IHandler<Context>;
     protected readonly transport: thrift.ITransportConstructor;
     protected readonly protocol: thrift.IProtocolConstructor;
     public static readonly metadata: thrift.IServiceMetadata = metadata;
     public readonly __metadata: thrift.IServiceMetadata = metadata;
     constructor(handler: IHandler<Context>, transport: thrift.ITransportConstructor = thrift.BufferedTransport, protocol: thrift.IProtocolConstructor = thrift.BinaryProtocol) {
-        super({
+        this.parent = new SharedServiceBase.Processor<Context>({
             getStruct: handler.getStruct
         }, transport, protocol);
         this.handler = handler;
@@ -436,10 +446,6 @@ export class Processor<Context extends object = {}> extends SharedServiceBase.Pr
         return new Promise<Buffer>((resolve, reject): void => {
             const metadata = this.readRequest(data);
             switch (metadata.methodName) {
-                case "getStruct": {
-                    resolve(this.process_getStruct(metadata.data, metadata.requestId, context));
-                    break;
-                }
                 case "getUnion": {
                     resolve(this.process_getUnion(metadata.data, metadata.requestId, context));
                     break;
@@ -449,20 +455,13 @@ export class Processor<Context extends object = {}> extends SharedServiceBase.Pr
                     break;
                 }
                 default: {
-                    const failed: any = metadata;
-                    const errMessage: string = "Unknown function " + failed.methodName;
-                    const err: Error = new Error(errMessage);
-                    resolve(this.writeError(failed.methodName, failed.requestId, err));
+                    resolve(this.parent.process(data, context));
                     break;
                 }
             }
         });
     }
-    public readRequest(data: Buffer): {
-        methodName: string;
-        requestId: number;
-        data: any;
-    } {
+    public readRequest(data: Buffer): ReadRequestData {
         const transportWithData: thrift.TTransport = this.transport.receiver(data);
         const input: thrift.TProtocol = new this.protocol(transportWithData);
         const metadata: thrift.IThriftMessage = input.readMessageBegin();
@@ -488,11 +487,11 @@ export class Processor<Context extends object = {}> extends SharedServiceBase.Pr
                 };
             }
             default: {
-                return super.readRequest(data);
+                return this.parent.readRequest(data);
             }
         }
     }
-    protected writeResponse(methodName: string, data: any, requestId: number): Buffer {
+    public writeResponse(methodName: string, data: any, requestId: number): Buffer {
         const output: thrift.TProtocol = new this.protocol(new this.transport());
         switch (methodName) {
             case "getUnion": {
@@ -510,11 +509,11 @@ export class Processor<Context extends object = {}> extends SharedServiceBase.Pr
                 return output.flush();
             }
             default: {
-                return super.writeResponse(methodName, data, requestId);
+                return this.parent.writeResponse(methodName, data, requestId);
             }
         }
     }
-    protected writeError(methodName: string, requestId: number, err: Error): Buffer {
+    public writeError(methodName: string, requestId: number, err: Error): Buffer {
         const output: thrift.TProtocol = new this.protocol(new this.transport());
         const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
         output.writeMessageBegin(methodName, thrift.MessageType.EXCEPTION, requestId);

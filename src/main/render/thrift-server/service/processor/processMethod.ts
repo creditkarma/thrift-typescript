@@ -6,6 +6,7 @@ import * as ts from 'typescript'
 
 import { IRenderState } from '../../../../types'
 import { COMMON_IDENTIFIERS } from '../../identifiers'
+
 import {
     createConstStatement,
     createFunctionParameter,
@@ -13,6 +14,7 @@ import {
     createPromise,
     createPublicMethod,
 } from '../../utils'
+
 import { ThriftContextType } from '../types'
 
 import {
@@ -79,7 +81,7 @@ export function createProcessMethod(
                                 [COMMON_IDENTIFIERS.data],
                             ),
                         ),
-                        createMethodCallForFunctionName(service, state),
+                        createMethodCallForFunctionName(service),
                     ],
                 ),
             ),
@@ -144,7 +146,6 @@ function createMethodCallForFunction(func: FunctionDefinition): ts.CaseClause {
  */
 function createMethodCallForFunctionName(
     service: ServiceDefinition,
-    state: IRenderState,
 ): ts.SwitchStatement {
     return ts.createSwitch(
         ts.createPropertyAccess(
@@ -152,69 +153,82 @@ function createMethodCallForFunctionName(
             COMMON_IDENTIFIERS.methodName,
         ),
         ts.createCaseBlock([
-            ...collectAllMethods(service, state).map(
-                (next: IFunctionResolution) => {
-                    return createMethodCallForFunction(next.definition)
-                },
-            ),
+            ...service.functions.map((next: FunctionDefinition) => {
+                return createMethodCallForFunction(next)
+            }),
             ts.createDefaultClause([
-                ts.createBlock(
-                    [
-                        createConstStatement(
-                            COMMON_IDENTIFIERS.failed,
-                            createAnyType(),
-                            COMMON_IDENTIFIERS.metadata,
-                        ),
-                        createConstStatement(
-                            COMMON_IDENTIFIERS.errMessage,
-                            createStringType(),
-                            ts.createBinary(
-                                ts.createLiteral('Unknown function '),
-                                ts.SyntaxKind.PlusToken,
-                                ts.createPropertyAccess(
-                                    COMMON_IDENTIFIERS.failed,
-                                    COMMON_IDENTIFIERS.methodName,
-                                ),
-                            ),
-                        ),
-                        createConstStatement(
-                            COMMON_IDENTIFIERS.err,
-                            createErrorType(),
-                            ts.createNew(COMMON_IDENTIFIERS.Error, undefined, [
-                                COMMON_IDENTIFIERS.errMessage,
-                            ]),
-                        ),
-                        ts.createStatement(
-                            ts.createCall(
-                                COMMON_IDENTIFIERS.resolve,
-                                undefined,
-                                [
-                                    ts.createCall(
-                                        ts.createPropertyAccess(
-                                            COMMON_IDENTIFIERS.this,
-                                            COMMON_IDENTIFIERS.writeError,
-                                        ),
-                                        undefined,
-                                        [
-                                            ts.createPropertyAccess(
-                                                COMMON_IDENTIFIERS.failed,
-                                                COMMON_IDENTIFIERS.methodName,
-                                            ),
-                                            ts.createPropertyAccess(
-                                                COMMON_IDENTIFIERS.failed,
-                                                COMMON_IDENTIFIERS.requestId,
-                                            ),
-                                            COMMON_IDENTIFIERS.err,
-                                        ],
-                                    ),
-                                ],
-                            ),
-                        ),
-                        ts.createBreak(),
-                    ],
-                    true,
-                ),
+                ts.createBlock([...createDefaultBlock(service)], true),
             ]),
         ]),
     )
+}
+
+function createDefaultBlock(service: ServiceDefinition): Array<ts.Statement> {
+    if (service.extends !== null) {
+        return [
+            ts.createStatement(
+                ts.createCall(COMMON_IDENTIFIERS.resolve, undefined, [
+                    createMethodCall(
+                        ts.createPropertyAccess(
+                            COMMON_IDENTIFIERS.this,
+                            COMMON_IDENTIFIERS.parent,
+                        ),
+                        COMMON_IDENTIFIERS.process,
+                        [COMMON_IDENTIFIERS.data, COMMON_IDENTIFIERS.context],
+                    ),
+                ]),
+            ),
+            ts.createBreak(),
+        ]
+    } else {
+        return [
+            createConstStatement(
+                COMMON_IDENTIFIERS.failed,
+                createAnyType(),
+                COMMON_IDENTIFIERS.metadata,
+            ),
+            createConstStatement(
+                COMMON_IDENTIFIERS.errMessage,
+                createStringType(),
+                ts.createBinary(
+                    ts.createLiteral('Unknown function '),
+                    ts.SyntaxKind.PlusToken,
+                    ts.createPropertyAccess(
+                        COMMON_IDENTIFIERS.failed,
+                        COMMON_IDENTIFIERS.methodName,
+                    ),
+                ),
+            ),
+            createConstStatement(
+                COMMON_IDENTIFIERS.err,
+                createErrorType(),
+                ts.createNew(COMMON_IDENTIFIERS.Error, undefined, [
+                    COMMON_IDENTIFIERS.errMessage,
+                ]),
+            ),
+            ts.createStatement(
+                ts.createCall(COMMON_IDENTIFIERS.resolve, undefined, [
+                    ts.createCall(
+                        ts.createPropertyAccess(
+                            COMMON_IDENTIFIERS.this,
+                            COMMON_IDENTIFIERS.writeError,
+                        ),
+                        undefined,
+                        [
+                            ts.createPropertyAccess(
+                                COMMON_IDENTIFIERS.failed,
+                                COMMON_IDENTIFIERS.methodName,
+                            ),
+                            ts.createPropertyAccess(
+                                COMMON_IDENTIFIERS.failed,
+                                COMMON_IDENTIFIERS.requestId,
+                            ),
+                            COMMON_IDENTIFIERS.err,
+                        ],
+                    ),
+                ]),
+            ),
+            ts.createBreak(),
+        ]
+    }
 }

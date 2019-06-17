@@ -242,6 +242,11 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
 export interface IHandler<Context extends object = {}> {
     getStruct(key: number, context: thrift.ThriftContext<Context>): SharedStruct.ISharedStructArgs | Promise<SharedStruct.ISharedStructArgs>;
 }
+export type ReadRequestData = {
+    methodName: "getStruct";
+    requestId: number;
+    data: IGetStruct__Args;
+};
 export class Processor<Context extends object = {}> implements thrift.IThriftProcessor<Context> {
     protected readonly handler: IHandler<Context>;
     protected readonly transport: thrift.ITransportConstructor;
@@ -271,11 +276,7 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
             }
         });
     }
-    public readRequest(data: Buffer): {
-        methodName: string;
-        requestId: number;
-        data: any;
-    } {
+    public readRequest(data: Buffer): ReadRequestData {
         const transportWithData: thrift.TTransport = this.transport.receiver(data);
         const input: thrift.TProtocol = new this.protocol(transportWithData);
         const metadata: thrift.IThriftMessage = input.readMessageBegin();
@@ -298,7 +299,7 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
             }
         }
     }
-    protected writeResponse(methodName: string, data: any, requestId: number): Buffer {
+    public writeResponse(methodName: string, data: any, requestId: number): Buffer {
         const output: thrift.TProtocol = new this.protocol(new this.transport());
         switch (methodName) {
             case "getStruct": {
@@ -313,7 +314,7 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
             }
         }
     }
-    protected writeError(methodName: string, requestId: number, err: Error): Buffer {
+    public writeError(methodName: string, requestId: number, err: Error): Buffer {
         const output: thrift.TProtocol = new this.protocol(new this.transport());
         const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
         output.writeMessageBegin(methodName, thrift.MessageType.EXCEPTION, requestId);

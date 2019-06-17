@@ -3456,14 +3456,76 @@ export interface ILocalHandler<Context extends object = {}> {
     zip(context: thrift.ThriftContext<Context>): void | Promise<void>;
 }
 export type IHandler<Context extends object = {}> = ILocalHandler<Context> & __ROOT_NAMESPACE__.SharedService.IHandler<Context>;
-export class Processor<Context extends object = {}> extends __ROOT_NAMESPACE__.SharedService.Processor<Context> {
+export type ReadRequestData = {
+    methodName: "ping";
+    requestId: number;
+    data: IPing__Args;
+} | {
+    methodName: "add";
+    requestId: number;
+    data: IAdd__Args;
+} | {
+    methodName: "addInt64";
+    requestId: number;
+    data: IAddInt64__Args;
+} | {
+    methodName: "addWithContext";
+    requestId: number;
+    data: IAddWithContext__Args;
+} | {
+    methodName: "calculate";
+    requestId: number;
+    data: ICalculate__Args;
+} | {
+    methodName: "echoBinary";
+    requestId: number;
+    data: IEchoBinary__Args;
+} | {
+    methodName: "echoString";
+    requestId: number;
+    data: IEchoString__Args;
+} | {
+    methodName: "checkName";
+    requestId: number;
+    data: ICheckName__Args;
+} | {
+    methodName: "checkOptional";
+    requestId: number;
+    data: ICheckOptional__Args;
+} | {
+    methodName: "mapOneList";
+    requestId: number;
+    data: IMapOneList__Args;
+} | {
+    methodName: "mapValues";
+    requestId: number;
+    data: IMapValues__Args;
+} | {
+    methodName: "listToMap";
+    requestId: number;
+    data: IListToMap__Args;
+} | {
+    methodName: "fetchThing";
+    requestId: number;
+    data: IFetchThing__Args;
+} | {
+    methodName: "fetchMap";
+    requestId: number;
+    data: IFetchMap__Args;
+} | {
+    methodName: "zip";
+    requestId: number;
+    data: IZip__Args;
+} | __ROOT_NAMESPACE__.SharedService.ReadRequestData;
+export class Processor<Context extends object = {}> implements thrift.IThriftProcessor<Context> {
+    protected readonly parent: __ROOT_NAMESPACE__.SharedService.Processor<Context>;
     protected readonly handler: IHandler<Context>;
     protected readonly transport: thrift.ITransportConstructor;
     protected readonly protocol: thrift.IProtocolConstructor;
     public static readonly metadata: thrift.IServiceMetadata = metadata;
     public readonly __metadata: thrift.IServiceMetadata = metadata;
     constructor(handler: IHandler<Context>, transport: thrift.ITransportConstructor = thrift.BufferedTransport, protocol: thrift.IProtocolConstructor = thrift.BinaryProtocol) {
-        super({
+        this.parent = new __ROOT_NAMESPACE__.SharedService.Processor<Context>({
             getUnion: handler.getUnion,
             getEnum: handler.getEnum,
             getStruct: handler.getStruct
@@ -3476,18 +3538,6 @@ export class Processor<Context extends object = {}> extends __ROOT_NAMESPACE__.S
         return new Promise<Buffer>((resolve, reject): void => {
             const metadata = this.readRequest(data);
             switch (metadata.methodName) {
-                case "getUnion": {
-                    resolve(this.process_getUnion(metadata.data, metadata.requestId, context));
-                    break;
-                }
-                case "getEnum": {
-                    resolve(this.process_getEnum(metadata.data, metadata.requestId, context));
-                    break;
-                }
-                case "getStruct": {
-                    resolve(this.process_getStruct(metadata.data, metadata.requestId, context));
-                    break;
-                }
                 case "ping": {
                     resolve(this.process_ping(metadata.data, metadata.requestId, context));
                     break;
@@ -3549,20 +3599,13 @@ export class Processor<Context extends object = {}> extends __ROOT_NAMESPACE__.S
                     break;
                 }
                 default: {
-                    const failed: any = metadata;
-                    const errMessage: string = "Unknown function " + failed.methodName;
-                    const err: Error = new Error(errMessage);
-                    resolve(this.writeError(failed.methodName, failed.requestId, err));
+                    resolve(this.parent.process(data, context));
                     break;
                 }
             }
         });
     }
-    public readRequest(data: Buffer): {
-        methodName: string;
-        requestId: number;
-        data: any;
-    } {
+    public readRequest(data: Buffer): ReadRequestData {
         const transportWithData: thrift.TTransport = this.transport.receiver(data);
         const input: thrift.TProtocol = new this.protocol(transportWithData);
         const metadata: thrift.IThriftMessage = input.readMessageBegin();
@@ -3705,11 +3748,11 @@ export class Processor<Context extends object = {}> extends __ROOT_NAMESPACE__.S
                 };
             }
             default: {
-                return super.readRequest(data);
+                return this.parent.readRequest(data);
             }
         }
     }
-    protected writeResponse(methodName: string, data: any, requestId: number): Buffer {
+    public writeResponse(methodName: string, data: any, requestId: number): Buffer {
         const output: thrift.TProtocol = new this.protocol(new this.transport());
         switch (methodName) {
             case "ping": {
@@ -3818,11 +3861,11 @@ export class Processor<Context extends object = {}> extends __ROOT_NAMESPACE__.S
                 return output.flush();
             }
             default: {
-                return super.writeResponse(methodName, data, requestId);
+                return this.parent.writeResponse(methodName, data, requestId);
             }
         }
     }
-    protected writeError(methodName: string, requestId: number, err: Error): Buffer {
+    public writeError(methodName: string, requestId: number, err: Error): Buffer {
         const output: thrift.TProtocol = new this.protocol(new this.transport());
         const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
         output.writeMessageBegin(methodName, thrift.MessageType.EXCEPTION, requestId);

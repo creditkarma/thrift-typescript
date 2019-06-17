@@ -4,8 +4,6 @@ import {
     FunctionDefinition,
     Identifier,
     ServiceDefinition,
-    SyntaxType,
-    ThriftStatement,
 } from '@creditkarma/thrift-parser'
 
 import { IRenderState } from '../../../../types'
@@ -47,25 +45,64 @@ const HANDLER_TYPE: ts.TypeNode = ts.createTypeReferenceNode(
     [ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined)],
 )
 
-export function extendsService(
-    service: Identifier,
+export function parentServiceProperty(
+    service: ServiceDefinition,
     state: IRenderState,
-): ts.HeritageClause {
-    return ts.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
-        ts.createExpressionWithTypeArguments(
-            [ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined)],
-            ts.createPropertyAccess(
-                ts.createIdentifier(
-                    Resolver.resolveIdentifierName(service.value, {
-                        currentNamespace: state.currentNamespace,
-                        currentDefinitions: state.currentDefinitions,
-                        namespaceMap: state.project.namespaces,
-                    }).fullName,
+): Array<ts.PropertyDeclaration> {
+    if (service.extends !== null) {
+        return [
+            ts.createProperty(
+                undefined,
+                [
+                    ts.createToken(ts.SyntaxKind.ProtectedKeyword),
+                    ts.createToken(ts.SyntaxKind.ReadonlyKeyword),
+                ],
+                COMMON_IDENTIFIERS.parent,
+                undefined,
+                ts.createTypeReferenceNode(
+                    ts.createQualifiedName(
+                        ts.createIdentifier(
+                            Resolver.resolveIdentifierName(
+                                service.extends.value,
+                                {
+                                    currentNamespace: state.currentNamespace,
+                                    currentDefinitions:
+                                        state.currentDefinitions,
+                                    namespaceMap: state.project.namespaces,
+                                },
+                            ).fullName,
+                        ),
+                        COMMON_IDENTIFIERS.Processor,
+                    ),
+                    [
+                        ts.createTypeReferenceNode(
+                            COMMON_IDENTIFIERS.Context,
+                            undefined,
+                        ),
+                    ],
                 ),
-                COMMON_IDENTIFIERS.Processor,
+                undefined,
             ),
-        ),
-    ])
+        ]
+    } else {
+        return []
+    }
+
+    // return ts.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
+    //     ts.createExpressionWithTypeArguments(
+    //         [ts.createTypeReferenceNode(COMMON_IDENTIFIERS.Context, undefined)],
+    //         ts.createPropertyAccess(
+    //             ts.createIdentifier(
+    //                 Resolver.resolveIdentifierName(service.value, {
+    //                     currentNamespace: state.currentNamespace,
+    //                     currentDefinitions: state.currentDefinitions,
+    //                     namespaceMap: state.project.namespaces,
+    //                 }).fullName,
+    //             ),
+    //             COMMON_IDENTIFIERS.Processor,
+    //         ),
+    //     ),
+    // ])
 }
 
 export function implementsThriftProcessor(): ts.HeritageClause {
@@ -103,7 +140,7 @@ export function renderReadResultType(
         return ts.createTypeAliasDeclaration(
             undefined,
             [ts.createToken(ts.SyntaxKind.ExportKeyword)],
-            COMMON_IDENTIFIERS.IReadResult,
+            COMMON_IDENTIFIERS.ReadRequestData,
             undefined,
             ts.createUnionTypeNode([
                 ...localTypes,
@@ -120,7 +157,7 @@ export function renderReadResultType(
                                 },
                             ).fullName,
                         ),
-                        COMMON_IDENTIFIERS.IReadResult,
+                        COMMON_IDENTIFIERS.ReadRequestData,
                     ),
                     undefined,
                 ),
@@ -130,7 +167,7 @@ export function renderReadResultType(
         return ts.createTypeAliasDeclaration(
             undefined,
             [ts.createToken(ts.SyntaxKind.ExportKeyword)],
-            COMMON_IDENTIFIERS.IReadResult,
+            COMMON_IDENTIFIERS.ReadRequestData,
             undefined,
             ts.createUnionTypeNode([...localTypes]),
         )
@@ -179,6 +216,11 @@ export function renderProcessor(
         undefined,
     )
 
+    const parent: Array<ts.PropertyDeclaration> = parentServiceProperty(
+        service,
+        state,
+    )
+
     // Static properties
     const staticServiceMetadata: ts.PropertyDeclaration = renderServiceMetadataStaticProperty()
 
@@ -207,10 +249,7 @@ export function renderProcessor(
         },
     )
 
-    const heritage: Array<ts.HeritageClause> =
-        service.extends !== null
-            ? [extendsService(service.extends, state)]
-            : [implementsThriftProcessor()]
+    const heritage: ts.HeritageClause = implementsThriftProcessor()
 
     // export class <node.name> { ... }
     return ts.createClassDeclaration(
@@ -227,8 +266,9 @@ export function renderProcessor(
                 ts.createTypeLiteralNode([]),
             ),
         ], // type parameters
-        heritage, // heritage
+        [heritage], // heritage
         [
+            ...parent,
             handler,
             transport,
             protocol,
@@ -267,7 +307,7 @@ function createCtor(
                 ),
             ],
             [
-                createSuperCall(service, state),
+                createParent(service, state),
                 createAssignmentStatement(
                     ts.createPropertyAccess(
                         COMMON_IDENTIFIERS.this,
@@ -336,7 +376,7 @@ function createCtor(
     }
 }
 
-function createSuperCall(
+function createParent(
     service: ServiceDefinition,
     state: IRenderState,
 ): ts.Statement {
@@ -350,44 +390,64 @@ function createSuperCall(
     )
 
     return ts.createStatement(
-        ts.createCall(
-            ts.createSuper(),
-            [],
-            [
-                ts.createObjectLiteral(
-                    parents.reduce(
-                        (
-                            acc: Array<ts.PropertyAssignment>,
-                            serviceRes: IServiceResolution,
-                        ) => {
-                            return [
-                                ...acc,
-                                ...serviceRes.definition.functions.map(
-                                    (
-                                        funcDef: FunctionDefinition,
-                                    ): ts.PropertyAssignment => {
-                                        return ts.createPropertyAssignment(
-                                            ts.createIdentifier(
-                                                funcDef.name.value,
-                                            ),
-                                            ts.createPropertyAccess(
-                                                COMMON_IDENTIFIERS.handler,
+        ts.createAssignment(
+            ts.createPropertyAccess(
+                COMMON_IDENTIFIERS.this,
+                COMMON_IDENTIFIERS.parent,
+            ),
+            ts.createNew(
+                ts.createPropertyAccess(
+                    ts.createIdentifier(
+                        Resolver.resolveIdentifierName(service.extends!.value, {
+                            currentNamespace: state.currentNamespace,
+                            currentDefinitions: state.currentDefinitions,
+                            namespaceMap: state.project.namespaces,
+                        }).fullName,
+                    ),
+                    COMMON_IDENTIFIERS.Processor,
+                ),
+                [
+                    ts.createTypeReferenceNode(
+                        COMMON_IDENTIFIERS.Context,
+                        undefined,
+                    ),
+                ],
+                [
+                    ts.createObjectLiteral(
+                        parents.reduce(
+                            (
+                                acc: Array<ts.PropertyAssignment>,
+                                serviceRes: IServiceResolution,
+                            ) => {
+                                return [
+                                    ...acc,
+                                    ...serviceRes.definition.functions.map(
+                                        (
+                                            funcDef: FunctionDefinition,
+                                        ): ts.PropertyAssignment => {
+                                            return ts.createPropertyAssignment(
                                                 ts.createIdentifier(
                                                     funcDef.name.value,
                                                 ),
-                                            ),
-                                        )
-                                    },
-                                ),
-                            ]
-                        },
-                        [],
+                                                ts.createPropertyAccess(
+                                                    COMMON_IDENTIFIERS.handler,
+                                                    ts.createIdentifier(
+                                                        funcDef.name.value,
+                                                    ),
+                                                ),
+                                            )
+                                        },
+                                    ),
+                                ]
+                            },
+                            [],
+                        ),
+                        true,
                     ),
-                    true,
-                ),
-                COMMON_IDENTIFIERS.transport,
-                COMMON_IDENTIFIERS.protocol,
-            ],
+                    COMMON_IDENTIFIERS.transport,
+                    COMMON_IDENTIFIERS.protocol,
+                ],
+            ),
         ),
     )
 }

@@ -17,7 +17,7 @@ import { IRenderState } from '../../../types'
 
 import { renderClient } from './client'
 
-import { renderProcessor } from './processor'
+import { renderProcessor, renderReadResultType } from './processor'
 
 import { renderHandlerInterface } from '../../shared/service'
 
@@ -63,6 +63,7 @@ export function renderService(
             ),
             true,
         ),
+        renderReadResultType(service, state),
         renderProcessor(service, state),
     ]
 }

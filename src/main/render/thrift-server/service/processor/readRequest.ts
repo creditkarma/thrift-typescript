@@ -53,29 +53,10 @@ export function createReadRequestMethod(
                 undefined,
             ),
         ],
-        ts.createTypeLiteralNode([
-            ts.createPropertySignature(
-                undefined,
-                COMMON_IDENTIFIERS.methodName,
-                undefined,
-                createStringType(),
-                undefined,
-            ),
-            ts.createPropertySignature(
-                undefined,
-                COMMON_IDENTIFIERS.requestId,
-                undefined,
-                createNumberType(),
-                undefined,
-            ),
-            ts.createPropertySignature(
-                undefined,
-                COMMON_IDENTIFIERS.data,
-                undefined,
-                createAnyType(),
-                undefined,
-            ),
-        ]),
+        ts.createTypeReferenceNode(
+            COMMON_IDENTIFIERS.ReadRequestData,
+            undefined,
+        ),
         ts.createBlock(
             [
                 createConstStatement(
@@ -217,7 +198,10 @@ function defaultCaseForRead(service: ServiceDefinition): ts.DefaultClause {
                     ts.createReturn(
                         ts.createCall(
                             ts.createPropertyAccess(
-                                ts.createSuper(),
+                                ts.createPropertyAccess(
+                                    COMMON_IDENTIFIERS.this,
+                                    COMMON_IDENTIFIERS.parent,
+                                ),
                                 COMMON_IDENTIFIERS.readRequest,
                             ),
                             undefined,
