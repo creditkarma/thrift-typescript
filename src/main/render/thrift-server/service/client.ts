@@ -290,7 +290,10 @@ function createBaseMethodForDefinition(
                         undefined,
                     ),
                     ts.createNew(
-                        ts.createIdentifier('this.transport'),
+                        ts.createPropertyAccess(
+                            COMMON_IDENTIFIERS.this,
+                            COMMON_IDENTIFIERS.Transport,
+                        ),
                         undefined,
                         [],
                     ),
@@ -302,7 +305,10 @@ function createBaseMethodForDefinition(
                         undefined,
                     ),
                     ts.createNew(
-                        ts.createIdentifier('this.protocol'),
+                        ts.createPropertyAccess(
+                            COMMON_IDENTIFIERS.this,
+                            COMMON_IDENTIFIERS.Protocol,
+                        ),
                         undefined,
                         [COMMON_IDENTIFIERS.writer],
                     ),

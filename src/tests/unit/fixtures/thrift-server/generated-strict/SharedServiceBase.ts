@@ -201,8 +201,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         return this._requestId += 1;
     }
     public getStruct(key: number, context?: Context): Promise<SharedStruct.ISharedStruct> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("getStruct", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IGetStruct__ArgsArgs = { key };
         GetStruct__ArgsCodec.encode(args, output);

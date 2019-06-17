@@ -2869,8 +2869,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         return this._requestId += 1;
     }
     public ping(context?: Context): Promise<void> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("ping", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IPing__ArgsArgs = {};
         Ping__ArgsCodec.encode(args, output);
@@ -2902,8 +2902,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
     public add(num1: number, num2: number, context?: Context): Promise<number> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("add", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IAdd__ArgsArgs = { num1, num2 };
         Add__ArgsCodec.encode(args, output);
@@ -2943,8 +2943,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
     public addInt64(num1: number | string | bigint, num2: number | string | bigint, context?: Context): Promise<bigint> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("addInt64", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IAddInt64__ArgsArgs = { num1, num2 };
         AddInt64__ArgsCodec.encode(args, output);
@@ -2984,8 +2984,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
     public addWithContext(num1: number, num2: number, context?: Context): Promise<number> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("addWithContext", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IAddWithContext__ArgsArgs = { num1, num2 };
         AddWithContext__ArgsCodec.encode(args, output);
@@ -3022,8 +3022,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
     public calculate(logid: number, work: Work.IWorkArgs, context?: Context): Promise<number> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("calculate", thrift.MessageType.CALL, this.incrementRequestId());
         const args: ICalculate__ArgsArgs = { logid, work };
         Calculate__ArgsCodec.encode(args, output);
@@ -3063,8 +3063,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
     public echoBinary(word: string | Buffer, context?: Context): Promise<string> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("echoBinary", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IEchoBinary__ArgsArgs = { word };
         EchoBinary__ArgsCodec.encode(args, output);
@@ -3101,8 +3101,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
     public echoString(word: string, context?: Context): Promise<string> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("echoString", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IEchoString__ArgsArgs = { word };
         EchoString__ArgsCodec.encode(args, output);
@@ -3139,8 +3139,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
     public checkName(choice: Choice.ChoiceArgs, context?: Context): Promise<string> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("checkName", thrift.MessageType.CALL, this.incrementRequestId());
         const args: ICheckName__ArgsArgs = { choice };
         CheckName__ArgsCodec.encode(args, output);
@@ -3177,8 +3177,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
     public checkOptional(type?: string, context?: Context): Promise<string> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("checkOptional", thrift.MessageType.CALL, this.incrementRequestId());
         const args: ICheckOptional__ArgsArgs = { type };
         CheckOptional__ArgsCodec.encode(args, output);
@@ -3215,8 +3215,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
     public mapOneList(arg: Array<number>, context?: Context): Promise<Array<number>> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("mapOneList", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IMapOneList__ArgsArgs = { arg };
         MapOneList__ArgsCodec.encode(args, output);
@@ -3253,8 +3253,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
     public mapValues(arg: Map<string, number>, context?: Context): Promise<Array<number>> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("mapValues", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IMapValues__ArgsArgs = { arg };
         MapValues__ArgsCodec.encode(args, output);
@@ -3291,8 +3291,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
     public listToMap(arg: Array<Array<string>>, context?: Context): Promise<Map<string, string>> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("listToMap", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IListToMap__ArgsArgs = { arg };
         ListToMap__ArgsCodec.encode(args, output);
@@ -3329,8 +3329,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
     public fetchThing(context?: Context): Promise<com_test_common.ICommonStruct> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("fetchThing", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IFetchThing__ArgsArgs = {};
         FetchThing__ArgsCodec.encode(args, output);
@@ -3367,8 +3367,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
     public fetchMap(context?: Context): Promise<TypedMap.TypedMap> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("fetchMap", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IFetchMap__ArgsArgs = {};
         FetchMap__ArgsCodec.encode(args, output);
@@ -3405,8 +3405,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
     public zip(context?: Context): Promise<void> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("zip", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IZip__ArgsArgs = {};
         Zip__ArgsCodec.encode(args, output);

@@ -610,8 +610,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         return this._requestId += 1;
     }
     public getUser(id: number, context?: Context): Promise<IUser> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("getUser", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IGetUser__ArgsArgs = { id };
         GetUser__ArgsCodec.encode(args, output);
@@ -648,8 +648,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
     public saveUser(user: IUserArgs, context?: Context): Promise<void> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("saveUser", thrift.MessageType.CALL, this.incrementRequestId());
         const args: ISaveUser__ArgsArgs = { user };
         SaveUser__ArgsCodec.encode(args, output);
@@ -681,8 +681,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
     public ping(context?: Context): Promise<void> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("ping", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IPing__ArgsArgs = {};
         Ping__ArgsCodec.encode(args, output);

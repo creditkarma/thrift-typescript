@@ -493,8 +493,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         return this._requestId += 1;
     }
     public getUser(arg1: MyUnionArgs, context?: Context): Promise<string> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("getUser", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IGetUser__ArgsArgs = { arg1 };
         GetUser__ArgsCodec.encode(args, output);
@@ -531,8 +531,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
     public ping(context?: Context): Promise<void> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("ping", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IPing__ArgsArgs = {};
         Ping__ArgsCodec.encode(args, output);

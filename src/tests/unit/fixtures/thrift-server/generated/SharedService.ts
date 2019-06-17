@@ -337,8 +337,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         return this._requestId += 1;
     }
     public getUnion(index: number, context?: Context): Promise<SharedUnion.ISharedUnion> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("getUnion", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IGetUnion__ArgsArgs = { index };
         GetUnion__ArgsCodec.encode(args, output);
@@ -375,8 +375,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         });
     }
     public getEnum(context?: Context): Promise<SharedEnum.SharedEnum> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("getEnum", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IGetEnum__ArgsArgs = {};
         GetEnum__ArgsCodec.encode(args, output);

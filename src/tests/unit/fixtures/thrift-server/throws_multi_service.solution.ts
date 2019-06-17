@@ -508,8 +508,8 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
         return this._requestId += 1;
     }
     public peg(name: string, context?: Context): Promise<string> {
-        const writer: thrift.TTransport = new this.transport();
-        const output: thrift.TProtocol = new this.protocol(writer);
+        const writer: thrift.TTransport = new this.Transport();
+        const output: thrift.TProtocol = new this.Protocol(writer);
         output.writeMessageBegin("peg", thrift.MessageType.CALL, this.incrementRequestId());
         const args: IPeg__ArgsArgs = { name };
         Peg__ArgsCodec.encode(args, output);
