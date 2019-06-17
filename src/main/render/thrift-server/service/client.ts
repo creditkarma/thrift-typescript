@@ -201,20 +201,38 @@ function createCtor(service: ServiceDefinition): ts.ConstructorDeclaration {
             [createFunctionParameter('connection', createConnectionType())],
             [
                 createAssignmentStatement(
-                    ts.createIdentifier('this._requestId'),
+                    ts.createPropertyAccess(
+                        COMMON_IDENTIFIERS.this,
+                        COMMON_IDENTIFIERS._requestId,
+                    ),
                     ts.createLiteral(0),
                 ),
                 createAssignmentStatement(
-                    ts.createIdentifier('this.transport'),
-                    ts.createIdentifier('connection.Transport'),
+                    ts.createPropertyAccess(
+                        COMMON_IDENTIFIERS.this,
+                        COMMON_IDENTIFIERS.Transport,
+                    ),
+                    ts.createPropertyAccess(
+                        COMMON_IDENTIFIERS.connection,
+                        COMMON_IDENTIFIERS.Transport,
+                    ),
                 ),
                 createAssignmentStatement(
-                    ts.createIdentifier('this.protocol'),
-                    ts.createIdentifier('connection.Protocol'),
+                    ts.createPropertyAccess(
+                        COMMON_IDENTIFIERS.this,
+                        COMMON_IDENTIFIERS.Protocol,
+                    ),
+                    ts.createPropertyAccess(
+                        COMMON_IDENTIFIERS.connection,
+                        COMMON_IDENTIFIERS.Protocol,
+                    ),
                 ),
                 createAssignmentStatement(
-                    ts.createIdentifier('this.connection'),
-                    ts.createIdentifier('connection'),
+                    ts.createPropertyAccess(
+                        COMMON_IDENTIFIERS.this,
+                        COMMON_IDENTIFIERS.connection,
+                    ),
+                    COMMON_IDENTIFIERS.connection,
                 ),
             ],
         )

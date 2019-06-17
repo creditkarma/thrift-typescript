@@ -188,13 +188,13 @@ export class Client<Context extends thrift.IRequestContext = thrift.IRequestCont
     public static readonly metadata: thrift.IServiceMetadata = metadata;
     public readonly __metadata: thrift.IServiceMetadata = metadata;
     protected _requestId: number;
-    protected transport: thrift.ITransportConstructor;
-    protected protocol: thrift.IProtocolConstructor;
+    protected Transport: thrift.ITransportConstructor;
+    protected Protocol: thrift.IProtocolConstructor;
     protected connection: thrift.IThriftConnection<Context>;
     constructor(connection: thrift.IThriftConnection<Context>) {
         this._requestId = 0;
-        this.transport = connection.Transport;
-        this.protocol = connection.Protocol;
+        this.Transport = connection.Transport;
+        this.Protocol = connection.Protocol;
         this.connection = connection;
     }
     protected incrementRequestId(): number {

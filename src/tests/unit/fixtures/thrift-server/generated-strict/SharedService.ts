@@ -437,7 +437,7 @@ export class Processor<Context extends object = {}> implements thrift.IThriftPro
     constructor(handler: IHandler<Context>, Transport: thrift.ITransportConstructor = thrift.BufferedTransport, Protocol: thrift.IProtocolConstructor = thrift.BinaryProtocol) {
         this.parent = new SharedServiceBase.Processor<Context>({
             getStruct: handler.getStruct
-        }, transport, protocol);
+        }, Transport, Protocol);
         this.handler = handler;
         this.Transport = Transport;
         this.Protocol = Protocol;
