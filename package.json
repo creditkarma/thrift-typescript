@@ -1,6 +1,6 @@
 {
     "name": "@creditkarma/thrift-typescript",
-    "version": "4.0.0-13",
+    "version": "4.0.0-14",
     "description": "Generate TypeScript from Thrift IDL files",
     "main": "./dist/main/index.js",
     "types": "./dist/main/index.d.ts",
