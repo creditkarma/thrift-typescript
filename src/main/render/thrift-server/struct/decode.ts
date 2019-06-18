@@ -79,15 +79,21 @@ export function createDecodeMethod(
     )
 
     const fieldType: ts.VariableStatement = createConstStatement(
-        'fieldType',
+        COMMON_IDENTIFIERS.fieldType,
         ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.Thrift_Type, undefined),
-        propertyAccessForIdentifier('ret', 'fieldType'),
+        propertyAccessForIdentifier(
+            COMMON_IDENTIFIERS.ret,
+            COMMON_IDENTIFIERS.fieldType,
+        ),
     )
 
     const fieldId: ts.VariableStatement = createConstStatement(
-        'fieldId',
+        COMMON_IDENTIFIERS.fieldId,
         createNumberType(),
-        propertyAccessForIdentifier('ret', 'fieldId'),
+        propertyAccessForIdentifier(
+            COMMON_IDENTIFIERS.ret,
+            COMMON_IDENTIFIERS.fieldId,
+        ),
     )
 
     /**
@@ -282,7 +288,11 @@ function createReturnValue(
                         ): ts.ObjectLiteralElementLike => {
                             return ts.createPropertyAssignment(
                                 next.name.value,
-                                getInitializerForField('_args', next, state),
+                                getInitializerForField(
+                                    COMMON_IDENTIFIERS._args,
+                                    next,
+                                    state,
+                                ),
                             )
                         },
                     ),
@@ -297,7 +307,11 @@ function createReturnValue(
                     (next: FieldDefinition): ts.ObjectLiteralElementLike => {
                         return ts.createPropertyAssignment(
                             next.name.value,
-                            getInitializerForField('_args', next, state),
+                            getInitializerForField(
+                                COMMON_IDENTIFIERS._args,
+                                next,
+                                state,
+                            ),
                         )
                     },
                 ),

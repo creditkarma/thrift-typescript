@@ -45,7 +45,7 @@ export const SharedUnionCodec: thrift.IStructCodec<ISharedUnionArgs, ISharedUnio
     },
     decode(input: thrift.TProtocol): ISharedUnion {
         let _fieldsSet: number = 0;
-        let _returnValue: ISharedUnion | null = null;
+        let _returnValue: any = null;
         input.readStructBegin();
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
@@ -59,7 +59,7 @@ export const SharedUnionCodec: thrift.IStructCodec<ISharedUnionArgs, ISharedUnio
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
                         const value_1: string = input.readString();
-                        _returnValue = { __name: "SharedUnion", option1: value_1 };
+                        _returnValue = { option1: value_1 };
                     }
                     else {
                         input.skip(fieldType);
@@ -69,7 +69,7 @@ export const SharedUnionCodec: thrift.IStructCodec<ISharedUnionArgs, ISharedUnio
                     if (fieldType === thrift.TType.STRING) {
                         _fieldsSet++;
                         const value_2: string = input.readString();
-                        _returnValue = { __name: "SharedUnion", option2: value_2 };
+                        _returnValue = { option2: value_2 };
                     }
                     else {
                         input.skip(fieldType);
@@ -89,7 +89,18 @@ export const SharedUnionCodec: thrift.IStructCodec<ISharedUnionArgs, ISharedUnio
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
         if (_returnValue !== null) {
-            return _returnValue;
+            if (_returnValue.option1 !== undefined) {
+                return {
+                    __name: "SharedUnion",
+                    option1: _returnValue.option1
+                };
+            }
+            else {
+                return {
+                    __name: "SharedUnion",
+                    option2: _returnValue.option2
+                };
+            }
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read data for TUnion");

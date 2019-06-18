@@ -18,13 +18,18 @@ import { createReturnForFields, endReadForField } from './decode'
 
 import { strictNameForStruct } from '../struct/utils'
 import { unionTypeName } from './union-fields'
+
 import {
     createFieldAssignment,
     createFieldIncrementer,
     createFieldValidation,
     createReturnVariable,
+    fieldWithDefault,
     incrementFieldsSet,
+    throwBlockForFieldValidation,
 } from './utils'
+
+import { renderValue } from '../../apache/values'
 
 function createArgsParameter(
     node: UnionDefinition,
@@ -47,10 +52,7 @@ export function createCreateMethod(
         node,
         state,
     )
-    const returnVariable: ts.VariableStatement = createReturnVariable(
-        node,
-        state,
-    )
+    const returnVariable: ts.VariableStatement = createReturnVariable()
 
     const fieldsSet: ts.VariableStatement = createFieldIncrementer()
 
@@ -77,7 +79,7 @@ export function createCreateMethod(
                 fieldsSet,
                 returnVariable,
                 ...fieldAssignments,
-                createFieldValidation(node),
+                createFieldValidation(thenBlockForFieldValidation(node, state)),
                 ts.createIf(
                     ts.createBinary(
                         COMMON_IDENTIFIERS._returnValue,
@@ -102,6 +104,38 @@ export function createCreateMethod(
             true,
         ),
     )
+}
+
+function thenBlockForFieldValidation(
+    node: UnionDefinition,
+    state: IRenderState,
+): ts.Block {
+    const defaultField: FieldDefinition | null = fieldWithDefault(node)
+
+    if (defaultField !== null) {
+        return ts.createBlock(
+            [
+                ts.createStatement(
+                    ts.createAssignment(
+                        COMMON_IDENTIFIERS._returnValue,
+                        ts.createObjectLiteral([
+                            ts.createPropertyAssignment(
+                                defaultField.name.value,
+                                renderValue(
+                                    defaultField.fieldType,
+                                    defaultField.defaultValue!,
+                                    state,
+                                ),
+                            ),
+                        ]),
+                    ),
+                ),
+            ],
+            true,
+        )
+    } else {
+        return throwBlockForFieldValidation()
+    }
 }
 
 /**
@@ -132,7 +166,7 @@ export function createCaseForField(
             [
                 incrementFieldsSet(),
                 ...readValueForFieldType(field.fieldType, fieldAlias, state),
-                ...endReadForField(node, fieldAlias, field, state),
+                ...endReadForField(fieldAlias, field),
             ],
             true,
         ),

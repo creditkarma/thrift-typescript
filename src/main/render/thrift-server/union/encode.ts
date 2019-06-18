@@ -27,9 +27,12 @@ import { IRenderState } from '../../../types'
 import {
     createFieldIncrementer,
     createFieldValidation,
+    fieldWithDefault,
     incrementFieldsSet,
+    throwBlockForFieldValidation,
 } from './utils'
 
+import { renderValue } from '../initializers'
 import { looseNameForStruct, throwForField } from '../struct/utils'
 
 export function createEncodeMethod(
@@ -63,19 +66,85 @@ export function createEncodeMethod(
         ts.createBlock(
             [
                 createFieldIncrementer(),
-                ...createTempVariables(node, state),
+                ...createTempVariables(node, state, false),
+                ...checkDefaults(node, state),
                 writeStructBegin(node.name.value),
                 ...node.fields.filter(isNotVoid).map((field) => {
                     return createWriteForField(node, field, state)
                 }),
                 writeFieldStop(),
                 writeStructEnd(),
-                createFieldValidation(node),
+                createFieldValidation(throwBlockForFieldValidation()),
                 ts.createReturn(),
             ],
             true,
         ),
     )
+}
+
+function nullCheckForFields(
+    fields: Array<FieldDefinition>,
+): ts.BinaryExpression {
+    if (fields.length > 1) {
+        const [field, ...remaining] = fields
+        return ts.createBinary(
+            ts.createBinary(
+                ts.createPropertyAccess(
+                    COMMON_IDENTIFIERS.obj,
+                    ts.createIdentifier(field.name.value),
+                ),
+                ts.SyntaxKind.EqualsEqualsToken,
+                ts.createNull(),
+            ),
+            ts.SyntaxKind.AmpersandAmpersandToken,
+            nullCheckForFields(remaining),
+        )
+    } else {
+        return ts.createBinary(
+            ts.createPropertyAccess(
+                COMMON_IDENTIFIERS.obj,
+                ts.createIdentifier(fields[0].name.value),
+            ),
+            ts.SyntaxKind.EqualsEqualsToken,
+            ts.createNull(),
+        )
+    }
+}
+
+function checkDefaults(
+    node: UnionDefinition,
+    state: IRenderState,
+): Array<ts.Statement> {
+    const defaultField: FieldDefinition | null = fieldWithDefault(node)
+    if (defaultField !== null) {
+        return [
+            ts.createIf(
+                nullCheckForFields(node.fields),
+                ts.createBlock(
+                    [
+                        ts.createStatement(
+                            ts.createAssignment(
+                                ts.createPropertyAccess(
+                                    COMMON_IDENTIFIERS.obj,
+                                    ts.createIdentifier(
+                                        defaultField.name.value,
+                                    ),
+                                ),
+                                renderValue(
+                                    defaultField.fieldType,
+                                    defaultField.defaultValue!,
+                                    state,
+                                ),
+                            ),
+                        ),
+                    ],
+                    true,
+                ),
+            ),
+        ]
+    } else {
+        return []
+    }
 }
 
 /**

@@ -212,14 +212,30 @@ describe('Thrift TypeScript Generator', () => {
     describe('Thrift Server w/ Strict Unions', () => {
         it('should correctly generate a union', () => {
             const content: string = `
-                    union MyUnion {
-                        1: i32 field1
-                        2: i64 field2
-                    }
-                `
+                union MyUnion {
+                    1: i32 field1
+                    2: i64 field2
+                }
+            `
+            const expected: string = readSolution('basic_union.strict_union')
+            const actual: string = make(content, {
+                target: 'thrift-server',
+                strictUnions: true,
+                withNameField: true,
+            })
+
+            assert.deepEqual(actual, expected)
+        })
+
+        it('should correctly generate a union with default value', () => {
+            const content: string = `
+                union MyUnion {
+                    1: i32 field1 = 32
+                    2: i64 field2
+                }
+            `
             const expected: string = readSolution(
-                'basic_union.strict_union',
-                'thrift-server',
+                'initialized_union.strict_union',
             )
             const actual: string = make(content, {
                 target: 'thrift-server',
@@ -232,20 +248,17 @@ describe('Thrift TypeScript Generator', () => {
 
         it('should correctly generate a union with a union field', () => {
             const content: string = `
-                    union InnerUnion {
-                        1: string name
-                        2: i32 id
-                    }
+                union InnerUnion {
+                    1: string name
+                    2: i32 id
+                }
 
-                    union MyUnion {
-                        1: InnerUnion user
-                        2: string field2
-                    }
-                `
-            const expected: string = readSolution(
-                'nested_union.strict_union',
-                'thrift-server',
-            )
+                union MyUnion {
+                    1: InnerUnion user
+                    2: string field2
+                }
+            `
+            const expected: string = readSolution('nested_union.strict_union')
             const actual: string = make(content, {
                 target: 'thrift-server',
                 strictUnions: true,
@@ -257,20 +270,17 @@ describe('Thrift TypeScript Generator', () => {
 
         it('should correctly generate a service using a union', () => {
             const content: string = `
-                    union MyUnion {
-                        1: i32 field1
-                        2: i64 field2
-                    }
+                union MyUnion {
+                    1: i32 field1
+                    2: i64 field2
+                }
 
-                    service MyService {
-                        string getUser(1: MyUnion arg1)
-                        void ping()
-                    }
-                `
-            const expected: string = readSolution(
-                'basic_service.strict_union',
-                'thrift-server',
-            )
+                service MyService {
+                    string getUser(1: MyUnion arg1)
+                    void ping()
+                }
+            `
+            const expected: string = readSolution('basic_service.strict_union')
             const actual: string = make(content, {
                 target: 'thrift-server',
                 strictUnions: true,
@@ -437,6 +447,21 @@ describe('Thrift TypeScript Generator', () => {
                         }
                     `
             const expected: string = readSolution('basic_union.no_name')
+            const actual: string = make(content, {
+                target: 'thrift-server',
+            })
+
+            assert.deepEqual(actual, expected)
+        })
+
+        it('should correctly generate a union with default value', () => {
+            const content: string = `
+                    union MyUnion {
+                        1: string option1 = "test"
+                        2: i64 option2
+                    }
+                `
+            const expected: string = readSolution('initialized_union')
             const actual: string = make(content, {
                 target: 'thrift-server',
             })
@@ -693,6 +718,30 @@ describe('Thrift TypeScript Generator', () => {
                     `
 
             const expected: string = readSolution('resolved_field_service')
+            const actual: string = make(content, {
+                target: 'thrift-server',
+                withNameField: true,
+            })
+
+            assert.deepEqual(actual, expected)
+        })
+
+        it('should correctly generate a complex type alias for an identifier', () => {
+            const content: string = `
+                enum MyEnum {
+                    ONE,
+                    TWO
+                }
+
+                typedef i32 MyInt
+
+                typedef MyEnum AnotherName
+
+                const MyInt INT_32 = 32
+
+                const AnotherName WHAT = AnotherName.ONE
+            `
+            const expected: string = readSolution('complex_typedef')
             const actual: string = make(content, {
                 target: 'thrift-server',
                 withNameField: true,

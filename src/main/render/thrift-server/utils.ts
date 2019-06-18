@@ -29,7 +29,7 @@ import {
 export * from '../shared/utils'
 
 export function coerceType(
-    valueName: ts.Identifier,
+    valueName: ts.Expression,
     fieldType: FunctionType,
 ): ts.Expression {
     switch (fieldType.type) {
@@ -81,16 +81,22 @@ export function coerceType(
 }
 
 export function getInitializerForField(
-    objName: string,
+    objName: ts.Identifier,
     field: FieldDefinition,
     state: IRenderState,
+    withDefault: boolean = true,
     loose: boolean = false,
 ): ts.Expression {
-    const valueName: ts.Identifier = ts.createIdentifier(
-        `${objName}.${field.name.value}`,
+    const valueName: ts.PropertyAccessExpression = ts.createPropertyAccess(
+        objName,
+        ts.createIdentifier(field.name.value),
     )
 
-    if (field.defaultValue !== null && field.defaultValue !== undefined) {
+    if (
+        withDefault &&
+        field.defaultValue !== null &&
+        field.defaultValue !== undefined
+    ) {
         return ts.createParen(
             ts.createConditional(
                 createNotNullCheck(valueName),

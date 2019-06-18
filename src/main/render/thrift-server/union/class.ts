@@ -32,7 +32,11 @@ import {
     createFieldAssignment,
     createFieldIncrementer,
     createFieldValidation,
+    fieldWithDefault,
+    throwBlockForFieldValidation,
 } from './utils'
+
+import { renderValue } from '../../apache/values'
 
 export function renderClass(
     node: UnionDefinition,
@@ -90,7 +94,7 @@ export function renderClass(
         [
             createFieldIncrementer(),
             ...fieldAssignments,
-            createFieldValidation(node),
+            createFieldValidation(thenBlockForFieldValidation(node, state)),
         ],
     )
 
@@ -109,6 +113,36 @@ export function renderClass(
             createWriteMethod(node, state),
         ],
     )
+}
+
+function thenBlockForFieldValidation(
+    node: UnionDefinition,
+    state: IRenderState,
+): ts.Block {
+    const defaultField: FieldDefinition | null = fieldWithDefault(node)
+
+    if (defaultField !== null) {
+        return ts.createBlock(
+            [
+                ts.createStatement(
+                    ts.createAssignment(
+                        ts.createPropertyAccess(
+                            COMMON_IDENTIFIERS.this,
+                            ts.createIdentifier(defaultField.name.value),
+                        ),
+                        renderValue(
+                            defaultField.fieldType,
+                            defaultField.defaultValue!,
+                            state,
+                        ),
+                    ),
+                ),
+            ],
+            true,
+        )
+    } else {
+        return throwBlockForFieldValidation()
+    }
 }
 
 export function createOutputParameter(): ts.ParameterDeclaration {
@@ -130,6 +164,6 @@ export function createFieldsForStruct(
     state: IRenderState,
 ): Array<ts.PropertyDeclaration> {
     return node.fields.map((field: FieldDefinition) => {
-        return renderFieldDeclarations(field, state)
+        return renderFieldDeclarations(field, state, false)
     })
 }

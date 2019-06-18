@@ -1,8 +1,6 @@
 import * as ts from 'typescript'
 
-import { THRIFT_IDENTIFIERS } from '../identifiers'
-
-import { COMMON_IDENTIFIERS } from '../identifiers'
+import { COMMON_IDENTIFIERS, THRIFT_IDENTIFIERS } from '../identifiers'
 
 export const TProtocolType: ts.TypeNode = ts.createTypeReferenceNode(
     THRIFT_IDENTIFIERS.TProtocol,

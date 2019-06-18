@@ -82,7 +82,7 @@ export function createReadMethod(
      * const fieldId: number = ret.fieldId
      */
     const ret: ts.VariableStatement = createConstStatement(
-        'ret',
+        COMMON_IDENTIFIERS.ret,
         ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.TField, undefined),
         readFieldBegin(),
     )
@@ -90,13 +90,13 @@ export function createReadMethod(
     const fieldType: ts.VariableStatement = createConstStatement(
         'fieldType',
         ts.createTypeReferenceNode(THRIFT_IDENTIFIERS.Thrift_Type, undefined),
-        propertyAccessForIdentifier('ret', 'ftype'),
+        propertyAccessForIdentifier(COMMON_IDENTIFIERS.ret, COMMON_IDENTIFIERS.ftype),
     )
 
     const fieldId: ts.VariableStatement = createConstStatement(
         'fieldId',
         createNumberType(),
-        propertyAccessForIdentifier('ret', 'fid'),
+        propertyAccessForIdentifier(COMMON_IDENTIFIERS.ret, COMMON_IDENTIFIERS.fid),
     )
 
     /**

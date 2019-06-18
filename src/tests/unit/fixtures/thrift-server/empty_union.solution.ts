@@ -19,7 +19,7 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
     },
     decode(input: thrift.TProtocol): IMyUnion {
         let _fieldsSet: number = 0;
-        let _returnValue: IMyUnion | null = null;
+        let _returnValue: any = null;
         input.readStructBegin();
         while (true) {
             const ret: thrift.IThriftField = input.readFieldBegin();
@@ -42,12 +42,7 @@ export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
         else if (_fieldsSet < 1) {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.INVALID_DATA, "TUnion must have one value set");
         }
-        if (_returnValue !== null) {
-            return _returnValue;
-        }
-        else {
-            throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read data for TUnion");
-        }
+        throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Unable to read data for TUnion");
     }
 };
 export class MyUnion implements thrift.IStructLike, IMyUnion {
