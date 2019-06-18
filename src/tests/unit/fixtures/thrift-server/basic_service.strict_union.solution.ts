@@ -118,13 +118,8 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
                 case 2:
                     if (fieldType === thrift.TType.I64) {
                         _fieldsSet++;
-<<<<<<< HEAD
                         const value_4: bigint = input.readI64();
-                        _returnValue = { __name: "MyUnion", field2: value_4 };
-=======
-                        const value_4: thrift.Int64 = input.readI64();
                         _returnValue = { field2: value_4 };
->>>>>>> origin/master
                     }
                     else {
                         input.skip(fieldType);

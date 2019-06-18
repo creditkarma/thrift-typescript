@@ -140,8 +140,6 @@ export class MyStruct implements thrift.IStructLike, IMyStruct {
     public field1?: number;
     public blob?: Buffer = Buffer.from("binary");
     public readonly __name = "MyStruct";
-    public readonly _annotations: thrift.IThriftAnnotations = {};
-    public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: IMyStructArgs) {
         if (args.id != null) {
             const value_6: number = args.id;
