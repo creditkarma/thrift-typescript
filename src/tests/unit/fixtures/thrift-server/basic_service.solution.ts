@@ -9,7 +9,7 @@ export interface IUserArgs {
 }
 export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
     encode(args: IUserArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: IUserArgs = {
             name: args.name,
             id: args.id
         };
@@ -148,7 +148,7 @@ export interface IGetUser__ArgsArgs {
 }
 export const GetUser__ArgsCodec: thrift.IStructCodec<IGetUser__ArgsArgs, IGetUser__Args> = {
     encode(args: IGetUser__ArgsArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: IGetUser__ArgsArgs = {
             id: args.id
         };
         output.writeStructBegin("GetUser__Args");
@@ -236,7 +236,7 @@ export interface ISaveUser__ArgsArgs {
 }
 export const SaveUser__ArgsCodec: thrift.IStructCodec<ISaveUser__ArgsArgs, ISaveUser__Args> = {
     encode(args: ISaveUser__ArgsArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: ISaveUser__ArgsArgs = {
             user: args.user
         };
         output.writeStructBegin("SaveUser__Args");
@@ -375,7 +375,7 @@ export interface IGetUser__ResultArgs {
 }
 export const GetUser__ResultCodec: thrift.IStructCodec<IGetUser__ResultArgs, IGetUser__Result> = {
     encode(args: IGetUser__ResultArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: IGetUser__ResultArgs = {
             success: args.success
         };
         output.writeStructBegin("GetUser__Result");

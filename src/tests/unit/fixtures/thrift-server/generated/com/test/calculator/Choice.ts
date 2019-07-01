@@ -18,7 +18,7 @@ export interface IChoiceArgs {
 export const ChoiceCodec: thrift.IStructCodec<IChoiceArgs, IChoice> = {
     encode(args: IChoiceArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
-        const obj = {
+        const obj: IChoiceArgs = {
             firstName: args.firstName,
             lastName: args.lastName
         };

@@ -13,7 +13,7 @@ export interface ICodeArgs {
 }
 export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
     encode(args: ICodeArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: ICodeArgs = {
             status: (typeof args.status === "number" ? new thrift.Int64(args.status) : typeof args.status === "string" ? thrift.Int64.fromDecimalString(args.status) : args.status)
         };
         output.writeStructBegin("Code");

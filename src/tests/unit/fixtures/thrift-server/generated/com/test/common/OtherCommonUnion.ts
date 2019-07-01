@@ -16,7 +16,7 @@ export interface IOtherCommonUnionArgs {
 export const OtherCommonUnionCodec: thrift.IStructCodec<IOtherCommonUnionArgs, IOtherCommonUnion> = {
     encode(args: IOtherCommonUnionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
-        const obj = {
+        const obj: IOtherCommonUnionArgs = {
             option1: args.option1,
             option2: args.option2
         };
