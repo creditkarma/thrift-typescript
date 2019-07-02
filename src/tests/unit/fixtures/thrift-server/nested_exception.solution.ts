@@ -9,10 +9,10 @@ export interface ICodeArgs {
 }
 export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
     encode(args: ICodeArgs, output: thrift.TProtocol): void {
-        const obj: ICodeArgs = {
+        const obj = ({
             status: (args.status != null ? (typeof args.status === "number" ? new thrift.Int64(args.status) : typeof args.status === "string" ? thrift.Int64.fromDecimalString(args.status) : args.status) : thrift.Int64.fromDecimalString("200")),
             data: (args.data != null ? (typeof args.data === "string" ? Buffer.from(args.data) : args.data) : Buffer.from("data"))
-        };
+        } as ICodeArgs);
         output.writeStructBegin("Code");
         if (obj.status != null) {
             output.writeFieldBegin("status", thrift.TType.I64, 1);
@@ -109,10 +109,10 @@ export interface IMyExceptionArgs {
 }
 export const MyExceptionCodec: thrift.IStructCodec<IMyExceptionArgs, IMyException> = {
     encode(args: IMyExceptionArgs, output: thrift.TProtocol): void {
-        const obj: IMyExceptionArgs = {
+        const obj = ({
             description: args.description,
             code: args.code
-        };
+        } as IMyExceptionArgs);
         output.writeStructBegin("MyException");
         if (obj.description != null) {
             output.writeFieldBegin("description", thrift.TType.STRING, 1);

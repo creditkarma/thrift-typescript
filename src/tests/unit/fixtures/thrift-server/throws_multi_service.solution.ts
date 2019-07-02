@@ -7,9 +7,9 @@ export interface IServiceExceptionArgs {
 }
 export const ServiceExceptionCodec: thrift.IStructCodec<IServiceExceptionArgs, IServiceException> = {
     encode(args: IServiceExceptionArgs, output: thrift.TProtocol): void {
-        const obj: IServiceExceptionArgs = {
+        const obj = ({
             message: args.message
-        };
+        } as IServiceExceptionArgs);
         output.writeStructBegin("ServiceException");
         if (obj.message != null) {
             output.writeFieldBegin("message", thrift.TType.STRING, 1);
@@ -86,10 +86,10 @@ export interface IAuthExceptionArgs {
 }
 export const AuthExceptionCodec: thrift.IStructCodec<IAuthExceptionArgs, IAuthException> = {
     encode(args: IAuthExceptionArgs, output: thrift.TProtocol): void {
-        const obj: IAuthExceptionArgs = {
+        const obj = ({
             message: args.message,
             code: args.code
-        };
+        } as IAuthExceptionArgs);
         output.writeStructBegin("AuthException");
         if (obj.message != null) {
             output.writeFieldBegin("message", thrift.TType.STRING, 1);
@@ -184,9 +184,9 @@ export interface IUnknownExceptionArgs {
 }
 export const UnknownExceptionCodec: thrift.IStructCodec<IUnknownExceptionArgs, IUnknownException> = {
     encode(args: IUnknownExceptionArgs, output: thrift.TProtocol): void {
-        const obj: IUnknownExceptionArgs = {
+        const obj = ({
             message: args.message
-        };
+        } as IUnknownExceptionArgs);
         output.writeStructBegin("UnknownException");
         if (obj.message != null) {
             output.writeFieldBegin("message", thrift.TType.STRING, 1);
@@ -275,9 +275,9 @@ export interface IPeg__ArgsArgs {
 }
 export const Peg__ArgsCodec: thrift.IStructCodec<IPeg__ArgsArgs, IPeg__Args> = {
     encode(args: IPeg__ArgsArgs, output: thrift.TProtocol): void {
-        const obj: IPeg__ArgsArgs = {
+        const obj = ({
             name: args.name
-        };
+        } as IPeg__ArgsArgs);
         output.writeStructBegin("Peg__Args");
         if (obj.name != null) {
             output.writeFieldBegin("name", thrift.TType.STRING, 1);
@@ -369,12 +369,12 @@ export interface IPeg__ResultArgs {
 }
 export const Peg__ResultCodec: thrift.IStructCodec<IPeg__ResultArgs, IPeg__Result> = {
     encode(args: IPeg__ResultArgs, output: thrift.TProtocol): void {
-        const obj: IPeg__ResultArgs = {
+        const obj = ({
             success: args.success,
             exp: args.exp,
             authExp: args.authExp,
             unknownExp: args.unknownExp
-        };
+        } as IPeg__ResultArgs);
         output.writeStructBegin("Peg__Result");
         if (obj.success != null) {
             output.writeFieldBegin("success", thrift.TType.STRING, 0);

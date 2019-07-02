@@ -54,28 +54,31 @@ export function createTempVariables(
         return [
             createConstStatement(
                 COMMON_IDENTIFIERS.obj,
-                ts.createTypeReferenceNode(
-                    ts.createIdentifier(looseNameForStruct(node, state)),
-                    undefined,
-                ),
-                ts.createObjectLiteral(
-                    node.fields.map(
-                        (
-                            next: FieldDefinition,
-                        ): ts.ObjectLiteralElementLike => {
-                            return ts.createPropertyAssignment(
-                                next.name.value,
-                                getInitializerForField(
-                                    COMMON_IDENTIFIERS.args,
-                                    next,
-                                    state,
-                                    withDefault,
-                                    true,
-                                ),
-                            )
-                        },
+                undefined,
+                ts.createAsExpression(
+                    ts.createObjectLiteral(
+                        node.fields.map(
+                            (
+                                next: FieldDefinition,
+                            ): ts.ObjectLiteralElementLike => {
+                                return ts.createPropertyAssignment(
+                                    next.name.value,
+                                    getInitializerForField(
+                                        COMMON_IDENTIFIERS.args,
+                                        next,
+                                        state,
+                                        withDefault,
+                                        true,
+                                    ),
+                                )
+                            },
+                        ),
+                        true, // multiline
                     ),
-                    true, // multiline
+                    ts.createTypeReferenceNode(
+                        ts.createIdentifier(looseNameForStruct(node, state)),
+                        undefined,
+                    ),
                 ),
             ),
         ]

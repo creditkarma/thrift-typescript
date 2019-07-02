@@ -16,10 +16,10 @@ export interface IAuthExceptionArgs {
 }
 export const AuthExceptionCodec: thrift.IStructCodec<IAuthExceptionArgs, IAuthException> = {
     encode(args: IAuthExceptionArgs, output: thrift.TProtocol): void {
-        const obj: IAuthExceptionArgs = {
+        const obj = ({
             code: args.code,
             message: args.message
-        };
+        } as IAuthExceptionArgs);
         output.writeStructBegin("AuthException");
         if (obj.code != null) {
             output.writeFieldBegin("code", thrift.TType.I32, 1);

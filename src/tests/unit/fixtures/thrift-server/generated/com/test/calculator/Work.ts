@@ -21,12 +21,12 @@ export interface IWorkArgs {
 }
 export const WorkCodec: thrift.IStructCodec<IWorkArgs, IWork> = {
     encode(args: IWorkArgs, output: thrift.TProtocol): void {
-        const obj: IWorkArgs = {
+        const obj = ({
             num1: (args.num1 != null ? args.num1 : 0),
             num2: args.num2,
             op: (args.op != null ? args.op : Operation.Operation.ADD),
             comment: args.comment
-        };
+        } as IWorkArgs);
         output.writeStructBegin("Work");
         if (obj.num1 != null) {
             output.writeFieldBegin("num1", thrift.TType.I32, 1);
