@@ -66,7 +66,7 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
     },
     encode(args: MyUnionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
-        const obj = {
+        const obj: MyUnionArgs = {
             field1: args.field1,
             field2: (typeof args.field2 === "number" ? new thrift.Int64(args.field2) : typeof args.field2 === "string" ? thrift.Int64.fromDecimalString(args.field2) : args.field2)
         };

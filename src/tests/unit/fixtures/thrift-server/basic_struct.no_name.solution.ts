@@ -6,7 +6,7 @@ export interface IMyStructArgs {
 }
 export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
     encode(args: IMyStructArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: IMyStructArgs = {
             id: args.id
         };
         output.writeStructBegin("MyStruct");

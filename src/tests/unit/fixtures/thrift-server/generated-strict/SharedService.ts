@@ -40,7 +40,7 @@ export interface IGetUnion__ArgsArgs {
 }
 export const GetUnion__ArgsCodec: thrift.IStructCodec<IGetUnion__ArgsArgs, IGetUnion__Args> = {
     encode(args: IGetUnion__ArgsArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: IGetUnion__ArgsArgs = {
             index: args.index
         };
         output.writeStructBegin("GetUnion__Args");
@@ -179,7 +179,7 @@ export interface IGetUnion__ResultArgs {
 }
 export const GetUnion__ResultCodec: thrift.IStructCodec<IGetUnion__ResultArgs, IGetUnion__Result> = {
     encode(args: IGetUnion__ResultArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: IGetUnion__ResultArgs = {
             success: args.success
         };
         output.writeStructBegin("GetUnion__Result");
@@ -256,7 +256,7 @@ export interface IGetEnum__ResultArgs {
 }
 export const GetEnum__ResultCodec: thrift.IStructCodec<IGetEnum__ResultArgs, IGetEnum__Result> = {
     encode(args: IGetEnum__ResultArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: IGetEnum__ResultArgs = {
             success: args.success
         };
         output.writeStructBegin("GetEnum__Result");

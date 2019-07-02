@@ -17,7 +17,7 @@ export interface INotAGoodIdeaArgs {
 }
 export const NotAGoodIdeaCodec: thrift.IStructCodec<INotAGoodIdeaArgs, INotAGoodIdea> = {
     encode(args: INotAGoodIdeaArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: INotAGoodIdeaArgs = {
             message: args.message,
             data: args.data
         };

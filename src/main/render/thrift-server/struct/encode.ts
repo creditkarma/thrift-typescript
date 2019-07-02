@@ -54,7 +54,10 @@ export function createTempVariables(
         return [
             createConstStatement(
                 COMMON_IDENTIFIERS.obj,
-                undefined,
+                ts.createTypeReferenceNode(
+                    ts.createIdentifier(looseNameForStruct(node, state)),
+                    undefined,
+                ),
                 ts.createObjectLiteral(
                     node.fields.map(
                         (
