@@ -375,7 +375,7 @@ export interface IGetUser__ResultArgs {
 }
 export const GetUser__ResultCodec: thrift.IStructCodec<IGetUser__ResultArgs, IGetUser__Result> = {
     encode(args: IGetUser__ResultArgs, output: thrift.TProtocol): void {
-        const obj = ({
+        let obj = ({
             success: args.success
         } as IGetUser__ResultArgs);
         output.writeStructBegin("GetUser__Result");

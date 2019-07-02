@@ -124,17 +124,19 @@ function checkDefaults(
                     [
                         ts.createStatement(
                             ts.createAssignment(
-                                ts.createPropertyAccess(
-                                    COMMON_IDENTIFIERS.obj,
-                                    ts.createIdentifier(
-                                        defaultField.name.value,
+                                COMMON_IDENTIFIERS.obj,
+                                ts.createObjectLiteral([
+                                    ts.createPropertyAssignment(
+                                        ts.createIdentifier(
+                                            defaultField.name.value,
+                                        ),
+                                        renderValue(
+                                            defaultField.fieldType,
+                                            defaultField.defaultValue!,
+                                            state,
+                                        ),
                                     ),
-                                ),
-                                renderValue(
-                                    defaultField.fieldType,
-                                    defaultField.defaultValue!,
-                                    state,
-                                ),
+                                ]),
                             ),
                         ),
                     ],

@@ -37,6 +37,7 @@ import {
 
 import { DefinitionType, IRenderState } from '../../../types'
 
+import { createLetStatement } from '../../shared/utils'
 import { looseNameForStruct, throwForField, toolkitName } from './utils'
 
 export function createTempVariables(
@@ -50,9 +51,14 @@ export function createTempVariables(
         },
     )
 
+    // Unions use reassignment for defaults
+    const createVariable = withDefault
+        ? createConstStatement
+        : createLetStatement
+
     if (structFields.length > 0) {
         return [
-            createConstStatement(
+            createVariable(
                 COMMON_IDENTIFIERS.obj,
                 undefined,
                 ts.createAsExpression(
