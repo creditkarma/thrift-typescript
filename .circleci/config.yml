@@ -1,5 +1,5 @@
 defaults: &defaults
-  working_directory: ~/thrift-typescript
+  working_directory: ~/tmp
   docker:
     - image: circleci/node:8.9.4
 
