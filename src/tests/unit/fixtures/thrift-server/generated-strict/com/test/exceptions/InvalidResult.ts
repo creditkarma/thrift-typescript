@@ -17,10 +17,10 @@ export interface IInvalidResultArgs {
 }
 export const InvalidResultCodec: thrift.IStructCodec<IInvalidResultArgs, IInvalidResult> = {
     encode(args: IInvalidResultArgs, output: thrift.TProtocol): void {
-        const obj: IInvalidResultArgs = {
+        const obj = ({
             message: args.message,
             code: args.code
-        };
+        } as IInvalidResultArgs);
         output.writeStructBegin("InvalidResult");
         if (obj.message != null) {
             output.writeFieldBegin("message", thrift.TType.STRING, 1);

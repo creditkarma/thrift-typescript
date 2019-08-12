@@ -70,10 +70,10 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
     },
     encode(args: MyUnionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
-        const obj: MyUnionArgs = {
+        let obj = ({
             option1: args.option1,
             option2: args.option2
-        };
+        } as MyUnionArgs);
         output.writeStructBegin("MyUnion");
         if (obj.option1 != null) {
             _fieldsSet++;

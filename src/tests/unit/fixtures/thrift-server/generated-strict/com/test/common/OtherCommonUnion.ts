@@ -73,10 +73,10 @@ export const OtherCommonUnionCodec: thrift.IStructToolkit<OtherCommonUnionArgs, 
     },
     encode(args: OtherCommonUnionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
-        const obj: OtherCommonUnionArgs = {
+        const obj = ({
             option1: args.option1,
             option2: args.option2
-        };
+        } as OtherCommonUnionArgs);
         output.writeStructBegin("OtherCommonUnion");
         if (obj.option1 != null) {
             _fieldsSet++;

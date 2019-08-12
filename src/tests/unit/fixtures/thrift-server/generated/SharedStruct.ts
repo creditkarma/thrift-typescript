@@ -19,11 +19,11 @@ export interface ISharedStructArgs {
 }
 export const SharedStructCodec: thrift.IStructCodec<ISharedStructArgs, ISharedStruct> = {
     encode(args: ISharedStructArgs, output: thrift.TProtocol): void {
-        const obj: ISharedStructArgs = {
+        const obj = ({
             code: args.code,
             value: args.value,
             mapWithDefault: (args.mapWithDefault != null ? args.mapWithDefault : new Map([]))
-        };
+        } as ISharedStructArgs);
         output.writeStructBegin("SharedStruct");
         if (obj.code != null) {
             output.writeFieldBegin("code", thrift.TType.STRUCT, 1);

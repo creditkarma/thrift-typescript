@@ -10,10 +10,10 @@ export interface IOptionArgs {
 export const OptionCodec: thrift.IStructCodec<IOptionArgs, IOption> = {
     encode(args: IOptionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
-        const obj: IOptionArgs = {
+        let obj = ({
             option1: (typeof args.option1 === "string" ? Buffer.from(args.option1) : args.option1),
             option2: (typeof args.option2 === "number" ? new thrift.Int64(args.option2) : typeof args.option2 === "string" ? thrift.Int64.fromDecimalString(args.option2) : args.option2)
-        };
+        } as IOptionArgs);
         output.writeStructBegin("Option");
         if (obj.option1 != null) {
             _fieldsSet++;
@@ -149,10 +149,10 @@ export interface IMyUnionArgs {
 export const MyUnionCodec: thrift.IStructCodec<IMyUnionArgs, IMyUnion> = {
     encode(args: IMyUnionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
-        const obj: IMyUnionArgs = {
+        let obj = ({
             name: args.name,
             option: args.option
-        };
+        } as IMyUnionArgs);
         output.writeStructBegin("MyUnion");
         if (obj.name != null) {
             _fieldsSet++;

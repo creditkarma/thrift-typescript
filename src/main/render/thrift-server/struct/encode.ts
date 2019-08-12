@@ -37,6 +37,7 @@ import {
 
 import { DefinitionType, IRenderState } from '../../../types'
 
+import { createLetStatement } from '../../shared/utils'
 import { looseNameForStruct, throwForField, toolkitName } from './utils'
 
 export function createTempVariables(
@@ -50,32 +51,40 @@ export function createTempVariables(
         },
     )
 
+    // Unions use reassignment for defaults
+    const createVariable = withDefault
+        ? createConstStatement
+        : createLetStatement
+
     if (structFields.length > 0) {
         return [
-            createConstStatement(
+            createVariable(
                 COMMON_IDENTIFIERS.obj,
-                ts.createTypeReferenceNode(
-                    ts.createIdentifier(looseNameForStruct(node, state)),
-                    undefined,
-                ),
-                ts.createObjectLiteral(
-                    node.fields.map(
-                        (
-                            next: FieldDefinition,
-                        ): ts.ObjectLiteralElementLike => {
-                            return ts.createPropertyAssignment(
-                                next.name.value,
-                                getInitializerForField(
-                                    COMMON_IDENTIFIERS.args,
-                                    next,
-                                    state,
-                                    withDefault,
-                                    true,
-                                ),
-                            )
-                        },
+                undefined,
+                ts.createAsExpression(
+                    ts.createObjectLiteral(
+                        node.fields.map(
+                            (
+                                next: FieldDefinition,
+                            ): ts.ObjectLiteralElementLike => {
+                                return ts.createPropertyAssignment(
+                                    next.name.value,
+                                    getInitializerForField(
+                                        COMMON_IDENTIFIERS.args,
+                                        next,
+                                        state,
+                                        withDefault,
+                                        true,
+                                    ),
+                                )
+                            },
+                        ),
+                        true, // multiline
                     ),
-                    true, // multiline
+                    ts.createTypeReferenceNode(
+                        ts.createIdentifier(looseNameForStruct(node, state)),
+                        undefined,
+                    ),
                 ),
             ),
         ]

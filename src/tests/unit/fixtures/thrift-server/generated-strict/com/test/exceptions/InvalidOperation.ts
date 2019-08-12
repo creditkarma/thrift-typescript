@@ -16,10 +16,10 @@ export interface IInvalidOperationArgs {
 }
 export const InvalidOperationCodec: thrift.IStructCodec<IInvalidOperationArgs, IInvalidOperation> = {
     encode(args: IInvalidOperationArgs, output: thrift.TProtocol): void {
-        const obj: IInvalidOperationArgs = {
+        const obj = ({
             whatOp: args.whatOp,
             why: args.why
-        };
+        } as IInvalidOperationArgs);
         output.writeStructBegin("InvalidOperation");
         if (obj.whatOp != null) {
             output.writeFieldBegin("whatOp", thrift.TType.I32, 1);

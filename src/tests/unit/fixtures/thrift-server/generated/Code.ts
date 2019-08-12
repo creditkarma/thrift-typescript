@@ -14,9 +14,9 @@ export interface ICodeArgs {
 }
 export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
     encode(args: ICodeArgs, output: thrift.TProtocol): void {
-        const obj: ICodeArgs = {
+        const obj = ({
             status: (typeof args.status === "number" ? new thrift.Int64(args.status) : typeof args.status === "string" ? thrift.Int64.fromDecimalString(args.status) : args.status)
-        };
+        } as ICodeArgs);
         output.writeStructBegin("Code");
         if (obj.status != null) {
             output.writeFieldBegin("status", thrift.TType.I64, 1);
