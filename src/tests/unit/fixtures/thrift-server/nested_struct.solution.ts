@@ -9,7 +9,7 @@ export interface IUserArgs {
 }
 export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
     encode(args: IUserArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: any = {
             name: args.name,
             age: (args.age != null ? (typeof args.age === "number" ? new thrift.Int64(args.age) : typeof args.age === "string" ? thrift.Int64.fromDecimalString(args.age) : args.age) : thrift.Int64.fromDecimalString("45"))
         };
@@ -120,7 +120,7 @@ export interface IMyStructArgs {
 }
 export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
     encode(args: IMyStructArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: any = {
             name: args.name,
             user: args.user
         };

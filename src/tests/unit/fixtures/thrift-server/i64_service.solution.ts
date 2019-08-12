@@ -7,7 +7,7 @@ export interface ICodeArgs {
 }
 export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
     encode(args: ICodeArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: any = {
             status: (typeof args.status === "number" ? new thrift.Int64(args.status) : typeof args.status === "string" ? thrift.Int64.fromDecimalString(args.status) : args.status)
         };
         output.writeStructBegin("Code");
@@ -103,7 +103,7 @@ export interface IPeg__ArgsArgs {
 }
 export const Peg__ArgsCodec: thrift.IStructCodec<IPeg__ArgsArgs, IPeg__Args> = {
     encode(args: IPeg__ArgsArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: any = {
             name: args.name
         };
         output.writeStructBegin("Peg__Args");
@@ -191,7 +191,7 @@ export interface IPong__ArgsArgs {
 }
 export const Pong__ArgsCodec: thrift.IStructCodec<IPong__ArgsArgs, IPong__Args> = {
     encode(args: IPong__ArgsArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: any = {
             code: args.code
         };
         output.writeStructBegin("Pong__Args");
@@ -268,7 +268,7 @@ export interface IPeg__ResultArgs {
 }
 export const Peg__ResultCodec: thrift.IStructCodec<IPeg__ResultArgs, IPeg__Result> = {
     encode(args: IPeg__ResultArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: any = {
             success: args.success
         };
         output.writeStructBegin("Peg__Result");
@@ -345,7 +345,7 @@ export interface IPong__ResultArgs {
 }
 export const Pong__ResultCodec: thrift.IStructCodec<IPong__ResultArgs, IPong__Result> = {
     encode(args: IPong__ResultArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: any = {
             success: (typeof args.success === "number" ? new thrift.Int64(args.success) : typeof args.success === "string" ? thrift.Int64.fromDecimalString(args.success) : args.success)
         };
         output.writeStructBegin("Pong__Result");

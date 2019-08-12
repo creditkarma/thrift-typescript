@@ -9,7 +9,7 @@ export interface IMyExceptionArgs {
 }
 export const MyExceptionCodec: thrift.IStructCodec<IMyExceptionArgs, IMyException> = {
     encode(args: IMyExceptionArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: any = {
             message: args.message,
             code: (args.code != null ? args.code : 200)
         };

@@ -21,7 +21,7 @@ export interface IWorkArgs {
 }
 export const WorkCodec: thrift.IStructCodec<IWorkArgs, IWork> = {
     encode(args: IWorkArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: any = {
             num1: (args.num1 != null ? args.num1 : 0),
             num2: args.num2,
             op: (args.op != null ? args.op : Operation.Operation.ADD),

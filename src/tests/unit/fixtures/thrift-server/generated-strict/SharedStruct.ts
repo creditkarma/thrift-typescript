@@ -17,7 +17,7 @@ export interface ISharedStructArgs {
 }
 export const SharedStructCodec: thrift.IStructCodec<ISharedStructArgs, ISharedStruct> = {
     encode(args: ISharedStructArgs, output: thrift.TProtocol): void {
-        const obj = {
+        const obj: any = {
             code: args.code,
             value: args.value
         };
