@@ -26,6 +26,7 @@ import * as Sys from './sys'
 import * as Utils from './utils'
 import * as Validator from './validator'
 
+export * from './types'
 export * from './resolver'
 export * from './parser'
 export { Utils }
