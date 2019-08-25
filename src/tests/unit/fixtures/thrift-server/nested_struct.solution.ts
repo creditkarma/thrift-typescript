@@ -9,10 +9,10 @@ export interface IUserArgs {
 }
 export const UserCodec: thrift.IStructCodec<IUserArgs, IUser> = {
     encode(args: IUserArgs, output: thrift.TProtocol): void {
-        const obj = ({
+        const obj: IUserArgs = {
             name: args.name,
             age: (args.age != null ? (typeof args.age === "number" ? new thrift.Int64(args.age) : typeof args.age === "string" ? thrift.Int64.fromDecimalString(args.age) : args.age) : thrift.Int64.fromDecimalString("45"))
-        } as IUserArgs);
+        };
         output.writeStructBegin("User");
         if (obj.name != null) {
             output.writeFieldBegin("name", thrift.TType.STRING, 1);
@@ -120,10 +120,10 @@ export interface IMyStructArgs {
 }
 export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
     encode(args: IMyStructArgs, output: thrift.TProtocol): void {
-        const obj = ({
+        const obj: IMyStructArgs = {
             name: args.name,
             user: args.user
-        } as IMyStructArgs);
+        };
         output.writeStructBegin("MyStruct");
         if (obj.name != null) {
             output.writeFieldBegin("name", thrift.TType.STRING, 1);

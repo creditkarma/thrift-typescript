@@ -22,9 +22,9 @@ export interface IPing__ArgsArgs {
 }
 export const Ping__ArgsCodec: thrift.IStructCodec<IPing__ArgsArgs, IPing__Args> = {
     encode(args: IPing__ArgsArgs, output: thrift.TProtocol): void {
-        const obj = ({
+        const obj: IPing__ArgsArgs = {
             id: (typeof args.id === "number" ? new thrift.Int64(args.id) : typeof args.id === "string" ? thrift.Int64.fromDecimalString(args.id) : args.id)
-        } as IPing__ArgsArgs);
+        };
         output.writeStructBegin("Ping__Args");
         if (obj.id != null) {
             output.writeFieldBegin("id", thrift.TType.I64, 1);

@@ -7,9 +7,9 @@ export interface ICodeArgs {
 }
 export const CodeCodec: thrift.IStructCodec<ICodeArgs, ICode> = {
     encode(args: ICodeArgs, output: thrift.TProtocol): void {
-        const obj = ({
+        const obj: ICodeArgs = {
             status: (typeof args.status === "number" ? new thrift.Int64(args.status) : typeof args.status === "string" ? thrift.Int64.fromDecimalString(args.status) : args.status)
-        } as ICodeArgs);
+        };
         output.writeStructBegin("Code");
         if (obj.status != null) {
             output.writeFieldBegin("status", thrift.TType.I64, 1);
@@ -103,9 +103,9 @@ export interface IPeg__ArgsArgs {
 }
 export const Peg__ArgsCodec: thrift.IStructCodec<IPeg__ArgsArgs, IPeg__Args> = {
     encode(args: IPeg__ArgsArgs, output: thrift.TProtocol): void {
-        const obj = ({
+        const obj: IPeg__ArgsArgs = {
             name: args.name
-        } as IPeg__ArgsArgs);
+        };
         output.writeStructBegin("Peg__Args");
         if (obj.name != null) {
             output.writeFieldBegin("name", thrift.TType.STRING, 1);
@@ -191,9 +191,9 @@ export interface IPong__ArgsArgs {
 }
 export const Pong__ArgsCodec: thrift.IStructCodec<IPong__ArgsArgs, IPong__Args> = {
     encode(args: IPong__ArgsArgs, output: thrift.TProtocol): void {
-        const obj = ({
+        const obj: IPong__ArgsArgs = {
             code: args.code
-        } as IPong__ArgsArgs);
+        };
         output.writeStructBegin("Pong__Args");
         if (obj.code != null) {
             output.writeFieldBegin("code", thrift.TType.STRUCT, 1);
@@ -268,9 +268,9 @@ export interface IPeg__ResultArgs {
 }
 export const Peg__ResultCodec: thrift.IStructCodec<IPeg__ResultArgs, IPeg__Result> = {
     encode(args: IPeg__ResultArgs, output: thrift.TProtocol): void {
-        const obj = ({
+        const obj: IPeg__ResultArgs = {
             success: args.success
-        } as IPeg__ResultArgs);
+        };
         output.writeStructBegin("Peg__Result");
         if (obj.success != null) {
             output.writeFieldBegin("success", thrift.TType.STRING, 0);
@@ -345,9 +345,9 @@ export interface IPong__ResultArgs {
 }
 export const Pong__ResultCodec: thrift.IStructCodec<IPong__ResultArgs, IPong__Result> = {
     encode(args: IPong__ResultArgs, output: thrift.TProtocol): void {
-        const obj = ({
+        const obj: IPong__ResultArgs = {
             success: (typeof args.success === "number" ? new thrift.Int64(args.success) : typeof args.success === "string" ? thrift.Int64.fromDecimalString(args.success) : args.success)
-        } as IPong__ResultArgs);
+        };
         output.writeStructBegin("Pong__Result");
         if (obj.success != null) {
             output.writeFieldBegin("success", thrift.TType.I64, 0);

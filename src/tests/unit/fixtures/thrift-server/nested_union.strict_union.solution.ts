@@ -66,10 +66,10 @@ export const InnerUnionCodec: thrift.IStructToolkit<InnerUnionArgs, InnerUnion> 
     },
     encode(args: InnerUnionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
-        let obj = ({
+        const obj: InnerUnionArgs = {
             name: args.name,
             id: args.id
-        } as InnerUnionArgs);
+        };
         output.writeStructBegin("InnerUnion");
         if (obj.name != null) {
             _fieldsSet++;
@@ -227,10 +227,10 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
     },
     encode(args: MyUnionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
-        let obj = ({
+        const obj: MyUnionArgs = {
             user: args.user,
             field2: args.field2
-        } as MyUnionArgs);
+        };
         output.writeStructBegin("MyUnion");
         if (obj.user != null) {
             _fieldsSet++;

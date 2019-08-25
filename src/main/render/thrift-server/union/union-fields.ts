@@ -92,10 +92,6 @@ export function fieldInterfaceName(
     }
 }
 
-export function defaultInterfaceName(nodeName: string) {
-    return `I${nodeName}DefaultArgs`
-}
-
 function renderInterfaceForField(
     node: UnionDefinition,
     field: FieldDefinition,
@@ -162,30 +158,6 @@ function renderInterfaceForField(
     )
 }
 
-function renderInterfaceForDefault(
-    node: UnionDefinition,
-    isExported: boolean,
-): ts.InterfaceDeclaration {
-    const signatures = node.fields.map((next: FieldDefinition) => {
-        return ts.createPropertySignature(
-            undefined,
-            next.name.value,
-            ts.createToken(ts.SyntaxKind.QuestionToken),
-            createUndefinedType(),
-            undefined,
-        )
-    })
-
-    return ts.createInterfaceDeclaration(
-        undefined,
-        tokens(isExported),
-        ts.createIdentifier(defaultInterfaceName(node.name.value)),
-        [],
-        [],
-        signatures,
-    )
-}
-
 export function renderUnionsForFields(
     node: UnionDefinition,
     state: IRenderState,
@@ -209,14 +181,6 @@ export function renderUnionsForFields(
                         undefined,
                     )
                 }),
-                ...(isStrict || !hasDefault(node)
-                    ? []
-                    : [
-                          ts.createTypeReferenceNode(
-                              defaultInterfaceName(node.name.value),
-                              undefined,
-                          ),
-                      ]),
             ]),
         ),
         ...node.fields.map(
@@ -230,12 +194,5 @@ export function renderUnionsForFields(
                 )
             },
         ),
-        ...(isStrict || !hasDefault(node)
-            ? []
-            : [renderInterfaceForDefault(node, true)]),
     ]
-}
-
-export function hasDefault(node: UnionDefinition) {
-    return node.fields.find((field) => field.defaultValue !== null)
 }

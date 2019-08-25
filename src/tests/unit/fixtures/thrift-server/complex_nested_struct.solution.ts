@@ -9,10 +9,10 @@ export interface IOtherStructArgs {
 }
 export const OtherStructCodec: thrift.IStructCodec<IOtherStructArgs, IOtherStruct> = {
     encode(args: IOtherStructArgs, output: thrift.TProtocol): void {
-        const obj = ({
+        const obj: IOtherStructArgs = {
             id: (typeof args.id === "number" ? new thrift.Int64(args.id) : typeof args.id === "string" ? thrift.Int64.fromDecimalString(args.id) : args.id),
             name: (args.name != null ? (typeof args.name === "string" ? Buffer.from(args.name) : args.name) : Buffer.from("John"))
-        } as IOtherStructArgs);
+        };
         output.writeStructBegin("OtherStruct");
         if (obj.id != null) {
             output.writeFieldBegin("id", thrift.TType.I64, 1);
@@ -132,7 +132,7 @@ export interface IMyStructArgs {
 }
 export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
     encode(args: IMyStructArgs, output: thrift.TProtocol): void {
-        const obj = ({
+        const obj: IMyStructArgs = {
             idList: args.idList,
             idMap: args.idMap,
             idMapList: args.idMapList,
@@ -141,7 +141,7 @@ export const MyStructCodec: thrift.IStructCodec<IMyStructArgs, IMyStruct> = {
             listList: args.listList,
             listListString: args.listListString,
             i64KeyedMap: args.i64KeyedMap
-        } as IMyStructArgs);
+        };
         output.writeStructBegin("MyStruct");
         if (obj.idList != null) {
             output.writeFieldBegin("idList", thrift.TType.LIST, 1);

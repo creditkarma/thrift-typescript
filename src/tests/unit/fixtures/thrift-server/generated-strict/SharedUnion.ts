@@ -73,10 +73,10 @@ export const SharedUnionCodec: thrift.IStructToolkit<SharedUnionArgs, SharedUnio
     },
     encode(args: SharedUnionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
-        const obj = ({
+        const obj: SharedUnionArgs = {
             option1: args.option1,
             option2: args.option2
-        } as SharedUnionArgs);
+        };
         output.writeStructBegin("SharedUnion");
         if (obj.option1 != null) {
             _fieldsSet++;

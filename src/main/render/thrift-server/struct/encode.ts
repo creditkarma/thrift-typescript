@@ -37,7 +37,6 @@ import {
 
 import { DefinitionType, IRenderState, IResolveResult } from '../../../types'
 
-import { createLetStatement } from '../../shared/utils'
 import { looseNameForStruct, throwForField, toolkitName } from './utils'
 
 export function createTempVariables(
@@ -51,40 +50,32 @@ export function createTempVariables(
         },
     )
 
-    // Unions use reassignment for defaults
-    const createVariable = withDefault
-        ? createConstStatement
-        : createLetStatement
-
     if (structFields.length > 0) {
         return [
-            createVariable(
+            createConstStatement(
                 COMMON_IDENTIFIERS.obj,
-                undefined,
-                ts.createAsExpression(
-                    ts.createObjectLiteral(
-                        node.fields.map(
-                            (
-                                next: FieldDefinition,
-                            ): ts.ObjectLiteralElementLike => {
-                                return ts.createPropertyAssignment(
-                                    next.name.value,
-                                    getInitializerForField(
-                                        COMMON_IDENTIFIERS.args,
-                                        next,
-                                        state,
-                                        withDefault,
-                                        true,
-                                    ),
-                                )
-                            },
-                        ),
-                        true, // multiline
+                ts.createTypeReferenceNode(
+                    ts.createIdentifier(looseNameForStruct(node, state)),
+                    undefined,
+                ),
+                ts.createObjectLiteral(
+                    node.fields.map(
+                        (
+                            next: FieldDefinition,
+                        ): ts.ObjectLiteralElementLike => {
+                            return ts.createPropertyAssignment(
+                                next.name.value,
+                                getInitializerForField(
+                                    COMMON_IDENTIFIERS.args,
+                                    next,
+                                    state,
+                                    withDefault,
+                                    true,
+                                ),
+                            )
+                        },
                     ),
-                    ts.createTypeReferenceNode(
-                        ts.createIdentifier(looseNameForStruct(node, state)),
-                        undefined,
-                    ),
+                    true, // multiline
                 ),
             ),
         ]

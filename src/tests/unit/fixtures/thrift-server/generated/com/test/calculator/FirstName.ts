@@ -14,9 +14,9 @@ export interface IFirstNameArgs {
 }
 export const FirstNameCodec: thrift.IStructCodec<IFirstNameArgs, IFirstName> = {
     encode(args: IFirstNameArgs, output: thrift.TProtocol): void {
-        const obj = ({
+        const obj: IFirstNameArgs = {
             name: args.name
-        } as IFirstNameArgs);
+        };
         output.writeStructBegin("FirstName");
         if (obj.name != null) {
             output.writeFieldBegin("name", thrift.TType.STRING, 1);
