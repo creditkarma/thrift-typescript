@@ -37,7 +37,7 @@ function isObject(obj: any): boolean {
     return obj !== null && typeof obj === 'object'
 }
 
-export function deepMerge<Base, Update>(
+export function deepMerge<Base extends object, Update extends object>(
     base: Base,
     update: Update,
 ): Base & Update {
