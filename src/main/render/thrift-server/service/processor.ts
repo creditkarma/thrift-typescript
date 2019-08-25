@@ -255,7 +255,7 @@ function createSuperCall(
                     Resolver.resolveIdentifierDefinition(service, {
                         currentNamespace: state.currentNamespace,
                         namespaceMap: state.project.namespaces,
-                    }),
+                    }).definition,
                 ),
             ],
         ),

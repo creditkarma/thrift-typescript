@@ -2,7 +2,7 @@ import * as ts from 'typescript'
 
 import { FunctionType, SyntaxType } from '@creditkarma/thrift-parser'
 
-import { DefinitionType, IRenderState } from '../../types'
+import { DefinitionType, IRenderState, IResolveResult } from '../../types'
 
 import {
     APPLICATION_EXCEPTION,
@@ -149,13 +149,15 @@ export function thriftTypeForFieldType(
 ): ts.Identifier {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
-            return thriftTypeForIdentifier(
-                Resolver.resolveIdentifierDefinition(fieldType, {
+            const result: IResolveResult = Resolver.resolveIdentifierDefinition(
+                fieldType,
+                {
                     currentNamespace: state.currentNamespace,
                     namespaceMap: state.project.namespaces,
-                }),
-                state,
+                },
             )
+
+            return thriftTypeForIdentifier(result.definition, state)
 
         case SyntaxType.SetType:
             return THRIFT_TYPES.SET

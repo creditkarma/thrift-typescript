@@ -11,7 +11,12 @@ import {
 
 import { createValidationError, IThriftError, ValidationError } from '../errors'
 import { Resolver } from '../resolver'
-import { DefinitionType, INamespace, INamespaceMap } from '../types'
+import {
+    DefinitionType,
+    INamespace,
+    INamespaceMap,
+    IResolveResult,
+} from '../types'
 import { constToTypeString, fieldTypeToString } from './utils'
 
 function typeMismatch(
@@ -92,7 +97,7 @@ export function validateNamespace(
 
     function validateExtends(id: Identifier | null): void {
         if (id !== null) {
-            const resolvedIdentifier: DefinitionType = Resolver.resolveIdentifierDefinition(
+            const result: IResolveResult = Resolver.resolveIdentifierDefinition(
                 id,
                 {
                     currentNamespace,
@@ -100,9 +105,11 @@ export function validateNamespace(
                 },
             )
 
-            if (resolvedIdentifier.type !== SyntaxType.ServiceDefinition) {
+            const definition = result.definition
+
+            if (definition.type !== SyntaxType.ServiceDefinition) {
                 throw new ValidationError(
-                    `Service type expected but found type ${resolvedIdentifier.type}`,
+                    `Service type expected but found type ${definition.type}`,
                     id.loc,
                 )
             }
@@ -139,13 +146,16 @@ export function validateNamespace(
         resolvedValue: ConstValue,
         rawValue: ConstValue,
     ): void {
-        const definition: DefinitionType = Resolver.resolveIdentifierDefinition(
+        const result: IResolveResult = Resolver.resolveIdentifierDefinition(
             id,
             {
                 currentNamespace,
                 namespaceMap,
             },
         )
+
+        const definition = result.definition
+
         switch (definition.type) {
             case SyntaxType.ServiceDefinition:
                 throw new ValidationError(

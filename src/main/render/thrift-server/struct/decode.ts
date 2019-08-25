@@ -36,7 +36,7 @@ import {
     throwProtocolException,
 } from '../utils'
 
-import { DefinitionType, IRenderState } from '../../../types'
+import { DefinitionType, IRenderState, IResolveResult } from '../../../types'
 
 import { READ_METHODS } from './methods'
 
@@ -390,14 +390,17 @@ export function readValueForFieldType(
 ): Array<ts.Statement> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
-            const definition = Resolver.resolveIdentifierDefinition(fieldType, {
-                currentNamespace: state.currentNamespace,
-                namespaceMap: state.project.namespaces,
-            })
+            const result: IResolveResult = Resolver.resolveIdentifierDefinition(
+                fieldType,
+                {
+                    currentNamespace: state.currentNamespace,
+                    namespaceMap: state.project.namespaces,
+                },
+            )
 
             return readValueForIdentifier(
                 fieldType.value,
-                definition,
+                result.definition,
                 fieldType,
                 fieldName,
                 state,

@@ -17,6 +17,7 @@ import {
     INamespace,
     INamespaceMap,
     INamespacePath,
+    IResolveResult,
 } from '../types'
 
 import { createValidationError, IThriftError, ValidationError } from '../errors'
@@ -239,10 +240,15 @@ export function resolveNamespace(
              * case.
              */
             case SyntaxType.Identifier:
-                const definition = resolveIdentifierDefinition(fieldType, {
-                    currentNamespace,
-                    namespaceMap,
-                })
+                const result: IResolveResult = resolveIdentifierDefinition(
+                    fieldType,
+                    {
+                        currentNamespace,
+                        namespaceMap,
+                    },
+                )
+
+                const definition = result.definition
 
                 if (
                     definition.type === SyntaxType.TypedefDefinition &&

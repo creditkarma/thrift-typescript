@@ -17,7 +17,7 @@ import {
 import { className, toolkitName } from './utils'
 
 import { Resolver } from '../../../resolver'
-import { DefinitionType, IRenderState } from '../../../types'
+import { DefinitionType, IRenderState, IResolveResult } from '../../../types'
 import { createMethodCall } from '../../shared/utils'
 import { COMMON_IDENTIFIERS } from '../identifiers'
 import { createVoidType, typeNodeForFieldType } from '../types'
@@ -148,15 +148,18 @@ export function assignmentForFieldType(
 ): Array<ts.Statement> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
-            const definition = Resolver.resolveIdentifierDefinition(fieldType, {
-                currentNamespace: state.currentNamespace,
-                namespaceMap: state.project.namespaces,
-            })
+            const result: IResolveResult = Resolver.resolveIdentifierDefinition(
+                fieldType,
+                {
+                    currentNamespace: state.currentNamespace,
+                    namespaceMap: state.project.namespaces,
+                },
+            )
 
             return assignmentForIdentifier(
                 fieldType.value,
                 field,
-                definition,
+                result.definition,
                 fieldType,
                 saveName,
                 readName,

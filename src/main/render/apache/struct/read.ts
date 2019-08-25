@@ -8,7 +8,7 @@ import {
     SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-import { DefinitionType, IRenderState } from '../../../types'
+import { DefinitionType, IRenderState, IResolveResult } from '../../../types'
 
 import { thriftTypeForFieldType, typeNodeForFieldType } from '../types'
 
@@ -524,12 +524,17 @@ export function readValueForFieldType(
 ): Array<ts.Statement> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
-            return readValueForIdentifier(
-                fieldType.value,
-                Resolver.resolveIdentifierDefinition(fieldType, {
+            const result: IResolveResult = Resolver.resolveIdentifierDefinition(
+                fieldType,
+                {
                     currentNamespace: state.currentNamespace,
                     namespaceMap: state.project.namespaces,
-                }),
+                },
+            )
+
+            return readValueForIdentifier(
+                fieldType.value,
+                result.definition,
                 fieldType,
                 fieldName,
                 state,

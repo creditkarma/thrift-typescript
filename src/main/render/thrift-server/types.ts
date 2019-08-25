@@ -144,13 +144,12 @@ export function thriftTypeForFieldType(
 ): ts.Identifier {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
-            return thriftTypeForIdentifier(
-                Resolver.resolveIdentifierDefinition(fieldType, {
-                    currentNamespace: state.currentNamespace,
-                    namespaceMap: state.project.namespaces,
-                }),
-                state,
-            )
+            const result = Resolver.resolveIdentifierDefinition(fieldType, {
+                currentNamespace: state.currentNamespace,
+                namespaceMap: state.project.namespaces,
+            })
+
+            return thriftTypeForIdentifier(result.definition, state)
 
         case SyntaxType.SetType:
             return THRIFT_TYPES.SET
@@ -267,11 +266,13 @@ export function typeNodeForFieldType(
 ): ts.TypeNode {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
+            const result = Resolver.resolveIdentifierDefinition(fieldType, {
+                currentNamespace: state.currentNamespace,
+                namespaceMap: state.project.namespaces,
+            })
+
             return typeNodeForIdentifier(
-                Resolver.resolveIdentifierDefinition(fieldType, {
-                    currentNamespace: state.currentNamespace,
-                    namespaceMap: state.project.namespaces,
-                }),
+                result.definition,
                 fieldType.value,
                 state,
                 loose,

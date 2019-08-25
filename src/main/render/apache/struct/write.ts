@@ -11,7 +11,7 @@ import {
     SyntaxType,
 } from '@creditkarma/thrift-parser'
 
-import { DefinitionType, IRenderState } from '../../../types'
+import { DefinitionType, IRenderState, IResolveResult } from '../../../types'
 
 import {
     createFunctionParameter,
@@ -193,11 +193,16 @@ export function writeValueForType(
 ): Array<ts.Expression> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
-            return writeValueForIdentifier(
-                Resolver.resolveIdentifierDefinition(fieldType, {
+            const result: IResolveResult = Resolver.resolveIdentifierDefinition(
+                fieldType,
+                {
                     currentNamespace: state.currentNamespace,
                     namespaceMap: state.project.namespaces,
-                }),
+                },
+            )
+
+            return writeValueForIdentifier(
+                result.definition,
                 struct,
                 fieldName,
                 state,

@@ -25,6 +25,15 @@ export interface IResolveContext {
     namespaceMap: INamespaceMap
 }
 
+export interface IResolveResult {
+    // The namespace which this definition was found.
+    // Returned for future lookups
+    namespace: INamespace
+
+    // The definition of an Identifier
+    definition: DefinitionType
+}
+
 export interface IThriftProject {
     type: 'ThriftProject'
 

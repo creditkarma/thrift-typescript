@@ -8,7 +8,7 @@ import {
     ThriftStatement,
 } from '@creditkarma/thrift-parser'
 
-import { DefinitionType, IResolveContext } from '../types'
+import { IResolveContext, IResolveResult } from '../types'
 import { resolveIdentifierDefinition } from './resolveIdentifierDefinition'
 
 function identifiersForFieldType(
@@ -21,7 +21,7 @@ function identifiersForFieldType(
     switch (fieldType.type) {
         case SyntaxType.Identifier:
             if (resolveTypedefs) {
-                const def: DefinitionType = resolveIdentifierDefinition(
+                const result: IResolveResult = resolveIdentifierDefinition(
                     fieldType,
                     {
                         currentNamespace: context.currentNamespace,
@@ -29,9 +29,11 @@ function identifiersForFieldType(
                     },
                 )
 
-                if (def.type === SyntaxType.TypedefDefinition) {
+                const definition = result.definition
+
+                if (definition.type === SyntaxType.TypedefDefinition) {
                     identifiersForFieldType(
-                        def.definitionType,
+                        definition.definitionType,
                         results,
                         context,
                     )

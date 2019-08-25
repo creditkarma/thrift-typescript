@@ -35,7 +35,7 @@ import {
     typeNodeForFieldType,
 } from '../types'
 
-import { DefinitionType, IRenderState } from '../../../types'
+import { DefinitionType, IRenderState, IResolveResult } from '../../../types'
 
 import { createLetStatement } from '../../shared/utils'
 import { looseNameForStruct, throwForField, toolkitName } from './utils'
@@ -253,7 +253,7 @@ export function writeValueForType(
 ): Array<ts.Expression> {
     switch (fieldType.type) {
         case SyntaxType.Identifier:
-            const definition: DefinitionType = Resolver.resolveIdentifierDefinition(
+            const result: IResolveResult = Resolver.resolveIdentifierDefinition(
                 fieldType,
                 {
                     currentNamespace: state.currentNamespace,
@@ -263,7 +263,7 @@ export function writeValueForType(
 
             return writeValueForIdentifier(
                 fieldType.value,
-                definition,
+                result.definition,
                 node,
                 fieldName,
                 state,

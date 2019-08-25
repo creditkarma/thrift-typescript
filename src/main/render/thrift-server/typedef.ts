@@ -11,7 +11,12 @@ import {
 
 import { TypeMapping } from './types'
 
-import { DefinitionType, IRenderState, IResolvedIdentifier } from '../../types'
+import {
+    DefinitionType,
+    IRenderState,
+    IResolvedIdentifier,
+    IResolveResult,
+} from '../../types'
 
 import {
     className,
@@ -432,12 +437,17 @@ export function renderTypeDef(
                 },
             )
 
-            return renderTypeDefForIdentifier(
-                resolvedIdentifier,
-                Resolver.resolveIdentifierDefinition(node.definitionType, {
+            const result: IResolveResult = Resolver.resolveIdentifierDefinition(
+                node.definitionType,
+                {
                     currentNamespace: state.currentNamespace,
                     namespaceMap: state.project.namespaces,
-                }),
+                },
+            )
+
+            return renderTypeDefForIdentifier(
+                resolvedIdentifier,
+                result.definition,
                 node,
                 typeMapping,
                 state,

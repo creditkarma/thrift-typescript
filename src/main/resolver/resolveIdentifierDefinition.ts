@@ -7,6 +7,7 @@ import {
     INamespace,
     INamespacePath,
     IResolveContext,
+    IResolveResult,
 } from '../types'
 
 import { stubIdentifier } from '../utils'
@@ -14,7 +15,7 @@ import { stubIdentifier } from '../utils'
 export function resolveIdentifierDefinition(
     id: Identifier,
     context: IResolveContext,
-): DefinitionType {
+): IResolveResult {
     if (context.currentNamespace.exports[id.value]) {
         const definition: DefinitionType =
             context.currentNamespace.exports[id.value]
@@ -26,10 +27,16 @@ export function resolveIdentifierDefinition(
                     context,
                 )
             } else {
-                return definition
+                return {
+                    definition,
+                    namespace: context.currentNamespace,
+                }
             }
         } else {
-            return definition
+            return {
+                definition,
+                namespace: context.currentNamespace,
+            }
         }
     } else {
         const [head, ...tail] = id.value.split('.')
