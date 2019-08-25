@@ -46,7 +46,7 @@
         "@types/fs-extra": "^7.0.0",
         "fs-extra": "^8.0.1",
         "glob": "^7.1.2",
-        "typescript": "3.2.x"
+        "typescript": "3.5.x"
     },
     "devDependencies": {
         "@types/chai": "^4.1.5",
