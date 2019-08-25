@@ -66,7 +66,7 @@ export const MyUnionCodec: thrift.IStructToolkit<MyUnionArgs, MyUnion> = {
     },
     encode(args: MyUnionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
-        const obj: MyUnionArgs = {
+        const obj: any = {
             field1: args.field1,
             field2: (typeof args.field2 === "number" ? new thrift.Int64(args.field2) : typeof args.field2 === "string" ? thrift.Int64.fromDecimalString(args.field2) : args.field2)
         };
@@ -187,7 +187,7 @@ export interface IGetUser__ArgsArgs {
 }
 export const GetUser__ArgsCodec: thrift.IStructCodec<IGetUser__ArgsArgs, IGetUser__Args> = {
     encode(args: IGetUser__ArgsArgs, output: thrift.TProtocol): void {
-        const obj: IGetUser__ArgsArgs = {
+        const obj: any = {
             arg1: args.arg1
         };
         output.writeStructBegin("GetUser__Args");
@@ -326,7 +326,7 @@ export interface IGetUser__ResultArgs {
 }
 export const GetUser__ResultCodec: thrift.IStructCodec<IGetUser__ResultArgs, IGetUser__Result> = {
     encode(args: IGetUser__ResultArgs, output: thrift.TProtocol): void {
-        const obj: IGetUser__ResultArgs = {
+        const obj: any = {
             success: args.success
         };
         output.writeStructBegin("GetUser__Result");

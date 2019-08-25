@@ -174,7 +174,7 @@ export interface IAdd__ArgsArgs {
 }
 export const Add__ArgsCodec: thrift.IStructCodec<IAdd__ArgsArgs, IAdd__Args> = {
     encode(args: IAdd__ArgsArgs, output: thrift.TProtocol): void {
-        const obj: IAdd__ArgsArgs = {
+        const obj: any = {
             num1: args.num1,
             num2: args.num2
         };
@@ -291,7 +291,7 @@ export interface IAddInt64__ArgsArgs {
 }
 export const AddInt64__ArgsCodec: thrift.IStructCodec<IAddInt64__ArgsArgs, IAddInt64__Args> = {
     encode(args: IAddInt64__ArgsArgs, output: thrift.TProtocol): void {
-        const obj: IAddInt64__ArgsArgs = {
+        const obj: any = {
             num1: (typeof args.num1 === "number" ? new thrift.Int64(args.num1) : typeof args.num1 === "string" ? thrift.Int64.fromDecimalString(args.num1) : args.num1),
             num2: (typeof args.num2 === "number" ? new thrift.Int64(args.num2) : typeof args.num2 === "string" ? thrift.Int64.fromDecimalString(args.num2) : args.num2)
         };
@@ -408,7 +408,7 @@ export interface IAddWithContext__ArgsArgs {
 }
 export const AddWithContext__ArgsCodec: thrift.IStructCodec<IAddWithContext__ArgsArgs, IAddWithContext__Args> = {
     encode(args: IAddWithContext__ArgsArgs, output: thrift.TProtocol): void {
-        const obj: IAddWithContext__ArgsArgs = {
+        const obj: any = {
             num1: args.num1,
             num2: args.num2
         };
@@ -525,7 +525,7 @@ export interface ICalculate__ArgsArgs {
 }
 export const Calculate__ArgsCodec: thrift.IStructCodec<ICalculate__ArgsArgs, ICalculate__Args> = {
     encode(args: ICalculate__ArgsArgs, output: thrift.TProtocol): void {
-        const obj: ICalculate__ArgsArgs = {
+        const obj: any = {
             logid: args.logid,
             work: args.work
         };
@@ -640,7 +640,7 @@ export interface IEchoBinary__ArgsArgs {
 }
 export const EchoBinary__ArgsCodec: thrift.IStructCodec<IEchoBinary__ArgsArgs, IEchoBinary__Args> = {
     encode(args: IEchoBinary__ArgsArgs, output: thrift.TProtocol): void {
-        const obj: IEchoBinary__ArgsArgs = {
+        const obj: any = {
             word: (typeof args.word === "string" ? Buffer.from(args.word) : args.word)
         };
         output.writeStructBegin("EchoBinary__Args");
@@ -728,7 +728,7 @@ export interface IEchoString__ArgsArgs {
 }
 export const EchoString__ArgsCodec: thrift.IStructCodec<IEchoString__ArgsArgs, IEchoString__Args> = {
     encode(args: IEchoString__ArgsArgs, output: thrift.TProtocol): void {
-        const obj: IEchoString__ArgsArgs = {
+        const obj: any = {
             word: args.word
         };
         output.writeStructBegin("EchoString__Args");
@@ -816,7 +816,7 @@ export interface ICheckName__ArgsArgs {
 }
 export const CheckName__ArgsCodec: thrift.IStructCodec<ICheckName__ArgsArgs, ICheckName__Args> = {
     encode(args: ICheckName__ArgsArgs, output: thrift.TProtocol): void {
-        const obj: ICheckName__ArgsArgs = {
+        const obj: any = {
             choice: args.choice
         };
         output.writeStructBegin("CheckName__Args");
@@ -904,7 +904,7 @@ export interface ICheckOptional__ArgsArgs {
 }
 export const CheckOptional__ArgsCodec: thrift.IStructCodec<ICheckOptional__ArgsArgs, ICheckOptional__Args> = {
     encode(args: ICheckOptional__ArgsArgs, output: thrift.TProtocol): void {
-        const obj: ICheckOptional__ArgsArgs = {
+        const obj: any = {
             type: args.type
         };
         output.writeStructBegin("CheckOptional__Args");
@@ -981,7 +981,7 @@ export interface IMapOneList__ArgsArgs {
 }
 export const MapOneList__ArgsCodec: thrift.IStructCodec<IMapOneList__ArgsArgs, IMapOneList__Args> = {
     encode(args: IMapOneList__ArgsArgs, output: thrift.TProtocol): void {
-        const obj: IMapOneList__ArgsArgs = {
+        const obj: any = {
             arg: args.arg
         };
         output.writeStructBegin("MapOneList__Args");
@@ -1084,7 +1084,7 @@ export interface IMapValues__ArgsArgs {
 }
 export const MapValues__ArgsCodec: thrift.IStructCodec<IMapValues__ArgsArgs, IMapValues__Args> = {
     encode(args: IMapValues__ArgsArgs, output: thrift.TProtocol): void {
-        const obj: IMapValues__ArgsArgs = {
+        const obj: any = {
             arg: args.arg
         };
         output.writeStructBegin("MapValues__Args");
@@ -1190,7 +1190,7 @@ export interface IListToMap__ArgsArgs {
 }
 export const ListToMap__ArgsCodec: thrift.IStructCodec<IListToMap__ArgsArgs, IListToMap__Args> = {
     encode(args: IListToMap__ArgsArgs, output: thrift.TProtocol): void {
-        const obj: IListToMap__ArgsArgs = {
+        const obj: any = {
             arg: args.arg
         };
         output.writeStructBegin("ListToMap__Args");
@@ -1531,7 +1531,7 @@ export interface IAdd__ResultArgs {
 }
 export const Add__ResultCodec: thrift.IStructCodec<IAdd__ResultArgs, IAdd__Result> = {
     encode(args: IAdd__ResultArgs, output: thrift.TProtocol): void {
-        const obj: IAdd__ResultArgs = {
+        const obj: any = {
             success: args.success,
             exp: args.exp
         };
@@ -1631,7 +1631,7 @@ export interface IAddInt64__ResultArgs {
 }
 export const AddInt64__ResultCodec: thrift.IStructCodec<IAddInt64__ResultArgs, IAddInt64__Result> = {
     encode(args: IAddInt64__ResultArgs, output: thrift.TProtocol): void {
-        const obj: IAddInt64__ResultArgs = {
+        const obj: any = {
             success: (typeof args.success === "number" ? new thrift.Int64(args.success) : typeof args.success === "string" ? thrift.Int64.fromDecimalString(args.success) : args.success),
             exp: args.exp
         };
@@ -1729,7 +1729,7 @@ export interface IAddWithContext__ResultArgs {
 }
 export const AddWithContext__ResultCodec: thrift.IStructCodec<IAddWithContext__ResultArgs, IAddWithContext__Result> = {
     encode(args: IAddWithContext__ResultArgs, output: thrift.TProtocol): void {
-        const obj: IAddWithContext__ResultArgs = {
+        const obj: any = {
             success: args.success
         };
         output.writeStructBegin("AddWithContext__Result");
@@ -1808,7 +1808,7 @@ export interface ICalculate__ResultArgs {
 }
 export const Calculate__ResultCodec: thrift.IStructCodec<ICalculate__ResultArgs, ICalculate__Result> = {
     encode(args: ICalculate__ResultArgs, output: thrift.TProtocol): void {
-        const obj: ICalculate__ResultArgs = {
+        const obj: any = {
             success: args.success,
             ouch: args.ouch
         };
@@ -1906,7 +1906,7 @@ export interface IEchoBinary__ResultArgs {
 }
 export const EchoBinary__ResultCodec: thrift.IStructCodec<IEchoBinary__ResultArgs, IEchoBinary__Result> = {
     encode(args: IEchoBinary__ResultArgs, output: thrift.TProtocol): void {
-        const obj: IEchoBinary__ResultArgs = {
+        const obj: any = {
             success: args.success
         };
         output.writeStructBegin("EchoBinary__Result");
@@ -1983,7 +1983,7 @@ export interface IEchoString__ResultArgs {
 }
 export const EchoString__ResultCodec: thrift.IStructCodec<IEchoString__ResultArgs, IEchoString__Result> = {
     encode(args: IEchoString__ResultArgs, output: thrift.TProtocol): void {
-        const obj: IEchoString__ResultArgs = {
+        const obj: any = {
             success: args.success
         };
         output.writeStructBegin("EchoString__Result");
@@ -2060,7 +2060,7 @@ export interface ICheckName__ResultArgs {
 }
 export const CheckName__ResultCodec: thrift.IStructCodec<ICheckName__ResultArgs, ICheckName__Result> = {
     encode(args: ICheckName__ResultArgs, output: thrift.TProtocol): void {
-        const obj: ICheckName__ResultArgs = {
+        const obj: any = {
             success: args.success
         };
         output.writeStructBegin("CheckName__Result");
@@ -2137,7 +2137,7 @@ export interface ICheckOptional__ResultArgs {
 }
 export const CheckOptional__ResultCodec: thrift.IStructCodec<ICheckOptional__ResultArgs, ICheckOptional__Result> = {
     encode(args: ICheckOptional__ResultArgs, output: thrift.TProtocol): void {
-        const obj: ICheckOptional__ResultArgs = {
+        const obj: any = {
             success: args.success
         };
         output.writeStructBegin("CheckOptional__Result");
@@ -2214,7 +2214,7 @@ export interface IMapOneList__ResultArgs {
 }
 export const MapOneList__ResultCodec: thrift.IStructCodec<IMapOneList__ResultArgs, IMapOneList__Result> = {
     encode(args: IMapOneList__ResultArgs, output: thrift.TProtocol): void {
-        const obj: IMapOneList__ResultArgs = {
+        const obj: any = {
             success: args.success
         };
         output.writeStructBegin("MapOneList__Result");
@@ -2306,7 +2306,7 @@ export interface IMapValues__ResultArgs {
 }
 export const MapValues__ResultCodec: thrift.IStructCodec<IMapValues__ResultArgs, IMapValues__Result> = {
     encode(args: IMapValues__ResultArgs, output: thrift.TProtocol): void {
-        const obj: IMapValues__ResultArgs = {
+        const obj: any = {
             success: args.success
         };
         output.writeStructBegin("MapValues__Result");
@@ -2398,7 +2398,7 @@ export interface IListToMap__ResultArgs {
 }
 export const ListToMap__ResultCodec: thrift.IStructCodec<IListToMap__ResultArgs, IListToMap__Result> = {
     encode(args: IListToMap__ResultArgs, output: thrift.TProtocol): void {
-        const obj: IListToMap__ResultArgs = {
+        const obj: any = {
             success: args.success
         };
         output.writeStructBegin("ListToMap__Result");
@@ -2493,7 +2493,7 @@ export interface IFetchThing__ResultArgs {
 }
 export const FetchThing__ResultCodec: thrift.IStructCodec<IFetchThing__ResultArgs, IFetchThing__Result> = {
     encode(args: IFetchThing__ResultArgs, output: thrift.TProtocol): void {
-        const obj: IFetchThing__ResultArgs = {
+        const obj: any = {
             success: args.success
         };
         output.writeStructBegin("FetchThing__Result");
@@ -2570,7 +2570,7 @@ export interface IFetchMap__ResultArgs {
 }
 export const FetchMap__ResultCodec: thrift.IStructCodec<IFetchMap__ResultArgs, IFetchMap__Result> = {
     encode(args: IFetchMap__ResultArgs, output: thrift.TProtocol): void {
-        const obj: IFetchMap__ResultArgs = {
+        const obj: any = {
             success: args.success
         };
         output.writeStructBegin("FetchMap__Result");

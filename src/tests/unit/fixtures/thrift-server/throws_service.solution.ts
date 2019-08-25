@@ -7,7 +7,7 @@ export interface IServiceExceptionArgs {
 }
 export const ServiceExceptionCodec: thrift.IStructCodec<IServiceExceptionArgs, IServiceException> = {
     encode(args: IServiceExceptionArgs, output: thrift.TProtocol): void {
-        const obj: IServiceExceptionArgs = {
+        const obj: any = {
             message: args.message
         };
         output.writeStructBegin("ServiceException");
@@ -103,7 +103,7 @@ export interface IPeg__ArgsArgs {
 }
 export const Peg__ArgsCodec: thrift.IStructCodec<IPeg__ArgsArgs, IPeg__Args> = {
     encode(args: IPeg__ArgsArgs, output: thrift.TProtocol): void {
-        const obj: IPeg__ArgsArgs = {
+        const obj: any = {
             name: args.name
         };
         output.writeStructBegin("Peg__Args");
@@ -191,7 +191,7 @@ export interface IPong__ArgsArgs {
 }
 export const Pong__ArgsCodec: thrift.IStructCodec<IPong__ArgsArgs, IPong__Args> = {
     encode(args: IPong__ArgsArgs, output: thrift.TProtocol): void {
-        const obj: IPong__ArgsArgs = {
+        const obj: any = {
             name: args.name
         };
         output.writeStructBegin("Pong__Args");
@@ -270,7 +270,7 @@ export interface IPeg__ResultArgs {
 }
 export const Peg__ResultCodec: thrift.IStructCodec<IPeg__ResultArgs, IPeg__Result> = {
     encode(args: IPeg__ResultArgs, output: thrift.TProtocol): void {
-        const obj: IPeg__ResultArgs = {
+        const obj: any = {
             success: args.success,
             exp: args.exp
         };
@@ -368,7 +368,7 @@ export interface IPong__ResultArgs {
 }
 export const Pong__ResultCodec: thrift.IStructCodec<IPong__ResultArgs, IPong__Result> = {
     encode(args: IPong__ResultArgs, output: thrift.TProtocol): void {
-        const obj: IPong__ResultArgs = {
+        const obj: any = {
             success: args.success
         };
         output.writeStructBegin("Pong__Result");

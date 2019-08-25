@@ -75,7 +75,7 @@ export const ChoiceCodec: thrift.IStructToolkit<ChoiceArgs, Choice> = {
     },
     encode(args: ChoiceArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
-        const obj: ChoiceArgs = {
+        const obj: any = {
             firstName: args.firstName,
             lastName: args.lastName
         };

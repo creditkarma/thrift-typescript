@@ -10,19 +10,16 @@ export interface ISharedStruct {
     __name: "SharedStruct";
     code: Code.ICode;
     value: string;
-    mapWithDefault?: Map<string, string>;
 }
 export interface ISharedStructArgs {
     code: Code.ICodeArgs;
     value: string;
-    mapWithDefault?: Map<string, string>;
 }
 export const SharedStructCodec: thrift.IStructCodec<ISharedStructArgs, ISharedStruct> = {
     encode(args: ISharedStructArgs, output: thrift.TProtocol): void {
-        const obj: ISharedStructArgs = {
+        const obj: any = {
             code: args.code,
-            value: args.value,
-            mapWithDefault: (args.mapWithDefault != null ? args.mapWithDefault : new Map([]))
+            value: args.value
         };
         output.writeStructBegin("SharedStruct");
         if (obj.code != null) {
@@ -41,16 +38,6 @@ export const SharedStructCodec: thrift.IStructCodec<ISharedStructArgs, ISharedSt
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[value] is unset!");
         }
-        if (obj.mapWithDefault != null) {
-            output.writeFieldBegin("mapWithDefault", thrift.TType.MAP, 3);
-            output.writeMapBegin(thrift.TType.STRING, thrift.TType.STRING, obj.mapWithDefault.size);
-            obj.mapWithDefault.forEach((value_1: string, key_1: string): void => {
-                output.writeString(key_1);
-                output.writeString(value_1);
-            });
-            output.writeMapEnd();
-            output.writeFieldEnd();
-        }
         output.writeFieldStop();
         output.writeStructEnd();
         return;
@@ -68,8 +55,8 @@ export const SharedStructCodec: thrift.IStructCodec<ISharedStructArgs, ISharedSt
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.TType.STRUCT) {
-                        const value_2: Code.ICode = Code.CodeCodec.decode(input);
-                        _args.code = value_2;
+                        const value_1: Code.ICode = Code.CodeCodec.decode(input);
+                        _args.code = value_1;
                     }
                     else {
                         input.skip(fieldType);
@@ -77,25 +64,8 @@ export const SharedStructCodec: thrift.IStructCodec<ISharedStructArgs, ISharedSt
                     break;
                 case 2:
                     if (fieldType === thrift.TType.STRING) {
-                        const value_3: string = input.readString();
-                        _args.value = value_3;
-                    }
-                    else {
-                        input.skip(fieldType);
-                    }
-                    break;
-                case 3:
-                    if (fieldType === thrift.TType.MAP) {
-                        const value_4: Map<string, string> = new Map<string, string>();
-                        const metadata_1: thrift.IThriftMap = input.readMapBegin();
-                        const size_1: number = metadata_1.size;
-                        for (let i_1: number = 0; i_1 < size_1; i_1++) {
-                            const key_2: string = input.readString();
-                            const value_5: string = input.readString();
-                            value_4.set(key_2, value_5);
-                        }
-                        input.readMapEnd();
-                        _args.mapWithDefault = value_4;
+                        const value_2: string = input.readString();
+                        _args.value = value_2;
                     }
                     else {
                         input.skip(fieldType);
@@ -112,8 +82,7 @@ export const SharedStructCodec: thrift.IStructCodec<ISharedStructArgs, ISharedSt
             return {
                 __name: "SharedStruct",
                 code: _args.code,
-                value: _args.value,
-                mapWithDefault: (_args.mapWithDefault != null ? _args.mapWithDefault : new Map([]))
+                value: _args.value
             };
         }
         else {
@@ -124,34 +93,24 @@ export const SharedStructCodec: thrift.IStructCodec<ISharedStructArgs, ISharedSt
 export class SharedStruct extends thrift.StructLike implements ISharedStruct {
     public code: Code.ICode;
     public value: string;
-    public mapWithDefault?: Map<string, string> = new Map([]);
     public readonly __name = "SharedStruct";
     public readonly _annotations: thrift.IThriftAnnotations = {};
     public readonly _fieldAnnotations: thrift.IFieldAnnotations = {};
     constructor(args: ISharedStructArgs) {
         super();
         if (args.code != null) {
-            const value_6: Code.ICode = new Code.Code(args.code);
-            this.code = value_6;
+            const value_3: Code.ICode = new Code.Code(args.code);
+            this.code = value_3;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[code] is unset!");
         }
         if (args.value != null) {
-            const value_7: string = args.value;
-            this.value = value_7;
+            const value_4: string = args.value;
+            this.value = value_4;
         }
         else {
             throw new thrift.TProtocolException(thrift.TProtocolExceptionType.UNKNOWN, "Required field[value] is unset!");
-        }
-        if (args.mapWithDefault != null) {
-            const value_8: Map<string, string> = new Map<string, string>();
-            args.mapWithDefault.forEach((value_9: string, key_3: string): void => {
-                const value_10: string = value_9;
-                const key_4: string = key_3;
-                value_8.set(key_4, value_10);
-            });
-            this.mapWithDefault = value_8;
         }
     }
     public static read(input: thrift.TProtocol): SharedStruct {

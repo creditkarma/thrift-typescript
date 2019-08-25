@@ -9,12 +9,10 @@ import * as Code from "./Code";
 export interface ISharedStructArgs {
     code: Code.Code;
     value: string;
-    mapWithDefault?: Map<string, string>;
 }
 export class SharedStruct {
     public code: Code.Code;
     public value: string;
-    public mapWithDefault?: Map<string, string> = new Map([]);
     constructor(args: ISharedStructArgs) {
         if (args != null && args.code != null) {
             this.code = args.code;
@@ -28,9 +26,6 @@ export class SharedStruct {
         else {
             throw new thrift.Thrift.TProtocolException(thrift.Thrift.TProtocolExceptionType.UNKNOWN, "Required field[value] is unset!");
         }
-        if (args != null && args.mapWithDefault != null) {
-            this.mapWithDefault = args.mapWithDefault;
-        }
     }
     public write(output: thrift.TProtocol): void {
         output.writeStructBegin("SharedStruct");
@@ -42,16 +37,6 @@ export class SharedStruct {
         if (this.value != null) {
             output.writeFieldBegin("value", thrift.Thrift.Type.STRING, 2);
             output.writeString(this.value);
-            output.writeFieldEnd();
-        }
-        if (this.mapWithDefault != null) {
-            output.writeFieldBegin("mapWithDefault", thrift.Thrift.Type.MAP, 3);
-            output.writeMapBegin(thrift.Thrift.Type.STRING, thrift.Thrift.Type.STRING, this.mapWithDefault.size);
-            this.mapWithDefault.forEach((value_1: string, key_1: string): void => {
-                output.writeString(key_1);
-                output.writeString(value_1);
-            });
-            output.writeMapEnd();
             output.writeFieldEnd();
         }
         output.writeFieldStop();
@@ -71,8 +56,8 @@ export class SharedStruct {
             switch (fieldId) {
                 case 1:
                     if (fieldType === thrift.Thrift.Type.STRUCT) {
-                        const value_2: Code.Code = Code.Code.read(input);
-                        _args.code = value_2;
+                        const value_1: Code.Code = Code.Code.read(input);
+                        _args.code = value_1;
                     }
                     else {
                         input.skip(fieldType);
@@ -80,25 +65,8 @@ export class SharedStruct {
                     break;
                 case 2:
                     if (fieldType === thrift.Thrift.Type.STRING) {
-                        const value_3: string = input.readString();
-                        _args.value = value_3;
-                    }
-                    else {
-                        input.skip(fieldType);
-                    }
-                    break;
-                case 3:
-                    if (fieldType === thrift.Thrift.Type.MAP) {
-                        const value_4: Map<string, string> = new Map<string, string>();
-                        const metadata_1: thrift.TMap = input.readMapBegin();
-                        const size_1: number = metadata_1.size;
-                        for (let i_1: number = 0; i_1 < size_1; i_1++) {
-                            const key_2: string = input.readString();
-                            const value_5: string = input.readString();
-                            value_4.set(key_2, value_5);
-                        }
-                        input.readMapEnd();
-                        _args.mapWithDefault = value_4;
+                        const value_2: string = input.readString();
+                        _args.value = value_2;
                     }
                     else {
                         input.skip(fieldType);

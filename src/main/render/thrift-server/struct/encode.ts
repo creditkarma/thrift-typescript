@@ -30,6 +30,7 @@ import {
 } from '../utils'
 
 import {
+    createAnyType,
     createVoidType,
     thriftTypeForFieldType,
     typeNodeForFieldType,
@@ -54,10 +55,7 @@ export function createTempVariables(
         return [
             createConstStatement(
                 COMMON_IDENTIFIERS.obj,
-                ts.createTypeReferenceNode(
-                    ts.createIdentifier(looseNameForStruct(node, state)),
-                    undefined,
-                ),
+                createAnyType(),
                 ts.createObjectLiteral(
                     node.fields.map(
                         (

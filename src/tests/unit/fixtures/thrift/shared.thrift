@@ -7,7 +7,6 @@ struct Code {
 struct SharedStruct {
   1: required Code code
   2: required string value
-  3: optional map<string, string> mapWithDefault = {}
 }
 
 union SharedUnion {

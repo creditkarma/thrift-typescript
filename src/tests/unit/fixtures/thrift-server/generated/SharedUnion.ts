@@ -17,7 +17,7 @@ export interface ISharedUnionArgs {
 export const SharedUnionCodec: thrift.IStructCodec<ISharedUnionArgs, ISharedUnion> = {
     encode(args: ISharedUnionArgs, output: thrift.TProtocol): void {
         let _fieldsSet: number = 0;
-        const obj: ISharedUnionArgs = {
+        const obj: any = {
             option1: args.option1,
             option2: args.option2
         };

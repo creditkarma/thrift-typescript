@@ -29,7 +29,7 @@ export interface IGetStruct__ArgsArgs {
 }
 export const GetStruct__ArgsCodec: thrift.IStructCodec<IGetStruct__ArgsArgs, IGetStruct__Args> = {
     encode(args: IGetStruct__ArgsArgs, output: thrift.TProtocol): void {
-        const obj: IGetStruct__ArgsArgs = {
+        const obj: any = {
             key: args.key
         };
         output.writeStructBegin("GetStruct__Args");
@@ -117,7 +117,7 @@ export interface IGetStruct__ResultArgs {
 }
 export const GetStruct__ResultCodec: thrift.IStructCodec<IGetStruct__ResultArgs, IGetStruct__Result> = {
     encode(args: IGetStruct__ResultArgs, output: thrift.TProtocol): void {
-        const obj: IGetStruct__ResultArgs = {
+        const obj: any = {
             success: args.success
         };
         output.writeStructBegin("GetStruct__Result");
