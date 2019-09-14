@@ -10,6 +10,7 @@ import {
 import { ValidationError } from '../errors'
 import { INamespace, INamespacePath, IResolveContext } from '../types'
 import { stubIdentifier } from '../utils'
+import { resolveIdentifier } from './resolveIdentifier'
 
 /**
  * It makes things easier to rewrite all const values to their literal values.
@@ -50,7 +51,11 @@ export function resolveConstValue(
             }
 
         case SyntaxType.Identifier:
-            const [head, ...tail] = value.value.split('.')
+            const resolvedIdentifier = resolveIdentifier(
+                value,
+                context.currentNamespace,
+            )
+            const [head, ...tail] = resolvedIdentifier.value.split('.')
             if (context.currentNamespace.exports[head]) {
                 const statement: ThriftStatement =
                     context.currentNamespace.exports[head]
@@ -61,7 +66,7 @@ export function resolveConstValue(
                         context,
                     )
                 } else {
-                    return value
+                    return resolvedIdentifier
                 }
             } else {
                 const nextNamespacePath: INamespacePath | undefined =
@@ -71,14 +76,21 @@ export function resolveConstValue(
                     const nextNamespace: INamespace =
                         context.namespaceMap[nextNamespacePath.accessor]
 
-                    return resolveConstValue(
-                        stubIdentifier(tail.join('.')),
+                    const stub = stubIdentifier(tail.join('.'))
+                    const resolvedValue = resolveConstValue(
+                        stub,
                         expectedType,
                         {
                             currentNamespace: nextNamespace,
                             namespaceMap: context.namespaceMap,
                         },
                     )
+
+                    // Check if returned identifier matches stub, if it does, return the correct identifier
+                    return stub.type === resolvedValue.type &&
+                        stub.value === resolvedValue.value
+                        ? resolvedIdentifier
+                        : resolvedValue
                 }
             }
             throw new ValidationError(

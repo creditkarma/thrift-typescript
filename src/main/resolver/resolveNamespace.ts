@@ -7,7 +7,6 @@ import {
     FieldType,
     FunctionDefinition,
     FunctionType,
-    Identifier,
     IntConstant,
     SyntaxType,
 } from '@creditkarma/thrift-parser'
@@ -16,7 +15,6 @@ import {
     DefinitionType,
     INamespace,
     INamespaceMap,
-    INamespacePath,
     IResolveResult,
 } from '../types'
 
@@ -25,6 +23,7 @@ import { createValidationError, IThriftError, ValidationError } from '../errors'
 import { emptyLocation } from '../utils'
 
 import { resolveConstValue } from './resolveConstValue'
+import { resolveIdentifier } from './resolveIdentifier'
 import { resolveIdentifierDefinition } from './resolveIdentifierDefinition'
 
 /**
@@ -169,7 +168,10 @@ export function resolveNamespace(
                     extends:
                         statement.extends === null
                             ? null
-                            : resolveIdentifier(statement.extends),
+                            : resolveIdentifier(
+                                  statement.extends,
+                                  currentNamespace,
+                              ),
                     comments: statement.comments,
                     annotations: statement.annotations,
                     loc: statement.loc,
@@ -178,33 +180,6 @@ export function resolveNamespace(
             default:
                 const msg: never = statement
                 throw new Error(`Non-exhaustive match for ${msg}`)
-        }
-    }
-
-    function resolveIdentifier(id: Identifier): Identifier {
-        return {
-            type: SyntaxType.Identifier,
-            value: resolveName(id.value),
-            annotations: id.annotations,
-            loc: id.loc,
-        }
-    }
-
-    function resolveName(name: string): string {
-        const [head, ...tail] = name.split('.')
-
-        if (currentNamespace.exports[head] !== undefined) {
-            return name
-        } else if (currentNamespace.includedNamespaces[head] !== undefined) {
-            const namespacePath: INamespacePath =
-                currentNamespace.includedNamespaces[head]
-            return [namespacePath.accessor, ...tail].join('.')
-        } else if (currentNamespace.namespaceIncludes[head]) {
-            const namespaceAccessor: string =
-                currentNamespace.namespaceIncludes[head]
-            return [namespaceAccessor, ...tail].join('.')
-        } else {
-            return name
         }
     }
 
@@ -256,7 +231,7 @@ export function resolveNamespace(
                 ) {
                     return definition.definitionType
                 } else {
-                    return resolveIdentifier(fieldType)
+                    return resolveIdentifier(fieldType, currentNamespace)
                 }
 
             case SyntaxType.ListType:
@@ -329,16 +304,10 @@ export function resolveNamespace(
         value: ConstValue,
         fieldType: FunctionType,
     ): ConstValue {
-        const resolvedValue: ConstValue = resolveConstValue(value, fieldType, {
+        return resolveConstValue(value, fieldType, {
             currentNamespace,
             namespaceMap,
         })
-
-        if (resolvedValue.type === SyntaxType.Identifier) {
-            return resolveIdentifier(resolvedValue)
-        } else {
-            return resolvedValue
-        }
     }
 
     function resolveFields(
