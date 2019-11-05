@@ -87,7 +87,7 @@ const generatedCode: string = make(rawThrift)
 
 ## Thrift Server
 
-*v2.x of Thrift TypeScript equires @creditkarma/thrift-server v0.7.0 or higher*
+*v2.x of Thrift TypeScript requires @creditkarma/thrift-server v0.7.0 or higher*
 
 While Thrift TypeScript can be used to generate code comaptible with the [Apache Thrift Library](https://github.com/apache/thrift/tree/master/lib/nodejs), it is recommended to use with [Thrift Server](https://github.com/creditkarma/thrift-server). Details on the Apache usage are below.
 
