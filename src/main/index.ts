@@ -9,6 +9,7 @@ import {
     IRenderState,
     ISourceFile,
     IThriftProject,
+    IFileIncludes,
 } from './types'
 
 import { mergeWithDefaults } from './defaults'
@@ -123,6 +124,37 @@ export async function readThriftFiles(options: {
     return thriftFiles
 }
 
+function parseIncludes(parsedFiles: Array<IParsedFile>, options: IMakeOptions): Array<IParsedFile> {
+    const parsedFilesIncludes: IFileIncludes = parsedFiles.reduce(
+        (acc: IFileIncludes, parsedFile, index) => {
+            const namedIncludes: IFileIncludes = {};
+            Object.keys(parsedFile.includes).forEach(include => {
+                const includePath = path.resolve(parsedFile.includes[include].importedFrom, parsedFile.includes[include].path);
+                if (!acc[includePath] && !namedIncludes[includePath]) {
+                    namedIncludes[includePath] = parsedFile.includes[include];
+                }
+            });
+
+            return { ...acc, ...namedIncludes };
+        }, {}
+    );
+
+    if (Object.keys(parsedFilesIncludes).length) {
+        const parsedFilesIncludesFiles = Object.keys(parsedFilesIncludes).map(
+            parsedFilesInclude => readThriftFile(parsedFilesInclude, [options.sourceDir])
+        );
+
+        const parserIncludedFiles = parsedFilesIncludesFiles.map(
+            (next: ISourceFile) =>
+                Parser.parseThriftFile(next, options.fallbackNamespace),
+        );
+
+        return [...parserIncludedFiles, ...parseIncludes(parserIncludedFiles, options)];
+    }
+
+    return [];
+}
+
 export function thriftProjectFromSourceFiles(
     sourceFiles: Array<ISourceFile>,
     options: Partial<IMakeOptions> = {},
@@ -141,7 +173,9 @@ export function thriftProjectFromSourceFiles(
     const parsedFiles: Array<IParsedFile> = sourceFiles.map(
         (next: ISourceFile) =>
             Parser.parseThriftFile(next, mergedOptions.fallbackNamespace),
-    )
+    );
+
+    parsedFiles.push(...parseIncludes(parsedFiles, mergedOptions));
 
     const namespaces: INamespaceMap = Resolver.organizeByNamespace(
         parsedFiles,

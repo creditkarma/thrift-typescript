@@ -51,7 +51,7 @@ export function organizeByNamespace(
                 const includePath: IIncludePath =
                     parsedFile.includes[includeName]
 
-                const namesapcePath: INamespacePath = namespaceForInclude(
+                const namespacePath: INamespacePath = namespaceForInclude(
                     includePath,
                     parsedFileMap,
                     sourceDir,
@@ -59,11 +59,11 @@ export function organizeByNamespace(
                 )
 
                 namespace.includedNamespaces[
-                    namesapcePath.accessor
-                ] = namesapcePath
+                    namespacePath.accessor
+                ] = namespacePath
 
                 namespace.namespaceIncludes[includeName] =
-                    namesapcePath.accessor
+                    namespacePath.accessor
             },
         )
 
