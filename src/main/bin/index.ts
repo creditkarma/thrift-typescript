@@ -6,4 +6,6 @@ import { resolveOptions } from './resolveOptions'
 const cliArgs: Array<string> = process.argv.slice(2)
 const options: IMakeOptions = resolveOptions(cliArgs)
 
-generate(options)
+generate(options).catch(() => {
+    process.exit(1)
+})
