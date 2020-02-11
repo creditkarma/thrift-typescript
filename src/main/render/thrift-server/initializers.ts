@@ -18,6 +18,7 @@ import { COMMON_IDENTIFIERS } from './identifiers'
 
 import { Resolver } from '../../resolver'
 import { IRenderState } from '../../types'
+import { typeNodeForFieldType } from './types'
 import { propertyAccessForIdentifier } from './utils'
 
 export function renderValue(
@@ -132,9 +133,14 @@ function renderMap(
         ])
     })
 
-    return ts.createNew(COMMON_IDENTIFIERS.Map, undefined, [
-        ts.createArrayLiteral(values),
-    ])
+    return ts.createNew(
+        COMMON_IDENTIFIERS.Map,
+        [
+            typeNodeForFieldType(fieldType.keyType, state),
+            typeNodeForFieldType(fieldType.valueType, state),
+        ],
+        [ts.createArrayLiteral(values)],
+    )
 }
 
 function renderSet(

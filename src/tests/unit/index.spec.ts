@@ -297,6 +297,11 @@ describe('Thrift TypeScript Generator', () => {
                 const map<string,string> MAP_CONST = {'hello': 'world', 'foo': 'bar' }
                 const map<i32,string> VALUE_MAP = { VALUE: 'world', 5: 'bar' }
                 const list<string> LIST_CONST = ['hello', 'world', 'foo', 'bar']
+                enum MyEnum {
+                    ONE,
+                    TWO
+                }
+                const map<string,set<MyEnum>> MAP_WITH_ENUM_SET = {'hello': [MyEnum.ONE], 'foo': [MyEnum.TWO] }
             `
             const expected: string = readSolution('complex_const')
             const actual: string = make(content, {
