@@ -7,4 +7,5 @@ struct User {
 
 service UserService {
     User getUser(1: i64 id)
+    list<User> getUsers(1: list<i64> ids)
 }
