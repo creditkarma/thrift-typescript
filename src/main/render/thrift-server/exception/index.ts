@@ -10,5 +10,5 @@ export function renderException(
     node: ExceptionDefinition,
     state: IRenderState,
 ): Array<ts.Statement> {
-    return renderStruct(node, state)
+    return renderStruct(node, state, true)
 }
