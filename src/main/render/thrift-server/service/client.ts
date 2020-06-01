@@ -51,7 +51,7 @@ import {
 import { Resolver } from '../../../resolver'
 import { createBufferType, createPromiseType } from '../../shared/types'
 import { createClassConstructor } from '../../shared/utils'
-import { looseName, strictName, toolkitName } from '../struct/utils'
+import { className, looseName, toolkitName } from '../struct/utils'
 
 function extendsAbstract(): ts.HeritageClause {
     return ts.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
@@ -515,7 +515,7 @@ function createConnectionSend(): ts.CallExpression {
     )
 }
 
-// const result: GetUserResult = GetUserResultCodec.decode(input);
+// const result: GetUser__Result = GetUser__Result.read(input);
 function createNewResultInstance(
     def: FunctionDefinition,
     state: IRenderState,
@@ -525,16 +525,16 @@ function createNewResultInstance(
             COMMON_IDENTIFIERS.result,
             ts.createTypeReferenceNode(
                 ts.createIdentifier(
-                    strictName(createStructResultName(def), def.type, state),
+                    className(createStructResultName(def), state),
                 ),
                 undefined,
             ),
             ts.createCall(
                 ts.createPropertyAccess(
                     ts.createIdentifier(
-                        toolkitName(createStructResultName(def), state),
+                        className(createStructResultName(def), state),
                     ),
-                    COMMON_IDENTIFIERS.decode,
+                    COMMON_IDENTIFIERS.read,
                 ),
                 undefined,
                 [COMMON_IDENTIFIERS.input],
