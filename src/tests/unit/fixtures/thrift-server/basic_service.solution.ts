@@ -765,6 +765,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
+            console.error("Unexpected exception while handling getUser: ", err);
             const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("getUser", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
@@ -789,6 +790,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
+            console.error("Unexpected exception while handling saveUser: ", err);
             const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("saveUser", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
@@ -812,6 +814,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
+            console.error("Unexpected exception while handling ping: ", err);
             const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("ping", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);

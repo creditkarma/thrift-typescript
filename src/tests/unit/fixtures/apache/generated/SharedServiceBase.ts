@@ -226,6 +226,7 @@ export class Processor {
             output.flush();
             return;
         }).catch((err: Error): void => {
+            console.error("Unexpected exception while handling getStruct: ", err);
             const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("getStruct", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);
