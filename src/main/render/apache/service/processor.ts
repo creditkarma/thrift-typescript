@@ -41,6 +41,8 @@ import {
     THRIFT_TYPES,
 } from '../identifiers'
 
+import { MESSAGES } from '../../shared/messages'
+
 import {
     collectAllMethods,
     collectInheritedMethods,
@@ -303,12 +305,18 @@ export function renderProcessor(
 //             result.populate({{{throwName}}: err as {{throwType}}})
 //             output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
 //         } else {{/throws}}{
-//             result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
+//             result = new Thrift.TApplicationException(
+//                 Thrift.TApplicationExceptionType.UNKNOWN,
+//                 "The server experienced...",
+//             )
 //             output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
 //         }
 //         {{/hasThrows}}
 //         {{^hasThrows}}
-//         result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
+//         result = new Thrift.TApplicationException(
+//             Thrift.TApplicationExceptionType.UNKNOWN,
+//             "The server experienced...",
+//         )
 //         output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
 //         {{/hasThrows}}
 //         result.write(output)
@@ -568,7 +576,10 @@ function createElseForExceptions(
     } else {
         return ts.createBlock(
             [
-                // const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
+                // const result: Thrift.TApplicationException = new Thrift.TApplicationException(
+                //     Thrift.TApplicationExceptionType.UNKNOWN,
+                //     "The server experienced...",
+                // )
                 createConstStatement(
                     COMMON_IDENTIFIERS.result,
                     ts.createTypeReferenceNode(
@@ -577,7 +588,7 @@ function createElseForExceptions(
                     ),
                     createApplicationException(
                         'UNKNOWN',
-                        ts.createIdentifier('err.message'),
+                        ts.createLiteral(MESSAGES.unexpectedException),
                     ),
                 ),
                 // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
@@ -708,7 +719,10 @@ function createExceptionHandlers(
         return [createIfForExceptions(funcDef.throws, funcDef, state)]
     } else {
         return [
-            // const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
+            // const result: Thrift.TApplicationException = new Thrift.TApplicationException(
+            //     Thrift.TApplicationExceptionType.UNKNOWN,
+            //     "The server experienced...",
+            // )
             createConstStatement(
                 COMMON_IDENTIFIERS.result,
                 ts.createTypeReferenceNode(
@@ -717,7 +731,7 @@ function createExceptionHandlers(
                 ),
                 createApplicationException(
                     'UNKNOWN',
-                    ts.createIdentifier('err.message'),
+                    ts.createLiteral(MESSAGES.unexpectedException),
                 ),
             ),
             // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)

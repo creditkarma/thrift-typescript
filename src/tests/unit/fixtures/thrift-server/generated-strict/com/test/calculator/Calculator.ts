@@ -3453,7 +3453,7 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
-            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
             output.writeMessageBegin("ping", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
             output.writeMessageEnd();
@@ -3485,7 +3485,7 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
                 return output.flush();
             }
             else {
-                const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+                const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
                 output.writeMessageBegin("add", thrift.MessageType.EXCEPTION, requestId);
                 thrift.TApplicationExceptionCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -3518,7 +3518,7 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
                 return output.flush();
             }
             else {
-                const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+                const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
                 output.writeMessageBegin("addInt64", thrift.MessageType.EXCEPTION, requestId);
                 thrift.TApplicationExceptionCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -3543,7 +3543,7 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
-            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
             output.writeMessageBegin("addWithContext", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
             output.writeMessageEnd();
@@ -3575,7 +3575,7 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
                 return output.flush();
             }
             else {
-                const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+                const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
                 output.writeMessageBegin("calculate", thrift.MessageType.EXCEPTION, requestId);
                 thrift.TApplicationExceptionCodec.encode(result, output);
                 output.writeMessageEnd();
@@ -3600,7 +3600,7 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
-            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
             output.writeMessageBegin("echoBinary", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
             output.writeMessageEnd();
@@ -3624,7 +3624,7 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
-            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
             output.writeMessageBegin("echoString", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
             output.writeMessageEnd();
@@ -3648,7 +3648,7 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
-            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
             output.writeMessageBegin("checkName", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
             output.writeMessageEnd();
@@ -3672,7 +3672,7 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
-            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
             output.writeMessageBegin("checkOptional", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
             output.writeMessageEnd();
@@ -3696,7 +3696,7 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
-            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
             output.writeMessageBegin("mapOneList", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
             output.writeMessageEnd();
@@ -3720,7 +3720,7 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
-            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
             output.writeMessageBegin("mapValues", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
             output.writeMessageEnd();
@@ -3744,7 +3744,7 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
-            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
             output.writeMessageBegin("listToMap", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
             output.writeMessageEnd();
@@ -3767,7 +3767,7 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
-            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
             output.writeMessageBegin("fetchThing", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
             output.writeMessageEnd();
@@ -3790,7 +3790,7 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
-            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
             output.writeMessageBegin("fetchMap", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
             output.writeMessageEnd();
@@ -3813,7 +3813,7 @@ export class Processor<Context = any> extends __ROOT_NAMESPACE__.SharedService.P
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
-            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
             output.writeMessageBegin("zip", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
             output.writeMessageEnd();
