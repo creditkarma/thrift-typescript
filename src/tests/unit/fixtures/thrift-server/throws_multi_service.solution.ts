@@ -53,7 +53,7 @@ export const ServiceExceptionCodec: thrift.IStructCodec<IServiceExceptionArgs, I
         };
     }
 };
-export class ServiceException extends thrift.StructLike implements IServiceException {
+export class ServiceException extends thrift.ErrorStructLike implements IServiceException {
     public message?: string;
     public readonly __name = "ServiceException";
     public readonly _annotations: thrift.IThriftAnnotations = {};
@@ -148,7 +148,7 @@ export const AuthExceptionCodec: thrift.IStructCodec<IAuthExceptionArgs, IAuthEx
         };
     }
 };
-export class AuthException extends thrift.StructLike implements IAuthException {
+export class AuthException extends thrift.ErrorStructLike implements IAuthException {
     public message?: string;
     public code?: number;
     public readonly __name = "AuthException";
@@ -230,7 +230,7 @@ export const UnknownExceptionCodec: thrift.IStructCodec<IUnknownExceptionArgs, I
         };
     }
 };
-export class UnknownException extends thrift.StructLike implements IUnknownException {
+export class UnknownException extends thrift.ErrorStructLike implements IUnknownException {
     public message?: string;
     public readonly __name = "UnknownException";
     public readonly _annotations: thrift.IThriftAnnotations = {};

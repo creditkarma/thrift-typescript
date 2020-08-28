@@ -53,7 +53,7 @@ export const ServiceExceptionCodec: thrift.IStructCodec<IServiceExceptionArgs, I
         };
     }
 };
-export class ServiceException extends thrift.StructLike implements IServiceException {
+export class ServiceException extends thrift.ErrorStructLike implements IServiceException {
     public message?: string;
     public readonly __name = "ServiceException";
     public readonly _annotations: thrift.IThriftAnnotations = {};

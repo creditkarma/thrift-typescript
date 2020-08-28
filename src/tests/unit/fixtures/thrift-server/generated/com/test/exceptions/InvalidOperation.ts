@@ -78,7 +78,7 @@ export const InvalidOperationCodec: thrift.IStructCodec<IInvalidOperationArgs, I
         };
     }
 };
-export class InvalidOperation extends thrift.StructLike implements IInvalidOperation {
+export class InvalidOperation extends thrift.ErrorStructLike implements IInvalidOperation {
     public whatOp?: number;
     public why?: string;
     public readonly __name = "InvalidOperation";

@@ -79,7 +79,7 @@ export const MyExceptionCodec: thrift.IStructCodec<IMyExceptionArgs, IMyExceptio
         }
     }
 };
-export class MyException extends thrift.StructLike implements IMyException {
+export class MyException extends thrift.ErrorStructLike implements IMyException {
     public description: string;
     public code?: number;
     public readonly __name = "MyException";
