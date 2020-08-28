@@ -493,7 +493,7 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IGetUser__Result = GetUser__ResultCodec.decode(input);
+                        const result: GetUser__Result = GetUser__Result.read(input);
                         input.readMessageEnd();
                         if (result.success != null) {
                             return Promise.resolve(result.success);
@@ -531,7 +531,7 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IPing__Result = Ping__ResultCodec.decode(input);
+                        const result: Ping__Result = Ping__Result.read(input);
                         input.readMessageEnd();
                         return Promise.resolve(result.success);
                     }

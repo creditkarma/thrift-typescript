@@ -531,7 +531,7 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IPeg__Result = Peg__ResultCodec.decode(input);
+                        const result: Peg__Result = Peg__Result.read(input);
                         input.readMessageEnd();
                         if (result.exp != null) {
                             return Promise.reject(result.exp);
