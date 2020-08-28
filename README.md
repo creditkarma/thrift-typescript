@@ -320,7 +320,7 @@ Given Thrift:
 
 ```c
 exception MyException {
-    1: string message
+    1: string msg
     2: i32 code
 }
 ```
@@ -328,16 +328,18 @@ exception MyException {
 Generated TypeScript:
 
 ```typescript
-export class MyException extends thrift.StructLike implements IMyException {
-    public message: string
+export class MyException extends thrift.ErrorStructLike implements IMyException {
+    public msg: string
     public code?: number
-    constructor(args?: { message?: string, code?: number }) {
+    constructor(args?: { msg?: string, code?: number }) {
         // ...
     }
 }
 ```
 
-Then in your service client you could just throw the exception as you would any JS error `throw new MyException({ message: 'whoops', code: 500 });`
+Then in your service client you could just throw the exception as you would any JS error `throw new MyException({ msg: 'whoops', code: 500 });`
+
+Note that these exception classes extend thrift.ErrorStructLike which extends JavaScript's Error object. Because of this you should avoid having fields in your exceptions that shadow fields in Error. `thrift-typescript` doesn't warn about this (TODO: Though perhaps it should try?) See [the MDN JavaScript reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error#Instance_properties) for a list of properties to avoid. (You actually *can* use the same field names if you want, as long as the types align, but avoiding them entirely might result in fewer headaches.)
 
 #### Service
 
