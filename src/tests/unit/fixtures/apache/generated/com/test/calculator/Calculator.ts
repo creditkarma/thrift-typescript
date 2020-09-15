@@ -2603,7 +2603,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             output.flush();
             return;
         }).catch((err: Error): void => {
-            console.error("Unexpected exception while handling ping: ", err);
+            console.error("Unexpected exception while handling ping:", err);
             const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("ping", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);
@@ -2639,7 +2639,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
                 return;
             }
             else {
-                console.error("Unexpected exception while handling add: ", err);
+                console.error("Unexpected exception while handling add:", err);
                 const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
                 output.writeMessageBegin("add", thrift.Thrift.MessageType.EXCEPTION, requestId);
                 result.write(output);
@@ -2676,7 +2676,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
                 return;
             }
             else {
-                console.error("Unexpected exception while handling addInt64: ", err);
+                console.error("Unexpected exception while handling addInt64:", err);
                 const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
                 output.writeMessageBegin("addInt64", thrift.Thrift.MessageType.EXCEPTION, requestId);
                 result.write(output);
@@ -2704,7 +2704,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             output.flush();
             return;
         }).catch((err: Error): void => {
-            console.error("Unexpected exception while handling addWithContext: ", err);
+            console.error("Unexpected exception while handling addWithContext:", err);
             const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("addWithContext", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);
@@ -2740,7 +2740,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
                 return;
             }
             else {
-                console.error("Unexpected exception while handling calculate: ", err);
+                console.error("Unexpected exception while handling calculate:", err);
                 const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
                 output.writeMessageBegin("calculate", thrift.Thrift.MessageType.EXCEPTION, requestId);
                 result.write(output);
@@ -2768,7 +2768,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             output.flush();
             return;
         }).catch((err: Error): void => {
-            console.error("Unexpected exception while handling echoBinary: ", err);
+            console.error("Unexpected exception while handling echoBinary:", err);
             const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("echoBinary", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);
@@ -2795,7 +2795,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             output.flush();
             return;
         }).catch((err: Error): void => {
-            console.error("Unexpected exception while handling echoString: ", err);
+            console.error("Unexpected exception while handling echoString:", err);
             const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("echoString", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);
@@ -2822,7 +2822,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             output.flush();
             return;
         }).catch((err: Error): void => {
-            console.error("Unexpected exception while handling checkName: ", err);
+            console.error("Unexpected exception while handling checkName:", err);
             const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("checkName", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);
@@ -2849,7 +2849,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             output.flush();
             return;
         }).catch((err: Error): void => {
-            console.error("Unexpected exception while handling checkOptional: ", err);
+            console.error("Unexpected exception while handling checkOptional:", err);
             const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("checkOptional", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);
@@ -2876,7 +2876,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             output.flush();
             return;
         }).catch((err: Error): void => {
-            console.error("Unexpected exception while handling mapOneList: ", err);
+            console.error("Unexpected exception while handling mapOneList:", err);
             const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("mapOneList", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);
@@ -2903,7 +2903,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             output.flush();
             return;
         }).catch((err: Error): void => {
-            console.error("Unexpected exception while handling mapValues: ", err);
+            console.error("Unexpected exception while handling mapValues:", err);
             const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("mapValues", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);
@@ -2930,7 +2930,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             output.flush();
             return;
         }).catch((err: Error): void => {
-            console.error("Unexpected exception while handling listToMap: ", err);
+            console.error("Unexpected exception while handling listToMap:", err);
             const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("listToMap", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);
@@ -2956,7 +2956,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             output.flush();
             return;
         }).catch((err: Error): void => {
-            console.error("Unexpected exception while handling fetchThing: ", err);
+            console.error("Unexpected exception while handling fetchThing:", err);
             const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("fetchThing", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);
@@ -2982,7 +2982,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             output.flush();
             return;
         }).catch((err: Error): void => {
-            console.error("Unexpected exception while handling fetchMap: ", err);
+            console.error("Unexpected exception while handling fetchMap:", err);
             const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("fetchMap", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);
@@ -3008,7 +3008,7 @@ export class Processor extends __ROOT_NAMESPACE__.SharedService.Processor {
             output.flush();
             return;
         }).catch((err: Error): void => {
-            console.error("Unexpected exception while handling zip: ", err);
+            console.error("Unexpected exception while handling zip:", err);
             const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("zip", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);

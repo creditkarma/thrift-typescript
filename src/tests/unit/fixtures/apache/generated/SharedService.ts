@@ -368,7 +368,7 @@ export class Processor extends SharedServiceBase.Processor {
             output.flush();
             return;
         }).catch((err: Error): void => {
-            console.error("Unexpected exception while handling getUnion: ", err);
+            console.error("Unexpected exception while handling getUnion:", err);
             const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("getUnion", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);
@@ -394,7 +394,7 @@ export class Processor extends SharedServiceBase.Processor {
             output.flush();
             return;
         }).catch((err: Error): void => {
-            console.error("Unexpected exception while handling getEnum: ", err);
+            console.error("Unexpected exception while handling getEnum:", err);
             const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("getEnum", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);

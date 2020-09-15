@@ -600,7 +600,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
                 return output.flush();
             }
             else {
-                console.error("Unexpected exception while handling peg: ", err);
+                console.error("Unexpected exception while handling peg:", err);
                 const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
                 output.writeMessageBegin("peg", thrift.MessageType.EXCEPTION, requestId);
                 thrift.TApplicationExceptionCodec.encode(result, output);
@@ -626,7 +626,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
-            console.error("Unexpected exception while handling pong: ", err);
+            console.error("Unexpected exception while handling pong:", err);
             const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("pong", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);

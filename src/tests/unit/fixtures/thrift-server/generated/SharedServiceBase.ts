@@ -295,7 +295,7 @@ export class Processor<Context = any> extends thrift.ThriftProcessor<Context, IH
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
-            console.error("Unexpected exception while handling getStruct: ", err);
+            console.error("Unexpected exception while handling getStruct:", err);
             const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
             output.writeMessageBegin("getStruct", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
