@@ -30,3 +30,8 @@ union OtherCommonUnion {
 
 typedef AuthException NotAllowed
 typedef OtherCommonUnion MoreOptions
+
+const map<shared.SharedEnum, string> EnumKeyMap = {
+  shared.SharedEnum.value1: "value1",
+  shared.SharedEnum.value2: "value2",
+}
