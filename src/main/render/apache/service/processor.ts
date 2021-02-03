@@ -303,11 +303,13 @@ export function renderProcessor(
 //             result.populate({{{throwName}}: err as {{throwType}}})
 //             output.writeMessageBegin("{{name}}", Thrift.MessageType.REPLY, seqid)
 //         } else {{/throws}}{
+//             console.error('Unexpected exception...', err)
 //             result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
 //             output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
 //         }
 //         {{/hasThrows}}
 //         {{^hasThrows}}
+//         console.error('Unexpected exception...', err)
 //         result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
 //         output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, seqid)
 //         {{/hasThrows}}
@@ -568,6 +570,13 @@ function createElseForExceptions(
     } else {
         return ts.createBlock(
             [
+                // console.error('Unexpected exception...', err)
+                createMethodCallStatement(COMMON_IDENTIFIERS.console, 'error', [
+                    ts.createLiteral(
+                        `Unexpected exception while handling ${funcDef.name.value}:`,
+                    ),
+                    COMMON_IDENTIFIERS.err,
+                ]),
                 // const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
                 createConstStatement(
                     COMMON_IDENTIFIERS.result,
@@ -708,6 +717,13 @@ function createExceptionHandlers(
         return [createIfForExceptions(funcDef.throws, funcDef, state)]
     } else {
         return [
+            // console.error('Unexpected exception...', err)
+            createMethodCallStatement(COMMON_IDENTIFIERS.console, 'error', [
+                ts.createLiteral(
+                    `Unexpected exception while handling ${funcDef.name.value}:`,
+                ),
+                COMMON_IDENTIFIERS.err,
+            ]),
             // const result: Thrift.TApplicationException = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
             createConstStatement(
                 COMMON_IDENTIFIERS.result,

@@ -83,4 +83,5 @@ export const COMMON_IDENTIFIERS = {
     Node_Int64: ts.createIdentifier('Int64'),
     readStructBegin: ts.createIdentifier('readStructBegin'),
     readStructEnd: ts.createIdentifier('readStructEnd'),
+    console: ts.createIdentifier('console'),
 }

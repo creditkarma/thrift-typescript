@@ -534,6 +534,13 @@ function createElseForExceptions(
     } else {
         return ts.createBlock(
             [
+                // console.error('Unexpected exception...', err)
+                createMethodCallStatement(COMMON_IDENTIFIERS.console, 'error', [
+                    ts.createLiteral(
+                        `Unexpected exception while handling ${funcDef.name.value}:`,
+                    ),
+                    COMMON_IDENTIFIERS.err,
+                ]),
                 // const result: Thrift.TApplicationException = new thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
                 createConstStatement(
                     COMMON_IDENTIFIERS.result,
@@ -674,6 +681,13 @@ function createExceptionHandlers(
         return [createIfForExceptions(funcDef.throws, funcDef, state)]
     } else {
         return [
+            // console.error('Unexpected exception...', err)
+            createMethodCallStatement(COMMON_IDENTIFIERS.console, 'error', [
+                ts.createLiteral(
+                    `Unexpected exception while handling ${funcDef.name.value}:`,
+                ),
+                COMMON_IDENTIFIERS.err,
+            ]),
             // const result: Thrift.TApplicationException = new thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
             createConstStatement(
                 COMMON_IDENTIFIERS.result,
