@@ -216,7 +216,7 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IGetStruct__Result = GetStruct__ResultCodec.decode(input);
+                        const result: GetStruct__Result = GetStruct__Result.read(input);
                         input.readMessageEnd();
                         if (result.success != null) {
                             return Promise.resolve(result.success);

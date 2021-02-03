@@ -200,7 +200,7 @@ export class Client<Context = any> extends thrift.ThriftClient<Context> {
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IPing__Result = Ping__ResultCodec.decode(input);
+                        const result: Ping__Result = Ping__Result.read(input);
                         input.readMessageEnd();
                         return Promise.resolve(result.success);
                     }

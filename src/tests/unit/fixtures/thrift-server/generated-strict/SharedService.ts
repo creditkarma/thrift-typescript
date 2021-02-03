@@ -359,7 +359,7 @@ export class Client<Context = any> extends SharedServiceBase.Client<Context> {
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IGetUnion__Result = GetUnion__ResultCodec.decode(input);
+                        const result: GetUnion__Result = GetUnion__Result.read(input);
                         input.readMessageEnd();
                         if (result.success != null) {
                             return Promise.resolve(result.success);
@@ -397,7 +397,7 @@ export class Client<Context = any> extends SharedServiceBase.Client<Context> {
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IGetEnum__Result = GetEnum__ResultCodec.decode(input);
+                        const result: GetEnum__Result = GetEnum__Result.read(input);
                         input.readMessageEnd();
                         if (result.success != null) {
                             return Promise.resolve(result.success);

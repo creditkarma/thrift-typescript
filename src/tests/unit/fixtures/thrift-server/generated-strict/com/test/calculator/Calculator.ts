@@ -2758,7 +2758,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IPing__Result = Ping__ResultCodec.decode(input);
+                        const result: Ping__Result = Ping__Result.read(input);
                         input.readMessageEnd();
                         return Promise.resolve(result.success);
                     }
@@ -2791,7 +2791,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IAdd__Result = Add__ResultCodec.decode(input);
+                        const result: Add__Result = Add__Result.read(input);
                         input.readMessageEnd();
                         if (result.exp != null) {
                             return Promise.reject(result.exp);
@@ -2832,7 +2832,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IAddInt64__Result = AddInt64__ResultCodec.decode(input);
+                        const result: AddInt64__Result = AddInt64__Result.read(input);
                         input.readMessageEnd();
                         if (result.exp != null) {
                             return Promise.reject(result.exp);
@@ -2873,7 +2873,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IAddWithContext__Result = AddWithContext__ResultCodec.decode(input);
+                        const result: AddWithContext__Result = AddWithContext__Result.read(input);
                         input.readMessageEnd();
                         if (result.success != null) {
                             return Promise.resolve(result.success);
@@ -2911,7 +2911,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
                         return Promise.reject(err);
                     }
                     else {
-                        const result: ICalculate__Result = Calculate__ResultCodec.decode(input);
+                        const result: Calculate__Result = Calculate__Result.read(input);
                         input.readMessageEnd();
                         if (result.ouch != null) {
                             return Promise.reject(result.ouch);
@@ -2952,7 +2952,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IEchoBinary__Result = EchoBinary__ResultCodec.decode(input);
+                        const result: EchoBinary__Result = EchoBinary__Result.read(input);
                         input.readMessageEnd();
                         if (result.success != null) {
                             return Promise.resolve(result.success);
@@ -2990,7 +2990,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IEchoString__Result = EchoString__ResultCodec.decode(input);
+                        const result: EchoString__Result = EchoString__Result.read(input);
                         input.readMessageEnd();
                         if (result.success != null) {
                             return Promise.resolve(result.success);
@@ -3028,7 +3028,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
                         return Promise.reject(err);
                     }
                     else {
-                        const result: ICheckName__Result = CheckName__ResultCodec.decode(input);
+                        const result: CheckName__Result = CheckName__Result.read(input);
                         input.readMessageEnd();
                         if (result.success != null) {
                             return Promise.resolve(result.success);
@@ -3066,7 +3066,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
                         return Promise.reject(err);
                     }
                     else {
-                        const result: ICheckOptional__Result = CheckOptional__ResultCodec.decode(input);
+                        const result: CheckOptional__Result = CheckOptional__Result.read(input);
                         input.readMessageEnd();
                         if (result.success != null) {
                             return Promise.resolve(result.success);
@@ -3104,7 +3104,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IMapOneList__Result = MapOneList__ResultCodec.decode(input);
+                        const result: MapOneList__Result = MapOneList__Result.read(input);
                         input.readMessageEnd();
                         if (result.success != null) {
                             return Promise.resolve(result.success);
@@ -3142,7 +3142,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IMapValues__Result = MapValues__ResultCodec.decode(input);
+                        const result: MapValues__Result = MapValues__Result.read(input);
                         input.readMessageEnd();
                         if (result.success != null) {
                             return Promise.resolve(result.success);
@@ -3180,7 +3180,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IListToMap__Result = ListToMap__ResultCodec.decode(input);
+                        const result: ListToMap__Result = ListToMap__Result.read(input);
                         input.readMessageEnd();
                         if (result.success != null) {
                             return Promise.resolve(result.success);
@@ -3218,7 +3218,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IFetchThing__Result = FetchThing__ResultCodec.decode(input);
+                        const result: FetchThing__Result = FetchThing__Result.read(input);
                         input.readMessageEnd();
                         if (result.success != null) {
                             return Promise.resolve(result.success);
@@ -3256,7 +3256,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IFetchMap__Result = FetchMap__ResultCodec.decode(input);
+                        const result: FetchMap__Result = FetchMap__Result.read(input);
                         input.readMessageEnd();
                         if (result.success != null) {
                             return Promise.resolve(result.success);
@@ -3294,7 +3294,7 @@ export class Client<Context = any> extends __ROOT_NAMESPACE__.SharedService.Clie
                         return Promise.reject(err);
                     }
                     else {
-                        const result: IZip__Result = Zip__ResultCodec.decode(input);
+                        const result: Zip__Result = Zip__Result.read(input);
                         input.readMessageEnd();
                         return Promise.resolve(result.success);
                     }
