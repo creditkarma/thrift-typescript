@@ -133,6 +133,15 @@ export function extendsAbstract(): ts.HeritageClause {
     ])
 }
 
+export function extendsAbstractError(): ts.HeritageClause {
+    return ts.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
+        ts.createExpressionWithTypeArguments(
+            [],
+            THRIFT_IDENTIFIERS.ErrorStructLike,
+        ),
+    ])
+}
+
 export function implementsInterface(
     node: InterfaceWithFields,
     state: IRenderState,

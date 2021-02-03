@@ -33,6 +33,7 @@ export const THRIFT_IDENTIFIERS = {
         'thrift.InputBufferUnderrunError',
     ),
     StructLike: ts.createIdentifier('thrift.StructLike'),
+    ErrorStructLike: ts.createIdentifier('thrift.ErrorStructLike'),
 }
 
 export const THRIFT_TYPES = {

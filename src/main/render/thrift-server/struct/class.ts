@@ -27,6 +27,7 @@ import {
     classNameForStruct,
     createSuperCall,
     extendsAbstract,
+    extendsAbstractError,
     implementsInterface,
     looseNameForStruct,
     throwForField,
@@ -38,6 +39,7 @@ export function renderClass(
     node: InterfaceWithFields,
     state: IRenderState,
     isExported: boolean,
+    extendError: boolean = false,
 ): ts.ClassDeclaration {
     const fields: Array<ts.PropertyDeclaration> = [
         ...createFieldsForStruct(node, state),
@@ -97,7 +99,10 @@ export function renderClass(
         tokens(isExported),
         classNameForStruct(node, state).replace('__NAMESPACE__', ''),
         [],
-        [extendsAbstract(), implementsInterface(node, state)], // heritage
+        [
+            extendError ? extendsAbstractError() : extendsAbstract(),
+            implementsInterface(node, state),
+        ], // heritage
         [
             ...fields,
             ctor,

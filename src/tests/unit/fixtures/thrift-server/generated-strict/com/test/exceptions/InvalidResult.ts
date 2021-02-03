@@ -79,7 +79,7 @@ export const InvalidResultCodec: thrift.IStructCodec<IInvalidResultArgs, IInvali
         };
     }
 };
-export class InvalidResult extends thrift.StructLike implements IInvalidResult {
+export class InvalidResult extends thrift.ErrorStructLike implements IInvalidResult {
     public message?: string;
     public code?: __ROOT_NAMESPACE__.ICode;
     public readonly __name = "InvalidResult";

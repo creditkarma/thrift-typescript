@@ -93,7 +93,7 @@ export const NotAGoodIdeaCodec: thrift.IStructCodec<INotAGoodIdeaArgs, INotAGood
         };
     }
 };
-export class NotAGoodIdea extends thrift.StructLike implements INotAGoodIdea {
+export class NotAGoodIdea extends thrift.ErrorStructLike implements INotAGoodIdea {
     public message?: string;
     public data?: TypedMap.TypedMap;
     public readonly __name = "NotAGoodIdea";
