@@ -5,4 +5,4 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 */
 export const INT32CONSTANT: number = 9853;
-export const MAPCONSTANT: Map<string, string> = new Map([["hello", "world"], ["goodnight", "moon"]]);
+export const MAPCONSTANT: Map<string, string> = new Map<string, string>([["hello", "world"], ["goodnight", "moon"]]);

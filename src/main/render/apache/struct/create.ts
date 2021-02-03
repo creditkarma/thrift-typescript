@@ -55,9 +55,9 @@ export function renderStruct(
         createFieldAssignment,
     )
 
-    const argsParameter: Array<
-        ts.ParameterDeclaration
-    > = createArgsParameterForStruct(node)
+    const argsParameter: Array<ts.ParameterDeclaration> = createArgsParameterForStruct(
+        node,
+    )
 
     // Build the constructor body
     const ctor: ts.ConstructorDeclaration = createClassConstructor(

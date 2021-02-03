@@ -93,9 +93,9 @@ export function renderUnion(
         undefined, // else
     )
 
-    const argsParameter: Array<
-        ts.ParameterDeclaration
-    > = createArgsParameterForStruct(node)
+    const argsParameter: Array<ts.ParameterDeclaration> = createArgsParameterForStruct(
+        node,
+    )
 
     // let fieldsSet: number = 0;
     const fieldsSet: ts.VariableStatement = createFieldIncrementer()

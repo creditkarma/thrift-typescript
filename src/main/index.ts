@@ -158,9 +158,9 @@ export function thriftProjectFromSourceFiles(
         {},
     )
 
-    const resolvedInvalidFiles: Array<
-        INamespace
-    > = Debugger.collectInvalidFiles(Utils.valuesForObject(resolvedNamespaces))
+    const resolvedInvalidFiles: Array<INamespace> = Debugger.collectInvalidFiles(
+        Utils.valuesForObject(resolvedNamespaces),
+    )
 
     if (resolvedInvalidFiles.length > 0) {
         Debugger.printErrors(resolvedInvalidFiles)
@@ -174,9 +174,7 @@ export function thriftProjectFromSourceFiles(
             return acc
         }, {})
 
-        const validatedInvalidFiles: Array<
-            INamespace
-        > = Debugger.collectInvalidFiles(
+        const validatedInvalidFiles: Array<INamespace> = Debugger.collectInvalidFiles(
             Utils.valuesForObject(validatedNamespaces),
         )
 
