@@ -483,7 +483,7 @@ export class Processor {
                 return;
             }
             else {
-                const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+                const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
                 output.writeMessageBegin("peg", thrift.Thrift.MessageType.EXCEPTION, requestId);
                 result.write(output);
                 output.writeMessageEnd();

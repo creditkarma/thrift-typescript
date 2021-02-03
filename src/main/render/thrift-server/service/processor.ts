@@ -60,6 +60,8 @@ import {
 
 import { Resolver } from '../../../resolver'
 
+import { MESSAGES } from '../../shared/messages'
+
 import { collectAllMethods } from '../../shared/service'
 
 import {
@@ -534,7 +536,10 @@ function createElseForExceptions(
     } else {
         return ts.createBlock(
             [
-                // const result: Thrift.TApplicationException = new thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
+                // const result: Thrift.TApplicationException = new thrift.TApplicationException(
+                //     Thrift.TApplicationExceptionType.UNKNOWN,
+                //     "The server experienced...",
+                // )
                 createConstStatement(
                     COMMON_IDENTIFIERS.result,
                     ts.createTypeReferenceNode(
@@ -543,7 +548,7 @@ function createElseForExceptions(
                     ),
                     createApplicationException(
                         'UNKNOWN',
-                        ts.createIdentifier('err.message'),
+                        ts.createLiteral(MESSAGES.unexpectedException),
                     ),
                 ),
                 // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, requestId)
@@ -674,7 +679,10 @@ function createExceptionHandlers(
         return [createIfForExceptions(funcDef.throws, funcDef, state)]
     } else {
         return [
-            // const result: Thrift.TApplicationException = new thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message)
+            // const result: Thrift.TApplicationException = new thrift.TApplicationException(
+            //     Thrift.TApplicationExceptionType.UNKNOWN,
+            //     "The server experienced..."
+            // )
             createConstStatement(
                 COMMON_IDENTIFIERS.result,
                 ts.createTypeReferenceNode(
@@ -683,7 +691,7 @@ function createExceptionHandlers(
                 ),
                 createApplicationException(
                     'UNKNOWN',
-                    ts.createIdentifier('err.message'),
+                    ts.createLiteral(MESSAGES.unexpectedException),
                 ),
             ),
             // output.writeMessageBegin("{{name}}", Thrift.MessageType.EXCEPTION, requestId)

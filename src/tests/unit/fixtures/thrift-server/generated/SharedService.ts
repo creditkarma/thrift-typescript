@@ -488,7 +488,7 @@ export class Processor<Context = any> extends SharedServiceBase.Processor<Contex
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
-            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
             output.writeMessageBegin("getUnion", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
             output.writeMessageEnd();
@@ -511,7 +511,7 @@ export class Processor<Context = any> extends SharedServiceBase.Processor<Contex
             output.writeMessageEnd();
             return output.flush();
         }).catch((err: Error): Buffer => {
-            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            const result: thrift.TApplicationException = new thrift.TApplicationException(thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
             output.writeMessageBegin("getEnum", thrift.MessageType.EXCEPTION, requestId);
             thrift.TApplicationExceptionCodec.encode(result, output);
             output.writeMessageEnd();

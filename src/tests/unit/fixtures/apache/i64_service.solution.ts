@@ -255,7 +255,7 @@ export class Processor {
             output.flush();
             return;
         }).catch((err: Error): void => {
-            const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+            const result: thrift.Thrift.TApplicationException = new thrift.Thrift.TApplicationException(thrift.Thrift.TApplicationExceptionType.UNKNOWN, "The server experienced an unexpected exception while processing the request.");
             output.writeMessageBegin("add", thrift.Thrift.MessageType.EXCEPTION, requestId);
             result.write(output);
             output.writeMessageEnd();
