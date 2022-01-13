@@ -48,7 +48,7 @@ export function renderImports(
         ..._renderIncludes(statements, state),
     ]
 
-    if (statementsUseThrift(statements)) {
+    if (statementsUseThrift(statements) && !state.options.omitThriftLibImport) {
         includes.unshift(renderThriftImports(state.options.library))
     }
 

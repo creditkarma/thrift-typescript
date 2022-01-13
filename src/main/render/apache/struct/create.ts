@@ -14,6 +14,7 @@ import {
     hasRequiredField,
     propertyAccessForIdentifier,
     renderOptional,
+    throwDefaultException,
     throwProtocolException,
 } from '../utils'
 
@@ -52,7 +53,12 @@ export function renderStruct(
      * Optional fields we must allow to be null or undefined.
      */
     const fieldAssignments: Array<ts.IfStatement> = node.fields.map(
-        createFieldAssignment,
+        (value: FieldDefinition) => {
+            return createFieldAssignment(
+                value,
+                state.options.omitThriftLibImport,
+            )
+        },
     )
 
     const argsParameter: Array<
@@ -65,11 +71,18 @@ export function renderStruct(
         [...fieldAssignments],
     )
 
-    // Build the `read` method
-    const readMethod: ts.MethodDeclaration = createReadMethod(node, state)
+    const members: Array<ts.ClassElement> = [...fields, ctor]
 
-    // Build the `write` method
-    const writeMethod: ts.MethodDeclaration = createWriteMethod(node, state)
+    if (!state.options.omitProtocolReaders) {
+        // Build the `read` method
+        const readMethod: ts.MethodDeclaration = createReadMethod(node, state)
+
+        // Build the `write` method
+        const writeMethod: ts.MethodDeclaration = createWriteMethod(node, state)
+
+        members.push(writeMethod)
+        members.push(readMethod)
+    }
 
     // export class <node.name> { ... }
     return ts.createClassDeclaration(
@@ -78,7 +91,7 @@ export function renderStruct(
         node.name.value,
         [],
         [], // heritage
-        [...fields, ctor, writeMethod, readMethod],
+        members,
     )
 }
 
@@ -161,12 +174,19 @@ export function assignmentForField(field: FieldDefinition): ts.Statement {
  */
 export function throwForField(
     field: FieldDefinition,
+    useDefaultException: boolean = false,
 ): ts.ThrowStatement | undefined {
     if (field.requiredness === 'required') {
-        return throwProtocolException(
-            'UNKNOWN',
-            `Required field[${field.name.value}] is unset!`,
-        )
+        if (!useDefaultException) {
+            return throwProtocolException(
+                'UNKNOWN',
+                `Required field[${field.name.value}] is unset!`,
+            )
+        } else {
+            return throwDefaultException(
+                `Required field[${field.name.value}] is unset!`,
+            )
+        }
     } else {
         return undefined
     }
@@ -185,7 +205,10 @@ export function throwForField(
  *   throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field {{fieldName}} is unset!')
  * }
  */
-export function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
+export function createFieldAssignment(
+    field: FieldDefinition,
+    useDefaultException: boolean,
+): ts.IfStatement {
     const isArgsNull: ts.BinaryExpression = createNotNullCheck('args')
     const isValue: ts.BinaryExpression = createNotNullCheck(
         `args.${field.name.value}`,
@@ -196,7 +219,10 @@ export function createFieldAssignment(field: FieldDefinition): ts.IfStatement {
         isValue,
     )
     const thenAssign: ts.Statement = assignmentForField(field)
-    const elseThrow: ts.Statement | undefined = throwForField(field)
+    const elseThrow: ts.Statement | undefined = throwForField(
+        field,
+        useDefaultException,
+    )
 
     return ts.createIf(
         comparison,

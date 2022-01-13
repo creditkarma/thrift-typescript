@@ -158,6 +158,12 @@ export interface IMakeOptions {
 
     // Should we render the __name field on struct-like objects
     withNameField: boolean
+
+    // Should we just create the constructor without the protocol readers?
+    omitProtocolReaders: boolean
+
+    // Omit thrift library imports
+    omitThriftLibImport: boolean
 }
 
 export interface IThriftFiles {

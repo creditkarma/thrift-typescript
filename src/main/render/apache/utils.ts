@@ -10,6 +10,7 @@ import { TApplicationException, TProtocolException } from './types'
 
 import {
     APPLICATION_EXCEPTION,
+    DEFAULT_IDENTIFIERS,
     PROTOCOL_EXCEPTION,
     THRIFT_IDENTIFIERS,
 } from './identifiers'
@@ -24,6 +25,16 @@ export function createProtocolException(
     const errType = PROTOCOL_EXCEPTION[type]
     const errArgs = [errType, ts.createLiteral(message)]
     return ts.createNew(errCtor, undefined, errArgs)
+}
+
+export function createDefaultException(message: string): ts.NewExpression {
+    const errCtor = DEFAULT_IDENTIFIERS.Exception
+    const errArgs = [ts.createLiteral(message)]
+    return ts.createNew(errCtor, undefined, errArgs)
+}
+
+export function throwDefaultException(message: string): ts.ThrowStatement {
+    return ts.createThrow(createDefaultException(message))
 }
 
 export function throwProtocolException(

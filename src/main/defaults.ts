@@ -16,6 +16,8 @@ export const DEFAULT_OPTIONS: IMakeOptions = {
     strictUnionsComplexNames: false,
     fallbackNamespace: 'java',
     withNameField: false,
+    omitProtocolReaders: false,
+    omitThriftLibImport: false,
 }
 
 export function defaultLibrary(options: Partial<IMakeOptions>): string {

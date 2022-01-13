@@ -84,6 +84,16 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                 index += 1
                 break
 
+            case '--omitProtocolReaders':
+                options.omitProtocolReaders = true
+                index += 1
+                break
+
+            case '--omitThriftLibImport':
+                options.omitThriftLibImport = true
+                index += 1
+                break
+
             default:
                 if (next.startsWith('--')) {
                     throw new Error(

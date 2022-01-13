@@ -2,6 +2,10 @@ import * as ts from 'typescript'
 
 export * from '../shared/identifiers'
 
+export const DEFAULT_IDENTIFIERS = {
+    Exception: ts.createIdentifier('Error'),
+}
+
 export const THRIFT_IDENTIFIERS = {
     TMessage: ts.createIdentifier('thrift.TMessage'),
     TField: ts.createIdentifier('thrift.TField'),
