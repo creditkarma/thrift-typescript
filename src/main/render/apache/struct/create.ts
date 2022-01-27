@@ -39,6 +39,15 @@ export function renderStruct(
         state,
     )
 
+    let nodeFields = node.fields
+
+    if (state.options.useInterfacesWithFunctions) {
+        // if default value exists, no need to set in args
+        nodeFields = nodeFields.filter((field: FieldDefinition) => {
+            return field.defaultValue == null
+        })
+    }
+
     /**
      * After creating the properties on our class for the struct fields we must create
      * a constructor that knows how to assign these values based on a passed args.
@@ -52,14 +61,16 @@ export function renderStruct(
      * If a required argument is not on the passed 'args' argument we need to throw on error.
      * Optional fields we must allow to be null or undefined.
      */
-    const fieldAssignments: Array<ts.IfStatement> = node.fields.map(
-        (value: FieldDefinition) => {
+    const fieldAssignments: Array<ts.IfStatement> = nodeFields
+        .filter((field: FieldDefinition) => {
+            return field.defaultValue == null
+        })
+        .map((value: FieldDefinition) => {
             return createFieldAssignment(
                 value,
                 state.options.omitThriftLibImport,
             )
-        },
-    )
+        })
 
     const argsParameter: Array<
         ts.ParameterDeclaration

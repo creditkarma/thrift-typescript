@@ -39,7 +39,16 @@ export function renderInterface(
     statement: InterfaceWithFields,
     state: IRenderState,
 ): ts.InterfaceDeclaration {
-    const signatures = statement.fields.map((field: FieldDefinition) => {
+    let fields = statement.fields
+
+    if (state.options.useInterfacesWithFunctions) {
+        // if default value exists, no need to set in args
+        fields = fields.filter((field: FieldDefinition) => {
+            return field.defaultValue == null
+        })
+    }
+
+    const signatures = fields.map((field: FieldDefinition) => {
         return ts.createPropertySignature(
             undefined,
             field.name.value,
@@ -53,6 +62,33 @@ export function renderInterface(
         undefined,
         [ts.createToken(ts.SyntaxKind.ExportKeyword)],
         interfaceNameForClass(statement),
+        [],
+        [],
+        signatures,
+    )
+}
+
+export function renderFullInterface(
+    statement: InterfaceWithFields,
+    state: IRenderState,
+): ts.InterfaceDeclaration {
+    const signatures = statement.fields.map((field: FieldDefinition) => {
+        return ts.createPropertySignature(
+            state.options.useInterfacesWithFunctions &&
+                field.defaultValue != null
+                ? [ts.createModifier(ts.SyntaxKind.ReadonlyKeyword)]
+                : undefined,
+            field.name.value,
+            renderOptional(field.requiredness),
+            typeNodeForFieldType(field.fieldType, state, true),
+            undefined,
+        )
+    })
+
+    return ts.createInterfaceDeclaration(
+        undefined,
+        [ts.createToken(ts.SyntaxKind.ExportKeyword)],
+        statement.name.value,
         [],
         [],
         signatures,

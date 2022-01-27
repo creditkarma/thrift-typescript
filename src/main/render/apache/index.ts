@@ -13,7 +13,7 @@ import {
 
 import { renderException as _renderException } from './exception'
 
-import { renderInterface } from './interface'
+import { renderFullInterface, renderInterface } from './interface'
 
 import {
     renderArgsStruct,
@@ -38,6 +38,7 @@ import { renderUnion as _renderUnion } from './union'
 
 import { IRenderer, IRenderState } from '../../types'
 import { renderIndex } from '../shared'
+import { renderFunction } from './function'
 import { typeNodeForFieldType } from './types'
 
 export function renderImports(
@@ -84,7 +85,18 @@ export function renderStruct(
     statement: StructDefinition,
     state: IRenderState,
 ): Array<ts.Statement> {
-    return [renderInterface(statement, state), _renderStruct(statement, state)]
+    if (state.options.useInterfacesWithFunctions) {
+        return [
+            renderInterface(statement, state),
+            renderFullInterface(statement, state),
+            renderFunction(statement, state),
+        ]
+    } else {
+        return [
+            renderInterface(statement, state),
+            _renderStruct(statement, state),
+        ]
+    }
 }
 
 export function renderException(

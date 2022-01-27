@@ -94,6 +94,11 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                 index += 1
                 break
 
+            case '--useInterfacesWithFunctions':
+                options.useInterfacesWithFunctions = true
+                index += 1
+                break
+
             default:
                 if (next.startsWith('--')) {
                     throw new Error(

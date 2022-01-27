@@ -164,6 +164,9 @@ export interface IMakeOptions {
 
     // Omit thrift library imports
     omitThriftLibImport: boolean
+
+    // replace classes with interfaces + functions
+    useInterfacesWithFunctions: boolean
 }
 
 export interface IThriftFiles {

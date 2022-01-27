@@ -18,6 +18,7 @@ export const DEFAULT_OPTIONS: IMakeOptions = {
     withNameField: false,
     omitProtocolReaders: false,
     omitThriftLibImport: false,
+    useInterfacesWithFunctions: false,
 }
 
 export function defaultLibrary(options: Partial<IMakeOptions>): string {
