@@ -1,7 +1,7 @@
 {
-    "name": "@creditkarma/thrift-typescript",
-    "version": "3.7.6",
-    "description": "Generate TypeScript from Thrift IDL files",
+    "name": "@outlook/thrift-typescript",
+    "version": "3.7.7",
+    "description": "Generate TypeScript from Thrift IDL files - forked in kivarsha/thrift-typescript",
     "main": "./dist/main/index.js",
     "types": "./dist/main/index.d.ts",
     "bin": {
@@ -36,10 +36,11 @@
         "rpc"
     ],
     "author": "Credit Karma",
+    "contributors": ["Microsoft Corporation"],
     "license": "Apache-2.0",
     "repository": {
         "type": "git",
-        "url": "https://github.com/creditkarma/thrift-typescript"
+        "url": "https://github.com/kivarsha/thrift-typescript"
     },
     "dependencies": {
         "@creditkarma/thrift-parser": "^1.2.0",
