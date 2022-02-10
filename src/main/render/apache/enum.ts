@@ -2,6 +2,7 @@ import * as ts from 'typescript'
 
 import { EnumDefinition, EnumMember } from '@creditkarma/thrift-parser'
 
+import { IRenderState } from '../../types'
 import { renderIntConstant } from './values'
 
 /**
@@ -19,7 +20,10 @@ import { renderIntConstant } from './values'
  *   TWO
  * }
  */
-export function renderEnum(node: EnumDefinition): ts.Statement {
+export function renderEnum(
+    node: EnumDefinition,
+    state: IRenderState,
+): ts.Statement {
     return ts.createEnumDeclaration(
         undefined, // decorators
         [ts.createToken(ts.SyntaxKind.ExportKeyword)], // modifiers
@@ -28,7 +32,9 @@ export function renderEnum(node: EnumDefinition): ts.Statement {
             return ts.createEnumMember(
                 field.name.value,
                 field.initializer !== null
-                    ? renderIntConstant(field.initializer)
+                    ? state.options.useStringLiteralsForEnums
+                        ? ts.createLiteral(field.name.value)
+                        : renderIntConstant(field.initializer)
                     : undefined,
             )
         }), // enum members

@@ -167,6 +167,9 @@ export interface IMakeOptions {
 
     // replace classes with interfaces + functions
     useInterfacesWithFunctions: boolean
+
+    // replace enum int values with string literals
+    useStringLiteralsForEnums: boolean
 }
 
 export interface IThriftFiles {

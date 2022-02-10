@@ -78,7 +78,7 @@ export function renderEnum(
     statement: EnumDefinition,
     state: IRenderState,
 ): Array<ts.Statement> {
-    return [_renderEnum(statement)]
+    return [_renderEnum(statement, state)]
 }
 
 export function renderStruct(

@@ -99,6 +99,11 @@ export function resolveOptions(args: Array<string>): IMakeOptions {
                 index += 1
                 break
 
+            case '--useStringLiteralsForEnums':
+                options.useStringLiteralsForEnums = true
+                index += 1
+                break
+
             default:
                 if (next.startsWith('--')) {
                     throw new Error(
